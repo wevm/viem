@@ -1,0 +1,428 @@
+# Watch Events [event.watch]
+
+Watches incoming event logs, returning a watcher handle.
+
+The watcher subscribes to `logs` with `eth_subscribe` when the Client uses a WebSocket or IPC transport.
+
+Otherwise, the watcher polls an event filter. If the provider does not support filters, the watcher calls `eth_getLogs` for each block range.
+
+The source starts when the first listener or iterator attaches.
+
+## Usage
+
+This example watches incoming event logs, returning a watcher handle.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.event.watch({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+
+watch.onLogs((logs) => console.log(logs))
+// @log: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }]
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.event.watch` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = Actions.event.watch(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+
+watch.onLogs((logs) => console.log(logs))
+// @log: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }]
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Backfill Logs Individually
+
+Set `fromBlock` to start at a known block and `batch: false` to emit each matched log separately.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const watch = client.event.watch({
+  batch: false, // [!code focus]
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  fromBlock: 19_868_020n, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
+### Use an Event Subscription
+
+Set `poll: false` with a WebSocket or IPC transport to use an `eth_subscribe` log subscription.
+
+```ts twoslash
+import { Client, publicActions, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: webSocket(),
+}).extend(publicActions())
+
+const watch = client.event.watch({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+  poll: false, // [!code focus]
+})
+
+watch.onLogs((logs) => console.log(logs))
+```
+
+## Return Value
+
+`Watcher`
+
+A watcher handle with the following members:
+
+#### onLogs
+
+- **Type:** `(fn: (logs: Log[]) => void) => () => void`
+
+Registers a listener invoked with each batch of new event logs. Starts the watcher on first registration. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, { event })
+
+const off = watch.onLogs((logs) => { // [!code focus]
+  console.log(logs) // [!code focus]
+}) // [!code focus]
+
+// later: unregister just this listener
+off()
+```
+
+#### onError
+
+- **Type:** `(fn: (error: Error) => void) => () => void`
+
+Registers a listener invoked when polling for logs fails. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, { event })
+watch.onLogs(() => {})
+
+watch.onError((error) => console.error(error)) // [!code focus]
+```
+
+#### off
+
+- **Type:** `() => void`
+
+Tears down the watcher: removes all listeners, ends all iterators, stops the underlying polling or subscription, and uninstalls the filter. Idempotent and terminal.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, { event })
+watch.onLogs((logs) => console.log(logs))
+
+watch.off() // [!code focus]
+```
+
+#### `[Symbol.asyncIterator]`
+
+- **Type:** `() => AsyncIterableIterator<{ logs: Log[] }>`
+
+Async-iterates emitted event logs. The iterator is a latest-only state stream (it may skip intermediate values under slow consumption) and throws if the source errors.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, { event })
+
+for await (const { logs } of watch) // [!code focus]
+  console.log(logs) // [!code focus]
+```
+
+## Parameters
+
+### address
+
+- **Type:** `Address | Address[]`
+
+Address or list of addresses from which logs originated.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.event.watch(client, {
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### args
+
+- **Type:** Inferred from `event`.
+
+Indexed argument values to filter logs by.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event: AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'),
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### batch
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event,
+  batch: false, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### event
+
+- **Type:** `AbiEvent`
+
+Event to filter and decode logs by. Mutually exclusive with `events`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event: AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### events
+
+- **Type:** `AbiEvent[]`
+
+Events to filter and decode logs by. Mutually exclusive with `event`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.event.watch(client, {
+  events: [ // [!code focus]
+    AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
+    AbiEvent.from('event Approval(address indexed owner, address indexed spender, uint256 value)'), // [!code focus]
+  ], // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### fromBlock
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs. Forces the polling source.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event,
+  fromBlock: 19868020n, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### poll
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket or IPC transports, `true` otherwise
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+```ts twoslash
+import { Actions, Client, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: webSocket() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event,
+  poll: true, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in milliseconds).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event,
+  pollingInterval: 1_000, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether logs must match every indexed and non-indexed argument in `event`.
+
+When `false`, the watcher also emits logs that do not match the full event ABI. These logs can contain partially decoded `args`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const event = AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)')
+// ---cut---
+const watch = Actions.event.watch(client, {
+  event,
+  strict: true, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+## Errors
+
+The watcher forwards RPC and Transport failures to `onError` and asynchronous iterators. Event
+setup can report these concrete errors:
+
+| Error | Description |
+| --- | --- |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

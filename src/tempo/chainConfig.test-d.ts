@@ -1,73 +1,86 @@
-import { MultisigConfig } from 'ox/tempo'
+import type { Address, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
+import type { MultisigConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
-import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
-import { tempoLocalnet } from '../chains/index.js'
-import { createWalletClient } from '../clients/createWalletClient.js'
-import { http } from '../clients/transports/http.js'
 
-test('prepareTransactionRequest preserves tempo transaction type', async () => {
-  const client = createWalletClient({
-    account: '0x',
-    chain: tempoLocalnet,
-    transport: http(),
-  })
+import type { Account, Chain } from 'viem'
+import { tempo } from 'viem/chains'
 
-  const request_action = await prepareTransactionRequest(client, {
-    calls: [],
-    type: 'tempo',
-  })
-  const request_client = await client.prepareTransactionRequest({
-    calls: [],
-    type: 'tempo',
-  })
+import type { Envelope, TransactionRequest } from './chainConfig.js'
 
-  expectTypeOf(request_action.type).toEqualTypeOf<'tempo'>()
-  expectTypeOf(request_client.type).toEqualTypeOf<'tempo'>()
-})
+test('ExtractTransactionRequest: native tempo request shape', () => {
+  type Request = Chain.ExtractTransactionRequest<typeof tempo>
 
-test('prepareTransactionRequest defaults to tempo from tempo-only fields', async () => {
-  const client = createWalletClient({
-    account: '0x',
-    chain: tempoLocalnet,
-    transport: http(),
-  })
-
-  // No explicit `type`: tempo-exclusive fields (`calls`/`feeToken`/`multisig`)
-  // narrow the inferred type to `'tempo'`.
-  const request_calls = await prepareTransactionRequest(client, { calls: [] })
-  expectTypeOf(request_calls.type).toEqualTypeOf<'tempo'>()
-
-  const request_feeToken = await prepareTransactionRequest(client, {
-    feeToken: '0x20c0000000000000000000000000000000000000',
-  })
-  expectTypeOf(request_feeToken.type).toEqualTypeOf<'tempo'>()
-
-  const config = MultisigConfig.from({
-    threshold: 1,
-    owners: [
-      { owner: '0x0000000000000000000000000000000000000001', weight: 1 },
-    ],
-  })
-  const request_multisig = await prepareTransactionRequest(client, {
-    multisig: config,
-  })
-  expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
-})
-
-test('prepareTransactionRequest stays a union when ambiguous', async () => {
-  const client = createWalletClient({
-    account: '0x',
-    chain: tempoLocalnet,
-    transport: http(),
-  })
-
-  // No tempo-exclusive fields: the request matches both built-in and tempo
-  // members, so it must NOT be narrowed to `'tempo'`.
-  const request = await prepareTransactionRequest(client, {
-    to: '0x0000000000000000000000000000000000000000',
-    value: 1n,
-  })
-  expectTypeOf(request.type).toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'tempo'
+  expectTypeOf<Request>().toEqualTypeOf<TransactionRequest>()
+  expectTypeOf<Request['feeToken']>().toEqualTypeOf<
+    Address.Address | undefined
   >()
+  expectTypeOf<Request['feePayer']>().toEqualTypeOf<
+    Account.Account | boolean | undefined
+  >()
+  expectTypeOf<Request['keyType']>().toEqualTypeOf<
+    'secp256k1' | 'p256' | 'webAuthn' | undefined
+  >()
+  expectTypeOf<Request['nonceKey']>().toEqualTypeOf<
+    'expiring' | 'random' | bigint | undefined
+  >()
+  expectTypeOf<Request['multisig']>().toEqualTypeOf<
+    MultisigConfig.Config | undefined
+  >()
+  // Numberish quantities (matching `TransactionRequest.toRpc.Input`).
+  expectTypeOf<Request['gas']>().toEqualTypeOf<
+    Hex.Hex | bigint | number | undefined
+  >()
+})
+
+test('ExtractTransaction: tempo transaction converter output', () => {
+  type Transaction = Chain.ExtractTransaction<typeof tempo>
+
+  expectTypeOf<Transaction>().toHaveProperty('hash')
+  // Tempo-specific fields decoded by the chain converter.
+  type TempoTransaction = Extract<Transaction, { type: 'tempo' }>
+  expectTypeOf<TempoTransaction>().toHaveProperty('calls')
+  expectTypeOf<TempoTransaction>().toHaveProperty('feeToken')
+})
+
+test('ExtractTransactionReceipt: tempo receipt converter output', () => {
+  type Receipt = Chain.ExtractTransactionReceipt<typeof tempo>
+
+  expectTypeOf<Receipt>().toHaveProperty('transactionHash')
+  expectTypeOf<Receipt>().toHaveProperty('feeToken')
+})
+
+test('transaction hooks: envelope round-trips through the chain type', () => {
+  expectTypeOf(tempo.transaction.getSignPayload)
+    .parameter(0)
+    .toEqualTypeOf<Envelope | TxEnvelope.TxEnvelope>()
+  expectTypeOf(tempo.transaction.serialize).returns.toEqualTypeOf<
+    Hex.Hex | undefined
+  >()
+  expectTypeOf(tempo.transaction.toEnvelope).returns.toEqualTypeOf<
+    Envelope | undefined
+  >()
+  expectTypeOf<Envelope['feePayer']>().toEqualTypeOf<
+    Account.Account | boolean | undefined
+  >()
+})
+
+test('chain assigns to the base Chain type', () => {
+  expectTypeOf(tempo).toMatchTypeOf<Chain.Chain>()
+  expectTypeOf(tempo.verifyHash).toMatchTypeOf<Chain.Chain.VerifyHash>()
+})
+
+test('extension record: feeToken and hardfork typed on the chain root', () => {
+  const extended = tempo.extend({
+    feeToken: '0x20c0000000000000000000000000000000000001',
+  })
+  expectTypeOf(extended.feeToken).toMatchTypeOf<Address.Address | undefined>()
+  expectTypeOf<
+    Chain.ExtractExtension<typeof tempo>['feeToken']
+  >().toEqualTypeOf<Address.Address | undefined>()
+})
+
+test('MultisigInit shape', () => {
+  expectTypeOf<
+    NonNullable<TransactionRequest['multisigInit']>['owners']
+  >().toEqualTypeOf<readonly { owner: Address.Address; weight: number }[]>()
 })

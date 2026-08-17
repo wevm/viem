@@ -1,0 +1,22 @@
+// biome-ignore lint/performance/noBarrelFile: namespace module
+export { deposit } from './deposit.js'
+export { depositSync } from './depositSync.js'
+export { encryptedDeposit } from './encryptedDeposit.js'
+export { encryptedDepositSync } from './encryptedDepositSync.js'
+/** Errors thrown by Zone Actions. */
+export * as Errors from './Errors.js'
+export { getAuthorizationTokenInfo } from './getAuthorizationTokenInfo.js'
+export { getEncryptionKey } from './getEncryptionKey.js'
+export { getWithdrawalFee } from './getWithdrawalFee.js'
+export { getZoneInfo } from './getZoneInfo.js'
+export { requestVerifiableWithdrawal } from './requestVerifiableWithdrawal.js'
+export { requestVerifiableWithdrawalSync } from './requestVerifiableWithdrawalSync.js'
+export { requestWithdrawal } from './requestWithdrawal.js'
+export { requestWithdrawalSync } from './requestWithdrawalSync.js'
+export { signAuthorizationToken } from './signAuthorizationToken.js'
+export type {
+  EncryptedPayload,
+  PreparedEncryptedDeposit,
+  PreparedEncryptedDepositRecipient,
+} from './types.js'
+export { waitForTempoBlock } from './waitForTempoBlock.js'

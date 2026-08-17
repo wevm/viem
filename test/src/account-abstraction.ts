@@ -1,265 +1,183 @@
+import { AbiConstructor, AbiParameters, type Address, Hex, Value } from 'ox'
+import { EntryPoint, UserOperation } from 'ox/erc4337'
+
+import { Account, Actions, Client } from 'viem'
+import * as Simple7702SmartAccount from '../../src/erc4337/Simple7702SmartAccount.js'
+import * as SoladySmartAccount from '../../src/erc4337/SoladySmartAccount.js'
 import {
-  VerifyingPaymaster_07,
-  VerifyingPaymaster_08,
+  Simple7702Account08,
+  SoladyAccount06,
+  SoladyAccount07,
+  SoladyAccountFactory06,
+  SoladyAccountFactory07,
+  VerifyingPaymaster07,
+  VerifyingPaymaster08,
 } from '../../contracts/generated.js'
-import {
-  entryPoint06Abi,
-  entryPoint06Address,
-  entryPoint07Address,
-  entryPoint08Address,
-  formatUserOperation,
-  toPackedUserOperation,
-  toSimple7702SmartAccount,
-  toSoladySmartAccount,
-} from '../../src/account-abstraction/index.js'
-import { privateKeyToAccount } from '../../src/accounts/privateKeyToAccount.js'
-import {
-  mine,
-  readContract,
-  sendTransaction,
-  signMessage,
-  writeContract,
-} from '../../src/actions/index.js'
-import {
-  type Account,
-  type Address,
-  type Chain,
-  type Client,
-  concat,
-  encodeAbiParameters,
-  numberToHex,
-  parseEther,
-  type RpcUserOperation,
-  type Transport,
-} from '../../src/index.js'
-// biome-ignore lint/correctness/noUnusedImports: required for inference.
-import type * as _ from '../../src/node_modules/abitype/dist/types/abi.js'
-import { anvilMainnet } from './anvil.js'
-import { accounts } from './constants.js'
-import {
-  createHttpServer,
-  deploy,
-  deploySimple7702Account_08,
-  deploySoladyAccount_06,
-  deploySoladyAccount_07,
-} from './utils.js'
+import * as constants from './constants.js'
+import { getClient, mainnet } from './anvil.js'
+import { deploy } from './contract.js'
+import { createServer } from './http.js'
 
-const client = anvilMainnet.getClient({ account: true })
+const client = getClient(mainnet)
 
+/** Creates funded Simple7702 accounts for EntryPoint 0.9 tests. */
+export async function getSmartAccounts_09() {
+  const smartAccounts = []
+
+  for (const account of constants.accounts) {
+    const smartAccount = await Simple7702SmartAccount.from({
+      client,
+      entryPoint: '0.9',
+      owner: Account.fromPrivateKey(account.privateKey),
+    })
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
+    })
+    smartAccounts.push(smartAccount)
+  }
+
+  await Actions.block.mine(client, { blocks: 1 })
+  return smartAccounts
+}
+
+/** Creates funded Simple7702 accounts for EntryPoint 0.8 tests. */
 export async function getSmartAccounts_08() {
-  const { implementationAddress } = await deploySimple7702Account_08()
+  const { implementationAddress } = await deploySimple7702Account08(client)
+  const smartAccounts = []
 
-  const accounts_ = []
-
-  for (const account of accounts) {
-    const owner = privateKeyToAccount(account.privateKey)
-    const account_ = await toSimple7702SmartAccount({
+  for (const account of constants.accounts) {
+    const smartAccount = await Simple7702SmartAccount.from({
       client,
       implementation: implementationAddress,
-      owner,
+      owner: Account.fromPrivateKey(account.privateKey),
     })
-    await sendTransaction(client, {
-      account: accounts[9].address,
-      to: account_.address,
-      value: parseEther('100'),
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
     })
-    accounts_.push(account_)
+    smartAccounts.push(smartAccount)
   }
 
-  await mine(client, {
-    blocks: 1,
-  })
-
-  return accounts_
+  await Actions.block.mine(client, { blocks: 1 })
+  return smartAccounts
 }
 
+/** Creates funded Solady accounts for EntryPoint 0.7 tests. */
 export async function getSmartAccounts_07() {
-  const { factoryAddress } = await deploySoladyAccount_07()
+  const { factoryAddress } = await deploySoladyAccount07(client)
+  const smartAccounts = []
 
-  const accounts_ = []
-
-  for (const salt of [
-    '0x0',
-    '0x1',
-    '0x2',
-    '0x3',
-    '0x4',
-    '0x5',
-    '0x6',
-    '0x7',
-    '0x8',
-    '0x9',
-  ] as const) {
-    const account = await toSoladySmartAccount({
+  for (const salt of salts) {
+    const smartAccount = await SoladySmartAccount.from({
       client,
       factoryAddress,
-      owner: accounts[0].address,
+      owner: constants.accounts[0].address,
       salt,
     })
-    await sendTransaction(client, {
-      account: accounts[9].address,
-      to: account.address,
-      value: parseEther('100'),
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
     })
-    accounts_.push(account)
+    smartAccounts.push(smartAccount)
   }
 
-  await mine(client, {
-    blocks: 1,
-  })
-
-  return accounts_
+  await Actions.block.mine(client, { blocks: 1 })
+  return smartAccounts
 }
 
+/** Creates funded Solady accounts for EntryPoint 0.6 tests. */
 export async function getSmartAccounts_06() {
-  const { factoryAddress } = await deploySoladyAccount_06()
+  const { factoryAddress } = await deploySoladyAccount06(client)
+  const smartAccounts = []
 
-  const accounts_ = []
-
-  for (const salt of [
-    '0x0',
-    '0x1',
-    '0x2',
-    '0x3',
-    '0x4',
-    '0x5',
-    '0x6',
-    '0x7',
-    '0x8',
-    '0x9',
-  ] as const) {
-    const account = await toSoladySmartAccount({
+  for (const salt of salts) {
+    const smartAccount = await SoladySmartAccount.from({
       client,
       entryPoint: {
-        abi: entryPoint06Abi,
-        address: '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
+        abi: EntryPoint.abiV06,
+        address: EntryPoint.addressV06,
         version: '0.6',
       },
       factoryAddress,
-      owner: accounts[0].address,
+      owner: constants.accounts[0].address,
       salt,
     })
-    await sendTransaction(client, {
-      account: accounts[9].address,
-      to: account.address,
-      value: parseEther('100'),
+    await Actions.transaction.send(client, {
+      account: constants.accounts[9].address,
+      to: smartAccount.address,
+      value: Value.fromEther('100'),
     })
-    accounts_.push(account)
+    smartAccounts.push(smartAccount)
   }
 
-  await mine(client, {
-    blocks: 1,
-  })
-
-  return accounts_
+  await Actions.block.mine(client, { blocks: 1 })
+  return smartAccounts
 }
 
-export async function getVerifyingPaymaster_08() {
-  const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster_08.abi,
-    bytecode: VerifyingPaymaster_08.bytecode.object,
-    args: [entryPoint08Address, client.account.address],
-  })
+const salts = [
+  '0x0',
+  '0x1',
+  '0x2',
+  '0x3',
+  '0x4',
+  '0x5',
+  '0x6',
+  '0x7',
+  '0x8',
+  '0x9',
+] as const
 
-  await writeContract(client, {
-    account: accounts[9].address,
-    abi: VerifyingPaymaster_08.abi,
-    address: contractAddress!,
-    functionName: 'deposit',
-    value: parseEther('100'),
-  })
-  await mine(client, { blocks: 1 })
-
-  return contractAddress!
-}
-
-export async function getVerifyingPaymaster_07() {
-  const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster_07.abi,
-    bytecode: VerifyingPaymaster_07.bytecode.object,
-    args: [entryPoint07Address, client.account.address],
-  })
-
-  await writeContract(client, {
-    account: accounts[9].address,
-    abi: VerifyingPaymaster_07.abi,
-    address: contractAddress!,
-    functionName: 'deposit',
-    value: parseEther('100'),
-  })
-  await mine(client, { blocks: 1 })
-
-  return contractAddress!
-}
-
-export async function getVerifyingPaymaster_06() {
-  const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster_07.abi,
-    bytecode: VerifyingPaymaster_07.bytecode.object,
-    args: [entryPoint06Address, client.account.address],
-  })
-
-  await writeContract(client, {
-    account: accounts[9].address,
-    abi: VerifyingPaymaster_07.abi,
-    address: contractAddress!,
-    functionName: 'deposit',
-    value: parseEther('100'),
-  })
-  await mine(client, { blocks: 1 })
-
-  return contractAddress!
-}
-
+/**
+ * Spins up a real HTTP server implementing the ERC-7677 paymaster RPC
+ * (`pm_getPaymasterStubData` + `pm_getPaymasterData`) backed by a deployed
+ * verifying paymaster. Signs with the paymaster's `verifyingSigner`
+ * (accounts[0]).
+ */
 export async function createVerifyingPaymasterServer(
-  client: Client<Transport, Chain | undefined, Account>,
-  { paymaster }: { paymaster: Address },
+  client: Client.Client,
+  options: { paymaster: Address.Address },
 ) {
+  const { paymaster } = options
+  const owner = Account.fromPrivateKey(constants.accounts[0].privateKey)
+
   async function getPaymasterData(
-    userOperation: RpcUserOperation<'0.7'>,
-    context: any,
+    userOperation: UserOperation.Rpc<'0.7'>,
+    context: { validAfter?: number; validUntil?: number } | undefined,
   ) {
     const validUntil = context?.validUntil ?? 3735928559
     const validAfter = context?.validAfter ?? 4660
 
-    const hash = await readContract(client, {
-      abi: VerifyingPaymaster_07.abi,
+    const timeRange = AbiParameters.encode(
+      [{ type: 'uint48' }, { type: 'uint48' }],
+      [validUntil, validAfter],
+    )
+
+    const hash = await Actions.contract.read(client, {
+      abi: VerifyingPaymaster07.abi,
       address: paymaster,
-      functionName: 'getHash',
       args: [
-        toPackedUserOperation(
-          formatUserOperation({
+        UserOperation.toPacked(
+          UserOperation.fromRpc<'0.7'>({
             ...userOperation,
             paymaster: userOperation.paymaster ?? paymaster,
-            paymasterData:
-              userOperation.paymasterData ??
-              encodeAbiParameters(
-                [{ type: 'uint48' }, { type: 'uint48' }],
-                [validUntil, validAfter],
-              ),
+            paymasterData: userOperation.paymasterData ?? timeRange,
           }),
         ),
         validUntil,
         validAfter,
       ],
+      functionName: 'getHash',
     })
 
-    const signature = await signMessage(client, {
-      message: {
-        raw: hash,
-      },
-    })
-    const paymasterData = concat([
-      encodeAbiParameters(
-        [{ type: 'uint48' }, { type: 'uint48' }],
-        [validUntil, validAfter],
-      ),
-      signature,
-    ])
-    return paymasterData
+    const signature = await owner.signMessage({ message: { raw: hash } })
+    return Hex.concat(timeRange, signature)
   }
 
-  return await createHttpServer((req, res) => {
+  return createServer((req, res) => {
     let data = ''
     req.on('data', (chunk) => {
       data += chunk
@@ -269,21 +187,17 @@ export async function createVerifyingPaymasterServer(
 
       try {
         if (method === 'pm_getPaymasterStubData') {
-          const [userOperation, _, __, context] = params
-
+          const [userOperation, , , context] = params
           const paymasterData = await getPaymasterData(userOperation, context)
-
-          res.writeHead(200, {
-            'Content-Type': 'application/json',
-          })
+          res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(
             JSON.stringify({
               result: {
+                isFinal: false,
                 paymaster,
                 paymasterData,
-                paymasterPostOpGasLimit: numberToHex(1_000_000n),
-                paymasterVerificationGasLimit: numberToHex(1_000_000n),
-                isFinal: false,
+                paymasterPostOpGasLimit: Hex.fromNumber(1_000_000n),
+                paymasterVerificationGasLimit: Hex.fromNumber(1_000_000n),
                 sponsor: { name: 'Viem Sugar Daddy' },
               },
             }),
@@ -291,30 +205,114 @@ export async function createVerifyingPaymasterServer(
         }
 
         if (method === 'pm_getPaymasterData') {
-          const [userOperation, _, __, context] = params
-
+          const [userOperation, , , context] = params
           const paymasterData = await getPaymasterData(userOperation, context)
-
-          res.writeHead(200, {
-            'Content-Type': 'application/json',
-          })
+          res.writeHead(200, { 'Content-Type': 'application/json' })
           res.end(
             JSON.stringify({
               result: {
                 paymaster,
                 paymasterData,
-                paymasterPostOpGasLimit: numberToHex(1_000_000n),
-                paymasterVerificationGasLimit: numberToHex(1_000_000n),
+                paymasterPostOpGasLimit: Hex.fromNumber(1_000_000n),
+                paymasterVerificationGasLimit: Hex.fromNumber(1_000_000n),
               },
             }),
           )
         }
-      } catch (_err) {
-        res.writeHead(500, {
-          'Content-Type': 'application/json',
-        })
+      } catch {
+        res.writeHead(500, { 'Content-Type': 'application/json' })
         res.end(JSON.stringify({ error: 'Internal server error' }))
       }
     })
   })
+}
+
+/** Deploys the ERC-4337 v0.8 Simple7702Account implementation. */
+export async function deploySimple7702Account08(client: Client.Client) {
+  const { address: implementationAddress } = await deploy(client, {
+    bytecode: Simple7702Account08.bytecode.object,
+  })
+  return { implementationAddress }
+}
+
+/** Deploys the Solady (EntryPoint 0.6) account implementation + factory. */
+export async function deploySoladyAccount06(client: Client.Client) {
+  const { address: implementationAddress } = await deploy(client, {
+    bytecode: SoladyAccount06.bytecode.object,
+  })
+  const { address: factoryAddress } = await deploy(client, {
+    bytecode: AbiConstructor.encode(
+      AbiConstructor.fromAbi(SoladyAccountFactory06.abi),
+      {
+        args: [implementationAddress],
+        bytecode: SoladyAccountFactory06.bytecode.object,
+      },
+    ),
+  })
+  return { factoryAddress, implementationAddress }
+}
+
+/** Deploys the Solady (EntryPoint 0.7) account implementation + factory. */
+export async function deploySoladyAccount07(client: Client.Client) {
+  const { address: implementationAddress } = await deploy(client, {
+    bytecode: SoladyAccount07.bytecode.object,
+  })
+  const { address: factoryAddress } = await deploy(client, {
+    bytecode: AbiConstructor.encode(
+      AbiConstructor.fromAbi(SoladyAccountFactory07.abi),
+      {
+        args: [implementationAddress],
+        bytecode: SoladyAccountFactory07.bytecode.object,
+      },
+    ),
+  })
+  return { factoryAddress, implementationAddress }
+}
+
+/** Deploys a funded verifying paymaster against EntryPoint 0.7. */
+export async function deployVerifyingPaymaster07(client: Client.Client) {
+  return deployVerifyingPaymaster(client, {
+    abi: VerifyingPaymaster07.abi,
+    bytecode: VerifyingPaymaster07.bytecode.object,
+    entryPoint: EntryPoint.addressV07,
+  })
+}
+
+/** Deploys a funded verifying paymaster against EntryPoint 0.8. */
+export async function deployVerifyingPaymaster08(client: Client.Client) {
+  return deployVerifyingPaymaster(client, {
+    abi: VerifyingPaymaster08.abi,
+    bytecode: VerifyingPaymaster08.bytecode.object,
+    entryPoint: EntryPoint.addressV08,
+  })
+}
+
+/** Deploys a verifying paymaster and funds its EntryPoint deposit. @internal */
+async function deployVerifyingPaymaster(
+  client: Client.Client,
+  options: {
+    abi: typeof VerifyingPaymaster07.abi | typeof VerifyingPaymaster08.abi
+    bytecode: Hex.Hex
+    entryPoint: Address.Address
+  },
+) {
+  const { abi, bytecode, entryPoint } = options
+
+  const { address } = await deploy(client, {
+    bytecode: AbiConstructor.encode(AbiConstructor.fromAbi(abi), {
+      args: [entryPoint, constants.accounts[0].address],
+      bytecode,
+    }),
+  })
+
+  await Actions.contract.write(client, {
+    abi,
+    account: constants.accounts[9].address,
+    address,
+    functionName: 'deposit',
+    value: Value.fromEther('100'),
+  })
+  await Actions.block.mine(client, { blocks: 1 })
+
+  return address
 }

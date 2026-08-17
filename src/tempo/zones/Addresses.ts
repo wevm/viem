@@ -1,11 +1,13 @@
 import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
 
+/** Zone messenger addresses keyed by parent chain ID and Zone ID. */
 export const messenger = {
   [tempoModerato.id]: {
     1: '0x254356112cCf6f32fAd84F16CC5E0A0cCA17Beb7',
   },
 } as const satisfies Record<number, Record<number, `0x${string}`>>
 
+/** Zone portal addresses keyed by parent chain ID and Zone ID. */
 export const portal = {
   [tempoModerato.id]: {
     1: '0x59831A17340EE14FE136d751EfbeA8b630470fD2',

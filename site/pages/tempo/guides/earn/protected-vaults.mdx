@@ -16,9 +16,9 @@ Eligibility applies to the share recipient, not the account funding a deposit. R
 from the whitelist prevents it from receiving more shares, but does not freeze the shares it already
 holds. Those shares continue to reflect vault value until they are redeemed.
 
-The always-allow sender rule preserves the EarnToken side of an exit. Keep the vault adapter and
+The always-allow sender rule preserves the Earn share side of an exit. Keep the `EarnVault` and
 every other required protocol recipient eligible so an existing holder can transfer shares through
-the adapter and redeem.
+the vault and redeem.
 
 :::warning
 Policy configuration submits three or four sequential transactions and is not atomic. Validate the
@@ -34,22 +34,32 @@ share token's transfer policy.
 
 Read the share token with [`earn.getVault`](/tempo/actions/earn.getVault), then use
 [`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) to create and attach the
-policy. Include every address that must receive EarnToken during normal operation.
+policy. Include every address that must receive Earn shares during normal operation.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const vault = '0x0000000000000000000000000000000000000001'
+const earnVault = '0x0000000000000000000000000000000000000001'
 const accessAdministrator = '0x0000000000000000000000000000000000000002'
+const earnFees = '0x0000000000000000000000000000000000000003'
+const earnRouter = '0x0000000000000000000000000000000000000004'
+const portal = '0x0000000000000000000000000000000000000005'
+const messenger = '0x0000000000000000000000000000000000000006'
+const outbox = '0x0000000000000000000000000000000000000007'
+const feeRecipient = '0x0000000000000000000000000000000000000008'
 const requiredMembers = [
-  vault,
-  '0x0000000000000000000000000000000000000003',
-  '0x0000000000000000000000000000000000000004',
+  earnVault,
+  earnFees,
+  earnRouter,
+  portal,
+  messenger,
+  outbox,
+  feeRecipient,
 ] as const
 
-const { shareToken } = await client.earn.getVault({ vault })
+const { shareToken } = await client.earn.getVault({ vault: earnVault })
 const { policy } = await client.earn.configureExitSafePolicy({
   accessAdministrator,
   initialMembers: requiredMembers,
@@ -70,9 +80,9 @@ await client.earn.validateExitSafePolicy({
 
 :::
 
-The first member is the vault adapter. Replace the other placeholders with the gateway, Portal,
-fee recipient, governance, or other deployment-specific addresses that need to receive EarnToken.
-Store all four returned policy IDs with the deployment record.
+Required members include the `EarnVault`, its `EarnFees` contract, the selected Earn router, Zone
+Portal, messenger, outbox, and every active fee recipient. Add any deployment-specific receiver
+that may receive Earn shares. Store all four returned policy IDs with the deployment record.
 
 [`earn.validateExitSafePolicy`](/tempo/actions/earn.validateExitSafePolicy) checks the token's attached
 policy, its compound components, the whitelist administrator, and every required member's transfer
@@ -115,7 +125,7 @@ const result = await client.earn.depositSync({
 
 :::
 
-Only the EarnToken recipient must pass this eligibility policy. Asset-token policies, receive
+Only the Earn share recipient must pass this eligibility policy. Asset-token policies, receive
 policies, and other account restrictions still apply independently.
 
 ### Update Eligibility
@@ -150,15 +160,15 @@ const eligible = await client.policy.isAuthorized({
 
 :::
 
-Pass `allowed: false` to revoke admission. Do not remove the vault adapter, required gateway
-components, a fee recipient with pending fees, or a receiver with an open asynchronous claim.
-Revalidate all required protocol members after every change.
+Pass `allowed: false` to revoke admission. Do not remove the `EarnVault`, `EarnFees` contract,
+selected Earn router, Portal, messenger, outbox, active fee recipient, or a receiver with an open
+asynchronous claim. Revalidate all required protocol members after every change.
 
 ### Exit After Eligibility Removal
 
-A removed holder cannot receive more EarnToken, but the exit-safe sender policy still lets it read
+A removed holder cannot receive more Earn shares, but the exit-safe sender policy still lets it read
 the position with [`earn.getPosition`](/tempo/actions/earn.getPosition) and send existing shares to
-an eligible vault adapter with [`earn.redeemSync`](/tempo/actions/earn.redeem).
+an eligible `EarnVault` with [`earn.redeemSync`](/tempo/actions/earn.redeem).
 
 :::code-group
 
@@ -182,7 +192,7 @@ const result = await client.earn.redeemSync({
 
 :::
 
-This preserves the EarnToken policy side of the exit. The vault must still support the requested
+This preserves the Earn share policy side of the exit. The vault must still support the requested
 exit, and its asset token and other protocol components must remain operational.
 
 ## Best Practices
@@ -194,7 +204,7 @@ Do not treat the configuration receipts as proof of the final policy. Run
 
 ### Protect Required Recipients
 
-Maintain a deployment-specific list of every protocol address that receives EarnToken. A generic
+Maintain a deployment-specific list of every protocol address that receives Earn shares. A generic
 whitelist update does not protect those addresses from accidental removal.
 
 ### Treat Eligibility as Admission Control

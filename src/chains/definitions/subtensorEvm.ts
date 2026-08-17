@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const subtensorEvm = /*#__PURE__*/ defineChain({
+export const subtensorEvm = /*#__PURE__*/ Chain.from({
   id: 964,
   name: 'Subtensor EVM',
   nativeCurrency: {
@@ -9,16 +10,15 @@ export const subtensorEvm = /*#__PURE__*/ defineChain({
     symbol: 'TAO',
   },
   rpcUrls: {
-    default: {
-      http: ['https://lite.chain.opentensor.ai'],
-    },
+    http: 'https://lite.chain.opentensor.ai',
   },
   blockExplorers: {
-    default: {
-      name: 'Taostats EVM Explorer',
-      url: 'https://evm.taostats.io',
-      apiUrl: 'https://evm.taostats.io/api',
-    },
+    name: 'Taostats EVM Explorer',
+    url: 'https://evm.taostats.io',
+    apiUrl: 'https://evm.taostats.io/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

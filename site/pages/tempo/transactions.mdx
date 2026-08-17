@@ -15,8 +15,8 @@ recommended over Ethereum transactions on Tempo.
 
 With Viem, Tempo properties (like `feeToken`, `feePayer`, `nonceKey`, `validAfter`, and
 `validBefore`) are compatible with any action that sends a transaction. This includes
-[`sendTransaction`](/docs/actions/wallet/sendTransaction),
-[`writeContract`](/docs/contract/writeContract), and all [Tempo Actions](/tempo/actions)
+[`transaction.send`](/docs/actions/wallet/transaction/send),
+[`contract.write`](/docs/actions/wallet/contract/write), and all [Tempo Actions](/tempo/actions)
 (along with their `*Sync` variants).
 
 [See the Tempo Transactions specification](https://docs.tempo.xyz/protocol/transactions#tempo-transactions)
@@ -27,13 +27,13 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Send a Transaction
 
-Use `sendTransactionSync` to send a transaction and wait for its receipt in a single call.
+Use `transaction.sendSync` to send a transaction and wait for its receipt in a single call.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
 })
@@ -56,7 +56,7 @@ automatically swaps to the validator's preferred token.
 import { client } from './viem.config'
 const alphaUsd = '0x20c0000000000000000000000000000000000001'
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   feeToken: alphaUsd, // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
@@ -86,7 +86,7 @@ import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 const feePayer = Account.fromSecp256k1('0x...')
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   feePayer, // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
@@ -112,7 +112,7 @@ Bundle multiple operations into a single atomic transaction with the `calls` fie
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   calls: [ // [!code focus]
     { // [!code focus]
       data: '0xcafebabe00000000000000000000000000000001', // [!code focus]
@@ -164,7 +164,7 @@ const accessKey = Account.fromWebCryptoP256(keyPair, {
 const keyAuthorization = await account.signKeyAuthorization(accessKey)
 
 // 4. Attach key authorization to (next) transaction.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: accessKey, // sign transaction with access key // [!code focus]
   data: '0xdeadbeef',
   keyAuthorization, // [!code focus]
@@ -193,12 +193,12 @@ Send multiple transactions from the same account in parallel by giving each an i
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 const [receipt1, receipt2] = await Promise.all([
-  client.sendTransactionSync({
+  client.transaction.sendSync({
     data: '0xdeadbeef',
     nonceKey: 567n, // [!code focus]
     to: '0xcafebabecafebabecafebabecafebabecafebabe',
   }),
-  client.sendTransactionSync({
+  client.transaction.sendSync({
     data: '0xcafebabe',
     nonceKey: 789n, // [!code focus]
     to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
@@ -226,7 +226,7 @@ the `validAfter` and `validBefore` fields.
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
   validAfter: Math.floor(Number(new Date('2026-01-01')) / 1000), // [!code focus]
@@ -247,19 +247,18 @@ expiry only and other scheduling patterns.
 
 ### Write to a Contract
 
-Contract writes are sent as Tempo Transactions too, so [`writeContract`](/docs/contract/writeContract)
-and [`writeContractSync`](/docs/contract/writeContractSync) accept the same Tempo properties,
+Contract writes are sent as Tempo Transactions too, so [`contract.write`](/docs/actions/wallet/contract/write)
+and [`contract.writeSync`](/docs/actions/wallet/contract/write) accept the same Tempo properties,
 such as `feeToken`.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseAbi } from 'viem'
+import { Abis } from 'viem/utils'
 import { client } from './viem.config'
-const abi = parseAbi(['function approve(address, uint256) returns (bool)'])
 
-const receipt = await client.writeContractSync({
-  abi,
+const receipt = await client.contract.writeSync({
+  abi: Abis.erc20,
   address: '0x20c0000000000000000000000000000000000001',
   functionName: 'approve',
   args: ['0xcafebabecafebabecafebabecafebabecafebabe', 100n],
@@ -281,10 +280,9 @@ send Tempo Transactions, so they accept the same Tempo properties, such as `feeT
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
 import { client } from './viem.config'
 const { receipt } = await client.token.transferSync({
-  amount: parseUnits('10.5', 6),
+  amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: '0x20c0000000000000000000000000000000000000',
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
@@ -301,17 +299,17 @@ const { receipt } = await client.token.transferSync({
 
 ### Prefer Sync Actions
 
-`sendTransactionSync` submits the transaction and resolves with the receipt once it is
-included, removing a manual [`waitForTransactionReceipt`](/docs/actions/public/waitForTransactionReceipt)
+`transaction.sendSync` submits the transaction and resolves with the receipt once it is
+included, removing a manual [`transaction.waitForReceipt`](/docs/actions/public/transaction/waitForReceipt)
 round-trip. Tempo's sub-second finality makes this fast, and it keeps payment flows simple.
 
 ```ts
-const hash = await client.sendTransaction({ // [!code --]
+const hash = await client.transaction.send({ // [!code --]
   data: '0xdeadbeef', // [!code --]
   to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code --]
 }) // [!code --]
-const receipt = await client.waitForTransactionReceipt({ hash }) // [!code --]
-const receipt = await client.sendTransactionSync({ // [!code ++]
+const receipt = await client.transaction.waitForReceipt({ hash }) // [!code --]
+const receipt = await client.transaction.sendSync({ // [!code ++]
   data: '0xdeadbeef', // [!code ++]
   to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code ++]
 }) // [!code ++]
@@ -320,14 +318,13 @@ const receipt = await client.sendTransactionSync({ // [!code ++]
 ### Set a Default Fee Token
 
 Rather than passing `feeToken` on every transaction, set a default globally by passing
-`feeToken` to `createClient`. It applies to all transactions sent with the client.
+`feeToken` to `Client.create`. It applies to all transactions sent with the client.
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient } from 'viem/tempo'
+import { Account, Client } from 'viem/tempo'
 
-export const client = createClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromSecp256k1('0x...'),
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
   testnet: true,
 })

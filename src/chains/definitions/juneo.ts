@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const juneo = /*#__PURE__*/ defineChain({
+export const juneo = /*#__PURE__*/ Chain.from({
   id: 45_003,
   name: 'Juneo JUNE-Chain',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const juneo = /*#__PURE__*/ defineChain({
     name: 'JUNE-Chain',
     symbol: 'JUNE',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.juneo-mainnet.network/ext/bc/JUNE/rpc'] },
-  },
+  rpcUrls: { http: 'https://rpc.juneo-mainnet.network/ext/bc/JUNE/rpc' },
   blockExplorers: {
-    default: {
-      name: 'Juneo Scan',
-      url: 'https://juneoscan.io/chain/2',
-      apiUrl: 'https://juneoscan.io/chain/2/api',
-    },
+    name: 'Juneo Scan',
+    url: 'https://juneoscan.io/chain/2',
+    apiUrl: 'https://juneoscan.io/chain/2/api',
   },
 })

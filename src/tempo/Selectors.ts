@@ -1,17 +1,19 @@
-// Generated with `pnpm gen:abis`. Do not modify manually.
+// Derived from `./Abis.ts` — kept in sync by the `Selectors.test.ts` consistency matrix.
 
 import type { Abi, ExtractAbiFunctionNames } from 'abitype'
-import type { Hex } from '../types/misc.js'
+import type { Hex } from 'ox'
+
 import type * as Abis from './Abis.js'
 
 type FunctionSelectors<abi extends Abi, excluded extends string = never> = {
-  readonly [name in Exclude<ExtractAbiFunctionNames<abi>, excluded>]: Hex
+  readonly [name in Exclude<ExtractAbiFunctionNames<abi>, excluded>]: Hex.Hex
 }
 
 type OverloadedFunctionSelectors<names extends string> = {
-  readonly [name in names]: Record<string, Hex>
+  readonly [name in names]: Record<string, Hex.Hex>
 }
 
+/** Function selectors of the account keychain precompile. */
 export const accountKeychain = {
   authorizeAdminKey: '0x9a424307',
   authorizeKey: {
@@ -39,6 +41,7 @@ export const accountKeychain = {
 > &
   OverloadedFunctionSelectors<'authorizeKey'>
 
+/** Function selectors of the address registry precompile. */
 export const addressRegistry = {
   decodeVirtualAddress: '0xb35d6fb9',
   getMaster: '0xd84ab166',
@@ -49,16 +52,19 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
+/** Function selectors of the nonce manager precompile. */
 export const nonce = {
   getNonce: '0x89535803',
 } as const satisfies FunctionSelectors<typeof Abis.nonce>
 
+/** Function selectors of the receive-policy guard precompile. */
 export const receivePolicyGuard = {
   balanceOf: '0x78415365',
   burnBlockedReceipt: '0x96c1264c',
   claim: '0xbb1757cf',
 } as const satisfies FunctionSelectors<typeof Abis.receivePolicyGuard>
 
+/** Function selectors of the signature verifier precompile. */
 export const signatureVerifier = {
   recover: '0x19045a25',
   verify: '0x1a86b550',
@@ -66,6 +72,7 @@ export const signatureVerifier = {
   verifyKeychainAdmin: '0x5f6fc5b7',
 } as const satisfies FunctionSelectors<typeof Abis.signatureVerifier>
 
+/** Function selectors of the stablecoin DEX precompile. */
 export const stablecoinDex = {
   MAX_PRICE: '0x01c11d96',
   MAX_TICK: '0x6882a888',
@@ -88,12 +95,14 @@ export const stablecoinDex = {
   priceToTick: '0x87b4e352',
   quoteSwapExactAmountIn: '0xe7c98f1a',
   quoteSwapExactAmountOut: '0x1576fa0e',
+  storageCredits: '0x4d65338b',
   swapExactAmountIn: '0xf8856c0f',
   swapExactAmountOut: '0xf0122b75',
   tickToPrice: '0x269a311d',
   withdraw: '0x08fab167',
 } as const satisfies FunctionSelectors<typeof Abis.stablecoinDex>
 
+/** Function selectors of the storage credits precompile. */
 export const storageCredits = {
   balanceOf: '0x70a08231',
   budgetOf: '0x7865e71f',
@@ -102,6 +111,7 @@ export const storageCredits = {
   setMode: '0x21175b4a',
 } as const satisfies FunctionSelectors<typeof Abis.storageCredits>
 
+/** Function selectors of the TIP-20 token interface. */
 export const tip20 = {
   BURN_BLOCKED_ROLE: '0x32ad9be8',
   DOMAIN_SEPARATOR: '0x3644e515',
@@ -155,6 +165,7 @@ export const tip20 = {
   userRewardInfo: '0x360b8ed9',
 } as const satisfies FunctionSelectors<typeof Abis.tip20>
 
+/** Function selectors of the TIP-20 channel reserve precompile. */
 export const tip20ChannelReserve = {
   CLOSE_GRACE_PERIOD: '0x956c8327',
   VOUCHER_TYPEHASH: '0x94739e87',
@@ -168,10 +179,12 @@ export const tip20ChannelReserve = {
   open: '0xedc53b00',
   requestClose: '0x675402e5',
   settle: '0x97fb5104',
+  storageCredits: '0x4d65338b',
   topUp: '0xdc48471e',
   withdraw: '0x41e2c664',
 } as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
 
+/** Function selectors of the TIP-20 token factory precompile. */
 export const tip20Factory = {
   createToken: {
     'createToken(string,string,string,address,address,bytes32)': '0x68130445',
@@ -186,6 +199,7 @@ export const tip20Factory = {
 > &
   OverloadedFunctionSelectors<'createToken'>
 
+/** Function selectors of the TIP-403 registry precompile. */
 export const tip403Registry = {
   compoundPolicyData: '0xb6266019',
   createCompoundPolicy: '0x5da414ee',
@@ -206,6 +220,7 @@ export const tip403Registry = {
   validateReceivePolicy: '0xb72b0c59',
 } as const satisfies FunctionSelectors<typeof Abis.tip403Registry>
 
+/** Function selectors of the fee manager precompile. */
 export const feeManager = {
   collectedFees: '0x4c97f766',
   distributeFees: '0xa6c07924',
@@ -215,6 +230,7 @@ export const feeManager = {
   validatorTokens: '0x6dc54a7a',
 } as const satisfies FunctionSelectors<typeof Abis.feeManager>
 
+/** Function selectors of the fee AMM precompile. */
 export const feeAmm = {
   M: '0x693f917e',
   MIN_LIQUIDITY: '0x21b77d63',
@@ -230,6 +246,7 @@ export const feeAmm = {
   totalSupply: '0xb524abcf',
 } as const satisfies FunctionSelectors<typeof Abis.feeAmm>
 
+/** Function selectors of the validator config precompile. */
 export const validatorConfig = {
   addValidator: '0xffb4822e',
   changeOwner: '0xa6f9dae1',
@@ -245,6 +262,7 @@ export const validatorConfig = {
   validatorsArray: '0x031fadbd',
 } as const satisfies FunctionSelectors<typeof Abis.validatorConfig>
 
+/** Function selectors of the validator config v2 precompile. */
 export const validatorConfigV2 = {
   addValidator: '0x6dcf616a',
   deactivateValidator: '0x8f289544',

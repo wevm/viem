@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const base = /*#__PURE__*/ defineChain({
+export const base = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 8453,
   name: 'Base',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.base.org'],
-    },
+    http: 'https://mainnet.base.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://basescan.org',
-      apiUrl: 'https://api.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://basescan.org',
+    apiUrl: 'https://api.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x43edB88C4B80fDD2AdFF2412A7BebF9dF42cB40e',
@@ -52,12 +50,10 @@ export const base = /*#__PURE__*/ defineChain({
   sourceId,
 })
 
-export const basePreconf = /*#__PURE__*/ defineChain({
+export const basePreconf = /*#__PURE__*/ Chain.from({
   ...base,
-  experimental_preconfirmationTime: 200,
+  preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-preconf.base.org'],
-    },
+    http: 'https://mainnet-preconf.base.org',
   },
 })

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const genesys = /*#__PURE__*/ defineChain({
+export const genesys = /*#__PURE__*/ Chain.from({
   id: 16507,
   name: 'Genesys Mainnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const genesys = /*#__PURE__*/ defineChain({
     name: 'GSYS',
     symbol: 'GSYS',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.genesys.network'] },
-  },
+  rpcUrls: { http: 'https://rpc.genesys.network' },
   blockExplorers: {
-    default: {
-      name: 'Genesys Explorer',
-      url: 'https://gchainexplorer.genesys.network',
-    },
+    name: 'Genesys Explorer',
+    url: 'https://gchainexplorer.genesys.network',
   },
   testnet: false,
 })

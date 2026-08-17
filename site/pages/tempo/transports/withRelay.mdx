@@ -11,30 +11,33 @@ Creates a transport that routes Tempo relay traffic between a default transport 
 - If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
 - An explicit `feePayer` address is preserved.
 
+Sponsored raw transaction submissions are handled according to the relay policy. By default, the relay co-signs the transaction and the default transport broadcasts it.
+
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, http, withRelay } from 'viem/tempo'
+import { Account, Client, http, withRelay } from 'viem/tempo'
 
-const client = createClient({
-  account: privateKeyToAccount('0x...'),
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+  ),
   testnet: true,
   transport: withRelay(
-    http(),                             // ← Default Transport
-    http('https://relay.example.com'),  // ← Relay Transport // [!code hl]
+    http(),
+    http('https://relay.example.com'), // [!code hl]
   ),
 })
 
 // Regular transaction
-const receipt1 = await client.sendTransactionSync({
+const receipt1 = await client.transaction.sendSync({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
 })
 
 // Sponsored transaction // [!code hl]
-const receipt2 = await client.sendTransactionSync({ // [!code hl]
+const receipt2 = await client.transaction.sendSync({ // [!code hl]
   feePayer: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code hl]
 })
@@ -55,11 +58,12 @@ See `server.ts` for the server-side implementation. It uses [`Handler.relay` pro
 :::code-group
 
 ```ts twoslash [client.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, http, withRelay } from 'viem/tempo'
+import { Account, Client, http, withRelay } from 'viem/tempo'
 
-const client = createClient({
-  account: privateKeyToAccount('0x...'),
+const client = Client.create({
+  account: Account.fromSecp256k1(
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+  ),
   testnet: true,
   transport: withRelay(
     http(),
@@ -67,7 +71,7 @@ const client = createClient({
   ),
 })
 
-const hash = await client.sendTransactionSync({
+const hash = await client.transaction.sendSync({
   feePayer: true,
   to: '0x0000000000000000000000000000000000000000',
 })
@@ -76,11 +80,10 @@ const hash = await client.sendTransactionSync({
 ```ts twoslash [server.ts]
 // @noErrors
 import { createServer } from 'node:http'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient } from 'viem/tempo'
 import { Handler } from 'accounts/server'
+import { Account, Client } from 'viem/tempo'
 
-const client = createClient({
+const client = Client.create({
   // Note: the relay can specify its own fee token.
   feeToken: '0x20c0000000000000000000000000000000000001',
   testnet: true,
@@ -88,7 +91,9 @@ const client = createClient({
 
 const handler = Handler.relay({ // [!code hl]
   feePayer: { // [!code hl]
-    account: privateKeyToAccount('0x...'), // [!code hl]
+    account: Account.fromSecp256k1( // [!code hl]
+      '0x0000000000000000000000000000000000000000000000000000000000000002', // [!code hl]
+    ), // [!code hl]
   }, // [!code hl]
 }) // [!code hl]
 
@@ -98,7 +103,7 @@ server.listen(3000)
 
 :::
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = Transport<'relay'>
@@ -112,8 +117,129 @@ type ReturnType = Transport<'relay'>
 
 The default transport to use for regular relay traffic and for broadcasting transactions when `policy` is `'sign-only'`.
 
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(
+  http(), // [!code focus]
+  http('https://relay.example.com'),
+)
+```
+
 ### relayTransport
 
 - **Type:** `Transport`
 
 The relay transport to use for `eth_fillTransaction` and sponsored transaction handling.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(
+  http(),
+  http('https://relay.example.com'), // [!code focus]
+)
+```
+
+Options for transport metadata, request routing, retry behavior, and relay submission policy.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  key: 'tempo-relay',
+  policy: 'sign-and-broadcast',
+})
+```
+
+### options.key
+
+- **Type:** `string | undefined`
+- **Default:** `'relay'`
+
+Transport key used to identify the relay transport.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  key: 'tempo-relay', // [!code focus]
+})
+```
+
+### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] } | undefined`
+
+RPC methods to include or exclude from this transport.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  methods: { include: ['eth_fillTransaction'] }, // [!code focus]
+})
+```
+
+### options.name
+
+- **Type:** `string | undefined`
+- **Default:** `'Relay Proxy'`
+
+Human-readable transport name.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  name: 'Tempo Relay', // [!code focus]
+})
+```
+
+### options.policy
+
+- **Type:** `'sign-only' | 'sign-and-broadcast' | undefined`
+- **Default:** `'sign-only'`
+
+How the relay handles sponsored raw transaction submissions.
+
+- `'sign-only'`: the relay co-signs with `eth_signRawTransaction`, then the default transport broadcasts the co-signed transaction.
+- `'sign-and-broadcast'`: the relay co-signs and broadcasts the transaction itself.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  policy: 'sign-and-broadcast', // [!code focus]
+})
+```
+
+### options.retryCount
+
+- **Type:** `number | undefined`
+- **Default:** `3`
+
+Maximum retry count for transport requests.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  retryCount: 1, // [!code focus]
+})
+```
+
+### options.retryDelay
+
+- **Type:** `number | undefined`
+- **Default:** `150`
+
+Base delay in milliseconds between retries.
+
+```ts twoslash
+import { http, withRelay } from 'viem/tempo'
+
+const transport = withRelay(http(), http('https://relay.example.com'), {
+  retryDelay: 250, // [!code focus]
+})
+```

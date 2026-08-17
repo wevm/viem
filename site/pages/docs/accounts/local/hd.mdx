@@ -1,0 +1,160 @@
+# HD Accounts
+
+## Overview
+
+An **HD Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from an [HD key](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
+
+The account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
+
+Create one with [`Account.fromHdKey`](/docs/accounts).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
+```
+
+## Recipes
+
+### Deriving at a Specific Index
+
+Use index options when you want to derive an account from a specific BIP-44 path position.
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  accountIndex: 1, // [!code focus]
+  addressIndex: 2, // [!code focus]
+})
+```
+
+### Using a Custom Derivation Path
+
+Use a custom derivation path when you need to derive from a path that does not match the default index options.
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  path: "m/44'/60'/0'/0/0", // [!code focus]
+})
+```
+
+## `Account.fromHdKey`
+
+Creates a local account from an HD key.
+
+### Usage
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
+```
+
+### Parameters
+
+#### hdKey
+
+- **Type:** `HdKey.HdKey`
+
+The HD key to derive the account from.
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...')) // [!code focus]
+```
+
+#### options.accountIndex
+
+- **Type:** `number`
+
+Account index in the path (`m/44'/60'/${accountIndex}'/0/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  accountIndex: 0, // [!code focus]
+})
+```
+
+#### options.addressIndex
+
+- **Type:** `number`
+
+Address index in the path (`m/44'/60'/0'/0/${addressIndex}`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  addressIndex: 1, // [!code focus]
+})
+```
+
+#### options.changeIndex
+
+- **Type:** `number`
+
+Change index in the path (`m/44'/60'/0'/${changeIndex}/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  changeIndex: 0, // [!code focus]
+})
+```
+
+#### options.nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  nonceManager: NonceManager.jsonRpc(), // [!code focus]
+})
+```
+
+#### options.path
+
+- **Type:** `` `m/44'/60'/${string}` ``
+
+Full HD path (overrides the index options).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  path: "m/44'/60'/0'/0/0", // [!code focus]
+})
+```
+
+### Return Value
+
+`Account.Hd`
+
+An HD-derived local account (`keyType: 'secp256k1'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `PublicKey.InvalidError` | The derived private key produces an invalid public key. |

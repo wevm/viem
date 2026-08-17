@@ -1,0 +1,255 @@
+# Get State Proof [address.getProof]
+
+Returns the account and storage values of the specified account, including the Merkle proof.
+
+## Usage
+
+This example returns the account and storage values of the specified account, including the Merkle proof.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+})
+// @log: {
+// @log:   address: '0x4200000000000000000000000000000000000016',
+// @log:   accountProof: ['0xf90211a0...', ...],
+// @log:   balance: 0n,
+// @log:   codeHash: '0x2034...',
+// @log:   nonce: 1,
+// @log:   storageHash: '0x8473...',
+// @log:   storageProof: [{ key: '0x4a93...', proof: ['0xf843...'], value: 1n }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.address.getProof` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+})
+// @log: {
+// @log:   address: '0x4200000000000000000000000000000000000016',
+// @log:   accountProof: ['0xf90211a0...', ...],
+// @log:   balance: 0n,
+// @log:   codeHash: '0x2034...',
+// @log:   nonce: 1,
+// @log:   storageHash: '0x8473...',
+// @log:   storageProof: [{ key: '0x4a93...', proof: ['0xf843...'], value: 1n }],
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Prove Storage at a Canonical Block
+
+Each storage key produces one `storageProof` entry. Use a canonical block hash to bind the account and storage proofs to canonical chain state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const proof = await client.address.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  requireCanonical: true, // [!code focus]
+  storageKeys: [ // [!code focus]
+    Hex.fromNumber(0n, { size: 32 }), // [!code focus]
+    Hex.fromNumber(1n, { size: 32 }), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`AccountProof`
+
+The account and storage proof. `balance` and each `storageProof[].value` are returned as `bigint`, and `nonce` as `number`.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The address of the account to get the proof for.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016', // [!code focus]
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+})
+```
+
+### blockHash
+
+- **Type:** `Hex`
+
+The proof at a given block hash (EIP-1898).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+The proof at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockNumber: 42069n, // [!code focus]
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The proof at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+
+Whether to error if the `blockHash` is not in the canonical chain. Can only be provided alongside `blockHash`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true, // [!code focus]
+})
+```
+
+### storageKeys
+
+- **Type:** `Hex[]`
+
+The storage keys (positions) to include in the proof.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const proof = await Actions.address.getProof(client, {
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99', // [!code focus]
+  ],
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `BlockParameter.RequireCanonicalError` | `requireCanonical` was provided without a `blockHash`. |

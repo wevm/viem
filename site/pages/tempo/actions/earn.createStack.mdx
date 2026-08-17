@@ -10,11 +10,11 @@ API is experimental.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
 const result = await client.earn.createStackSync({
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   engine: '0x0000000000000000000000000000000000000001',
   factory: '0x0000000000000000000000000000000000000002',
 })
@@ -37,17 +37,17 @@ built-in always-allow policy.
 `earn.createStack` to return the transaction hash immediately.
 
 ```ts twoslash
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const factory = '0x0000000000000000000000000000000000000002'
 const hash = await client.earn.createStack({
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   engine: '0x0000000000000000000000000000000000000001',
   factory,
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
   factory,
 })

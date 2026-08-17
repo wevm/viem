@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const exsat = /*#__PURE__*/ defineChain({
+export const exsat = /*#__PURE__*/ Chain.from({
   id: 7200,
   name: 'exSat Network',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const exsat = /*#__PURE__*/ defineChain({
     name: 'BTC',
     symbol: 'BTC',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.exsat.network'] },
-  },
+  rpcUrls: { http: 'https://evm.exsat.network' },
   blockExplorers: {
-    default: {
-      name: 'exSat Explorer',
-      url: 'https://scan.exsat.network',
-      apiUrl: 'https://scan.exsat.network/api',
-    },
+    name: 'exSat Explorer',
+    url: 'https://scan.exsat.network',
+    apiUrl: 'https://scan.exsat.network/api',
   },
 })

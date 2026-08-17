@@ -38,6 +38,7 @@ type AbiEntry = {
 
 const abiSlices: readonly {
   contracts: readonly string[]
+  description: string
   errors?: true | undefined
   events?: true | readonly string[] | undefined
   exportName: string
@@ -45,6 +46,7 @@ const abiSlices: readonly {
 }[] = [
   {
     contracts: ['ERC4626EngineFactory'],
+    description: 'ABI of the ERC-4626 engine factory contract.',
     errors: true,
     events: ['ERC4626EngineDeployed'],
     exportName: 'erc4626EngineFactory',
@@ -52,6 +54,7 @@ const abiSlices: readonly {
   },
   {
     contracts: ['EarnFactory'],
+    description: 'ABI of the Earn factory contract.',
     errors: true,
     events: ['EarnStackDeployed'],
     exportName: 'earnFactory',
@@ -67,6 +70,7 @@ const abiSlices: readonly {
   },
   {
     contracts: ['ERC4626Engine'],
+    description: 'ABI of the ERC-4626 vault engine contract.',
     errors: true,
     events: true,
     exportName: 'erc4626Engine',
@@ -85,25 +89,37 @@ const abiSlices: readonly {
       'vault',
     ],
   },
-  { contracts: ['EarnVault'], exportName: 'earnVault' },
-  { contracts: ['EarnFees'], exportName: 'earnFees' },
+  {
+    contracts: ['EarnVault'],
+    description: 'ABI of the Earn vault contract.',
+    exportName: 'earnVault',
+  },
+  {
+    contracts: ['EarnFees'],
+    description: 'ABI of the Earn fees contract.',
+    exportName: 'earnFees',
+  },
   {
     contracts: ['IEarnEngine', 'IEarnEngineRedeem', 'IEarnEngineExactWithdraw'],
+    description: 'ABI of the synchronous Earn engine interfaces.',
     exportName: 'earnEngine',
     functions: true,
   },
   {
     contracts: ['IEarnEngineAsyncRedeem'],
+    description: 'ABI of the asynchronous Earn engine interface.',
     exportName: 'earnEngineAsyncRedeem',
     functions: true,
   },
   {
     contracts: ['IEarnEngineInKindDeposit'],
+    description: 'ABI of the in-kind Earn engine interface.',
     exportName: 'earnEngineInKindDeposit',
     functions: true,
   },
   {
     contracts: ['EarnContributionController'],
+    description: 'ABI of the Earn contribution controller contract.',
     errors: true,
     events: ['Funded'],
     exportName: 'earnContributionController',
@@ -111,6 +127,7 @@ const abiSlices: readonly {
   },
   {
     contracts: ['VedaEngine'],
+    description: 'ABI of the Veda vault engine contract.',
     errors: true,
     events: true,
     exportName: 'vedaEngine',
@@ -118,6 +135,7 @@ const abiSlices: readonly {
   },
   {
     contracts: ['SingleZoneEarnRouter'],
+    description: 'ABI of the single-Zone Earn router contract.',
     errors: true,
     events: true,
     exportName: 'earnRouter',
@@ -228,7 +246,7 @@ function routerCallbackDataParameter() {
   const components = structComponents(router, 'CallbackData', {
     ZoneReturn: zoneReturn,
   })
-  return [{ components, name: 'callbackData', type: 'tuple' }] as const
+  return [{ components, name: 'callbackData', type: 'tuple' }]
 }
 
 function generateAbiSlice(commit: string) {
@@ -245,9 +263,9 @@ function generateAbiSlice(commit: string) {
         seen.add(signature)
         return true
       })
-    return `export const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
+    return `/** ${slice.description} */\nexport const ${slice.exportName} = ${JSON.stringify(sliceAbi(abi, slice))} as const`
   })
-  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n// \`SingleZoneEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
+  return `${earnMarker}${commit}. Do not modify manually.\n\n${slices.join('\n\n')}\n\n/** ABI parameter for encoding \`SingleZoneEarnRouter.CallbackData\`. */\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter())} as const\n`
 }
 
 function generateContracts(commit: string) {
@@ -309,11 +327,10 @@ if (checkMode) {
   try {
     Fs.writeFileSync(abisCheck, generatedAbis)
     Fs.writeFileSync(contractsCheck, generatedContracts)
-    execFileSync(
-      'pnpm',
-      ['exec', 'biome', 'check', '--write', '--unsafe', ...candidates],
-      { cwd: repoRoot, stdio: 'ignore' },
-    )
+    execFileSync('pnpm', ['exec', 'vp', 'fmt', ...candidates], {
+      cwd: repoRoot,
+      stdio: 'ignore',
+    })
     const earnTail = (content: string) => {
       const index = content.indexOf(earnMarker)
       return index === -1 ? undefined : content.slice(index)

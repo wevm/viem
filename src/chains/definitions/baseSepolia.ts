@@ -1,28 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const baseSepolia = /*#__PURE__*/ defineChain({
+export const baseSepolia = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 84532,
-  network: 'base-sepolia',
   name: 'Base Sepolia',
   nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://sepolia.base.org'],
-    },
+    http: 'https://sepolia.base.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://sepolia.basescan.org',
-      apiUrl: 'https://api-sepolia.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://sepolia.basescan.org',
+    apiUrl: 'https://api-sepolia.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xd6E6dBf4F7EA0ac412fD8b65ED297e64BB7a06E1',
@@ -54,12 +51,10 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   sourceId,
 })
 
-export const baseSepoliaPreconf = /*#__PURE__*/ defineChain({
+export const baseSepoliaPreconf = /*#__PURE__*/ Chain.from({
   ...baseSepolia,
-  experimental_preconfirmationTime: 200,
+  preconfirmationTime: 200,
   rpcUrls: {
-    default: {
-      http: ['https://sepolia-preconf.base.org'],
-    },
+    http: 'https://sepolia-preconf.base.org',
   },
 })

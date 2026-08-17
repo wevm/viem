@@ -1,64 +1,67 @@
-import {
-  type Address,
-  encodeFunctionData,
-  type Hex,
-  parseEventLogs,
-  zeroAddress,
-  zeroHash,
-} from 'viem'
+import { AbiEvent, AbiFunction, type Address, type Hex } from 'ox'
 import { Abis } from 'viem/tempo/zones'
 import { expectTypeOf, test } from 'vitest'
 
-test('zoneFactory supports both parameter shapes', () => {
-  const sequencerSet = encodeFunctionData({
-    abi: Abis.zoneFactory,
-    functionName: 'createZone',
-    args: [
-      {
-        initialToken: zeroAddress,
-        accessMode: false,
-        gatewayMode: false,
-        allowedAccounts: [],
-        zoneGateways: [],
-        admin: zeroAddress,
-        sequencers: [zeroAddress],
-        threshold: 1,
-        rpcUrl: '',
-      },
-    ],
-  })
-  const sequencer = encodeFunctionData({
-    abi: Abis.zoneFactory,
-    functionName: 'createZone',
-    args: [
-      {
-        initialToken: zeroAddress,
-        admin: zeroAddress,
-        sequencer: zeroAddress,
-        verifier: zeroAddress,
-        zoneParams: {
-          genesisBlockHash: zeroHash,
-          genesisTempoBlockHash: zeroHash,
-          genesisTempoBlockNumber: 0n,
-        },
-        rpcUrl: '',
-      },
-    ],
-  })
+const zeroAddress = '0x0000000000000000000000000000000000000000'
+const zeroHash =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-  expectTypeOf(sequencerSet).toEqualTypeOf<Hex>()
-  expectTypeOf(sequencer).toEqualTypeOf<Hex>()
+test('zoneFactory supports both parameter shapes', () => {
+  const sequencerSet = AbiFunction.encodeData(Abis.zoneFactory, 'createZone', [
+    {
+      initialToken: zeroAddress,
+      accessMode: false,
+      gatewayMode: false,
+      allowedAccounts: [],
+      zoneGateways: [],
+      admin: zeroAddress,
+      sequencers: [zeroAddress],
+      threshold: 1,
+      rpcUrl: '',
+    },
+  ])
+  const sequencer = AbiFunction.encodeData(Abis.zoneFactory, 'createZone', [
+    {
+      initialToken: zeroAddress,
+      admin: zeroAddress,
+      sequencer: zeroAddress,
+      verifier: zeroAddress,
+      zoneParams: {
+        genesisBlockHash: zeroHash,
+        genesisTempoBlockHash: zeroHash,
+        genesisTempoBlockNumber: 0n,
+      },
+      rpcUrl: '',
+    },
+  ])
+
+  expectTypeOf(sequencerSet).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(sequencer).toEqualTypeOf<Hex.Hex>()
 })
 
-test('zoneOutbox decodes WithdrawalRequested fallback nonces', () => {
-  const [event] = parseEventLogs({
-    abi: Abis.zoneOutbox,
-    eventName: 'WithdrawalRequested',
-    logs: [],
-    strict: true,
+test('zonePortal decodes withdrawal events', () => {
+  const event = AbiEvent.fromAbi(Abis.zonePortal, 'WithdrawalProcessed')
+  const decoded = AbiEvent.decode(event, {
+    topics: [AbiEvent.getSelector(event), zeroHash, zeroHash],
+    data: `${zeroHash}${zeroHash.slice(2)}${zeroHash.slice(2)}`,
   })
 
-  if (!event) return
-  expectTypeOf(event.args.fallbackNonce).toEqualTypeOf<bigint>()
-  expectTypeOf(event.args.sender).toEqualTypeOf<Address>()
+  expectTypeOf(decoded).toEqualTypeOf<{
+    to: Address.Address
+    senderTag: Hex.Hex
+    token: Address.Address
+    amount: bigint
+    callbackSuccess: boolean
+  }>()
+})
+
+test('zoneOutbox decodes withdrawal events', () => {
+  const event = AbiEvent.fromAbi(Abis.zoneOutbox, 'WithdrawalRequested')
+  const decoded = AbiEvent.decode(event, {
+    topics: [AbiEvent.getSelector(event), zeroHash, zeroHash],
+    data: `${zeroHash}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}${zeroHash.slice(2)}`,
+  })
+
+  expectTypeOf(decoded.fallbackNonce).toEqualTypeOf<bigint>()
+  expectTypeOf(decoded.sender).toEqualTypeOf<Address.Address>()
 })

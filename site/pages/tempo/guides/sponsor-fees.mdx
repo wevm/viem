@@ -23,7 +23,7 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Sponsor with a Local Account
 
-Pass a local account as `feePayer` to [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync).
+Pass a local account as `feePayer` to [`transaction.sendSync`](/docs/actions/wallet/transaction/send).
 The sender signs the transaction and the fee payer signs to cover its fees.
 
 :::code-group
@@ -34,7 +34,7 @@ import { client } from './viem.config'
 
 const feePayer = Account.fromSecp256k1('0x...') // [!code focus]
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   feePayer, // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
@@ -54,9 +54,9 @@ To keep the fee payer's key server-side, route requests through a relay with the
 relay to sponsor the transaction.
 
 ```ts twoslash
-import { Account, createClient, http, withRelay } from 'viem/tempo'
+import { Account, Client, http, withRelay } from 'viem/tempo'
 
-const client = createClient({
+const client = Client.create({
   account: Account.fromSecp256k1('0x...'),
   testnet: true,
   transport: withRelay( // [!code focus]
@@ -65,7 +65,7 @@ const client = createClient({
   ), // [!code focus]
 })
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   data: '0xdeadbeef',
   feePayer: true, // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe',

@@ -1,8 +1,8 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.mint`
+# Mint Tokens [token.mint]
 
-Mints new TIP-20 tokens to a recipient. Requires the `ISSUER` role. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control)
+Mints TIP-20 tokens to an address. Requires the `ISSUER` role. [Learn more about roles](https://docs.tempo.xyz/protocol/tip20/spec#role-based-access-control)
 
 ## Usage
 
@@ -14,7 +14,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.mintSync({
   amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -27,9 +27,9 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-### By Token Address
+### Undeclared Tokens
 
-When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+Formatted amounts resolve `decimals` from the Client's declared `tokens` (the pathUSD address above is declared on the default token set). For a token not declared on the Client, include `amount.decimals` so the formatted amount can be parsed.
 
 :::code-group
 
@@ -39,7 +39,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.mintSync({
   amount: { decimals: 6, formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -61,7 +61,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.mintSync({
   amount: 10500000n,
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 ```
 
@@ -84,24 +84,81 @@ import { client } from './viem.config'
 const hash = await client.token.mint({
   amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
-const { args } 
-  = Actions.token.mint.extractEvent(receipt.logs)
+const { args } = Actions.token.mint.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Recipes
+
+### Reconcile Fiat Deposits with a Mint Memo
+
+Pass `memo` to tag each mint with the fiat deposit reference it backs (for example, `deposit_8421` hex-encoded), so onchain issuance reconciles against your banking records.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.mintSync({
+  amount: { formatted: '1000' },
+  memo: '0x6465706f7369745f38343231', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Guard Large Mints Against the Supply Cap
+
+Combine [`token.getMetadata`](/tempo/actions/token.getMetadata) with `token.mintSync` to reject a mint that would exceed the token's supply cap before submitting a transaction that reverts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const amount = 250_000_000_000n
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { supplyCap, totalSupply } = await client.token.getMetadata({ token }) // [!code focus]
+if (supplyCap && totalSupply + amount > supplyCap) // [!code focus]
+  throw new Error('mint would exceed the supply cap') // [!code focus]
+
+const { receipt } = await client.token.mintSync({
+  amount,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
-  /** Amount of tokens minted */
-  amount: bigint
-  /** Transaction receipt */
-  receipt: TransactionReceipt
-  /** Address tokens were minted to */
+  /** Address that received the minted tokens. */
   to: Address
+  /** Minted amount, in base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Minted amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
 }
 ```
 
@@ -111,11 +168,10 @@ type ReturnType = {
 
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
-Amount to mint in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
-token address.
+Amount of tokens to mint, in base units or formatted decimal form. Include `amount.decimals`
+when the token is not declared on the Client's `tokens`.
 
-### memo (optional)
+### memo
 
 - **Type:** `Hex`
 
@@ -129,9 +185,8 @@ Address to mint tokens to.
 
 ### token
 
-- **Type:** `string | bigint`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP-20 token id, or a token address.
+Token to operate on: a TIP-20 token id or a contract address.
 
 <WriteParameters />

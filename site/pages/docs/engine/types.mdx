@@ -1,0 +1,125 @@
+# Engine Types
+
+## Overview
+
+An Engine is a partial map of cryptographic slots. Every slot and primitive is optional.
+
+An Engine can replace one function while other calls continue through their current override or
+Viem's default implementation.
+
+Binary values cross the Engine boundary as `Uint8Array` values. Viem's public utility modules
+perform Hex and Bytes conversion outside that boundary.
+
+## Recipes
+
+### Type a Partial Engine
+
+Use `Engine.Engine` when a module provides only selected cryptographic slots.
+
+```ts twoslash
+import type { Engine } from 'viem'
+
+declare const Hash: NonNullable<Engine.Engine['Hash']>
+
+const engine = {
+  Hash, // [!code focus]
+} satisfies Engine.Engine
+```
+
+## `Engine.Engine`
+
+The root Engine shape.
+
+```ts
+type Engine = {
+  Bls?: Engine.Bls | undefined
+  Ed25519?: Engine.Eddsa | undefined
+  Hash?: Engine.Hash | undefined
+  Keystore?: Engine.Keystore | undefined
+  Mnemonic?: Engine.Mnemonic | undefined
+  P256?: Engine.Ecdsa | undefined
+  Secp256k1?: Engine.Ecdsa | undefined
+  X25519?: Engine.Ecdh | undefined
+}
+```
+
+## `Engine.Bls`
+
+Optional BLS12-381 aggregation, key generation, signing, and verification primitives.
+
+| Primitive | Behavior |
+| --- | --- |
+| `aggregate` | Aggregates compressed points from the same group. |
+| `getPublicKey` | Derives a compressed public key. |
+| `randomSecretKey` | Generates a random private key. |
+| `sign` | Signs a payload. |
+| `verify` | Verifies a signature. |
+
+## `Engine.Ecdh`
+
+Optional Montgomery-curve key agreement primitives used by the `X25519` slot.
+
+| Primitive | Behavior |
+| --- | --- |
+| `getPublicKey` | Derives a public key. |
+| `getSharedSecret` | Computes a shared secret. |
+| `randomSecretKey` | Generates a random private key. |
+
+## `Engine.Ecdsa`
+
+Optional short-Weierstrass ECDSA primitives shared by the `P256` and `Secp256k1` slots.
+
+| Primitive | Behavior |
+| --- | --- |
+| `getPublicKey` | Derives an uncompressed public key. |
+| `getSharedSecret` | Computes a compressed ECDH shared secret. |
+| `recoverPublicKey` | Recovers a public key from a signature and payload. |
+| `randomSecretKey` | Generates a random private key. |
+| `sign` | Produces a low-S recovered signature. |
+| `verify` | Verifies a compact signature. |
+
+## `Engine.Eddsa`
+
+Optional Edwards-curve signature primitives used by the `Ed25519` slot.
+
+| Primitive | Behavior |
+| --- | --- |
+| `getPublicKey` | Derives a public key. |
+| `randomSecretKey` | Generates a random private key. |
+| `sign` | Signs a payload. |
+| `toMontgomery` | Converts a public key to its X25519 form. |
+| `toMontgomerySecret` | Converts a private key to its X25519 form. |
+| `verify` | Verifies a signature. |
+
+## `Engine.Hash`
+
+Optional one-shot hash primitives.
+
+| Primitive | Behavior |
+| --- | --- |
+| `blake3` | Produces a 32-byte BLAKE3 digest. |
+| `hmacSha256` | Produces an HMAC-SHA256 digest. |
+| `keccak256` | Produces an Ethereum Keccak256 digest. |
+| `ripemd160` | Produces a RIPEMD-160 digest. |
+| `sha256` | Produces a SHA-256 digest. |
+
+## `Engine.Keystore`
+
+Optional key derivation and symmetric encryption primitives.
+
+| Primitive | Behavior |
+| --- | --- |
+| `aesCtrDecrypt` | Decrypts data with AES-CTR. |
+| `aesCtrEncrypt` | Encrypts data with AES-CTR. |
+| `pbkdf2Sha256` | Derives a key synchronously with PBKDF2-HMAC-SHA256. |
+| `pbkdf2Sha256Async` | Derives a key asynchronously with PBKDF2-HMAC-SHA256. |
+| `scrypt` | Derives a key synchronously with scrypt. |
+| `scryptAsync` | Derives a key asynchronously with scrypt. |
+
+## `Engine.Mnemonic`
+
+The optional BIP-39 seed derivation primitive.
+
+| Primitive | Behavior |
+| --- | --- |
+| `toSeed` | Derives a 64-byte seed from a mnemonic phrase and passphrase. |

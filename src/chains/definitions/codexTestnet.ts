@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const codexTestnet = /*#__PURE__*/ defineChain({
+export const codexTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 812242,
   name: 'Codex Testnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.codex-stg.xyz'],
-    },
+    http: 'https://rpc.codex-stg.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Codex Testnet Explorer',
-      url: 'https://explorer.codex-stg.xyz',
-      apiUrl: 'https://explorer.codex-stg.xyz/api',
-    },
+    name: 'Codex Testnet Explorer',
+    url: 'https://explorer.codex-stg.xyz',
+    apiUrl: 'https://explorer.codex-stg.xyz/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x390e24E8324E56f13A8d48eB938b6f9De24CD205',

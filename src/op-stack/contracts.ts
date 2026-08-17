@@ -1,9 +1,6 @@
-import type { Chain } from '../types/chain.js'
+import type * as Chain from '../core/Chain.js'
 
-/**
- * Predeploy contracts for OP Stack.
- * @see https://github.com/ethereum-optimism/optimism/blob/develop/specs/predeploys.md
- */
+/** OP Stack predeploy contracts. */
 export const contracts = {
   gasPriceOracle: { address: '0x420000000000000000000000000000000000000F' },
   l1Block: { address: '0x4200000000000000000000000000000000000015' },
@@ -15,4 +12,4 @@ export const contracts = {
   l2ToL1MessagePasser: {
     address: '0x4200000000000000000000000000000000000016',
   },
-} as const satisfies Chain['contracts']
+} as const satisfies NonNullable<Chain.Chain['contracts']>

@@ -1,0 +1,117 @@
+---
+description: Query typed and raw Ethereum event logs across block ranges with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Query Logs
+
+## Overview
+
+[`event.getLogs`](/docs/actions/public/event/getLogs) queries logs for one ABI event.
+
+Use Contract Actions when a full ABI is available. Use the Event namespace when a single event
+signature is the most natural input.
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with [`publicActions`](/docs/actions/public).
+
+### Query an Event
+
+Create the event from its human-readable signature and filter indexed arguments.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const logs = await client.event.getLogs({ // [!code focus]
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // [!code focus]
+  args: { // [!code focus]
+    from: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  }, // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+  fromBlock: 20_000_000n, // [!code focus]
+  toBlock: 20_000_100n, // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+### Watch the Same Event
+
+[`event.watch`](/docs/actions/public/event/watch) uses the same event and indexed argument filters.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.event.watch({ // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+}) // [!code focus]
+
+watch.onLogs((logs) => console.log(logs)) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+The watcher is also an async iterable. It yields the latest update and may skip intermediate values
+if the consumer is slow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { AbiEvent } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.event.watch({
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
+})
+
+for await (const { logs } of watch) { // [!code focus]
+  console.log(logs) // [!code focus]
+} // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/public.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Paginate by Block Range
+
+Provider log limits vary. Use bounded ranges, persist the last completed block, and retry one range
+without duplicating previously committed data.
+
+### Preserve Reorganization Metadata
+
+Store block hashes and the `removed` field with each log. This lets an indexer reverse effects when a
+previously processed log leaves the canonical chain.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:radio" title="Contract Events" description="Query and watch events through a complete contract ABI." to="/docs/guides/contracts/events" />
+  <Card icon="lucide:filter" title="Use Filters" description="Consume incremental changes through node-managed filters." to="/docs/guides/blocks-events/filters" />
+</Cards>

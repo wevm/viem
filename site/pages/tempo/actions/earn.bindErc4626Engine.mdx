@@ -42,7 +42,7 @@ const hash = await client.earn.bindErc4626Engine({
   engine,
   vault: '0x0000000000000000000000000000000000000002',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.bindErc4626Engine.extractEvent(receipt.logs, {
   engine,
 })

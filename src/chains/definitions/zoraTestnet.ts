@@ -1,9 +1,9 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 5 // goerli
 
-export const zoraTestnet = /*#__PURE__*/ defineChain({
+export const zoraTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 999,
   name: 'Zora Goerli Testnet',
@@ -13,17 +13,13 @@ export const zoraTestnet = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet.rpc.zora.energy'],
-      webSocket: ['wss://testnet.rpc.zora.energy'],
-    },
+    http: 'https://testnet.rpc.zora.energy',
+    ws: 'wss://testnet.rpc.zora.energy',
   },
   blockExplorers: {
-    default: {
-      name: 'Explorer',
-      url: 'https://testnet.explorer.zora.energy',
-      apiUrl: 'https://testnet.explorer.zora.energy/api',
-    },
+    name: 'Explorer',
+    url: 'https://testnet.explorer.zora.energy',
+    apiUrl: 'https://testnet.explorer.zora.energy/api',
   },
   contracts: {
     ...chainConfig.contracts,

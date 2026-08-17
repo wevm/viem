@@ -1,87 +1,117 @@
-import * as fs from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import {
-  type Config,
   defineConfig,
   Embedding,
   McpSource,
   Reranker,
   Retriever,
+  Twoslash,
   VectorStore,
 } from 'vocs/config'
 
-import pkg from '../src/package.json' with { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
+import * as sidebar from './sidebar.generated'
+import { shikiDark, shikiLight } from './shiki-themes'
 
 // Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
 try {
   process.loadEnvFile(fileURLToPath(new URL('./.env', import.meta.url)))
 } catch {}
 
-const hasBuiltTypes = fs.existsSync(
-  new URL('../src/_types/index.d.ts', import.meta.url),
-)
+// Repo root, as an absolute path. Used for twoslash module resolution so the
+// `viem` → live-source mapping resolves identically in both the rich and
+// `checkOnly` twoslashers (whose relative `baseUrl` resolve against different
+// directories).
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const oxDist = resolve(root, 'node_modules/ox/dist')
+const oxDocsOrigin = 'https://oxlib.sh'
+const vercelEnvironment = process.env.VERCEL_ENV
+const vercelRef = process.env.VERCEL_GIT_COMMIT_REF
+// TODO(v3): Remove the v3 deployment and source overrides when Viem v3 is stable.
+const isV3 =
+  vercelRef === 'v3' || process.env.VERCEL_GIT_REPO_SLUG === 'viem-v3'
+// Remote sync prunes stale vectors, so v3 must not share production's index.
+const aiIndex = isV3
+  ? 'viem-docs-v3'
+  : vercelEnvironment === 'preview'
+    ? undefined
+    : 'viem-docs'
 
-export const sponsors = {
-  collaborators: [
-    { name: 'Paradigm', url: 'https://paradigm.xyz' },
-    { name: 'Tempo', url: 'https://tempo.xyz' },
-  ],
-  largeEnterprise: [
-    { name: 'Stripe', url: 'https://www.stripe.com' },
-    { name: 'Circle', url: 'https://www.circle.com' },
-  ],
-  smallEnterprise: [
-    { name: 'Family', url: 'https://twitter.com/family' },
-    { name: 'Context', url: 'https://twitter.com/context' },
-    { name: 'PartyDAO', url: 'https://twitter.com/prtyDAO' },
-    { name: 'SushiSwap', slug: 'sushi', url: 'https://www.sushi.com' },
-    { name: 'Dynamic', url: 'https://www.dynamic.xyz' },
-    { name: 'Privy', url: 'https://privy.io' },
-    {
-      name: 'PancakeSwap',
-      slug: 'pancake',
-      url: 'https://pancakeswap.finance',
-    },
-    { name: 'Pimlico', url: 'https://pimlico.io' },
-    { name: 'Zora', url: 'https://zora.co' },
-    { name: 'Syndicate', url: 'https://syndicate.io' },
-    { name: 'Relay', url: 'https://relay.link' },
-    { name: 'Polymarket', url: 'https://polymarket.com' },
-    { name: 'Sequence', url: 'https://sequence.xyz' },
-    { name: 'Web3Auth', url: 'https://web3auth.io' },
-  ],
-} as const
+const badge = (kind: 'public' | 'test' | 'wallet') =>
+  ({
+    public: { text: 'Public', variant: 'info' as const },
+    test: { text: 'Test', variant: 'warning' as const },
+    wallet: { text: 'Wallet', variant: 'tip' as const },
+  })[kind]
+
+// Ox TSDoc uses site-relative links. Make inherited hover links absolute before Vocs checks them against Viem routes.
+const twoslashRenderer = Twoslash.Renderer.rich()
+const renderer = {
+  ...twoslashRenderer,
+  nodeStaticInfo(info, node) {
+    const value =
+      info.docs === undefined
+        ? info
+        : {
+            ...info,
+            docs: info.docs.replaceAll('](/api/', `](${oxDocsOrigin}/api/`),
+          }
+    return twoslashRenderer.nodeStaticInfo.call(this, value, node)
+  },
+  nodeQuery(info, node) {
+    const value =
+      info.docs === undefined
+        ? info
+        : {
+            ...info,
+            docs: info.docs.replaceAll('](/api/', `](${oxDocsOrigin}/api/`),
+          }
+    return twoslashRenderer.nodeQuery?.call(this, value, node) ?? node
+  },
+} satisfies typeof twoslashRenderer
 
 export default defineConfig({
-  accentColor: 'light-dark(#ff9318, #ffc517)',
-  // banner: {
-  //   backgroundColor: '#3a393b',
-  //   textColor: 'white',
-  //   content:
-  //     'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
-  // },
-  baseUrl:
-    process.env.VERCEL_ENV === 'production'
+  accentColor: 'light-dark(#51741f, #bfd655)',
+  baseUrl: isV3
+    ? 'https://v3.viem.sh'
+    : vercelEnvironment === 'production'
       ? 'https://viem.sh'
       : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
     'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
+  head: {
+    style: [{ textContent: 'strong[data-v] { font-weight: 500; }' }],
+  },
   editLink: {
     link: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
     text: 'Suggest changes to this page',
   },
   ogImageUrl: (path, { baseUrl }) => {
     if (path === '/') return '/og-image.png'
-    return `${baseUrl}/api/og?logo=%logo&title=%title&description=%description`
+    return `${baseUrl}/api/og?title=%title&description=%description`
   },
   iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
+  codeHighlight: {
+    // Vocs includes the unsupported `sol` alias in its defaults.
+    langs: ['bash', 'html', 'json', 'sh', 'ts'],
+    themes: {
+      light: shikiLight,
+      dark: shikiDark,
+    },
+  },
   mcp: {
     enabled: true,
     sources: [
-      McpSource.github({ name: 'viem', repo: 'wevm/viem' }),
+      McpSource.github({
+        branch: isV3 ? 'v3' : 'main',
+        name: 'viem',
+        repo: 'wevm/viem',
+      }),
       McpSource.github({ name: 'wagmi', repo: 'wevm/wagmi' }),
       McpSource.github({ name: 'ox', repo: 'wevm/ox' }),
       McpSource.github({ name: 'tempo', repo: 'tempoxyz/tempo' }),
@@ -91,6 +121,317 @@ export default defineConfig({
     // Strip legacy `.html` suffix from old bookmarked URLs.
     { source: '/:path*.html', destination: '/:path', status: 308 },
 
+    // Migration guide moved under docs.
+    {
+      source: '/v2-migration',
+      destination: '/docs/v2-migration',
+      status: 308,
+    },
+
+    // Introduction pages moved.
+    {
+      source: '/docs/introduction',
+      destination: '/docs/why-viem',
+      status: 308,
+    },
+    {
+      source: '/docs/getting-started',
+      destination: '/docs',
+      status: 308,
+    },
+
+    // Signing and verification actions moved into domain namespaces.
+    {
+      source: '/docs/actions/wallet/signTypedData',
+      destination: '/docs/actions/wallet/typedData/sign',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/verifyTypedData',
+      destination: '/docs/actions/public/typedData/verify',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/verifySiweMessage',
+      destination: '/docs/actions/public/siwe/verify',
+      status: 308,
+    },
+
+    // Account Abstraction v2 routes moved to v3 module namespaces.
+    {
+      source: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
+      destination: '/account-abstraction/accounts/coinbase',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/toSoladySmartAccount',
+      destination: '/account-abstraction/accounts/solady',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/toSmartAccount',
+      destination: '/account-abstraction/accounts/custom',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signMessage',
+      destination: '/account-abstraction/accounts/custom#signmessage',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signTypedData',
+      destination: '/account-abstraction/accounts/custom#signtypeddata',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/smart/signUserOperation',
+      destination: '/account-abstraction/accounts/custom#signuseroperation',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
+      destination: '/account-abstraction/accounts/webauthn/fromCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/from',
+      destination: '/account-abstraction/accounts/webauthn/fromCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
+      destination: '/account-abstraction/accounts/webauthn/createCredential',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/estimateUserOperationGas',
+      destination: '/account-abstraction/actions/userOperation.estimateGas',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/introduction',
+      destination: '/account-abstraction',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getChainId',
+      destination: '/docs/actions/public/chains/getId',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
+      destination: '/account-abstraction/actions/entryPoint.getSupported',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getUserOperation',
+      destination: '/account-abstraction/actions/userOperation.get',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/getUserOperationReceipt',
+      destination: '/account-abstraction/actions/userOperation.getReceipt',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/prepareUserOperation',
+      destination: '/account-abstraction/actions/userOperation.prepare',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/bundler/sendUserOperation',
+      destination: '/account-abstraction/actions/userOperation.send',
+      status: 308,
+    },
+    {
+      source:
+        '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
+      destination: '/account-abstraction/actions/userOperation.waitForReceipt',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/paymaster/getPaymasterData',
+      destination: '/account-abstraction/actions/paymaster.getData',
+      status: 308,
+    },
+    {
+      source: '/account-abstraction/actions/paymaster/getPaymasterStubData',
+      destination: '/account-abstraction/actions/paymaster.getStubData',
+      status: 308,
+    },
+
+    // OP Stack actions moved under L1 and L2 namespaces.
+    {
+      source: '/op-stack/actions/buildInitiateWithdrawal',
+      destination: '/op-stack/actions/l1/buildInitiateWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/depositTransaction',
+      destination: '/op-stack/actions/l1/depositTransaction',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateDepositTransactionGas',
+      destination: '/op-stack/actions/l1/estimateDepositTransactionGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateFinalizeWithdrawalGas',
+      destination: '/op-stack/actions/l1/estimateFinalizeWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateProveWithdrawalGas',
+      destination: '/op-stack/actions/l1/estimateProveWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/finalizeWithdrawal',
+      destination: '/op-stack/actions/l1/finalizeWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getGame',
+      destination: '/op-stack/actions/l1/getGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getGames',
+      destination: '/op-stack/actions/l1/getGames',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getL2Output',
+      destination: '/op-stack/actions/l1/getL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getPortalVersion',
+      destination: '/op-stack/actions/l1/getPortalVersion',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToFinalize',
+      destination: '/op-stack/actions/l1/getTimeToFinalize',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToNextGame',
+      destination: '/op-stack/actions/l1/getTimeToNextGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToNextL2Output',
+      destination: '/op-stack/actions/l1/getTimeToNextL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getTimeToProve',
+      destination: '/op-stack/actions/l1/getTimeToProve',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getWithdrawalStatus',
+      destination: '/op-stack/actions/l1/getWithdrawalStatus',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/proveWithdrawal',
+      destination: '/op-stack/actions/l1/proveWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitForNextGame',
+      destination: '/op-stack/actions/l1/waitForNextGame',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitForNextL2Output',
+      destination: '/op-stack/actions/l1/waitForNextL2Output',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitToFinalize',
+      destination: '/op-stack/actions/l1/waitToFinalize',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/waitToProve',
+      destination: '/op-stack/actions/l1/waitToProve',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/buildDepositTransaction',
+      destination: '/op-stack/actions/l2/buildDepositTransaction',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/buildProveWithdrawal',
+      destination: '/op-stack/actions/l2/buildProveWithdrawal',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractL1Fee',
+      destination: '/op-stack/actions/l2/estimateContractL1Fee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractL1Gas',
+      destination: '/op-stack/actions/l2/estimateContractL1Gas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractTotalFee',
+      destination: '/op-stack/actions/l2/estimateContractTotalFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateContractTotalGas',
+      destination: '/op-stack/actions/l2/estimateContractTotalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateInitiateWithdrawalGas',
+      destination: '/op-stack/actions/l2/estimateInitiateWithdrawalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateL1Fee',
+      destination: '/op-stack/actions/l2/estimateL1Fee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateL1Gas',
+      destination: '/op-stack/actions/l2/estimateL1Gas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateOperatorFee',
+      destination: '/op-stack/actions/l2/estimateOperatorFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateTotalFee',
+      destination: '/op-stack/actions/l2/estimateTotalFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/estimateTotalGas',
+      destination: '/op-stack/actions/l2/estimateTotalGas',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/getL1BaseFee',
+      destination: '/op-stack/actions/l2/getL1BaseFee',
+      status: 308,
+    },
+    {
+      source: '/op-stack/actions/initiateWithdrawal',
+      destination: '/op-stack/actions/l2/initiateWithdrawal',
+      status: 308,
+    },
+
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/zones',
@@ -98,7 +439,7 @@ export default defineConfig({
       status: 308,
     },
 
-    // Renamed functions — keep deprecated paths working.
+    // Renamed functions; keep deprecated paths working.
     {
       source: '/:match/hexToSignature',
       destination: '/:match/parseSignature',
@@ -170,8 +511,28 @@ export default defineConfig({
       status: 308,
     },
     {
-      source: '/:match/simulate',
-      destination: '/:match/simulateBlocks',
+      source: '/docs/actions/public/simulate',
+      destination: '/docs/actions/public/block/simulate',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/simulateBlocks',
+      destination: '/docs/actions/public/block/simulate',
+      status: 308,
+    },
+    {
+      source: '/docs/contract/multicall',
+      destination: '/docs/actions/public/multicall',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/simulateCalls',
+      destination: '/docs/actions/public/multicall',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/watchBlockHeaders',
+      destination: '/docs/actions/public/block/watchHeaders',
       status: 308,
     },
 
@@ -181,15 +542,88 @@ export default defineConfig({
       destination: '/docs/actions/wallet/:path',
       status: 308,
     },
-
-    // TODO(v3): Remove redirect
     {
-      source: '/zskync',
-      destination: 'https://github.com/wevm/viem/tree/main/src/zksync',
+      source: '/docs/actions/public/contract/deploy',
+      destination: '/docs/actions/wallet/contract/deploy',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/deploySync',
+      destination: '/docs/actions/wallet/contract/deploy',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/write',
+      destination: '/docs/actions/wallet/contract/write',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/writeSync',
+      destination: '/docs/actions/wallet/contract/write',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/send',
+      destination: '/docs/actions/wallet/transaction/send',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendRaw',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendRawSync',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendSync',
+      destination: '/docs/actions/wallet/transaction/send',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sign',
+      destination: '/docs/actions/wallet/transaction/sign',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/contract/deploySync',
+      destination: '/docs/actions/wallet/contract/deploy',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/contract/writeSync',
+      destination: '/docs/actions/wallet/contract/write',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/sendCallsSync',
+      destination: '/docs/actions/wallet/sendCalls',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/token/approveSync',
+      destination: '/docs/actions/wallet/token/approve',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/token/transferSync',
+      destination: '/docs/actions/wallet/token/transfer',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/transaction/sendRawSync',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/wallet/transaction/sendSync',
+      destination: '/docs/actions/wallet/transaction/send',
       status: 308,
     },
   ],
-  renderStrategy: 'dynamic',
+  renderStrategy: 'partial-static',
   rootDir: '.',
   srcDir: '.',
   search: {
@@ -201,654 +635,1073 @@ export default defineConfig({
     },
   },
   ai:
-    process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_API_TOKEN
+    aiIndex &&
+    process.env.CLOUDFLARE_ACCOUNT_ID &&
+    process.env.CLOUDFLARE_API_TOKEN
       ? {
           retriever: Retriever.local({
             embedding: Embedding.cloudflare(),
             reranker: Reranker.cloudflare(),
             sources: [
-              {
-                url: 'https://wagmi.sh/llms.txt',
-                label: 'wagmi',
-                weight: 0.8,
-              },
+              { url: 'https://wagmi.sh/llms.txt', label: 'wagmi', weight: 0.8 },
             ],
             // Remote store keeps vectors out of the server bundle entirely.
-            vectorStore: VectorStore.cloudflare({ index: 'viem-docs' }),
+            vectorStore: VectorStore.cloudflare({ index: aiIndex }),
           }),
         }
       : undefined,
   sidebar: {
-    '/docs/': [
+    '/docs': [
       {
         text: 'Introduction',
         items: [
-          { text: 'Why Viem', link: '/docs/introduction' },
+          { text: 'Why Viem', link: '/docs/why-viem' },
+          { text: 'Getting Started', link: '/docs' },
           { text: 'Installation', link: '/docs/installation' },
-          { text: 'Getting Started', link: '/docs/getting-started' },
           { text: 'Platform Compatibility', link: '/docs/compatibility' },
+          { text: 'AI Agents', link: '/docs/agents' },
           { text: 'FAQ', link: '/docs/faq' },
+          { text: 'Benchmarks', link: '/docs/benchmarks' },
+          { text: 'Migrating from v2', link: '/docs/v2-migration' },
         ],
       },
       {
         text: 'Guides',
         items: [
-          { text: 'Migration Guide', link: '/docs/migration-guide' },
-          { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
-          { text: 'TypeScript', link: '/docs/typescript' },
-          { text: 'Error Handling', link: '/docs/error-handling' },
+          { text: 'Overview', link: '/docs/guides' },
           {
-            text: 'EIP-7702',
+            text: 'Blocks & Events',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/eip7702' },
+              { text: 'Overview', link: '/docs/guides/blocks-events' },
               {
-                text: 'Contract Writes',
-                link: '/docs/eip7702/contract-writes',
+                text: 'Read & Inspect Blocks',
+                link: '/docs/guides/blocks-events/read',
               },
               {
-                text: 'Sending Transactions',
-                link: '/docs/eip7702/sending-transactions',
+                text: 'Watch & Simulate Blocks',
+                link: '/docs/guides/blocks-events/watch-simulate',
+              },
+              {
+                text: 'Query Logs',
+                link: '/docs/guides/blocks-events/logs',
+              },
+              {
+                text: 'Use Filters',
+                link: '/docs/guides/blocks-events/filters',
               },
             ],
           },
-          { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
+          {
+            text: 'Chain Data',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/chain-data' },
+              {
+                text: 'Address & Contract State',
+                link: '/docs/guides/chain-data/state',
+              },
+              {
+                text: 'State Proofs',
+                link: '/docs/guides/chain-data/proofs',
+              },
+              { text: 'ENS', link: '/docs/guides/chain-data/ens' },
+            ],
+          },
+          {
+            text: 'Clients & Transports',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/clients' },
+              {
+                text: 'Set Up a Client',
+                link: '/docs/guides/clients/setup',
+              },
+              {
+                text: 'Multichain Clients',
+                link: '/docs/guides/clients/multichain',
+              },
+              {
+                text: 'Resilient Transports',
+                link: '/docs/guides/clients/resilient-transports',
+              },
+              {
+                text: 'Rate Limit & Load Balance',
+                link: '/docs/guides/clients/rate-limit-load-balance',
+              },
+              {
+                text: 'WebSocket Subscriptions',
+                link: '/docs/guides/clients/websockets',
+              },
+              {
+                text: 'Custom RPC & Errors',
+                link: '/docs/guides/clients/custom-rpc-errors',
+              },
+            ],
+          },
+          {
+            text: 'Contract Interactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/contracts' },
+              {
+                text: 'Read Contracts',
+                link: '/docs/guides/contracts/read',
+              },
+              {
+                text: 'Write & Simulate Contracts',
+                link: '/docs/guides/contracts/write-simulate',
+              },
+              {
+                text: 'Deploy Contracts',
+                link: '/docs/guides/contracts/deploy',
+              },
+              {
+                text: 'Batch Contract Reads',
+                link: '/docs/guides/contracts/batch-reads',
+              },
+              {
+                text: 'Contract Instances',
+                link: '/docs/guides/contracts/instances',
+              },
+              {
+                text: 'Contract Events',
+                link: '/docs/guides/contracts/events',
+              },
+              {
+                text: 'Low-Level Calls',
+                link: '/docs/guides/contracts/calls',
+              },
+            ],
+          },
+          {
+            text: 'EIP-7702 Authorizations',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/authorizations' },
+              {
+                text: 'Prepare & Sign',
+                link: '/docs/guides/authorizations/prepare-sign',
+              },
+              {
+                text: 'Send & Write',
+                link: '/docs/guides/authorizations/send-write',
+              },
+              {
+                text: 'Inspect Delegations',
+                link: '/docs/guides/authorizations/delegations',
+              },
+              {
+                text: 'ERC-7821 Execution',
+                link: '/docs/guides/authorizations/erc7821',
+              },
+            ],
+          },
+          {
+            text: 'Encryption',
+            collapsed: true,
+            items: [
+              { text: 'General Encryption', link: '/docs/guides/encryption' },
+              {
+                text: 'Encryption with Passkeys',
+                link: '/docs/guides/encryption/passkeys',
+              },
+            ],
+          },
+          {
+            text: 'Error Handling',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/errors' },
+              { text: 'Typed Errors', link: '/docs/errors/typed-errors' },
+              { text: 'Contract Errors', link: '/docs/errors/contract' },
+              { text: 'RPC Errors', link: '/docs/errors/rpc' },
+              { text: 'Base Error', link: '/docs/errors/base-error' },
+              { text: 'Configuration', link: '/docs/errors/configuration' },
+            ],
+          },
+          {
+            text: 'Extending Viem',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/extending' },
+              {
+                text: 'Tree-Shakable Actions',
+                link: '/docs/guides/extending/tree-shakable-actions',
+              },
+              {
+                text: 'Type Composition',
+                link: '/docs/guides/extending/type-composition',
+              },
+              {
+                text: 'Extend a Client',
+                link: '/docs/guides/extending/client',
+              },
+              {
+                text: 'Build Actions & Decorators',
+                link: '/docs/guides/extending/actions-decorators',
+              },
+              {
+                text: 'Custom Chains & Transports',
+                link: '/docs/guides/extending/chains-transports',
+              },
+              {
+                text: 'Distribute a Viem Library',
+                link: '/docs/guides/extending/libraries',
+              },
+            ],
+          },
+          {
+            text: 'Post-Quantum',
+            collapsed: true,
+            items: [
+              {
+                text: 'General Post-Quantum',
+                link: '/docs/guides/post-quantum',
+              },
+              {
+                text: 'Post-Quantum Passkeys',
+                link: '/docs/guides/post-quantum/passkeys',
+              },
+            ],
+          },
+          {
+            text: 'Testing',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/testing' },
+              {
+                text: 'Set Up Anvil & Fork',
+                link: '/docs/guides/testing/anvil',
+              },
+              {
+                text: 'Manipulate Account State',
+                link: '/docs/guides/testing/accounts',
+              },
+              {
+                text: 'Control Mining & Time',
+                link: '/docs/guides/testing/mining-time',
+              },
+              {
+                text: 'Snapshot & Restore',
+                link: '/docs/guides/testing/snapshots',
+              },
+              {
+                text: 'Inspect the Transaction Pool',
+                link: '/docs/guides/testing/txpool',
+              },
+              {
+                text: 'Test Contract Interactions',
+                link: '/docs/guides/testing/contracts',
+              },
+            ],
+          },
+          {
+            text: 'Tokens',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tokens/guides' },
+              {
+                text: 'Importing Tokens',
+                link: '/tokens/guides/importing-tokens',
+              },
+              {
+                text: 'Defining Tokens',
+                link: '/tokens/guides/defining-tokens',
+              },
+              { text: 'Get Balances', link: '/tokens/guides/get-balances' },
+              {
+                text: 'Transfer Tokens',
+                link: '/tokens/guides/transfer-tokens',
+              },
+              {
+                text: 'Approve Spending',
+                link: '/tokens/guides/approve-spending',
+              },
+            ],
+          },
+          {
+            text: 'Transactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/transactions' },
+              {
+                text: 'Send Transactions',
+                link: '/docs/guides/transactions/send',
+              },
+              {
+                text: 'Prepare & Sign Transactions',
+                link: '/docs/guides/transactions/prepare-sign',
+              },
+              {
+                text: 'Estimate Gas & Fees',
+                link: '/docs/guides/transactions/gas-fees',
+              },
+              {
+                text: 'Track Transactions & Nonces',
+                link: '/docs/guides/transactions/track',
+              },
+              {
+                text: 'Blob Transactions',
+                link: '/docs/guides/transactions/blobs',
+              },
+            ],
+          },
+          {
+            text: 'Wallets & Accounts',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/guides/wallets' },
+              {
+                text: 'Connect a Wallet',
+                link: '/docs/guides/wallets/connect',
+              },
+              {
+                text: 'JSON-RPC Accounts',
+                link: '/docs/guides/wallets/json-rpc-accounts',
+              },
+              {
+                text: 'Local Accounts',
+                link: '/docs/guides/wallets/local-accounts',
+              },
+              {
+                text: 'Passkey Accounts',
+                link: '/docs/guides/wallets/passkey-accounts',
+              },
+              {
+                text: 'Manage Chains',
+                link: '/docs/guides/wallets/permissions-chains',
+              },
+              {
+                text: 'Signatures & SIWE',
+                link: '/docs/guides/wallets/signatures',
+              },
+              {
+                text: 'Capabilities & Calls',
+                link: '/docs/guides/wallets/capabilities',
+              },
+              {
+                text: 'Batch Calls',
+                link: '/docs/guides/wallets/batch-calls',
+              },
+              {
+                text: 'Wallet Assets',
+                link: '/docs/guides/wallets/assets',
+              },
+            ],
+          },
+          {
+            text: 'WASM & Engines',
+            link: '/docs/guides/engine',
+          },
         ],
       },
       {
         text: 'Clients & Transports',
+        collapsed: false,
         items: [
-          { text: 'Introduction', link: '/docs/clients/intro' },
-          { text: 'Public Client', link: '/docs/clients/public' },
-          { text: 'Wallet Client', link: '/docs/clients/wallet' },
-          { text: 'Test Client', link: '/docs/clients/test' },
-          { text: 'Build your own Client', link: '/docs/clients/custom' },
+          {
+            text: 'Client',
+            items: [
+              { text: 'Overview', link: '/docs/clients' },
+              { text: 'Create a Client', link: '/docs/clients/create' },
+              { text: 'Resolve Clients', link: '/docs/clients/resolve' },
+              {
+                text: 'Adapting v2 Clients',
+                link: '/docs/clients/v2-adapters',
+              },
+              { text: 'Override Actions', link: '/docs/clients/override' },
+            ],
+          },
           {
             text: 'Transports',
             items: [
-              {
-                text: 'HTTP',
-                link: '/docs/clients/transports/http',
-              },
-              {
-                text: 'WebSocket',
-                link: '/docs/clients/transports/websocket',
-              },
-              {
-                text: 'Custom (EIP-1193)',
-                link: '/docs/clients/transports/custom',
-              },
-              {
-                text: 'IPC',
-                link: '/docs/clients/transports/ipc',
-              },
-              {
-                text: 'Fallback',
-                link: '/docs/clients/transports/fallback',
-              },
+              { text: 'Overview', link: '/docs/transports' },
+              { text: 'HTTP', link: '/docs/transports/http' },
+              { text: 'WebSocket', link: '/docs/transports/websocket' },
+              { text: 'IPC', link: '/docs/transports/ipc' },
+              { text: 'Custom (EIP-1193)', link: '/docs/transports/custom' },
+              { text: 'Fallback', link: '/docs/transports/fallback' },
+              { text: 'Load Balance', link: '/docs/transports/load-balance' },
+              { text: 'Rate Limit', link: '/docs/transports/rate-limit' },
             ],
           },
         ],
       },
       {
-        text: 'Public Actions',
+        text: 'Actions',
         collapsed: true,
         items: [
-          { text: 'Introduction', link: '/docs/actions/public/introduction' },
+          { text: 'Overview', link: '/docs/actions' },
+          { text: 'Capabilities', link: '/docs/actions/capabilities' },
           {
-            text: 'Access List',
+            text: 'Address',
+            collapsed: true,
             items: [
               {
-                text: 'createAccessList',
-                link: '/docs/actions/public/createAccessList',
-              },
-            ],
-          },
-          {
-            text: 'Account',
-            items: [
-              {
-                text: 'getBalance',
-                link: '/docs/actions/public/getBalance',
+                text: 'Get Balance',
+                link: '/docs/actions/public/address/getBalance',
+                badge: badge('public'),
               },
               {
-                text: 'getTransactionCount',
-                link: '/docs/actions/public/getTransactionCount',
+                text: 'Get Bytecode',
+                link: '/docs/actions/public/address/getCode',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Delegation',
+                link: '/docs/actions/public/address/getDelegation',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get State Proof',
+                link: '/docs/actions/public/address/getProof',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Storage Value',
+                link: '/docs/actions/public/address/getStorageAt',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Transaction Count',
+                link: '/docs/actions/public/address/getTransactionCount',
+                badge: badge('public'),
+              },
+              {
+                text: 'Impersonate Account',
+                link: '/docs/actions/test/address/impersonate',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Balance',
+                link: '/docs/actions/test/address/setBalance',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Bytecode',
+                link: '/docs/actions/test/address/setCode',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Nonce',
+                link: '/docs/actions/test/address/setNonce',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Storage',
+                link: '/docs/actions/test/address/setStorageAt',
+                badge: badge('test'),
+              },
+              {
+                text: 'Stop Impersonation',
+                link: '/docs/actions/test/address/stopImpersonating',
+                badge: badge('test'),
               },
             ],
           },
           {
             text: 'Block',
+            collapsed: true,
             items: [
-              { text: 'getBlock', link: '/docs/actions/public/getBlock' },
               {
-                text: 'getBlockReceipts',
-                link: '/docs/actions/public/getBlockReceipts',
+                text: 'Create Block Filter',
+                link: '/docs/actions/public/block/createFilter',
+                badge: badge('public'),
               },
               {
-                text: 'getBlockNumber',
-                link: '/docs/actions/public/getBlockNumber',
+                text: 'Get Block',
+                link: '/docs/actions/public/block/get',
+                badge: badge('public'),
               },
               {
-                text: 'getBlockTransactionCount',
-                link: '/docs/actions/public/getBlockTransactionCount',
+                text: 'Get Block Number',
+                link: '/docs/actions/public/block/getNumber',
+                badge: badge('public'),
               },
               {
-                text: 'simulateBlocks',
-                link: '/docs/actions/public/simulateBlocks',
+                text: 'Get Block Receipts',
+                link: '/docs/actions/public/block/getReceipts',
+                badge: badge('public'),
               },
               {
-                text: 'watchBlockNumber',
-                link: '/docs/actions/public/watchBlockNumber',
+                text: 'Get Transaction Count',
+                link: '/docs/actions/public/block/getTransactionCount',
+                badge: badge('public'),
               },
               {
-                text: 'watchBlockHeaders',
-                link: '/docs/actions/public/watchBlockHeaders',
+                text: 'Simulate Block',
+                link: '/docs/actions/public/block/simulate',
+                badge: badge('public'),
               },
               {
-                text: 'watchBlocks',
-                link: '/docs/actions/public/watchBlocks',
+                text: 'Watch Block Number',
+                link: '/docs/actions/public/block/watchNumber',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Block Headers',
+                link: '/docs/actions/public/block/watchHeaders',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Blocks',
+                link: '/docs/actions/public/block/watch',
+                badge: badge('public'),
+              },
+              {
+                text: 'Configure Automine',
+                link: '/docs/actions/test/block/setAutomine',
+                badge: badge('test'),
+              },
+              {
+                text: 'Configure Interval Mining',
+                link: '/docs/actions/test/block/setIntervalMining',
+                badge: badge('test'),
+              },
+              {
+                text: 'Get Automine Status',
+                link: '/docs/actions/test/block/getAutomine',
+                badge: badge('test'),
+              },
+              {
+                text: 'Increase Time',
+                link: '/docs/actions/test/block/increaseTime',
+                badge: badge('test'),
+              },
+              {
+                text: 'Mine Blocks',
+                link: '/docs/actions/test/block/mine',
+                badge: badge('test'),
+              },
+              {
+                text: 'Remove Timestamp Interval',
+                link: '/docs/actions/test/block/removeTimestampInterval',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Coinbase',
+                link: '/docs/actions/test/block/setCoinbase',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Gas Limit',
+                link: '/docs/actions/test/block/setGasLimit',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Next Base Fee',
+                link: '/docs/actions/test/block/setNextBaseFeePerGas',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Next Timestamp',
+                link: '/docs/actions/test/block/setNextTimestamp',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Timestamp Interval',
+                link: '/docs/actions/test/block/setTimestampInterval',
+                badge: badge('test'),
               },
             ],
           },
           {
-            text: 'Calls',
+            text: 'Call',
+            collapsed: true,
             items: [
-              { text: 'call', link: '/docs/actions/public/call' },
               {
-                text: 'simulateCalls',
-                link: '/docs/actions/public/simulateCalls',
+                text: 'Batch Calls',
+                link: '/docs/actions/public/multicall',
+                badge: badge('public'),
+              },
+              {
+                text: 'Execute Call',
+                link: '/docs/actions/public/call',
+                badge: badge('public'),
               },
             ],
           },
           {
-            text: 'Chain',
+            text: 'Chains',
+            collapsed: true,
             items: [
-              { text: 'getChainId', link: '/docs/actions/public/getChainId' },
+              {
+                text: 'Get Chain ID',
+                link: '/docs/actions/public/chains/getId',
+                badge: badge('public'),
+              },
+              {
+                text: 'Add Chain',
+                link: '/docs/actions/wallet/chains/add',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Switch Chain',
+                link: '/docs/actions/wallet/chains/switch',
+                badge: badge('wallet'),
+              },
             ],
           },
           {
-            text: 'EIP-712',
+            text: 'Contract',
+            collapsed: true,
             items: [
               {
-                text: 'getEip712Domain',
-                link: '/docs/actions/public/getEip712Domain',
+                text: 'Create Event Filter',
+                link: '/docs/actions/public/contract/createEventFilter',
+                badge: badge('public'),
+              },
+              {
+                text: 'Estimate Gas',
+                link: '/docs/actions/public/contract/estimateGas',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get EIP-712 Domain',
+                link: '/docs/actions/public/contract/getEip712Domain',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Event Logs',
+                link: '/docs/actions/public/contract/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'Read Contract',
+                link: '/docs/actions/public/contract/read',
+                badge: badge('public'),
+              },
+              {
+                text: 'Simulate Contract',
+                link: '/docs/actions/public/contract/simulate',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Events',
+                link: '/docs/actions/public/contract/watchEvent',
+                badge: badge('public'),
+              },
+              {
+                text: 'Deploy Contract',
+                link: '/docs/actions/wallet/contract/deploy',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Write Contract',
+                link: '/docs/actions/wallet/contract/write',
+                badge: badge('wallet'),
+              },
+            ],
+          },
+          {
+            text: 'ENS',
+            collapsed: true,
+            items: [
+              {
+                text: 'Get Address',
+                link: '/docs/actions/public/ens/getAddress',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Avatar',
+                link: '/docs/actions/public/ens/getAvatar',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Primary Name',
+                link: '/docs/actions/public/ens/getName',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Resolver Address',
+                link: '/docs/actions/public/ens/getResolver',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Text Record',
+                link: '/docs/actions/public/ens/getText',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Event',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create Event Filter',
+                link: '/docs/actions/public/event/createFilter',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Event Logs',
+                link: '/docs/actions/public/event/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Events',
+                link: '/docs/actions/public/event/watch',
+                badge: badge('public'),
               },
             ],
           },
           {
             text: 'Fee',
+            collapsed: true,
             items: [
               {
-                text: 'estimateFeesPerGas',
-                link: '/docs/actions/public/estimateFeesPerGas',
+                text: 'Estimate Fees',
+                link: '/docs/actions/public/fee/estimateFeesPerGas',
+                badge: badge('public'),
               },
               {
-                text: 'estimateGas',
-                link: '/docs/actions/public/estimateGas',
+                text: 'Estimate Priority Fee',
+                link: '/docs/actions/public/fee/estimateMaxPriorityFeePerGas',
+                badge: badge('public'),
               },
               {
-                text: 'estimateMaxPriorityFeePerGas',
-                link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
+                text: 'Get Blob Base Fee',
+                link: '/docs/actions/public/fee/getBlobBaseFee',
+                badge: badge('public'),
               },
               {
-                text: 'getBlobBaseFee',
-                link: '/docs/actions/public/getBlobBaseFee',
+                text: 'Get Fee History',
+                link: '/docs/actions/public/fee/getHistory',
+                badge: badge('public'),
               },
               {
-                text: 'getFeeHistory',
-                link: '/docs/actions/public/getFeeHistory',
-              },
-              {
-                text: 'getGasPrice',
-                link: '/docs/actions/public/getGasPrice',
+                text: 'Get Gas Price',
+                link: '/docs/actions/public/fee/getGasPrice',
+                badge: badge('public'),
               },
             ],
           },
           {
-            text: 'Filters & Logs',
+            text: 'Filter',
+            collapsed: true,
             items: [
               {
-                text: 'createBlockFilter',
-                link: '/docs/actions/public/createBlockFilter',
+                text: 'Get Filter Changes',
+                link: '/docs/actions/public/filter/getChanges',
+                badge: badge('public'),
               },
               {
-                text: 'createEventFilter',
-                link: '/docs/actions/public/createEventFilter',
+                text: 'Get Filter Logs',
+                link: '/docs/actions/public/filter/getLogs',
+                badge: badge('public'),
               },
               {
-                text: 'createPendingTransactionFilter',
-                link: '/docs/actions/public/createPendingTransactionFilter',
-              },
-              {
-                text: 'getFilterChanges',
-                link: '/docs/actions/public/getFilterChanges',
-              },
-              {
-                text: 'getFilterLogs',
-                link: '/docs/actions/public/getFilterLogs',
-              },
-              {
-                text: 'getLogs',
-                link: '/docs/actions/public/getLogs',
-              },
-              {
-                text: 'watchEvent',
-                link: '/docs/actions/public/watchEvent',
-              },
-              {
-                text: 'uninstallFilter',
-                link: '/docs/actions/public/uninstallFilter',
-              },
-            ],
-          },
-          {
-            text: 'Proof',
-            items: [
-              {
-                text: 'getProof',
-                link: '/docs/actions/public/getProof',
-              },
-            ],
-          },
-          {
-            text: 'Signature',
-            items: [
-              {
-                text: 'verifyMessage',
-                link: '/docs/actions/public/verifyMessage',
-              },
-              {
-                text: 'verifyTypedData',
-                link: '/docs/actions/public/verifyTypedData',
-              },
-            ],
-          },
-          {
-            text: 'Token',
-            items: [
-              { text: 'getAllowance', link: '/tokens/actions/getAllowance' },
-              { text: 'getBalance', link: '/tokens/actions/getBalance' },
-              { text: 'getMetadata', link: '/tokens/actions/getMetadata' },
-              {
-                text: 'getTotalSupply',
-                link: '/tokens/actions/getTotalSupply',
-              },
-            ],
-          },
-          {
-            text: 'Transaction',
-            items: [
-              {
-                text: 'prepareTransactionRequest',
-                link: '/docs/actions/wallet/prepareTransactionRequest',
-              },
-              {
-                text: 'fillTransaction',
-                link: '/docs/actions/public/fillTransaction',
-              },
-              {
-                text: 'getRawTransaction',
-                link: '/docs/actions/public/getRawTransaction',
-              },
-              {
-                text: 'getTransaction',
-                link: '/docs/actions/public/getTransaction',
-              },
-              {
-                text: 'getTransactionConfirmations',
-                link: '/docs/actions/public/getTransactionConfirmations',
-              },
-              {
-                text: 'getTransactionReceipt',
-                link: '/docs/actions/public/getTransactionReceipt',
-              },
-              {
-                text: 'sendRawTransaction',
-                link: '/docs/actions/wallet/sendRawTransaction',
-              },
-              {
-                text: 'waitForTransactionReceipt',
-                link: '/docs/actions/public/waitForTransactionReceipt',
-              },
-              {
-                text: 'watchPendingTransactions',
-                link: '/docs/actions/public/watchPendingTransactions',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Wallet Actions',
-        collapsed: true,
-        items: [
-          { text: 'Introduction', link: '/docs/actions/wallet/introduction' },
-          {
-            text: 'Account',
-            items: [
-              {
-                text: 'getAddresses',
-                link: '/docs/actions/wallet/getAddresses',
-              },
-              {
-                text: 'requestAddresses',
-                link: '/docs/actions/wallet/requestAddresses',
-              },
-            ],
-          },
-          {
-            text: 'Assets',
-            items: [
-              {
-                text: 'watchAsset',
-                link: '/docs/actions/wallet/watchAsset',
-              },
-            ],
-          },
-          {
-            text: 'Call Bundles (EIP-5792)',
-            items: [
-              {
-                text: 'getCallsStatus',
-                link: '/docs/actions/wallet/getCallsStatus',
-              },
-              {
-                text: 'getCapabilities',
-                link: '/docs/actions/wallet/getCapabilities',
-              },
-              {
-                text: 'sendCalls',
-                link: '/docs/actions/wallet/sendCalls',
-              },
-              {
-                text: 'sendCallsSync',
-                link: '/docs/actions/wallet/sendCallsSync',
-              },
-              {
-                text: 'showCallsStatus',
-                link: '/docs/actions/wallet/showCallsStatus',
-              },
-              {
-                text: 'waitForCallsStatus',
-                link: '/docs/actions/wallet/waitForCallsStatus',
-              },
-            ],
-          },
-          {
-            text: 'Chain',
-            items: [
-              {
-                text: 'addChain',
-                link: '/docs/actions/wallet/addChain',
-              },
-              {
-                text: 'switchChain',
-                link: '/docs/actions/wallet/switchChain',
-              },
-            ],
-          },
-          {
-            text: 'Data',
-            items: [
-              {
-                text: 'signMessage',
-                link: '/docs/actions/wallet/signMessage',
-              },
-              {
-                text: 'signTypedData',
-                link: '/docs/actions/wallet/signTypedData',
-              },
-            ],
-          },
-          {
-            text: 'Permissions',
-            items: [
-              {
-                text: 'getPermissions',
-                link: '/docs/actions/wallet/getPermissions',
-              },
-              {
-                text: 'requestPermissions',
-                link: '/docs/actions/wallet/requestPermissions',
-              },
-            ],
-          },
-          {
-            text: 'Token',
-            items: [
-              { text: 'approve', link: '/tokens/actions/approve' },
-              { text: 'transfer', link: '/tokens/actions/transfer' },
-            ],
-          },
-          {
-            text: 'Transaction',
-            items: [
-              {
-                text: 'prepareTransactionRequest',
-                link: '/docs/actions/wallet/prepareTransactionRequest',
-              },
-              {
-                text: 'sendRawTransaction',
-                link: '/docs/actions/wallet/sendRawTransaction',
-              },
-              {
-                text: 'sendRawTransactionSync',
-                link: '/docs/actions/wallet/sendRawTransactionSync',
-              },
-              {
-                text: 'sendTransaction',
-                link: '/docs/actions/wallet/sendTransaction',
-              },
-              {
-                text: 'sendTransactionSync',
-                link: '/docs/actions/wallet/sendTransactionSync',
-              },
-              {
-                text: 'signTransaction',
-                link: '/docs/actions/wallet/signTransaction',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Test Actions',
-        collapsed: true,
-        items: [
-          { text: 'Introduction', link: '/docs/actions/test/introduction' },
-          {
-            text: 'Account',
-            items: [
-              {
-                text: 'impersonateAccount',
-                link: '/docs/actions/test/impersonateAccount',
-              },
-              { text: 'setBalance', link: '/docs/actions/test/setBalance' },
-              { text: 'setCode', link: '/docs/actions/test/setCode' },
-              { text: 'setNonce', link: '/docs/actions/test/setNonce' },
-              {
-                text: 'setStorageAt',
-                link: '/docs/actions/test/setStorageAt',
-              },
-              {
-                text: 'stopImpersonatingAccount',
-                link: '/docs/actions/test/stopImpersonatingAccount',
-              },
-            ],
-          },
-          {
-            text: 'Block',
-            items: [
-              { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
-              {
-                text: 'increaseTime',
-                link: '/docs/actions/test/increaseTime',
-              },
-              { text: 'mine', link: '/docs/actions/test/mine' },
-              {
-                text: 'removeBlockTimestampInterval',
-                link: '/docs/actions/test/removeBlockTimestampInterval',
-              },
-              { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
-              {
-                text: 'setIntervalMining',
-                link: '/docs/actions/test/setIntervalMining',
-              },
-              {
-                text: 'setBlockTimestampInterval',
-                link: '/docs/actions/test/setBlockTimestampInterval',
-              },
-              {
-                text: 'setBlockGasLimit',
-                link: '/docs/actions/test/setBlockGasLimit',
-              },
-              {
-                text: 'setNextBlockBaseFeePerGas',
-                link: '/docs/actions/test/setNextBlockBaseFeePerGas',
-              },
-              {
-                text: 'setNextBlockTimestamp',
-                link: '/docs/actions/test/setNextBlockTimestamp',
+                text: 'Uninstall Filter',
+                link: '/docs/actions/public/filter/uninstall',
+                badge: badge('public'),
               },
             ],
           },
           {
             text: 'Node',
+            collapsed: true,
             items: [
-              { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
               {
-                text: 'setMinGasPrice',
-                link: '/docs/actions/test/setMinGasPrice',
+                text: 'Configure Logging',
+                link: '/docs/actions/test/node/setLoggingEnabled',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set Minimum Gas Price',
+                link: '/docs/actions/test/node/setMinGasPrice',
+                badge: badge('test'),
+              },
+              {
+                text: 'Set RPC URL',
+                link: '/docs/actions/test/node/setRpcUrl',
+                badge: badge('test'),
               },
             ],
           },
           {
-            text: 'Settings',
+            text: 'Sign & Verify',
+            collapsed: true,
             items: [
-              { text: 'reset', link: '/docs/actions/test/reset' },
               {
-                text: 'setLoggingEnabled',
-                link: '/docs/actions/test/setLoggingEnabled',
+                text: 'Verify Hash',
+                link: '/docs/actions/public/verifyHash',
+                badge: badge('public'),
               },
-              { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
+              {
+                text: 'Verify Message',
+                link: '/docs/actions/public/verifyMessage',
+                badge: badge('public'),
+              },
+              {
+                text: 'Verify SIWE Message',
+                link: '/docs/actions/public/siwe/verify',
+                badge: badge('public'),
+              },
+              {
+                text: 'Verify Typed Data',
+                link: '/docs/actions/public/typedData/verify',
+                badge: badge('public'),
+              },
+              {
+                text: 'Sign Message',
+                link: '/docs/actions/wallet/signMessage',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Transaction',
+                link: '/docs/actions/wallet/signTransaction',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Typed Data',
+                link: '/docs/actions/wallet/typedData/sign',
+                badge: badge('wallet'),
+              },
             ],
           },
           {
             text: 'State',
+            collapsed: true,
             items: [
-              { text: 'dumpState', link: '/docs/actions/test/dumpState' },
-              { text: 'loadState', link: '/docs/actions/test/loadState' },
-              { text: 'revert', link: '/docs/actions/test/revert' },
-              { text: 'snapshot', link: '/docs/actions/test/snapshot' },
+              {
+                text: 'Dump State',
+                link: '/docs/actions/test/state/dump',
+                badge: badge('test'),
+              },
+              {
+                text: 'Load State',
+                link: '/docs/actions/test/state/load',
+                badge: badge('test'),
+              },
+              {
+                text: 'Reset State',
+                link: '/docs/actions/test/state/reset',
+                badge: badge('test'),
+              },
+              {
+                text: 'Revert State',
+                link: '/docs/actions/test/state/revert',
+                badge: badge('test'),
+              },
+              {
+                text: 'Snapshot State',
+                link: '/docs/actions/test/state/snapshot',
+                badge: badge('test'),
+              },
+            ],
+          },
+          {
+            text: 'Token',
+            collapsed: true,
+            items: [
+              {
+                text: 'Get Allowance',
+                link: '/docs/actions/public/token/getAllowance',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Balance',
+                link: '/docs/actions/public/token/getBalance',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Metadata',
+                link: '/docs/actions/public/token/getMetadata',
+                badge: badge('public'),
+              },
+              {
+                text: 'Get Total Supply',
+                link: '/docs/actions/public/token/getTotalSupply',
+                badge: badge('public'),
+              },
+              {
+                text: 'Approve Spending',
+                link: '/docs/actions/wallet/token/approve',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Transfer Tokens',
+                link: '/docs/actions/wallet/token/transfer',
+                badge: badge('wallet'),
+              },
             ],
           },
           {
             text: 'Transaction',
+            collapsed: true,
             items: [
               {
-                text: 'dropTransaction',
-                link: '/docs/actions/test/dropTransaction',
+                text: 'Create Access List',
+                link: '/docs/actions/public/transaction/createAccessList',
+                badge: badge('public'),
               },
               {
-                text: 'getTxpoolContent',
-                link: '/docs/actions/test/getTxpoolContent',
+                text: 'Create Pending Filter',
+                link: '/docs/actions/public/transaction/createPendingFilter',
+                badge: badge('public'),
               },
               {
-                text: 'getTxpoolStatus',
-                link: '/docs/actions/test/getTxpoolStatus',
+                text: 'Estimate Gas',
+                link: '/docs/actions/public/transaction/estimateGas',
+                badge: badge('public'),
               },
               {
-                text: 'inspectTxpool',
-                link: '/docs/actions/test/inspectTxpool',
+                text: 'Fill Request',
+                link: '/docs/actions/public/transaction/fill',
+                badge: badge('public'),
               },
               {
-                text: 'sendUnsignedTransaction',
-                link: '/docs/actions/test/sendUnsignedTransaction',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Accounts',
-        collapsed: true,
-        items: [
-          { text: 'JSON-RPC Account', link: '/docs/accounts/jsonRpc' },
-          {
-            text: 'Local Accounts',
-            link: '/docs/accounts/local',
-            items: [
-              {
-                text: 'Private Key',
-                link: '/docs/accounts/local/privateKeyToAccount',
+                text: 'Get Confirmations',
+                link: '/docs/actions/public/transaction/getConfirmations',
+                badge: badge('public'),
               },
               {
-                text: 'Mnemonic',
-                link: '/docs/accounts/local/mnemonicToAccount',
+                text: 'Get Raw Transaction',
+                link: '/docs/actions/public/transaction/getRaw',
+                badge: badge('public'),
               },
               {
-                text: 'Hierarchical Deterministic (HD)',
-                link: '/docs/accounts/local/hdKeyToAccount',
-              },
-              { text: 'Custom', link: '/docs/accounts/local/toAccount' },
-              {
-                text: 'Utilities',
-                items: [
-                  {
-                    text: 'createNonceManager',
-                    link: '/docs/accounts/local/createNonceManager',
-                  },
-                  {
-                    text: 'signMessage',
-                    link: '/docs/accounts/local/signMessage',
-                  },
-                  {
-                    text: 'signTransaction',
-                    link: '/docs/accounts/local/signTransaction',
-                  },
-                  {
-                    text: 'signTypedData',
-                    link: '/docs/accounts/local/signTypedData',
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Chains',
-        collapsed: true,
-        items: [
-          { text: 'Introduction', link: '/docs/chains/introduction' },
-          {
-            text: 'Configuration',
-            items: [
-              {
-                text: 'Fees',
-                link: '/docs/chains/fees',
+                text: 'Get Receipt',
+                link: '/docs/actions/public/transaction/getReceipt',
+                badge: badge('public'),
               },
               {
-                text: 'Formatters',
-                link: '/docs/chains/formatters',
+                text: 'Get Transaction',
+                link: '/docs/actions/public/transaction/get',
+                badge: badge('public'),
               },
               {
-                text: 'Serializers',
-                link: '/docs/chains/serializers',
+                text: 'Prepare Transaction',
+                link: '/docs/actions/public/transaction/prepare',
+                badge: badge('public'),
+              },
+              {
+                text: 'Wait for Receipt',
+                link: '/docs/actions/public/transaction/waitForReceipt',
+                badge: badge('public'),
+              },
+              {
+                text: 'Watch Pending Transactions',
+                link: '/docs/actions/public/transaction/watchPending',
+                badge: badge('public'),
+              },
+              {
+                text: 'Send Raw Transaction',
+                link: '/docs/actions/wallet/transaction/sendRaw',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Send Transaction',
+                link: '/docs/actions/wallet/transaction/send',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Transaction',
+                link: '/docs/actions/wallet/transaction/sign',
+                badge: badge('wallet'),
               },
             ],
           },
           {
-            text: 'Implementations',
+            text: 'Transaction Pool',
+            collapsed: true,
             items: [
               {
-                text: 'Celo',
-                link: '/docs/chains/celo',
+                text: 'Drop Transaction',
+                link: '/docs/actions/test/txpool/dropTransaction',
+                badge: badge('test'),
               },
               {
-                text: 'OP Stack',
-                link: '/op-stack',
+                text: 'Get Pool Status',
+                link: '/docs/actions/test/txpool/getStatus',
+                badge: badge('test'),
+              },
+              {
+                text: 'Inspect Pool',
+                link: '/docs/actions/test/txpool/inspect',
+                badge: badge('test'),
+              },
+            ],
+          },
+          {
+            text: 'Wallet',
+            collapsed: true,
+            items: [
+              {
+                text: 'Connect Wallet',
+                link: '/docs/actions/wallet/connect',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Disconnect Wallet',
+                link: '/docs/actions/wallet/disconnect',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Get Addresses',
+                link: '/docs/actions/wallet/getAddresses',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Get Assets',
+                link: '/docs/actions/wallet/getAssets',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Get Call Status',
+                link: '/docs/actions/wallet/getCallsStatus',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Get Capabilities',
+                link: '/docs/actions/wallet/getCapabilities',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Get Permissions',
+                link: '/docs/actions/wallet/getPermissions',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Prepare Authorization',
+                link: '/docs/actions/wallet/prepareAuthorization',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Request Addresses',
+                link: '/docs/actions/wallet/requestAddresses',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Request Permissions',
+                link: '/docs/actions/wallet/requestPermissions',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Send Calls',
+                link: '/docs/actions/wallet/sendCalls',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Show Call Status',
+                link: '/docs/actions/wallet/showCallsStatus',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Sign Authorization',
+                link: '/docs/actions/wallet/signAuthorization',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Wait for Call Status',
+                link: '/docs/actions/wallet/waitForCallsStatus',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'Watch Asset',
+                link: '/docs/actions/wallet/watchAsset',
+                badge: badge('wallet'),
               },
             ],
           },
@@ -858,2460 +1711,1791 @@ export default defineConfig({
         text: 'Contract',
         collapsed: true,
         items: [
+          { text: 'Overview', link: '/docs/contract' },
+          { text: 'Contract Instances', link: '/docs/contract/instances' },
           {
-            text: 'Contract Instances',
-            link: '/docs/contract/getContract',
+            text: 'Create an Instance',
+            link: '/docs/contract/instances/create',
+          },
+          { text: 'Read Functions', link: '/docs/contract/instances/read' },
+          { text: 'Write Functions', link: '/docs/contract/instances/write' },
+          {
+            text: 'Simulate Functions',
+            link: '/docs/contract/instances/simulate',
           },
           {
-            text: 'Actions',
+            text: 'Estimate Gas',
+            link: '/docs/contract/instances/estimateGas',
+          },
+          {
+            text: 'Create Event Filters',
+            link: '/docs/contract/instances/createEventFilter',
+          },
+          {
+            text: 'Query Event Logs',
+            link: '/docs/contract/instances/getLogs',
+          },
+          {
+            text: 'Watch Events',
+            link: '/docs/contract/instances/watchEvent',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/accounts' },
+          { text: 'JSON-RPC Accounts', link: '/docs/accounts/json-rpc' },
+          {
+            text: 'Local Accounts',
             items: [
               {
-                text: 'createContractEventFilter',
-                link: '/docs/contract/createContractEventFilter',
+                text: 'Private Key Accounts',
+                link: '/docs/accounts/local/private-key',
               },
               {
-                text: 'deployContract',
-                link: '/docs/contract/deployContract',
+                text: 'Passkey Accounts',
+                link: '/docs/accounts/local/passkey',
               },
               {
-                text: 'estimateContractGas',
-                link: '/docs/contract/estimateContractGas',
+                text: 'Mnemonic Accounts',
+                link: '/docs/accounts/local/mnemonic',
               },
               {
-                text: 'getCode',
-                link: '/docs/contract/getCode',
+                text: 'HD Accounts',
+                link: '/docs/accounts/local/hd',
               },
               {
-                text: 'getContractEvents',
-                link: '/docs/contract/getContractEvents',
-              },
-              {
-                text: 'getStorageAt',
-                link: '/docs/contract/getStorageAt',
-              },
-              {
-                text: 'multicall',
-                link: '/docs/contract/multicall',
-              },
-              {
-                text: 'readContract',
-                link: '/docs/contract/readContract',
-              },
-              {
-                text: 'simulateContract',
-                link: '/docs/contract/simulateContract',
-              },
-              {
-                text: 'writeContract',
-                link: '/docs/contract/writeContract',
-              },
-              {
-                text: 'writeContractSync',
-                link: '/docs/contract/writeContractSync',
-              },
-              {
-                text: 'watchContractEvent',
-                link: '/docs/contract/watchContractEvent',
+                text: 'Custom Accounts',
+                link: '/docs/accounts/local/custom',
               },
             ],
           },
+          { text: 'Nonce Manager', link: '/docs/accounts/nonce-manager' },
+        ],
+      },
+      {
+        text: 'Addresses',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/addresses' },
+          { text: 'CREATE2 Deployer', link: '/docs/addresses/create2' },
+        ],
+      },
+      {
+        text: 'Chains',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/chains' },
+          { text: 'Defining a Chain', link: '/docs/chains/create' },
+          { text: 'Extending Chains', link: '/docs/chains/extend' },
+          { text: 'Customizing Fees', link: '/docs/chains/fees' },
+        ],
+      },
+      {
+        text: 'Tokens',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/docs/tokens' },
+          { text: 'Defining a Token', link: '/docs/tokens/create' },
+        ],
+      },
+      {
+        text: 'ERCs',
+        collapsed: true,
+        items: [
           {
-            text: 'Utilities',
+            text: 'ERC-7821',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/actions/erc7821' },
+              {
+                text: 'Execute Calls',
+                link: '/docs/actions/erc7821/execute',
+              },
+              {
+                text: 'Execute Batches',
+                link: '/docs/actions/erc7821/executeBatches',
+              },
+              {
+                text: 'Check Execution Mode',
+                link: '/docs/actions/erc7821/supportsExecutionMode',
+              },
+            ],
+          },
+        ],
+      },
+      { ...sidebar.utilities, collapsed: true },
+    ],
+    '/tokens': [
+      {
+        text: 'Introduction',
+        items: [
+          { text: 'Getting Started', link: '/tokens' },
+          { text: 'Tokens', link: '/tokens/tokens' },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          { text: 'Overview', link: '/tokens/guides' },
+          {
+            text: 'Importing Tokens',
+            link: '/tokens/guides/importing-tokens',
+          },
+          {
+            text: 'Defining Tokens',
+            link: '/tokens/guides/defining-tokens',
+          },
+          { text: 'Get Balances', link: '/tokens/guides/get-balances' },
+          {
+            text: 'Transfer Tokens',
+            link: '/tokens/guides/transfer-tokens',
+          },
+          {
+            text: 'Approve Spending',
+            link: '/tokens/guides/approve-spending',
+          },
+          {
+            text: 'TIP-20 (Tempo)',
+            collapsed: true,
             items: [
               {
-                text: 'decodeDeployData',
-                link: '/docs/contract/decodeDeployData',
+                text: 'Create a TIP-20 Token',
+                link: '/tokens/guides/tempo/create-token',
               },
               {
-                text: 'decodeErrorResult',
-                link: '/docs/contract/decodeErrorResult',
+                text: 'Mint & Burn Tokens',
+                link: '/tokens/guides/tempo/manage-token-balances',
               },
               {
-                text: 'decodeEventLog',
-                link: '/docs/contract/decodeEventLog',
+                text: 'Transfer Tokens',
+                link: '/tokens/guides/tempo/transfer-tokens',
               },
               {
-                text: 'decodeFunctionData',
-                link: '/docs/contract/decodeFunctionData',
+                text: 'Manage Token Roles & Supply',
+                link: '/tokens/guides/tempo/manage-token-roles',
               },
               {
-                text: 'decodeFunctionResult',
-                link: '/docs/contract/decodeFunctionResult',
-              },
-              {
-                text: 'encodeDeployData',
-                link: '/docs/contract/encodeDeployData',
-              },
-              {
-                text: 'encodeErrorResult',
-                link: '/docs/contract/encodeErrorResult',
-              },
-              {
-                text: 'encodeEventTopics',
-                link: '/docs/contract/encodeEventTopics',
-              },
-              {
-                text: 'encodeFunctionData',
-                link: '/docs/contract/encodeFunctionData',
-              },
-              {
-                text: 'encodeFunctionResult',
-                link: '/docs/contract/encodeFunctionResult',
-              },
-              {
-                text: 'parseEventLogs',
-                link: '/docs/contract/parseEventLogs',
+                text: 'Configure Transfer Policies',
+                link: '/tokens/guides/tempo/transfer-policies',
               },
             ],
           },
         ],
       },
       {
-        text: 'ENS',
-        collapsed: true,
+        text: 'Actions',
         items: [
+          { text: 'Overview', link: '/tokens/actions' },
           {
-            text: 'Actions',
+            text: 'Core',
             items: [
+              { text: 'approve', link: '/tokens/actions/approve' },
               {
-                text: 'getEnsAddress',
-                link: '/docs/ens/actions/getEnsAddress',
+                text: 'getAllowance',
+                link: '/tokens/actions/getAllowance',
               },
+              { text: 'getBalance', link: '/tokens/actions/getBalance' },
+              { text: 'getMetadata', link: '/tokens/actions/getMetadata' },
               {
-                text: 'getEnsAvatar',
-                link: '/docs/ens/actions/getEnsAvatar',
+                text: 'getTotalSupply',
+                link: '/tokens/actions/getTotalSupply',
               },
-              { text: 'getEnsName', link: '/docs/ens/actions/getEnsName' },
-              {
-                text: 'getEnsResolver',
-                link: '/docs/ens/actions/getEnsResolver',
-              },
-              {
-                text: 'getEnsText',
-                link: '/docs/ens/actions/getEnsText',
-              },
+              { text: 'transfer', link: '/tokens/actions/transfer' },
             ],
           },
           {
-            text: 'Utilities',
+            text: 'TIP-20 (Tempo)',
+            collapsed: true,
             items: [
-              { text: 'labelhash', link: '/docs/ens/utilities/labelhash' },
-              { text: 'namehash', link: '/docs/ens/utilities/namehash' },
-
-              { text: 'normalize', link: '/docs/ens/utilities/normalize' },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'SIWE',
-        collapsed: true,
-        items: [
-          {
-            text: 'Actions',
-            items: [
+              { text: 'burn', link: '/tokens/tempo/burn' },
               {
-                text: 'verifySiweMessage',
-                link: '/docs/siwe/actions/verifySiweMessage',
-              },
-            ],
-          },
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'createSiweMessage',
-                link: '/docs/siwe/utilities/createSiweMessage',
+                text: 'burnBlocked',
+                link: '/tokens/tempo/burnBlocked',
               },
               {
-                text: 'generateSiweNonce',
-                link: '/docs/siwe/utilities/generateSiweNonce',
+                text: 'changeTransferPolicy',
+                link: '/tokens/tempo/changeTransferPolicy',
+              },
+              { text: 'create', link: '/tokens/tempo/create' },
+              {
+                text: 'getRoleAdmin',
+                link: '/tokens/tempo/getRoleAdmin',
+              },
+              { text: 'grantRoles', link: '/tokens/tempo/grantRoles' },
+              { text: 'hasRole', link: '/tokens/tempo/hasRole' },
+              { text: 'mint', link: '/tokens/tempo/mint' },
+              { text: 'pause', link: '/tokens/tempo/pause' },
+              {
+                text: 'prepareUpdateQuoteToken',
+                link: '/tokens/tempo/prepareUpdateQuoteToken',
               },
               {
-                text: 'parseSiweMessage',
-                link: '/docs/siwe/utilities/parseSiweMessage',
+                text: 'renounceRoles',
+                link: '/tokens/tempo/renounceRoles',
               },
               {
-                text: 'validateSiweMessage',
-                link: '/docs/siwe/utilities/validateSiweMessage',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'ABI',
-        collapsed: true,
-        items: [
-          {
-            text: 'decodeAbiParameters',
-            link: '/docs/abi/decodeAbiParameters',
-          },
-          {
-            text: 'encodeAbiParameters',
-            link: '/docs/abi/encodeAbiParameters',
-          },
-          {
-            text: 'encodePacked',
-            link: '/docs/abi/encodePacked',
-          },
-          {
-            text: 'getAbiItem',
-            link: '/docs/abi/getAbiItem',
-          },
-          {
-            text: 'parseAbi',
-            link: '/docs/abi/parseAbi',
-          },
-          {
-            text: 'parseAbiItem',
-            link: '/docs/abi/parseAbiItem',
-          },
-          {
-            text: 'parseAbiParameter',
-            link: '/docs/abi/parseAbiParameter',
-          },
-          {
-            text: 'parseAbiParameters',
-            link: '/docs/abi/parseAbiParameters',
-          },
-        ],
-      },
-      {
-        text: 'EIP-7702',
-        collapsed: true,
-        items: [
-          {
-            text: 'Overview',
-            link: '/docs/eip7702',
-          },
-          {
-            text: 'Guides',
-            items: [
-              {
-                text: 'Contract Writes',
-                link: '/docs/eip7702/contract-writes',
+                text: 'revokeRoles',
+                link: '/tokens/tempo/revokeRoles',
               },
               {
-                text: 'Sending Transactions',
-                link: '/docs/eip7702/sending-transactions',
+                text: 'setRoleAdmin',
+                link: '/tokens/tempo/setRoleAdmin',
+              },
+              {
+                text: 'setSupplyCap',
+                link: '/tokens/tempo/setSupplyCap',
+              },
+              { text: 'unpause', link: '/tokens/tempo/unpause' },
+              {
+                text: 'updateQuoteToken',
+                link: '/tokens/tempo/updateQuoteToken',
+              },
+              {
+                text: 'watchAdminRole',
+                link: '/tokens/tempo/watchAdminRole',
+              },
+              {
+                text: 'watchApprove',
+                link: '/tokens/tempo/watchApprove',
+              },
+              { text: 'watchBurn', link: '/tokens/tempo/watchBurn' },
+              { text: 'watchCreate', link: '/tokens/tempo/watchCreate' },
+              { text: 'watchMint', link: '/tokens/tempo/watchMint' },
+              { text: 'watchRole', link: '/tokens/tempo/watchRole' },
+              {
+                text: 'watchTransfer',
+                link: '/tokens/tempo/watchTransfer',
+              },
+              {
+                text: 'watchUpdateQuoteToken',
+                link: '/tokens/tempo/watchUpdateQuoteToken',
               },
             ],
           },
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'getDelegation',
-                link: '/docs/eip7702/getDelegation',
-              },
-              {
-                text: 'prepareAuthorization',
-                link: '/docs/eip7702/prepareAuthorization',
-              },
-              {
-                text: 'signAuthorization',
-                link: '/docs/eip7702/signAuthorization',
-              },
-            ],
-          },
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'hashAuthorization',
-                link: '/docs/eip7702/hashAuthorization',
-              },
-              {
-                text: 'recoverAuthorizationAddress',
-                link: '/docs/eip7702/recoverAuthorizationAddress',
-              },
-              {
-                text: 'verifyAuthorization',
-                link: '/docs/eip7702/verifyAuthorization',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Utilities',
-        collapsed: true,
-        items: [
-          {
-            text: 'Addresses',
-            items: [
-              {
-                text: 'getAddress',
-                link: '/docs/utilities/getAddress',
-              },
-              {
-                text: 'getContractAddress',
-                link: '/docs/utilities/getContractAddress',
-              },
-              {
-                text: 'isAddress',
-                link: '/docs/utilities/isAddress',
-              },
-              {
-                text: 'isAddressEqual',
-                link: '/docs/utilities/isAddressEqual',
-              },
-            ],
-          },
-          {
-            text: 'Blob',
-            items: [
-              {
-                text: 'blobsToProofs',
-                link: '/docs/utilities/blobsToProofs',
-              },
-              {
-                text: 'blobsToCommitments',
-                link: '/docs/utilities/blobsToCommitments',
-              },
-              {
-                text: 'commitmentsToVersionedHashes',
-                link: '/docs/utilities/commitmentsToVersionedHashes',
-              },
-              {
-                text: 'commitmentToVersionedHash',
-                link: '/docs/utilities/commitmentToVersionedHash',
-              },
-              {
-                text: 'fromBlobs',
-                link: '/docs/utilities/fromBlobs',
-              },
-              {
-                text: 'sidecarsToVersionedHashes',
-                link: '/docs/utilities/sidecarsToVersionedHashes',
-              },
-              {
-                text: 'toBlobs',
-                link: '/docs/utilities/toBlobs',
-              },
-              {
-                text: 'toBlobSidecars',
-                link: '/docs/utilities/toBlobSidecars',
-              },
-            ],
-          },
-          {
-            text: 'Chain',
-            items: [
-              {
-                text: 'extractChain',
-                link: '/docs/utilities/extractChain',
-              },
-              {
-                text: 'filterChains',
-                link: '/docs/utilities/filterChains',
-              },
-            ],
-          },
-          {
-            text: 'Data',
-            items: [
-              {
-                text: 'concat',
-                link: '/docs/utilities/concat',
-              },
-              {
-                text: 'isBytes',
-                link: '/docs/utilities/isBytes',
-              },
-              {
-                text: 'isHex',
-                link: '/docs/utilities/isHex',
-              },
-              {
-                text: 'pad',
-                link: '/docs/utilities/pad',
-              },
-              {
-                text: 'slice',
-                link: '/docs/utilities/slice',
-              },
-              {
-                text: 'size',
-                link: '/docs/utilities/size',
-              },
-              {
-                text: 'trim',
-                link: '/docs/utilities/trim',
-              },
-            ],
-          },
-          {
-            text: 'Encoding',
-            items: [
-              {
-                text: 'fromBytes',
-                link: '/docs/utilities/fromBytes',
-              },
-              {
-                text: 'fromHex',
-                link: '/docs/utilities/fromHex',
-              },
-              {
-                text: 'fromRlp',
-                link: '/docs/utilities/fromRlp',
-              },
-              {
-                text: 'toBytes',
-                link: '/docs/utilities/toBytes',
-              },
-              {
-                text: 'toHex',
-                link: '/docs/utilities/toHex',
-              },
-              {
-                text: 'toRlp',
-                link: '/docs/utilities/toRlp',
-              },
-            ],
-          },
-          {
-            text: 'Hash',
-            items: [
-              {
-                text: 'isHash',
-                link: '/docs/utilities/isHash',
-              },
-              {
-                text: 'keccak256',
-                link: '/docs/utilities/keccak256',
-              },
-              {
-                text: 'ripemd160',
-                link: '/docs/utilities/ripemd160',
-              },
-              {
-                text: 'sha256',
-                link: '/docs/utilities/sha256',
-              },
-              {
-                text: 'toEventHash',
-                link: '/docs/utilities/toEventHash',
-              },
-              {
-                text: 'toEventSelector',
-                link: '/docs/utilities/toEventSelector',
-              },
-              {
-                text: 'toEventSignature',
-                link: '/docs/utilities/toEventSignature',
-              },
-              {
-                text: 'toFunctionHash',
-                link: '/docs/utilities/toFunctionHash',
-              },
-              {
-                text: 'toFunctionSelector',
-                link: '/docs/utilities/toFunctionSelector',
-              },
-              {
-                text: 'toFunctionSignature',
-                link: '/docs/utilities/toFunctionSignature',
-              },
-            ],
-          },
-          {
-            text: 'KZG',
-            items: [
-              {
-                text: 'setupKzg',
-                link: '/docs/utilities/setupKzg',
-              },
-            ],
-          },
-          {
-            text: 'Signature',
-            items: [
-              {
-                text: 'compactSignatureToSignature',
-                link: '/docs/utilities/compactSignatureToSignature',
-              },
-              {
-                text: 'hashMessage',
-                link: '/docs/utilities/hashMessage',
-              },
-              {
-                text: 'hashTypedData',
-                link: '/docs/utilities/hashTypedData',
-              },
-              {
-                text: 'isErc6492Signature',
-                link: '/docs/utilities/isErc6492Signature',
-              },
-              {
-                text: 'parseCompactSignature',
-                link: '/docs/utilities/parseCompactSignature',
-              },
-              {
-                text: 'parseErc6492Signature',
-                link: '/docs/utilities/parseErc6492Signature',
-              },
-              {
-                text: 'parseSignature',
-                link: '/docs/utilities/parseSignature',
-              },
-              {
-                text: 'recoverAddress',
-                link: '/docs/utilities/recoverAddress',
-              },
-              {
-                text: 'recoverMessageAddress',
-                link: '/docs/utilities/recoverMessageAddress',
-              },
-              {
-                text: 'recoverPublicKey',
-                link: '/docs/utilities/recoverPublicKey',
-              },
-              {
-                text: 'recoverTransactionAddress',
-                link: '/docs/utilities/recoverTransactionAddress',
-              },
-              {
-                text: 'recoverTypedDataAddress',
-                link: '/docs/utilities/recoverTypedDataAddress',
-              },
-              {
-                text: 'serializeCompactSignature',
-                link: '/docs/utilities/serializeCompactSignature',
-              },
-              {
-                text: 'serializeErc6492Signature',
-                link: '/docs/utilities/serializeErc6492Signature',
-              },
-              {
-                text: 'serializeSignature',
-                link: '/docs/utilities/serializeSignature',
-              },
-              {
-                text: 'signatureToCompactSignature',
-                link: '/docs/utilities/signatureToCompactSignature',
-              },
-              {
-                text: 'verifyMessage',
-                link: '/docs/utilities/verifyMessage',
-              },
-              {
-                text: 'verifyTypedData',
-                link: '/docs/utilities/verifyTypedData',
-              },
-            ],
-          },
-          {
-            text: 'Transaction',
-            items: [
-              {
-                text: 'parseTransaction',
-                link: '/docs/utilities/parseTransaction',
-              },
-              {
-                text: 'serializeTransaction',
-                link: '/docs/utilities/serializeTransaction',
-              },
-            ],
-          },
-          {
-            text: 'Units',
-            items: [
-              {
-                text: 'formatEther',
-                link: '/docs/utilities/formatEther',
-              },
-              {
-                text: 'formatGwei',
-                link: '/docs/utilities/formatGwei',
-              },
-              {
-                text: 'formatUnits',
-                link: '/docs/utilities/formatUnits',
-              },
-              {
-                text: 'parseEther',
-                link: '/docs/utilities/parseEther',
-              },
-              {
-                text: 'parseGwei',
-                link: '/docs/utilities/parseGwei',
-              },
-              {
-                text: 'parseUnits',
-                link: '/docs/utilities/parseUnits',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Glossary',
-        collapsed: true,
-        items: [
-          { text: 'Terms', link: '/docs/glossary/terms' },
-          { text: 'Types', link: '/docs/glossary/types' },
-          { text: 'Errors', link: '/docs/glossary/errors' },
         ],
       },
     ],
-    '/account-abstraction': {
-      backLink: true,
-      items: [
-        {
-          text: 'Account Abstraction',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/account-abstraction',
-            },
-          ],
-        },
-        {
-          text: 'Guides',
-          items: [
-            {
-              text: 'Sending User Operations',
-              link: '/account-abstraction/guides/sending-user-operations',
-            },
-          ],
-        },
-        {
-          text: 'Clients',
-          items: [
-            {
-              text: 'Bundler Client',
-              link: '/account-abstraction/clients/bundler',
-            },
-            {
-              text: 'Paymaster Client',
-              link: '/account-abstraction/clients/paymaster',
-            },
-          ],
-        },
-        {
-          text: 'Accounts',
-          items: [
-            {
-              text: 'Smart Accounts',
-              link: '/account-abstraction/accounts/smart',
-              items: [
-                {
-                  text: 'Coinbase',
-                  link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
-                },
-                {
-                  text: 'MetaMask',
-                  link: '/account-abstraction/accounts/smart/toMetaMaskSmartAccount',
-                },
-                {
-                  text: 'Thirdweb',
-                  link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
-                },
-                {
-                  text: 'Biconomy',
-                  link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
-                },
-                {
-                  text: 'Alchemy',
-                  link: '/account-abstraction/accounts/smart/toLightSmartAccount',
-                },
-                {
-                  text: 'Kernel (ZeroDev)',
-                  link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
-                },
-                {
-                  text: 'Safe',
-                  link: '/account-abstraction/accounts/smart/toSafeSmartAccount',
-                },
-                {
-                  text: 'Simple',
-                  link: '/account-abstraction/accounts/smart/toSimpleSmartAccount',
-                },
-                {
-                  text: 'Solady',
-                  link: '/account-abstraction/accounts/smart/toSoladySmartAccount',
-                },
-                {
-                  text: 'Trust',
-                  link: '/account-abstraction/accounts/smart/toTrustSmartAccount',
-                },
-                {
-                  text: 'Custom',
-                  link: '/account-abstraction/accounts/smart/toSmartAccount',
-                },
-                {
-                  text: 'Utilities',
-                  items: [
-                    {
-                      text: 'signMessage',
-                      link: '/account-abstraction/accounts/smart/signMessage',
-                    },
-                    {
-                      text: 'signTypedData',
-                      link: '/account-abstraction/accounts/smart/signTypedData',
-                    },
-                    {
-                      text: 'signUserOperation',
-                      link: '/account-abstraction/accounts/smart/signUserOperation',
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              text: 'WebAuthn Account',
-              link: '/account-abstraction/accounts/webauthn',
-              items: [
-                {
-                  text: 'toWebAuthnAccount',
-                  link: '/account-abstraction/accounts/webauthn/toWebAuthnAccount',
-                },
-                {
-                  text: 'createWebAuthnCredential',
-                  link: '/account-abstraction/accounts/webauthn/createWebAuthnCredential',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'Bundler Actions',
-          items: [
-            {
-              text: 'estimateUserOperationGas',
-              link: '/account-abstraction/actions/bundler/estimateUserOperationGas',
-            },
-            {
-              text: 'getChainId',
-              link: '/account-abstraction/actions/bundler/getChainId',
-            },
-            {
-              text: 'getSupportedEntryPoints',
-              link: '/account-abstraction/actions/bundler/getSupportedEntryPoints',
-            },
-            {
-              text: 'getUserOperation',
-              link: '/account-abstraction/actions/bundler/getUserOperation',
-            },
-            {
-              text: 'getUserOperationReceipt',
-              link: '/account-abstraction/actions/bundler/getUserOperationReceipt',
-            },
-            {
-              text: 'prepareUserOperation',
-              link: '/account-abstraction/actions/bundler/prepareUserOperation',
-            },
-            {
-              text: 'sendUserOperation',
-              link: '/account-abstraction/actions/bundler/sendUserOperation',
-            },
-            {
-              text: 'waitForUserOperationReceipt',
-              link: '/account-abstraction/actions/bundler/waitForUserOperationReceipt',
-            },
-          ],
-        },
-        {
-          text: 'Paymaster Actions',
-          items: [
-            {
-              text: 'getPaymasterData',
-              link: '/account-abstraction/actions/paymaster/getPaymasterData',
-            },
-            {
-              text: 'getPaymasterStubData',
-              link: '/account-abstraction/actions/paymaster/getPaymasterStubData',
-            },
-          ],
-        },
-      ],
-    },
-    '/experimental': {
-      backLink: true,
-      items: [
-        {
-          text: 'Experimental',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/experimental',
-            },
-          ],
-        },
-        {
-          text: 'ERC-7715',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7715/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'grantPermissions',
-                  link: '/experimental/erc7715/grantPermissions',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'ERC-7739',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7739/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'signMessage',
-                  link: '/experimental/erc7739/signMessage',
-                },
-                {
-                  text: 'signTypedData',
-                  link: '/experimental/erc7739/signTypedData',
-                },
-              ],
-            },
-            {
-              text: 'Utilities',
-              items: [
-                {
-                  text: 'hashMessage',
-                  link: '/experimental/erc7739/hashMessage',
-                },
-                {
-                  text: 'hashTypedData',
-                  link: '/experimental/erc7739/hashTypedData',
-                },
-                {
-                  text: 'wrapTypedDataSignature',
-                  link: '/experimental/erc7739/wrapTypedDataSignature',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'ERC-7811',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7811/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'getAssets',
-                  link: '/experimental/erc7811/getAssets',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'ERC-7821',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7821/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'execute',
-                  link: '/experimental/erc7821/execute',
-                },
-                {
-                  text: 'executeBatches',
-                  link: '/experimental/erc7821/executeBatches',
-                },
-                {
-                  text: 'supportsExecutionMode',
-                  link: '/experimental/erc7821/supportsExecutionMode',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'ERC-7846',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7846/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'connect',
-                  link: '/experimental/erc7846/connect',
-                },
-                {
-                  text: 'disconnect',
-                  link: '/experimental/erc7846/disconnect',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'ERC-7895',
-          items: [
-            {
-              text: 'Client',
-              link: '/experimental/erc7895/client',
-            },
-            {
-              text: 'Actions',
-              items: [
-                {
-                  text: 'addSubAccount',
-                  link: '/experimental/erc7895/addSubAccount',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    '/op-stack': {
-      backLink: true,
-      items: [
-        {
-          text: 'OP Stack',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/op-stack',
-            },
-            { text: 'Client', link: '/op-stack/client' },
-            { text: 'Chains', link: '/op-stack/chains' },
-          ],
-        },
-        {
-          text: 'Guides',
-          items: [
-            {
-              text: 'Deposits',
-              link: '/op-stack/guides/deposits',
-            },
-            {
-              text: 'Withdrawals',
-              link: '/op-stack/guides/withdrawals',
-            },
-          ],
-        },
-        {
-          text: 'L2 Public Actions',
-          items: [
-            {
-              text: 'buildDepositTransaction',
-              link: '/op-stack/actions/buildDepositTransaction',
-            },
-            {
-              text: 'buildProveWithdrawal',
-              link: '/op-stack/actions/buildProveWithdrawal',
-            },
-            {
-              text: 'estimateContractL1Fee',
-              link: '/op-stack/actions/estimateContractL1Fee',
-            },
-            {
-              text: 'estimateContractL1Gas',
-              link: '/op-stack/actions/estimateContractL1Gas',
-            },
-            {
-              text: 'estimateContractTotalFee',
-              link: '/op-stack/actions/estimateContractTotalFee',
-            },
-            {
-              text: 'estimateContractTotalGas',
-              link: '/op-stack/actions/estimateContractTotalGas',
-            },
-            {
-              text: 'estimateInitiateWithdrawalGas',
-              link: '/op-stack/actions/estimateInitiateWithdrawalGas',
-            },
-            {
-              text: 'estimateL1Fee',
-              link: '/op-stack/actions/estimateL1Fee',
-            },
-            {
-              text: 'estimateL1Gas',
-              link: '/op-stack/actions/estimateL1Gas',
-            },
-            {
-              text: 'estimateOperatorFee',
-              link: '/op-stack/actions/estimateOperatorFee',
-            },
-            {
-              text: 'estimateTotalFee',
-              link: '/op-stack/actions/estimateTotalFee',
-            },
-            {
-              text: 'estimateTotalGas',
-              link: '/op-stack/actions/estimateTotalGas',
-            },
-          ],
-        },
-        {
-          text: 'L2 Wallet Actions',
-          items: [
-            {
-              text: 'initiateWithdrawal',
-              link: '/op-stack/actions/initiateWithdrawal',
-            },
-          ],
-        },
-        {
-          text: 'L1 Public Actions',
-          items: [
-            {
-              text: 'buildInitiateWithdrawal',
-              link: '/op-stack/actions/buildInitiateWithdrawal',
-            },
-            {
-              text: 'estimateDepositTransactionGas',
-              link: '/op-stack/actions/estimateDepositTransactionGas',
-            },
-            {
-              text: 'estimateFinalizeWithdrawalGas',
-              link: '/op-stack/actions/estimateFinalizeWithdrawalGas',
-            },
-            {
-              text: 'estimateProveWithdrawalGas',
-              link: '/op-stack/actions/estimateProveWithdrawalGas',
-            },
-            {
-              text: 'getGame',
-              link: '/op-stack/actions/getGame',
-            },
-            {
-              text: 'getGames',
-              link: '/op-stack/actions/getGames',
-            },
-            {
-              text: 'getL2Output',
-              link: '/op-stack/actions/getL2Output',
-            },
-            {
-              text: 'getTimeToFinalize',
-              link: '/op-stack/actions/getTimeToFinalize',
-            },
-            {
-              text: 'getTimeToNextGame',
-              link: '/op-stack/actions/getTimeToNextGame',
-            },
-            {
-              text: 'getTimeToNextL2Output',
-              link: '/op-stack/actions/getTimeToNextL2Output',
-            },
-            {
-              text: 'getTimeToProve',
-              link: '/op-stack/actions/getTimeToProve',
-            },
-            {
-              text: 'getWithdrawalStatus',
-              link: '/op-stack/actions/getWithdrawalStatus',
-            },
-            {
-              text: 'waitForNextGame',
-              link: '/op-stack/actions/waitForNextGame',
-            },
-            {
-              text: 'waitForNextL2Output',
-              link: '/op-stack/actions/waitForNextL2Output',
-            },
-            {
-              text: 'waitToFinalize',
-              link: '/op-stack/actions/waitToFinalize',
-            },
-            {
-              text: 'waitToProve',
-              link: '/op-stack/actions/waitToProve',
-            },
-          ],
-        },
-        {
-          text: 'L1 Wallet Actions',
-          items: [
-            {
-              text: 'depositTransaction',
-              link: '/op-stack/actions/depositTransaction',
-            },
-            {
-              text: 'finalizeWithdrawal',
-              link: '/op-stack/actions/finalizeWithdrawal',
-            },
-            {
-              text: 'proveWithdrawal',
-              link: '/op-stack/actions/proveWithdrawal',
-            },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
-            {
-              text: 'extractTransactionDepositedLogs',
-              link: '/op-stack/utilities/extractTransactionDepositedLogs',
-            },
-            {
-              text: 'extractWithdrawalMessageLogs',
-              link: '/op-stack/utilities/extractWithdrawalMessageLogs',
-            },
-            {
-              text: 'getL2TransactionHash',
-              link: '/op-stack/utilities/getL2TransactionHash',
-            },
-            {
-              text: 'getL2TransactionHashes',
-              link: '/op-stack/utilities/getL2TransactionHashes',
-            },
-            {
-              text: 'getWithdrawals',
-              link: '/op-stack/utilities/getWithdrawals',
-            },
-            {
-              text: 'getSourceHash',
-              link: '/op-stack/utilities/getSourceHash',
-            },
-            {
-              text: 'opaqueDataToDepositData',
-              link: '/op-stack/utilities/opaqueDataToDepositData',
-            },
-            {
-              text: 'getWithdrawalHashStorageSlot',
-              link: '/op-stack/utilities/getWithdrawalHashStorageSlot',
-            },
-            {
-              text: 'parseTransaction',
-              link: '/op-stack/utilities/parseTransaction',
-            },
-            {
-              text: 'serializeTransaction',
-              link: '/op-stack/utilities/serializeTransaction',
-            },
-          ],
-        },
-      ],
-    },
-    '/circle-usdc': {
-      backLink: true,
-      items: [
-        {
-          text: 'USDC (Circle)',
-          items: [
-            {
-              text: 'Introduction',
-              link: '/circle-usdc',
-            },
-          ],
-        },
-        {
-          text: 'Guides',
-          items: [
-            {
-              text: 'Integrating USDC',
-              link: '/circle-usdc/guides/integrating',
-            },
-            {
-              text: 'Cross Chain Transfers',
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/circle-usdc/guides/cross-chain',
-                },
-                {
-                  text: 'CCTP Integration with Bridge Kit',
-                  link: '/circle-usdc/guides/bridge-kit',
-                },
-                {
-                  text: 'CCTP Integration',
-                  link: '/circle-usdc/guides/manual-cctp',
-                },
-              ],
-            },
-            {
-              text: 'Paying Gas with USDC',
-              link: '/circle-usdc/guides/paymaster',
-            },
-            {
-              text: 'Circle Smart Account',
-              link: '/circle-usdc/guides/smart-account',
-            },
-          ],
-        },
-      ],
-    },
-    '/tokens': {
-      backLink: true,
-      items: [
-        {
-          text: 'Introduction',
-          items: [
-            { text: 'Getting Started', link: '/tokens' },
-            { text: 'Tokens', link: '/tokens/tokens' },
-          ],
-        },
-        {
-          text: 'Guides',
-          items: [
-            { text: 'Overview', link: '/tokens/guides' },
-            {
-              text: 'Importing Tokens',
-              link: '/tokens/guides/importing-tokens',
-            },
-            {
-              text: 'Defining Tokens',
-              link: '/tokens/guides/defining-tokens',
-            },
-            { text: 'Get Balances', link: '/tokens/guides/get-balances' },
-            {
-              text: 'Transfer Tokens',
-              link: '/tokens/guides/transfer-tokens',
-            },
-            {
-              text: 'Approve Spending',
-              link: '/tokens/guides/approve-spending',
-            },
-            {
-              text: 'TIP-20 (Tempo)',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Create a TIP-20 Token',
-                  link: '/tokens/guides/tempo/create-token',
-                },
-                {
-                  text: 'Mint & Burn Tokens',
-                  link: '/tokens/guides/tempo/manage-token-balances',
-                },
-                {
-                  text: 'Transfer Tokens',
-                  link: '/tokens/guides/tempo/transfer-tokens',
-                },
-                {
-                  text: 'Manage Token Roles & Supply',
-                  link: '/tokens/guides/tempo/manage-token-roles',
-                },
-                {
-                  text: 'Configure Transfer Policies',
-                  link: '/tokens/guides/tempo/transfer-policies',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'Actions',
-          items: [
-            { text: 'Overview', link: '/tokens/actions' },
-            {
-              text: 'Core',
-              items: [
-                { text: 'approve', link: '/tokens/actions/approve' },
-                {
-                  text: 'getAllowance',
-                  link: '/tokens/actions/getAllowance',
-                },
-                { text: 'getBalance', link: '/tokens/actions/getBalance' },
-                { text: 'getMetadata', link: '/tokens/actions/getMetadata' },
-                {
-                  text: 'getTotalSupply',
-                  link: '/tokens/actions/getTotalSupply',
-                },
-                { text: 'transfer', link: '/tokens/actions/transfer' },
-              ],
-            },
-            {
-              text: 'TIP-20 (Tempo)',
-              collapsed: true,
-              items: [
-                { text: 'burn', link: '/tokens/tempo/burn' },
-                {
-                  text: 'burnBlocked',
-                  link: '/tokens/tempo/burnBlocked',
-                },
-                {
-                  text: 'changeTransferPolicy',
-                  link: '/tokens/tempo/changeTransferPolicy',
-                },
-                { text: 'create', link: '/tokens/tempo/create' },
-                { text: 'grantRoles', link: '/tokens/tempo/grantRoles' },
-                { text: 'hasRole', link: '/tokens/tempo/hasRole' },
-                { text: 'mint', link: '/tokens/tempo/mint' },
-                { text: 'pause', link: '/tokens/tempo/pause' },
-                {
-                  text: 'renounceRoles',
-                  link: '/tokens/tempo/renounceRoles',
-                },
-                {
-                  text: 'revokeRoles',
-                  link: '/tokens/tempo/revokeRoles',
-                },
-                {
-                  text: 'setRoleAdmin',
-                  link: '/tokens/tempo/setRoleAdmin',
-                },
-                {
-                  text: 'setSupplyCap',
-                  link: '/tokens/tempo/setSupplyCap',
-                },
-                { text: 'unpause', link: '/tokens/tempo/unpause' },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    '/tempo': {
-      backLink: true,
-      items: [
-        {
-          text: 'Tempo',
-          items: [
-            {
-              text: 'Getting Started',
-              link: '/tempo',
-            },
-            {
-              text: 'Chains',
-              link: '/tempo/chains',
-            },
-            {
-              text: 'Tempo Docs & Guides',
-              link: 'https://docs.tempo.xyz',
-            },
-          ],
-        },
-        {
-          text: 'Guides',
-          items: [
-            {
-              text: 'Overview',
-              link: '/tempo/guides',
-            },
-            {
-              text: 'Accounts',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Create an Account',
-                  link: '/tempo/guides/accounts/create',
-                },
-                {
-                  text: 'Sign In with a Passkey',
-                  link: '/tempo/guides/accounts/passkeys',
-                },
-                {
-                  text: 'Use the Tempo Accounts SDK',
-                  link: '/tempo/guides/accounts/accounts-sdk',
-                },
-              ],
-            },
-            {
-              text: 'Tempo Transactions',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/transactions',
-                },
-                {
-                  text: 'Batch Calls',
-                  link: '/tempo/guides/batch-calls',
-                },
-                {
-                  text: 'Concurrent Transactions',
-                  link: '/tempo/guides/concurrent-transactions',
-                },
-                {
-                  text: 'Scheduled Transactions',
-                  link: '/tempo/guides/scheduled-transactions',
-                },
-                {
-                  text: 'Pay Fees in a Stablecoin',
-                  link: '/tempo/guides/pay-fees',
-                },
-                {
-                  text: 'Sponsor User Fees',
-                  link: '/tempo/guides/sponsor-fees',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Multisig Transactions',
-                  link: '/tempo/guides/multisig-transactions',
-                },
-              ],
-            },
-            {
-              text: 'Tokens',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Create a TIP-20 Token',
-                  link: '/tempo/guides/create-token',
-                },
-                {
-                  text: 'Mint & Burn Tokens',
-                  link: '/tempo/guides/manage-token-balances',
-                },
-                {
-                  text: 'Transfer Tokens',
-                  link: '/tempo/guides/transfer-tokens',
-                },
-                {
-                  text: 'Manage Token Roles & Supply',
-                  link: '/tempo/guides/manage-token-roles',
-                },
-                {
-                  text: 'Configure Transfer Policies',
-                  link: '/tempo/guides/transfer-policies',
-                },
-                {
-                  text: 'Distribute Token Rewards',
-                  link: '/tempo/guides/token-rewards',
-                },
-              ],
-            },
-            {
-              text: 'Access Keys',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/access-keys',
-                },
-                {
-                  text: 'Authorize Access Keys',
-                  link: '/tempo/guides/access-keys/authorize',
-                },
-                {
-                  text: 'Set Permissions & Limits',
-                  link: '/tempo/guides/access-keys/permissions',
-                },
-                {
-                  text: 'Manage Access Keys',
-                  link: '/tempo/guides/access-keys/manage',
-                },
-                {
-                  text: 'Admin Access Keys',
-                  link: '/tempo/guides/access-keys/admin',
-                },
-                {
-                  text: 'Witnesses',
-                  link: '/tempo/guides/access-keys/witnesses',
-                },
-                {
-                  text: 'Verify Signatures',
-                  link: '/tempo/guides/access-keys/verify',
-                },
-              ],
-            },
-            {
-              text: 'Stablecoin Exchange',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/stablecoin-exchange',
-                },
-                {
-                  text: 'Swap Stablecoins',
-                  link: '/tempo/guides/stablecoin-exchange/swap',
-                },
-                {
-                  text: 'Place & Manage Orders',
-                  link: '/tempo/guides/stablecoin-exchange/orders',
-                },
-                {
-                  text: 'Manage Exchange Balances',
-                  link: '/tempo/guides/stablecoin-exchange/balances',
-                },
-                {
-                  text: 'Create a Trading Pair',
-                  link: '/tempo/guides/stablecoin-exchange/create-pair',
-                },
-                {
-                  text: 'Provide Fee AMM Liquidity',
-                  link: '/tempo/guides/stablecoin-exchange/fee-amm-liquidity',
-                },
-              ],
-            },
-            {
-              text: 'Earn',
-              collapsed: true,
-              items: [
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Overview',
-                  link: '/tempo/guides/earn',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Deploy an Earn Stack',
-                  link: '/tempo/guides/earn/deploy',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Deposit & Withdraw',
-                  link: '/tempo/guides/earn/deposit-withdraw',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Protected Vaults',
-                  link: '/tempo/guides/earn/protected-vaults',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Earn with Private Zones',
-                  link: '/tempo/guides/earn/zones',
-                },
-              ],
-            },
-            {
-              text: 'Virtual Addresses',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/virtual-addresses',
-                },
-                {
-                  text: 'Register a Master Address',
-                  link: '/tempo/guides/virtual-addresses/register',
-                },
-                {
-                  text: 'Resolve & Accept Payments',
-                  link: '/tempo/guides/virtual-addresses/resolve',
-                },
-              ],
-            },
-            {
-              text: 'Receive Policies',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/receive-policies',
-                },
-                {
-                  text: 'Set a Receive Policy',
-                  link: '/tempo/guides/receive-policies/set',
-                },
-                {
-                  text: 'Validate Transfers',
-                  link: '/tempo/guides/receive-policies/validate',
-                },
-                {
-                  text: 'Handle Blocked Funds',
-                  link: '/tempo/guides/receive-policies/blocked',
-                },
-              ],
-            },
-            {
-              text: 'Payment Channels',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/payment-channels',
-                },
-                {
-                  text: 'Open & Fund a Channel',
-                  link: '/tempo/guides/payment-channels/open',
-                },
-                {
-                  text: 'Send & Settle Vouchers',
-                  link: '/tempo/guides/payment-channels/vouchers',
-                },
-                {
-                  text: 'Close & Withdraw',
-                  link: '/tempo/guides/payment-channels/close',
-                },
-              ],
-            },
-            {
-              text: 'Private Zones',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/zones',
-                },
-                {
-                  text: 'Connect to a Zone',
-                  link: '/tempo/guides/zones/connect',
-                },
-                {
-                  text: 'Deposit to a Zone',
-                  link: '/tempo/guides/zones/deposit',
-                },
-                {
-                  text: 'Withdraw from a Zone',
-                  link: '/tempo/guides/zones/withdraw',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'Accounts',
-          items: [
-            {
-              text: 'Overview',
-              link: '/tempo/accounts',
-            },
-            {
-              text: 'Secp256k1 (Standard Account)',
-              link: '/tempo/accounts/account.fromSecp256k1',
-            },
-            {
-              text: 'P256',
-              link: '/tempo/accounts/account.fromP256',
-            },
-            {
-              text: 'WebAuthnP256 (Passkey)',
-              link: '/tempo/accounts/account.fromWebAuthnP256',
-            },
-            {
-              text: 'WebCryptoP256',
-              link: '/tempo/accounts/account.fromWebCryptoP256',
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
-              link: '/tempo/accounts/account.fromMultisig',
-            },
-          ],
-        },
-        {
-          text: 'Actions',
-          items: [
-            {
-              text: 'Overview',
-              link: '/tempo/actions',
-            },
-            {
-              text: 'Access Key',
-              collapsed: true,
-              items: [
-                {
-                  text: 'authorize',
-                  link: '/tempo/actions/accessKey.authorize',
-                },
-                {
-                  text: 'burnWitness',
-                  link: '/tempo/actions/accessKey.burnWitness',
-                },
-                {
-                  text: 'getMetadata',
-                  link: '/tempo/actions/accessKey.getMetadata',
-                },
-                {
-                  text: 'getRemainingLimit',
-                  link: '/tempo/actions/accessKey.getRemainingLimit',
-                },
-                {
-                  text: 'isAdmin',
-                  link: '/tempo/actions/accessKey.isAdmin',
-                },
-                {
-                  text: 'isWitnessBurned',
-                  link: '/tempo/actions/accessKey.isWitnessBurned',
-                },
-                {
-                  text: 'revoke',
-                  link: '/tempo/actions/accessKey.revoke',
-                },
-                {
-                  text: 'signAuthorization',
-                  link: '/tempo/actions/accessKey.signAuthorization',
-                },
-                {
-                  text: 'updateLimit',
-                  link: '/tempo/actions/accessKey.updateLimit',
-                },
-                {
-                  text: 'verifyHash',
-                  link: '/tempo/actions/accessKey.verifyHash',
-                },
-                {
-                  text: 'watchAdminAuthorized',
-                  link: '/tempo/actions/accessKey.watchAdminAuthorized',
-                },
-                {
-                  text: 'watchWitness',
-                  link: '/tempo/actions/accessKey.watchWitness',
-                },
-                {
-                  text: 'watchWitnessBurned',
-                  link: '/tempo/actions/accessKey.watchWitnessBurned',
-                },
-              ],
-            },
-            {
-              text: 'AMM',
-              collapsed: true,
-              items: [
-                {
-                  text: 'burn',
-                  link: '/tempo/actions/amm.burn',
-                },
-                {
-                  text: 'getLiquidityBalance',
-                  link: '/tempo/actions/amm.getLiquidityBalance',
-                },
-                {
-                  text: 'getPool',
-                  link: '/tempo/actions/amm.getPool',
-                },
-                {
-                  text: 'mint',
-                  link: '/tempo/actions/amm.mint',
-                },
-                {
-                  text: 'rebalanceSwap',
-                  link: '/tempo/actions/amm.rebalanceSwap',
-                },
-                {
-                  text: 'watchBurn',
-                  link: '/tempo/actions/amm.watchBurn',
-                },
-                {
-                  text: 'watchMint',
-                  link: '/tempo/actions/amm.watchMint',
-                },
-                {
-                  text: 'watchRebalanceSwap',
-                  link: '/tempo/actions/amm.watchRebalanceSwap',
-                },
-              ],
-            },
-            {
-              text: 'Channel',
-              collapsed: true,
-              items: [
-                {
-                  text: 'close',
-                  link: '/tempo/actions/channel.close',
-                },
-                {
-                  text: 'getStates',
-                  link: '/tempo/actions/channel.getStates',
-                },
-                {
-                  text: 'open',
-                  link: '/tempo/actions/channel.open',
-                },
-                {
-                  text: 'requestClose',
-                  link: '/tempo/actions/channel.requestClose',
-                },
-                {
-                  text: 'settle',
-                  link: '/tempo/actions/channel.settle',
-                },
-                {
-                  text: 'signVoucher',
-                  link: '/tempo/actions/channel.signVoucher',
-                },
-                {
-                  text: 'topUp',
-                  link: '/tempo/actions/channel.topUp',
-                },
-                {
-                  text: 'withdraw',
-                  link: '/tempo/actions/channel.withdraw',
-                },
-              ],
-            },
-            {
-              text: 'Earn',
-              collapsed: true,
-              items: [
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'bindErc4626Engine',
-                  link: '/tempo/actions/earn.bindErc4626Engine',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'configureExitSafePolicy',
-                  link: '/tempo/actions/earn.configureExitSafePolicy',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'createErc4626Engine',
-                  link: '/tempo/actions/earn.createErc4626Engine',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'createStack',
-                  link: '/tempo/actions/earn.createStack',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'deposit',
-                  link: '/tempo/actions/earn.deposit',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'depositShares',
-                  link: '/tempo/actions/earn.depositShares',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'deployErc4626StackSync',
-                  link: '/tempo/actions/earn.deployErc4626StackSync',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getFeeState',
-                  link: '/tempo/actions/earn.getFeeState',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getPosition',
-                  link: '/tempo/actions/earn.getPosition',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getRedeemQuote',
-                  link: '/tempo/actions/earn.getRedeemQuote',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getVault',
-                  link: '/tempo/actions/earn.getVault',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getWithdrawQuote',
-                  link: '/tempo/actions/earn.getWithdrawQuote',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'privateDeposit',
-                  link: '/tempo/actions/earn.privateDeposit',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'privateRedeem',
-                  link: '/tempo/actions/earn.privateRedeem',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'redeem',
-                  link: '/tempo/actions/earn.redeem',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'validateExitSafePolicy',
-                  link: '/tempo/actions/earn.validateExitSafePolicy',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'waitForPrivateDeposit',
-                  link: '/tempo/actions/earn.waitForPrivateDeposit',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'waitForPrivateRedeem',
-                  link: '/tempo/actions/earn.waitForPrivateRedeem',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'withdrawExact',
-                  link: '/tempo/actions/earn.withdrawExact',
-                },
-              ],
-            },
-            {
-              text: 'Fee',
-              collapsed: true,
-              items: [
-                {
-                  text: 'getUserToken',
-                  link: '/tempo/actions/fee.getUserToken',
-                },
-                {
-                  text: 'setUserToken',
-                  link: '/tempo/actions/fee.setUserToken',
-                },
-                {
-                  text: 'validateToken',
-                  link: '/tempo/actions/fee.validateToken',
-                },
-                {
-                  text: 'watchSetUserToken',
-                  link: '/tempo/actions/fee.watchSetUserToken',
-                },
-              ],
-            },
-            {
-              text: 'Nonce',
-              collapsed: true,
-              items: [
-                {
-                  text: 'getNonce',
-                  link: '/tempo/actions/nonce.getNonce',
-                },
-                {
-                  text: 'watchNonceIncremented',
-                  link: '/tempo/actions/nonce.watchNonceIncremented',
-                },
-              ],
-            },
-            {
-              text: 'Policy',
-              collapsed: true,
-              items: [
-                {
-                  text: 'create',
-                  link: '/tempo/actions/policy.create',
-                },
-                {
-                  text: 'getData',
-                  link: '/tempo/actions/policy.getData',
-                },
-                {
-                  text: 'isAuthorized',
-                  link: '/tempo/actions/policy.isAuthorized',
-                },
-                {
-                  text: 'modifyBlacklist',
-                  link: '/tempo/actions/policy.modifyBlacklist',
-                },
-                {
-                  text: 'modifyWhitelist',
-                  link: '/tempo/actions/policy.modifyWhitelist',
-                },
-                {
-                  text: 'setAdmin',
-                  link: '/tempo/actions/policy.setAdmin',
-                },
-                {
-                  text: 'watchAdminUpdated',
-                  link: '/tempo/actions/policy.watchAdminUpdated',
-                },
-                {
-                  text: 'watchBlacklistUpdated',
-                  link: '/tempo/actions/policy.watchBlacklistUpdated',
-                },
-                {
-                  text: 'watchCreate',
-                  link: '/tempo/actions/policy.watchCreate',
-                },
-                {
-                  text: 'watchWhitelistUpdated',
-                  link: '/tempo/actions/policy.watchWhitelistUpdated',
-                },
-              ],
-            },
-            {
-              text: 'Receive Policy',
-              collapsed: true,
-              items: [
-                {
-                  text: 'burn',
-                  link: '/tempo/actions/receivePolicy.burn',
-                },
-                {
-                  text: 'claim',
-                  link: '/tempo/actions/receivePolicy.claim',
-                },
-                {
-                  text: 'get',
-                  link: '/tempo/actions/receivePolicy.get',
-                },
-                {
-                  text: 'getBlockedBalance',
-                  link: '/tempo/actions/receivePolicy.getBlockedBalance',
-                },
-                {
-                  text: 'set',
-                  link: '/tempo/actions/receivePolicy.set',
-                },
-                {
-                  text: 'validate',
-                  link: '/tempo/actions/receivePolicy.validate',
-                },
-                {
-                  text: 'watchBlocked',
-                  link: '/tempo/actions/receivePolicy.watchBlocked',
-                },
-                {
-                  text: 'watchBurned',
-                  link: '/tempo/actions/receivePolicy.watchBurned',
-                },
-                {
-                  text: 'watchClaimed',
-                  link: '/tempo/actions/receivePolicy.watchClaimed',
-                },
-                {
-                  text: 'watchUpdated',
-                  link: '/tempo/actions/receivePolicy.watchUpdated',
-                },
-              ],
-            },
-            {
-              text: 'Faucet',
-              collapsed: true,
-              items: [
-                {
-                  text: 'fund',
-                  link: '/tempo/actions/faucet.fund',
-                },
-              ],
-            },
-            {
-              text: 'Reward',
-              collapsed: true,
-              items: [
-                {
-                  text: 'claim',
-                  link: '/tempo/actions/reward.claim',
-                },
-                {
-                  text: 'distribute',
-                  link: '/tempo/actions/reward.distribute',
-                },
-                {
-                  text: 'getGlobalRewardPerToken',
-                  link: '/tempo/actions/reward.getGlobalRewardPerToken',
-                },
-                {
-                  text: 'getPendingRewards',
-                  link: '/tempo/actions/reward.getPendingRewards',
-                },
-                {
-                  text: 'getUserRewardInfo',
-                  link: '/tempo/actions/reward.getUserRewardInfo',
-                },
-                {
-                  text: 'setRecipient',
-                  link: '/tempo/actions/reward.setRecipient',
-                },
-                {
-                  text: 'watchRewardDistributed',
-                  link: '/tempo/actions/reward.watchRewardDistributed',
-                },
-                {
-                  text: 'watchRewardRecipientSet',
-                  link: '/tempo/actions/reward.watchRewardRecipientSet',
-                },
-              ],
-            },
-            {
-              text: 'Simulate',
-              collapsed: true,
-              items: [
-                {
-                  text: 'simulateBlocks',
-                  link: '/tempo/actions/simulate.simulateBlocks',
-                },
-                {
-                  text: 'simulateCalls',
-                  link: '/tempo/actions/simulate.simulateCalls',
-                },
-              ],
-            },
-            {
-              text: 'Stablecoin DEX',
-              collapsed: true,
-              items: [
-                {
-                  text: 'buy',
-                  link: '/tempo/actions/dex.buy',
-                },
-                {
-                  text: 'cancel',
-                  link: '/tempo/actions/dex.cancel',
-                },
-                {
-                  text: 'cancelStale',
-                  link: '/tempo/actions/dex.cancelStale',
-                },
-                {
-                  text: 'createPair',
-                  link: '/tempo/actions/dex.createPair',
-                },
-                {
-                  text: 'getBalance',
-                  link: '/tempo/actions/dex.getBalance',
-                },
-                {
-                  text: 'getBuyQuote',
-                  link: '/tempo/actions/dex.getBuyQuote',
-                },
-                {
-                  text: 'getOrder',
-                  link: '/tempo/actions/dex.getOrder',
-                },
-                {
-                  text: 'getTickLevel',
-                  link: '/tempo/actions/dex.getTickLevel',
-                },
-                {
-                  text: 'getSellQuote',
-                  link: '/tempo/actions/dex.getSellQuote',
-                },
-                {
-                  text: 'place',
-                  link: '/tempo/actions/dex.place',
-                },
-                {
-                  text: 'placeFlip',
-                  link: '/tempo/actions/dex.placeFlip',
-                },
-                {
-                  text: 'sell',
-                  link: '/tempo/actions/dex.sell',
-                },
-                {
-                  text: 'watchFlipOrderPlaced',
-                  link: '/tempo/actions/dex.watchFlipOrderPlaced',
-                },
-                {
-                  text: 'watchOrderCancelled',
-                  link: '/tempo/actions/dex.watchOrderCancelled',
-                },
-                {
-                  text: 'watchOrderFilled',
-                  link: '/tempo/actions/dex.watchOrderFilled',
-                },
-                {
-                  text: 'watchOrderPlaced',
-                  link: '/tempo/actions/dex.watchOrderPlaced',
-                },
-                {
-                  text: 'withdraw',
-                  link: '/tempo/actions/dex.withdraw',
-                },
-              ],
-            },
-            {
-              text: 'Token',
-              collapsed: true,
-              items: [
-                {
-                  text: 'approve',
-                  link: '/tempo/actions/token.approve',
-                },
-                {
-                  text: 'burn',
-                  link: '/tempo/actions/token.burn',
-                },
-                {
-                  text: 'burnBlocked',
-                  link: '/tempo/actions/token.burnBlocked',
-                },
-                {
-                  text: 'changeTransferPolicy',
-                  link: '/tempo/actions/token.changeTransferPolicy',
-                },
-                {
-                  text: 'create',
-                  link: '/tempo/actions/token.create',
-                },
-                {
-                  text: 'getAllowance',
-                  link: '/tempo/actions/token.getAllowance',
-                },
-                {
-                  text: 'getBalance',
-                  link: '/tempo/actions/token.getBalance',
-                },
-                {
-                  text: 'getMetadata',
-                  link: '/tempo/actions/token.getMetadata',
-                },
-                {
-                  text: 'getTotalSupply',
-                  link: '/tempo/actions/token.getTotalSupply',
-                },
-                {
-                  text: 'grantRoles',
-                  link: '/tempo/actions/token.grantRoles',
-                },
-                {
-                  text: 'hasRole',
-                  link: '/tempo/actions/token.hasRole',
-                },
-                {
-                  text: 'mint',
-                  link: '/tempo/actions/token.mint',
-                },
-                {
-                  text: 'pause',
-                  link: '/tempo/actions/token.pause',
-                },
-                {
-                  text: 'renounceRoles',
-                  link: '/tempo/actions/token.renounceRoles',
-                },
-                {
-                  text: 'revokeRoles',
-                  link: '/tempo/actions/token.revokeRoles',
-                },
-                {
-                  text: 'setRoleAdmin',
-                  link: '/tempo/actions/token.setRoleAdmin',
-                },
-                {
-                  text: 'setSupplyCap',
-                  link: '/tempo/actions/token.setSupplyCap',
-                },
-                {
-                  text: 'transfer',
-                  link: '/tempo/actions/token.transfer',
-                },
-                {
-                  text: 'unpause',
-                  link: '/tempo/actions/token.unpause',
-                },
-                {
-                  text: 'watchAdminRole',
-                  link: '/tempo/actions/token.watchAdminRole',
-                },
-                {
-                  text: 'watchApprove',
-                  link: '/tempo/actions/token.watchApprove',
-                },
-                {
-                  text: 'watchBurn',
-                  link: '/tempo/actions/token.watchBurn',
-                },
-                {
-                  text: 'watchCreate',
-                  link: '/tempo/actions/token.watchCreate',
-                },
-                {
-                  text: 'watchMint',
-                  link: '/tempo/actions/token.watchMint',
-                },
-                {
-                  text: 'watchRole',
-                  link: '/tempo/actions/token.watchRole',
-                },
-                {
-                  text: 'watchTransfer',
-                  link: '/tempo/actions/token.watchTransfer',
-                },
-              ],
-            },
-            {
-              text: 'Validator',
-              collapsed: true,
-              items: [
-                {
-                  text: 'add',
-                  link: '/tempo/actions/validator.add',
-                },
-                {
-                  text: 'changeOwner',
-                  link: '/tempo/actions/validator.changeOwner',
-                },
-                {
-                  text: 'changeStatus',
-                  link: '/tempo/actions/validator.changeStatus',
-                },
-                {
-                  text: 'get',
-                  link: '/tempo/actions/validator.get',
-                },
-                {
-                  text: 'getByIndex',
-                  link: '/tempo/actions/validator.getByIndex',
-                },
-                {
-                  text: 'getCount',
-                  link: '/tempo/actions/validator.getCount',
-                },
-                {
-                  text: 'getNextFullDkgCeremony',
-                  link: '/tempo/actions/validator.getNextFullDkgCeremony',
-                },
-                {
-                  text: 'getOwner',
-                  link: '/tempo/actions/validator.getOwner',
-                },
-                {
-                  text: 'list',
-                  link: '/tempo/actions/validator.list',
-                },
-                {
-                  text: 'setNextFullDkgCeremony',
-                  link: '/tempo/actions/validator.setNextFullDkgCeremony',
-                },
-                {
-                  text: 'update',
-                  link: '/tempo/actions/validator.update',
-                },
-              ],
-            },
-            {
-              text: 'Virtual Address',
-              collapsed: true,
-              items: [
-                {
-                  text: 'getMasterAddress',
-                  link: '/tempo/actions/virtualAddress.getMasterAddress',
-                },
-                {
-                  text: 'registerMaster',
-                  link: '/tempo/actions/virtualAddress.registerMaster',
-                },
-                {
-                  text: 'resolve',
-                  link: '/tempo/actions/virtualAddress.resolve',
-                },
-              ],
-            },
-            {
-              text: 'Wallet',
-              collapsed: true,
-              items: [
-                {
-                  text: 'deposit',
-                  link: '/tempo/actions/wallet.deposit',
-                },
-                {
-                  text: 'transfer',
-                  link: '/tempo/actions/wallet.transfer',
-                },
-                {
-                  text: 'swap',
-                  link: '/tempo/actions/wallet.swap',
-                },
-              ],
-            },
-            {
-              text: 'Zone',
-              collapsed: true,
-              items: [
-                {
-                  text: 'deposit',
-                  link: '/tempo/actions/zone.deposit',
-                },
-                {
-                  text: 'encryptedDeposit',
-                  link: '/tempo/actions/zone.encryptedDeposit',
-                },
-                {
-                  text: 'getAuthorizationTokenInfo',
-                  link: '/tempo/actions/zone.getAuthorizationTokenInfo',
-                },
-                {
-                  text: 'getEncryptionKey',
-                  link: '/tempo/actions/zone.getEncryptionKey',
-                },
-                {
-                  text: 'getWithdrawalFee',
-                  link: '/tempo/actions/zone.getWithdrawalFee',
-                },
-                {
-                  text: 'getZoneInfo',
-                  link: '/tempo/actions/zone.getZoneInfo',
-                },
-                {
-                  text: 'requestVerifiableWithdrawal',
-                  link: '/tempo/actions/zone.requestVerifiableWithdrawal',
-                },
-                {
-                  text: 'requestWithdrawal',
-                  link: '/tempo/actions/zone.requestWithdrawal',
-                },
-                {
-                  text: 'signAuthorizationToken',
-                  link: '/tempo/actions/zone.signAuthorizationToken',
-                },
-                {
-                  text: 'waitForTempoBlock',
-                  link: '/tempo/actions/zone.waitForTempoBlock',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          text: 'Transports',
-          items: [
-            {
-              text: 'withRelay',
-              link: '/tempo/transports/withRelay',
-            },
-          ],
-        },
-        {
-          text: 'Utilities',
-          items: [
-            {
-              text: 'TempoAddress',
-              collapsed: true,
-              items: [
-                {
-                  text: 'format',
-                  link: '/tempo/utilities/TempoAddress.format',
-                },
-                {
-                  text: 'parse',
-                  link: '/tempo/utilities/TempoAddress.parse',
-                },
-                {
-                  text: 'validate',
-                  link: '/tempo/utilities/TempoAddress.validate',
-                },
-              ],
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Scopes',
-              link: '/tempo/utilities/Scopes',
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Selectors',
-              link: '/tempo/utilities/Selectors',
-            },
-            {
-              text: 'Storage',
-              collapsed: true,
-              items: [
-                {
-                  text: 'defaultStorage',
-                  link: '/tempo/utilities/Storage.defaultStorage',
-                },
-                {
-                  text: 'from',
-                  link: '/tempo/utilities/Storage.from',
-                },
-                {
-                  text: 'memory',
-                  link: '/tempo/utilities/Storage.memory',
-                },
-                {
-                  text: 'session',
-                  link: '/tempo/utilities/Storage.session',
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  } as const satisfies Config['sidebar'],
+    '/account-abstraction': [
+      {
+        text: 'Account Abstraction',
+        items: [
+          { text: 'Getting Started', link: '/account-abstraction' },
+          {
+            text: 'EntryPoint Versions',
+            link: '/account-abstraction/entry-point-versions',
+          },
+          {
+            text: 'Migrate from v2',
+            link: '/account-abstraction/migration',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Sending User Operations',
+            link: '/account-abstraction/guides/sending-user-operations',
+          },
+        ],
+      },
+      {
+        text: 'Clients',
+        items: [
+          {
+            text: 'Bundler Client',
+            link: '/account-abstraction/clients/bundler',
+          },
+          {
+            text: 'Paymaster Client',
+            link: '/account-abstraction/clients/paymaster',
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          {
+            text: 'Smart Accounts',
+            link: '/account-abstraction/accounts/smart',
+            items: [
+              {
+                text: 'Coinbase',
+                link: '/account-abstraction/accounts/coinbase',
+              },
+              {
+                text: 'MetaMask',
+                link: '/account-abstraction/accounts/smart/toMetaMaskSmartAccount',
+              },
+              {
+                text: 'Thirdweb',
+                link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
+              },
+              {
+                text: 'Biconomy',
+                link: '/account-abstraction/accounts/smart/toNexusSmartAccount',
+              },
+              {
+                text: 'Alchemy',
+                link: '/account-abstraction/accounts/smart/toLightSmartAccount',
+              },
+              {
+                text: 'Kernel (ZeroDev)',
+                link: '/account-abstraction/accounts/smart/toEcdsaKernelSmartAccount',
+              },
+              {
+                text: 'Safe',
+                link: '/account-abstraction/accounts/smart/toSafeSmartAccount',
+              },
+              {
+                text: 'Simple',
+                link: '/account-abstraction/accounts/smart/toSimpleSmartAccount',
+              },
+              {
+                text: 'Solady',
+                link: '/account-abstraction/accounts/solady',
+              },
+              {
+                text: 'Simple7702',
+                link: '/account-abstraction/accounts/simple-7702',
+              },
+              {
+                text: 'Trust',
+                link: '/account-abstraction/accounts/smart/toTrustSmartAccount',
+              },
+              {
+                text: 'Custom',
+                link: '/account-abstraction/accounts/custom',
+              },
+            ],
+          },
+          {
+            text: 'WebAuthn Account',
+            link: '/account-abstraction/accounts/webauthn',
+            items: [
+              {
+                text: 'fromCredential',
+                link: '/account-abstraction/accounts/webauthn/fromCredential',
+              },
+              {
+                text: 'createCredential',
+                link: '/account-abstraction/accounts/webauthn/createCredential',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Actions',
+        items: [
+          {
+            text: 'EntryPoint',
+            items: [
+              {
+                text: 'getSupported',
+                link: '/account-abstraction/actions/entryPoint.getSupported',
+              },
+            ],
+          },
+          {
+            text: 'Paymaster',
+            items: [
+              {
+                text: 'getData',
+                link: '/account-abstraction/actions/paymaster.getData',
+              },
+              {
+                text: 'getStubData',
+                link: '/account-abstraction/actions/paymaster.getStubData',
+              },
+            ],
+          },
+          {
+            text: 'UserOperation',
+            items: [
+              {
+                text: 'prepare',
+                link: '/account-abstraction/actions/userOperation.prepare',
+              },
+              {
+                text: 'estimateGas',
+                link: '/account-abstraction/actions/userOperation.estimateGas',
+              },
+              {
+                text: 'send',
+                link: '/account-abstraction/actions/userOperation.send',
+              },
+              {
+                text: 'get',
+                link: '/account-abstraction/actions/userOperation.get',
+              },
+              {
+                text: 'getReceipt',
+                link: '/account-abstraction/actions/userOperation.getReceipt',
+              },
+              {
+                text: 'waitForReceipt',
+                link: '/account-abstraction/actions/userOperation.waitForReceipt',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    '/op-stack': [
+      { text: 'Overview', link: '/op-stack' },
+      { text: 'Client Decorators', link: '/op-stack/client' },
+      { text: 'Deposits', link: '/op-stack/deposits' },
+      { text: 'Withdrawals', link: '/op-stack/withdrawals' },
+      {
+        text: 'L1 Actions',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/op-stack/actions/l1' },
+          {
+            text: 'Deposits',
+            items: [
+              {
+                text: 'depositTransaction',
+                link: '/op-stack/actions/l1/depositTransaction',
+              },
+              {
+                text: 'estimateDepositTransactionGas',
+                link: '/op-stack/actions/l1/estimateDepositTransactionGas',
+              },
+            ],
+          },
+          {
+            text: 'Withdrawals',
+            items: [
+              {
+                text: 'buildInitiateWithdrawal',
+                link: '/op-stack/actions/l1/buildInitiateWithdrawal',
+              },
+              {
+                text: 'estimateFinalizeWithdrawalGas',
+                link: '/op-stack/actions/l1/estimateFinalizeWithdrawalGas',
+              },
+              {
+                text: 'estimateProveWithdrawalGas',
+                link: '/op-stack/actions/l1/estimateProveWithdrawalGas',
+              },
+              {
+                text: 'finalizeWithdrawal',
+                link: '/op-stack/actions/l1/finalizeWithdrawal',
+              },
+              {
+                text: 'getTimeToFinalize',
+                link: '/op-stack/actions/l1/getTimeToFinalize',
+              },
+              {
+                text: 'getTimeToProve',
+                link: '/op-stack/actions/l1/getTimeToProve',
+              },
+              {
+                text: 'getWithdrawalStatus',
+                link: '/op-stack/actions/l1/getWithdrawalStatus',
+              },
+              {
+                text: 'proveWithdrawal',
+                link: '/op-stack/actions/l1/proveWithdrawal',
+              },
+              {
+                text: 'waitToFinalize',
+                link: '/op-stack/actions/l1/waitToFinalize',
+              },
+              {
+                text: 'waitToProve',
+                link: '/op-stack/actions/l1/waitToProve',
+              },
+            ],
+          },
+          {
+            text: 'Outputs & Dispute Games',
+            items: [
+              {
+                text: 'getGame',
+                link: '/op-stack/actions/l1/getGame',
+              },
+              {
+                text: 'getGames',
+                link: '/op-stack/actions/l1/getGames',
+              },
+              {
+                text: 'getL2Output',
+                link: '/op-stack/actions/l1/getL2Output',
+              },
+              {
+                text: 'getTimeToNextGame',
+                link: '/op-stack/actions/l1/getTimeToNextGame',
+              },
+              {
+                text: 'getTimeToNextL2Output',
+                link: '/op-stack/actions/l1/getTimeToNextL2Output',
+              },
+              {
+                text: 'waitForNextGame',
+                link: '/op-stack/actions/l1/waitForNextGame',
+              },
+              {
+                text: 'waitForNextL2Output',
+                link: '/op-stack/actions/l1/waitForNextL2Output',
+              },
+            ],
+          },
+          {
+            text: 'Portal',
+            items: [
+              {
+                text: 'getPortalVersion',
+                link: '/op-stack/actions/l1/getPortalVersion',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'L2 Actions',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/op-stack/actions/l2' },
+          {
+            text: 'Deposits & Withdrawals',
+            items: [
+              {
+                text: 'buildDepositTransaction',
+                link: '/op-stack/actions/l2/buildDepositTransaction',
+              },
+              {
+                text: 'buildProveWithdrawal',
+                link: '/op-stack/actions/l2/buildProveWithdrawal',
+              },
+              {
+                text: 'estimateInitiateWithdrawalGas',
+                link: '/op-stack/actions/l2/estimateInitiateWithdrawalGas',
+              },
+              {
+                text: 'initiateWithdrawal',
+                link: '/op-stack/actions/l2/initiateWithdrawal',
+              },
+            ],
+          },
+          {
+            text: 'Transaction Fees',
+            items: [
+              {
+                text: 'estimateL1Fee',
+                link: '/op-stack/actions/l2/estimateL1Fee',
+              },
+              {
+                text: 'estimateL1Gas',
+                link: '/op-stack/actions/l2/estimateL1Gas',
+              },
+              {
+                text: 'estimateOperatorFee',
+                link: '/op-stack/actions/l2/estimateOperatorFee',
+              },
+              {
+                text: 'estimateTotalFee',
+                link: '/op-stack/actions/l2/estimateTotalFee',
+              },
+              {
+                text: 'estimateTotalGas',
+                link: '/op-stack/actions/l2/estimateTotalGas',
+              },
+              {
+                text: 'getL1BaseFee',
+                link: '/op-stack/actions/l2/getL1BaseFee',
+              },
+            ],
+          },
+          {
+            text: 'Contract Fees',
+            items: [
+              {
+                text: 'estimateContractL1Fee',
+                link: '/op-stack/actions/l2/estimateContractL1Fee',
+              },
+              {
+                text: 'estimateContractL1Gas',
+                link: '/op-stack/actions/l2/estimateContractL1Gas',
+              },
+              {
+                text: 'estimateContractTotalFee',
+                link: '/op-stack/actions/l2/estimateContractTotalFee',
+              },
+              {
+                text: 'estimateContractTotalGas',
+                link: '/op-stack/actions/l2/estimateContractTotalGas',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    '/tempo': [
+      { text: 'Getting Started', link: '/tempo' },
+      { text: 'Chains', link: '/tempo/chains' },
+      { text: 'Tempo Docs & Guides', link: 'https://docs.tempo.xyz' },
+      {
+        text: 'Guides',
+        items: [
+          { text: 'Overview', link: '/tempo/guides' },
+          {
+            text: 'Accounts',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create an Account',
+                link: '/tempo/guides/accounts/create',
+              },
+              {
+                text: 'Sign In with a Passkey',
+                link: '/tempo/guides/accounts/passkeys',
+              },
+              {
+                text: 'Use the Tempo Accounts SDK',
+                link: '/tempo/guides/accounts/accounts-sdk',
+              },
+            ],
+          },
+          {
+            text: 'Tempo Transactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/transactions' },
+              { text: 'Batch Calls', link: '/tempo/guides/batch-calls' },
+              {
+                text: 'Concurrent Transactions',
+                link: '/tempo/guides/concurrent-transactions',
+              },
+              {
+                text: 'Scheduled Transactions',
+                link: '/tempo/guides/scheduled-transactions',
+              },
+              {
+                text: 'Pay Fees in a Stablecoin',
+                link: '/tempo/guides/pay-fees',
+              },
+              { text: 'Sponsor User Fees', link: '/tempo/guides/sponsor-fees' },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Multisig Transactions',
+                link: '/tempo/guides/multisig-transactions',
+              },
+            ],
+          },
+          {
+            text: 'Tokens',
+            collapsed: true,
+            items: [
+              {
+                text: 'Create a TIP-20 Token',
+                link: '/tempo/guides/create-token',
+              },
+              {
+                text: 'Mint & Burn Tokens',
+                link: '/tempo/guides/manage-token-balances',
+              },
+              {
+                text: 'Transfer Tokens',
+                link: '/tempo/guides/transfer-tokens',
+              },
+              {
+                text: 'Manage Token Roles & Supply',
+                link: '/tempo/guides/manage-token-roles',
+              },
+              {
+                text: 'Configure Transfer Policies',
+                link: '/tempo/guides/transfer-policies',
+              },
+            ],
+          },
+          {
+            text: 'Access Keys',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/access-keys' },
+              {
+                text: 'Authorize Access Keys',
+                link: '/tempo/guides/access-keys/authorize',
+              },
+              {
+                text: 'Set Permissions & Limits',
+                link: '/tempo/guides/access-keys/permissions',
+              },
+              {
+                text: 'Manage Access Keys',
+                link: '/tempo/guides/access-keys/manage',
+              },
+              {
+                text: 'Admin Access Keys',
+                link: '/tempo/guides/access-keys/admin',
+              },
+              {
+                text: 'Witnesses',
+                link: '/tempo/guides/access-keys/witnesses',
+              },
+              {
+                text: 'Verify Signatures',
+                link: '/tempo/guides/access-keys/verify',
+              },
+            ],
+          },
+          {
+            text: 'Stablecoin Exchange',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/stablecoin-exchange' },
+              {
+                text: 'Swap Stablecoins',
+                link: '/tempo/guides/stablecoin-exchange/swap',
+              },
+              {
+                text: 'Place & Manage Orders',
+                link: '/tempo/guides/stablecoin-exchange/orders',
+              },
+              {
+                text: 'Manage Exchange Balances',
+                link: '/tempo/guides/stablecoin-exchange/balances',
+              },
+              {
+                text: 'Create a Trading Pair',
+                link: '/tempo/guides/stablecoin-exchange/create-pair',
+              },
+              {
+                text: 'Provide Fee AMM Liquidity',
+                link: '/tempo/guides/stablecoin-exchange/fee-amm-liquidity',
+              },
+            ],
+          },
+          {
+            text: 'Earn',
+            collapsed: true,
+            items: [
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Overview',
+                link: '/tempo/guides/earn',
+              },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Deploy an Earn Stack',
+                link: '/tempo/guides/earn/deploy',
+              },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Deposit & Withdraw',
+                link: '/tempo/guides/earn/deposit-withdraw',
+              },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Protected Vaults',
+                link: '/tempo/guides/earn/protected-vaults',
+              },
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Earn with Private Zones',
+                link: '/tempo/guides/earn/zones',
+              },
+            ],
+          },
+          {
+            text: 'Virtual Addresses',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/virtual-addresses' },
+              {
+                text: 'Register a Master Address',
+                link: '/tempo/guides/virtual-addresses/register',
+              },
+              {
+                text: 'Resolve & Accept Payments',
+                link: '/tempo/guides/virtual-addresses/resolve',
+              },
+            ],
+          },
+          {
+            text: 'Receive Policies',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/receive-policies' },
+              {
+                text: 'Set a Receive Policy',
+                link: '/tempo/guides/receive-policies/set',
+              },
+              {
+                text: 'Validate Transfers',
+                link: '/tempo/guides/receive-policies/validate',
+              },
+              {
+                text: 'Handle Blocked Funds',
+                link: '/tempo/guides/receive-policies/blocked',
+              },
+            ],
+          },
+          {
+            text: 'Payment Channels',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/payment-channels' },
+              {
+                text: 'Open & Fund a Channel',
+                link: '/tempo/guides/payment-channels/open',
+              },
+              {
+                text: 'Send & Settle Vouchers',
+                link: '/tempo/guides/payment-channels/vouchers',
+              },
+              {
+                text: 'Close & Withdraw',
+                link: '/tempo/guides/payment-channels/close',
+              },
+            ],
+          },
+          {
+            text: 'Private Zones',
+            collapsed: true,
+            items: [
+              {
+                text: 'Connect to a Zone',
+                link: '/tempo/guides/zones/connect',
+              },
+              {
+                text: 'Deposit to a Zone',
+                link: '/tempo/guides/zones/deposit',
+              },
+              {
+                text: 'Withdraw from a Zone',
+                link: '/tempo/guides/zones/withdraw',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Accounts',
+        items: [
+          { text: 'Overview', link: '/tempo/accounts' },
+          {
+            text: 'Secp256k1 (Standard Account)',
+            link: '/tempo/accounts/account.fromSecp256k1',
+          },
+          { text: 'P256', link: '/tempo/accounts/account.fromP256' },
+          {
+            text: 'WebAuthnP256 (Passkey)',
+            link: '/tempo/accounts/account.fromWebAuthnP256',
+          },
+          {
+            text: 'WebCryptoP256',
+            link: '/tempo/accounts/account.fromWebCryptoP256',
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Multisig',
+            link: '/tempo/accounts/account.fromMultisig',
+          },
+        ],
+      },
+      {
+        text: 'Actions',
+        items: [
+          { text: 'Overview', link: '/tempo/actions' },
+          {
+            text: 'Access Key',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Check Admin',
+                link: '/tempo/actions/accessKey.isAdmin',
+              },
+              {
+                badge: badge('public'),
+                text: 'Check Burned Witness',
+                link: '/tempo/actions/accessKey.isWitnessBurned',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Metadata',
+                link: '/tempo/actions/accessKey.getMetadata',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Remaining Limit',
+                link: '/tempo/actions/accessKey.getRemainingLimit',
+              },
+              {
+                badge: badge('public'),
+                text: 'Verify Hash',
+                link: '/tempo/actions/accessKey.verifyHash',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Admin Authorizations',
+                link: '/tempo/actions/accessKey.watchAdminAuthorized',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Burned Witnesses',
+                link: '/tempo/actions/accessKey.watchWitnessBurned',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Witnesses',
+                link: '/tempo/actions/accessKey.watchWitness',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Authorize',
+                link: '/tempo/actions/accessKey.authorize',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Burn Witness',
+                link: '/tempo/actions/accessKey.burnWitness',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Revoke',
+                link: '/tempo/actions/accessKey.revoke',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Sign Authorization',
+                link: '/tempo/actions/accessKey.signAuthorization',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Limit',
+                link: '/tempo/actions/accessKey.updateLimit',
+              },
+            ],
+          },
+          {
+            text: 'AMM',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Liquidity Balance',
+                link: '/tempo/actions/amm.getLiquidityBalance',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Pool',
+                link: '/tempo/actions/amm.getPool',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Liquidity Burns',
+                link: '/tempo/actions/amm.watchBurn',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Liquidity Mints',
+                link: '/tempo/actions/amm.watchMint',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Rebalance Swaps',
+                link: '/tempo/actions/amm.watchRebalanceSwap',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Burn Liquidity',
+                link: '/tempo/actions/amm.burn',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Mint Liquidity',
+                link: '/tempo/actions/amm.mint',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Rebalance Swap',
+                link: '/tempo/actions/amm.rebalanceSwap',
+              },
+            ],
+          },
+          {
+            text: 'Channel',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Channel States',
+                link: '/tempo/actions/channel.getStates',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Close Channel',
+                link: '/tempo/actions/channel.close',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Open Channel',
+                link: '/tempo/actions/channel.open',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Request Channel Close',
+                link: '/tempo/actions/channel.requestClose',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Settle Channel Voucher',
+                link: '/tempo/actions/channel.settle',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Sign Channel Voucher',
+                link: '/tempo/actions/channel.signVoucher',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Top Up Channel',
+                link: '/tempo/actions/channel.topUp',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Withdraw Channel Funds',
+                link: '/tempo/actions/channel.withdraw',
+              },
+            ],
+          },
+          {
+            text: 'DEX',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Balance',
+                link: '/tempo/actions/dex.getBalance',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Buy Quote',
+                link: '/tempo/actions/dex.getBuyQuote',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Order',
+                link: '/tempo/actions/dex.getOrder',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Orderbook',
+                link: '/tempo/actions/dex.getOrderbook',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Sell Quote',
+                link: '/tempo/actions/dex.getSellQuote',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Tick Level',
+                link: '/tempo/actions/dex.getTickLevel',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Flip Orders',
+                link: '/tempo/actions/dex.watchFlipOrderPlaced',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Order Cancellations',
+                link: '/tempo/actions/dex.watchOrderCancelled',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Order Fills',
+                link: '/tempo/actions/dex.watchOrderFilled',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Orders',
+                link: '/tempo/actions/dex.watchOrderPlaced',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Buy Tokens',
+                link: '/tempo/actions/dex.buy',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Cancel Order',
+                link: '/tempo/actions/dex.cancel',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Cancel Stale Order',
+                link: '/tempo/actions/dex.cancelStale',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create Pair',
+                link: '/tempo/actions/dex.createPair',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Place Flip Order',
+                link: '/tempo/actions/dex.placeFlip',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Place Order',
+                link: '/tempo/actions/dex.place',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Sell Tokens',
+                link: '/tempo/actions/dex.sell',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Withdraw Balance',
+                link: '/tempo/actions/dex.withdraw',
+              },
+            ],
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Earn',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Fee State',
+                link: '/tempo/actions/earn.getFeeState',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Position',
+                link: '/tempo/actions/earn.getPosition',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Private Deposit',
+                link: '/tempo/actions/earn.privateDeposit',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Private Redeem',
+                link: '/tempo/actions/earn.privateRedeem',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Redeem Quote',
+                link: '/tempo/actions/earn.getRedeemQuote',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Vault',
+                link: '/tempo/actions/earn.getVault',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Withdraw Quote',
+                link: '/tempo/actions/earn.getWithdrawQuote',
+              },
+              {
+                badge: badge('public'),
+                text: 'Validate Exit-Safe Policy',
+                link: '/tempo/actions/earn.validateExitSafePolicy',
+              },
+              {
+                badge: badge('public'),
+                text: 'Wait for Private Deposit',
+                link: '/tempo/actions/earn.waitForPrivateDeposit',
+              },
+              {
+                badge: badge('public'),
+                text: 'Wait for Private Redeem',
+                link: '/tempo/actions/earn.waitForPrivateRedeem',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Bind ERC-4626 Engine',
+                link: '/tempo/actions/earn.bindErc4626Engine',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Configure Exit-Safe Policy',
+                link: '/tempo/actions/earn.configureExitSafePolicy',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create ERC-4626 Engine',
+                link: '/tempo/actions/earn.createErc4626Engine',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create Stack',
+                link: '/tempo/actions/earn.createStack',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Deposit into Vault',
+                link: '/tempo/actions/earn.deposit',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Deposit Shares into Vault',
+                link: '/tempo/actions/earn.depositShares',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Deploy ERC-4626 Stack',
+                link: '/tempo/actions/earn.deployErc4626StackSync',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Redeem Shares',
+                link: '/tempo/actions/earn.redeem',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Withdraw Exact Assets',
+                link: '/tempo/actions/earn.withdrawExact',
+              },
+            ],
+          },
+          {
+            text: 'Faucet',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('test'),
+                text: 'Fund Account',
+                link: '/tempo/actions/faucet.fund',
+              },
+            ],
+          },
+          {
+            text: 'Fee',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get User Fee Token',
+                link: '/tempo/actions/fee.getUserToken',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Validator Fee Token',
+                link: '/tempo/actions/fee.getValidatorToken',
+              },
+              {
+                badge: badge('public'),
+                text: 'Validate Fee Token',
+                link: '/tempo/actions/fee.validateToken',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch User Fee Token',
+                link: '/tempo/actions/fee.watchSetUserToken',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Validator Fee Token',
+                link: '/tempo/actions/fee.watchSetValidatorToken',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set User Fee Token',
+                link: '/tempo/actions/fee.setUserToken',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Validator Fee Token',
+                link: '/tempo/actions/fee.setValidatorToken',
+              },
+            ],
+          },
+          {
+            text: 'Nonce',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Nonce',
+                link: '/tempo/actions/nonce.get',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Nonce Increments',
+                link: '/tempo/actions/nonce.watchIncremented',
+              },
+            ],
+          },
+          {
+            text: 'Policy',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Check Transfer Policy Authorization',
+                link: '/tempo/actions/policy.isAuthorized',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Transfer Policy Data',
+                link: '/tempo/actions/policy.getData',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Transfer Policy Admin',
+                link: '/tempo/actions/policy.watchAdminUpdated',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Transfer Policy Blacklist',
+                link: '/tempo/actions/policy.watchBlacklistUpdated',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Transfer Policy Creation',
+                link: '/tempo/actions/policy.watchCreate',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Transfer Policy Whitelist',
+                link: '/tempo/actions/policy.watchWhitelistUpdated',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create Transfer Policy',
+                link: '/tempo/actions/policy.create',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Modify Transfer Policy Blacklist',
+                link: '/tempo/actions/policy.modifyBlacklist',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Modify Transfer Policy Whitelist',
+                link: '/tempo/actions/policy.modifyWhitelist',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Transfer Policy Admin',
+                link: '/tempo/actions/policy.setAdmin',
+              },
+            ],
+          },
+          {
+            text: 'Receive Policy',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Blocked Balance',
+                link: '/tempo/actions/receivePolicy.getBlockedBalance',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Receive Policy',
+                link: '/tempo/actions/receivePolicy.get',
+              },
+              {
+                badge: badge('public'),
+                text: 'Validate Receive Policy',
+                link: '/tempo/actions/receivePolicy.validate',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Blocked Transfers',
+                link: '/tempo/actions/receivePolicy.watchBlocked',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Burned Receipts',
+                link: '/tempo/actions/receivePolicy.watchBurned',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Claimed Receipts',
+                link: '/tempo/actions/receivePolicy.watchClaimed',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Receive Policy Updates',
+                link: '/tempo/actions/receivePolicy.watchUpdated',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Burn Blocked Funds',
+                link: '/tempo/actions/receivePolicy.burn',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Claim Blocked Funds',
+                link: '/tempo/actions/receivePolicy.claim',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Receive Policy',
+                link: '/tempo/actions/receivePolicy.set',
+              },
+            ],
+          },
+          {
+            text: 'Token',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Check Role',
+                link: '/tempo/actions/token.hasRole',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Allowance',
+                link: '/tempo/actions/token.getAllowance',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Balance',
+                link: '/tempo/actions/token.getBalance',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Metadata',
+                link: '/tempo/actions/token.getMetadata',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Role Admin',
+                link: '/tempo/actions/token.getRoleAdmin',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Total Supply',
+                link: '/tempo/actions/token.getTotalSupply',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Approvals',
+                link: '/tempo/actions/token.watchApprove',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Burns',
+                link: '/tempo/actions/token.watchBurn',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Creation',
+                link: '/tempo/actions/token.watchCreate',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Mints',
+                link: '/tempo/actions/token.watchMint',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Quote Updates',
+                link: '/tempo/actions/token.watchUpdateQuoteToken',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Role Admin',
+                link: '/tempo/actions/token.watchAdminRole',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Roles',
+                link: '/tempo/actions/token.watchRole',
+              },
+              {
+                badge: badge('public'),
+                text: 'Watch Transfers',
+                link: '/tempo/actions/token.watchTransfer',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Approve Spending',
+                link: '/tempo/actions/token.approve',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Burn',
+                link: '/tempo/actions/token.burn',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Burn from Blocked Address',
+                link: '/tempo/actions/token.burnBlocked',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Change Transfer Policy',
+                link: '/tempo/actions/token.changeTransferPolicy',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Create',
+                link: '/tempo/actions/token.create',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Grant Roles',
+                link: '/tempo/actions/token.grantRoles',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Mint',
+                link: '/tempo/actions/token.mint',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Pause',
+                link: '/tempo/actions/token.pause',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Prepare Quote Update',
+                link: '/tempo/actions/token.prepareUpdateQuoteToken',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Renounce Roles',
+                link: '/tempo/actions/token.renounceRoles',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Revoke Roles',
+                link: '/tempo/actions/token.revokeRoles',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Role Admin',
+                link: '/tempo/actions/token.setRoleAdmin',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Supply Cap',
+                link: '/tempo/actions/token.setSupplyCap',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Transfer',
+                link: '/tempo/actions/token.transfer',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Unpause',
+                link: '/tempo/actions/token.unpause',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Quote',
+                link: '/tempo/actions/token.updateQuoteToken',
+              },
+            ],
+          },
+          {
+            text: 'Validator',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Next Full DKG Ceremony',
+                link: '/tempo/actions/validator.getNextFullDkgCeremony',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Validator',
+                link: '/tempo/actions/validator.get',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Validator by Index',
+                link: '/tempo/actions/validator.getByIndex',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Validator Count',
+                link: '/tempo/actions/validator.getCount',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Validator Owner',
+                link: '/tempo/actions/validator.getOwner',
+              },
+              {
+                badge: badge('public'),
+                text: 'List Validators',
+                link: '/tempo/actions/validator.list',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Add Validator',
+                link: '/tempo/actions/validator.add',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Change Validator Owner',
+                link: '/tempo/actions/validator.changeOwner',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Change Validator Status',
+                link: '/tempo/actions/validator.changeStatus',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Set Next Full DKG Ceremony',
+                link: '/tempo/actions/validator.setNextFullDkgCeremony',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Validator',
+                link: '/tempo/actions/validator.update',
+              },
+            ],
+          },
+          {
+            text: 'Virtual Address',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Virtual Master Address',
+                link: '/tempo/actions/virtualAddress.getMasterAddress',
+              },
+              {
+                badge: badge('public'),
+                text: 'Resolve Virtual Address',
+                link: '/tempo/actions/virtualAddress.resolve',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Register Virtual Master Address',
+                link: '/tempo/actions/virtualAddress.registerMaster',
+              },
+            ],
+          },
+          {
+            text: 'Wallet',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('wallet'),
+                text: 'Deposit',
+                link: '/tempo/actions/wallet.deposit',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Swap',
+                link: '/tempo/actions/wallet.swap',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Transfer',
+                link: '/tempo/actions/wallet.transfer',
+              },
+            ],
+          },
+          {
+            text: 'Zone',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Authorization Token Info',
+                link: '/tempo/actions/zone.getAuthorizationTokenInfo',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Encryption Key',
+                link: '/tempo/actions/zone.getEncryptionKey',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Info',
+                link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Withdrawal Fee',
+                link: '/tempo/actions/zone.getWithdrawalFee',
+              },
+              {
+                badge: badge('public'),
+                text: 'Wait for Tempo Block',
+                link: '/tempo/actions/zone.waitForTempoBlock',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Deposit',
+                link: '/tempo/actions/zone.deposit',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Make Encrypted Deposit',
+                link: '/tempo/actions/zone.encryptedDeposit',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Request Verifiable Withdrawal',
+                link: '/tempo/actions/zone.requestVerifiableWithdrawal',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Request Withdrawal',
+                link: '/tempo/actions/zone.requestWithdrawal',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Sign Authorization Token',
+                link: '/tempo/actions/zone.signAuthorizationToken',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Transports',
+        items: [{ text: 'withRelay', link: '/tempo/transports/withRelay' }],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Scopes',
+            link: '/tempo/utilities/Scopes',
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Selectors',
+            link: '/tempo/utilities/Selectors',
+          },
+          {
+            text: 'Storage',
+            collapsed: true,
+            items: [
+              {
+                text: 'defaultStorage',
+                link: '/tempo/utilities/Storage.defaultStorage',
+              },
+              { text: 'from', link: '/tempo/utilities/Storage.from' },
+              { text: 'memory', link: '/tempo/utilities/Storage.memory' },
+              { text: 'session', link: '/tempo/utilities/Storage.session' },
+            ],
+          },
+        ],
+      },
+    ],
+  },
   socials: [
     {
       icon: 'github',
@@ -3327,67 +3511,45 @@ export default defineConfig({
     },
   ],
   twoslash: {
-    checkOnly: true,
-    // Persist twoslash results inline in the markdown source as
-    // `// @twoslash-cache: ...` comments so the cache travels with the repo.
-    // This lets cold Vercel builds skip twoslash entirely instead of
-    // re-resolving every snippet from scratch.
-    inlineCache: true,
-    throws: false,
+    renderer,
     twoslashOptions: {
-      vfsRoot: '..',
+      vfsRoot: root,
       compilerOptions: {
-        baseUrl: '.',
+        baseUrl: root,
         skipLibCheck: true,
         skipDefaultLibCheck: true,
-        ...(hasBuiltTypes
-          ? {}
-          : {
-              paths: {
-                viem: ['../src/index.ts'],
-                'viem/*': ['../src/*/index.ts', '../src/*.ts'],
-              },
-            }),
-      },
-      handbookOptions: {
-        // FIXME: fix all twoslash errors.
-        noErrors: true,
+        paths: {
+          // Pin Ox to the root workspace installation used by Viem source.
+          ox: [`${oxDist}/index.d.ts`],
+          'ox/*': [
+            `${oxDist}/core/*.d.ts`,
+            `${oxDist}/*/index.d.ts`,
+            `${oxDist}/*.d.ts`,
+          ],
+          // Resolve `viem` to live source instead of the built `dist/`.
+          viem: [`${root}/src/index.ts`],
+          'viem/*': [`${root}/src/*/index.ts`, `${root}/src/*.ts`],
+        },
       },
     },
   },
   topNav: [
-    { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
+    { text: 'Docs', link: '/docs' },
     { text: 'Tokens', link: '/tokens', match: '/tokens' },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
     {
       text: 'Extensions',
       items: [
-        {
-          text: 'Account Abstraction',
-          link: '/account-abstraction',
-        },
-        {
-          text: 'OP Stack',
-          link: '/op-stack',
-        },
-        {
-          text: 'USDC (Circle)',
-          link: '/circle-usdc',
-        },
-        {
-          text: 'Experimental',
-          link: '/experimental',
-        },
+        { text: 'Account Abstraction', link: '/account-abstraction' },
+        { text: 'OP Stack', link: '/op-stack' },
       ],
     },
     {
       text: pkg.version,
       items: [
         {
-          text: `Migrating to ${toPatchVersionRange(pkg.version)}`,
-          link: `/docs/migration-guide#_${toPatchVersionRange(
-            pkg.version,
-          ).replace(/\./g, '-')}-breaking-changes`,
+          text: 'Migrating from v2',
+          link: '/docs/v2-migration',
         },
         {
           text: 'Changelog',
@@ -3397,16 +3559,7 @@ export default defineConfig({
           text: 'Contributing',
           link: 'https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md',
         },
-        {
-          text: 'Examples',
-          link: 'https://github.com/wevm/viem/tree/main/examples',
-        },
       ],
     },
   ],
 })
-
-function toPatchVersionRange(version: string) {
-  const [major, minor] = version.split('.').slice(0, 2)
-  return `${major}.${minor}.x`
-}

@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const ultron = /*#__PURE__*/ defineChain({
+export const ultron = /*#__PURE__*/ Chain.from({
   id: 1231,
   name: 'Ultron Mainnet',
   nativeCurrency: { name: 'ULX', symbol: 'ULX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://ultron-rpc.net'],
-    },
+    http: 'https://ultron-rpc.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Ultron Scan',
-      url: 'https://ulxscan.com',
-    },
+    name: 'Ultron Scan',
+    url: 'https://ulxscan.com',
   },
   testnet: false,
 })

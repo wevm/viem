@@ -8,10 +8,10 @@ Instantiates an Account from a [native multisig](https://docs.tempo.xyz/protocol
 It is not yet available on Tempo mainnet or testnet.
 :::
 
-The returned account represents the **multisig sender** – its address is derived from the
+The returned account represents the **multisig sender**: its address is derived from the
 config. It does not hold a key and cannot sign primitives directly (`sign`, `signMessage`,
 `signTypedData` throw). Instead, it is used purely to **broadcast** a multisig transaction:
-it drives the standard [`sendTransaction`](/docs/actions/wallet/sendTransaction) flow,
+it drives the standard [`send`](/docs/actions/wallet/transaction/send) flow,
 passing the prepared request (carrying the collected owner `signatures`) through to the
 chain serializer, which combines the approvals into the multisig signature envelope.
 
@@ -48,7 +48,7 @@ console.log('Address:', account.address)
 `MultisigConfig.from`), so you don't need to call `MultisigConfig.from` yourself. You can
 still pass a pre-built `MultisigConfig.Config` if you have one.
 
-## Return Type
+## Return Value
 
 The return type is backwards compatible with Viem's `Account` type, with the multisig
 `config` attached.
@@ -70,7 +70,7 @@ type MultisigAccount = Account & {
 
 :::warning
 `Account.fromMultisig` is for **broadcasting / sender identity** only. Calling `sign`,
-`signMessage`, or `signTypedData` on the returned account throws – owner approvals are
+`signMessage`, or `signTypedData` on the returned account throws: owner approvals are
 produced separately by signing a prepared request with an owner account (see
 [Multisig Transactions](/tempo/guides/multisig-transactions)).
 :::
@@ -84,20 +84,20 @@ produced separately by signing a prepared request with an owner account (see
 The multisig configuration, created with `MultisigConfig.from`. The config is normalized
 (owners sorted into canonical ascending order) before the address is derived.
 
-#### config.threshold
-
-- **Type:** `number`
-
-The total owner weight required to authorize a transaction.
-
 #### config.owners
 
 - **Type:** `readonly { owner: Address; weight: number }[]`
 
 The list of owners and their voting weights.
 
-#### config.salt (optional)
+#### config.salt
 
 - **Type:** `Hex`
 
 Optional salt used to derive a distinct multisig address for the same owner set.
+
+#### config.threshold
+
+- **Type:** `number`
+
+The total owner weight required to authorize a transaction.

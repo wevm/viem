@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const sonicTestnet = /*#__PURE__*/ defineChain({
+export const sonicTestnet = /*#__PURE__*/ Chain.from({
   id: 64_165,
   name: 'Sonic Testnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const sonicTestnet = /*#__PURE__*/ defineChain({
     name: 'Sonic',
     symbol: 'S',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.soniclabs.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.soniclabs.com' },
   blockExplorers: {
-    default: {
-      name: 'Sonic Testnet Explorer',
-      url: 'https://testnet.soniclabs.com/',
-    },
+    name: 'Sonic Testnet Explorer',
+    url: 'https://testnet.soniclabs.com/',
   },
   testnet: true,
 })

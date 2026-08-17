@@ -1,24 +1,20 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 17000 // holesky
 
-export const fraxtalTestnet = /*#__PURE__*/ defineChain({
+export const fraxtalTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 2522,
   name: 'Fraxtal Testnet',
   nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.frax.com'],
-    },
+    http: 'https://rpc.testnet.frax.com',
   },
   blockExplorers: {
-    default: {
-      name: 'fraxscan testnet',
-      url: 'https://holesky.fraxscan.com',
-      apiUrl: 'https://api-holesky.fraxscan.com/api',
-    },
+    name: 'fraxscan testnet',
+    url: 'https://holesky.fraxscan.com',
+    apiUrl: 'https://api-holesky.fraxscan.com/api',
   },
   contracts: {
     ...chainConfig.contracts,

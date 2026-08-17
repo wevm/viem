@@ -1,8 +1,8 @@
 // Generated with `pnpm gen:tokenlist`. Do not modify manually.
 
-import { defineToken } from '../defineToken.js'
+import * as Token from '../../core/Token.js'
 
-export const gbpa = /*#__PURE__*/ defineToken({
+export const gbpa = /*#__PURE__*/ Token.from({
   addresses: {
     4217: '0x20c0000000000000000000000a6da882d075a4c3', // tempo
   },

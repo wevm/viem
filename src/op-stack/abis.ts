@@ -55,13 +55,6 @@ export const gasPriceOracleAbi = [
   },
   {
     inputs: [],
-    name: 'isJovian',
-    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
     name: 'l1BaseFee',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
@@ -85,27 +78,6 @@ export const gasPriceOracleAbi = [
     inputs: [],
     name: 'version',
     outputs: [{ internalType: 'string', name: '', type: 'string' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-] as const
-
-/**
- * ABI for the OP Stack [`L1Block` contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L2/L1Block.sol).
- * @see https://optimistic.etherscan.io/address/0x4200000000000000000000000000000000000015
- */
-export const l1BlockAbi = [
-  {
-    inputs: [],
-    name: 'operatorFeeScalar',
-    outputs: [{ internalType: 'uint32', name: '', type: 'uint32' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'operatorFeeConstant',
-    outputs: [{ internalType: 'uint64', name: '', type: 'uint64' }],
     stateMutability: 'view',
     type: 'function',
   },

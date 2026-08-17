@@ -1,0 +1,59 @@
+# Get Addresses [wallet.getAddresses]
+
+Returns a list of account addresses owned by the wallet or client.
+
+- **Local Accounts**: returns the hoisted account address (no JSON-RPC request).
+- **JSON-RPC Accounts**: returns the wallet's accounts via `eth_accounts`.
+
+## Usage
+
+This example returns a list of account addresses owned by the wallet or client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const addresses = await client.wallet.getAddresses()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.getAddresses` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const addresses = await Actions.wallet.getAddresses(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+```
+
+:::
+
+## Return Value
+
+`readonly Address[]`
+
+The list of account addresses owned by the wallet or client.

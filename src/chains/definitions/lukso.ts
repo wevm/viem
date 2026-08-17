@@ -1,8 +1,8 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const lukso = /*#__PURE__*/ defineChain({
+export const lukso = /*#__PURE__*/ Chain.from({
   id: 42,
-  network: 'lukso',
   name: 'LUKSO',
   nativeCurrency: {
     name: 'LUKSO',
@@ -10,19 +10,16 @@ export const lukso = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.mainnet.lukso.network'],
-      webSocket: ['wss://ws-rpc.mainnet.lukso.network'],
-    },
+    http: 'https://rpc.mainnet.lukso.network',
+    ws: 'wss://ws-rpc.mainnet.lukso.network',
   },
   blockExplorers: {
-    default: {
-      name: 'LUKSO Mainnet Explorer',
-      url: 'https://explorer.execution.mainnet.lukso.network',
-      apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
-    },
+    name: 'LUKSO Mainnet Explorer',
+    url: 'https://explorer.execution.mainnet.lukso.network',
+    apiUrl: 'https://api.explorer.execution.mainnet.lukso.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 468183,

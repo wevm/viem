@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const flowMainnet = /*#__PURE__*/ defineChain({
+export const flowMainnet = /*#__PURE__*/ Chain.from({
   id: 747,
   name: 'Flow EVM Mainnet',
   nativeCurrency: {
@@ -9,17 +10,14 @@ export const flowMainnet = /*#__PURE__*/ defineChain({
     symbol: 'FLOW',
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.evm.nodes.onflow.org'],
-    },
+    http: 'https://mainnet.evm.nodes.onflow.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Mainnet Explorer',
-      url: 'https://evm.flowscan.io',
-    },
+    name: 'Mainnet Explorer',
+    url: 'https://evm.flowscan.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 6205,

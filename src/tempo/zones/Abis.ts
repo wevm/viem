@@ -1,42 +1,39 @@
+/** Zone factory contract ABI. */
 export const zoneFactory = [
   {
-    type: 'event',
     name: 'ZoneCreated',
+    type: 'event',
     inputs: [
-      { name: 'zoneId', type: 'uint32', indexed: true },
-      { name: 'portal', type: 'address', indexed: true },
-      { name: 'initialToken', type: 'address', indexed: false },
-      { name: 'accessMode', type: 'bool', indexed: false },
-      { name: 'gatewayMode', type: 'bool', indexed: false },
-      { name: 'admin', type: 'address', indexed: false },
-      { name: 'sequencers', type: 'address[]', indexed: false },
-      { name: 'threshold', type: 'uint8', indexed: false },
-      { name: 'verifier', type: 'address', indexed: false },
+      { indexed: true, name: 'zoneId', type: 'uint32' },
+      { indexed: true, name: 'portal', type: 'address' },
+      { indexed: false, name: 'initialToken', type: 'address' },
+      { indexed: false, name: 'accessMode', type: 'bool' },
+      { indexed: false, name: 'gatewayMode', type: 'bool' },
+      { indexed: false, name: 'admin', type: 'address' },
+      { indexed: false, name: 'sequencers', type: 'address[]' },
+      { indexed: false, name: 'threshold', type: 'uint8' },
+      { indexed: false, name: 'verifier', type: 'address' },
     ],
   },
   {
-    type: 'event',
     name: 'ZoneCreated',
+    type: 'event',
     inputs: [
-      { name: 'zoneId', type: 'uint32', indexed: true },
-      { name: 'portal', type: 'address', indexed: true },
-      { name: 'messenger', type: 'address', indexed: true },
-      { name: 'initialToken', type: 'address', indexed: false },
-      { name: 'admin', type: 'address', indexed: false },
-      { name: 'sequencer', type: 'address', indexed: false },
-      { name: 'verifier', type: 'address', indexed: false },
-      { name: 'genesisBlockHash', type: 'bytes32', indexed: false },
-      { name: 'genesisTempoBlockHash', type: 'bytes32', indexed: false },
-      {
-        name: 'genesisTempoBlockNumber',
-        type: 'uint64',
-        indexed: false,
-      },
+      { indexed: true, name: 'zoneId', type: 'uint32' },
+      { indexed: true, name: 'portal', type: 'address' },
+      { indexed: true, name: 'messenger', type: 'address' },
+      { indexed: false, name: 'initialToken', type: 'address' },
+      { indexed: false, name: 'admin', type: 'address' },
+      { indexed: false, name: 'sequencer', type: 'address' },
+      { indexed: false, name: 'verifier', type: 'address' },
+      { indexed: false, name: 'genesisBlockHash', type: 'bytes32' },
+      { indexed: false, name: 'genesisTempoBlockHash', type: 'bytes32' },
+      { indexed: false, name: 'genesisTempoBlockNumber', type: 'uint64' },
     ],
   },
   {
-    type: 'function',
     name: 'createZone',
+    type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
       {
@@ -61,8 +58,8 @@ export const zoneFactory = [
     ],
   },
   {
-    type: 'function',
     name: 'createZone',
+    type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
       {
@@ -92,24 +89,25 @@ export const zoneFactory = [
     ],
   },
   {
-    type: 'function',
     name: 'verifier',
+    type: 'function',
     stateMutability: 'view',
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
   },
 ] as const
 
+/** Zone portal contract ABI. */
 export const zonePortal = [
   {
     name: 'WithdrawalProcessed',
     type: 'event',
     inputs: [
-      { name: 'to', type: 'address', indexed: true },
-      { name: 'senderTag', type: 'bytes32', indexed: true },
-      { name: 'token', type: 'address', indexed: false },
-      { name: 'amount', type: 'uint128', indexed: false },
-      { name: 'callbackSuccess', type: 'bool', indexed: false },
+      { indexed: true, name: 'to', type: 'address' },
+      { indexed: true, name: 'senderTag', type: 'bytes32' },
+      { indexed: false, name: 'token', type: 'address' },
+      { indexed: false, name: 'amount', type: 'uint128' },
+      { indexed: false, name: 'callbackSuccess', type: 'bool' },
     ],
   },
   {
@@ -167,6 +165,7 @@ export const zonePortal = [
   },
 ] as const
 
+/** Zone outbox contract ABI. */
 export const zoneOutbox = [
   {
     name: 'WithdrawalRequested',

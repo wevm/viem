@@ -29,7 +29,7 @@ const balance = await client.token.getBalance({
 ### Composing Calls
 
 Use `.call` to build a `balanceOf` contract call, ready to pass to
-[`multicall`](/docs/contract/multicall), [`simulateContract`](/docs/contract/simulateContract), or any
+[`multicall`](/docs/actions/public/multicall), [`contract.simulate`](/docs/actions/public/contract/simulate), or any
 other Action that accepts a contract call.
 
 :::code-group
@@ -46,7 +46,7 @@ const call = client.token.getBalance.call({ account: '0x…', token: 'usdc' })
 
 :::
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -70,16 +70,16 @@ The token balance, both in base units (`amount`) and as a human-readable decimal
 
 Account to read the balance of.
 
+### decimals
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the Client's `tokens` array, or fetched from the token contract when omitted.
+
 ### token
 
 - **Type:** `string`
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### decimals (optional)
-
-- **Type:** `number`
-
-Token decimals for converting base units to human-readable amounts. Inferred
-from the Client's `tokens` array, or fetched from the token contract when omitted.

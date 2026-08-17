@@ -1,22 +1,18 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const wanchain = /*#__PURE__*/ defineChain({
+export const wanchain = /*#__PURE__*/ Chain.from({
   id: 888,
   name: 'Wanchain',
   nativeCurrency: { name: 'WANCHAIN', symbol: 'WAN', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: [
-        'https://gwan-ssl.wandevs.org:56891',
-        'https://gwan2-ssl.wandevs.org',
-      ],
-    },
+    http: [
+      'https://gwan-ssl.wandevs.org:56891',
+      'https://gwan2-ssl.wandevs.org',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'WanScan',
-      url: 'https://wanscan.org',
-    },
+    name: 'WanScan',
+    url: 'https://wanscan.org',
   },
   contracts: {
     multicall3: {

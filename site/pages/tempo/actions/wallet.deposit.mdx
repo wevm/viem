@@ -1,37 +1,68 @@
-# `wallet.deposit`
+# Deposit with Wallet [wallet.deposit]
 
-Opens the Wallet's deposit flow, with optional pre-filled fields.
+Opens the connected Tempo wallet's deposit flow, with optional pre-filled fields.
 
 This action invokes the `wallet_deposit` JSON-RPC method on the connected wallet, prompting the user to review and submit a deposit. Any fields you omit are left for the user to fill in.
 
 ## Usage
 
-:::code-group
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+const result = await client.wallet.deposit({
+  amount: '1.5',
+  token: 'pathusd',
+})
+
+console.log('Receipts:', result?.receipts)
+// @log: Receipts: [{ status: 'success', transactionHash: '0x1234...' }]
+```
+
+## Recipes
+
+### Onboard Funds from a Known Chain
+
+Pre-fill `chainId` when your onboarding flow already knows where the user's funds sit, such as bridging in from Ethereum.
 
 ```ts twoslash [example.ts]
-import { Actions } from 'viem/tempo'
-import { client } from './viem.config'
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
 
-const result = await Actions.wallet.deposit(client, {
-  amount: '1.5',
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+await client.wallet.deposit({
+  amount: '250',
+  chainId: 1, // [!code focus]
+})
+```
+
+### Deposit to a Labeled Exchange Address
+
+Pass `address` and `displayName` when funds should land somewhere other than the connected account, such as a customer's [virtual deposit address](/tempo/guides/virtual-addresses) at an exchange.
+
+```ts twoslash [example.ts]
+import { Client, custom } from 'viem/tempo'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+
+await client.wallet.deposit({
+  address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506', // [!code focus]
+  displayName: 'Acme Exchange Deposit', // [!code focus]
   token: 'pathusd',
 })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Provider } from 'accounts'
-import { createClient, custom } from 'viem/tempo'
-
-const provider = Provider.create()
-
-export const client = createClient({
-  transport: custom(provider),
-})
-```
-
-:::
-
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType =
@@ -46,32 +77,32 @@ The wallet may return `undefined` (or an object with no `receipts`) if the depos
 
 ## Parameters
 
-### address (optional)
+### address
 
 - **Type:** `Address`
 
 Deposit address to pre-fill.
 
-### amount (optional)
+### amount
 
 - **Type:** `string`
 
 Human-readable amount to pre-fill (for example, `"1.5"`).
 
-### chainId (optional)
+### chainId
 
 - **Type:** `number`
 
 Source chain ID to pre-fill.
 
-### displayName (optional)
+### displayName
 
 - **Type:** `string`
 
 Human-readable account display name.
 
-### token (optional)
+### token
 
 - **Type:** `Address | string`
 
-Token address or supported deposit token symbol to pre-fill. Omit to let the user choose.
+Token to pre-fill, accepted as either a contract address or a supported deposit token symbol. Omit to let the user choose.

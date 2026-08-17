@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const planq = /*#__PURE__*/ defineChain({
+export const planq = /*#__PURE__*/ Chain.from({
   id: 7070,
   name: 'Planq Mainnet',
   nativeCurrency: {
@@ -9,19 +9,15 @@ export const planq = /*#__PURE__*/ defineChain({
     symbol: 'PLQ',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://planq-rpc.nodies.app',
-        'https://evm-rpc.planq.network',
-        'https://jsonrpc.planq.nodestake.top',
-      ],
-    },
+    http: [
+      'https://planq-rpc.nodies.app',
+      'https://evm-rpc.planq.network',
+      'https://jsonrpc.planq.nodestake.top',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Planq Explorer',
-      url: 'https://evm.planq.network',
-    },
+    name: 'Planq Explorer',
+    url: 'https://evm.planq.network',
   },
   contracts: {
     multicall3: {

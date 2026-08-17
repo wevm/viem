@@ -1,48 +1,460 @@
-import type { Address } from 'abitype'
-import type { Account } from '../accounts/types.js'
-import { bindActionDecorators, type Client } from '../clients/createClient.js'
-import type { Transport } from '../clients/transports/createTransport.js'
-import type { Chain } from '../types/chain.js'
-import * as accessKeyActions from './actions/accessKey.js'
-import * as ammActions from './actions/amm.js'
-import * as channelActions from './actions/channel.js'
-import * as dexActions from './actions/dex.js'
-import * as earnActions from './actions/earn.js'
-import * as faucetActions from './actions/faucet.js'
-import * as feeActions from './actions/fee.js'
-import * as nonceActions from './actions/nonce.js'
-import * as policyActions from './actions/policy.js'
-import * as receivePolicyActions from './actions/receivePolicy.js'
-import * as rewardActions from './actions/reward.js'
-import * as simulateActions from './actions/simulate.js'
-import * as tokenActions from './actions/token.js'
-import * as validatorActions from './actions/validator.js'
-import * as virtualAddressActions from './actions/virtualAddress.js'
-import * as zoneActions from './actions/zone.js'
+import type * as Account from '../core/Account.js'
+import type * as Chain from '../core/Chain.js'
+import type * as Client from '../core/Client.js'
+import type * as Transport from '../core/Transport.js'
+import * as accessKey from './actions/accessKey/index.js'
+import * as amm from './actions/amm/index.js'
+import * as channel from './actions/channel/index.js'
+import * as dex from './actions/dex/index.js'
+import * as earn from './actions/earn.js'
+import * as faucet from './actions/faucet/index.js'
+import * as fee from './actions/fee/index.js'
+import * as nonce from './actions/nonce/index.js'
+import * as policy from './actions/policy/index.js'
+import * as receivePolicy from './actions/receivePolicy/index.js'
+import * as token from './actions/token/index.js'
+import * as validator from './actions/validator/index.js'
+import * as virtualAddress from './actions/virtualAddress/index.js'
+import * as wallet from './actions/wallet/index.js'
+import * as zone from './actions/zone/index.js'
 
-type DecoratorBase<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
+/**
+ * Bag of Tempo actions bound to a {@link Client.Client}. Pass to
+ * `Client.create`'s `.extend`.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, tempoActions } from 'viem/tempo'
+ *
+ * const client = Client.create({
+ *   transport: http(),
+ * }).extend(tempoActions())
+ * const metadata = await client.token.getMetadata({
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ */
+export function tempoActions() {
+  return <
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
+  >(
+    client: Client.Client<chain, account, Transport.Transport>,
+  ): Decorator<chain, account> => ({
+    accessKey: {
+      authorize: (options) => accessKey.authorize(client, options),
+      authorizeSync: (options) => accessKey.authorizeSync(client, options),
+      burnWitness: (options) => accessKey.burnWitness(client, options),
+      burnWitnessSync: (options) => accessKey.burnWitnessSync(client, options),
+      getMetadata: (options) => accessKey.getMetadata(client, options),
+      getRemainingLimit: (options) =>
+        accessKey.getRemainingLimit(client, options),
+      isAdmin: (options) => accessKey.isAdmin(client, options),
+      isWitnessBurned: (options) => accessKey.isWitnessBurned(client, options),
+      revoke: (options) => accessKey.revoke(client, options),
+      revokeSync: (options) => accessKey.revokeSync(client, options),
+      signAuthorization: (options) =>
+        accessKey.signAuthorization(client, options),
+      updateLimit: (options) => accessKey.updateLimit(client, options),
+      updateLimitSync: (options) => accessKey.updateLimitSync(client, options),
+      verifyHash: (options) => accessKey.verifyHash(client, options),
+      watchAdminAuthorized: (options) =>
+        accessKey.watchAdminAuthorized(client, options),
+      watchWitness: (options) => accessKey.watchWitness(client, options),
+      watchWitnessBurned: (options) =>
+        accessKey.watchWitnessBurned(client, options),
+    },
+    amm: {
+      burn: (options) => amm.burn(client, options),
+      burnSync: (options) => amm.burnSync(client, options),
+      getLiquidityBalance: (options) =>
+        amm.getLiquidityBalance(client, options),
+      getPool: (options) => amm.getPool(client, options),
+      mint: (options) => amm.mint(client, options),
+      mintSync: (options) => amm.mintSync(client, options),
+      rebalanceSwap: (options) => amm.rebalanceSwap(client, options),
+      rebalanceSwapSync: (options) => amm.rebalanceSwapSync(client, options),
+      watchBurn: (options) => amm.watchBurn(client, options),
+      watchMint: (options) => amm.watchMint(client, options),
+      watchRebalanceSwap: (options) => amm.watchRebalanceSwap(client, options),
+    },
+    channel: {
+      close: (options) => channel.close(client, options),
+      closeSync: (options) => channel.closeSync(client, options),
+      getStates: (options) => channel.getStates(client, options),
+      open: (options) => channel.open(client, options),
+      openSync: (options) => channel.openSync(client, options),
+      requestClose: (options) => channel.requestClose(client, options),
+      requestCloseSync: (options) => channel.requestCloseSync(client, options),
+      settle: (options) => channel.settle(client, options),
+      settleSync: (options) => channel.settleSync(client, options),
+      signVoucher: (options) => channel.signVoucher(client, options),
+      topUp: (options) => channel.topUp(client, options),
+      topUpSync: (options) => channel.topUpSync(client, options),
+      withdraw: (options) => channel.withdraw(client, options),
+      withdrawSync: (options) => channel.withdrawSync(client, options),
+    },
+    dex: {
+      buy: (options) => dex.buy(client, options),
+      buySync: (options) => dex.buySync(client, options),
+      cancel: (options) => dex.cancel(client, options),
+      cancelStale: (options) => dex.cancelStale(client, options),
+      cancelStaleSync: (options) => dex.cancelStaleSync(client, options),
+      cancelSync: (options) => dex.cancelSync(client, options),
+      createPair: (options) => dex.createPair(client, options),
+      createPairSync: (options) => dex.createPairSync(client, options),
+      getBalance: (options) => dex.getBalance(client, options),
+      getBuyQuote: (options) => dex.getBuyQuote(client, options),
+      getOrder: (options) => dex.getOrder(client, options),
+      getOrderbook: (options) => dex.getOrderbook(client, options),
+      getSellQuote: (options) => dex.getSellQuote(client, options),
+      getTickLevel: (options) => dex.getTickLevel(client, options),
+      place: (options) => dex.place(client, options),
+      placeFlip: (options) => dex.placeFlip(client, options),
+      placeFlipSync: (options) => dex.placeFlipSync(client, options),
+      placeSync: (options) => dex.placeSync(client, options),
+      sell: (options) => dex.sell(client, options),
+      sellSync: (options) => dex.sellSync(client, options),
+      watchFlipOrderPlaced: (options) =>
+        dex.watchFlipOrderPlaced(client, options),
+      watchOrderCancelled: (options) =>
+        dex.watchOrderCancelled(client, options),
+      watchOrderFilled: (options) => dex.watchOrderFilled(client, options),
+      watchOrderPlaced: (options) => dex.watchOrderPlaced(client, options),
+      withdraw: (options) => dex.withdraw(client, options),
+      withdrawSync: (options) => dex.withdrawSync(client, options),
+    },
+    earn: {
+      bindErc4626Engine: Object.assign(
+        (options: earn.bindErc4626Engine.Parameters) =>
+          earn.bindErc4626Engine(client, options),
+        {
+          call: earn.bindErc4626Engine.call,
+          extractEvent: earn.bindErc4626Engine.extractEvent,
+        },
+      ),
+      bindErc4626EngineSync: (options) =>
+        earn.bindErc4626EngineSync(client, options),
+      configureExitSafePolicy: (options) =>
+        earn.configureExitSafePolicy(client, options),
+      createErc4626Engine: Object.assign(
+        (options: earn.createErc4626Engine.Parameters) =>
+          earn.createErc4626Engine(client, options),
+        {
+          call: earn.createErc4626Engine.call,
+          extractEvent: earn.createErc4626Engine.extractEvent,
+          predict: (args: earn.createErc4626Engine.Args) =>
+            earn.createErc4626Engine.predict(client, args),
+        },
+      ),
+      createErc4626EngineSync: (options) =>
+        earn.createErc4626EngineSync(client, options),
+      createStack: Object.assign(
+        (options: earn.createStack.Parameters) =>
+          earn.createStack(client, options),
+        {
+          call: earn.createStack.call,
+          extractEvent: earn.createStack.extractEvent,
+          predict: (args: earn.createStack.Args) =>
+            earn.createStack.predict(client, args),
+        },
+      ),
+      createStackSync: (options) => earn.createStackSync(client, options),
+      deposit: Object.assign(
+        (options: earn.deposit.Options) => earn.deposit(client, options),
+        {
+          call: (args: earn.deposit.call.Args) =>
+            earn.deposit.call(client, args),
+          calls: earn.deposit.calls,
+          estimateGas: (options: earn.deposit.Options) =>
+            earn.deposit.estimateGas(client, options),
+          extractEvent: earn.deposit.extractEvent,
+          simulate: (options: earn.deposit.Options) =>
+            earn.deposit.simulate(client, options),
+        },
+      ),
+      depositShares: Object.assign(
+        (options: earn.depositShares.Options) =>
+          earn.depositShares(client, options),
+        {
+          call: (args: earn.depositShares.call.Args) =>
+            earn.depositShares.call(client, args),
+          calls: earn.depositShares.calls,
+          estimateGas: (options: earn.depositShares.Options) =>
+            earn.depositShares.estimateGas(client, options),
+          extractEvent: earn.depositShares.extractEvent,
+          simulate: (options: earn.depositShares.Options) =>
+            earn.depositShares.simulate(client, options),
+        },
+      ),
+      depositSharesSync: (options) => earn.depositSharesSync(client, options),
+      depositSync: (options) => earn.depositSync(client, options),
+      deployErc4626StackSync: (options) =>
+        earn.deployErc4626StackSync(client, options),
+      getFeeState: (options) => earn.getFeeState(client, options),
+      getPosition: (options) => earn.getPosition(client, options),
+      getRedeemQuote: Object.assign(
+        (options: earn.getRedeemQuote.Options) =>
+          earn.getRedeemQuote(client, options),
+        { call: earn.getRedeemQuote.call },
+      ),
+      getVault: Object.assign(
+        (options: earn.getVault.Options) => earn.getVault(client, options),
+        { calls: earn.getVault.calls },
+      ),
+      getWithdrawQuote: Object.assign(
+        (options: earn.getWithdrawQuote.Options) =>
+          earn.getWithdrawQuote(client, options),
+        { call: earn.getWithdrawQuote.call },
+      ),
+      privateDeposit: Object.assign(
+        (options: earn.privateDeposit.Options<account>) =>
+          earn.privateDeposit(client, options),
+        {
+          calls: earn.privateDeposit.calls,
+          prepare: (options: earn.privateDeposit.prepare.Options) =>
+            earn.privateDeposit.prepare(client, options),
+        },
+      ),
+      privateDepositSync: (options) => earn.privateDepositSync(client, options),
+      privateRedeem: Object.assign(
+        (options: earn.privateRedeem.Options<account>) =>
+          earn.privateRedeem(client, options),
+        {
+          calls: earn.privateRedeem.calls,
+          prepare: (options: earn.privateRedeem.prepare.Options) =>
+            earn.privateRedeem.prepare(client, options),
+        },
+      ),
+      privateRedeemSync: (options) => earn.privateRedeemSync(client, options),
+      redeem: Object.assign(
+        (options: earn.redeem.Options) => earn.redeem(client, options),
+        {
+          call: (args: earn.redeem.call.Args) => earn.redeem.call(client, args),
+          calls: earn.redeem.calls,
+          estimateGas: (options: earn.redeem.Options) =>
+            earn.redeem.estimateGas(client, options),
+          extractEvent: earn.redeem.extractEvent,
+          simulate: (options: earn.redeem.Options) =>
+            earn.redeem.simulate(client, options),
+        },
+      ),
+      redeemSync: (options) => earn.redeemSync(client, options),
+      validateExitSafePolicy: (options) =>
+        earn.validateExitSafePolicy(client, options),
+      waitForPrivateDeposit: (options) =>
+        earn.waitForPrivateDeposit(client, options),
+      waitForPrivateRedeem: (options) =>
+        earn.waitForPrivateRedeem(client, options),
+      withdrawExact: Object.assign(
+        (options: earn.withdrawExact.Options) =>
+          earn.withdrawExact(client, options),
+        {
+          call: (args: earn.withdrawExact.call.Args) =>
+            earn.withdrawExact.call(client, args),
+          calls: earn.withdrawExact.calls,
+          estimateGas: (options: earn.withdrawExact.Options) =>
+            earn.withdrawExact.estimateGas(client, options),
+          extractEvent: earn.withdrawExact.extractEvent,
+          simulate: (options: earn.withdrawExact.Options) =>
+            earn.withdrawExact.simulate(client, options),
+        },
+      ),
+      withdrawExactSync: (options) => earn.withdrawExactSync(client, options),
+    },
+    faucet: {
+      fund: (options) => faucet.fund(client, options),
+      fundSync: (options) => faucet.fundSync(client, options),
+    },
+    fee: {
+      getUserToken: (options) => fee.getUserToken(client, options),
+      getValidatorToken: (options) => fee.getValidatorToken(client, options),
+      setUserToken: (options) => fee.setUserToken(client, options),
+      setUserTokenSync: (options) => fee.setUserTokenSync(client, options),
+      setValidatorToken: (options) => fee.setValidatorToken(client, options),
+      setValidatorTokenSync: (options) =>
+        fee.setValidatorTokenSync(client, options),
+      validateToken: (options) => fee.validateToken(client, options),
+      watchSetUserToken: (options) => fee.watchSetUserToken(client, options),
+      watchSetValidatorToken: (options) =>
+        fee.watchSetValidatorToken(client, options),
+    },
+    nonce: {
+      get: (options) => nonce.get(client, options),
+      watchIncremented: (options) => nonce.watchIncremented(client, options),
+    },
+    policy: {
+      create: (options) => policy.create(client, options),
+      createSync: (options) => policy.createSync(client, options),
+      getData: (options) => policy.getData(client, options),
+      isAuthorized: (options) => policy.isAuthorized(client, options),
+      modifyBlacklist: (options) => policy.modifyBlacklist(client, options),
+      modifyBlacklistSync: (options) =>
+        policy.modifyBlacklistSync(client, options),
+      modifyWhitelist: (options) => policy.modifyWhitelist(client, options),
+      modifyWhitelistSync: (options) =>
+        policy.modifyWhitelistSync(client, options),
+      setAdmin: (options) => policy.setAdmin(client, options),
+      setAdminSync: (options) => policy.setAdminSync(client, options),
+      watchAdminUpdated: (options) => policy.watchAdminUpdated(client, options),
+      watchBlacklistUpdated: (options) =>
+        policy.watchBlacklistUpdated(client, options),
+      watchCreate: (options) => policy.watchCreate(client, options),
+      watchWhitelistUpdated: (options) =>
+        policy.watchWhitelistUpdated(client, options),
+    },
+    receivePolicy: {
+      burn: (options) => receivePolicy.burn(client, options),
+      burnSync: (options) => receivePolicy.burnSync(client, options),
+      claim: (options) => receivePolicy.claim(client, options),
+      claimSync: (options) => receivePolicy.claimSync(client, options),
+      get: (options) => receivePolicy.get(client, options),
+      getBlockedBalance: (options) =>
+        receivePolicy.getBlockedBalance(client, options),
+      set: (options) => receivePolicy.set(client, options),
+      setSync: (options) => receivePolicy.setSync(client, options),
+      validate: (options) => receivePolicy.validate(client, options),
+      watchBlocked: (options) => receivePolicy.watchBlocked(client, options),
+      watchBurned: (options) => receivePolicy.watchBurned(client, options),
+      watchClaimed: (options) => receivePolicy.watchClaimed(client, options),
+      watchUpdated: (options) => receivePolicy.watchUpdated(client, options),
+    },
+    token: {
+      approve: (options) => token.approve(client, options),
+      approveSync: (options) => token.approveSync(client, options),
+      burn: (options) => token.burn(client, options),
+      burnBlocked: (options) => token.burnBlocked(client, options),
+      burnBlockedSync: (options) => token.burnBlockedSync(client, options),
+      burnSync: (options) => token.burnSync(client, options),
+      changeTransferPolicy: (options) =>
+        token.changeTransferPolicy(client, options),
+      changeTransferPolicySync: (options) =>
+        token.changeTransferPolicySync(client, options),
+      create: (options) => token.create(client, options),
+      createSync: (options) => token.createSync(client, options),
+      getAllowance: (options) => token.getAllowance(client, options),
+      getBalance: (options) => token.getBalance(client, options),
+      getMetadata: (options) => token.getMetadata(client, options),
+      getRoleAdmin: (options) => token.getRoleAdmin(client, options),
+      getTotalSupply: (options) => token.getTotalSupply(client, options),
+      grantRoles: (options) => token.grantRoles(client, options),
+      grantRolesSync: (options) => token.grantRolesSync(client, options),
+      hasRole: (options) => token.hasRole(client, options),
+      mint: (options) => token.mint(client, options),
+      mintSync: (options) => token.mintSync(client, options),
+      pause: (options) => token.pause(client, options),
+      pauseSync: (options) => token.pauseSync(client, options),
+      prepareUpdateQuoteToken: (options) =>
+        token.prepareUpdateQuoteToken(client, options),
+      prepareUpdateQuoteTokenSync: (options) =>
+        token.prepareUpdateQuoteTokenSync(client, options),
+      renounceRoles: (options) => token.renounceRoles(client, options),
+      renounceRolesSync: (options) => token.renounceRolesSync(client, options),
+      revokeRoles: (options) => token.revokeRoles(client, options),
+      revokeRolesSync: (options) => token.revokeRolesSync(client, options),
+      setRoleAdmin: (options) => token.setRoleAdmin(client, options),
+      setRoleAdminSync: (options) => token.setRoleAdminSync(client, options),
+      setSupplyCap: (options) => token.setSupplyCap(client, options),
+      setSupplyCapSync: (options) => token.setSupplyCapSync(client, options),
+      transfer: (options) => token.transfer(client, options),
+      transferSync: (options) => token.transferSync(client, options),
+      unpause: (options) => token.unpause(client, options),
+      unpauseSync: (options) => token.unpauseSync(client, options),
+      updateQuoteToken: (options) => token.updateQuoteToken(client, options),
+      updateQuoteTokenSync: (options) =>
+        token.updateQuoteTokenSync(client, options),
+      watchAdminRole: (options) => token.watchAdminRole(client, options),
+      watchApprove: (options) => token.watchApprove(client, options),
+      watchBurn: (options) => token.watchBurn(client, options),
+      watchCreate: (options) => token.watchCreate(client, options),
+      watchMint: (options) => token.watchMint(client, options),
+      watchRole: (options) => token.watchRole(client, options),
+      watchTransfer: (options) => token.watchTransfer(client, options),
+      watchUpdateQuoteToken: (options) =>
+        token.watchUpdateQuoteToken(client, options),
+    },
+    validator: {
+      add: (options) => validator.add(client, options),
+      addSync: (options) => validator.addSync(client, options),
+      changeOwner: (options) => validator.changeOwner(client, options),
+      changeOwnerSync: (options) => validator.changeOwnerSync(client, options),
+      changeStatus: (options) => validator.changeStatus(client, options),
+      changeStatusSync: (options) =>
+        validator.changeStatusSync(client, options),
+      get: (options) => validator.get(client, options),
+      getByIndex: (options) => validator.getByIndex(client, options),
+      getCount: (options) => validator.getCount(client, options),
+      getNextFullDkgCeremony: (options) =>
+        validator.getNextFullDkgCeremony(client, options),
+      getOwner: (options) => validator.getOwner(client, options),
+      list: (options) => validator.list(client, options),
+      setNextFullDkgCeremony: (options) =>
+        validator.setNextFullDkgCeremony(client, options),
+      setNextFullDkgCeremonySync: (options) =>
+        validator.setNextFullDkgCeremonySync(client, options),
+      update: (options) => validator.update(client, options),
+      updateSync: (options) => validator.updateSync(client, options),
+    },
+    virtualAddress: {
+      getMasterAddress: (options) =>
+        virtualAddress.getMasterAddress(client, options),
+      registerMaster: (options) =>
+        virtualAddress.registerMaster(client, options),
+      registerMasterSync: (options) =>
+        virtualAddress.registerMasterSync(client, options),
+      resolve: (options) => virtualAddress.resolve(client, options),
+    },
+    wallet: {
+      deposit: (options) => wallet.deposit(client, options),
+      swap: (options) => wallet.swap(client, options),
+      transfer: (options) => wallet.transfer(client, options),
+    },
+    zone: {
+      deposit: (options) => zone.deposit(client, options),
+      depositSync: (options) => zone.depositSync(client, options),
+      encryptedDeposit: (options) => zone.encryptedDeposit(client, options),
+      encryptedDepositSync: (options) =>
+        zone.encryptedDepositSync(client, options),
+      getAuthorizationTokenInfo: (options) =>
+        zone.getAuthorizationTokenInfo(client, options),
+      getEncryptionKey: (options) => zone.getEncryptionKey(client, options),
+      getWithdrawalFee: (options) => zone.getWithdrawalFee(client, options),
+      getZoneInfo: (options) => zone.getZoneInfo(client, options),
+      requestVerifiableWithdrawal: (options) =>
+        zone.requestVerifiableWithdrawal(client, options),
+      requestVerifiableWithdrawalSync: (options) =>
+        zone.requestVerifiableWithdrawalSync(client, options),
+      requestWithdrawal: (options) => zone.requestWithdrawal(client, options),
+      requestWithdrawalSync: (options) =>
+        zone.requestWithdrawalSync(client, options),
+      signAuthorizationToken: (options) =>
+        zone.signAuthorizationToken(client, options),
+      waitForTempoBlock: (options) => zone.waitForTempoBlock(client, options),
+    },
+  })
+}
+
+export type Decorator<
+  chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+  account extends Account.Account | undefined = Account.Account | undefined,
 > = {
   accessKey: {
     /**
-     * Authorizes an access key by signing a key authorization and sending a transaction.
+     * Authorizes an access key by signing a key authorization and sending a
+     * transaction.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Account } from 'viem/tempo'
-     * import { generatePrivateKey } from 'viem/accounts'
+     * import { P256 } from 'viem/utils'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const account = Account.from({ privateKey: '0x...' })
-     * const client = createClient({
+     * const account = Account.fromSecp256k1('0x…')
+     * const client = Client.create({
      *   account,
-     *   chain: tempo,
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const accessKey = Account.fromP256(generatePrivateKey(), {
+     * const accessKey = Account.fromP256(P256.randomPrivateKey(), {
      *   access: account,
      * })
      *
@@ -52,714 +464,659 @@ type DecoratorBase<
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     authorize: (
-      parameters: accessKeyActions.authorize.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.authorize.ReturnValue>
+      options: accessKey.authorize.Options,
+    ) => Promise<accessKey.authorize.ReturnType>
     /**
      * Authorizes an access key and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Account } from 'viem/tempo'
-     * import { generatePrivateKey } from 'viem/accounts'
+     * import { P256 } from 'viem/utils'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const account = Account.from({ privateKey: '0x...' })
-     * const client = createClient({
+     * const account = Account.fromSecp256k1('0x…')
+     * const client = Client.create({
      *   account,
-     *   chain: tempo,
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const accessKey = Account.fromP256(generatePrivateKey(), {
+     * const accessKey = Account.fromP256(P256.randomPrivateKey(), {
      *   access: account,
      * })
      *
-     * const { receipt, ...result } = await client.accessKey.authorizeSync({
+     * const { receipt, ...event } = await client.accessKey.authorizeSync({
      *   accessKey,
      *   expiry: Math.floor((Date.now() + 30_000) / 1000),
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     authorizeSync: (
-      parameters: accessKeyActions.authorizeSync.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.authorizeSync.ReturnValue>
+      options: accessKey.authorizeSync.Options,
+    ) => Promise<accessKey.authorizeSync.ReturnType>
     /**
      * Burns a key-authorization witness, invalidating any authorization bound
      * to it before it is submitted onchain.
      *
+     * Once burned, an `authorizeKey` call carrying the same `witness` will
+     * revert. This lets applications issue a signed authorization offchain
+     * while retaining the ability to revoke it.
+     *
+     * [TIP-1053](https://tips.sh/1053)
+     *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.accessKey.burnWitness({
-     *   witness: '0x...',
+     *   witness: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     burnWitness: (
-      parameters: accessKeyActions.burnWitness.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.burnWitness.ReturnValue>
+      options: accessKey.burnWitness.Options,
+    ) => Promise<accessKey.burnWitness.ReturnType>
     /**
-     * Burns a key-authorization witness and waits for the transaction receipt.
+     * Burns a key-authorization witness, and waits for the transaction to be
+     * confirmed.
+     *
+     * [TIP-1053](https://tips.sh/1053)
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.accessKey.burnWitnessSync({
-     *   witness: '0x...',
+     * const { witness } = await client.accessKey.burnWitnessSync({
+     *   witness: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     burnWitnessSync: (
-      parameters: accessKeyActions.burnWitnessSync.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.burnWitnessSync.ReturnValue>
+      options: accessKey.burnWitnessSync.Options,
+    ) => Promise<accessKey.burnWitnessSync.ReturnType>
     /**
-     * Gets access key information.
+     * Gets the metadata for an access key.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const key = await client.accessKey.getMetadata({
-     *   account: '0x...',
-     *   accessKey: '0x...',
+     * const metadata = await client.accessKey.getMetadata({
+     *   accessKey: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The key information.
+     * @param options - Options.
+     * @returns The access key metadata.
      */
     getMetadata: (
-      parameters: accessKeyActions.getMetadata.Parameters<account>,
-    ) => Promise<accessKeyActions.getMetadata.ReturnValue>
+      options: accessKey.getMetadata.Options,
+    ) => Promise<accessKey.getMetadata.ReturnType>
     /**
      * Gets the remaining spending limit for a key-token pair.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const { remaining, periodEnd } = await client.accessKey.getRemainingLimit({
-     *   account: '0x...',
-     *   accessKey: '0x...',
-     *   token: '0x...',
+     *   account: '0x…',
+     *   accessKey: '0x…',
+     *   token: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The remaining spending amount and period end timestamp.
      */
     getRemainingLimit: (
-      parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
-    ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
+      options: accessKey.getRemainingLimit.Options,
+    ) => Promise<accessKey.getRemainingLimit.ReturnType>
     /**
      * Checks whether an access key is an admin key for an account.
      *
+     * Returns `true` for the account's root key or for an active admin access
+     * key.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const isAdmin = await client.accessKey.isAdmin({
-     *   account: '0x...',
-     *   accessKey: '0x...',
+     *   account: '0x…',
+     *   accessKey: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns Whether the access key is an admin key.
      */
     isAdmin: (
-      parameters: accessKeyActions.isAdmin.Parameters<account>,
-    ) => Promise<accessKeyActions.isAdmin.ReturnValue>
+      options: accessKey.isAdmin.Options,
+    ) => Promise<accessKey.isAdmin.ReturnType>
     /**
-     * Checks whether a key-authorization witness has been burned for an account.
+     * Checks whether a key-authorization witness has been burned for an
+     * account.
+     *
+     * [TIP-1053](https://tips.sh/1053)
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const isBurned = await client.accessKey.isWitnessBurned({
-     *   account: '0x...',
-     *   witness: '0x...',
+     *   account: '0x…',
+     *   witness: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns Whether the witness has been burned.
      */
     isWitnessBurned: (
-      parameters: accessKeyActions.isWitnessBurned.Parameters<account>,
-    ) => Promise<accessKeyActions.isWitnessBurned.ReturnValue>
+      options: accessKey.isWitnessBurned.Options,
+    ) => Promise<accessKey.isWitnessBurned.ReturnType>
     /**
      * Revokes an authorized access key.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.accessKey.revoke({
-     *   accessKey: '0x...',
+     *   accessKey: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     revoke: (
-      parameters: accessKeyActions.revoke.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.revoke.ReturnValue>
+      options: accessKey.revoke.Options,
+    ) => Promise<accessKey.revoke.ReturnType>
     /**
-     * Revokes an authorized access key and waits for the transaction receipt.
+     * Revokes an authorized access key, and waits for the transaction to be
+     * confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.accessKey.revokeSync({
-     *   accessKey: '0x...',
+     * const { publicKey } = await client.accessKey.revokeSync({
+     *   accessKey: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     revokeSync: (
-      parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.revokeSync.ReturnValue>
+      options: accessKey.revokeSync.Options,
+    ) => Promise<accessKey.revokeSync.ReturnType>
     /**
-     * Updates the spending limit for a specific token on an authorized access key.
+     * Signs a key authorization for an access key.
+     *
+     * The signed authorization can be attached to a transaction via the
+     * `keyAuthorization` field to authorize the key onchain.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { P256 } from 'viem/utils'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const account = Account.fromSecp256k1('0x…')
+     * const client = Client.create({
+     *   account,
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
+     *
+     * const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+     *   access: account,
+     * })
+     *
+     * const keyAuthorization = await client.accessKey.signAuthorization({
+     *   accessKey,
+     *   expiry: Math.floor((Date.now() + 30_000) / 1000),
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The signed key authorization.
+     */
+    signAuthorization: (
+      options: accessKey.signAuthorization.Options,
+    ) => Promise<accessKey.signAuthorization.ReturnType>
+    /**
+     * Updates the spending limit for a specific token on an authorized access
+     * key.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.accessKey.updateLimit({
-     *   accessKey: '0x...',
-     *   token: '0x...',
+     *   accessKey: '0x…',
+     *   token: '0x…',
      *   limit: 1000000000000000000n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     updateLimit: (
-      parameters: accessKeyActions.updateLimit.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.updateLimit.ReturnValue>
+      options: accessKey.updateLimit.Options,
+    ) => Promise<accessKey.updateLimit.ReturnType>
     /**
-     * Updates the spending limit and waits for the transaction receipt.
+     * Updates the spending limit for a specific token on an authorized access
+     * key, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.accessKey.updateLimitSync({
-     *   accessKey: '0x...',
-     *   token: '0x...',
+     * const { limit } = await client.accessKey.updateLimitSync({
+     *   accessKey: '0x…',
+     *   token: '0x…',
      *   limit: 1000000000000000000n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     updateLimitSync: (
-      parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
+      options: accessKey.updateLimitSync.Options,
+    ) => Promise<accessKey.updateLimitSync.ReturnType>
     /**
-     * Watches for admin key authorization events.
+     * Verifies that a keychain signature was produced by an active access key
+     * for the expected account.
+     *
+     * By default (`admin: true`), returns `true` only if the signature was
+     * produced by the account's root key or an active admin access key. Set
+     * `admin: false` to accept any active access key.
+     *
+     * Returns `false` for account mismatches, unknown, revoked, or expired
+     * access keys. [TIP-1049](https://tips.sh/1049)
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.accessKey.watchAdminAuthorized({
-     *   onAuthorized: (args, log) => {
-     *     console.log('Admin key authorized:', args)
-     *   },
+     * const valid = await client.accessKey.verifyHash({
+     *   account: '0x…',
+     *   hash: '0x…',
+     *   signature: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns Whether the keychain signature is valid for the account.
+     */
+    verifyHash: (
+      options: accessKey.verifyHash.Options,
+    ) => Promise<accessKey.verifyHash.ReturnType>
+    /**
+     * Watches `AdminKeyAuthorized` events on the account keychain.
+     *
+     * Emitted when an admin key is authorized.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.accessKey.watchAdminAuthorized()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchAdminAuthorized: (
-      parameters: accessKeyActions.watchAdminAuthorized.Parameters,
-    ) => ReturnType<typeof accessKeyActions.watchAdminAuthorized>
+      options?: accessKey.watchAdminAuthorized.Options,
+    ) => accessKey.watchAdminAuthorized.ReturnType
     /**
-     * Watches for key-authorization witness events.
+     * Watches `KeyAuthorizationWitness` events on the account keychain.
+     *
+     * Emitted when a key is authorized with a `witness`.
+     *
+     * [TIP-1053](https://tips.sh/1053)
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.accessKey.watchWitness({
-     *   onWitness: (args, log) => {
-     *     console.log('Witness used:', args)
-     *   },
-     * })
+     * const watcher = client.accessKey.watchWitness()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchWitness: (
-      parameters: accessKeyActions.watchWitness.Parameters,
-    ) => ReturnType<typeof accessKeyActions.watchWitness>
+      options?: accessKey.watchWitness.Options,
+    ) => accessKey.watchWitness.ReturnType
     /**
-     * Watches for key-authorization witness burned events.
+     * Watches `KeyAuthorizationWitnessBurned` events on the account keychain.
+     *
+     * Emitted when a witness is burned.
+     *
+     * [TIP-1053](https://tips.sh/1053)
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.accessKey.watchWitnessBurned({
-     *   onBurned: (args, log) => {
-     *     console.log('Witness burned:', args)
-     *   },
-     * })
+     * const watcher = client.accessKey.watchWitnessBurned()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchWitnessBurned: (
-      parameters: accessKeyActions.watchWitnessBurned.Parameters,
-    ) => ReturnType<typeof accessKeyActions.watchWitnessBurned>
+      options?: accessKey.watchWitnessBurned.Options,
+    ) => accessKey.watchWitnessBurned.ReturnType
   }
   amm: {
-    /**
-     * Gets the reserves for a liquidity pool.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo.extend({ feeToken: '0x20c...001' }),
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const pool = await client.amm.getPool({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The pool reserves.
-     */
-    getPool: (
-      parameters: ammActions.getPool.Parameters,
-    ) => Promise<ammActions.getPool.ReturnValue>
-    /**
-     * Gets the LP token balance for an account in a specific pool.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const poolId = await client.amm.getPoolId({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     * })
-     *
-     * const balance = await client.amm.getLiquidityBalance({
-     *   poolId,
-     *   address: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The LP token balance.
-     */
-    getLiquidityBalance: (
-      parameters: ammActions.getLiquidityBalance.Parameters,
-    ) => Promise<ammActions.getLiquidityBalance.ReturnValue>
     /**
      * Removes liquidity from a pool.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.amm.burn({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   liquidity: 50n,
-     *   to: '0x...',
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    burn: (
-      parameters: ammActions.burn.Parameters<chain, account>,
-    ) => Promise<ammActions.burn.ReturnValue>
+    burn: (options: amm.burn.Options) => Promise<amm.burn.ReturnType>
     /**
-     * Removes liquidity from a pool and waits for confirmation.
+     * Removes liquidity from a pool, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.amm.burnSync({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   liquidity: 50n,
-     *   to: '0x...',
+     * const { receipt, ...event } = await client.amm.burnSync({
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     burnSync: (
-      parameters: ammActions.burnSync.Parameters<chain, account>,
-    ) => Promise<ammActions.burnSync.ReturnValue>
+      options: amm.burnSync.Options,
+    ) => Promise<amm.burnSync.ReturnType>
+    /**
+     * Gets the LP token balance for an account in a specific pool.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const balance = await client.amm.getLiquidityBalance({
+     *   poolId: 1n,
+     *   address: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The LP token balance.
+     */
+    getLiquidityBalance: (
+      options: amm.getLiquidityBalance.Options,
+    ) => Promise<amm.getLiquidityBalance.ReturnType>
+    /**
+     * Gets the reserves for a liquidity pool.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const pool = await client.amm.getPool({
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The pool reserves.
+     */
+    getPool: (options: amm.getPool.Options) => Promise<amm.getPool.ReturnType>
     /**
      * Adds liquidity to a pool.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.amm.mint({
-     *   userTokenAddress: '0x...',
-     *   validatorTokenAddress: '0x...',
-     *   validatorTokenAmount: 100n,
-     *   to: '0x...',
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    mint: (
-      parameters: ammActions.mint.Parameters<chain, account>,
-    ) => Promise<ammActions.mint.ReturnValue>
+    mint: (options: amm.mint.Options) => Promise<amm.mint.ReturnType>
     /**
-     * Adds liquidity to a pool.
+     * Adds liquidity to a pool, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.amm.mintSync({
-     *   userTokenAddress: '0x...',
-     *   validatorTokenAddress: '0x...',
-     *   validatorTokenAmount: 100n,
-     *   to: '0x...',
+     * const { receipt, ...event } = await client.amm.mintSync({
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     mintSync: (
-      parameters: ammActions.mintSync.Parameters<chain, account>,
-    ) => Promise<ammActions.mintSync.ReturnValue>
+      options: amm.mintSync.Options,
+    ) => Promise<amm.mintSync.ReturnType>
     /**
-     * Swaps tokens during a rebalance operation.
+     * Performs a rebalance swap from validator token to user token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.amm.rebalanceSwap({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   amountOut: 100n,
-     *   to: '0x...',
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     rebalanceSwap: (
-      parameters: ammActions.rebalanceSwap.Parameters<chain, account>,
-    ) => Promise<ammActions.rebalanceSwap.ReturnValue>
+      options: amm.rebalanceSwap.Options,
+    ) => Promise<amm.rebalanceSwap.ReturnType>
     /**
-     * Swaps tokens during a rebalance operation and waits for confirmation.
+     * Performs a rebalance swap from validator token to user token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.amm.rebalanceSwapSync({
-     *   userToken: '0x...',
-     *   validatorToken: '0x...',
-     *   amountOut: 100n,
-     *   to: '0x...',
+     * const { receipt, ...event } = await client.amm.rebalanceSwapSync({
+     *   userToken: '0x20c0000000000000000000000000000000000001',
+     *   validatorToken: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     rebalanceSwapSync: (
-      parameters: ammActions.rebalanceSwapSync.Parameters<chain, account>,
-    ) => Promise<ammActions.rebalanceSwapSync.ReturnValue>
+      options: amm.rebalanceSwapSync.Options,
+    ) => Promise<amm.rebalanceSwapSync.ReturnType>
     /**
-     * Watches for burn (liquidity removal) events.
+     * Watches `Burn` events on the fee AMM.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.amm.watchBurn({
-     *   onBurn: (args, log) => {
-     *     console.log('Liquidity removed:', args)
-     *   },
-     * })
+     * const watcher = client.amm.watchBurn()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
-    watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
+    watchBurn: (options?: amm.watchBurn.Options) => amm.watchBurn.ReturnType
     /**
-     * Watches for liquidity mint events.
+     * Watches `Mint` events on the fee AMM.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.amm.watchMint({
-     *   onMint: (args, log) => {
-     *     console.log('Liquidity added:', args)
-     *   },
-     * })
+     * const watcher = client.amm.watchMint()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
-    watchMint: (parameters: ammActions.watchMint.Parameters) => () => void
+    watchMint: (options?: amm.watchMint.Options) => amm.watchMint.ReturnType
     /**
-     * Watches for rebalance swap events.
+     * Watches `RebalanceSwap` events on the fee AMM.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.amm.watchRebalanceSwap({
-     *   onRebalanceSwap: (args, log) => {
-     *     console.log('Rebalance swap:', args)
-     *   },
-     * })
+     * const watcher = client.amm.watchRebalanceSwap()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchRebalanceSwap: (
-      parameters: ammActions.watchRebalanceSwap.Parameters,
-    ) => () => void
+      options?: amm.watchRebalanceSwap.Options,
+    ) => amm.watchRebalanceSwap.ReturnType
   }
   channel: {
     /**
@@ -767,190 +1124,236 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.channel.close({
-     *   captureAmount: parseUnits('40', 6),
-     *   cumulativeAmount: parseUnits('80', 6),
+     *   captureAmount: 100n,
+     *   cumulativeAmount: 100n,
      *   channel,
-     *   signature: '0x...',
+     *   signature: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    close: (
-      parameters: channelActions.close.Parameters<chain, account>,
-    ) => Promise<channelActions.close.ReturnValue>
+    close: (options: channel.close.Options) => Promise<channel.close.ReturnType>
     /**
      * Closes a TIP-20 channel reserve channel and waits for the transaction receipt.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const result = await client.channel.closeSync({
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.closeSync({
      *   captureAmount: parseUnits('40', 6),
      *   cumulativeAmount: parseUnits('80', 6),
      *   channel,
-     *   signature: '0x...',
+     *   signature: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     closeSync: (
-      parameters: channelActions.closeSync.Parameters<chain, account>,
-    ) => Promise<channelActions.closeSync.ReturnValue>
+      options: channel.closeSync.Options,
+    ) => Promise<channel.closeSync.ReturnType>
     /**
      * Gets TIP-20 channel reserve state for a channel ID or channel.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo.extend({ feeToken: '0x20c...001' }),
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const state = await client.channel.getStates({
-     *   channel: '0x...',
+     *   channel: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns Channel state for a single channel, or channel states for multiple channels.
      */
     getStates: <
-      const channel extends
-        | channelActions.getStates.Channel
-        | readonly channelActions.getStates.Channel[],
+      const channel_ extends
+        | channel.getStates.Channel
+        | readonly channel.getStates.Channel[],
     >(
-      parameters: channelActions.getStates.Parameters<channel>,
-    ) => Promise<channelActions.getStates.ReturnValue<channel>>
+      options: channel.getStates.Options<channel_>,
+    ) => Promise<channel.getStates.ReturnType<channel_>>
     /**
      * Opens and funds a TIP-20 channel reserve channel.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.channel.open({
      *   deposit: parseUnits('100', 6),
-     *   payee: '0x...',
-     *   token: 1n,
+     *   payee: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    open: (
-      parameters: channelActions.open.Parameters<chain, account>,
-    ) => Promise<channelActions.open.ReturnValue>
+    open: (options: channel.open.Options) => Promise<channel.open.ReturnType>
     /**
      * Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const result = await client.channel.openSync({
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.openSync({
      *   deposit: parseUnits('100', 6),
-     *   payee: '0x...',
-     *   token: 1n,
+     *   payee: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     openSync: (
-      parameters: channelActions.openSync.Parameters<chain, account>,
-    ) => Promise<channelActions.openSync.ReturnValue>
+      options: channel.openSync.Options,
+    ) => Promise<channel.openSync.ReturnType>
     /**
      * Starts the payer close timer for a TIP-20 channel reserve channel.
      *
      * @example
      * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
      * const hash = await client.channel.requestClose({
      *   channel,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     requestClose: (
-      parameters: channelActions.requestClose.Parameters<chain, account>,
-    ) => Promise<channelActions.requestClose.ReturnValue>
+      options: channel.requestClose.Options,
+    ) => Promise<channel.requestClose.ReturnType>
     /**
      * Starts the payer close timer and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * const result = await client.channel.requestCloseSync({
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.requestCloseSync({
      *   channel,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     requestCloseSync: (
-      parameters: channelActions.requestCloseSync.Parameters<chain, account>,
-    ) => Promise<channelActions.requestCloseSync.ReturnValue>
+      options: channel.requestCloseSync.Options,
+    ) => Promise<channel.requestCloseSync.ReturnType>
     /**
      * Settles a TIP-20 channel reserve voucher.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.channel.settle({
      *   cumulativeAmount: parseUnits('40', 6),
      *   channel,
-     *   signature: '0x...',
+     *   signature: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     settle: (
-      parameters: channelActions.settle.Parameters<chain, account>,
-    ) => Promise<channelActions.settle.ReturnValue>
+      options: channel.settle.Options,
+    ) => Promise<channel.settle.ReturnType>
     /**
      * Settles a TIP-20 channel reserve voucher and waits for the transaction receipt.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const result = await client.channel.settleSync({
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.settleSync({
      *   cumulativeAmount: parseUnits('40', 6),
      *   channel,
-     *   signature: '0x...',
+     *   signature: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     settleSync: (
-      parameters: channelActions.settleSync.Parameters<chain, account>,
-    ) => Promise<channelActions.settleSync.ReturnValue>
+      options: channel.settleSync.Options,
+    ) => Promise<channel.settleSync.ReturnType>
     /**
      * Signs a TIP-20 channel reserve voucher.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const signature = await client.channel.signVoucher({
      *   channel,
@@ -958,18 +1361,24 @@ type DecoratorBase<
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The voucher signature.
      */
     signVoucher: (
-      parameters: channelActions.signVoucher.Parameters<account>,
-    ) => Promise<channelActions.signVoucher.ReturnValue>
+      options: channel.signVoucher.Options,
+    ) => Promise<channel.signVoucher.ReturnType>
     /**
      * Adds deposit to a TIP-20 channel reserve channel.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.channel.topUp({
      *   additionalDeposit: parseUnits('50', 6),
@@ -977,63 +1386,81 @@ type DecoratorBase<
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    topUp: (
-      parameters: channelActions.topUp.Parameters<chain, account>,
-    ) => Promise<channelActions.topUp.ReturnValue>
+    topUp: (options: channel.topUp.Options) => Promise<channel.topUp.ReturnType>
     /**
      * Adds deposit to a TIP-20 channel reserve channel and waits for the transaction receipt.
      *
      * @example
      * ```ts
      * import { parseUnits } from 'viem'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const result = await client.channel.topUpSync({
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.topUpSync({
      *   additionalDeposit: parseUnits('50', 6),
      *   channel,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     topUpSync: (
-      parameters: channelActions.topUpSync.Parameters<chain, account>,
-    ) => Promise<channelActions.topUpSync.ReturnValue>
+      options: channel.topUpSync.Options,
+    ) => Promise<channel.topUpSync.ReturnType>
     /**
      * Withdraws payer funds after the close grace period elapses.
      *
      * @example
      * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
      * const hash = await client.channel.withdraw({
      *   channel,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     withdraw: (
-      parameters: channelActions.withdraw.Parameters<chain, account>,
-    ) => Promise<channelActions.withdraw.ReturnValue>
+      options: channel.withdraw.Options,
+    ) => Promise<channel.withdraw.ReturnType>
     /**
-     * Withdraws payer funds and waits for the transaction receipt.
+     * Withdraws payer funds after the close grace period elapses and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * const result = await client.channel.withdrawSync({
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.channel.withdrawSync({
      *   channel,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     withdrawSync: (
-      parameters: channelActions.withdrawSync.Parameters<chain, account>,
-    ) => Promise<channelActions.withdrawSync.ReturnValue>
+      options: channel.withdrawSync.Options,
+    ) => Promise<channel.withdrawSync.ReturnType>
   }
   dex: {
     /**
@@ -1041,740 +1468,613 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.buy({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountOut: 100n,
-     *   maxAmountIn: 105n,
+     *   tokenIn: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    buy: (
-      parameters: dexActions.buy.Parameters<chain, account>,
-    ) => Promise<dexActions.buy.ReturnValue>
+    buy: (options: dex.buy.Options) => Promise<dex.buy.ReturnType>
     /**
-     * Buys a specific amount of tokens.
+     * Buys a specific amount of tokens, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const result = await client.dex.buySync({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountOut: 100n,
-     *   maxAmountIn: 105n,
+     *   tokenIn: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt.
      */
-    buySync: (
-      parameters: dexActions.buySync.Parameters<chain, account>,
-    ) => Promise<dexActions.buySync.ReturnValue>
+    buySync: (options: dex.buySync.Options) => Promise<dex.buySync.ReturnType>
     /**
      * Cancels an order from the orderbook.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.cancel({
-     *   orderId: 123n,
+     *   orderId: 100n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    cancel: (
-      parameters: dexActions.cancel.Parameters<chain, account>,
-    ) => Promise<dexActions.cancel.ReturnValue>
-    /**
-     * Cancels an order from the orderbook.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.dex.cancelSync({
-     *   orderId: 123n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    cancelSync: (
-      parameters: dexActions.cancelSync.Parameters<chain, account>,
-    ) => Promise<dexActions.cancelSync.ReturnValue>
+    cancel: (options: dex.cancel.Options) => Promise<dex.cancel.ReturnType>
     /**
      * Cancels a stale order from the orderbook.
      *
-     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
-     * Anyone can cancel stale orders.
+     * A stale order is one where the owner's balance or allowance has dropped
+     * below the order amount.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.cancelStale({
-     *   orderId: 123n,
+     *   orderId: 100n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     cancelStale: (
-      parameters: dexActions.cancelStale.Parameters<chain, account>,
-    ) => Promise<dexActions.cancelStale.ReturnValue>
+      options: dex.cancelStale.Options,
+    ) => Promise<dex.cancelStale.ReturnType>
     /**
-     * Cancels a stale order from the orderbook and waits for confirmation.
-     *
-     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
-     * Anyone can cancel stale orders.
+     * Cancels a stale order from the orderbook, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const result = await client.dex.cancelStaleSync({
-     *   orderId: 123n,
+     *   orderId: 100n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     cancelStaleSync: (
-      parameters: dexActions.cancelStaleSync.Parameters<chain, account>,
-    ) => Promise<dexActions.cancelStaleSync.ReturnValue>
+      options: dex.cancelStaleSync.Options,
+    ) => Promise<dex.cancelStaleSync.ReturnType>
+    /**
+     * Cancels an order from the orderbook, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.dex.cancelSync({
+     *   orderId: 100n,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    cancelSync: (
+      options: dex.cancelSync.Options,
+    ) => Promise<dex.cancelSync.ReturnType>
     /**
      * Creates a new trading pair on the DEX.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.createPair({
-     *   base: '0x20c...11',
+     *   base: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     createPair: (
-      parameters: dexActions.createPair.Parameters<chain, account>,
-    ) => Promise<dexActions.createPair.ReturnValue>
+      options: dex.createPair.Options,
+    ) => Promise<dex.createPair.ReturnType>
     /**
-     * Creates a new trading pair on the DEX.
+     * Creates a new trading pair on the DEX, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const result = await client.dex.createPairSync({
-     *   base: '0x20c...11',
+     *   base: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     createPairSync: (
-      parameters: dexActions.createPairSync.Parameters<chain, account>,
-    ) => Promise<dexActions.createPairSync.ReturnValue>
+      options: dex.createPairSync.Options,
+    ) => Promise<dex.createPairSync.ReturnType>
     /**
      * Gets a user's token balance on the DEX.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const balance = await client.dex.getBalance({
-     *   account: '0x...',
-     *   token: '0x20c...11',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The user's token balance on the DEX.
      */
     getBalance: (
-      parameters: dexActions.getBalance.Parameters<account>,
-    ) => Promise<dexActions.getBalance.ReturnValue>
+      options: dex.getBalance.Options,
+    ) => Promise<dex.getBalance.ReturnType>
     /**
      * Gets the quote for buying a specific amount of tokens.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const amountIn = await client.dex.getBuyQuote({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountOut: 100n,
+     *   amountOut: 100_000000n,
+     *   tokenIn: 1n,
+     *   tokenOut: 2n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The amount of tokenIn needed to buy the specified amountOut.
      */
     getBuyQuote: (
-      parameters: dexActions.getBuyQuote.Parameters,
-    ) => Promise<dexActions.getBuyQuote.ReturnValue>
+      options: dex.getBuyQuote.Options,
+    ) => Promise<dex.getBuyQuote.ReturnType>
     /**
      * Gets an order's details from the orderbook.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const order = await client.dex.getOrder({
      *   orderId: 123n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The order details.
      */
     getOrder: (
-      parameters: dexActions.getOrder.Parameters,
-    ) => Promise<dexActions.getOrder.ReturnValue>
+      options: dex.getOrder.Options,
+    ) => Promise<dex.getOrder.ReturnType>
     /**
-     * Gets the price level information at a specific tick.
+     * Gets orderbook information for a trading pair.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Tick } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const level = await client.dex.getTickLevel({
-     *   base: '0x20c...11',
-     *   tick: Tick.fromPrice('1.001'),
-     *   isBid: true,
+     * const orderbook = await client.dex.getOrderbook({
+     *   base: '0x20c0000000000000000000000000000000000001',
+     *   quote: '0x20c0000000000000000000000000000000000002',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The price level information.
+     * @param options - Options.
+     * @returns The orderbook information.
      */
-    getTickLevel: (
-      parameters: dexActions.getTickLevel.Parameters,
-    ) => Promise<dexActions.getTickLevel.ReturnValue>
+    getOrderbook: (
+      options: dex.getOrderbook.Options,
+    ) => Promise<dex.getOrderbook.ReturnType>
     /**
      * Gets the quote for selling a specific amount of tokens.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const amountOut = await client.dex.getSellQuote({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountIn: 100n,
+     *   amountIn: 100_000000n,
+     *   tokenIn: 1n,
+     *   tokenOut: 2n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The amount of tokenOut received for selling the specified amountIn.
      */
     getSellQuote: (
-      parameters: dexActions.getSellQuote.Parameters,
-    ) => Promise<dexActions.getSellQuote.ReturnValue>
+      options: dex.getSellQuote.Options,
+    ) => Promise<dex.getSellQuote.ReturnType>
+    /**
+     * Gets the price level information at a specific tick.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const level = await client.dex.getTickLevel({
+     *   base: 1n,
+     *   quote: 2n,
+     *   tick: 100,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The price level information.
+     */
+    getTickLevel: (
+      options: dex.getTickLevel.Options,
+    ) => Promise<dex.getTickLevel.ReturnType>
     /**
      * Places a limit order on the orderbook.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Tick } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.place({
-     *   token: '0x20c...11',
      *   amount: 100n,
-     *   type: 'buy',
-     *   tick: Tick.fromPrice('0.99'),
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    place: (
-      parameters: dexActions.place.Parameters<chain, account>,
-    ) => Promise<dexActions.place.ReturnValue>
-    /**
-     * Places a limit order on the orderbook.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Tick } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.dex.placeSync({
-     *   token: '0x20c...11',
-     *   amount: 100n,
-     *   type: 'buy',
-     *   tick: Tick.fromPrice('0.99'),
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    placeSync: (
-      parameters: dexActions.placeSync.Parameters<chain, account>,
-    ) => Promise<dexActions.placeSync.ReturnValue>
+    place: (options: dex.place.Options) => Promise<dex.place.ReturnType>
     /**
      * Places a flip order that automatically flips when filled.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Tick } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.placeFlip({
-     *   token: '0x20c...11',
      *   amount: 100n,
-     *   type: 'buy',
-     *   tick: Tick.fromPrice('0.99'),
-     *   flipTick: Tick.fromPrice('1.01'),
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     placeFlip: (
-      parameters: dexActions.placeFlip.Parameters<chain, account>,
-    ) => Promise<dexActions.placeFlip.ReturnValue>
+      options: dex.placeFlip.Options,
+    ) => Promise<dex.placeFlip.ReturnType>
     /**
-     * Places a flip order that automatically flips when filled.
+     * Places a flip order that automatically flips when filled, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions, Tick } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const result = await client.dex.placeFlipSync({
-     *   token: '0x20c...11',
      *   amount: 100n,
-     *   type: 'buy',
-     *   tick: Tick.fromPrice('0.99'),
-     *   flipTick: Tick.fromPrice('1.01'),
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     placeFlipSync: (
-      parameters: dexActions.placeFlipSync.Parameters<chain, account>,
-    ) => Promise<dexActions.placeFlipSync.ReturnValue>
+      options: dex.placeFlipSync.Options,
+    ) => Promise<dex.placeFlipSync.ReturnType>
+    /**
+     * Places a limit order on the orderbook, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.dex.placeSync({
+     *   amount: 100n,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    placeSync: (
+      options: dex.placeSync.Options,
+    ) => Promise<dex.placeSync.ReturnType>
     /**
      * Sells a specific amount of tokens.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.dex.sell({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountIn: 100n,
-     *   minAmountOut: 95n,
+     *   tokenIn: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    sell: (
-      parameters: dexActions.sell.Parameters<chain, account>,
-    ) => Promise<dexActions.sell.ReturnValue>
+    sell: (options: dex.sell.Options) => Promise<dex.sell.ReturnType>
     /**
-     * Sells a specific amount of tokens.
+     * Sells a specific amount of tokens, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const result = await client.dex.sellSync({
-     *   tokenIn: '0x20c...11',
-     *   tokenOut: '0x20c...20',
-     *   amountIn: 100n,
-     *   minAmountOut: 95n,
+     *   tokenIn: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt.
      */
     sellSync: (
-      parameters: dexActions.sellSync.Parameters<chain, account>,
-    ) => Promise<dexActions.sellSync.ReturnValue>
-    /**
-     * Withdraws tokens from the DEX to the caller's wallet.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.dex.withdraw({
-     *   token: '0x20c...11',
-     *   amount: 100n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    withdraw: (
-      parameters: dexActions.withdraw.Parameters<chain, account>,
-    ) => Promise<dexActions.withdraw.ReturnValue>
-    /**
-     * Withdraws tokens from the DEX to the caller's wallet.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.dex.withdrawSync({
-     *   token: '0x20c...11',
-     *   amount: 100n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
-     */
-    withdrawSync: (
-      parameters: dexActions.withdrawSync.Parameters<chain, account>,
-    ) => Promise<dexActions.withdrawSync.ReturnValue>
+      options: dex.sellSync.Options,
+    ) => Promise<dex.sellSync.ReturnType>
     /**
      * Watches for flip order placed events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.dex.watchFlipOrderPlaced({
-     *   onFlipOrderPlaced: (args, log) => {
-     *     console.log('Flip order placed:', args)
-     *   },
-     * })
+     * const watcher = client.dex.watchFlipOrderPlaced()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchFlipOrderPlaced: (
-      parameters: dexActions.watchFlipOrderPlaced.Parameters,
-    ) => () => void
+      options?: dex.watchFlipOrderPlaced.Options,
+    ) => dex.watchFlipOrderPlaced.ReturnType
     /**
      * Watches for order cancelled events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.dex.watchOrderCancelled({
-     *   onOrderCancelled: (args, log) => {
-     *     console.log('Order cancelled:', args)
-     *   },
-     * })
+     * const watcher = client.dex.watchOrderCancelled()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchOrderCancelled: (
-      parameters: dexActions.watchOrderCancelled.Parameters,
-    ) => () => void
+      options?: dex.watchOrderCancelled.Options,
+    ) => dex.watchOrderCancelled.ReturnType
     /**
      * Watches for order filled events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.dex.watchOrderFilled({
-     *   onOrderFilled: (args, log) => {
-     *     console.log('Order filled:', args)
-     *   },
-     * })
+     * const watcher = client.dex.watchOrderFilled()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchOrderFilled: (
-      parameters: dexActions.watchOrderFilled.Parameters,
-    ) => () => void
+      options?: dex.watchOrderFilled.Options,
+    ) => dex.watchOrderFilled.ReturnType
     /**
      * Watches for order placed events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.dex.watchOrderPlaced()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchOrderPlaced: (
+      options?: dex.watchOrderPlaced.Options,
+    ) => dex.watchOrderPlaced.ReturnType
+    /**
+     * Withdraws tokens from the DEX to the caller's wallet.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.dex.watchOrderPlaced({
-     *   onOrderPlaced: (args, log) => {
-     *     console.log('Order placed:', args)
-     *   },
+     * const hash = await client.dex.withdraw({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction hash.
      */
-    watchOrderPlaced: (
-      parameters: dexActions.watchOrderPlaced.Parameters,
-    ) => () => void
+    withdraw: (
+      options: dex.withdraw.Options,
+    ) => Promise<dex.withdraw.ReturnType>
+    /**
+     * Withdraws tokens from the DEX to the caller's wallet, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.dex.withdrawSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt.
+     */
+    withdrawSync: (
+      options: dex.withdrawSync.Options,
+    ) => Promise<dex.withdrawSync.ReturnType>
   }
   earn: {
-    /** Deploys a deterministic ERC-4626 engine. */
-    createErc4626Engine: (
-      parameters: earnActions.createErc4626Engine.Parameters<chain, account>,
-    ) => Promise<earnActions.createErc4626Engine.ReturnValue>
-    /** Deploys a deterministic ERC-4626 engine and waits for confirmation. */
+    /** Deploys an ERC-4626 engine. */
+    createErc4626Engine: ((
+      options: earn.createErc4626Engine.Parameters,
+    ) => Promise<earn.createErc4626Engine.ReturnValue>) & {
+      call: typeof earn.createErc4626Engine.call
+      extractEvent: typeof earn.createErc4626Engine.extractEvent
+      predict: (
+        args: earn.createErc4626Engine.Args,
+      ) => ReturnType<typeof earn.createErc4626Engine.predict>
+    }
+    /** Deploys an ERC-4626 engine and waits for confirmation. */
     createErc4626EngineSync: (
-      parameters: earnActions.createErc4626EngineSync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<earnActions.createErc4626EngineSync.ReturnValue>
-    /** Deploys the EarnShare, EarnVault, and EarnFees contracts. */
-    createStack: (
-      parameters: earnActions.createStack.Parameters<chain, account>,
-    ) => Promise<earnActions.createStack.ReturnValue>
-    /** Deploys an Earn stack and waits for confirmation. */
+      options: earn.createErc4626EngineSync.Parameters,
+    ) => Promise<earn.createErc4626EngineSync.ReturnValue>
+    /** Creates an Earn core stack. */
+    createStack: ((
+      options: earn.createStack.Parameters,
+    ) => Promise<earn.createStack.ReturnValue>) & {
+      call: typeof earn.createStack.call
+      extractEvent: typeof earn.createStack.extractEvent
+      predict: (
+        args: earn.createStack.Args,
+      ) => ReturnType<typeof earn.createStack.predict>
+    }
+    /** Creates an Earn core stack and waits for confirmation. */
     createStackSync: (
-      parameters: earnActions.createStackSync.Parameters<chain, account>,
-    ) => Promise<earnActions.createStackSync.ReturnValue>
-    /** Binds an ERC-4626 engine to its EarnVault. */
-    bindErc4626Engine: (
-      parameters: earnActions.bindErc4626Engine.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626Engine.ReturnValue>
+      options: earn.createStackSync.Parameters,
+    ) => Promise<earn.createStackSync.ReturnValue>
+    /** Binds an ERC-4626 engine to an Earn vault. */
+    bindErc4626Engine: ((
+      options: earn.bindErc4626Engine.Parameters,
+    ) => Promise<earn.bindErc4626Engine.ReturnValue>) & {
+      call: typeof earn.bindErc4626Engine.call
+      extractEvent: typeof earn.bindErc4626Engine.extractEvent
+    }
     /** Binds an ERC-4626 engine and waits for confirmation. */
     bindErc4626EngineSync: (
-      parameters: earnActions.bindErc4626EngineSync.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626EngineSync.ReturnValue>
-    /** Deploys and binds a complete, resumable ERC-4626 Earn stack. */
+      options: earn.bindErc4626EngineSync.Parameters,
+    ) => Promise<earn.bindErc4626EngineSync.ReturnValue>
+    /** Deploys and binds a complete ERC-4626 Earn stack. */
     deployErc4626StackSync: (
-      parameters: earnActions.deployErc4626StackSync.Parameters<chain, account>,
-    ) => Promise<earnActions.deployErc4626StackSync.ReturnValue>
+      options: earn.deployErc4626StackSync.Parameters,
+    ) => Promise<earn.deployErc4626StackSync.ReturnValue>
     /**
      * Creates and attaches an admission-only TIP-403 policy to an Earn share
      * token. Existing holders remain able to send shares while
@@ -1782,1168 +2082,1146 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * const { policy } = await client.earn.configureExitSafePolicy({
-     *   accessAdministrator: '0x...',
-     *   initialMembers: ['0x...', '0x...'],
-     *   shareToken: '0x...',
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.configureExitSafePolicy({
+     *   accessAdministrator: '0x…',
+     *   initialMembers: ['0x…'],
+     *   shareToken: '0x…',
      * })
      * ```
      *
-     * @param parameters - Share token, administrator, and initial members.
-     * @returns The configured policy IDs and transaction receipts.
+     * @param options - Options.
+     * @returns The configured policy and transaction receipts.
      */
     configureExitSafePolicy: (
-      parameters: earnActions.configureExitSafePolicy.Parameters<account>,
-    ) => Promise<earnActions.configureExitSafePolicy.ReturnValue>
+      options: earn.configureExitSafePolicy.Options<account>,
+    ) => Promise<earn.configureExitSafePolicy.ReturnType>
     /**
      * Deposits assets into a vault and mints Earn shares to `recipient`. The
      * transaction includes the required asset approval.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * })
      * const hash = await client.earn.deposit({
      *   assetAmount: 100_000_000n,
-     *   shareAmountMin: 99_400_000n,
-     *   vault: '0x...',
+     *   shareAmount: 99_900_000n,
+     *   slippageBps: 50,
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    deposit: (
-      parameters: earnActions.deposit.Parameters<chain, account>,
-    ) => Promise<earnActions.deposit.ReturnValue>
+    deposit: ((
+      options: earn.deposit.Options,
+    ) => Promise<earn.deposit.ReturnType>) & {
+      /** Defines a deposit contract call. */
+      call: (
+        args: earn.deposit.call.Args,
+      ) => ReturnType<typeof earn.deposit.call>
+      /** Defines the approval and deposit calls. */
+      calls: typeof earn.deposit.calls
+      /** Estimates the gas required for a deposit. */
+      estimateGas: (options: earn.deposit.Options) => Promise<bigint>
+      /** Extracts the `Deposited` event from logs. */
+      extractEvent: typeof earn.deposit.extractEvent
+      /** Simulates a deposit. */
+      simulate: (
+        options: earn.deposit.Options,
+      ) => ReturnType<typeof earn.deposit.simulate>
+    }
     /**
      * Deposits venue shares into a vault and mints Earn shares to
      * `recipient`. The transaction includes the required venue share approval.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * })
      * const hash = await client.earn.depositShares({
-     *   earnShareAmountMin: 499_000_000n,
-     *   vault: '0x...',
+     *   earnShareAmount: 499_000_000n,
+     *   slippageBps: 30,
+     *   vault: '0x…',
      *   venueShareAmount: 500_000_000n,
-     *   venueShareToken: '0x...',
+     *   venueShareToken: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    depositShares: (
-      parameters: earnActions.depositShares.Parameters<chain, account>,
-    ) => Promise<earnActions.depositShares.ReturnValue>
+    depositShares: ((
+      options: earn.depositShares.Options,
+    ) => Promise<earn.depositShares.ReturnType>) & {
+      /** Defines a venue share deposit call. */
+      call: (
+        args: earn.depositShares.call.Args,
+      ) => ReturnType<typeof earn.depositShares.call>
+      /** Defines the approval and venue share deposit calls. */
+      calls: typeof earn.depositShares.calls
+      /** Estimates the gas required for a venue share deposit. */
+      estimateGas: (options: earn.depositShares.Options) => Promise<bigint>
+      /** Extracts the `VenueSharesDeposited` event from logs. */
+      extractEvent: typeof earn.depositShares.extractEvent
+      /** Simulates a venue share deposit. */
+      simulate: (
+        options: earn.depositShares.Options,
+      ) => ReturnType<typeof earn.depositShares.simulate>
+    }
     /**
-     * Deposits venue shares and returns the confirmed receipt and event data.
+     * Deposits venue shares and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { earnShareAmount } = await client.earn.depositSharesSync({
-     *   earnShareAmountMin: 499_000_000n,
-     *   vault: '0x...',
+     * })
+     * const result = await client.earn.depositSharesSync({
+     *   earnShareAmount: 499_000_000n,
+     *   slippageBps: 30,
+     *   vault: '0x…',
      *   venueShareAmount: 500_000_000n,
-     *   venueShareToken: '0x...',
+     *   venueShareToken: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     depositSharesSync: (
-      parameters: earnActions.depositSharesSync.Parameters<chain, account>,
-    ) => Promise<earnActions.depositSharesSync.ReturnValue>
+      options: earn.depositSharesSync.Options,
+    ) => Promise<earn.depositSharesSync.ReturnType>
     /**
-     * Deposits assets and returns the confirmed receipt and event data.
+     * Deposits assets and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { shareAmount } = await client.earn.depositSync({
+     * })
+     * const result = await client.earn.depositSync({
      *   assetAmount: 100_000_000n,
-     *   shareAmountMin: 99_400_000n,
-     *   vault: '0x...',
+     *   shareAmountMin: 99_500_000n,
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     depositSync: (
-      parameters: earnActions.depositSync.Parameters<chain, account>,
-    ) => Promise<earnActions.depositSync.ReturnValue>
+      options: earn.depositSync.Options,
+    ) => Promise<earn.depositSync.ReturnType>
     /**
-     * Withdraws assets from a Zone and deposits them into a vault on the
-     * parent chain.
+     * Gets the vault's active fee configuration and pending fees.
      *
      * @example
      * ```ts
-     * const prepared = await parentClient.earn.privateDeposit.prepare({
-     *   assetAmount: 100_000_000n,
-     *   assetToken: '0x...',
-     *   gateway: '0x...',
-     *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
-     *   shareAmountMin: 99_500_000n,
-     *   vault: '0x...',
-     *   vaultAssetAmountMin: 99_000_000n,
-     *   zoneId: 7,
-     * })
-     * const hash = await zoneClient.earn.privateDeposit(prepared)
-     * ```
+     * import { Client, http } from 'viem/tempo'
      *
-     * @param parameters - Prepared deposit and transaction parameters.
-     * @returns The transaction hash.
-     */
-    privateDeposit: (
-      parameters: earnActions.privateDeposit.Parameters<chain, account>,
-    ) => Promise<earnActions.privateDeposit.ReturnValue>
-    /**
-     * Requests a private Zone deposit and waits for the Zone transaction
-     * receipt.
-     *
-     * @example
-     * ```ts
-     * const { receipt, senderTag } =
-     *   await zoneClient.earn.privateDepositSync(prepared)
-     * ```
-     *
-     * @param parameters - Prepared deposit and transaction parameters.
-     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
-     */
-    privateDepositSync: (
-      parameters: earnActions.privateDepositSync.Parameters<chain, account>,
-    ) => Promise<earnActions.privateDepositSync.ReturnValue>
-    /**
-     * Gets the vault's active fee configuration, pending fees, and fee baselines.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * const client = Client.create({ transport: http() })
      * const feeState = await client.earn.getFeeState({
-     *   vault: '0x...',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The active fee configuration, pending fees, and baselines.
+     * @param options - Options.
+     * @returns The active fee state.
      */
     getFeeState: (
-      parameters: earnActions.getFeeState.Parameters,
-    ) => Promise<earnActions.getFeeState.ReturnValue>
+      options: earn.getFeeState.Options,
+    ) => Promise<earn.getFeeState.ReturnType>
     /**
      * Gets an account's asset and Earn share balances, allowances, and
      * current share value. The value includes fees.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * const client = Client.create({ transport: http() })
      * const position = await client.earn.getPosition({
-     *   vault: '0x...',
+     *   account: '0x…',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The asset and Earn share balances, allowances, and value.
      */
     getPosition: (
-      parameters: earnActions.getPosition.Parameters<account>,
-    ) => Promise<earnActions.getPosition.ReturnValue>
-    /**
-     * Gets the vault's addresses, configuration, accounting state, and
-     * supported actions. Throws `GetVaultEngineChangedError` if its engine
-     * changes mid-read.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const vault = await client.earn.getVault({
-     *   vault: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The vault state and metadata.
-     */
-    getVault: (
-      parameters: earnActions.getVault.Parameters,
-    ) => Promise<earnActions.getVault.ReturnValue>
+      options: earn.getPosition.Options<account>,
+    ) => Promise<earn.getPosition.ReturnType>
     /**
      * Gets the asset output for an exact Earn share input, including fees.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * const client = Client.create({ transport: http() })
      * const assetAmount = await client.earn.getRedeemQuote({
      *   shareAmount: 100_000_000n,
-     *   vault: '0x...',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The asset output, including fees.
+     * @param options - Options.
+     * @returns The quoted asset output.
      */
-    getRedeemQuote: (
-      parameters: earnActions.getRedeemQuote.Parameters,
-    ) => Promise<earnActions.getRedeemQuote.ReturnValue>
+    getRedeemQuote: ((
+      options: earn.getRedeemQuote.Options,
+    ) => Promise<earn.getRedeemQuote.ReturnType>) & {
+      /** Defines a `previewRedeem` contract call. */
+      call: typeof earn.getRedeemQuote.call
+    }
     /**
-     * Gets the Earn shares required for an exact asset output, including
-     * fees and ceiling rounding.
+     * Gets a vault's configuration, accounting state, and capabilities.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
+     * const vault = await client.earn.getVault({ vault: '0x…' })
+     * ```
      *
+     * @param options - Options.
+     * @returns The vault state.
+     */
+    getVault: ((
+      options: earn.getVault.Options,
+    ) => Promise<earn.getVault.ReturnType>) & {
+      /** Defines the reads used to get the vault state. */
+      calls: typeof earn.getVault.calls
+    }
+    /**
+     * Gets the Earn shares required for an exact asset output, including fees
+     * and ceiling rounding.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
      * const shareAmount = await client.earn.getWithdrawQuote({
      *   assetAmount: 250_000_000n,
-     *   vault: '0x...',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The required Earn share input, ceiling-rounded.
      */
-    getWithdrawQuote: (
-      parameters: earnActions.getWithdrawQuote.Parameters,
-    ) => Promise<earnActions.getWithdrawQuote.ReturnValue>
+    getWithdrawQuote: ((
+      options: earn.getWithdrawQuote.Options,
+    ) => Promise<earn.getWithdrawQuote.ReturnType>) & {
+      /** Defines a `previewWithdraw` contract call. */
+      call: typeof earn.getWithdrawQuote.call
+    }
     /**
-     * Redeems Earn shares for assets sent to `recipient`. The transaction
-     * includes the required Earn share approval.
+     * Withdraws assets from a Zone and deposits them into a parent-chain vault.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.earn.redeem({
-     *   shareAmount: 100_000_000n,
-     *   slippageBps: 50,
-     *   vault: '0x...',
+     * const prepared = await parentClient.earn.privateDeposit.prepare({
+     *   assetAmount: 100_000_000n,
+     *   gateway: '0x…',
+     *   recipient: '0x…',
+     *   recoveryRecipient: '0x…',
+     *   shareAmountMin: 99_500_000n,
+     *   vault: '0x…',
+     *   vaultAssetAmountMin: 99_000_000n,
+     *   zoneId: 7,
      * })
+     * const hash = await zoneClient.earn.privateDeposit(prepared)
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
+     * @param options - Options.
+     * @returns The Zone transaction hash.
      */
-    redeem: (
-      parameters: earnActions.redeem.Parameters<chain, account>,
-    ) => Promise<earnActions.redeem.ReturnValue>
+    privateDeposit: ((
+      options: earn.privateDeposit.Options<account>,
+    ) => Promise<earn.privateDeposit.ReturnType>) & {
+      /** Defines the prepared Zone withdrawal calls. */
+      calls: typeof earn.privateDeposit.calls
+      /** Prepares an encrypted private deposit. */
+      prepare: (
+        options: earn.privateDeposit.prepare.Options,
+      ) => ReturnType<typeof earn.privateDeposit.prepare>
+    }
     /**
-     * Redeems Earn shares and returns the confirmed receipt and event data.
+     * Requests a private deposit and waits for the Zone transaction receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { assetAmount } = await client.earn.redeemSync({
-     *   assetAmountMin: 99_500_000n,
-     *   shareAmount: 100_000_000n,
-     *   vault: '0x...',
-     * })
+     * const result = await zoneClient.earn.privateDepositSync(prepared)
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
+     * @param options - Options.
+     * @returns The receipt and withdrawal sender tag.
      */
-    redeemSync: (
-      parameters: earnActions.redeemSync.Parameters<chain, account>,
-    ) => Promise<earnActions.redeemSync.ReturnValue>
+    privateDepositSync: (
+      options: earn.privateDepositSync.Options<account>,
+    ) => Promise<earn.privateDepositSync.ReturnType>
     /**
      * Withdraws Earn shares from a Zone and redeems them on the parent chain.
      *
      * @example
      * ```ts
      * const prepared = await parentClient.earn.privateRedeem.prepare({
-     *   gateway: '0x...',
-     *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
+     *   gateway: '0x…',
+     *   recipient: '0x…',
+     *   recoveryRecipient: '0x…',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
-     *   vault: '0x...',
+     *   vault: '0x…',
      *   zoneId: 7,
      * })
      * const hash = await zoneClient.earn.privateRedeem(prepared)
      * ```
      *
-     * @param parameters - Prepared redemption and transaction parameters.
-     * @returns The transaction hash.
+     * @param options - Options.
+     * @returns The Zone transaction hash.
      */
-    privateRedeem: (
-      parameters: earnActions.privateRedeem.Parameters<chain, account>,
-    ) => Promise<earnActions.privateRedeem.ReturnValue>
+    privateRedeem: ((
+      options: earn.privateRedeem.Options<account>,
+    ) => Promise<earn.privateRedeem.ReturnType>) & {
+      /** Defines the prepared Zone withdrawal calls. */
+      calls: typeof earn.privateRedeem.calls
+      /** Prepares an encrypted private redemption. */
+      prepare: (
+        options: earn.privateRedeem.prepare.Options,
+      ) => ReturnType<typeof earn.privateRedeem.prepare>
+    }
     /**
-     * Requests a private Zone redemption and waits for the Zone transaction
-     * receipt.
+     * Requests a private redemption and waits for the Zone receipt.
      *
      * @example
      * ```ts
-     * const { receipt, senderTag } =
-     *   await zoneClient.earn.privateRedeemSync(prepared)
+     * const result = await zoneClient.earn.privateRedeemSync(prepared)
      * ```
      *
-     * @param parameters - Prepared redemption and transaction parameters.
-     * @returns The Zone transaction receipt and parent-chain withdrawal sender tag.
+     * @param options - Options.
+     * @returns The receipt and withdrawal sender tag.
      */
     privateRedeemSync: (
-      parameters: earnActions.privateRedeemSync.Parameters<chain, account>,
-    ) => Promise<earnActions.privateRedeemSync.ReturnValue>
+      options: earn.privateRedeemSync.Options<account>,
+    ) => Promise<earn.privateRedeemSync.ReturnType>
     /**
-     * Waits for a Zone gateway deposit to complete on the parent chain.
+     * Redeems Earn shares for assets sent to `recipient`. The transaction
+     * includes the required Earn share approval.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const hash = await client.earn.redeem({
+     *   shareAmount: 100_000_000n,
+     *   slippageBps: 50,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    redeem: ((
+      options: earn.redeem.Options,
+    ) => Promise<earn.redeem.ReturnType>) & {
+      /** Defines a redeem contract call. */
+      call: (args: earn.redeem.call.Args) => ReturnType<typeof earn.redeem.call>
+      /** Defines the approval and redeem calls. */
+      calls: typeof earn.redeem.calls
+      /** Estimates the gas required for a redemption. */
+      estimateGas: (options: earn.redeem.Options) => Promise<bigint>
+      /** Extracts the `Redeemed` event from logs. */
+      extractEvent: typeof earn.redeem.extractEvent
+      /** Simulates a redemption. */
+      simulate: (
+        options: earn.redeem.Options,
+      ) => ReturnType<typeof earn.redeem.simulate>
+    }
+    /**
+     * Redeems Earn shares and returns the confirmed receipt and event data.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     * const result = await client.earn.redeemSync({
+     *   assetAmountMin: 99_500_000n,
+     *   shareAmount: 100_000_000n,
+     *   vault: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    redeemSync: (
+      options: earn.redeemSync.Options,
+    ) => Promise<earn.redeemSync.ReturnType>
+    /**
+     * Verifies that an Earn share token uses the expected exit-safe TIP-403
+     * policy and that every required member can receive transfers and mints.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     * await client.earn.validateExitSafePolicy({
+     *   accessAdministrator: '0x…',
+     *   policy: {
+     *     mintRecipientPolicyId: 2n,
+     *     recipientPolicyId: 2n,
+     *     senderPolicyId: 1n,
+     *     transferPolicyId: 3n,
+     *   },
+     *   requiredMembers: ['0x…'],
+     *   shareToken: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns Nothing when the policy is valid.
+     */
+    validateExitSafePolicy: (
+      options: earn.validateExitSafePolicy.Options,
+    ) => Promise<earn.validateExitSafePolicy.ReturnType>
+    /**
+     * Waits for a private deposit to complete on the parent chain.
      *
      * @example
      * ```ts
      * const result = await parentClient.earn.waitForPrivateDeposit({
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
-     *   gateway: '0x...',
-     *   vault: '0x...',
+     *   gateway: '0x…',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Correlation and polling parameters.
+     * @param options - Options.
      * @returns The completed gateway deposit.
      */
     waitForPrivateDeposit: (
-      parameters: earnActions.waitForPrivateDeposit.Parameters,
-    ) => Promise<earnActions.waitForPrivateDeposit.ReturnType>
+      options: earn.waitForPrivateDeposit.Options,
+    ) => Promise<earn.waitForPrivateDeposit.ReturnType>
     /**
-     * Waits for a Zone gateway redemption to complete on the parent chain.
+     * Waits for a private redemption to complete on the parent chain.
      *
      * @example
      * ```ts
      * const result = await parentClient.earn.waitForPrivateRedeem({
      *   actionId: prepared.actionId,
      *   fromBlock: prepared.fromBlock,
-     *   gateway: '0x...',
-     *   vault: '0x...',
+     *   gateway: '0x…',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Correlation and polling parameters.
+     * @param options - Options.
      * @returns The completed gateway redemption.
      */
     waitForPrivateRedeem: (
-      parameters: earnActions.waitForPrivateRedeem.Parameters,
-    ) => Promise<earnActions.waitForPrivateRedeem.ReturnType>
+      options: earn.waitForPrivateRedeem.Options,
+    ) => Promise<earn.waitForPrivateRedeem.ReturnType>
     /**
-     * Verifies that an Earn share token uses the expected exit-safe
-     * TIP-403 policy and that every required member can receive transfers and
-     * mints.
+     * Withdraws an exact asset amount to `recipient`, up to the specified Earn
+     * share limit. The transaction includes the required Earn share approval;
+     * use `redeem` for a full exit.
      *
      * @example
      * ```ts
-     * await client.earn.validateExitSafePolicy({
-     *   accessAdministrator: '0x...',
-     *   policy,
-     *   requiredMembers: ['0x...', '0x...'],
-     *   shareToken: '0x...',
-     * })
-     * ```
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * @param parameters - Expected policy, administrator, and required members.
-     * @returns Nothing when the policy is valid.
-     */
-    validateExitSafePolicy: (
-      parameters: earnActions.validateExitSafePolicy.Parameters,
-    ) => Promise<earnActions.validateExitSafePolicy.ReturnValue>
-    /**
-     * Withdraws an exact asset amount to `recipient`, up to the specified
-     * Earn share limit. The transaction includes the required Earn share
-     * approval; use `redeem` for a full exit.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
+     * })
      * const hash = await client.earn.withdrawExact({
      *   assetAmount: 40_000_000n,
      *   slippageBps: 50,
-     *   vault: '0x...',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    withdrawExact: (
-      parameters: earnActions.withdrawExact.Parameters<chain, account>,
-    ) => Promise<earnActions.withdrawExact.ReturnValue>
+    withdrawExact: ((
+      options: earn.withdrawExact.Options,
+    ) => Promise<earn.withdrawExact.ReturnType>) & {
+      /** Defines an exact withdrawal contract call. */
+      call: (
+        args: earn.withdrawExact.call.Args,
+      ) => ReturnType<typeof earn.withdrawExact.call>
+      /** Defines the approval and exact withdrawal calls. */
+      calls: typeof earn.withdrawExact.calls
+      /** Estimates the gas required for an exact withdrawal. */
+      estimateGas: (options: earn.withdrawExact.Options) => Promise<bigint>
+      /** Extracts the `WithdrewExact` event from logs. */
+      extractEvent: typeof earn.withdrawExact.extractEvent
+      /** Simulates an exact withdrawal. */
+      simulate: (
+        options: earn.withdrawExact.Options,
+      ) => ReturnType<typeof earn.withdrawExact.simulate>
+    }
     /**
-     * Withdraws an exact asset amount and returns the confirmed receipt and event data.
+     * Withdraws an exact asset amount and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { shareAmount } = await client.earn.withdrawExactSync({
+     * })
+     * const result = await client.earn.withdrawExactSync({
      *   assetAmount: 40_000_000n,
      *   shareAmountMax: 40_200_000n,
-     *   vault: '0x...',
+     *   vault: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     withdrawExactSync: (
-      parameters: earnActions.withdrawExactSync.Parameters<chain, account>,
-    ) => Promise<earnActions.withdrawExactSync.ReturnValue>
+      options: earn.withdrawExactSync.Options,
+    ) => Promise<earn.withdrawExactSync.ReturnType>
   }
   faucet: {
     /**
-     * Funds an account with an initial amount of set token(s)
-     * on Tempo's testnet.
+     * Funds an account with an initial amount of set tokens on Tempo's
+     * testnet.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const hashes = await client.faucet.fund({
      *   account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hashes.
      */
-    fund: (
-      parameters: faucetActions.fund.Parameters,
-    ) => Promise<faucetActions.fund.ReturnValue>
+    fund: (options: faucet.fund.Options) => Promise<faucet.fund.ReturnType>
     /**
-     * Funds an account with an initial amount of set token(s)
-     * on Tempo's testnet. Waits for the transactions to be included
-     * on a block before returning a response.
+     * Funds an account with an initial amount of set tokens on Tempo's
+     * testnet, and waits for the transactions to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const receipts = await client.faucet.fundSync({
      *   account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipts.
      */
     fundSync: (
-      parameters: faucetActions.fundSync.Parameters,
-    ) => Promise<faucetActions.fundSync.ReturnValue>
-  }
-  nonce: {
-    /**
-     * Gets the nonce for an account and nonce key.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const nonce = await client.nonce.getNonce({
-     *   account: '0x...',
-     *   nonceKey: 1n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The nonce value.
-     */
-    getNonce: (
-      parameters: nonceActions.getNonce.Parameters,
-    ) => Promise<nonceActions.getNonce.ReturnValue>
-    /**
-     * Watches for nonce incremented events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.nonce.watchNonceIncremented({
-     *   onNonceIncremented: (args, log) => {
-     *     console.log('Nonce incremented:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchNonceIncremented: (
-      parameters: nonceActions.watchNonceIncremented.Parameters,
-    ) => () => void
+      options: faucet.fundSync.Options,
+    ) => Promise<faucet.fundSync.ReturnType<chain>>
   }
   fee: {
     /**
-     * Validates that a token can be used as a Tempo fee token.
+     * Gets an account's default fee token.
+     *
+     * Returns `null` when the account has no fee token preference set.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { address } = await client.fee.validateToken({
+     * const token = await client.fee.getUserToken()
+     * ```
+     *
+     * @param options - Options.
+     * @returns The account's fee token address, or `null` if unset.
+     */
+    getUserToken: (
+      options?: fee.getUserToken.Options,
+    ) => Promise<fee.getUserToken.ReturnType>
+    /**
+     * Gets a validator's preferred fee token.
+     *
+     * Returns `null` when the validator has no fee token preference set.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const token = await client.fee.getValidatorToken({
+     *   validator: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The validator's fee token address, or `null` if unset.
+     */
+    getValidatorToken: (
+      options: fee.getValidatorToken.Options,
+    ) => Promise<fee.getValidatorToken.ReturnType>
+    /**
+     * Sets the calling account's default fee token.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.fee.setUserToken({
      *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The fee token address, ID, and metadata.
-     */
-    validateToken: (
-      parameters: feeActions.validateToken.Parameters,
-    ) => Promise<feeActions.validateToken.ReturnValue>
-    /**
-     * Gets the user's default fee token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { address, id } = await client.token.getUserToken()
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    getUserToken: (
-      ...parameters: account extends Account
-        ? [feeActions.getUserToken.Parameters<account>] | []
-        : [feeActions.getUserToken.Parameters<account>]
-    ) => Promise<feeActions.getUserToken.ReturnValue>
-    /**
-     * Sets the user's default fee token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.token.setUserToken({
-     *   token: '0x...',
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     setUserToken: (
-      parameters: feeActions.setUserToken.Parameters<chain, account>,
-    ) => Promise<feeActions.setUserToken.ReturnValue>
+      options: fee.setUserToken.Options,
+    ) => Promise<fee.setUserToken.ReturnType>
     /**
-     * Sets the user's default fee token.
+     * Sets the calling account's default fee token, and waits for the
+     * transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.fee.setUserTokenSync({
-     *   token: '0x...',
+     * const { receipt, ...event } = await client.fee.setUserTokenSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     setUserTokenSync: (
-      parameters: feeActions.setUserTokenSync.Parameters<chain, account>,
-    ) => Promise<feeActions.setUserTokenSync.ReturnValue>
+      options: fee.setUserTokenSync.Options,
+    ) => Promise<fee.setUserTokenSync.ReturnType>
     /**
-     * Watches for user token set events.
+     * Sets the calling validator's preferred fee token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.token.watchSetUserToken({
-     *   onUserTokenSet: (args, log) => {
-     *     console.log('User token set:', args)
-     *   },
+     * const hash = await client.fee.setValidatorToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    setValidatorToken: (
+      options: fee.setValidatorToken.Options,
+    ) => Promise<fee.setValidatorToken.ReturnType>
+    /**
+     * Sets the calling validator's preferred fee token, and waits for the
+     * transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.fee.setValidatorTokenSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    setValidatorTokenSync: (
+      options: fee.setValidatorTokenSync.Options,
+    ) => Promise<fee.setValidatorTokenSync.ReturnType>
+    /**
+     * Validates that a token can be used as a Tempo fee token.
+     *
+     * Fee tokens must be unpaused USD-denominated TIP-20 tokens.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const { address, metadata } = await client.fee.validateToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The fee token address and metadata.
+     */
+    validateToken: (
+      options: fee.validateToken.Options,
+    ) => Promise<fee.validateToken.ReturnType>
+    /**
+     * Watches `UserTokenSet` events on the fee manager.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.fee.watchSetUserToken()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchSetUserToken: (
-      parameters: feeActions.watchSetUserToken.Parameters,
-    ) => () => void
+      options?: fee.watchSetUserToken.Options,
+    ) => fee.watchSetUserToken.ReturnType
+    /**
+     * Watches `ValidatorTokenSet` events on the fee manager.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.fee.watchSetValidatorToken()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchSetValidatorToken: (
+      options?: fee.watchSetValidatorToken.Options,
+    ) => fee.watchSetValidatorToken.ReturnType
+  }
+  nonce: {
+    /**
+     * Gets the nonce for an account and nonce key (2D nonces, TIP-1009).
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const nonce = await client.nonce.get({ nonceKey: 1n })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The nonce value.
+     */
+    get: (options: nonce.get.Options) => Promise<nonce.get.ReturnType>
+    /**
+     * Watches `NonceIncremented` events on the nonce manager (2D nonces,
+     * TIP-1009).
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.nonce.watchIncremented()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchIncremented: (
+      options?: nonce.watchIncremented.Options,
+    ) => nonce.watchIncremented.ReturnType
   }
   policy: {
     /**
-     * Creates a new policy.
+     * Creates a TIP-403 transfer policy.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.policy.create({
-     *   admin: '0x...',
+     *   admin: '0x…',
      *   type: 'whitelist',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     create: (
-      parameters: policyActions.create.Parameters<chain, account>,
-    ) => Promise<policyActions.create.ReturnValue>
+      options: policy.create.Options<account>,
+    ) => Promise<policy.create.ReturnType>
     /**
-     * Creates a new policy.
+     * Creates a TIP-403 transfer policy, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.policy.createSync({
-     *   admin: '0x...',
+     * const { receipt, ...event } = await client.policy.createSync({
+     *   admin: '0x…',
      *   type: 'whitelist',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     createSync: (
-      parameters: policyActions.createSync.Parameters<chain, account>,
-    ) => Promise<policyActions.createSync.ReturnValue>
+      options: policy.createSync.Options<account>,
+    ) => Promise<policy.createSync.ReturnType>
     /**
-     * Sets the admin for a policy.
+     * Gets TIP-403 transfer policy data.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.policy.setAdmin({
-     *   policyId: 2n,
-     *   admin: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    setAdmin: (
-      parameters: policyActions.setAdmin.Parameters<chain, account>,
-    ) => Promise<policyActions.setAdmin.ReturnValue>
-    /**
-     * Sets the admin for a policy.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.policy.setAdminSync({
-     *   policyId: 2n,
-     *   admin: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    setAdminSync: (
-      parameters: policyActions.setAdminSync.Parameters<chain, account>,
-    ) => Promise<policyActions.setAdminSync.ReturnValue>
-    /**
-     * Modifies a policy whitelist.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.policy.modifyWhitelist({
-     *   policyId: 2n,
-     *   address: '0x...',
-     *   allowed: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    modifyWhitelist: (
-      parameters: policyActions.modifyWhitelist.Parameters<chain, account>,
-    ) => Promise<policyActions.modifyWhitelist.ReturnValue>
-    /**
-     * Modifies a policy whitelist.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.policy.modifyWhitelistSync({
-     *   policyId: 2n,
-     *   address: '0x...',
-     *   allowed: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    modifyWhitelistSync: (
-      parameters: policyActions.modifyWhitelistSync.Parameters<chain, account>,
-    ) => Promise<policyActions.modifyWhitelistSync.ReturnValue>
-    /**
-     * Modifies a policy blacklist.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.policy.modifyBlacklist({
-     *   policyId: 2n,
-     *   address: '0x...',
-     *   restricted: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    modifyBlacklist: (
-      parameters: policyActions.modifyBlacklist.Parameters<chain, account>,
-    ) => Promise<policyActions.modifyBlacklist.ReturnValue>
-    /**
-     * Modifies a policy blacklist.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.policy.modifyBlacklistSync({
-     *   policyId: 2n,
-     *   address: '0x...',
-     *   restricted: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    modifyBlacklistSync: (
-      parameters: policyActions.modifyBlacklistSync.Parameters<chain, account>,
-    ) => Promise<policyActions.modifyBlacklistSync.ReturnValue>
-    /**
-     * Gets policy data.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const data = await client.policy.getData({
      *   policyId: 2n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The policy data.
+     * @param options - Options.
+     * @returns The result.
      */
     getData: (
-      parameters: policyActions.getData.Parameters,
-    ) => Promise<policyActions.getData.ReturnValue>
+      options: policy.getData.Options,
+    ) => Promise<policy.getData.ReturnType>
     /**
-     * Checks if a user is authorized by a policy.
+     * Checks if a user is authorized by a TIP-403 transfer policy.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const authorized = await client.policy.isAuthorized({
+     * const result = await client.policy.isAuthorized({
      *   policyId: 2n,
-     *   user: '0x...',
+     *   user: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns Whether the user is authorized.
+     * @param options - Options.
+     * @returns The result.
      */
     isAuthorized: (
-      parameters: policyActions.isAuthorized.Parameters,
-    ) => Promise<policyActions.isAuthorized.ReturnValue>
+      options: policy.isAuthorized.Options,
+    ) => Promise<policy.isAuthorized.ReturnType>
     /**
-     * Watches for policy creation events.
+     * modifies a TIP-403 transfer policy blacklist.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.policy.watchCreate({
-     *   onPolicyCreated: (args, log) => {
-     *     console.log('Policy created:', args)
-     *   },
+     * const hash = await client.policy.modifyBlacklist({
+     *   policyId: 2n,
+     *   address: '0x…',
+     *   restricted: true,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction hash.
      */
-    watchCreate: (
-      parameters: policyActions.watchCreate.Parameters,
-    ) => () => void
+    modifyBlacklist: (
+      options: policy.modifyBlacklist.Options,
+    ) => Promise<policy.modifyBlacklist.ReturnType>
     /**
-     * Watches for policy admin update events.
+     * Modifies a TIP-403 transfer policy blacklist, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.policy.watchAdminUpdated({
-     *   onAdminUpdated: (args, log) => {
-     *     console.log('Policy admin updated:', args)
-     *   },
+     * const { receipt, ...event } = await client.policy.modifyBlacklistSync({
+     *   policyId: 2n,
+     *   address: '0x…',
+     *   restricted: true,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    modifyBlacklistSync: (
+      options: policy.modifyBlacklistSync.Options,
+    ) => Promise<policy.modifyBlacklistSync.ReturnType>
+    /**
+     * modifies a TIP-403 transfer policy whitelist.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.policy.modifyWhitelist({
+     *   policyId: 2n,
+     *   address: '0x…',
+     *   allowed: true,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    modifyWhitelist: (
+      options: policy.modifyWhitelist.Options,
+    ) => Promise<policy.modifyWhitelist.ReturnType>
+    /**
+     * Modifies a TIP-403 transfer policy whitelist, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.policy.modifyWhitelistSync({
+     *   policyId: 2n,
+     *   address: '0x…',
+     *   allowed: true,
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    modifyWhitelistSync: (
+      options: policy.modifyWhitelistSync.Options,
+    ) => Promise<policy.modifyWhitelistSync.ReturnType>
+    /**
+     * sets the admin for a TIP-403 transfer policy.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.policy.setAdmin({
+     *   policyId: 2n,
+     *   admin: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    setAdmin: (
+      options: policy.setAdmin.Options,
+    ) => Promise<policy.setAdmin.ReturnType>
+    /**
+     * Sets the admin for a TIP-403 transfer policy, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.policy.setAdminSync({
+     *   policyId: 2n,
+     *   admin: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    setAdminSync: (
+      options: policy.setAdminSync.Options,
+    ) => Promise<policy.setAdminSync.ReturnType>
+    /**
+     * Watches `PolicyAdminUpdated` events on the TIP-403 registry.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.policy.watchAdminUpdated()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchAdminUpdated: (
-      parameters: policyActions.watchAdminUpdated.Parameters,
-    ) => () => void
+      options?: policy.watchAdminUpdated.Options,
+    ) => policy.watchAdminUpdated.ReturnType
     /**
-     * Watches for whitelist update events.
+     * Watches `BlacklistUpdated` events on the TIP-403 registry.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.policy.watchWhitelistUpdated({
-     *   onWhitelistUpdated: (args, log) => {
-     *     console.log('Whitelist updated:', args)
-     *   },
-     * })
+     * const watcher = client.policy.watchBlacklistUpdated()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchWhitelistUpdated: (
-      parameters: policyActions.watchWhitelistUpdated.Parameters,
-    ) => () => void
-    /**
-     * Watches for blacklist update events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.policy.watchBlacklistUpdated({
-     *   onBlacklistUpdated: (args, log) => {
-     *     console.log('Blacklist updated:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchBlacklistUpdated: (
-      parameters: policyActions.watchBlacklistUpdated.Parameters,
-    ) => () => void
+      options?: policy.watchBlacklistUpdated.Options,
+    ) => policy.watchBlacklistUpdated.ReturnType
+    /**
+     * Watches `PolicyCreated` events on the TIP-403 registry.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.policy.watchCreate()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchCreate: (
+      options?: policy.watchCreate.Options,
+    ) => policy.watchCreate.ReturnType
+    /**
+     * Watches `WhitelistUpdated` events on the TIP-403 registry.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.policy.watchWhitelistUpdated()
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchWhitelistUpdated: (
+      options?: policy.watchWhitelistUpdated.Options,
+    ) => policy.watchWhitelistUpdated.ReturnType
   }
   receivePolicy: {
     /**
@@ -2951,3158 +3229,2218 @@ type DecoratorBase<
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const hash = await client.receivePolicy.burn({ receipt: '0x...' })
+     * const hash = await client.receivePolicy.burn({
+     *   receipt: '0x…',
+     * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     burn: (
-      parameters: receivePolicyActions.burn.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.burn.ReturnValue>
+      options: receivePolicy.burn.Options,
+    ) => Promise<receivePolicy.burn.ReturnType>
     /**
-     * Burns the funds backing a blocked receipt and waits for the receipt.
+     * Burns the funds backing a blocked receipt and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.receivePolicy.burnSync({
-     *   receipt: '0x...',
+     * const { receipt, ...event } = await client.receivePolicy.burnSync({
+     *   receipt: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     burnSync: (
-      parameters: receivePolicyActions.burnSync.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.burnSync.ReturnValue>
+      options: receivePolicy.burnSync.Options,
+    ) => Promise<receivePolicy.burnSync.ReturnType>
     /**
-     * Claims blocked funds for a receipt, releasing them to a destination.
+     * Claims blocked funds for a receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.receivePolicy.claim({
-     *   to: '0x...',
-     *   receipt: '0x...',
+     *   receipt: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     claim: (
-      parameters: receivePolicyActions.claim.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.claim.ReturnValue>
+      options: receivePolicy.claim.Options,
+    ) => Promise<receivePolicy.claim.ReturnType>
     /**
-     * Claims blocked funds for a receipt and waits for the receipt.
+     * Claims blocked funds for a receipt and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.receivePolicy.claimSync({
-     *   to: '0x...',
-     *   receipt: '0x...',
+     * const { receipt, ...event } = await client.receivePolicy.claimSync({
+     *   receipt: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     claimSync: (
-      parameters: receivePolicyActions.claimSync.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.claimSync.ReturnValue>
+      options: receivePolicy.claimSync.Options,
+    ) => Promise<receivePolicy.claimSync.ReturnType>
     /**
      * Gets the receive policy configured for an account.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const policy = await client.receivePolicy.get({ account: '0x...' })
+     * const policy = await client.receivePolicy.get({
+     *   account: '0x…',
+     * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The receive policy.
+     * @param options - Options.
+     * @returns The result.
      */
     get: (
-      parameters: receivePolicyActions.get.Parameters<account>,
-    ) => Promise<receivePolicyActions.get.ReturnValue>
+      options: receivePolicy.get.Options,
+    ) => Promise<receivePolicy.get.ReturnType>
     /**
      * Gets the blocked balance for an encoded receipt.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const amount = await client.receivePolicy.getBlockedBalance({
-     *   receipt: '0x...',
+     * const blockedBalance = await client.receivePolicy.getBlockedBalance({
+     *   receipt: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The blocked amount for the receipt.
+     * @param options - Options.
+     * @returns The result.
      */
     getBlockedBalance: (
-      parameters: receivePolicyActions.getBlockedBalance.Parameters,
-    ) => Promise<receivePolicyActions.getBlockedBalance.ReturnValue>
+      options: receivePolicy.getBlockedBalance.Options,
+    ) => Promise<receivePolicy.getBlockedBalance.ReturnType>
     /**
      * Sets the receive policy for the calling account.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.receivePolicy.set({
-     *   senderPolicyId: 'allow-all',
-     *   tokenPolicyId: 'allow-all',
-     *   claimer: 'self',
+     *   policy: 1,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     set: (
-      parameters: receivePolicyActions.set.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.set.ReturnValue>
+      options: receivePolicy.set.Options,
+    ) => Promise<receivePolicy.set.ReturnType>
     /**
-     * Sets the receive policy for the calling account and waits for the receipt.
+     * Sets the receive policy for the calling account and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, ...result } = await client.receivePolicy.setSync({
-     *   senderPolicyId: 'allow-all',
-     *   tokenPolicyId: 'allow-all',
-     *   claimer: 'self',
+     * const { receipt, ...event } = await client.receivePolicy.setSync({
+     *   policy: 1,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     setSync: (
-      parameters: receivePolicyActions.setSync.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.setSync.ReturnValue>
+      options: receivePolicy.setSync.Options,
+    ) => Promise<receivePolicy.setSync.ReturnType>
     /**
-     * Checks whether a transfer or mint to a receiver is allowed by the
-     * receiver's receive policy.
+     * Checks whether a transfer or mint to a receiver is allowed by the receiver's receive policy.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const { authorized, blockedReason } = await client.receivePolicy.validate({
-     *   token: '0x...',
-     *   sender: '0x...',
-     *   receiver: '0x...',
+     * const result = await client.receivePolicy.validate({
+     *   from: '0x…',
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     *   amount: 100n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns Whether the transfer is authorized and, if not, why.
+     * @param options - Options.
+     * @returns The result.
      */
     validate: (
-      parameters: receivePolicyActions.validate.Parameters,
-    ) => Promise<receivePolicyActions.validate.ReturnValue>
+      options: receivePolicy.validate.Options,
+    ) => Promise<receivePolicy.validate.ReturnType>
     /**
      * Watches for blocked transfer events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.receivePolicy.watchBlocked({
-     *   onBlocked: (args, log) => {
-     *     console.log('Transfer blocked:', args)
-     *   },
-     * })
+     * const watcher = client.receivePolicy.watchBlocked()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchBlocked: (
-      parameters: receivePolicyActions.watchBlocked.Parameters,
-    ) => () => void
+      options?: receivePolicy.watchBlocked.Options,
+    ) => receivePolicy.watchBlocked.ReturnType
     /**
      * Watches for receipt burned events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.receivePolicy.watchBurned({
-     *   onBurned: (args, log) => {
-     *     console.log('Receipt burned:', args)
-     *   },
-     * })
+     * const watcher = client.receivePolicy.watchBurned()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchBurned: (
-      parameters: receivePolicyActions.watchBurned.Parameters,
-    ) => () => void
+      options?: receivePolicy.watchBurned.Options,
+    ) => receivePolicy.watchBurned.ReturnType
     /**
      * Watches for receipt claimed events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.receivePolicy.watchClaimed({
-     *   onClaimed: (args, log) => {
-     *     console.log('Receipt claimed:', args)
-     *   },
-     * })
+     * const watcher = client.receivePolicy.watchClaimed()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchClaimed: (
-      parameters: receivePolicyActions.watchClaimed.Parameters,
-    ) => () => void
+      options?: receivePolicy.watchClaimed.Options,
+    ) => receivePolicy.watchClaimed.ReturnType
     /**
      * Watches for receive policy update events.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.receivePolicy.watchUpdated({
-     *   onUpdated: (args, log) => {
-     *     console.log('Receive policy updated:', args)
-     *   },
-     * })
+     * const watcher = client.receivePolicy.watchUpdated()
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchUpdated: (
-      parameters: receivePolicyActions.watchUpdated.Parameters,
-    ) => () => void
-  }
-  reward: {
-    /**
-     * Claims accumulated rewards for a recipient.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.reward.claim({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    claim: (
-      parameters: rewardActions.claim.Parameters<chain, account>,
-    ) => Promise<rewardActions.claim.ReturnValue>
-    /**
-     * Claims accumulated rewards for a recipient and waits for confirmation.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.reward.claimSync({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The amount claimed and transaction receipt.
-     */
-    claimSync: (
-      parameters: rewardActions.claimSync.Parameters<chain, account>,
-    ) => Promise<rewardActions.claimSync.ReturnValue>
-    /**
-     * Distributes rewards to opted-in token holders.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.reward.distribute({
-     *   amount: 100000000000000000000n,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    distribute: (
-      parameters: rewardActions.distribute.Parameters<chain, account>,
-    ) => Promise<rewardActions.distribute.ReturnValue>
-    /**
-     * Distributes rewards to opted-in token holders and waits for confirmation.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { funder, amount, receipt } = await client.reward.distributeSync({
-     *   amount: 100000000000000000000n,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The funder, amount, and transaction receipt.
-     */
-    distributeSync: (
-      parameters: rewardActions.distributeSync.Parameters<chain, account>,
-    ) => Promise<rewardActions.distributeSync.ReturnValue>
-    /**
-     * Gets the reward information for a specific account.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const info = await client.reward.getUserRewardInfo({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     *   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The user's reward information (recipient, rewardPerToken, rewardBalance).
-     */
-    getUserRewardInfo: (
-      parameters: rewardActions.getUserRewardInfo.Parameters,
-    ) => Promise<rewardActions.getUserRewardInfo.ReturnValue>
-    /**
-     * Sets or changes the reward recipient for a token holder.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.reward.setRecipient({
-     *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    setRecipient: (
-      parameters: rewardActions.setRecipient.Parameters<chain, account>,
-    ) => Promise<rewardActions.setRecipient.ReturnValue>
-    /**
-     * Sets or changes the reward recipient for a token holder and waits for confirmation.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.reward.setRecipientSync({
-     *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    setRecipientSync: (
-      parameters: rewardActions.setRecipientSync.Parameters<chain, account>,
-    ) => Promise<rewardActions.setRecipientSync.ReturnValue>
-    /**
-     * Watches for reward distributed events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.reward.watchRewardDistributed({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     *   onRewardDistributed: (args, log) => {
-     *     console.log('Reward distributed:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchRewardDistributed: (
-      parameters: rewardActions.watchRewardDistributed.Parameters,
-    ) => () => void
-    /**
-     * Watches for reward recipient set events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.reward.watchRewardRecipientSet({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     *   onRewardRecipientSet: (args, log) => {
-     *     console.log('Reward recipient set:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchRewardRecipientSet: (
-      parameters: rewardActions.watchRewardRecipientSet.Parameters,
-    ) => () => void
-  }
-  simulate: {
-    /**
-     * Simulates a set of calls on block(s) via `tempo_simulateV1`.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http, parseUnits } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { Actions, tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: '0x...',
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { blocks, tokenMetadata } = await client.simulate.simulateBlocks({
-     *   blocks: [{
-     *     calls: [
-     *       Actions.token.transfer.call({
-     *         token: '0x20c0...01',
-     *         to: '0x...',
-     *         amount: parseUnits('100', 6),
-     *       }),
-     *     ],
-     *   }],
-     *   traceTransfers: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Simulated blocks and token metadata.
-     */
-    simulateBlocks: <const calls extends readonly unknown[]>(
-      parameters: simulateActions.simulateBlocks.Parameters<calls>,
-    ) => Promise<simulateActions.simulateBlocks.ReturnType<calls>>
-    /**
-     * Simulates execution of a batch of calls via `tempo_simulateV1`.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http, parseUnits } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { Actions, Addresses, tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: '0x...',
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { results, tokenMetadata } = await client.simulate.simulateCalls({
-     *   calls: [
-     *     Actions.token.approve.call({
-     *       token: '0x20c0...01',
-     *       spender: Addresses.stablecoinDex,
-     *       amount: parseUnits('100', 6),
-     *     }),
-     *     Actions.dex.buy.call({
-     *       tokenIn: '0x20c0...01',
-     *       tokenOut: '0x20c0...02',
-     *       amountOut: parseUnits('10', 6),
-     *       maxAmountIn: parseUnits('100', 6),
-     *     }),
-     *     Actions.token.transfer.call({
-     *       token: '0x20c0...02',
-     *       to: '0x...',
-     *       amount: parseUnits('10', 6),
-     *     }),
-     *   ],
-     *   traceTransfers: true,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Results, block, and token metadata.
-     */
-    simulateCalls: <
-      const calls extends readonly unknown[],
-      account extends Account | Address | undefined = undefined,
-    >(
-      parameters: simulateActions.simulateCalls.Parameters<calls, account>,
-    ) => Promise<simulateActions.simulateCalls.ReturnType<calls>>
+      options?: receivePolicy.watchUpdated.Options,
+    ) => receivePolicy.watchUpdated.ReturnType
   }
   token: {
     /**
-     * Approves a spender to transfer TIP20 tokens on behalf of the caller.
+     * Approves a spender to transfer TIP-20 tokens on behalf of the caller.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.approve({
-     *   spender: '0x...',
      *   amount: 100n,
+     *   spender: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     approve: (
-      parameters: tokenActions.approve.Parameters<chain, account>,
-    ) => Promise<tokenActions.approve.ReturnValue>
+      options: token.approve.Options,
+    ) => Promise<token.approve.ReturnType>
     /**
-     * Approves a spender to transfer TIP20 tokens on behalf of the caller.
+     * Approves a spender to transfer TIP-20 tokens on behalf of the caller, and
+     * waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.approveSync({
-     *   spender: '0x...',
+     * const { receipt, ...event } = await client.token.approveSync({
      *   amount: 100n,
+     *   spender: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     approveSync: (
-      parameters: tokenActions.approveSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.approveSync.ReturnValue>
+      options: token.approveSync.Options,
+    ) => Promise<token.approveSync.ReturnType>
     /**
-     * Burns TIP20 tokens from a blocked address.
+     * Burns TIP-20 tokens from the caller's balance.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.token.burnBlocked({
-     *   from: '0x...',
-     *   amount: 100n,
-     *   token: '0x...',
      * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    burnBlocked: (
-      parameters: tokenActions.burnBlocked.Parameters<chain, account>,
-    ) => Promise<tokenActions.burnBlocked.ReturnValue>
-    /**
-     * Burns TIP20 tokens from a blocked address.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.token.burnBlockedSync({
-     *   from: '0x...',
-     *   amount: 100n,
-     *   token: '0x...',
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    burnBlockedSync: (
-      parameters: tokenActions.burnBlockedSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.burnBlockedSync.ReturnValue>
-    /**
-     * Burns TIP20 tokens from the caller's balance.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
      *
      * const hash = await client.token.burn({
      *   amount: 100n,
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    burn: (
-      parameters: tokenActions.burn.Parameters<chain, account>,
-    ) => Promise<tokenActions.burn.ReturnValue>
+    burn: (options: token.burn.Options) => Promise<token.burn.ReturnType>
     /**
-     * Burns TIP20 tokens from the caller's balance.
+     * Burns TIP-20 tokens from a blocked address.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.burnSync({
+     * const hash = await client.token.burnBlocked({
      *   amount: 100n,
-     *   token: '0x...',
+     *   from: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    burnBlocked: (
+      options: token.burnBlocked.Options,
+    ) => Promise<token.burnBlocked.ReturnType>
+    /**
+     * Burns TIP-20 tokens from a blocked address, and waits for the transaction to
+     * be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.token.burnBlockedSync({
+     *   amount: 100n,
+     *   from: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    burnBlockedSync: (
+      options: token.burnBlockedSync.Options,
+    ) => Promise<token.burnBlockedSync.ReturnType>
+    /**
+     * Burns TIP-20 tokens from the caller's balance, and waits for the transaction
+     * to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.token.burnSync({
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     burnSync: (
-      parameters: tokenActions.burnSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.burnSync.ReturnValue>
+      options: token.burnSync.Options,
+    ) => Promise<token.burnSync.ReturnType>
     /**
-     * Changes the transfer policy ID for a TIP20 token.
+     * Changes the transfer policy ID for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.changeTransferPolicy({
-     *   token: '0x...',
      *   policyId: 1n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     changeTransferPolicy: (
-      parameters: tokenActions.changeTransferPolicy.Parameters<chain, account>,
-    ) => Promise<tokenActions.changeTransferPolicy.ReturnValue>
+      options: token.changeTransferPolicy.Options,
+    ) => Promise<token.changeTransferPolicy.ReturnType>
     /**
-     * Changes the transfer policy ID for a TIP20 token.
+     * Changes the transfer policy ID for a TIP-20 token, and waits for the
+     * transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.changeTransferPolicySync({
-     *   token: '0x...',
+     * const { receipt, ...event } = await client.token.changeTransferPolicySync({
      *   policyId: 1n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     changeTransferPolicySync: (
-      parameters: tokenActions.changeTransferPolicySync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<tokenActions.changeTransferPolicySync.ReturnValue>
+      options: token.changeTransferPolicySync.Options,
+    ) => Promise<token.changeTransferPolicySync.ReturnType>
     /**
-     * Creates a new TIP20 token.
+     * Creates a new TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { hash, id, address } = await client.token.create({
-     *   name: 'My Token',
-     *   symbol: 'MTK',
+     * const hash = await client.token.create({
      *   currency: 'USD',
      *   logoURI: 'https://example.com/token.svg',
+     *   name: 'My Token',
+     *   symbol: 'MTK',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     create: (
-      parameters: tokenActions.create.Parameters<chain, account>,
-    ) => Promise<tokenActions.create.ReturnValue>
+      options: token.create.Options<account>,
+    ) => Promise<token.create.ReturnType>
     /**
-     * Creates a new TIP20 token.
+     * Creates a new TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.createSync({
-     *   name: 'My Token',
-     *   symbol: 'MTK',
+     * const { receipt, ...event } = await client.token.createSync({
      *   currency: 'USD',
      *   logoURI: 'https://example.com/token.svg',
+     *   name: 'My Token',
+     *   symbol: 'MTK',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     createSync: (
-      parameters: tokenActions.createSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.createSync.ReturnValue>
+      options: token.createSync.Options<account>,
+    ) => Promise<token.createSync.ReturnType>
     /**
-     * Gets TIP20 token allowance.
+     * Gets the TIP-20 allowance a spender has over an account's tokens.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const allowance = await client.token.getAllowance({
-     *   account: '0x...',
-     *   spender: '0x...',
-     *   token: '0x...',
+     *   account: '0x…',
+     *   spender: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The token allowance, in base units and human-readable form.
+     * @param options - Options.
+     * @returns The allowance, in base units and human-readable form.
      */
     getAllowance: (
-      parameters: tokenActions.getAllowance.Parameters,
-    ) => Promise<tokenActions.getAllowance.ReturnValue>
+      options: token.getAllowance.Options,
+    ) => Promise<token.getAllowance.ReturnType>
     /**
-     * Gets TIP20 token balance for an address.
+     * Gets the TIP-20 token balance of an account.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const balance = await client.token.getBalance({
-     *   account: '0x...',
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The token balance, in base units and human-readable form.
      */
     getBalance: (
-      parameters: tokenActions.getBalance.Parameters<account>,
-    ) => Promise<tokenActions.getBalance.ReturnValue>
+      options: token.getBalance.Options,
+    ) => Promise<token.getBalance.ReturnType>
     /**
-     * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
+     * Gets TIP-20 token metadata including name, symbol, logo URI, currency,
+     * decimals, and total supply.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const metadata = await client.token.getMetadata({
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The token metadata.
      */
     getMetadata: (
-      parameters: tokenActions.getMetadata.Parameters,
-    ) => Promise<tokenActions.getMetadata.ReturnValue>
+      options: token.getMetadata.Options,
+    ) => Promise<token.getMetadata.ReturnType>
     /**
-     * Gets the total supply of a TIP20 token.
+     * Gets the admin role for a specific role in a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const totalSupply = await client.token.getTotalSupply({
-     *   token: '0x...',
      * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The token total supply, in base units and human-readable form.
-     */
-    getTotalSupply: (
-      parameters: tokenActions.getTotalSupply.Parameters,
-    ) => Promise<tokenActions.getTotalSupply.ReturnValue>
-    /**
-     * Gets the admin role for a specific role in a TIP20 token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
      *
      * const adminRole = await client.token.getRoleAdmin({
      *   role: 'issuer',
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The admin role hash.
      */
     getRoleAdmin: (
-      parameters: tokenActions.getRoleAdmin.Parameters,
-    ) => Promise<tokenActions.getRoleAdmin.ReturnValue>
+      options: token.getRoleAdmin.Options,
+    ) => Promise<token.getRoleAdmin.ReturnType>
     /**
-     * Checks if an account has a specific role for a TIP20 token.
+     * Gets the total supply of a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const hasRole = await client.token.hasRole({
-     *   token: '0x...',
-     *   role: 'issuer',
+     * const totalSupply = await client.token.getTotalSupply({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns Whether the account has the role.
+     * @param options - Options.
+     * @returns The token total supply, in base units and human-readable form.
      */
-    hasRole: (
-      parameters: tokenActions.hasRole.Parameters<account>,
-    ) => Promise<tokenActions.hasRole.ReturnValue>
+    getTotalSupply: (
+      options: token.getTotalSupply.Options,
+    ) => Promise<token.getTotalSupply.ReturnType>
     /**
-     * Grants a role for a TIP20 token.
+     * Grants roles for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.grantRoles({
-     *   token: '0x...',
-     *   to: '0x...',
      *   roles: ['issuer'],
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     grantRoles: (
-      parameters: tokenActions.grantRoles.Parameters<chain, account>,
-    ) => Promise<tokenActions.grantRoles.ReturnValue>
+      options: token.grantRoles.Options,
+    ) => Promise<token.grantRoles.ReturnType>
     /**
-     * Grants a role for a TIP20 token.
+     * Grants roles for a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.grantRolesSync({
-     *   token: '0x...',
-     *   to: '0x...',
+     * const { receipt, value } = await client.token.grantRolesSync({
      *   roles: ['issuer'],
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     grantRolesSync: (
-      parameters: tokenActions.grantRolesSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.grantRolesSync.ReturnValue>
+      options: token.grantRolesSync.Options,
+    ) => Promise<token.grantRolesSync.ReturnType>
     /**
-     * Mints TIP20 tokens to an address.
+     * Checks if an account has a specific role for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
+     *
+     * const hasRole = await client.token.hasRole({
+     *   role: 'issuer',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns Whether the account has the role.
+     */
+    hasRole: (
+      options: token.hasRole.Options,
+    ) => Promise<token.hasRole.ReturnType>
+    /**
+     * Mints TIP-20 tokens to an address.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const hash = await client.token.mint({
-     *   to: '0x...',
      *   amount: 100n,
-     *   token: '0x...',
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    mint: (
-      parameters: tokenActions.mint.Parameters<chain, account>,
-    ) => Promise<tokenActions.mint.ReturnValue>
+    mint: (options: token.mint.Options) => Promise<token.mint.ReturnType>
     /**
-     * Mints TIP20 tokens to an address.
+     * Mints TIP-20 tokens to an address, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.mintSync({
-     *   to: '0x...',
-     *   amount: 100n,
-     *   token: '0x...',
+     * const { receipt, ...event } = await client.token.mintSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     mintSync: (
-      parameters: tokenActions.mintSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.mintSync.ReturnValue>
+      options: token.mintSync.Options,
+    ) => Promise<token.mintSync.ReturnType>
     /**
-     * Pauses a TIP20 token.
+     * Pauses a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.pause({
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    pause: (
-      parameters: tokenActions.pause.Parameters<chain, account>,
-    ) => Promise<tokenActions.pause.ReturnValue>
+    pause: (options: token.pause.Options) => Promise<token.pause.ReturnType>
     /**
-     * Pauses a TIP20 token.
+     * Pauses a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.pauseSync({
-     *   token: '0x...',
+     * const { receipt, ...event } = await client.token.pauseSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     pauseSync: (
-      parameters: tokenActions.pauseSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.pauseSync.ReturnValue>
+      options: token.pauseSync.Options,
+    ) => Promise<token.pauseSync.ReturnType>
     /**
-     * Renounces a role for a TIP20 token.
+     * Prepares a quote token update for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const hash = await client.token.renounceRoles({
-     *   token: '0x...',
-     *   roles: ['issuer'],
+     * const hash = await client.token.prepareUpdateQuoteToken({
+     *   quoteToken: '0x20c0000000000000000000000000000000000002',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    prepareUpdateQuoteToken: (
+      options: token.prepareUpdateQuoteToken.Options,
+    ) => Promise<token.prepareUpdateQuoteToken.ReturnType>
+    /**
+     * Prepares a quote token update for a TIP-20 token, and waits for the
+     * transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.token.prepareUpdateQuoteTokenSync({
+     *   quoteToken: '0x20c0000000000000000000000000000000000002',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    prepareUpdateQuoteTokenSync: (
+      options: token.prepareUpdateQuoteTokenSync.Options,
+    ) => Promise<token.prepareUpdateQuoteTokenSync.ReturnType>
+    /**
+     * Renounces roles for a TIP-20 token.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.token.renounceRoles({
+     *   roles: ['issuer'],
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
      * @returns The transaction hash.
      */
     renounceRoles: (
-      parameters: tokenActions.renounceRoles.Parameters<chain, account>,
-    ) => Promise<tokenActions.renounceRoles.ReturnValue>
+      options: token.renounceRoles.Options,
+    ) => Promise<token.renounceRoles.ReturnType>
     /**
-     * Renounces a role for a TIP20 token.
+     * Renounces roles for a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.renounceRolesSync({
-     *   token: '0x...',
+     * const { receipt, value } = await client.token.renounceRolesSync({
      *   roles: ['issuer'],
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     renounceRolesSync: (
-      parameters: tokenActions.renounceRolesSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.renounceRolesSync.ReturnValue>
+      options: token.renounceRolesSync.Options,
+    ) => Promise<token.renounceRolesSync.ReturnType>
     /**
-     * Revokes a role for a TIP20 token.
+     * Revokes roles for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.revokeRoles({
-     *   token: '0x...',
-     *   from: '0x...',
      *   roles: ['issuer'],
+     *   from: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     revokeRoles: (
-      parameters: tokenActions.revokeRoles.Parameters<chain, account>,
-    ) => Promise<tokenActions.revokeRoles.ReturnValue>
+      options: token.revokeRoles.Options,
+    ) => Promise<token.revokeRoles.ReturnType>
     /**
-     * Revokes a role for a TIP20 token.
+     * Revokes roles for a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.revokeRolesSync({
-     *   token: '0x...',
-     *   from: '0x...',
+     * const { receipt, value } = await client.token.revokeRolesSync({
      *   roles: ['issuer'],
+     *   from: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     revokeRolesSync: (
-      parameters: tokenActions.revokeRolesSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.revokeRolesSync.ReturnValue>
+      options: token.revokeRolesSync.Options,
+    ) => Promise<token.revokeRolesSync.ReturnType>
     /**
-     * Sets the supply cap for a TIP20 token.
+     * Sets the admin role for a specific role in a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.token.setSupplyCap({
-     *   token: '0x...',
-     *   supplyCap: 1000000n,
      * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    setSupplyCap: (
-      parameters: tokenActions.setSupplyCap.Parameters<chain, account>,
-    ) => Promise<tokenActions.setSupplyCap.ReturnValue>
-    /**
-     * Sets the supply cap for a TIP20 token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.token.setSupplyCapSync({
-     *   token: '0x...',
-     *   supplyCap: 1000000n,
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    setSupplyCapSync: (
-      parameters: tokenActions.setSupplyCapSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.setSupplyCapSync.ReturnValue>
-    /**
-     * Sets the admin role for a specific role in a TIP20 token.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
      *
      * const hash = await client.token.setRoleAdmin({
-     *   token: '0x...',
-     *   role: 'issuer',
      *   adminRole: 'admin',
+     *   role: 'issuer',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     setRoleAdmin: (
-      parameters: tokenActions.setRoleAdmin.Parameters<chain, account>,
-    ) => Promise<tokenActions.setRoleAdmin.ReturnValue>
+      options: token.setRoleAdmin.Options,
+    ) => Promise<token.setRoleAdmin.ReturnType>
     /**
-     * Sets the admin role for a specific role in a TIP20 token.
+     * Sets the admin role for a specific role in a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.setRoleAdminSync({
-     *   token: '0x...',
-     *   role: 'issuer',
+     * const { receipt, ...event } = await client.token.setRoleAdminSync({
      *   adminRole: 'admin',
+     *   role: 'issuer',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     setRoleAdminSync: (
-      parameters: tokenActions.setRoleAdminSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.setRoleAdminSync.ReturnValue>
+      options: token.setRoleAdminSync.Options,
+    ) => Promise<token.setRoleAdminSync.ReturnType>
     /**
-     * Transfers TIP20 tokens to another address.
+     * Sets the supply cap for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const hash = await client.token.transfer({
-     *   to: '0x...',
-     *   amount: 100n,
+     * const hash = await client.token.setSupplyCap({
+     *   supplyCap: 1_000_000n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    setSupplyCap: (
+      options: token.setSupplyCap.Options,
+    ) => Promise<token.setSupplyCap.ReturnType>
+    /**
+     * Sets the supply cap for a TIP-20 token, and waits for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, ...event } = await client.token.setSupplyCapSync({
+     *   supplyCap: 1_000_000n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
+     */
+    setSupplyCapSync: (
+      options: token.setSupplyCapSync.Options,
+    ) => Promise<token.setSupplyCapSync.ReturnType>
+    /**
+     * Transfers TIP-20 tokens to another address.
+     *
+     * Pass `from` to transfer on behalf of another address using an allowance
+     * (calls `transferFrom`); otherwise transfers from the caller (calls
+     * `transfer`). Pass `memo` to use the memo-carrying transfer function.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.token.transfer({
+     *   amount: 100n,
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
      * @returns The transaction hash.
      */
     transfer: (
-      parameters: tokenActions.transfer.Parameters<chain, account>,
-    ) => Promise<tokenActions.transfer.ReturnValue>
+      options: token.transfer.Options,
+    ) => Promise<token.transfer.ReturnType>
     /**
-     * Transfers TIP20 tokens to another address.
+     * Transfers TIP-20 tokens to another address, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.transferSync({
-     *   to: '0x...',
+     * const { receipt, ...event } = await client.token.transferSync({
      *   amount: 100n,
+     *   to: '0x…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     transferSync: (
-      parameters: tokenActions.transferSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.transferSync.ReturnValue>
+      options: token.transferSync.Options,
+    ) => Promise<token.transferSync.ReturnType>
     /**
-     * Unpauses a TIP20 token.
+     * Unpauses a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.token.unpause({
-     *   token: '0x...',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     unpause: (
-      parameters: tokenActions.unpause.Parameters<chain, account>,
-    ) => Promise<tokenActions.unpause.ReturnValue>
+      options: token.unpause.Options,
+    ) => Promise<token.unpause.ReturnType>
     /**
-     * Unpauses a TIP20 token.
+     * Unpauses a TIP-20 token, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const result = await client.token.unpauseSync({
-     *   token: '0x...',
+     * const { receipt, ...event } = await client.token.unpauseSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt and event data.
      */
     unpauseSync: (
-      parameters: tokenActions.unpauseSync.Parameters<chain, account>,
-    ) => Promise<tokenActions.unpauseSync.ReturnValue>
+      options: token.unpauseSync.Options,
+    ) => Promise<token.unpauseSync.ReturnType>
     /**
-     * Watches for TIP20 token approval events.
+     * Completes a prepared quote token update for a TIP-20 token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.token.watchApprove({
-     *   onApproval: (args, log) => {
-     *     console.log('Approval:', args)
-     *   },
+     * const hash = await client.token.updateQuoteToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction hash.
      */
-    watchApprove: (
-      parameters: tokenActions.watchApprove.Parameters,
-    ) => () => void
+    updateQuoteToken: (
+      options: token.updateQuoteToken.Options,
+    ) => Promise<token.updateQuoteToken.ReturnType>
     /**
-     * Watches for TIP20 token burn events.
+     * Completes a prepared quote token update for a TIP-20 token, and waits for
+     * the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const unwatch = client.token.watchBurn({
-     *   onBurn: (args, log) => {
-     *     console.log('Burn:', args)
-     *   },
+     * const { receipt, ...event } = await client.token.updateQuoteTokenSync({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
-    watchBurn: (parameters: tokenActions.watchBurn.Parameters) => () => void
+    updateQuoteTokenSync: (
+      options: token.updateQuoteTokenSync.Options,
+    ) => Promise<token.updateQuoteTokenSync.ReturnType>
     /**
-     * Watches for new TIP20 tokens created.
+     * Watches TIP-20 `RoleAdminUpdated` events for a token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.token.watchCreate({
-     *   onTokenCreated: (args, log) => {
-     *     console.log('Token created:', args)
-     *   },
+     * const watcher = client.token.watchAdminRole({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchCreate: (parameters: tokenActions.watchCreate.Parameters) => () => void
-    /**
-     * Watches for TIP20 token mint events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.token.watchMint({
-     *   onMint: (args, log) => {
-     *     console.log('Mint:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchMint: (parameters: tokenActions.watchMint.Parameters) => () => void
-    /**
-     * Watches for TIP20 token role admin updates.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.token.watchAdminRole({
-     *   onRoleAdminUpdated: (args, log) => {
-     *     console.log('Role admin updated:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchAdminRole: (
-      parameters: tokenActions.watchAdminRole.Parameters,
-    ) => () => void
+      options: token.watchAdminRole.Options,
+    ) => token.watchAdminRole.ReturnType
     /**
-     * Watches for TIP20 token role membership updates.
+     * Watches TIP-20 `Approval` events for a token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.token.watchRole({
-     *   onRoleUpdated: (args, log) => {
-     *     console.log('Role updated:', args)
-     *   },
+     * const watcher = client.token.watchApprove({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
      */
-    watchRole: (parameters: tokenActions.watchRole.Parameters) => () => void
+    watchApprove: (
+      options: token.watchApprove.Options,
+    ) => token.watchApprove.ReturnType
     /**
-     * Watches for TIP20 token transfer events.
+     * Watches TIP-20 `Burn` events for a token.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const unwatch = client.token.watchTransfer({
-     *   onTransfer: (args, log) => {
-     *     console.log('Transfer:', args)
-     *   },
+     * const watcher = client.token.watchBurn({
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
+     * watcher.onLogs((logs) => console.log(logs))
      * ```
      *
-     * @param client - Client.
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchBurn: (options: token.watchBurn.Options) => token.watchBurn.ReturnType
+    /**
+     * Watches TIP-20 `TokenCreated` events from the token factory.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.token.watchCreate({})
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchCreate: (
+      options: token.watchCreate.Options,
+    ) => token.watchCreate.ReturnType
+    /**
+     * Watches TIP-20 `Mint` events for a token.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.token.watchMint({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchMint: (options: token.watchMint.Options) => token.watchMint.ReturnType
+    /**
+     * Watches TIP-20 `RoleMembershipUpdated` events for a token.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.token.watchRole({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchRole: (options: token.watchRole.Options) => token.watchRole.ReturnType
+    /**
+     * Watches TIP-20 `Transfer` events for a token.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.token.watchTransfer({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
      */
     watchTransfer: (
-      parameters: tokenActions.watchTransfer.Parameters,
-    ) => () => void
+      options: token.watchTransfer.Options,
+    ) => token.watchTransfer.ReturnType
+    /**
+     * Watches TIP-20 quote token update events for a token.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const watcher = client.token.watchUpdateQuoteToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * watcher.onLogs((logs) => console.log(logs))
+     * ```
+     *
+     * @param options - Options.
+     * @returns A watcher handle.
+     */
+    watchUpdateQuoteToken: (
+      options: token.watchUpdateQuoteToken.Options,
+    ) => token.watchUpdateQuoteToken.ReturnType
   }
   validator: {
     /**
-     * Adds a new validator (owner only).
+     * add
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.validator.add({
-     *   newValidatorAddress: '0x...',
-     *   publicKey: '0x...',
+     *   newValidatorAddress: '0x…',
+     *   publicKey: '0x…',
      *   active: true,
      *   inboundAddress: '192.168.1.1:8080',
      *   outboundAddress: '192.168.1.1:8080',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
-    add: (
-      parameters: validatorActions.add.Parameters<chain, account>,
-    ) => Promise<validatorActions.add.ReturnValue>
+    add: (options: validator.add.Options) => Promise<validator.add.ReturnType>
     /**
-     * Adds a new validator (owner only) and waits for the transaction receipt.
+     * Adds a new validator, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.validator.addSync({
-     *   newValidatorAddress: '0x...',
-     *   publicKey: '0x...',
+     * const { receipt, ...event } = await client.validator.addSync({
+     *   newValidatorAddress: '0x…',
+     *   publicKey: '0x…',
      *   active: true,
      *   inboundAddress: '192.168.1.1:8080',
      *   outboundAddress: '192.168.1.1:8080',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
     addSync: (
-      parameters: validatorActions.addSync.Parameters<chain, account>,
-    ) => Promise<validatorActions.addSync.ReturnValue>
+      options: validator.addSync.Options,
+    ) => Promise<validator.addSync.ReturnType>
     /**
-     * Changes the owner of the validator config precompile.
+     * changeOwner
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.validator.changeOwner({
-     *   newOwner: '0x...',
+     *   newOwner: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     changeOwner: (
-      parameters: validatorActions.changeOwner.Parameters<chain, account>,
-    ) => Promise<validatorActions.changeOwner.ReturnValue>
+      options: validator.changeOwner.Options,
+    ) => Promise<validator.changeOwner.ReturnType>
     /**
-     * Changes the owner of the validator config precompile and waits for the transaction receipt.
+     * Changes the owner of the validator config precompile, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.validator.changeOwnerSync({
-     *   newOwner: '0x...',
+     * const { receipt, ...event } = await client.validator.changeOwnerSync({
+     *   newOwner: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
     changeOwnerSync: (
-      parameters: validatorActions.changeOwnerSync.Parameters<chain, account>,
-    ) => Promise<validatorActions.changeOwnerSync.ReturnValue>
+      options: validator.changeOwnerSync.Options,
+    ) => Promise<validator.changeOwnerSync.ReturnType>
     /**
-     * Changes validator active status (owner only).
+     * changeStatus
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.validator.changeStatus({
-     *   validator: '0x...',
+     *   validator: '0x…',
      *   active: false,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     changeStatus: (
-      parameters: validatorActions.changeStatus.Parameters<chain, account>,
-    ) => Promise<validatorActions.changeStatus.ReturnValue>
+      options: validator.changeStatus.Options,
+    ) => Promise<validator.changeStatus.ReturnType>
     /**
-     * Changes validator active status and waits for the transaction receipt.
+     * Changes validator active status, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.validator.changeStatusSync({
-     *   validator: '0x...',
+     * const { receipt, ...event } = await client.validator.changeStatusSync({
+     *   validator: '0x…',
      *   active: false,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
     changeStatusSync: (
-      parameters: validatorActions.changeStatusSync.Parameters<chain, account>,
-    ) => Promise<validatorActions.changeStatusSync.ReturnValue>
+      options: validator.changeStatusSync.Options,
+    ) => Promise<validator.changeStatusSync.ReturnType>
     /**
      * Gets validator information by address.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const validator = await client.validator.get({
-     *   validator: '0x...',
+     * const policy = await client.validator.get({
+     *   account: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The validator information.
+     * @param options - Options.
+     * @returns The result.
      */
-    get: (
-      parameters: validatorActions.get.Parameters,
-    ) => Promise<validatorActions.get.ReturnValue>
+    get: (options: validator.get.Options) => Promise<validator.get.ReturnType>
     /**
-     * Gets validator address by index.
+     * Gets a validator address by index.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const validatorAddress = await client.validator.getByIndex({
+     * const byIndex = await client.validator.getByIndex({
      *   index: 0n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The validator address at the given index.
+     * @param options - Options.
+     * @returns The result.
      */
     getByIndex: (
-      parameters: validatorActions.getByIndex.Parameters,
-    ) => Promise<validatorActions.getByIndex.ReturnValue>
+      options: validator.getByIndex.Options,
+    ) => Promise<validator.getByIndex.ReturnType>
     /**
      * Gets the total number of validators.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const count = await client.validator.getCount()
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The total number of validators.
+     * @param options - Options.
+     * @returns The result.
      */
     getCount: (
-      parameters?: validatorActions.getCount.Parameters,
-    ) => Promise<validatorActions.getCount.ReturnValue>
+      options?: validator.getCount.Options,
+    ) => Promise<validator.getCount.ReturnType>
     /**
      * Gets the next epoch for a full DKG ceremony.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const epoch = await client.validator.getNextFullDkgCeremony()
+     * const nextFullDkgCeremony = await client.validator.getNextFullDkgCeremony()
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The epoch number for the next full DKG ceremony.
+     * @param options - Options.
+     * @returns The result.
      */
     getNextFullDkgCeremony: (
-      parameters?: validatorActions.getNextFullDkgCeremony.Parameters,
-    ) => Promise<validatorActions.getNextFullDkgCeremony.ReturnValue>
+      options?: validator.getNextFullDkgCeremony.Options,
+    ) => Promise<validator.getNextFullDkgCeremony.ReturnType>
     /**
-     * Gets the contract owner.
+     * Gets the validator config owner.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const owner = await client.validator.getOwner()
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The owner address.
+     * @param options - Options.
+     * @returns The result.
      */
     getOwner: (
-      parameters?: validatorActions.getOwner.Parameters,
-    ) => Promise<validatorActions.getOwner.ReturnValue>
+      options?: validator.getOwner.Options,
+    ) => Promise<validator.getOwner.ReturnType>
     /**
      * Gets the complete set of validators.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const validators = await client.validator.list()
+     * const result = await client.validator.list()
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns Array of all validators with their information.
+     * @param options - Options.
+     * @returns The result.
      */
     list: (
-      parameters?: validatorActions.list.Parameters,
-    ) => Promise<validatorActions.list.ReturnValue>
+      options?: validator.list.Options,
+    ) => Promise<validator.list.ReturnType>
     /**
-     * Sets the next epoch for a full DKG ceremony.
+     * setNextFullDkgCeremony
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.validator.setNextFullDkgCeremony({
-     *   epoch: 100n,
+     *   epoch: 10n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     setNextFullDkgCeremony: (
-      parameters: validatorActions.setNextFullDkgCeremony.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<validatorActions.setNextFullDkgCeremony.ReturnValue>
+      options: validator.setNextFullDkgCeremony.Options,
+    ) => Promise<validator.setNextFullDkgCeremony.ReturnType>
     /**
-     * Sets the next epoch for a full DKG ceremony and waits for the transaction receipt.
+     * Sets the next epoch for a full DKG ceremony, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.validator.setNextFullDkgCeremonySync({
-     *   epoch: 100n,
+     * const { receipt, ...event } = await client.validator.setNextFullDkgCeremonySync({
+     *   epoch: 10n,
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
     setNextFullDkgCeremonySync: (
-      parameters: validatorActions.setNextFullDkgCeremonySync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<validatorActions.setNextFullDkgCeremonySync.ReturnValue>
+      options: validator.setNextFullDkgCeremonySync.Options,
+    ) => Promise<validator.setNextFullDkgCeremonySync.ReturnType>
     /**
-     * Updates validator information (only callable by the validator themselves).
+     * update
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.validator.update({
-     *   newValidatorAddress: '0x...',
-     *   publicKey: '0x...',
+     *   validator: '0x…',
+     *   publicKey: '0x…',
      *   inboundAddress: '192.168.1.1:8080',
      *   outboundAddress: '192.168.1.1:8080',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     update: (
-      parameters: validatorActions.update.Parameters<chain, account>,
-    ) => Promise<validatorActions.update.ReturnValue>
+      options: validator.update.Options,
+    ) => Promise<validator.update.ReturnType>
     /**
-     * Updates validator information and waits for the transaction receipt.
+     * Updates validator information, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.validator.updateSync({
-     *   newValidatorAddress: '0x...',
-     *   publicKey: '0x...',
+     * const { receipt, ...event } = await client.validator.updateSync({
+     *   validator: '0x…',
+     *   publicKey: '0x…',
      *   inboundAddress: '192.168.1.1:8080',
      *   outboundAddress: '192.168.1.1:8080',
      * })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
+     * @param options - Options.
+     * @returns The transaction receipt and event data.
      */
     updateSync: (
-      parameters: validatorActions.updateSync.Parameters<chain, account>,
-    ) => Promise<validatorActions.updateSync.ReturnValue>
+      options: validator.updateSync.Options,
+    ) => Promise<validator.updateSync.ReturnType>
   }
   virtualAddress: {
     /**
-     * Gets the registered master address for a given master ID.
+     * Gets the master address for a given master ID.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
-     * const master = await client.virtualAddress.getMasterAddress({
-     *   masterId: '0x58e21090',
+     * const address = await client.virtualAddress.getMasterAddress({
+     *   masterId: '0xdeadbeef',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The master address, or null if unregistered.
      */
     getMasterAddress: (
-      parameters: virtualAddressActions.getMasterAddress.Parameters,
-    ) => Promise<virtualAddressActions.getMasterAddress.ReturnValue>
+      options: virtualAddress.getMasterAddress.Options,
+    ) => Promise<virtualAddress.getMasterAddress.ReturnType>
     /**
-     * Registers the caller as a virtual address master.
+     * Registers a virtual master address.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.virtualAddress.registerMaster({
-     *   salt: '0x...',
+     *   salt: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     registerMaster: (
-      parameters: virtualAddressActions.registerMaster.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<virtualAddressActions.registerMaster.ReturnValue>
+      options: virtualAddress.registerMaster.Options,
+    ) => Promise<virtualAddress.registerMaster.ReturnType>
     /**
-     * Registers the caller as a virtual address master and waits for confirmation.
+     * Registers a virtual master address, and waits for the transaction to be
+     * confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt, masterId, masterAddress } =
+     * const { receipt, masterAddress, masterId } =
      *   await client.virtualAddress.registerMasterSync({
-     *     salt: '0x...',
+     *     salt: '0x…',
      *   })
      * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
+     * @param options - Options.
+     * @returns The transaction receipt and extracted event data.
      */
     registerMasterSync: (
-      parameters: virtualAddressActions.registerMasterSync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<virtualAddressActions.registerMasterSync.ReturnValue>
+      options: virtualAddress.registerMasterSync.Options,
+    ) => Promise<virtualAddress.registerMasterSync.ReturnType>
     /**
-     * Resolves an address to its effective recipient.
+     * Resolves a virtual address to its master address.
+     *
+     * - Non-virtual addresses are returned unchanged.
+     * - Virtual addresses with a registered master return the master address.
+     * - Virtual addresses with an unregistered master return null.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: tempo,
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const recipient = await client.virtualAddress.resolve({
-     *   address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506',
+     *   address: '0x…',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The resolved address, or null if virtual and unregistered.
      */
     resolve: (
-      parameters: virtualAddressActions.resolve.Parameters,
-    ) => Promise<virtualAddressActions.resolve.ReturnValue>
+      options: virtualAddress.resolve.Options,
+    ) => Promise<virtualAddress.resolve.ReturnType>
+  }
+  wallet: {
+    /**
+     * Opens the wallet deposit flow with optional pre-filled deposit fields.
+     *
+     * @example
+     * ```ts
+     * import { Client, custom } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   transport: custom(window.ethereum!),
+     * })
+     *
+     * const result = await client.wallet.deposit({
+     *   amount: '1.5',
+     *   token: 'pathusd',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns Receipts for onchain deposit operations, when applicable.
+     */
+    deposit: (
+      options?: wallet.deposit.Options,
+    ) => Promise<wallet.deposit.ReturnType>
+    /**
+     * Opens the wallet swap flow with optional pre-filled swap fields.
+     *
+     * @example
+     * ```ts
+     * import { Client, custom } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   transport: custom(window.ethereum!),
+     * })
+     *
+     * const { receipt } = await client.wallet.swap({
+     *   amount: '1.5',
+     *   token: '0x…',
+     *   type: 'sell',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The submitted swap receipt.
+     */
+    swap: (options?: wallet.swap.Options) => Promise<wallet.swap.ReturnType>
+    /**
+     * Transfers a TIP-20 token. Discriminated on `editable`:
+     *
+     * - omitted or `false` (default): read-only. Uses an access key when one
+     *   matches, otherwise falls back to a confirm dialog.
+     * - `true`: editable. Opens the wallet send UI with the supplied fields
+     *   pre-filled for the user to confirm or edit before signing.
+     *
+     * @example
+     * ```ts
+     * import { Client, custom } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   transport: custom(window.ethereum!),
+     * })
+     *
+     * const { receipt } = await client.wallet.transfer({
+     *   amount: '1.5',
+     *   to: '0x…',
+     *   token: '0x…',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The submitted transfer receipt and chain ID.
+     */
+    transfer: (
+      options: wallet.transfer.Options,
+    ) => Promise<wallet.transfer.ReturnType>
   }
   zone: {
     /**
-     * Deposits tokens into a zone.
+     * Deposits tokens into a zone on the parent Tempo chain.
+     *
      * Batches approve and deposit into a single transaction.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
      * const hash = await client.zone.deposit({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      *   zoneId: 7,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     deposit: (
-      parameters: zoneActions.deposit.Parameters<chain, account>,
-    ) => Promise<zoneActions.deposit.ReturnValue>
+      options: zone.deposit.Options<account>,
+    ) => Promise<zone.deposit.ReturnType>
     /**
-     * Deposits tokens into a zone and waits for the transaction receipt.
+     * Deposits tokens into a zone on the parent Tempo chain, and waits for
+     * the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
      *
-     * const { receipt } = await client.zone.depositSync({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
+     * const result = await client.zone.depositSync({
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      *   zoneId: 7,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt.
      */
     depositSync: (
-      parameters: zoneActions.depositSync.Parameters<chain, account>,
-    ) => Promise<zoneActions.depositSync.ReturnValue>
+      options: zone.depositSync.Options<account>,
+    ) => Promise<zone.depositSync.ReturnType>
     /**
-     * Deposits tokens into a zone with encrypted recipient and memo.
+     * Deposits tokens into a zone on the parent Tempo chain with encrypted
+     * recipient and memo.
+     *
+     * Batches approve and depositEncrypted into a single transaction.
      *
      * @example
      * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
      * const hash = await client.zone.encryptedDeposit({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      *   zoneId: 7,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     encryptedDeposit: (
-      parameters: zoneActions.encryptedDeposit.Parameters<chain, account>,
-    ) => Promise<zoneActions.encryptedDeposit.ReturnValue>
+      options: zone.encryptedDeposit.Options<account>,
+    ) => Promise<zone.encryptedDeposit.ReturnType>
     /**
-     * Deposits tokens into a zone with encrypted recipient and memo and
-     * waits for the transaction receipt.
+     * Deposits tokens into a zone on the parent Tempo chain with encrypted
+     * recipient and memo, and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * const { receipt } = await client.zone.encryptedDepositSync({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.zone.encryptedDepositSync({
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
      *   zoneId: 7,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt.
      */
     encryptedDepositSync: (
-      parameters: zoneActions.encryptedDepositSync.Parameters<chain, account>,
-    ) => Promise<zoneActions.encryptedDepositSync.ReturnValue>
+      options: zone.encryptedDepositSync.Options<account>,
+    ) => Promise<zone.encryptedDepositSync.ReturnType>
     /**
      * Gets the active sequencer encryption key for a zone.
      *
      * @example
      * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
      * const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
      *   zoneId: 7,
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The active encryption key and its zero-based index.
      */
     getEncryptionKey: (
-      parameters: zoneActions.getEncryptionKey.Parameters,
-    ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
+      options: zone.getEncryptionKey.Options,
+    ) => Promise<zone.getEncryptionKey.ReturnType>
     /**
-     * Returns the authenticated account address and authorization token expiry.
+     * Returns the authenticated account address and authorization token
+     * expiry.
      *
      * @example
      * ```ts
-     * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const info = await client.zone.getAuthorizationTokenInfo()
      * ```
      *
-     * @returns The account address and token expiry.
+     * @param options - Options.
+     * @returns Authorization token info.
      */
-    getAuthorizationTokenInfo: () => Promise<zoneActions.getAuthorizationTokenInfo.ReturnType>
+    getAuthorizationTokenInfo: (
+      options?: zone.getAuthorizationTokenInfo.Options,
+    ) => Promise<zone.getAuthorizationTokenInfo.ReturnType>
     /**
-     * Returns the withdrawal fee for a given gas limit.
+     * Returns the fee required for a withdrawal from a zone, given a callback
+     * gas limit.
      *
      * @example
      * ```ts
-     * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const fee = await client.zone.getWithdrawalFee()
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The withdrawal fee.
      */
     getWithdrawalFee: (
-      parameters?: zoneActions.getWithdrawalFee.Parameters,
-    ) => Promise<zoneActions.getWithdrawalFee.ReturnType>
+      options?: zone.getWithdrawalFee.Options,
+    ) => Promise<zone.getWithdrawalFee.ReturnType>
     /**
      * Returns the current zone metadata.
      *
      * @example
      * ```ts
-     * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
+     * const client = Client.create({ transport: http() })
      *
      * const info = await client.zone.getZoneInfo()
      * ```
      *
-     * @returns The zone metadata.
+     * @param options - Options.
+     * @returns Zone metadata.
      */
-    getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
+    getZoneInfo: (
+      options?: zone.getZoneInfo.Options,
+    ) => Promise<zone.getZoneInfo.ReturnType>
     /**
-     * Waits for a zone to import a Tempo block.
+     * Requests a verifiable withdrawal from a zone to the parent Tempo chain
+     * via the ZoneOutbox contract.
      *
-     * @param parameters - Tempo block number and polling options.
-     * @returns Zone metadata after the block has been imported.
-     */
-    waitForTempoBlock: (
-      parameters: zoneActions.waitForTempoBlock.Parameters,
-    ) => Promise<zoneActions.waitForTempoBlock.ReturnType>
-    /**
-     * Requests a withdrawal from a zone to the parent Tempo chain.
-     * Batches approve and withdrawal into a single transaction.
+     * Includes a `revealTo` public key so the sequencer can encrypt the
+     * withdrawal details.
      *
      * @example
      * ```ts
-     * import { createClient } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.zone.requestWithdrawal({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
      * })
-     * ```
      *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    requestWithdrawal: ((
-      parameters: zoneActions.requestWithdrawal.Parameters<chain, account>,
-    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>) & {
-      prepare: (
-        parameters: zoneActions.requestWithdrawal.prepare.Parameters<
-          chain,
-          account,
-          undefined,
-          undefined
-        >,
-      ) => Promise<
-        zoneActions.requestWithdrawal.prepare.ReturnType<
-          chain,
-          account,
-          undefined,
-          undefined
-        >
-      >
-    }
-    /**
-     * Requests a withdrawal and waits for the transaction receipt.
-     *
-     * @example
-     * ```ts
-     * import { createClient } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and sender tag for the parent-chain withdrawal event.
-     */
-    requestWithdrawalSync: (
-      parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,
-    ) => Promise<zoneActions.requestWithdrawalSync.ReturnValue>
-    /**
-     * Requests a verifiable withdrawal from a zone.
-     *
-     * @example
-     * ```ts
      * const hash = await client.zone.requestVerifiableWithdrawal({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     *   revealTo: '0x02abc...def',
+     *   amount: 100n,
+     *   revealTo: '0x02…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction hash.
      */
     requestVerifiableWithdrawal: (
-      parameters: zoneActions.requestVerifiableWithdrawal.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<zoneActions.requestVerifiableWithdrawal.ReturnValue>
+      options: zone.requestVerifiableWithdrawal.Options<account>,
+    ) => Promise<zone.requestVerifiableWithdrawal.ReturnType>
     /**
-     * Requests a verifiable withdrawal and waits for the transaction receipt.
+     * Requests a verifiable withdrawal from a zone to the parent Tempo chain,
+     * and waits for the transaction to be confirmed.
      *
      * @example
      * ```ts
-     * const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     *   revealTo: '0x02abc...def',
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.zone.requestVerifiableWithdrawalSync({
+     *   amount: 100n,
+     *   revealTo: '0x02…',
+     *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The transaction receipt.
      */
     requestVerifiableWithdrawalSync: (
-      parameters: zoneActions.requestVerifiableWithdrawalSync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<zoneActions.requestVerifiableWithdrawalSync.ReturnValue>
+      options: zone.requestVerifiableWithdrawalSync.Options<account>,
+    ) => Promise<zone.requestVerifiableWithdrawalSync.ReturnType>
     /**
-     * Signs and stores a zone authorization token.
+     * Requests a withdrawal from a zone to the parent Tempo chain via the
+     * ZoneOutbox contract.
      *
      * @example
      * ```ts
-     * import { createClient } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { Account, Client, http } from 'viem/tempo'
      *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
      *   transport: http(),
-     * }).extend(tempoActions())
+     * })
+     *
+     * const hash = await client.zone.requestWithdrawal({
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction hash.
+     */
+    requestWithdrawal: (
+      options: zone.requestWithdrawal.Options<account>,
+    ) => Promise<zone.requestWithdrawal.ReturnType>
+    /**
+     * Requests a withdrawal from a zone to the parent Tempo chain, and waits
+     * for the transaction to be confirmed.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
+     *
+     * const result = await client.zone.requestWithdrawalSync({
+     *   amount: 100n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param options - Options.
+     * @returns The transaction receipt.
+     */
+    requestWithdrawalSync: (
+      options: zone.requestWithdrawalSync.Options<account>,
+    ) => Promise<zone.requestWithdrawalSync.ReturnType>
+    /**
+     * Signs a zone authorization token and stores it for the zone HTTP
+     * transport.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   account: Account.fromSecp256k1('0x…'),
+     *   transport: http(),
+     * })
      *
      * const result = await client.zone.signAuthorizationToken()
      * ```
      *
-     * @param parameters - Parameters.
+     * @param options - Options.
      * @returns The authentication object and serialized token.
      */
     signAuthorizationToken: (
-      parameters?: zoneActions.signAuthorizationToken.Parameters<account>,
-    ) => Promise<zoneActions.signAuthorizationToken.ReturnType>
+      options?: zone.signAuthorizationToken.Options<account>,
+    ) => Promise<zone.signAuthorizationToken.ReturnType>
+    /**
+     * Waits for a zone to import a Tempo block.
+     *
+     * @example
+     * ```ts
+     * import { Client, http } from 'viem/tempo'
+     *
+     * const client = Client.create({ transport: http() })
+     *
+     * const info = await client.zone.waitForTempoBlock({
+     *   tempoBlockNumber: 42n,
+     * })
+     * ```
+     *
+     * @param options - Tempo block number and polling options.
+     * @returns Zone metadata after the block has been imported.
+     */
+    waitForTempoBlock: (
+      options: zone.waitForTempoBlock.Options,
+    ) => Promise<zone.waitForTempoBlock.ReturnType>
   }
-}
-
-type BoundHelper<helper> = helper extends (
-  ...parameters: infer parameters
-) => infer returnType
-  ? parameters extends [Client<any, any, any>, infer args, ...unknown[]]
-    ? (args: args) => returnType
-    : parameters extends [Client<any, any, any>]
-      ? () => returnType
-      : parameters extends [infer args, ...unknown[]]
-        ? (args: args) => returnType
-        : () => returnType
-  : never
-
-type BoundActionHelpers<action> = (action extends { call: infer helper }
-  ? { call: BoundHelper<helper> }
-  : {}) &
-  (action extends { calls: infer helper }
-    ? { calls: BoundHelper<helper> }
-    : {}) &
-  (action extends { callWithPeriod: infer helper }
-    ? { callWithPeriod: BoundHelper<helper> }
-    : {}) &
-  (action extends { estimateGas: infer helper }
-    ? { estimateGas: BoundHelper<helper> }
-    : {}) &
-  (action extends { prepare: infer helper }
-    ? { prepare: BoundHelper<helper> }
-    : {}) &
-  (action extends { prepareRecipient: infer helper }
-    ? { prepareRecipient: BoundHelper<helper> }
-    : {}) &
-  (action extends { predict: infer helper }
-    ? { predict: BoundHelper<helper> }
-    : {}) &
-  (action extends { simulate: infer helper }
-    ? { simulate: BoundHelper<helper> }
-    : {}) &
-  // `extractEvent(s)` helpers are client-less and copied through unwrapped by
-  // `bindActionDecorators`, so their full signatures are preserved.
-  (action extends { extractEvent: infer helper }
-    ? { extractEvent: helper }
-    : {}) &
-  (action extends { extractEvents: infer helper }
-    ? { extractEvents: helper }
-    : {})
-
-type BoundAction<action> = action extends (
-  ...parameters: infer parameters
-) => infer returnType
-  ? (parameters extends [Client<any, any, any>, infer args, ...unknown[]]
-      ? (args: args) => returnType
-      : parameters extends [Client<any, any, any>]
-        ? () => returnType
-        : never) &
-      BoundActionHelpers<action>
-  : never
-
-type DecorateNamespace<namespace, actions> = {
-  [key in keyof namespace]: key extends keyof actions
-    ? namespace[key] & BoundActionHelpers<actions[key]>
-    : namespace[key]
-} & {
-  [key in Exclude<keyof actions, keyof namespace> as actions[key] extends (
-    ...parameters: any
-  ) => any
-    ? key
-    : never]: BoundAction<actions[key]>
-}
-
-export type Decorator<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = {
-  accessKey: DecorateNamespace<
-    DecoratorBase<chain, account>['accessKey'],
-    typeof accessKeyActions
-  >
-  amm: DecorateNamespace<
-    DecoratorBase<chain, account>['amm'],
-    typeof ammActions
-  >
-  channel: DecorateNamespace<
-    DecoratorBase<chain, account>['channel'],
-    typeof channelActions
-  >
-  dex: DecorateNamespace<
-    DecoratorBase<chain, account>['dex'],
-    typeof dexActions
-  >
-  earn: DecorateNamespace<
-    DecoratorBase<chain, account>['earn'],
-    typeof earnActions
-  >
-  faucet: DecorateNamespace<
-    DecoratorBase<chain, account>['faucet'],
-    typeof faucetActions
-  >
-  nonce: DecorateNamespace<
-    DecoratorBase<chain, account>['nonce'],
-    typeof nonceActions
-  >
-  fee: DecorateNamespace<
-    DecoratorBase<chain, account>['fee'],
-    typeof feeActions
-  >
-  policy: DecorateNamespace<
-    DecoratorBase<chain, account>['policy'],
-    typeof policyActions
-  >
-  receivePolicy: DecorateNamespace<
-    DecoratorBase<chain, account>['receivePolicy'],
-    typeof receivePolicyActions
-  >
-  reward: DecorateNamespace<
-    DecoratorBase<chain, account>['reward'],
-    typeof rewardActions
-  >
-  simulate: DecorateNamespace<
-    DecoratorBase<chain, account>['simulate'],
-    typeof simulateActions
-  >
-  token: DecorateNamespace<
-    DecoratorBase<chain, account>['token'],
-    typeof tokenActions
-  >
-  validator: DecorateNamespace<
-    DecoratorBase<chain, account>['validator'],
-    typeof validatorActions
-  >
-  virtualAddress: DecorateNamespace<
-    DecoratorBase<chain, account>['virtualAddress'],
-    typeof virtualAddressActions
-  >
-  zone: DecorateNamespace<
-    DecoratorBase<chain, account>['zone'],
-    typeof zoneActions
-  >
-}
-
-function bindActions<actions extends Record<string, unknown>>(
-  client: Client<Transport, Chain | undefined, Account | undefined>,
-  actions: actions,
-  keys: readonly (keyof actions)[],
-) {
-  const bound: Record<string, unknown> = {}
-  for (const key of keys)
-    bound[key as string] = bindActionDecorators(client, actions[key])
-  return bound
-}
-
-export function decorator() {
-  return <
-    transport extends Transport,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<transport, chain, account>,
-  ): Decorator<chain, account> => {
-    return {
-      accessKey: bindActions(client, accessKeyActions, [
-        'authorize',
-        'authorizeSync',
-        'burnWitness',
-        'burnWitnessSync',
-        'getMetadata',
-        'getRemainingLimit',
-        'isAdmin',
-        'isWitnessBurned',
-        'revoke',
-        'revokeSync',
-        'signAuthorization',
-        'updateLimit',
-        'updateLimitSync',
-        'verifyHash',
-        'watchAdminAuthorized',
-        'watchWitness',
-        'watchWitnessBurned',
-      ]),
-      amm: bindActions(client, ammActions, [
-        'getPool',
-        'getLiquidityBalance',
-        'burn',
-        'burnSync',
-        'mint',
-        'mintSync',
-        'rebalanceSwap',
-        'rebalanceSwapSync',
-        'watchBurn',
-        'watchMint',
-        'watchRebalanceSwap',
-      ]),
-      channel: bindActions(client, channelActions, [
-        'close',
-        'closeSync',
-        'getStates',
-        'open',
-        'openSync',
-        'requestClose',
-        'requestCloseSync',
-        'settle',
-        'settleSync',
-        'signVoucher',
-        'topUp',
-        'topUpSync',
-        'withdraw',
-        'withdrawSync',
-      ]),
-      dex: bindActions(client, dexActions, [
-        'buy',
-        'buySync',
-        'cancel',
-        'cancelSync',
-        'cancelStale',
-        'cancelStaleSync',
-        'createPair',
-        'createPairSync',
-        'getBalance',
-        'getBuyQuote',
-        'getOrder',
-        'getOrderbook',
-        'getTickLevel',
-        'getSellQuote',
-        'place',
-        'placeSync',
-        'placeFlip',
-        'placeFlipSync',
-        'sell',
-        'sellSync',
-        'withdraw',
-        'withdrawSync',
-        'watchFlipOrderPlaced',
-        'watchOrderCancelled',
-        'watchOrderFilled',
-        'watchOrderPlaced',
-      ]),
-      earn: bindActions(client, earnActions, [
-        'bindErc4626Engine',
-        'bindErc4626EngineSync',
-        'configureExitSafePolicy',
-        'createErc4626Engine',
-        'createErc4626EngineSync',
-        'createStack',
-        'createStackSync',
-        'deposit',
-        'depositSync',
-        'depositShares',
-        'depositSharesSync',
-        'deployErc4626StackSync',
-        'privateDeposit',
-        'privateDepositSync',
-        'getFeeState',
-        'getPosition',
-        'getRedeemQuote',
-        'getVault',
-        'getWithdrawQuote',
-        'redeem',
-        'redeemSync',
-        'privateRedeem',
-        'privateRedeemSync',
-        'waitForPrivateDeposit',
-        'waitForPrivateRedeem',
-        'validateExitSafePolicy',
-        'withdrawExact',
-        'withdrawExactSync',
-      ]),
-      faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
-      nonce: bindActions(client, nonceActions, [
-        'getNonce',
-        'watchNonceIncremented',
-      ]),
-      fee: bindActions(client, feeActions, [
-        'validateToken',
-        'getUserToken',
-        'setUserToken',
-        'setUserTokenSync',
-        'getValidatorToken',
-        'setValidatorToken',
-        'setValidatorTokenSync',
-        'watchSetUserToken',
-        'watchSetValidatorToken',
-      ]),
-      policy: bindActions(client, policyActions, [
-        'create',
-        'createSync',
-        'setAdmin',
-        'setAdminSync',
-        'modifyWhitelist',
-        'modifyWhitelistSync',
-        'modifyBlacklist',
-        'modifyBlacklistSync',
-        'getData',
-        'isAuthorized',
-        'watchCreate',
-        'watchAdminUpdated',
-        'watchWhitelistUpdated',
-        'watchBlacklistUpdated',
-      ]),
-      receivePolicy: bindActions(client, receivePolicyActions, [
-        'burn',
-        'burnSync',
-        'claim',
-        'claimSync',
-        'get',
-        'getBlockedBalance',
-        'set',
-        'setSync',
-        'validate',
-        'watchBlocked',
-        'watchBurned',
-        'watchClaimed',
-        'watchUpdated',
-      ]),
-      reward: bindActions(client, rewardActions, [
-        'claim',
-        'claimSync',
-        'distribute',
-        'distributeSync',
-        'getGlobalRewardPerToken',
-        'getPendingRewards',
-        'getUserRewardInfo',
-        'setRecipient',
-        'setRecipientSync',
-        'watchRewardDistributed',
-        'watchRewardRecipientSet',
-      ]),
-      simulate: bindActions(client, simulateActions, [
-        'simulateBlocks',
-        'simulateCalls',
-      ]),
-      token: bindActions(client, tokenActions, [
-        'approve',
-        'approveSync',
-        'burnBlocked',
-        'burnBlockedSync',
-        'burn',
-        'burnSync',
-        'changeTransferPolicy',
-        'changeTransferPolicySync',
-        'create',
-        'createSync',
-        'getAllowance',
-        'getBalance',
-        'getMetadata',
-        'getTotalSupply',
-        'getRoleAdmin',
-        'hasRole',
-        'grantRoles',
-        'grantRolesSync',
-        'mint',
-        'mintSync',
-        'pause',
-        'pauseSync',
-        'renounceRoles',
-        'renounceRolesSync',
-        'revokeRoles',
-        'revokeRolesSync',
-        'setSupplyCap',
-        'setSupplyCapSync',
-        'setRoleAdmin',
-        'setRoleAdminSync',
-        'transfer',
-        'transferSync',
-        'unpause',
-        'unpauseSync',
-        'prepareUpdateQuoteToken',
-        'prepareUpdateQuoteTokenSync',
-        'updateQuoteToken',
-        'updateQuoteTokenSync',
-        'watchApprove',
-        'watchBurn',
-        'watchCreate',
-        'watchMint',
-        'watchAdminRole',
-        'watchRole',
-        'watchTransfer',
-        'watchUpdateQuoteToken',
-      ]),
-      validator: bindActions(client, validatorActions, [
-        'add',
-        'addSync',
-        'changeOwner',
-        'changeOwnerSync',
-        'changeStatus',
-        'changeStatusSync',
-        'get',
-        'getByIndex',
-        'getCount',
-        'getNextFullDkgCeremony',
-        'getOwner',
-        'list',
-        'setNextFullDkgCeremony',
-        'setNextFullDkgCeremonySync',
-        'update',
-        'updateSync',
-      ]),
-      virtualAddress: bindActions(client, virtualAddressActions, [
-        'getMasterAddress',
-        'registerMaster',
-        'registerMasterSync',
-        'resolve',
-      ]),
-      zone: bindActions(client, zoneActions, [
-        'deposit',
-        'depositSync',
-        'encryptedDeposit',
-        'encryptedDepositSync',
-        'getAuthorizationTokenInfo',
-        'getEncryptionKey',
-        'getWithdrawalFee',
-        'getZoneInfo',
-        'requestWithdrawal',
-        'requestWithdrawalSync',
-        'requestVerifiableWithdrawal',
-        'requestVerifiableWithdrawalSync',
-        'signAuthorizationToken',
-        'waitForTempoBlock',
-      ]),
-    } as Decorator<chain, account>
-  }
-}
+} & ([chain, account] extends [unknown, unknown] ? unknown : never)

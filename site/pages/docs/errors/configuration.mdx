@@ -1,0 +1,94 @@
+# Configuration
+
+## Overview
+
+Use [`Errors.setConfig`](/docs/errors/configuration) to set Viem defaults for every
+[`Errors.BaseError`](/docs/errors/base-error) instance. Each call merges the supplied values into
+the current configuration.
+
+The configuration controls the documentation origin in `See:` URLs and the version line. Wrapper
+libraries can use these values to change error attribution.
+
+This function does not change Ox's global static options.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
+## Recipes
+
+### Setting the Docs Origin
+
+Set the docs origin when errors should link to documentation hosted at a specific origin.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ docsOrigin: 'https://viem.sh' }) // [!code focus]
+```
+
+### Overriding the Version
+
+Override the version when errors should attribute themselves to a wrapper library or integration.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' }) // [!code focus]
+```
+
+## `Errors.setConfig`
+
+Sets Viem-scoped defaults applied to every `BaseError` instance (merge semantics).
+
+### Usage
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
+### Parameters
+
+#### value
+
+- **Type:** `Errors.Config`
+
+##### value.docsOrigin
+
+- **Type:** `string`
+- **Default:** `'https://viem.sh'`
+
+Origin rendered into `See:` docs URLs.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  docsOrigin: 'https://viem.sh', // [!code focus]
+})
+```
+
+##### value.version
+
+- **Type:** `string`
+- **Default:** `` `viem@<package version>` ``
+
+Version attribution rendered as `Version: <value>`. Set to `undefined` to omit the version line.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  version: 'sweetlib@1.2.3', // [!code focus]
+})
+```
+
+### Return Value
+
+`void`
+
+No value is returned.

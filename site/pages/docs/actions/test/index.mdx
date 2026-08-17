@@ -1,0 +1,248 @@
+import { Card, Cards } from 'vocs'
+
+# Test Actions
+
+## Overview
+
+Test Actions modify a local test node such as
+[Anvil](https://book.getfoundry.sh/anvil/),
+[Hardhat](https://hardhat.org/), or
+[Ganache](https://github.com/trufflesuite/ganache).
+
+Use these actions to mine blocks, modify accounts, manage snapshots, and inspect the transaction
+pool during tests.
+
+Pass `testActions()` to [`.extend()`](/docs/clients/create#extending-a-client) to add Test Actions
+to a Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+await client.block.mine({ blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+### Test Node Modes
+
+Most Test Actions accept a `mode` option for the target node implementation.
+Supported modes are `'anvil'` (default), `'hardhat'`, and `'ganache'`.
+
+Set `mode` on `testActions()` to apply one mode to every decorated action.
+
+```ts twoslash
+import { Client, http, testActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(
+  testActions({ mode: 'hardhat' }), // [!code focus]
+)
+```
+
+### Accounts
+
+<Cards>
+  <Card
+    title="Impersonate Account"
+    description="Send transactions as another account."
+    icon="lucide:user-round-cog"
+    to="/docs/actions/test/address/impersonate"
+  />
+  <Card
+    title="Stop Impersonating"
+    description="Stop impersonating an account."
+    icon="lucide:user-round-x"
+    to="/docs/actions/test/address/stopImpersonating"
+  />
+  <Card
+    title="Set Balance"
+    description="Set an account's native currency balance."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/test/address/setBalance"
+  />
+  <Card
+    title="Set Bytecode"
+    description="Set the bytecode at an address."
+    icon="lucide:binary"
+    to="/docs/actions/test/address/setCode"
+  />
+  <Card
+    title="Set Nonce"
+    description="Set an account's transaction nonce."
+    icon="lucide:hash"
+    to="/docs/actions/test/address/setNonce"
+  />
+  <Card
+    title="Set Storage"
+    description="Set a value in an account's storage."
+    icon="lucide:database"
+    to="/docs/actions/test/address/setStorageAt"
+  />
+</Cards>
+
+### Blocks and Time
+
+<Cards>
+  <Card
+    title="Get Automine"
+    description="Read whether automining is enabled."
+    icon="lucide:circle-check"
+    to="/docs/actions/test/block/getAutomine"
+  />
+  <Card
+    title="Set Automine"
+    description="Enable or disable automining."
+    icon="lucide:toggle-right"
+    to="/docs/actions/test/block/setAutomine"
+  />
+  <Card
+    title="Mine Blocks"
+    description="Mine one or more blocks."
+    icon="lucide:blocks"
+    to="/docs/actions/test/block/mine"
+  />
+  <Card
+    title="Increase Time"
+    description="Increase the node's timestamp."
+    icon="lucide:clock-plus"
+    to="/docs/actions/test/block/increaseTime"
+  />
+  <Card
+    title="Set Next Timestamp"
+    description="Set the next block's timestamp."
+    icon="lucide:calendar-clock"
+    to="/docs/actions/test/block/setNextTimestamp"
+  />
+  <Card
+    title="Set Timestamp Interval"
+    description="Set the interval between block timestamps."
+    icon="lucide:timer"
+    to="/docs/actions/test/block/setTimestampInterval"
+  />
+  <Card
+    title="Remove Timestamp Interval"
+    description="Remove the block timestamp interval."
+    icon="lucide:timer-off"
+    to="/docs/actions/test/block/removeTimestampInterval"
+  />
+  <Card
+    title="Set Interval Mining"
+    description="Set the interval between mined blocks."
+    icon="lucide:clock-3"
+    to="/docs/actions/test/block/setIntervalMining"
+  />
+  <Card
+    title="Set Coinbase"
+    description="Set the coinbase address for new blocks."
+    icon="lucide:circle-dollar-sign"
+    to="/docs/actions/test/block/setCoinbase"
+  />
+  <Card
+    title="Set Gas Limit"
+    description="Set the gas limit for new blocks."
+    icon="lucide:gauge"
+    to="/docs/actions/test/block/setGasLimit"
+  />
+  <Card
+    title="Set Next Base Fee"
+    description="Set the next block's base fee."
+    icon="lucide:badge-dollar-sign"
+    to="/docs/actions/test/block/setNextBaseFeePerGas"
+  />
+</Cards>
+
+### Node Configuration
+
+<Cards>
+  <Card
+    title="Set Logging"
+    description="Enable or disable node logging."
+    icon="lucide:scroll-text"
+    to="/docs/actions/test/node/setLoggingEnabled"
+  />
+  <Card
+    title="Set Minimum Gas Price"
+    description="Set the node's minimum gas price."
+    icon="lucide:badge-dollar-sign"
+    to="/docs/actions/test/node/setMinGasPrice"
+  />
+  <Card
+    title="Set Fork RPC URL"
+    description="Change the upstream RPC URL for a fork."
+    icon="lucide:git-fork"
+    to="/docs/actions/test/node/setRpcUrl"
+  />
+</Cards>
+
+### State
+
+<Cards>
+  <Card
+    title="Dump State"
+    description="Serialize the current node state."
+    icon="lucide:download"
+    to="/docs/actions/test/state/dump"
+  />
+  <Card
+    title="Load State"
+    description="Load a serialized node state."
+    icon="lucide:upload"
+    to="/docs/actions/test/state/load"
+  />
+  <Card
+    title="Reset State"
+    description="Reset the node or its fork configuration."
+    icon="lucide:rotate-ccw"
+    to="/docs/actions/test/state/reset"
+  />
+  <Card
+    title="Snapshot State"
+    description="Create a snapshot of the current state."
+    icon="lucide:camera"
+    to="/docs/actions/test/state/snapshot"
+  />
+  <Card
+    title="Revert State"
+    description="Restore a previously created snapshot."
+    icon="lucide:undo-2"
+    to="/docs/actions/test/state/revert"
+  />
+</Cards>
+
+### Transaction Pool
+
+<Cards>
+  <Card
+    title="Drop Transaction"
+    description="Remove a transaction from the pool."
+    icon="lucide:trash-2"
+    to="/docs/actions/test/txpool/dropTransaction"
+  />
+  <Card
+    title="Get Pool Status"
+    description="Read pending and queued transaction counts."
+    icon="lucide:list-checks"
+    to="/docs/actions/test/txpool/getStatus"
+  />
+  <Card
+    title="Inspect Pool"
+    description="Inspect pending and queued transactions."
+    icon="lucide:scan-search"
+    to="/docs/actions/test/txpool/inspect"
+  />
+</Cards>

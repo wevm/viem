@@ -1,8 +1,9 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 const sourceId = 42_161 // Arbitrum One
 
-export const apeChain = /*#__PURE__*/ defineChain({
+export const apeChain = /*#__PURE__*/ Chain.from({
   id: 33139,
   name: 'ApeChain',
   nativeCurrency: {
@@ -11,19 +12,16 @@ export const apeChain = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.apechain.com/http'],
-      webSocket: ['wss://rpc.apechain.com/ws'],
-    },
+    http: 'https://rpc.apechain.com/http',
+    ws: 'wss://rpc.apechain.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Apescan',
-      url: 'https://apescan.io',
-      apiUrl: 'https://api.apescan.io/api',
-    },
+    name: 'Apescan',
+    url: 'https://apescan.io',
+    apiUrl: 'https://api.apescan.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 20889,

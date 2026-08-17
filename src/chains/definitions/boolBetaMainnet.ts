@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const boolBetaMainnet = /*#__PURE__*/ defineChain({
+export const boolBetaMainnet = /*#__PURE__*/ Chain.from({
   id: 11100,
   name: 'Bool Beta Mainnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const boolBetaMainnet = /*#__PURE__*/ defineChain({
     name: 'BOL',
     symbol: 'BOL',
   },
-  rpcUrls: {
-    default: { http: ['https://beta-rpc-node-http.bool.network'] },
-  },
+  rpcUrls: { http: 'https://beta-rpc-node-http.bool.network' },
   blockExplorers: {
-    default: {
-      name: 'BoolScan',
-      url: 'https://beta-mainnet.boolscan.com/',
-    },
+    name: 'BoolScan',
+    url: 'https://beta-mainnet.boolscan.com/',
   },
   testnet: false,
 })

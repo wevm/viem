@@ -1,0 +1,79 @@
+# Json.prettyPrint
+
+Pretty-prints a JSON-like value into an aligned, human-readable block.
+
+Objects render as aligned `key: value` entries and arrays as indented bullet lists, recursing into nested arrays and objects. Scalars render inline; `bigint` is rendered via `toString` (so it never throws like `JSON.stringify`); empty arrays/objects render as `[]`/`{}`; and circular references render as `[Circular]` instead of throwing.
+
+## Imports
+
+```ts
+import { Json } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { Json } from 'viem/utils'
+
+const output = Json.prettyPrint({
+  from: '0x0000000000000000000000000000000000000000',
+  value: 1000000000000000000n,
+  accessList: [
+    {
+      address: '0x1111111111111111111111111111111111111111',
+      storageKeys: ['0x0'],
+    },
+  ],
+})
+// @log: from:        0x0000000000000000000000000000000000000000
+// @log: value:       1000000000000000000
+// @log: accessList:
+// @log:   - address:      0x1111111111111111111111111111111111111111
+// @log:     storageKeys:
+// @log:       - 0x0
+```
+
+### Indenting the Block
+
+Use `options.indent` to offset the whole block (for example, when nesting the output inside a larger message).
+
+```ts twoslash
+// @noErrors
+import { Json } from 'viem/utils'
+
+const output = Json.prettyPrint({ from: '0xabc', gas: 21000n }, { indent: 2 })
+// @log:   from:  0xabc
+// @log:   gas:   21000
+```
+
+## Definition
+
+```ts
+function prettyPrint(
+  value: prettyPrint.Value,
+  options?: prettyPrint.Options,
+): string
+```
+
+## Parameters
+
+### value
+
+- **Type:** `bigint | boolean | number | string | null | undefined | readonly Value[] | { readonly [key: string]: Value }`
+
+The value to pretty-print. `undefined` object entries are dropped (matching `JSON.stringify` semantics).
+
+### options.indent
+
+- **Type:** `number`
+- **Optional**
+- **Default:** `0`
+
+Leading indentation (in spaces) applied to the top level.
+
+## Return Type
+
+The pretty-printed block.
+
+`string`

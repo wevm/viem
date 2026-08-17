@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const arc = /*#__PURE__*/ defineChain({
+export const arc = /*#__PURE__*/ Chain.from({
   id: 5042,
   name: 'Arc',
   nativeCurrency: {
@@ -9,8 +9,6 @@ export const arc = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: [],
-    },
+    http: [],
   },
 })

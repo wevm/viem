@@ -22,13 +22,11 @@ With Viem, the flow is:
 
 1. Derive the account with [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig),
    passing the owners and threshold.
-2. Prepare the transaction request, passing the multisig `account` (the config is inferred
-   from it).
+2. Prepare the transaction request, passing the multisig `account`.
 3. Each owner signs the prepared request to produce an **owner approval** signature.
-4. Broadcast the transaction with the collected `signatures` (the prepared request already
-   carries the multisig account as sender).
+4. Broadcast synchronously with the multisig `account` and collected `signatures`.
 
-The first transaction from a multisig account **auto-bootstraps** (registers) it on-chain –
+The first transaction from a multisig account **auto-bootstraps** (registers) it onchain,
 you don't need to pass an explicit `init` flag. Subsequent transactions are sent normally.
 
 [See the Tempo Transactions specification](https://docs.tempo.xyz/protocol/transactions)
@@ -62,7 +60,7 @@ const account = Account.fromMultisig({ // [!code focus]
 }) // [!code focus]
 
 // 2. Prepare the request, passing the multisig account. // [!code focus]
-const request = await client.prepareTransactionRequest({ // [!code focus]
+const { request } = await client.transaction.prepare({ // [!code focus]
   account, // [!code focus]
   calls: [ // [!code focus]
     { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n }, // [!code focus]
@@ -74,10 +72,10 @@ const request = await client.prepareTransactionRequest({ // [!code focus]
 const signature_1 = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 const signature_2 = await client.signTransaction({ ...request, account: owner_2 }) // [!code focus]
 
-// 4. Broadcast with the collected signatures. The prepared `request` already // [!code focus]
-//    carries the multisig account as sender, so it doesn't need re-passing. // [!code focus]
-const hash = await client.sendTransaction({ // [!code focus]
+// 4. Broadcast with the multisig account and collected signatures. // [!code focus]
+const receipt = await client.transaction.sendSync({ // [!code focus]
   ...request, // [!code focus]
+  account, // [!code focus]
   signatures: [signature_1, signature_2], // [!code focus]
 }) // [!code focus]
 ```
@@ -118,7 +116,7 @@ const account = Account.fromMultisig({
   ],
 })
 
-const request = await client.prepareTransactionRequest({
+const { request } = await client.transaction.prepare({
   account,
   calls: [
     { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
@@ -129,8 +127,9 @@ const request = await client.prepareTransactionRequest({
 const signature_1 = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 const signature_3 = await client.signTransaction({ ...request, account: owner_3 }) // [!code focus]
 
-const hash = await client.sendTransaction({
+const receipt = await client.transaction.sendSync({
   ...request,
+  account,
   signatures: [signature_1, signature_3], // [!code focus]
 })
 ```
@@ -167,7 +166,7 @@ const account = Account.fromMultisig({
   ],
 })
 
-const request = await client.prepareTransactionRequest({
+const { request } = await client.transaction.prepare({
   account,
   calls: [
     { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
@@ -177,8 +176,9 @@ const request = await client.prepareTransactionRequest({
 // The heavy owner alone satisfies the threshold (weight 2 >= 2). // [!code focus]
 const signature = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 
-const hash = await client.sendTransaction({
+const receipt = await client.transaction.sendSync({
   ...request,
+  account,
   signatures: [signature], // [!code focus]
 })
 ```

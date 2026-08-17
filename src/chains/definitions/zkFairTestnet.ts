@@ -1,24 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const zkFairTestnet = /*#__PURE__*/ defineChain({
+export const zkFairTestnet = /*#__PURE__*/ Chain.from({
   id: 43851,
   name: 'ZKFair Testnet',
-  network: 'zkfair-testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'USD Coin',
     symbol: 'USDC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://testnet-rpc.zkfair.io'],
-    },
+    http: 'https://testnet-rpc.zkfair.io',
   },
   blockExplorers: {
-    default: {
-      name: 'zkFair Explorer',
-      url: 'https://testnet-scan.zkfair.io',
-    },
+    name: 'zkFair Explorer',
+    url: 'https://testnet-scan.zkfair.io',
   },
   testnet: true,
 })

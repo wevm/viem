@@ -1,24 +1,33 @@
 {
   "name": "site",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm -w gen:token-lookup && vocs dev",
-    "build": "pnpm -w gen:token-lookup && pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
-    "twoslash": "vocs twoslash",
-    "preview": "vocs preview"
+    "build": "node scripts/copy-vocs-theme.mjs && vocs build",
+    "dev": "vocs dev",
+    "og:generate": "node --import tsx og/generate-home.tsx",
+    "prebuild": "node ../scripts/docs:sync-utils.ts --if-needed",
+    "preview": "vocs preview",
+    "sync:vocs": "node scripts/copy-vocs-theme.mjs"
   },
   "devDependencies": {
+    "@iconify-json/vscode-icons": "1.2.40",
+    "@takumi-rs/image-response": "0.62.8",
+    "@takumi-rs/wasm": "0.62.8",
+    "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "accounts": "^0.9.0",
+    "@vitejs/plugin-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.8",
-    "tailwindcss": "^4.1.16",
-    "viem": "workspace:*",
-    "vite": "^8.0.14",
-    "vocs": "2.8.1",
-    "waku": "^1.0.0-beta.6"
+    "react-server-dom-webpack": "catalog:",
+    "shiki": "3.21.0",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.17.0",
+    "typescript": "catalog:ts5",
+    "vite": "catalog:",
+    "vocs": "catalog:",
+    "waku": "catalog:"
   }
 }

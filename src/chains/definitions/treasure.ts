@@ -1,8 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
 
-export const treasure = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const treasure = /*#__PURE__*/ Chain.from({
   id: 61_166,
   name: 'Treasure',
   nativeCurrency: {
@@ -11,16 +9,12 @@ export const treasure = /*#__PURE__*/ defineChain({
     symbol: 'MAGIC',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.treasure.lol'],
-      webSocket: ['wss://rpc.treasure.lol/ws'],
-    },
+    http: 'https://rpc.treasure.lol',
+    ws: 'wss://rpc.treasure.lol/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Treasure Block Explorer',
-      url: 'https://treasurescan.io',
-    },
+    name: 'Treasure Block Explorer',
+    url: 'https://treasurescan.io',
   },
   contracts: {
     multicall3: {

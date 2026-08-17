@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const whitechain = /*#__PURE__*/ defineChain({
+export const whitechain = /*#__PURE__*/ Chain.from({
   testnet: false,
   name: 'Whitechain',
   blockExplorers: {
-    default: {
-      name: 'Whitechain Explorer',
-      url: 'https://explorer.whitechain.io',
-    },
+    name: 'Whitechain Explorer',
+    url: 'https://explorer.whitechain.io',
   },
   id: 1875,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.whitechain.io'],
-    },
+    http: 'https://rpc.whitechain.io',
   },
   nativeCurrency: {
     decimals: 18,

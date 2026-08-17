@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const palmTestnet = /*#__PURE__*/ defineChain({
+export const palmTestnet = /*#__PURE__*/ Chain.from({
   id: 11_297_108_099,
   name: 'Palm Testnet',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const palmTestnet = /*#__PURE__*/ defineChain({
     symbol: 'PALM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://palm-mainnet.public.blastapi.io'],
-      webSocket: ['wss://palm-mainnet.public.blastapi.io'],
-    },
+    http: 'https://palm-mainnet.public.blastapi.io',
+    ws: 'wss://palm-mainnet.public.blastapi.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Chainlens',
-      url: 'https://palm.chainlens.com',
-    },
+    name: 'Chainlens',
+    url: 'https://palm.chainlens.com',
   },
   contracts: {
     multicall3: {

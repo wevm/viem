@@ -1,0 +1,177 @@
+# Passkey Accounts
+
+## Overview
+
+A **Passkey Account** is a [local account](/docs/accounts) (`Account.PrivateKey`) derived from a
+credential-bound WebAuthn pseudo-random function (PRF).
+
+The passkey authorizes access to the PRF output. `Prf.tag` creates a stable application-owned PRF
+input. [`Account.fromPrf`](#accountfromprf) derives a secp256k1 private key from the output, then
+creates an account that can sign messages, transactions, typed data, and authorizations locally.
+
+:::warning
+The derived account is a software-key account. It does not sign with the authenticator's P256 key.
+Losing access to the passkey also loses access to the account unless you provide a recovery method.
+Treat the PRF output as secret key material and do not persist it.
+:::
+
+## Recipes
+
+### Create a Passkey Account
+
+Set `prf: true` when you create the WebAuthn credential, then pass its PRF output to
+`Account.fromPrf`.
+
+```ts twoslash
+import { Account } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: true,
+})
+
+const account = Account.fromPrf(credential.prf)
+
+// Store this identifier to retrieve the account later.
+const credentialId = credential.id
+```
+
+### Retrieve a Passkey Account
+
+Request the same PRF output with the credential identifier. The same credential and PRF input
+derive the same account.
+
+```ts twoslash
+import { Account } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credentialId = '...'
+
+const credential = await WebAuthn.getCredential({
+  credentialId,
+  prf: true,
+})
+
+const account = Account.fromPrf(credential.prf)
+```
+
+### Create Multiple Accounts from One Passkey
+
+Use a different stable tag when your application needs separate accounts for the same passkey, such
+as personal and business accounts. The same passkey produces a different account for each tag.
+
+```ts twoslash
+import { Account } from 'viem'
+import { Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: Prf.tag('account.1'),
+})
+
+const firstAccount = Account.fromPrf(credential.prf)
+
+const response = await WebAuthn.getCredential({
+  credentialId: credential.id,
+  prf: Prf.tag('account.2'),
+})
+
+const secondAccount = Account.fromPrf(response.prf)
+
+// Store this identifier to retrieve either account later.
+const credentialId = credential.id
+```
+
+Creating each additional account requires a WebAuthn prompt. Tags are public application constants,
+not secrets or per-user state. Keep the tag strings stable across versions. To retrieve an account,
+evaluate the credential with the same tag and pass the resulting PRF output to `Account.fromPrf`.
+
+### Set a Default Client Account
+
+Pass the account to [`Client.create`](/docs/clients/create). Wallet Actions use this account when
+you do not pass an `account` option.
+
+```ts twoslash
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: true,
+})
+const account = Account.fromPrf(credential.prf)
+
+const client = Client.create({
+  account,
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+
+const signature = await client.signMessage({ message: 'hello world' })
+```
+
+## `Account.fromPrf`
+
+Creates a private-key-backed local account from a 32-byte WebAuthn PRF output.
+
+### Usage
+
+```ts twoslash
+import { Account } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: true,
+})
+
+const account = Account.fromPrf(credential.prf)
+
+account.address
+// '0x...'
+account.publicKey
+// '0x...'
+```
+
+### Parameters
+
+#### prf
+
+- **Type:** `Hex.Hex | Bytes.Bytes`
+
+The 32-byte WebAuthn PRF output used to derive the account.
+
+#### options.nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: true,
+})
+const account = Account.fromPrf(credential.prf, {
+  nonceManager: NonceManager.jsonRpc(),
+})
+```
+
+### Return Value
+
+`Account.PrivateKey`
+
+A private-key-backed local account (`keyType: 'secp256k1'`) exposing `address`, `publicKey`, and the
+signing methods.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Secp256k1.InvalidPrfSizeError` | The PRF output is not 32 bytes. |
+| `PublicKey.InvalidError` | The derived private key produces an invalid public key. |

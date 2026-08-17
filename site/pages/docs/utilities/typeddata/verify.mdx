@@ -1,0 +1,100 @@
+# TypedData.verify
+
+Verifies that signed [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the provided address (or public key).
+
+## Imports
+
+```ts
+import { TypedData } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { TypedData } from 'viem/utils'
+
+declare const address: `0x${string}`
+
+const valid = TypedData.verify({
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  types: {
+    Mail: [
+      { name: 'from', type: 'address' },
+      { name: 'to', type: 'address' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
+  primaryType: 'Mail',
+  message: {
+    from: '0xa0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    to: '0xa0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    contents: 'hello world',
+  },
+  address, // or `publicKey`
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function verify(
+  options: verify.Options,
+): boolean
+```
+
+## Parameters
+
+### options.domain
+
+- **Type:** `TypedDataDomain`
+
+The typed data domain.
+
+### options.types
+
+- **Type:** `TypedData`
+
+The type definitions for the typed data.
+
+### options.primaryType
+
+- **Type:** `string`
+
+The primary type to extract from `types` and use in `message`.
+
+### options.message
+
+- **Type:** `Record<string, unknown>`
+
+The message that was signed.
+
+### options.address
+
+- **Type:** `Address`
+
+Address to verify the typed data against. Mutually exclusive with `publicKey`.
+
+### options.publicKey
+
+- **Type:** `PublicKey`
+
+Public key to verify the typed data against. Mutually exclusive with `address`.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+
+Signature of the typed data.
+
+## Return Type
+
+Whether the typed data signature is valid.
+
+`boolean`

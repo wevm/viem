@@ -1,24 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const shimmer = /*#__PURE__*/ defineChain({
+export const shimmer = /*#__PURE__*/ Chain.from({
   id: 148,
   name: 'Shimmer',
-  network: 'shimmer',
   nativeCurrency: {
     decimals: 18,
     name: 'Shimmer',
     symbol: 'SMR',
   },
   rpcUrls: {
-    default: {
-      http: ['https://json-rpc.evm.shimmer.network'],
-    },
+    http: 'https://json-rpc.evm.shimmer.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Shimmer Network Explorer',
-      url: 'https://explorer.evm.shimmer.network',
-      apiUrl: 'https://explorer.evm.shimmer.network/api',
-    },
+    name: 'Shimmer Network Explorer',
+    url: 'https://explorer.evm.shimmer.network',
+    apiUrl: 'https://explorer.evm.shimmer.network/api',
   },
 })

@@ -1,0 +1,266 @@
+# Create Event Filter [contract.createEventFilter]
+
+Creates a filter to listen for new event logs emitted by a contract.
+
+Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/getChanges). Use [`Actions.filter.getLogs`](/docs/actions/public/filter/getLogs) to read the full set.
+
+Call [`Actions.filter.uninstall`](/docs/actions/public/filter/uninstall) when you finish. Viem decodes matching logs with the contract ABI stored by the filter.
+
+## Usage
+
+This example creates a filter to listen for new event logs emitted by a contract.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await client.contract.createEventFilter({
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
+
+const logs = await client.filter.getChanges({ filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.createEventFilter` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const filter = await Actions.contract.createEventFilter(client, {
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+})
+
+const logs = await Actions.filter.getChanges(client, { filter })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+Use a Client method or pass the Client to the standalone action.
+
+### Filtering by Indexed Arguments
+
+Pass `args` to filter logs by the event's indexed arguments.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const filter = await Actions.contract.createEventFilter(client, {
+  abi: Abis.erc20,
+  eventName: 'Transfer',
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Listening for All Events in an ABI
+
+Omit `eventName` to decode every event defined on the ABI.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const filter = await Actions.contract.createEventFilter(client, {
+  abi: Abis.erc20, // [!code focus]
+})
+```
+
+## Return Value
+
+`Actions.filter.Filter<'event'>`
+
+An event filter typed from the contract ABI. Its `request` function uses the transport that created the filter ID.
+
+## Parameters
+
+### abi
+
+- **Type:** `Abi`
+
+The contract ABI. Matched logs are decoded against it.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi: Abis.erc20, // [!code focus]
+})
+```
+
+### address
+
+- **Type:** `Address | Address[]`
+
+Address or list of addresses from which logs originated.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
+})
+```
+
+### args
+
+- **Type:** Inferred from `abi` and `eventName`.
+
+Indexed argument values to filter logs by.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  eventName: 'Transfer',
+  args: { from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045' }, // [!code focus]
+})
+```
+
+### eventName
+
+- **Type:** Inferred from `abi`.
+
+Event name to filter and decode logs by. When omitted, every event on the ABI is decoded.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  eventName: 'Transfer', // [!code focus]
+})
+```
+
+### fromBlock
+
+- **Type:** `bigint | BlockTag`
+
+Block number or tag after which to include logs.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  fromBlock: 19_760_000n, // [!code focus]
+})
+```
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the logs must match the indexed/non-indexed arguments on the event.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  eventName: 'Transfer',
+  strict: true, // [!code focus]
+})
+```
+
+### toBlock
+
+- **Type:** `bigint | BlockTag`
+
+Block number or tag before which to include logs.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const filter = await Actions.contract.createEventFilter(client, {
+  abi,
+  toBlock: 19_760_100n, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `AbiItem.NotFoundError` | The selected event is missing from the runtime ABI. |
+| `AbiEvent.FilterTypeNotSupportedError` | `args` includes an indexed tuple or array, which event topic filters do not support. |
+| `AbiParameters.InvalidTypeError` | `args` includes an indexed ABI type that the topic encoder does not support. |
+| `Address.InvalidAddressError` | `args` includes an invalid indexed address. |
+| `Hex.IntegerOutOfRangeError` | `args` includes an indexed integer outside the supported 256-bit range. |
+| `Hex.SizeExceedsPaddingSizeError` | An indexed fixed-bytes value exceeds the 32-byte topic size. |

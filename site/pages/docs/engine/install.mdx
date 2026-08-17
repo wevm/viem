@@ -1,0 +1,133 @@
+# Installing an Engine
+
+## Overview
+
+[`Engine.install`](/docs/engine/install) resolves an Engine and installs its slots atomically.
+
+The `viem/wasm` and `viem/node` entrypoints prepare and install complete provider Engines without
+arguments. The root `viem` entrypoint accepts custom or prepared slots.
+
+If any supplied slot rejects or validation fails, no resolved slots are installed. Repeated
+installations merge with the current overrides.
+
+## Recipes
+
+### Install the WebAssembly Engine
+
+Install the WebAssembly Engine once during application startup, before calling cryptographic
+utilities.
+
+```ts twoslash
+import { Engine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+await Engine.install() // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+### Install the Node.js Engine
+
+Use the Node.js entrypoint in server applications that can use `node:crypto`.
+
+```ts twoslash
+import { Engine } from 'viem/node'
+import { Hash } from 'viem/utils'
+
+await Engine.install() // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+### Install a Prepared Engine
+
+Create an Engine without changing the registry, then pass it to the root entrypoint. This is useful
+when initialization and installation happen in different modules.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+
+const wasm = await WasmEngine.engine()
+
+await Engine.install(wasm) // [!code focus]
+```
+
+## `Engine.install`
+
+Resolves and installs cryptographic implementations.
+
+### Usage
+
+:::code-group
+
+```ts twoslash [WebAssembly]
+import { Engine } from 'viem/wasm'
+
+await Engine.install()
+```
+
+```ts twoslash [Node.js]
+import { Engine } from 'viem/node'
+
+await Engine.install()
+```
+
+```ts twoslash [Prepared Engine]
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+
+const wasm = await WasmEngine.engine()
+await Engine.install(wasm)
+```
+
+:::
+
+### Definition
+
+The root entrypoint accepts an Engine whose slots may be promises:
+
+```ts
+function install<value extends Engine.install.Value>(
+  value: value & Engine.install.Exact<value>,
+): Promise<Engine.install.ReturnType<value>>
+```
+
+The Node.js and WebAssembly entrypoints install their complete provider Engines:
+
+```ts
+function install(): Promise<Engine.install.ReturnType>
+```
+
+### Parameters
+
+#### value
+
+- **Type:** `value & Engine.install.Exact<value>`
+
+Engine slots or promises for Engine slots. This parameter only applies to `Engine` imported from
+`viem`.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+// ---cut---
+const node = await NodeEngine.engine()
+
+await Engine.install(node) // [!code focus]
+```
+
+### Return Value
+
+`Promise<Engine.install.ReturnType<value>>`
+
+The resolved Engine installed by the root entrypoint. The runtime entrypoints return
+`Promise<Engine.install.ReturnType>`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| [`Engine.InvalidSlotValueError`](/docs/engine/errors#engineinvalidslotvalueerror) | A slot is not an object or `undefined`. |
+| [`Engine.UnknownPrimitiveError`](/docs/engine/errors#engineunknownprimitiveerror) | A slot contains an unrecognized primitive. |
+| [`Engine.UnknownSlotError`](/docs/engine/errors#engineunknownsloterror) | The Engine contains an unrecognized slot. |
