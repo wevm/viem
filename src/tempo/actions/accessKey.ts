@@ -1037,19 +1037,13 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: prepareAuthorization.Parameters<account>,
 ): Promise<prepareAuthorization.ReturnValue> {
-  const {
-    accessKey,
-    account: accountParameter,
-    chainId = client.chain?.id,
-    multisig: preparedMultisigState,
-    ...rest
-  } = parameters
-  const account_ = accountParameter ?? client.account
+  const { chainId = client.chain?.id } = parameters
+  const account_ = parameters.account ?? client.account
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = parseAccount(account_)
   const multisigState = await (async () => {
-    if ('multisig' in parameters) return preparedMultisigState
+    if ('multisig' in parameters) return parameters.multisig
     if (parsed.source !== 'multisig') return undefined
     const account = parsed as MultisigAccount
     const getState = createMultisigStateResolver((account) =>
@@ -1060,11 +1054,10 @@ export async function prepareAuthorization<
     return { init: !state.initialized, states, version: state.version }
   })()
   return {
+    ...parameters,
     account: parsed,
-    accessKey,
     chainId,
     multisig: multisigState,
-    ...rest,
   } as never
 }
 
