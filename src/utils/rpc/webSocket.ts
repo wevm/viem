@@ -1,4 +1,4 @@
-import type { MessageEvent } from 'isows'
+import type { MessageEvent, CloseEvent } from 'isows'
 
 import {
   SocketClosedError,
@@ -28,13 +28,26 @@ export async function getWebSocketRpcClient(
       const WebSocket = await import('isows').then((module) => module.WebSocket)
       const socket = new WebSocket(url)
 
-      function onClose_() {
-        socket.removeEventListener('close', onClose_)
+      // Updated to receive the native close event
+      function onClose_(event?: CloseEvent) {
+        socket.removeEventListener('close', onCloseWrapper)
         socket.removeEventListener('message', onMessage)
         socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
-        onClose()
+        
+        // If closed abnormally (not 1000 Normal or 1001 Going Away) and reconnect is active
+        if (event && event.code !== 1000 && event.code !== 1001 && reconnect) {
+          onError(new Error(`WebSocket dropped unexpectedly with code: ${event.code}`))
+        } else {
+          onClose()
+        }
       }
+
+      // Wrapper to explicitly pass the event object down
+      function onCloseWrapper(e: Event) {
+        onClose_(e as CloseEvent)
+      }
+
       function onMessage({ data }: MessageEvent) {
         // ignore empty messages
         if (typeof data === 'string' && data.trim().length === 0) return
@@ -48,7 +61,7 @@ export async function getWebSocketRpcClient(
       }
 
       // Setup event listeners for RPC & subscription responses.
-      socket.addEventListener('close', onClose_)
+      socket.addEventListener('close', onCloseWrapper)
       socket.addEventListener('message', onMessage)
       socket.addEventListener('error', onError)
       socket.addEventListener('open', onOpen)
