@@ -968,8 +968,8 @@ export namespace depositSharesSync {
  *   assetToken: '0x...',
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   bouncebackRecipient: '0x...',
  *   shareAmountMin: 99_500_000n,
+ *   tempoRefundRecipient: '0x...',
  *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
  *   zoneId: 7,
@@ -1018,9 +1018,9 @@ export namespace privateDeposit {
     const {
       actionId = Hex.random(32),
       assetAmount,
-      bouncebackRecipient,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = bouncebackRecipient,
+      tempoRefundRecipient,
+      fallbackRecipient = tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
@@ -1065,7 +1065,7 @@ export namespace privateDeposit {
         zoneReturn: {
           encrypted,
           keyIndex,
-          refundRecipient: bouncebackRecipient,
+          refundRecipient: tempoRefundRecipient,
         },
       },
     ])
@@ -2350,9 +2350,9 @@ export namespace redeemSync {
  * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   bouncebackRecipient: '0x...',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
+ *   tempoRefundRecipient: '0x...',
  *   vault: '0x...',
  *   zoneId: 7,
  * })
@@ -2399,9 +2399,9 @@ export namespace privateRedeem {
     if (!chainId) throw new Error('`chain` is required.')
     const {
       actionId = Hex.random(32),
-      bouncebackRecipient,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = bouncebackRecipient,
+      tempoRefundRecipient,
+      fallbackRecipient = tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
@@ -2463,7 +2463,7 @@ export namespace privateRedeem {
         zoneReturn: {
           encrypted,
           keyIndex,
-          refundRecipient: bouncebackRecipient,
+          refundRecipient: tempoRefundRecipient,
         },
       },
     ])
@@ -3022,11 +3022,9 @@ type MinimumShareAmountParameters = OneOf<
 type PrivatePreparationParameters = {
   /** Optional caller-supplied correlation id. @default Random bytes32 */
   actionId?: Hex.Hex | undefined
-  /** Refund recipient on the parent chain if the return deposit bounces. */
-  bouncebackRecipient: Address
   /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
   callbackGas?: bigint | undefined
-  /** Public recipient if the parent-chain callback fails. @default `bouncebackRecipient` */
+  /** Public recipient if the parent-chain callback fails. @default `tempoRefundRecipient` */
   fallbackRecipient?: Address | undefined
   /** Zone gateway address. */
   gateway: Address
@@ -3036,6 +3034,8 @@ type PrivatePreparationParameters = {
   recipient: Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
+  /** Refund recipient on the parent chain if the return deposit bounces. */
+  tempoRefundRecipient: Address
   /** Vault address. */
   vault: Address
   /** Optional memo attached to the Zone withdrawal. */

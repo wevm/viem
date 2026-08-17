@@ -76,8 +76,6 @@ export type EncryptedPayload = {
 export type PreparedEncryptedDeposit = {
   /** Amount of tokens to deposit. */
   amount: bigint
-  /** Refund recipient on the parent chain if the deposit bounces. */
-  bouncebackRecipient: Address
   /** Parent chain ID (e.g. `42431` for moderato). */
   chainId: number
   /** Encrypted deposit payload. */
@@ -88,6 +86,8 @@ export type PreparedEncryptedDeposit = {
   portalAddress: Address
   /** Address that will call the Zone portal. */
   sender: Address
+  /** Refund recipient on the parent chain if the deposit bounces. */
+  tempoRefundRecipient: Address
   /** Token address or ID to deposit. */
   token: TokenId.TokenIdOrAddress
   /** Zone ID (e.g. `7`). */
@@ -153,12 +153,13 @@ export async function deposit<
   if (!account_) throw new Error('`account` is required.')
 
   const recipient = parameters.recipient ?? account_.address
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    bouncebackRecipient,
     chainId,
     recipient,
+    tempoRefundRecipient,
   }
   return sendTransaction(client, {
     ...rest,
@@ -172,18 +173,16 @@ export namespace deposit {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
-    Omit<Args, 'bouncebackRecipient' | 'chainId' | 'recipient'> & {
-      /** Refund recipient on the parent chain. @default `account.address` */
-      bouncebackRecipient?: Address | undefined
+    Omit<Args, 'chainId' | 'recipient' | 'tempoRefundRecipient'> & {
       /** Recipient address in the zone. @default `account.address` */
       recipient?: Address | undefined
+      /** Refund recipient on the parent chain. @default `account.address` */
+      tempoRefundRecipient?: Address | undefined
     }
 
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
-    /** Refund recipient on the parent chain if the deposit bounces. */
-    bouncebackRecipient: Address
     /** Parent chain ID (e.g. `42431` for moderato). */
     chainId: number
     /** Optional deposit memo. @default `0x00...00` */
@@ -192,6 +191,8 @@ export namespace deposit {
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    tempoRefundRecipient: Address
     /** Token address or ID to deposit. */
     token: TokenId.TokenIdOrAddress
     /** Zone ID (e.g. `7`). */
@@ -212,10 +213,10 @@ export namespace deposit {
   export function calls(args: Args) {
     const {
       amount,
-      bouncebackRecipient,
       chainId,
       memo = zeroHash,
       recipient,
+      tempoRefundRecipient,
       token,
       zoneId,
     } = args
@@ -232,7 +233,7 @@ export namespace deposit {
       address: portalAddress,
       abi: ZoneAbis.zonePortal,
       functionName: 'deposit',
-      args: [tokenAddress, recipient, amount, memo, bouncebackRecipient],
+      args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
     })
     return [approveCall, depositCall]
   }
@@ -286,12 +287,13 @@ export async function depositSync<
   if (!account_) throw new Error('`account` is required.')
 
   const recipient = parameters.recipient ?? account_.address
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    bouncebackRecipient,
     chainId,
     recipient,
+    tempoRefundRecipient,
   }
   const receipt = await sendTransactionSync(client, {
     ...rest,
@@ -478,7 +480,8 @@ export async function encryptedDeposit<
   const account_ = account ? parseAccount(account) : undefined
   if (!account_) throw new Error('`account` is required.')
 
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -490,7 +493,7 @@ export async function encryptedDeposit<
       ...pickWriteParameters(parameters as never),
       calls: encryptedDeposit.calls({
         ...parameters,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       }),
     } as never) as never
   }
@@ -499,11 +502,11 @@ export async function encryptedDeposit<
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
-    bouncebackRecipient,
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
     sender: account_.address,
+    tempoRefundRecipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
@@ -522,16 +525,16 @@ export namespace encryptedDeposit {
     (
       | (Omit<
           Args,
-          | 'bouncebackRecipient'
           | 'chainId'
           | 'encrypted'
           | 'keyIndex'
           | 'recipient'
+          | 'tempoRefundRecipient'
         > & {
-          /** Refund recipient on the parent chain. @default `account.address` */
-          bouncebackRecipient?: Address | undefined
           /** Recipient address in the zone. @default `account.address` */
           recipient?: Address | undefined
+          /** Refund recipient on the parent chain. @default `account.address` */
+          tempoRefundRecipient?: Address | undefined
         })
       | PreparedEncryptedDeposit
     )
@@ -539,8 +542,6 @@ export namespace encryptedDeposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
-    /** Refund recipient on the parent chain if the deposit bounces. */
-    bouncebackRecipient: Address
     /** Parent chain ID (e.g. `42431` for moderato). */
     chainId: number
     /** Encrypted deposit payload. */
@@ -553,6 +554,8 @@ export namespace encryptedDeposit {
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    tempoRefundRecipient: Address
     /** Token address or ID to deposit. */
     token: TokenId.TokenIdOrAddress
     /** Zone ID (e.g. `7`). */
@@ -581,9 +584,9 @@ export namespace encryptedDeposit {
    * const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
    *   token: '0x20c0...0001',
    *   amount: 1_000_000n,
-   *   bouncebackRecipient: '0x...',
    *   recipient: '0x...',
    *   sender: '0x...',
+   *   tempoRefundRecipient: '0x...',
    *   zoneId: 7,
    * })
    * ```
@@ -604,11 +607,11 @@ export namespace encryptedDeposit {
 
     const {
       amount,
-      bouncebackRecipient,
       memo,
       portalAddress: portalAddress_,
       recipient,
       sender: sender_ = client.account?.address,
+      tempoRefundRecipient,
       token,
       zoneId,
       ...rest
@@ -634,12 +637,12 @@ export namespace encryptedDeposit {
 
     return {
       amount,
-      bouncebackRecipient,
       chainId,
       encrypted,
       keyIndex,
       portalAddress,
       sender,
+      tempoRefundRecipient,
       token,
       zoneId,
     }
@@ -661,8 +664,6 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Amount of tokens to deposit. */
       amount: bigint
-      /** Refund recipient on the parent chain if the deposit bounces. */
-      bouncebackRecipient: Address
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
       /** Zone portal address. @default resolved via the portal registry. */
@@ -671,6 +672,8 @@ export namespace encryptedDeposit {
       recipient: Address
       /** Address that will call the Zone portal. */
       sender: Address
+      /** Refund recipient on the parent chain if the deposit bounces. */
+      tempoRefundRecipient: Address
       /** Token address or ID to deposit. */
       token: TokenId.TokenIdOrAddress
       /** Zone ID (e.g. `7`). */
@@ -796,10 +799,10 @@ export namespace encryptedDeposit {
   export function calls(args: Args | PreparedEncryptedDeposit) {
     const {
       amount,
-      bouncebackRecipient,
       chainId,
       encrypted,
       keyIndex,
+      tempoRefundRecipient,
       token,
       zoneId,
     } = args
@@ -828,7 +831,7 @@ export namespace encryptedDeposit {
         amount,
         keyIndex,
         encryptedPayload,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       ],
     })
     return [approveCall, depositCall]
@@ -882,7 +885,8 @@ export async function encryptedDepositSync<
   const account_ = account ? parseAccount(account) : undefined
   if (!account_) throw new Error('`account` is required.')
 
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -896,7 +900,7 @@ export async function encryptedDepositSync<
       throwOnReceiptRevert,
       calls: encryptedDeposit.calls({
         ...parameters,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       }),
     } as never)
     return { receipt }
@@ -906,11 +910,11 @@ export async function encryptedDepositSync<
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
-    bouncebackRecipient,
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
     sender: account_.address,
+    tempoRefundRecipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
