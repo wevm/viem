@@ -348,13 +348,16 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
       const request = transaction as Transaction.TransactionSerializableTempo
-      if (owners.length === 0 || request.signatures)
+      if (owners.length === 0)
         return (await serializer(transaction as never)) as Hex.Hex
 
-      const presign =
-        request.feePayerSignature === undefined
-          ? request
-          : { ...request, feePayerSignature: null }
+      const presign = {
+        ...request,
+        signatures: undefined,
+        ...(request.feePayerSignature === undefined
+          ? {}
+          : { feePayerSignature: null }),
+      }
       const payload = keccak256(await serializer(presign as never))
       const requestConfig = request.multisig
       const requestAccount = requestConfig
@@ -389,6 +392,9 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
         init:
           !request.nonce && !request.nonceKey && !keyAuthorizationInitializes,
         payload,
+        signatures: request.signatures?.map((signature) =>
+          SignatureEnvelope.from(signature),
+        ),
         states: request.multisigOwnerStates,
         version: request.multisigVersion,
       })
@@ -434,11 +440,18 @@ async function signMultisig(
   parameters: {
     init?: boolean | undefined
     payload: Hex.Hex
+    signatures?: readonly SignatureEnvelope.SignatureEnvelope[] | undefined
     states?: readonly Transaction.MultisigOwnerState[] | undefined
     version?: bigint | undefined
   },
 ): Promise<SignatureEnvelope.Multisig> {
-  const { init = false, payload, states = [], version = 0n } = parameters
+  const {
+    init = false,
+    payload,
+    signatures: providedSignatures = [],
+    states = [],
+    version = 0n,
+  } = parameters
   const state = states.find((state) =>
     Address.isEqual(state.account, account.address),
   )
@@ -448,10 +461,26 @@ async function signMultisig(
     payload,
     version,
   })
-  const signatures: SignatureEnvelope.SignatureEnvelope[] = []
+  const signatures = [...providedSignatures]
+  const signedOwners = new Set<Address.Address>()
   let weight = 0
 
+  for (const signature of providedSignatures) {
+    const address = SignatureEnvelope.extractAddress({
+      payload: digest,
+      signature,
+    }).toLowerCase() as Address.Address
+    const owner = currentConfig.owners.find((owner) =>
+      Address.isEqual(owner.owner, address),
+    )
+    if (!owner || signedOwners.has(address)) continue
+    signedOwners.add(address)
+    weight += Number(owner.weight)
+  }
+
   for (const owner of currentConfig.owners) {
+    const address = owner.owner.toLowerCase() as Address.Address
+    if (signedOwners.has(address)) continue
     const ownerAccount = account.owners.find((account) =>
       Address.isEqual(account.address, owner.owner),
     )
@@ -478,6 +507,7 @@ async function signMultisig(
       )
     }
 
+    signedOwners.add(address)
     weight += Number(owner.weight)
     if (weight >= Number(currentConfig.threshold)) break
   }

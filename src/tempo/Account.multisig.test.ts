@@ -46,6 +46,7 @@ describe('fromMultisig', () => {
 
     {
       const request = await prepareTransactionRequest(client, {
+        account,
         calls: [
           Actions.token.transfer.call(client, {
             amount: 1n,
@@ -54,7 +55,6 @@ describe('fromMultisig', () => {
           }),
         ],
         feeToken,
-        multisig: config,
       })
       const signatures = await Promise.all(
         [owner_1, owner_2].map((owner) =>
@@ -63,7 +63,6 @@ describe('fromMultisig', () => {
       )
       const receipt = await sendTransactionSync(client, {
         ...request,
-        account,
         signatures,
       })
       expect(receipt.status).toBe('success')
@@ -78,6 +77,7 @@ describe('fromMultisig', () => {
 
     {
       const request = await prepareTransactionRequest(client, {
+        account,
         calls: [
           Actions.token.transfer.call(client, {
             amount: 1n,
@@ -86,7 +86,6 @@ describe('fromMultisig', () => {
           }),
         ],
         feeToken,
-        multisig: config,
       })
       const signatures = await Promise.all(
         [owner_1, owner_2].map((owner) =>
@@ -95,7 +94,6 @@ describe('fromMultisig', () => {
       )
       const receipt = await sendTransactionSync(client, {
         ...request,
-        account,
         signatures,
       })
       expect(receipt.status).toBe('success')
@@ -131,6 +129,7 @@ describe('fromMultisig', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
+      account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -139,7 +138,6 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: config,
     })
     const signatures = await Promise.all(
       [owner_1, owner_3].map((owner) =>
@@ -148,7 +146,6 @@ describe('fromMultisig', () => {
     )
     const receipt = await sendTransactionSync(client, {
       ...request,
-      account,
       signatures,
     })
     expect(receipt.status).toBe('success')
@@ -195,7 +192,6 @@ describe('fromMultisig', () => {
       )
       const receipt = await sendTransactionSync(client, {
         ...request,
-        account,
         signatures,
       })
 
@@ -215,6 +211,51 @@ describe('fromMultisig', () => {
           .map((signature) => signature.prehash)
           .sort(),
       ).toEqual([false, true])
+    }
+  })
+
+  test('mixed local and external owners', async () => {
+    const localOwner = Account.fromSecp256k1(generatePrivateKey())
+    const externalOwner = Account.fromSecp256k1(generatePrivateKey())
+    const account = Account.fromMultisig({
+      owners: [localOwner, externalOwner.address],
+      threshold: 2,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    for (let nonce = 0; nonce < 2; nonce++) {
+      const request = await prepareTransactionRequest(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+      const signature = await signTransaction(client, {
+        ...request,
+        account: externalOwner,
+      })
+      const transaction = await signTransaction(client, {
+        ...request,
+        signatures: [signature],
+      })
+      const receipt = await sendRawTransactionSync(client, {
+        serializedTransaction: transaction,
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.from).toBe(account.address.toLowerCase())
+      const result = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(result.nonce).toBe(nonce)
+      expect(result.signature?.type).toBe('multisig')
+      if (result.signature?.type !== 'multisig') throw new Error('unreachable')
+      expect(result.signature.signatures).toHaveLength(2)
     }
   })
 
@@ -342,6 +383,7 @@ describe('fromMultisig', () => {
     })
 
     const bootstrap = await prepareTransactionRequest(client, {
+      account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -350,7 +392,6 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: config,
     })
     const bootstrapSignatures = await Promise.all(
       [heavy, light_1].map((owner) =>
@@ -359,7 +400,6 @@ describe('fromMultisig', () => {
     )
     const bootstrapReceipt = await sendTransactionSync(client, {
       ...bootstrap,
-      account,
       signatures: bootstrapSignatures,
     })
     expect(bootstrapReceipt.status).toBe('success')
@@ -431,7 +471,7 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
+    const request = await prepareTransactionRequest(accountClient, {
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -440,7 +480,6 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: config,
     })
     const signatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
@@ -510,8 +549,8 @@ describe('fromMultisig', () => {
     const account = Account.fromMultisig(config)
 
     const request = await prepareTransactionRequest(client, {
+      account,
       feePayer: accounts[0],
-      multisig: config,
       to: account.address,
       value: 0n,
     })
@@ -522,7 +561,6 @@ describe('fromMultisig', () => {
     )
     const receipt = await sendTransactionSync(client, {
       ...request,
-      account,
       signatures,
     })
 
