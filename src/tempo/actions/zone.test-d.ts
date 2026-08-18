@@ -33,10 +33,10 @@ const decoratedZoneClient = zoneClient.extend(decorator())
 
 test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', async () => {
   const prepared = await zoneActions.encryptedDeposit.prepare(client, {
-    token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
-    bouncebackRecipient: '0x0000000000000000000000000000000000000001',
     recipient: '0x0000000000000000000000000000000000000001',
+    tempoRefundRecipient: '0x0000000000000000000000000000000000000001',
+    token: '0x20c0000000000000000000000000000000000000',
     zoneId: 7,
   })
 

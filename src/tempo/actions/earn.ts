@@ -968,8 +968,8 @@ export namespace depositSharesSync {
  *   assetToken: '0x...',
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
  *   shareAmountMin: 99_500_000n,
+ *   tempoRefundRecipient: '0x...',
  *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
  *   zoneId: 7,
@@ -1019,11 +1019,11 @@ export namespace privateDeposit {
       actionId = Hex.random(32),
       assetAmount,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      tempoRefundRecipient,
+      fallbackRecipient = tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
       returnMemo,
       vault,
       withdrawalMemo,
@@ -1062,7 +1062,11 @@ export namespace privateDeposit {
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
         minVaultAssets: parameters.vaultAssetAmountMin ?? assetAmount,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: tempoRefundRecipient,
+        },
       },
     ])
     return {
@@ -2346,9 +2350,9 @@ export namespace redeemSync {
  * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
  *   gateway: '0x...',
  *   recipient: '0x...',
- *   recoveryRecipient: '0x...',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
+ *   tempoRefundRecipient: '0x...',
  *   vault: '0x...',
  *   zoneId: 7,
  * })
@@ -2396,11 +2400,11 @@ export namespace privateRedeem {
     const {
       actionId = Hex.random(32),
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = parameters.recoveryRecipient,
+      tempoRefundRecipient,
+      fallbackRecipient = tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
       returnMemo,
       shareAmount,
       vault,
@@ -2456,7 +2460,11 @@ export namespace privateRedeem {
         minEarnShares: 0n,
         minOutputAmount: assetAmountMin,
         minVaultAssets: assetAmountMin,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: tempoRefundRecipient,
+        },
       },
     ])
     return {
@@ -3016,7 +3024,7 @@ type PrivatePreparationParameters = {
   actionId?: Hex.Hex | undefined
   /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
   callbackGas?: bigint | undefined
-  /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
+  /** Public recipient if the parent-chain callback fails. @default `tempoRefundRecipient` */
   fallbackRecipient?: Address | undefined
   /** Zone gateway address. */
   gateway: Address
@@ -3024,10 +3032,10 @@ type PrivatePreparationParameters = {
   portalAddress?: Address | undefined
   /** Encrypted recipient for the returned tokens. */
   recipient: Address
-  /** Public recipient if the encrypted return fails. */
-  recoveryRecipient: Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
+  /** Refund recipient on the parent chain if the return deposit bounces. */
+  tempoRefundRecipient: Address
   /** Vault address. */
   vault: Address
   /** Optional memo attached to the Zone withdrawal. */

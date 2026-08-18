@@ -47,7 +47,7 @@ import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const portalAdmin = privateKeyToAccount(zoneAdminKey)
-const recoveryRecipient = accounts[2].address
+const tempoRefundRecipient = accounts[2].address
 const mainnetClient = createClient({
   account,
   chain,
@@ -77,7 +77,6 @@ const depositParameters = {
 } as const
 const preparedEncryptedDeposit = {
   amount: parseUnits('1', 6),
-  bouncebackRecipient: account.address,
   chainId: chain.id,
   encrypted: {
     ciphertext: '0x1234',
@@ -90,14 +89,15 @@ const preparedEncryptedDeposit = {
   keyIndex: 0n,
   portalAddress,
   sender: account.address,
+  tempoRefundRecipient: account.address,
   token: '0x20c0000000000000000000000000000000000000',
   zoneId,
 } satisfies zoneActions.PreparedEncryptedDeposit
 const prepareEncryptedDepositParameters = {
   amount: parseUnits('1', 6),
-  bouncebackRecipient: account.address,
   recipient: account.address,
   sender: account.address,
+  tempoRefundRecipient: account.address,
   token: parentToken,
   zoneId: 7,
 } as const
@@ -614,7 +614,7 @@ describe('encryptedDeposit', () => {
     ).rejects.toThrow('`chain` is required.')
   })
 
-  test('behavior: defaults bounceback recipient to account', async () => {
+  test('behavior: defaults Tempo refund recipient to account', async () => {
     const hash = await zoneActions.encryptedDeposit(
       mainnetClient,
       depositParameters,
@@ -683,13 +683,13 @@ describe('encryptedDepositSync', () => {
 })
 
 describe('deposit', () => {
-  test('behavior: encodes bounceback recipient', () => {
+  test('behavior: encodes Tempo refund recipient', () => {
     const parameters = {
       amount: 1n,
-      bouncebackRecipient: account.address,
       chainId: chain.id,
       portalAddress,
       recipient: account.address,
+      tempoRefundRecipient: account.address,
       token: '0x20c0000000000000000000000000000000000000',
       zoneId,
     } satisfies zoneActions.deposit.Args
@@ -711,7 +711,7 @@ describe('deposit', () => {
   })
 
   test.runIf(legacyZoneCallback)(
-    'behavior: defaults bounceback recipient to account',
+    'behavior: defaults Tempo refund recipient to account',
     async () => {
       const client = createClient({
         chain,
@@ -1203,8 +1203,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmountMin: 2n,
+          tempoRefundRecipient,
         },
       )
       const [swappedDepositCallback] = decodeAbiParameters(
@@ -1225,8 +1225,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmountMin: 4n,
+          tempoRefundRecipient,
           vaultAssetAmountMin: 3n,
         },
       )
@@ -1250,9 +1250,9 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           returnMemo: keccak256('0x02'),
           shareAmountMin: 1n,
+          tempoRefundRecipient,
           vaultAssetAmountMin: 2n,
           withdrawalMemo: keccak256('0x03'),
         },
@@ -1279,7 +1279,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           depositCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       await expect(
@@ -1326,8 +1326,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmount: 1n,
+          tempoRefundRecipient,
         },
       )
       const [swappedRedeemCallback] = decodeAbiParameters(
@@ -1349,10 +1349,10 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           returnMemo: keccak256('0x05'),
           shareAmount: shareBalance.amount,
           slippageBps: 0,
+          tempoRefundRecipient,
           withdrawalMemo: keccak256('0x06'),
         },
       )
@@ -1378,7 +1378,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           redeemCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(
