@@ -680,6 +680,54 @@ describe('fromMultisig', () => {
     expect(immediateTransaction.keyAuthorization.signature.init).toBeDefined()
   })
 
+  test('external owners authorize an access key', async () => {
+    const owner_1 = accounts[18]
+    const owner_2 = accounts[19]
+    const account = Account.fromMultisig({
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106106, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    const authorization = await Actions.accessKey.prepareAuthorization(client, {
+      account,
+      accessKey,
+    })
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        owner.sign({ hash: authorization.signPayload }),
+      ),
+    )
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      ...authorization,
+      signatures,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      feeToken,
+      keyAuthorization,
+      to,
+      value: 0n,
+    })
+    const transaction = await signTransaction(client, request)
+    const receipt = await sendRawTransactionSync(client, {
+      serializedTransaction: transaction,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
   test('example: bootstrap and subsequent access key use', async () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]

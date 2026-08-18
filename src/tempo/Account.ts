@@ -757,19 +757,43 @@ function isAccessKeyAccount(
   return account.source === 'accessKey' && 'accessKeyAddress' in account
 }
 
+/** @internal */
+export function getKeyAuthorizationSignPayload(
+  account: LocalAccount,
+  parameters: signKeyAuthorization.Parameters,
+): Hex.Hex {
+  const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
+  const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+  const boundFields =
+    isAccessKeyAccount(account) || isMultisigAccount(account)
+      ? { account: account.address }
+      : {}
+  const restrictions = admin ? {} : { expiry, limits, scopes }
+  return KeyAuthorization.getSignPayload({
+    address: accessKeyAddress,
+    chainId,
+    type,
+    witness,
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
+  } as never)
+}
+
 export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
   const {
+    admin,
     chainId,
-    key,
     expiry,
+    key,
     limits,
     multisig: multisigState,
     scopes,
+    signatures,
     witness,
-    admin,
   } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
@@ -786,15 +810,7 @@ export async function signKeyAuthorization(
   // limits, or call scopes (the protocol rejects them). [TIP-1049]
   const restrictions = admin ? {} : { expiry, limits, scopes }
 
-  const hash = KeyAuthorization.getSignPayload({
-    address: accessKeyAddress,
-    chainId,
-    type,
-    witness,
-    ...(admin ? { isAdmin: true } : {}),
-    ...boundFields,
-    ...restrictions,
-  } as never)
+  const hash = getKeyAuthorizationSignPayload(account, parameters)
   const signature = await (async () => {
     if (isAccessKey) return account.sign({ hash, raw: true })
     if (isMultisig) {
@@ -806,6 +822,9 @@ export async function signKeyAuthorization(
         await signMultisig(account, {
           init: multisigState.init,
           payload: hash,
+          signatures: signatures?.map((signature) =>
+            SignatureEnvelope.from(signature),
+          ),
           states: multisigState.states,
           version: multisigState.version,
         }),
@@ -830,7 +849,6 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
-    key: resolveAccessKey.Parameters
     /**
      * Whether to authorize the key as an admin key. Admin keys are
      * unrestricted and can manage the account's other access keys; `expiry`,
@@ -839,6 +857,7 @@ export declare namespace signKeyAuthorization {
      * [TIP-1049](https://tips.sh/1049)
      */
     admin?: boolean | undefined
+    key: resolveAccessKey.Parameters
     /** @internal Current state used when a multisig account signs the authorization. */
     multisig?:
       | {
@@ -847,6 +866,8 @@ export declare namespace signKeyAuthorization {
           version: bigint
         }
       | undefined
+    /** Serialized approvals from external multisig owners. */
+    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
   type ReturnValue = KeyAuthorization.Signed

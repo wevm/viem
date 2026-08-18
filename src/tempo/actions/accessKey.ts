@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
-import type { KeyAuthorization } from 'ox/tempo'
+import {
+  type KeyAuthorization,
+  MultisigConfig,
+  type SignatureEnvelope,
+} from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -26,7 +30,10 @@ import type {
   MultisigAccount,
   resolveAccessKey,
 } from '../Account.js'
-import { signKeyAuthorization } from '../Account.js'
+import {
+  getKeyAuthorizationSignPayload,
+  signKeyAuthorization,
+} from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
 import {
@@ -1053,11 +1060,28 @@ export async function prepareAuthorization<
     const state = states[0]!
     return { init: !state.initialized, states, version: state.version }
   })()
+  const authorizationSignPayload = getKeyAuthorizationSignPayload(
+    parsed as never,
+    {
+      ...parameters,
+      chainId: BigInt(chainId),
+      key: parameters.accessKey,
+    },
+  )
+  const signPayload =
+    parsed.source === 'multisig' && multisigState
+      ? MultisigConfig.getSignPayload({
+          account: parsed.address,
+          payload: authorizationSignPayload,
+          version: multisigState.version,
+        })
+      : authorizationSignPayload
   return {
     ...parameters,
     account: parsed,
     chainId,
     multisig: multisigState,
+    signPayload,
   } as never
 }
 
@@ -1083,6 +1107,8 @@ export namespace prepareAuthorization {
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
       | undefined
+    /** @internal Prepared multisig state. */
+    multisig?: signKeyAuthorization.Parameters['multisig']
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
     /**
@@ -1096,8 +1122,6 @@ export namespace prepareAuthorization {
      * [TIP-1053](https://tips.sh/1053)
      */
     witness?: Hex | undefined
-    /** @internal Prepared multisig state. */
-    multisig?: signKeyAuthorization.Parameters['multisig']
   }
 
   export type ReturnValue = Compute<
@@ -1105,6 +1129,8 @@ export namespace prepareAuthorization {
       account: Account
       chainId: number
       multisig: signKeyAuthorization.Parameters['multisig']
+      /** Payload that the authorizing account or multisig owners sign. */
+      signPayload: Hex
     }
   >
 }
@@ -1136,6 +1162,7 @@ export async function signAuthorization<
     account: account_,
     chainId,
     multisig: multisigState,
+    signPayload: _,
     ...rest
   } = prepared
   return signKeyAuthorization(account_ as never, {
@@ -1149,7 +1176,10 @@ export async function signAuthorization<
 export namespace signAuthorization {
   export type Parameters<
     account extends Account | undefined = Account | undefined,
-  > = prepareAuthorization.Parameters<account>
+  > = prepareAuthorization.Parameters<account> & {
+    /** Serialized approvals from external multisig owners. */
+    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+  }
 
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
 }

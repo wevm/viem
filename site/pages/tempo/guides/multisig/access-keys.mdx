@@ -56,7 +56,63 @@ const { receipt } = await client.token.transferSync({
 
 If the multisig is uninitialized, the authorization carries its initial config and this first
 access-key transaction initializes the account. If the multisig is already initialized,
-`signAuthorization` resolves its current version before the owners sign.
+[`signAuthorization`](/tempo/actions/accessKey.signAuthorization) resolves its current version
+before the owners sign.
+
+### Collect Owner Approvals Separately
+
+When owners sign on separate devices or services, instantiate the multisig with owner addresses.
+Prepare the authorization once, collect signatures over its `signPayload`, and pass the serialized
+approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const account = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const authorization = await client.accessKey.prepareAuthorization({
+  account,
+  accessKey,
+})
+const signatures = await Promise.all(
+  [owner_1, owner_2].map((owner) =>
+    owner.sign({ hash: authorization.signPayload })
+  )
+)
+const keyAuthorization = await client.accessKey.signAuthorization({
+  ...authorization,
+  signatures,
+})
+
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  amount: 100n,
+  keyAuthorization,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ### Use the Authorized Key Again
 
@@ -84,9 +140,9 @@ const { receipt } = await client.token.transferSync({
 
 ### Keep Owner Signers Separate
 
-This example retains both owners locally so `accessKey.signAuthorization` can collect their
-approvals. Use separate signing devices or services in production when owners do not share a
-trust boundary.
+Use the separate-approval recipe when owners do not share a trust boundary. Each owner should
+validate the multisig account, access key, chain, expiry, scopes, and spending limits before
+signing `signPayload`.
 
 ### Restrict the Access Key
 
