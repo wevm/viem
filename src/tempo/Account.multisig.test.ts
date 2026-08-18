@@ -827,10 +827,11 @@ describe('fromMultisig', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('example: configuration rotation with automatic signing', async () => {
+  test('example: configuration rotation with multiple owners', async () => {
     const owner_1 = accounts[14]
     const owner_2 = accounts[15]
     const owner_3 = accounts[16]
+    const owner_4 = accounts[17]
     const account = Account.fromMultisig({
       salt: toHex(0x106106, { size: 32 }),
       threshold: 2,
@@ -861,8 +862,8 @@ describe('fromMultisig', () => {
     expect(bootstrapReceipt.status).toBe('success')
 
     const rotatedAccount = Account.fromMultisig(account.initialConfig, {
-      threshold: 1,
-      owners: [owner_3],
+      threshold: 2,
+      owners: [owner_3, owner_4],
     })
     expect(rotatedAccount.address).toBe(account.address)
     const update = await prepareTransactionRequest(client, {
@@ -887,9 +888,14 @@ describe('fromMultisig', () => {
       calls: [{ to, value: 0n }],
       feeToken,
     })
-    const transaction = await signTransaction(client, request)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: transaction,
+    const signatures = await Promise.all(
+      [owner_3, owner_4].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      signatures,
     })
 
     expect(receipt.status).toBe('success')
