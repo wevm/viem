@@ -536,6 +536,20 @@ describe('fromMultisig', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
+  test('behavior: address requires an initialized account', async () => {
+    const account = Account.fromMultisig(accounts[0].address)
+
+    await expect(
+      prepareTransactionRequest(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      }),
+    ).rejects.toThrow(
+      'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
+    )
+  })
+
   test('example: fee sponsorship (both signing orders)', async () => {
     const owner_1 = accounts[12]
     const owner_2 = accounts[13]
@@ -771,18 +785,23 @@ describe('fromMultisig', () => {
       owners: initialConfig.owners,
     })
 
-    const rotatedConfig = MultisigConfig.from({
-      threshold: 2,
-      owners: [
-        { owner: owner_3.address, weight: 1 },
-        { owner: owner_4.address, weight: 1 },
-      ],
-    })
+    const initializedAccount = Account.fromMultisig(account.address)
+    expect(initializedAccount.config).toBeUndefined()
     const update = await prepareTransactionRequest(client, {
-      account,
-      calls: [Actions.multisig.updateConfig.call(rotatedConfig)],
+      account: initializedAccount,
+      calls: [
+        Actions.multisig.updateConfig.call({
+          threshold: 2,
+          owners: [
+            { owner: owner_3.address, weight: 1 },
+            { owner: owner_4.address, weight: 1 },
+          ],
+        }),
+      ],
       feeToken,
     })
+    expect(update.multisig).toBe(initializedAccount.address)
+    expect(update.multisigInit).toBeUndefined()
     const updateSignatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
         signTransaction(client, { ...update, account: owner }),
@@ -795,23 +814,29 @@ describe('fromMultisig', () => {
     expect(updateReceipt.status).toBe('success')
     expect(
       Actions.multisig.updateConfig.extractEvent(updateReceipt.logs).args,
-    ).toEqual({
-      account: account.address,
-      threshold: rotatedConfig.threshold,
-      owners: rotatedConfig.owners,
+    ).toMatchObject({
+      account: initializedAccount.address,
+      threshold: 2,
+      owners: expect.arrayContaining([
+        { owner: owner_3.address, weight: 1 },
+        { owner: owner_4.address, weight: 1 },
+      ]),
     })
 
     const request = await prepareTransactionRequest(client, {
-      account,
+      account: initializedAccount,
       calls: [{ to, value: 0n }],
       feeToken,
     })
     expect(request.multisigSignatureCount).toBeUndefined()
     expect(request.multisigOwnerStates?.[0]).toEqual({
-      account: account.address,
+      account: initializedAccount.address,
       config: {
-        owners: rotatedConfig.owners,
-        threshold: rotatedConfig.threshold,
+        owners: expect.arrayContaining([
+          { owner: owner_3.address, weight: 1 },
+          { owner: owner_4.address, weight: 1 },
+        ]),
+        threshold: 2,
       },
       initialized: true,
       version: 1n,
@@ -828,6 +853,6 @@ describe('fromMultisig', () => {
     })
 
     expect(receipt.status).toBe('success')
-    expect(receipt.from).toBe(account.address.toLowerCase())
+    expect(receipt.from).toBe(initializedAccount.address.toLowerCase())
   })
 })

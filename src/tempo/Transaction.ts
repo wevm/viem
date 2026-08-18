@@ -132,7 +132,7 @@ export type TransactionRequestTempo<
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: MultisigConfig.Config<index> | undefined
+    multisig?: Address | MultisigConfig.Config<index> | undefined
     /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
     multisigInit?:
       | {
@@ -169,7 +169,7 @@ export type TransactionSerializableTempo<
     feePayerSignature?: viem_Signature | null | undefined
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: MultisigConfig.Config<index> | undefined
+    multisig?: Address | MultisigConfig.Config<index> | undefined
     /** @internal Local signing state for nested multisig owner accounts. */
     multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
     /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
@@ -391,16 +391,29 @@ async function serializeTempo(
     const signatures = transaction.signatures.map((approval) =>
       SignatureEnvelope.from(approval),
     )
-    const sorted = SignatureEnvelope.sortMultisigApprovals({
-      payload,
-      signatures,
-      initialConfig: transaction.multisig,
-      version: transaction.multisigVersion,
-    })
+    const sorted =
+      typeof transaction.multisig === 'string'
+        ? SignatureEnvelope.sortMultisigApprovals({
+            account: transaction.multisig,
+            payload,
+            signatures,
+            version: transaction.multisigVersion,
+          })
+        : SignatureEnvelope.sortMultisigApprovals({
+            initialConfig: transaction.multisig,
+            payload,
+            signatures,
+            version: transaction.multisigVersion,
+          })
     const keyAuthorizationSignature = transaction.keyAuthorization?.signature
     const keyAuthorizationInitializes =
       keyAuthorizationSignature?.type === 'multisig' &&
       typeof keyAuthorizationSignature.init !== 'undefined'
+    if (typeof transaction.multisig === 'string')
+      return SignatureEnvelope.from({
+        account: transaction.multisig,
+        signatures: sorted,
+      })
     return SignatureEnvelope.from({
       initialConfig: transaction.multisig,
       signatures: sorted,

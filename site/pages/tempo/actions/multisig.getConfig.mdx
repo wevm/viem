@@ -1,0 +1,53 @@
+---
+description: Gets the current configuration and version for an initialized native multisig account.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `multisig.getConfig`
+
+Gets the current version, threshold, and owners for an initialized native multisig account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const config = await client.multisig.getConfig({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action throws `NotMultisigAccount` when the account has not been initialized. Use
+[`multisig.isInitialized`](/tempo/actions/multisig.isInitialized) when both states are expected.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  version: bigint
+  threshold: number
+  owners: readonly {
+    owner: Address
+    weight: number
+  }[]
+}
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+The initialized multisig account address.
+
+<ReadParameters />

@@ -277,8 +277,9 @@ export declare namespace fromSecp256k1 {
 /**
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * The returned account does not hold a key itself. It derives the multisig
- * address from the config and can retain local owner accounts for signing.
+ * The returned account does not hold a key itself. Pass an initial config to
+ * derive and bootstrap an account, or pass the address of an initialized
+ * account to reconstruct it without retaining the initial config.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
@@ -304,37 +305,57 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
- * @param config Multisig config with direct or weighted owners.
+ * @param value Initial multisig config or initialized multisig address.
  * @returns Multisig account.
  */
-export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
-  const ownerEntries = config.owners.map((value) =>
-    typeof value === 'string' || 'address' in value
-      ? { owner: value, weight: 1 }
-      : value,
-  )
-  const ownerAccounts = ownerEntries.flatMap(({ owner }) =>
-    typeof owner === 'string' ? [] : [parseAccount(owner)],
-  )
-  const normalized = MultisigConfig.from({
-    ...config,
-    owners: ownerEntries.map(({ owner, weight }) => ({
-      owner: typeof owner === 'string' ? owner : owner.address,
-      weight,
-    })),
-    threshold: config.threshold ?? 1,
-  })
-  const address = Address.checksum(MultisigConfig.getAddress(normalized))
-  const owners = normalized.owners.flatMap(({ owner }) => {
-    const account = ownerAccounts.find((account) =>
-      Address.isEqual(account.address, owner),
+export function fromMultisig(
+  config: fromMultisig.Config,
+): MultisigAccount<MultisigConfig.Config>
+export function fromMultisig(
+  address: Address.Address,
+): MultisigAccount<undefined>
+export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount
+export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
+  const config = (() => {
+    if (typeof value === 'string') return undefined
+    const ownerEntries = value.owners.map((value) =>
+      typeof value === 'string' || 'address' in value
+        ? { owner: value, weight: 1 }
+        : value,
     )
-    return account ? [account] : []
-  })
+    return MultisigConfig.from({
+      ...value,
+      owners: ownerEntries.map(({ owner, weight }) => ({
+        owner: typeof owner === 'string' ? owner : owner.address,
+        weight,
+      })),
+      threshold: value.threshold ?? 1,
+    })
+  })()
+  const address = Address.checksum(
+    typeof value === 'string' ? value : MultisigConfig.getAddress(config!),
+  )
+  const ownerAccounts =
+    typeof value === 'string'
+      ? []
+      : value.owners.flatMap((value) => {
+          const owner =
+            typeof value === 'string' || 'address' in value
+              ? value
+              : value.owner
+          return typeof owner === 'string' ? [] : [parseAccount(owner)]
+        })
+  const owners =
+    config?.owners.flatMap(({ owner }) => {
+      const account = ownerAccounts.find((account) =>
+        Address.isEqual(account.address, owner),
+      )
+      return account ? [account] : []
+    }) ?? []
 
   const account: MultisigAccount = {
     address,
-    config: normalized,
+    config,
     owners,
     publicKey: '0x',
     source: 'multisig',
@@ -359,9 +380,11 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
           : { feePayerSignature: null }),
       }
       const payload = keccak256(await serializer(presign as never))
-      const requestConfig = request.multisig
-      const requestAccount = requestConfig
-        ? MultisigConfig.getAddress(requestConfig)
+      const requestMultisig = request.multisig
+      const requestAccount = requestMultisig
+        ? typeof requestMultisig === 'string'
+          ? requestMultisig
+          : MultisigConfig.getAddress(requestMultisig)
         : address
 
       if (!Address.isEqual(requestAccount, address)) {
@@ -371,7 +394,9 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
         if (state && !state.initialized)
           throw new Error('Nested multisig owners must be initialized.')
         const parentDigest = MultisigConfig.getSignPayload({
-          initialConfig: requestConfig!,
+          ...(typeof requestMultisig === 'string'
+            ? { account: requestMultisig }
+            : { initialConfig: requestMultisig! }),
           payload,
           version: request.multisigVersion,
         })
@@ -390,7 +415,10 @@ export function fromMultisig(config: fromMultisig.Config): MultisigAccount {
         typeof keyAuthorizationSignature.init !== 'undefined'
       const signature = await signMultisig(account, {
         init:
-          !request.nonce && !request.nonceKey && !keyAuthorizationInitializes,
+          typeof config !== 'undefined' &&
+          !request.nonce &&
+          !request.nonceKey &&
+          !keyAuthorizationInitializes,
         payload,
         signatures: request.signatures?.map((signature) =>
           SignatureEnvelope.from(signature),
@@ -422,11 +450,17 @@ export declare namespace fromMultisig {
     owners: readonly Owner[]
     threshold?: number | undefined
   }
+
+  export type Parameters = Address.Address | Config
 }
 
-export type MultisigAccount = LocalAccount<'multisig'> & {
-  /** Multisig config (from `MultisigConfig.from`). */
-  config: MultisigConfig.Config
+export type MultisigAccount<
+  config extends MultisigConfig.Config | undefined =
+    | MultisigConfig.Config
+    | undefined,
+> = LocalAccount<'multisig'> & {
+  /** Normalized initial config, or `undefined` when instantiated from an address. */
+  config: config
   /** @internal Local owner accounts available for signing. */
   owners: readonly LocalAccount[]
 }
@@ -456,8 +490,10 @@ async function signMultisig(
     Address.isEqual(state.account, account.address),
   )
   const currentConfig = state?.config ?? account.config
+  if (!currentConfig)
+    throw new Error('Current multisig config is required for local signing.')
   const digest = MultisigConfig.getSignPayload({
-    initialConfig: account.config,
+    account: account.address,
     payload,
     version,
   })
@@ -515,11 +551,13 @@ async function signMultisig(
   if (weight < Number(currentConfig.threshold))
     throw new Error('Local multisig owners do not meet the threshold.')
 
+  if (init && !account.config)
+    throw new Error('Initial multisig config is required for bootstrap.')
   return SignatureEnvelope.from({
-    initialConfig: account.config,
-    ...(init ? { init: true } : {}),
+    account: account.address,
+    ...(init ? { init: account.config } : {}),
     signatures: SignatureEnvelope.sortMultisigApprovals({
-      initialConfig: account.config,
+      account: account.address,
       payload,
       signatures,
       version,
@@ -889,18 +927,20 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
 
       const payload = keccak256(await serializer(presign))
 
-      // Native multisig (TIP-1061): return this owner's approval — a serialized
-      // primitive signature over the multisig owner approval digest — instead of
+      // Native multisig (TIP-1061): return this owner's approval, a serialized
+      // primitive signature over the multisig owner approval digest, instead of
       // a full serialized transaction. Approvals are combined later in
       // `sendTransaction({ signatures })`.
       const { multisig, multisigVersion } = transaction as {
-        multisig?: MultisigConfig.Config | undefined
+        multisig?: Address.Address | MultisigConfig.Config | undefined
         multisigVersion?: bigint | undefined
       }
       if (multisig) {
         const digest = MultisigConfig.getSignPayload({
+          ...(typeof multisig === 'string'
+            ? { account: multisig }
+            : { initialConfig: multisig }),
           payload,
-          initialConfig: multisig,
           version: multisigVersion,
         })
         return await sign({ hash: digest, raw: true })

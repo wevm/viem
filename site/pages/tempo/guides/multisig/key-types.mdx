@@ -1,0 +1,99 @@
+---
+description: Combine different owner signature schemes in one native multisig account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Passkeys & Other Keys
+
+## Overview
+
+A native multisig can combine secp256k1, P256, WebAuthn, and WebCrypto P256 owners. Each owner
+signs with its own account implementation, and the multisig envelope combines the approvals.
+
+## Recipes
+
+### Combine Owner Key Types
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, P256, WebAuthnP256, WebCryptoP256 } from 'viem/tempo'
+import {
+  prepareTransactionRequest,
+  sendTransaction,
+  signTransaction,
+} from 'viem/actions'
+import { client } from './viem.config'
+
+const owners = [
+  Account.fromSecp256k1(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+  ),
+  Account.fromP256(P256.randomPrivateKey()),
+  Account.fromWebAuthnP256(
+    await WebAuthnP256.createCredential({ name: 'Multisig owner' })
+  ),
+  Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
+]
+
+const account = Account.fromMultisig({
+  owners: owners.map((owner) => owner.address),
+  threshold: owners.length,
+})
+const request = await prepareTransactionRequest(client, {
+  account,
+  calls: [
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
+  ],
+})
+
+const signatures = await Promise.all(
+  owners.map((owner) =>
+    signTransaction(client, { ...request, account: owner })
+  )
+)
+const hash = await sendTransaction(client, { ...request, signatures })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Expect Passkey Prompts
+
+[`Account.fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256) creates the passkey owner
+from a WebAuthn credential. The passkey prompts for approval when it signs the transaction.
+
+### Let Viem Estimate Approval Gas
+
+During preparation, Viem conservatively estimates the request for maximum-size WebAuthn
+approvals because key types are not stored in the multisig config. Multiple WebAuthn owners do
+not require a manual gas hint.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:fingerprint"
+    title="Sign In with a Passkey"
+    description="Create, restore, and use a WebAuthn passkey account."
+    to="/tempo/guides/accounts/passkeys"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="Account.fromWebAuthnP256"
+    description="Create an account from a WebAuthn passkey credential."
+    to="/tempo/accounts/account.fromWebAuthnP256"
+  />
+  <Card
+    icon="lucide:send"
+    title="Send Transactions"
+    description="Collect independent approvals from multisig owners."
+    to="/tempo/guides/multisig/send"
+  />
+</Cards>
