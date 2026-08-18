@@ -159,17 +159,25 @@ export async function ccipRequest({
     const body = method === 'POST' ? { data, sender } : undefined
     const headers: HeadersInit =
       method === 'POST' ? { 'Content-Type': 'application/json' } : {}
+    const requestUrl = url
+      .replace('{sender}', sender.toLowerCase())
+      .replace('{data}', data)
 
     try {
-      const response = await fetch(
-        url.replace('{sender}', sender.toLowerCase()).replace('{data}', data),
-        {
-          body: JSON.stringify(body),
-          headers,
-          method,
-          ...(requestOptions?.signal ? { signal: requestOptions.signal } : {}),
-        },
-      )
+      assertCcipRequestUrl(requestUrl)
+    } catch (err) {
+      error = err as Error
+      continue
+    }
+
+    try {
+      const response = await fetch(requestUrl, {
+        body: JSON.stringify(body),
+        headers,
+        method,
+        redirect: 'manual',
+        ...(requestOptions?.signal ? { signal: requestOptions.signal } : {}),
+      })
 
       let result: any
       if (
@@ -216,4 +224,58 @@ export async function ccipRequest({
   }
 
   throw error
+}
+
+function assertCcipRequestUrl(url: string) {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch {
+    throw new HttpRequestError({
+      details: 'CCIP Read URL is invalid.',
+      url,
+    })
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    throw new HttpRequestError({
+      details:
+        `CCIP Read request with scheme '${parsed.protocol.slice(0, -1)}' is not allowed. ` +
+        'Only HTTP(S) URLs are permitted.',
+      url,
+    })
+  }
+
+  if (!parsed.hostname) {
+    throw new HttpRequestError({
+      details: 'CCIP Read URL has no hostname.',
+      url,
+    })
+  }
+
+  if (isBlockedCcipHostname(parsed.hostname)) {
+    throw new HttpRequestError({
+      details:
+        `CCIP Read request to '${parsed.hostname}' is not allowed: ` +
+        'host is in a blocked link-local or unspecified range.',
+      url,
+    })
+  }
+}
+
+function isBlockedCcipHostname(hostname: string) {
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname)
+  if (ipv4) {
+    const octets = ipv4.slice(1, 5).map(Number)
+    if (octets.some((octet) => octet > 255)) return false
+    const [a, b] = octets
+    // 0.0.0.0/8 unspecified, 169.254.0.0/16 link-local / cloud metadata
+    return a === 0 || (a === 169 && b === 254)
+  }
+
+  const normalized = hostname.toLowerCase()
+  if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') return true
+  // IPv6 link-local
+  if (normalized === 'fe80' || normalized.startsWith('fe80:')) return true
+  return false
 }
