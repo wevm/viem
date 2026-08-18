@@ -167,21 +167,29 @@ export namespace getConfig {
  *
  * @example
  * ```ts
- * import { createWalletClient, custom, type EIP1193Provider } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { createClient, http } from 'viem'
+ * import { sendTransactionSync } from 'viem/actions'
+ * import { tempoLocalnet } from 'viem/chains'
+ * import { Account, Actions } from 'viem/tempo'
  *
- * declare const provider: EIP1193Provider
+ * const owner = Account.fromSecp256k1(
+ *   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+ * )
+ * const account = Account.fromMultisig({ owners: [owner] })
+ * const client = createClient({
+ *   chain: tempoLocalnet,
+ *   transport: http(),
+ * })
  *
- * const client = createWalletClient({
- *   account: '0x...',
- *   chain: tempo,
- *   transport: custom(provider),
+ * await sendTransactionSync(client, {
+ *   account,
+ *   to: account.address,
  * })
  *
  * const hash = await Actions.multisig.updateConfig(client, {
+ *   account,
  *   threshold: 1,
- *   owners: [{ owner: '0x...', weight: 1 }],
+ *   owners: [{ owner: owner.address, weight: 1 }],
  * })
  * ```
  *
