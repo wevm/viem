@@ -7,6 +7,20 @@ import { tempoLocalnet } from '../chains/index.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Hash } from '../types/misc.js'
+import type {
+  MultisigOwnerState,
+  TransactionRequestTempo,
+  TransactionSerializableTempo,
+} from './Transaction.js'
+
+test('multisig owner state keeps its structural type', () => {
+  expectTypeOf<
+    NonNullable<TransactionRequestTempo['multisigOwnerStates']>
+  >().toEqualTypeOf<readonly MultisigOwnerState[]>()
+  expectTypeOf<
+    NonNullable<TransactionSerializableTempo['multisigOwnerStates']>
+  >().toEqualTypeOf<readonly MultisigOwnerState[]>()
+})
 
 test('prepareTransactionRequest preserves tempo transaction type', async () => {
   const client = createWalletClient({
