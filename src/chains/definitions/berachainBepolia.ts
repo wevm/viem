@@ -21,7 +21,7 @@ export const berachainBepolia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Berascan',
-      url: 'https://bepolia.beratrail.io',
+      url: 'https://testnet.berascan.com',
     },
   },
   testnet: true,
