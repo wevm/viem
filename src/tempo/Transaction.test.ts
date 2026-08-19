@@ -1,4 +1,4 @@
-import { MultisigConfig } from 'ox/tempo'
+import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
@@ -23,6 +23,10 @@ describe('getType', () => {
 
   test('behavior: keyAuthorization', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
+  })
+
+  test('behavior: multisigVersion', () => {
+    expect(Transaction.getType({ multisigVersion: 1n })).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -344,6 +348,44 @@ describe('serialize', () => {
         "type": "multisig",
       }
     `)
+  })
+
+  test('behavior: signs multisig approvals with config version', async () => {
+    const owner = accounts[1]!
+    const multisig = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: owner.address, weight: 1 }],
+    })
+    const transaction = {
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      multisig,
+      multisigVersion: 2n,
+      nonce: 1,
+    } as const
+
+    const approval = SignatureEnvelope.from(
+      await owner.signTransaction(transaction),
+    )
+    const payload = TxEnvelopeTempo.getSignPayload(
+      TxEnvelopeTempo.from({
+        calls: transaction.calls,
+        chainId: transaction.chainId,
+        nonce: BigInt(transaction.nonce),
+      }),
+    )
+    const digest = MultisigConfig.getSignPayload({
+      initialConfig: multisig,
+      payload,
+      version: transaction.multisigVersion,
+    })
+
+    expect(
+      SignatureEnvelope.extractAddress({
+        payload: digest,
+        signature: approval,
+      }),
+    ).toBe(owner.address.toLowerCase())
   })
 })
 

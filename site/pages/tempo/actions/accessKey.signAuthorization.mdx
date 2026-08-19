@@ -1,9 +1,15 @@
 # `accessKey.signAuthorization`
 
-Signs a key authorization for an access key. This is a local signing operation, so no transaction is sent.
+Signs a key authorization for an access key. The action resolves any required chain state before
+signing, but does not send a transaction.
 
 :::info
 If you want to authorize a key and send the transaction in one step, use [`accessKey.authorize`](/tempo/actions/accessKey.authorize) instead.
+:::
+
+:::tip
+A native multisig account can authorize an access key with its owner quorum. See
+[Authorize a Multisig Access Key](/tempo/guides/multisig/access-keys).
 :::
 
 ## Usage
@@ -25,6 +31,7 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
 
 // 3. Sign the key authorization
 const keyAuthorization = await client.accessKey.signAuthorization({
+  account,
   accessKey,
 })
 ```
@@ -51,19 +58,17 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const keyAuthorization = await client.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization({
   account,
-  {
-    accessKey,
-    limits: [ // [!code focus]
-      { // [!code focus]
-        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
-        limit: parseUnits('1000', 6), // [!code focus]
-        period: Period.months(1), // resets every month // [!code focus]
-      }, // [!code focus]
-    ], // [!code focus]
-  },
-)
+  accessKey,
+  limits: [ // [!code focus]
+    { // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      limit: parseUnits('1000', 6), // [!code focus]
+      period: Period.months(1), // resets every month // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
 ```
 
 ### With Call Scopes
@@ -83,25 +88,23 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const keyAuthorization = await client.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization({
   account,
-  {
-    accessKey,
-    limits: [ // [!code focus]
-      { // [!code focus]
-        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
-        limit: parseUnits('10000', 6), // [!code focus]
-      }, // [!code focus]
-    ], // [!code focus]
-    scopes: [ // [!code focus]
-      { // [!code focus]
-        address: '0x20c0000000000000000000000000000000000001', // [!code focus]
-        selector: 'transfer(address,uint256)', // or "0xa9059cbb" // [!code focus]
-        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
-      }, // [!code focus]
-    ], // [!code focus]
-  },
-)
+  accessKey,
+  limits: [ // [!code focus]
+    { // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      limit: parseUnits('10000', 6), // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  scopes: [ // [!code focus]
+    { // [!code focus]
+      address: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      selector: 'transfer(address,uint256)', // or "0xa9059cbb" // [!code focus]
+      recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
 ```
 
 ```ts twoslash [Scopes]
@@ -114,24 +117,22 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const keyAuthorization = await client.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization({
   account,
-  {
-    accessKey,
-    limits: [ // [!code focus]
-      { // [!code focus]
-        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
-        limit: parseUnits('10000', 6), // [!code focus]
-      }, // [!code focus]
-    ], // [!code focus]
-    scopes: [ // [!code focus]
-      Scopes.tip20('0x20c0000000000000000000000000000000000001') // [!code focus]
-        .transfer({ // [!code focus]
-          recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // [!code focus]
-        }), // [!code focus]
-    ], // [!code focus]
-  },
-)
+  accessKey,
+  limits: [ // [!code focus]
+    { // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      limit: parseUnits('10000', 6), // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  scopes: [ // [!code focus]
+    Scopes.tip20('0x20c0000000000000000000000000000000000001') // [!code focus]
+      .transfer({ // [!code focus]
+        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // [!code focus]
+      }), // [!code focus]
+  ], // [!code focus]
+})
 ```
 
 :::
@@ -149,6 +150,7 @@ const account = Account.fromSecp256k1('0x...')
 
 // Sign authorization by public key // [!code focus]
 const keyAuthorization = await client.accessKey.signAuthorization({ // [!code focus]
+  account, // [!code focus]
   accessKey: { // [!code focus]
     publicKey: '0x...', // [!code focus]
     type: 'p256', // [!code focus]
@@ -167,6 +169,7 @@ const account = Account.fromSecp256k1('0x...')
 
 // Sign authorization by address // [!code focus]
 const keyAuthorization = await client.accessKey.signAuthorization({ // [!code focus]
+  account, // [!code focus]
   accessKey: { // [!code focus]
     address: '0x...', // [!code focus]
     type: 'p256', // [!code focus]
@@ -201,9 +204,10 @@ A signed key authorization object that can be passed as `keyAuthorization` to an
 
 ### account
 
-- **Type:** `RootAccount`
+- **Type:** `RootAccount | MultisigAccount`
 
-The root account signing the authorization. Must be a local account with signing capabilities (e.g. created via `Account.from`).
+The account authorizing the access key. A multisig account collects approvals from its retained
+local owners and resolves the current multisig version before signing.
 
 ### accessKey
 

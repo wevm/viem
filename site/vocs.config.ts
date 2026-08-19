@@ -97,8 +97,13 @@ export default defineConfig({
       destination: '/tempo/guides/zones/connect',
       status: 308,
     },
+    {
+      source: '/tempo/guides/multisig-transactions',
+      destination: '/tempo/guides/multisig',
+      status: 308,
+    },
 
-    // Renamed functions — keep deprecated paths working.
+    // Renamed functions. Keep deprecated paths working.
     {
       source: '/:match/hexToSignature',
       destination: '/:match/parseSignature',
@@ -2247,10 +2252,51 @@ export default defineConfig({
                   text: 'Sponsor User Fees',
                   link: '/tempo/guides/sponsor-fees',
                 },
+              ],
+            },
+            {
+              text: 'Multisig',
+              collapsed: true,
+              items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Multisig Transactions',
-                  link: '/tempo/guides/multisig-transactions',
+                  text: 'Overview',
+                  link: '/tempo/guides/multisig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Send Transactions',
+                  link: '/tempo/guides/multisig/send',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Weighted Owners',
+                  link: '/tempo/guides/multisig/weighted-owners',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Passkeys & Other Keys',
+                  link: '/tempo/guides/multisig/key-types',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Nested Accounts',
+                  link: '/tempo/guides/multisig/nested-accounts',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Authorize Access Keys',
+                  link: '/tempo/guides/multisig/access-keys',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Sponsor Fees',
+                  link: '/tempo/guides/multisig/sponsor-fees',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Rotate Owners',
+                  link: '/tempo/guides/multisig/rotate-owners',
                 },
               ],
             },
@@ -2756,6 +2802,32 @@ export default defineConfig({
                 {
                   text: 'watchSetUserToken',
                   link: '/tempo/actions/fee.watchSetUserToken',
+                },
+              ],
+            },
+            {
+              text: 'Multisig',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getConfig',
+                  link: '/tempo/actions/multisig.getConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'isInitialized',
+                  link: '/tempo/actions/multisig.isInitialized',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfig',
+                  link: '/tempo/actions/multisig.updateConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfigSync',
+                  link: '/tempo/actions/multisig.updateConfigSync',
                 },
               ],
             },

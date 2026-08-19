@@ -18,6 +18,22 @@ const privateKey_secp256k1 =
 const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
+describe('fromMultisig', () => {
+  test('initialized account address', () => {
+    const account = Account.fromMultisig(
+      '0x0000000000000000000000000000000000000001',
+    )
+
+    expect(account).toMatchObject({
+      address: '0x0000000000000000000000000000000000000001',
+      config: undefined,
+      owners: [],
+      source: 'multisig',
+      type: 'local',
+    })
+  })
+})
+
 describe('fromSecp256k1', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)

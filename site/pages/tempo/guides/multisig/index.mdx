@@ -1,0 +1,121 @@
+---
+description: Build common native multisig workflows on Tempo with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Multisig
+
+## Overview
+
+:::warning
+**Experimental.** Native multisig support is experimental and may change in a future release.
+It is not yet available on Tempo mainnet or testnet.
+:::
+
+Tempo native multisig accounts are defined by an initial owner configuration, an approval
+threshold, and an optional salt. The initial configuration derives the account address. Its
+owners and threshold can change later without changing that address.
+
+### Transaction Flow
+
+The distributed signing flow has four steps:
+
+1. Create the sender with [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig).
+2. Prepare one transaction request with that multisig `account`.
+3. Give the same prepared request to each participating owner and collect their signatures.
+4. Submit the prepared request with those `signatures`.
+
+The first transaction initializes the account from its initial configuration. You do not pass
+an initialization flag. For later transactions, preparation reads the current configuration
+and version from the multisig precompile.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+<Cards>
+  <Card
+    icon="lucide:send"
+    title="Send Transactions"
+    description="Initialize a multisig and collect independent owner approvals for later transactions."
+    to="/tempo/guides/multisig/send"
+  />
+  <Card
+    icon="lucide:scale"
+    title="Weighted Owners"
+    description="Configure an M-of-N quorum or assign different approval weights to owners."
+    to="/tempo/guides/multisig/weighted-owners"
+  />
+  <Card
+    icon="lucide:fingerprint"
+    title="Passkeys & Other Keys"
+    description="Combine secp256k1, P256, WebAuthn, and WebCrypto owners in one account."
+    to="/tempo/guides/multisig/key-types"
+  />
+  <Card
+    icon="lucide:network"
+    title="Nested Accounts"
+    description="Use an initialized multisig account as an owner of another multisig."
+    to="/tempo/guides/multisig/nested-accounts"
+  />
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Authorize and immediately use an access key from a multisig account."
+    to="/tempo/guides/multisig/access-keys"
+  />
+  <Card
+    icon="lucide:hand-coins"
+    title="Sponsor Fees"
+    description="Combine independent multisig approvals with a separate fee payer."
+    to="/tempo/guides/multisig/sponsor-fees"
+  />
+  <Card
+    icon="lucide:refresh-cw"
+    title="Rotate Owners"
+    description="Replace owners or thresholds while preserving the multisig address."
+    to="/tempo/guides/multisig/rotate-owners"
+  />
+</Cards>
+
+## Best Practices
+
+### Keep the Prepared Request Immutable
+
+Every owner must sign the exact same prepared request. Changing its calls, fees, nonce, fee
+payer, or validity window after collecting an approval invalidates that approval.
+
+### Keep Owner Signers Separate
+
+Pass owner addresses to `Account.fromMultisig` when owners sign in separate wallets, devices, or
+services. Only pass owner accounts when one trusted environment intentionally holds every signer.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet-cards"
+    title="Account.fromMultisig"
+    description="Create a native multisig account from its initial configuration."
+    to="/tempo/accounts/account.fromMultisig"
+  />
+  <Card
+    icon="lucide:circle-check"
+    title="multisig.isInitialized"
+    description="Check whether a multisig account has been initialized."
+    to="/tempo/actions/multisig.isInitialized"
+  />
+  <Card
+    icon="lucide:settings"
+    title="Multisig Configuration"
+    description="Read and update a multisig account's current configuration."
+    to="/tempo/actions/multisig.getConfig"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="TIP-1061"
+    description="The specification for Tempo native multisig accounts."
+    to="https://tips.sh/1061"
+  />
+</Cards>
