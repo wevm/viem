@@ -63,7 +63,6 @@ import {
   type SendRawTransactionErrorType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
-import { signTransactionForSend } from './signTransactionForSend.js'
 
 const supportsWalletNamespace = new LruMap<boolean>(128)
 
@@ -363,11 +362,16 @@ export async function sendTransaction<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = await signTransactionForSend(
-        account,
+      const signedTransaction = (await account.signTransaction(
         request as never,
-        serializer,
-      )
+        { serializer },
+      )) as Hash
+      const serializedTransaction = chain?.serializers?.transactionEnvelope
+        ? await chain.serializers.transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
       return await getAction(
         client,
         sendRawTransaction,

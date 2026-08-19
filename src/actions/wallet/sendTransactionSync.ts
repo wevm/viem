@@ -27,7 +27,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -72,7 +72,6 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from './sendRawTransactionSync.js'
-import { signTransactionForSend } from './signTransactionForSend.js'
 
 const supportsWalletNamespace = new LruMap<boolean>(128)
 
@@ -402,11 +401,16 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = await signTransactionForSend(
-        account,
+      const signedTransaction = (await account.signTransaction(
         request as never,
-        serializer,
-      )
+        { serializer },
+      )) as Hash
+      const serializedTransaction = chain?.serializers?.transactionEnvelope
+        ? await chain.serializers.transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
       return (await getAction(
         client,
         sendRawTransactionSync,

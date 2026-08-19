@@ -245,12 +245,17 @@ test('sends transaction (w/ serializer)', async () => {
       return concatHex(['0x08', toRlp(serializedTransaction)])
     },
   )
+  const transactionEnvelope = vi.fn(
+    (parameters: { serializedTransaction: Hex }) =>
+      parameters.serializedTransaction,
+  )
 
   const chain = defineChain({
     ...localhost,
     id: 1,
     serializers: {
       transaction: serializer,
+      transactionEnvelope,
     },
   })
 
@@ -268,6 +273,18 @@ test('sends transaction (w/ serializer)', async () => {
   expect(serializer).toReturnWith(
     '0x08f3018203b9843b9aca0085026b24abe0825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
+  expect({
+    calls: transactionEnvelope.mock.calls.length,
+    type: transactionEnvelope.mock.calls[0]?.[0].serializedTransaction.slice(
+      0,
+      4,
+    ),
+  }).toMatchInlineSnapshot(`
+    {
+      "calls": 1,
+      "type": "0x08",
+    }
+  `)
 })
 
 test('client chain mismatch', async () => {

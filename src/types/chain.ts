@@ -250,6 +250,11 @@ export type ChainSerializers<
   transaction?:
     | SerializeTransactionFn<transaction, TransactionSerializedGeneric>
     | undefined
+  /** Modifies how signed Transactions are serialized into an envelope. */
+  transactionEnvelope?(parameters: {
+    serializedTransaction: TransactionSerializedGeneric
+    transaction: transaction
+  }): TransactionSerializedGeneric | Promise<TransactionSerializedGeneric>
 }
 
 /////////////////////////////////////////////////////////////////////

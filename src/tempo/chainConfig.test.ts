@@ -1,3 +1,4 @@
+import { SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
@@ -15,6 +16,7 @@ import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
+import { chainConfig } from './chainConfig.js'
 import {
   Account,
   Addresses,
@@ -22,6 +24,7 @@ import {
   P256,
   WebCryptoP256,
 } from './index.js'
+import * as Transaction from './Transaction.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -478,6 +481,98 @@ describe('serializers', () => {
     expect(serialized).toBeDefined()
     expect(typeof serialized).toBe('string')
     expect(serialized.startsWith('0x76')).toBe(true)
+  })
+
+  test('transaction envelope wraps signature envelopes', async () => {
+    const transaction = {
+      calls: [],
+      chainId: 1,
+      multisig: '0x0000000000000000000000000000000000000001',
+    } as const
+    const approvals = ['76', '78'].map((prefix) =>
+      SignatureEnvelope.serialize({
+        signature: {
+          r: BigInt(`0x${prefix}${'11'.repeat(31)}`),
+          s: 1n,
+          yParity: 0,
+        },
+        type: 'secp256k1',
+      }),
+    )
+
+    const results = await Promise.all(
+      approvals.map(async (serializedTransaction) => {
+        const envelope = await chainConfig.serializers.transactionEnvelope({
+          serializedTransaction,
+          transaction,
+        })
+        const { signature } = Transaction.deserialize(
+          envelope as Transaction.TransactionSerializedTempo,
+        )
+        return {
+          approvalPrefix: serializedTransaction.slice(0, 4),
+          envelopePrefix: envelope.slice(0, 4),
+          signatureType: signature?.type,
+          signatures:
+            signature?.type === 'multisig' ? signature.signatures.length : 0,
+        }
+      }),
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "approvalPrefix": "0x76",
+          "envelopePrefix": "0x76",
+          "signatureType": "multisig",
+          "signatures": 1,
+        },
+        {
+          "approvalPrefix": "0x78",
+          "envelopePrefix": "0x76",
+          "signatureType": "multisig",
+          "signatures": 1,
+        },
+      ]
+    `)
+  })
+
+  test('transaction envelope preserves serialized transactions', async () => {
+    const transaction = {
+      calls: [],
+      chainId: 1,
+      multisig: '0x0000000000000000000000000000000000000001',
+    } as const
+    const envelopes = [
+      '0x78f83901808080d8d79470997970c51812dc3a010c7d01b50e0d17dc79c88080c0808080808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c0',
+      '0x76f84101808080f4d79470997970c51812dc3a010c7d01b50e0d17dc79c88080db943c44cdddb6a900fa2b585dd299e03d12fa4293bc8207d0821234c0808080808080c0',
+    ] as const
+
+    const results = await Promise.all(
+      envelopes.map(async (serializedTransaction) => {
+        const envelope = await chainConfig.serializers.transactionEnvelope({
+          serializedTransaction,
+          transaction,
+        })
+        return {
+          prefix: envelope.slice(0, 4),
+          preserved: envelope === serializedTransaction,
+        }
+      }),
+    )
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "prefix": "0x78",
+          "preserved": true,
+        },
+        {
+          "prefix": "0x76",
+          "preserved": true,
+        },
+      ]
+    `)
   })
 })
 
