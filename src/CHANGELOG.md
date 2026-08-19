@@ -1,5 +1,15 @@
 # viem
 
+## 2.55.19
+
+### Patch Changes
+
+- [#5018](https://github.com/wevm/viem/pull/5018) [`abf0d746952176eadbe5c72d9d708863d9bbb97e`](https://github.com/wevm/viem/commit/abf0d746952176eadbe5c72d9d708863d9bbb97e) Thanks [@david9104online](https://github.com/david9104online)! - Added Morph Tachyon mainnet and testnet chains.
+
+- [#5022](https://github.com/wevm/viem/pull/5022) [`edfb7e7adf1398b26fb94ba47fe55331cb1f16a0`](https://github.com/wevm/viem/commit/edfb7e7adf1398b26fb94ba47fe55331cb1f16a0) Thanks [@jxom](https://github.com/jxom)! - Updated multisig implementation.
+
+- [#5017](https://github.com/wevm/viem/pull/5017) [`7aac99a43eddea3af4d511e5d6cfccb5a9caabc0`](https://github.com/wevm/viem/commit/7aac99a43eddea3af4d511e5d6cfccb5a9caabc0) Thanks [@JiahaoAlbus](https://github.com/JiahaoAlbus)! - Added YNX Testnet chain.
+
 ## 2.55.18
 
 ### Patch Changes
