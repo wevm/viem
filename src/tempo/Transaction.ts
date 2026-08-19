@@ -98,17 +98,21 @@ export type TransactionRequestRpc = OneOf<
 export type TransactionReceipt<
   quantity = bigint,
   index = number,
-  status = 'success' | 'reverted',
+  status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
+  multisigAccount?: Address | undefined
+  multisigSignatures?: number | undefined
+  multisigThreshold?: number | undefined
+  multisigWeight?: number | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   Hex.Hex,
-  ox_TransactionReceipt.RpcStatus,
+  ox_TransactionReceipt.RpcStatus | 'pending',
   ox_TransactionReceipt.RpcType
 >
 

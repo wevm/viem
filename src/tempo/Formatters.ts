@@ -63,6 +63,12 @@ export function formatTransaction(
 export function formatTransactionReceipt(
   receipt: TransactionReceiptRpc,
 ): TransactionReceipt {
+  if (receipt.status === 'pending')
+    return {
+      ...viem_formatTransactionReceipt(receipt as never),
+      status: 'pending',
+      type: 'tempo',
+    } as never
   return viem_formatTransactionReceipt(receipt as never)
 }
 
