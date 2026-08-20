@@ -22,7 +22,7 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { MultisigAccount } from '../Account.js'
+import * as TempoAccount from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -96,7 +96,10 @@ export declare namespace approveTransaction {
       >
 
   /** Multisig identity accepted by an approval action. */
-  export type Multisig = Address | MultisigAccount | MultisigConfig.Config
+  export type Multisig =
+    | Address
+    | TempoAccount.MultisigAccount
+    | MultisigConfig.Config
 
   /** Pending or successful multisig operation and its prepared request. */
   export type ReturnValue<
@@ -581,25 +584,38 @@ async function prepareApproval(
   },
 ) {
   const account = parameters.account ?? client.account
-  const multisig =
-    typeof parameters.multisig === 'object' &&
-    'source' in parameters.multisig &&
-    parameters.multisig.source === 'multisig'
-      ? (parameters.multisig.config ?? parameters.multisig.address)
-      : parameters.multisig
-  const request = await prepareTransactionRequest(client, {
+  const multisigAccount = (() => {
+    if (
+      typeof parameters.multisig === 'object' &&
+      'source' in parameters.multisig &&
+      parameters.multisig.source === 'multisig'
+    )
+      return parameters.multisig
+    if (typeof account === 'object' && account.source === 'multisig')
+      return account as TempoAccount.MultisigAccount
+    if (parameters.multisig)
+      return TempoAccount.fromMultisig(parameters.multisig)
+    return undefined
+  })()
+  const multisig = multisigAccount
+    ? (multisigAccount.config ?? multisigAccount.address)
+    : undefined
+  const prepared = await prepareTransactionRequest(client, {
     ...parameters,
+    account: multisigAccount ?? account,
     multisig,
   } as never)
+  const { account: _account, ...request_ } = prepared
+  const request = {
+    ...request_,
+    from: request_.from!.toLowerCase() as Address,
+  }
   const signature = await signTransaction(client, {
     ...request,
     account,
   } as never)
-  const {
-    account: _,
-    chain: __,
-    ...transaction
-  } = request as typeof request & Transaction.TransactionSerializableTempo
+  const { chain: _chain, ...transaction } = request as typeof request &
+    Transaction.TransactionSerializableTempo
   return {
     request,
     serialized: await serializeApproval({ signature, transaction }),
@@ -610,7 +626,7 @@ async function prepareApproval(
 type WithMultisigAccount<parameters> = parameters extends unknown
   ? Omit<parameters, 'multisig'> & {
       /** Multisig account. */
-      multisig: MultisigAccount
+      multisig: TempoAccount.MultisigAccount
     }
   : never
 
