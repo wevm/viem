@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type * as Hex from 'ox/Hex'
 import { MultisigConfig } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -18,6 +19,8 @@ import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import * as Operation from '../multisig/Operation.js'
+import type * as Store from '../multisig/Store.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /**
@@ -156,6 +159,39 @@ export namespace getConfig {
       functionName: 'getConfig',
     })
   }
+}
+
+/**
+ * Gets a multisig operation.
+ *
+ * Reads the supplied local store when present. Otherwise, requests the operation
+ * from the configured RPC endpoint.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The multisig operation, or `null` when it is unknown.
+ */
+export async function getOperation(
+  client: Client,
+  parameters: getOperation.Parameters,
+): Promise<getOperation.ReturnValue> {
+  const { id, store } = parameters
+  if (store) return await Operation.read(store, id)
+  return (await client.request({
+    method: 'eth_getMultisigOperation',
+    params: [id],
+  } as never)) as getOperation.ReturnValue
+}
+
+export namespace getOperation {
+  export type Parameters = {
+    /** Operation ID returned by a pending multisig submission. */
+    id: Hex.Hex
+    /** Local multisig store. */
+    store?: Store.Store | undefined
+  }
+
+  export type ReturnValue = Operation.Operation | null
 }
 
 /**

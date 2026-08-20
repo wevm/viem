@@ -1,6 +1,6 @@
-import { http } from 'viem'
+import { custom, http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { createClient } from 'viem/tempo'
+import { createClient, Multisig } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
 
@@ -72,5 +72,98 @@ describe('createClient', () => {
     expect((client.chain as { feeToken?: string }).feeToken).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
+  })
+
+  test('behavior: multisig operation store resolution', async () => {
+    const id = `0x${'aa'.repeat(32)}` as const
+    const configuredStore = Multisig.Store.memory()
+    const explicitStore = Multisig.Store.from({
+      source: {
+        compareAndSet: async () => true,
+        get: async () => {
+          throw new Error('Explicit store used.')
+        },
+      },
+    })
+    const request = async ({ method }: { method: string }) => {
+      if (method === 'eth_getMultisigOperation')
+        return {
+          account: '0x1111111111111111111111111111111111111111',
+          approvals: [],
+          config: {
+            owners: [
+              {
+                owner: '0x1111111111111111111111111111111111111111',
+                weight: 1,
+              },
+            ],
+            salt: `0x${'00'.repeat(32)}`,
+            threshold: 1,
+          },
+          createdAt: 1,
+          id,
+          init: false,
+          schemaVersion: 1,
+          signatures: 0,
+          status: 'pending',
+          threshold: 1,
+          transaction: {
+            calls: [],
+            chainId: 4217,
+            type: 'tempo',
+          },
+          updatedAt: 1,
+          version: 0n,
+          weight: 0,
+        }
+      throw new Error(`Unexpected request: ${method}`)
+    }
+    const client = createClient({
+      multisig: { store: configuredStore },
+      transport: custom({ request }),
+    })
+
+    await expect(client.multisig.getOperation({ id })).resolves.toBeNull()
+    await expect(
+      client.multisig.getOperation({ id, store: explicitStore }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Explicit store used.]`,
+    )
+
+    const remoteClient = createClient({ transport: custom({ request }) })
+    await expect(
+      remoteClient.multisig.getOperation({ id }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "account": "0x1111111111111111111111111111111111111111",
+        "approvals": [],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x1111111111111111111111111111111111111111",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+        },
+        "createdAt": 1,
+        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "init": false,
+        "schemaVersion": 1,
+        "signatures": 0,
+        "status": "pending",
+        "threshold": 1,
+        "transaction": {
+          "calls": [],
+          "chainId": 4217,
+          "type": "tempo",
+        },
+        "updatedAt": 1,
+        "version": 0n,
+        "weight": 0,
+      }
+    `)
+    expect(client.transport.type).toMatchInlineSnapshot(`"custom"`)
   })
 })

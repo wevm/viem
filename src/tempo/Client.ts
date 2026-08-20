@@ -25,6 +25,7 @@ import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
+import * as Multisig from './Multisig.js'
 
 /**
  * Configuration for a Tempo {@link Client}.
@@ -57,6 +58,13 @@ export type ClientConfig<
      * to every transaction sent with the Client.
      */
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    /** Coordinates native multisig approvals through a shared store. */
+    multisig?:
+      | {
+          /** Shared, authoritative multisig state. */
+          store: Multisig.Store.Store
+        }
+      | undefined
     /**
      * Whether to use the Tempo testnet chain.
      *
@@ -156,7 +164,8 @@ export function createClient<
     : accountOrAddress,
   rpcSchema
 > {
-  const { chain, feeToken, testnet, tokens, transport, ...rest } = parameters
+  const { chain, feeToken, multisig, testnet, tokens, transport, ...rest } =
+    parameters
   const baseChain = chain ?? (testnet ? tempoTestnet : tempo)
   const resolvedChain =
     feeToken && typeof (baseChain as { extend?: unknown }).extend === 'function'
@@ -164,13 +173,34 @@ export function createClient<
           feeToken,
         })
       : baseChain
+  const transport_ = transport ?? http()
+  const resolvedTransport = multisig
+    ? wrapTransport(transport_, multisig)
+    : transport_
   return createClient_({
     ...rest,
     chain: resolvedChain,
     tokens: tokens ?? tokenSets.tempo,
-    transport: transport ?? http(),
+    transport: resolvedTransport,
   } as ClientConfig_)
     .extend(publicActions)
     .extend(walletActions)
     .extend(tempoActions()) as never
+}
+
+/** Wraps a transport with multisig request handling. */
+function wrapTransport<transport extends Transport>(
+  transport: transport,
+  parameters: Multisig.handleRequest.Parameters,
+): transport {
+  return ((options: Parameters<Transport>[0]) => {
+    const value = transport(options)
+    return {
+      ...value,
+      request: Multisig.handleRequest(
+        (request) => value.request(request as never),
+        parameters,
+      ) as typeof value.request,
+    }
+  }) as transport
 }

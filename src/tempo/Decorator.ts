@@ -2375,6 +2375,15 @@ type DecoratorBase<
       parameters: multisigActions.getConfig.Parameters,
     ) => Promise<multisigActions.getConfig.ReturnValue>
     /**
+     * Gets a multisig operation.
+     *
+     * @param parameters - Parameters.
+     * @returns The multisig operation, or `null` when it is unknown.
+     */
+    getOperation: (
+      parameters: multisigActions.getOperation.Parameters,
+    ) => Promise<multisigActions.getOperation.ReturnValue>
+    /**
      * Checks whether an address is an initialized native multisig account.
      *
      * @param parameters - Parameters.
@@ -5998,6 +6007,7 @@ export function decorator() {
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
         'getConfig',
+        'getOperation',
         'isInitialized',
         'updateConfig',
         'updateConfigSync',
