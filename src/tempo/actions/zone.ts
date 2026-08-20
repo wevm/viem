@@ -7,6 +7,10 @@ import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
+  type GetContractReturnType,
+  getContract,
+} from '../../actions/getContract.js'
+import {
   type MulticallErrorType,
   type MulticallParameters,
   multicall,
@@ -27,6 +31,7 @@ import {
 } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -470,11 +475,14 @@ export async function getPortalInfo<chain extends Chain | undefined>(
   if (!chainId) throw new Error('`chain` is required.')
 
   const { portalAddress: portalAddress_, zoneId, ...rest } = parameters
-  const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
-  const contract = {
+  const portal = getContract({
     abi: ZoneAbis.zonePortal,
-    address: portalAddress,
-  } as const
+    address: portalAddress_ ?? getPortalAddress(chainId, zoneId),
+    client,
+  }) as unknown as GetContractReturnType<
+    typeof ZoneAbis.zonePortal,
+    PublicClient<Transport, Chain>
+  >
   const [
     admin,
     enabledTokenCount,
@@ -487,56 +495,26 @@ export async function getPortalInfo<chain extends Chain | undefined>(
     sequencerThreshold,
     verifier,
   ] = await Promise.all([
-    readContract(client, { ...rest, ...contract, functionName: 'admin' }),
-    readContract(client, {
-      ...rest,
-      ...contract,
-      functionName: 'enabledTokenCount',
-    }),
-    readContract(client, { ...rest, ...contract, functionName: 'messenger' }),
-    readContract(client, { ...rest, ...contract, functionName: 'pauseExpiry' }),
-    readContract(client, { ...rest, ...contract, functionName: 'paused' }),
-    readContract(client, {
-      ...rest,
-      ...contract,
-      functionName: 'pendingAdmin',
-    }),
-    readContract(client, {
-      ...rest,
-      ...contract,
-      functionName: 'sequencerCount',
-    }),
-    readContract(client, {
-      ...rest,
-      ...contract,
-      functionName: 'sequencerSetVersion',
-    }),
-    readContract(client, {
-      ...rest,
-      ...contract,
-      functionName: 'sequencerThreshold',
-    }),
-    readContract(client, { ...rest, ...contract, functionName: 'verifier' }),
+    portal.read.admin(rest),
+    portal.read.enabledTokenCount(rest),
+    portal.read.messenger(rest),
+    portal.read.pauseExpiry(rest),
+    portal.read.paused(rest),
+    portal.read.pendingAdmin(rest),
+    portal.read.sequencerCount(rest),
+    portal.read.sequencerSetVersion(rest),
+    portal.read.sequencerThreshold(rest),
+    portal.read.verifier(rest),
   ])
   const [sequencers, enabledTokens] = await Promise.all([
     Promise.all(
       Array.from({ length: Number(sequencerCount) }, (_, index) =>
-        readContract(client, {
-          ...rest,
-          ...contract,
-          args: [BigInt(index)],
-          functionName: 'sequencerAt',
-        }),
+        portal.read.sequencerAt([BigInt(index)], rest),
       ),
     ),
     Promise.all(
       Array.from({ length: Number(enabledTokenCount) }, (_, index) =>
-        readContract(client, {
-          ...rest,
-          ...contract,
-          args: [BigInt(index)],
-          functionName: 'enabledTokenAt',
-        }),
+        portal.read.enabledTokenAt([BigInt(index)], rest),
       ),
     ),
   ])
