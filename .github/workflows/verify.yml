@@ -258,20 +258,16 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T8, T9, T10]
+        hardfork: [T10, Tnext]
         shard: [1, 2, 3]
         total-shards: [3]
         include:
-          - hardfork: T8
-            tempo-tag: sha-e828ab7
-            zone-tag: sha-aae82c4
-          - hardfork: T9
-            # Tempo 1.12.0 (d791f43f) with pre-T10 Zones.
-            tempo-tag: sha256:23150c7bae007afd2eeaa596c4b9f3d6950ecd0dec3e05ad44ebdbb8a6add863
-            zone-tag: sha-aae82c4
           - hardfork: T10
             # Tempo de760926 and sender-bound Zones 196f47b7.
             tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
+            zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
+          - hardfork: Tnext
+            tempo-tag: latest
             zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
 
     steps:

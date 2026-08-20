@@ -159,7 +159,7 @@ async function createUnconfiguredZone() {
               rpcUrl: 'http://127.0.0.1:0',
             },
           ],
-          gas: 20_000_000n,
+          gas: 30_000_000n,
         })
       : await (async () => {
           const verifier = await readContract(mainnetClient, {
@@ -189,7 +189,7 @@ async function createUnconfiguredZone() {
                 rpcUrl: 'http://127.0.0.1:0',
               },
             ],
-            gas: 20_000_000n,
+            gas: 30_000_000n,
           })
         })()
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
