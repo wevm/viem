@@ -1831,7 +1831,9 @@ describe('stateful', () => {
       feeToken: tempo.feeToken,
       multisig: initializedAccount,
     })
-    expect(updatePending.multisig?.account).toBe(initializedAccount.address)
+    expect(updatePending.multisig?.account).toBe(
+      initializedAccount.address.toLowerCase(),
+    )
     expect(updatePending.multisig?.init).toBe(false)
     expect(updatePending.status).toBe('pending')
     const updateSuccess = await sendTransactionSync(client, {

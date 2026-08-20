@@ -108,7 +108,6 @@ export const chainConfig = {
           from: operation.account,
           multisig: operation.init ? operation.config : operation.account,
           multisigVersion: operation.version,
-          signatures: operation.approvals,
         } as unknown as typeof r
       }
 
@@ -178,9 +177,7 @@ export const chainConfig = {
                 getState,
               )
             : undefined
-        const state = ownerStates
-          ? (await ownerStates)[0]!
-          : await getState(multisigAddress)
+        const state = await getState(multisigAddress)
         if (!initialConfig && !state.initialized)
           throw new Error(
             'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
@@ -216,11 +213,13 @@ export const chainConfig = {
           const states = await ownerStates
           if (states.length > 0) request.multisigOwnerStates = states
         }
-        // A non-multisig `account` (e.g. the client's default) isn't the sender,
-        // so drop it: core then fills nonce/gas/fees for the multisig sender via
-        // `request.from`. A multisig account *is* the sender, so keep it so the
-        // prepared request can be sent without re-passing `account`.
-        if (request.account?.source !== 'multisig') delete request.account
+        // A signing account that differs from the root multisig is not the
+        // sender. Drop it so core fills the root account's nonce and fees.
+        if (
+          request.account?.source !== 'multisig' ||
+          !isAddressEqual(request.account.address, multisigAddress)
+        )
+          delete request.account
       }
 
       // Register concurrency before account preparation performs storage or

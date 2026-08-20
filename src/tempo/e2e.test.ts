@@ -184,6 +184,7 @@ describe('sendTransaction', () => {
         "data": undefined,
         "feePayerSignature": undefined,
         "maxFeePerBlobGas": undefined,
+        "multisig": undefined,
         "to": null,
         "type": "tempo",
         "typeHex": "0x76",

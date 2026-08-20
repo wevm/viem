@@ -326,8 +326,12 @@ describe('update', () => {
     const values = new Map<string, string>()
     const store = Storage.from({
       getItem: (key) => values.get(key),
-      removeItem: (key) => values.delete(key),
-      setItem: (key, value) => values.set(key, value),
+      removeItem: (key) => {
+        values.delete(key)
+      },
+      setItem: (key, value) => {
+        values.set(key, value)
+      },
     })
 
     await expect(
