@@ -235,7 +235,11 @@ describe('getOperation', () => {
       version: 0n,
       weight: 0,
     })
-    await store.compareAndSet(`multisig:operation:${id}`, null, operation)
+    await store.compareAndSet(
+      `multisig:operation:${id}`,
+      null,
+      Multisig.Operation.serialize(operation),
+    )
 
     await expect(
       actions.multisig.getOperation(client, { id, store }),

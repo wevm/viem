@@ -204,9 +204,7 @@ declare namespace submit {
     /** Client used to resolve initialized configurations. */
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
-    method:
-      | 'multisig_approveTransaction'
-      | 'multisig_approveTransactionSync'
+    method: 'multisig_approveTransaction' | 'multisig_approveTransactionSync'
     /** Downstream RPC request handler. */
     next: handleRequest.Handler
     /** Serialized Tempo transaction. */
