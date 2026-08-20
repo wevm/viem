@@ -28,7 +28,7 @@ export function handleRequest(
   })
 
   return async (request) => {
-    if (request.method === 'eth_getMultisigOperation') {
+    if (request.method === 'multisig_getOperation') {
       const id = request.params?.[0]
       if (typeof id !== 'string' || !Hash.validate(id))
         throw new RpcResponse.InvalidParamsError({
@@ -42,8 +42,8 @@ export function handleRequest(
     }
 
     if (
-      request.method !== 'eth_approveMultisigTransaction' &&
-      request.method !== 'eth_approveMultisigTransactionSync'
+      request.method !== 'multisig_approveTransaction' &&
+      request.method !== 'multisig_approveTransactionSync'
     )
       return await next(request)
 
@@ -173,7 +173,7 @@ async function submit(options: submit.Options) {
   })
   const result = await options.next({
     method:
-      options.method === 'eth_approveMultisigTransaction'
+      options.method === 'multisig_approveTransaction'
         ? 'eth_sendRawTransaction'
         : 'eth_sendRawTransactionSync',
     params: [final],
@@ -205,8 +205,8 @@ declare namespace submit {
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
     method:
-      | 'eth_approveMultisigTransaction'
-      | 'eth_approveMultisigTransactionSync'
+      | 'multisig_approveTransaction'
+      | 'multisig_approveTransactionSync'
     /** Downstream RPC request handler. */
     next: handleRequest.Handler
     /** Serialized Tempo transaction. */

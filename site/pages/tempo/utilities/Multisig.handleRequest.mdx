@@ -20,7 +20,7 @@ const handleRequest = Multisig.handleRequest(
 )
 
 const result = await handleRequest({
-  method: 'eth_getMultisigOperation',
+  method: 'multisig_getOperation',
   params: ['0x23a9cbceb2775b93cd60d3ca7c98435c700aa0d7254850efdce71468d326ddf6'],
 })
 ```
@@ -53,7 +53,7 @@ The authoritative store shared by requests that coordinate the same multisig ope
 
 ## RPC Methods
 
-### `eth_approveMultisigTransaction`
+### `multisig_approveTransaction`
 
 Adds approvals from a serialized Tempo multisig transaction.
 
@@ -65,7 +65,7 @@ type Result = string // Serialized Multisig.Operation.Transaction
 Below quorum, the result contains a pending operation. At quorum, the handler broadcasts through
 `eth_sendRawTransaction` and returns a successful operation containing `transactionHash`.
 
-### `eth_approveMultisigTransactionSync`
+### `multisig_approveTransactionSync`
 
 Adds approvals and uses synchronous submission when quorum is reached.
 
@@ -77,7 +77,7 @@ type Result = string // Serialized Multisig.Operation.Transaction
 Below quorum, this method returns the same pending operation as the asynchronous method. At quorum,
 the handler broadcasts through `eth_sendRawTransactionSync`.
 
-### `eth_getMultisigOperation`
+### `multisig_getOperation`
 
 Gets an operation by its deterministic ID.
 

@@ -73,7 +73,7 @@ export async function approveTransaction<
 ): Promise<approveTransaction.ReturnValue<chain, chainOverride>> {
   const { request, serialized } = await prepareApproval(client, parameters)
   const value = await client.request({
-    method: 'eth_approveMultisigTransaction',
+    method: 'multisig_approveTransaction',
     params: [serialized],
   } as never)
   return { ...transactionOperation(value), request } as never
@@ -164,7 +164,7 @@ export async function approveTransactionSync<
 ): Promise<approveTransactionSync.ReturnValue<chain, chainOverride>> {
   const { request, serialized } = await prepareApproval(client, parameters)
   const value = await client.request({
-    method: 'eth_approveMultisigTransactionSync',
+    method: 'multisig_approveTransactionSync',
     params: [serialized],
   } as never)
   return { ...transactionOperation(value), request } as never
@@ -344,7 +344,7 @@ export async function getOperation(
   const { id, store } = parameters
   if (store) return await Operation.read(store, id)
   const value = await client.request({
-    method: 'eth_getMultisigOperation',
+    method: 'multisig_getOperation',
     params: [id],
   } as never)
   if (value === null) return null
