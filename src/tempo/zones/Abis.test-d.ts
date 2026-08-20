@@ -3,6 +3,7 @@ import {
   encodeFunctionData,
   type Hex,
   parseEventLogs,
+  type ReadContractReturnType,
   zeroAddress,
   zeroHash,
 } from 'viem'
@@ -48,6 +49,43 @@ test('zoneFactory supports both parameter shapes', () => {
 
   expectTypeOf(sequencerSet).toEqualTypeOf<Hex>()
   expectTypeOf(sequencer).toEqualTypeOf<Hex>()
+})
+
+test('zoneFactory decodes zone registry entries', () => {
+  type ZoneInfo = ReadContractReturnType<typeof Abis.zoneFactory, 'zones'>
+
+  expectTypeOf<ZoneInfo>().toEqualTypeOf<{
+    accessMode: boolean
+    admin: Address
+    gatewayMode: boolean
+    portal: Address
+    rpcUrl: string
+    sequencers: readonly Address[]
+    threshold: number
+    verifier: Address
+    zoneId: number
+  }>()
+})
+
+test('zonePortal decodes token configuration', () => {
+  type TokenConfig = ReadContractReturnType<
+    typeof Abis.zonePortal,
+    'tokenConfig'
+  >
+
+  expectTypeOf<TokenConfig>().toEqualTypeOf<{
+    depositsActive: boolean
+    enabled: boolean
+  }>()
+})
+
+test('zonePortal encodes pause operations', () => {
+  const pause = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'pause',
+  })
+
+  expectTypeOf(pause).toEqualTypeOf<Hex>()
 })
 
 test('zoneOutbox decodes WithdrawalRequested fallback nonces', () => {
