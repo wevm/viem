@@ -17,8 +17,7 @@ import { createCustomTempo } from './prool.tmp.js'
 export const port = 9545
 
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyHardfork =
-  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const legacyHardfork = hardfork === 'T9'
 
 /** Dev key used to provision and administer local Zones. */
 export const zoneAdminKey = legacyHardfork
@@ -204,10 +203,7 @@ async function startZone(
     dev: {
       // Native T10 genesis assigns the factory to Anvil #0. Pre-T10 provisioning uses Anvil #1.
       key: zoneAdminKey,
-      ...(import.meta.env.VITE_TEMPO_HARDFORK !== 'T7' &&
-      import.meta.env.VITE_TEMPO_HARDFORK !== 'T8'
-        ? { token: pathUsd }
-        : {}),
+      token: pathUsd,
     },
     image,
     l1: {
