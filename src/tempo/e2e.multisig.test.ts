@@ -3,9 +3,9 @@ import { parseSignature, type Transport, toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
   getTransaction,
-  getTransactionReceipt,
   prepareTransactionRequest,
   sendRawTransactionSync,
+  sendTransaction,
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
@@ -14,7 +14,6 @@ import {
   Account,
   Actions,
   createClient,
-  type Multisig,
   MultisigConfig,
   P256,
   Storage,
@@ -24,14 +23,8 @@ import {
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
-const client = createClient({
-  chain: tempoLocalnet,
-  experimental_multisig: true,
-  tokens: tempo.tokens,
-  transport: tempo.http(),
-})
-
-describe('fromMultisig', () => {
+describe('stateless', () => {
+  const client = tempo.getClient()
   const { accounts, feeToken } = tempo
 
   const to = '0x0000000000000000000000000000000000000001'
@@ -175,8 +168,8 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const pending = await client.multisig.approveTransactionSync({
-      account: owner_1,
+    const request = await prepareTransactionRequest(client, {
+      account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -185,12 +178,15 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: account,
     })
-    expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
-      account: owner_3,
+    const signatures = await Promise.all(
+      [owner_1, owner_3].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const success = await sendTransactionSync(client, {
+      ...request,
+      signatures,
     })
     const receipt = await getReceipt(success)
     expect(receipt.from).toBe(account.address.toLowerCase())
@@ -220,24 +216,23 @@ describe('fromMultisig', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const pending = await client.multisig.approveTransactionSync({
-        account: owners[0],
+      const request = await prepareTransactionRequest(client, {
+        account,
         calls: [{ to, value: 0n }],
         feeToken,
-        multisig: account,
       })
-      expect(pending.request).toMatchObject({
+      expect(request).toMatchObject({
         keyData: '0x0578',
         keyType: 'webAuthn',
       })
-      for (const owner of owners.slice(1, -1))
-        await client.multisig.approveTransactionSync({
-          ...pending.request,
-          account: owner,
-        })
-      const success = await client.multisig.approveTransactionSync({
-        ...pending.request,
-        account: owners[3],
+      const signatures = await Promise.all(
+        owners.map((owner) =>
+          signTransaction(client, { ...request, account: owner }),
+        ),
+      )
+      const success = await sendTransactionSync(client, {
+        ...request,
+        signatures,
       })
 
       assertSuccess(success)
@@ -320,7 +315,7 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const childSuccess = await client.multisig.approveTransactionSync({
+    const childSuccess = await sendTransactionSync(client, {
       account: child,
       calls: [{ to, value: 0n }],
       feeToken,
@@ -341,7 +336,7 @@ describe('fromMultisig', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const success = await client.multisig.approveTransactionSync({
+      const success = await sendTransactionSync(client, {
         account: child,
         calls: [{ to, value: 0n }],
         feeToken,
@@ -350,11 +345,11 @@ describe('fromMultisig', () => {
       const receipt = await getReceipt(success)
 
       expect(receipt.from).toBe(account.address.toLowerCase())
-      expect(success.request.nonce).toBe(nonce)
 
       const parentTransaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
+      expect(parentTransaction.nonce).toBe(nonce)
       expect(parentTransaction.signature?.type).toBe('multisig')
       if (parentTransaction.signature?.type !== 'multisig')
         throw new Error('unreachable')
@@ -417,8 +412,8 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const bootstrapPending = await client.multisig.approveTransactionSync({
-      account: heavy,
+    const bootstrap = await prepareTransactionRequest(client, {
+      account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -427,51 +422,36 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: account,
     })
-    expect(bootstrapPending.status).toBe('pending')
-    expect(bootstrapPending.weight).toBe(2)
-    const bootstrapSuccess = await client.multisig.approveTransactionSync({
-      ...bootstrapPending.request,
-      account: light_1,
+    const bootstrapSignatures = await Promise.all(
+      [heavy, light_1].map((owner) =>
+        signTransaction(client, { ...bootstrap, account: owner }),
+      ),
+    )
+    const bootstrapSuccess = await sendTransactionSync(client, {
+      ...bootstrap,
+      signatures: bootstrapSignatures,
     })
     assertSuccess(bootstrapSuccess)
 
-    const validPending = await client.multisig.approveTransactionSync({
-      account: heavy,
+    const valid = await prepareTransactionRequest(client, {
+      account,
       calls: [{ to, value: 0n }],
       feeToken,
-      multisig: account,
     })
-    expect(validPending.status).toBe('pending')
-    const validSuccess = await client.multisig.approveTransactionSync({
-      ...validPending.request,
-      account: light_2,
+    const validSignatures = await Promise.all(
+      [heavy, light_2].map((owner) =>
+        signTransaction(client, { ...valid, account: owner }),
+      ),
+    )
+    const validSuccess = await sendTransactionSync(client, {
+      ...valid,
+      signatures: validSignatures,
     })
     assertSuccess(validSuccess)
 
-    const lightPending_1 = await client.multisig.approveTransactionSync({
-      account: light_1,
-      calls: [{ to, value: 0n }],
-      feeToken,
-      multisig: account,
-    })
-    expect(lightPending_1.status).toBe('pending')
-    expect(lightPending_1.weight).toBe(1)
-    const lightPending_2 = await client.multisig.approveTransactionSync({
-      ...lightPending_1.request,
-      account: light_2,
-    })
-    expect(lightPending_2.status).toBe('pending')
-    expect(lightPending_2.weight).toBe(2)
-    const success = await client.multisig.approveTransactionSync({
-      ...lightPending_1.request,
-      account: heavy,
-    })
-    assertSuccess(success)
-
     const transaction = await getTransaction(client, {
-      hash: success.transactionHash,
+      hash: validSuccess.transactionHash,
     })
     expect(transaction.signature?.type).toBe('multisig')
     if (transaction.signature?.type !== 'multisig')
@@ -494,7 +474,7 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const success = await client.multisig.approveTransactionSync({
+    const success = await sendTransactionSync(client, {
       account,
       calls: [
         Actions.token.transfer.call(client, {
@@ -528,8 +508,8 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const pending = await client.multisig.approveTransactionSync({
-      account: owner_1,
+    const request = await prepareTransactionRequest(client, {
+      account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 1n,
@@ -538,12 +518,15 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: account,
     })
-    expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
-      account: owner_2,
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const success = await sendTransactionSync(client, {
+      ...request,
+      signatures,
     })
     const receipt = await getReceipt(success)
     expect(receipt.from).toBe(account.address.toLowerCase())
@@ -553,7 +536,7 @@ describe('fromMultisig', () => {
     const account = Account.fromMultisig(accounts[0].address)
 
     await expect(
-      client.multisig.approveTransactionSync({
+      sendTransactionSync(client, {
         account: accounts[0],
         calls: [{ to, value: 0n }],
         feeToken,
@@ -576,17 +559,20 @@ describe('fromMultisig', () => {
     })
     const account = Account.fromMultisig(config)
 
-    const pending = await client.multisig.approveTransactionSync({
-      account: owner_1,
+    const request = await prepareTransactionRequest(client, {
+      account,
       feePayer: accounts[0],
-      multisig: account,
       to: account.address,
       value: 0n,
     })
-    expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
-      account: owner_2,
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const success = await sendTransactionSync(client, {
+      ...request,
+      signatures,
     })
     const receipt = await getReceipt(success)
     expect(receipt.from).toBe(account.address.toLowerCase())
@@ -623,14 +609,14 @@ describe('fromMultisig', () => {
       feePayerSignature,
       feeToken,
     }
-    const feePayerFirstPending = await client.multisig.approveTransactionSync({
+    const feePayerFirstSignatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...sponsored, account: owner }),
+      ),
+    )
+    const feePayerFirstSuccess = await sendTransactionSync(client, {
       ...sponsored,
-      account: owner_1,
-    })
-    expect(feePayerFirstPending.status).toBe('pending')
-    const feePayerFirstSuccess = await client.multisig.approveTransactionSync({
-      ...feePayerFirstPending.request,
-      account: owner_2,
+      signatures: feePayerFirstSignatures,
     })
     const feePayerFirstReceipt = await getReceipt(feePayerFirstSuccess)
 
@@ -818,18 +804,19 @@ describe('fromMultisig', () => {
       token: feeToken,
     })
 
-    const bootstrapPending = await client.multisig.approveTransactionSync({
-      account: owner_1,
+    const bootstrap = await prepareTransactionRequest(client, {
+      account,
       calls: [{ to, value: 0n }],
       feeToken,
-      multisig: account,
     })
-    expect(bootstrapPending.request.multisigSignatureCount).toBeUndefined()
-    expect(bootstrapPending.request.multisigVersion).toBe(0n)
-    expect(bootstrapPending.status).toBe('pending')
-    const bootstrapSuccess = await client.multisig.approveTransactionSync({
-      ...bootstrapPending.request,
-      account: owner_2,
+    const bootstrapSignatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...bootstrap, account: owner }),
+      ),
+    )
+    const bootstrapSuccess = await sendTransactionSync(client, {
+      ...bootstrap,
+      signatures: bootstrapSignatures,
     })
     assertSuccess(bootstrapSuccess)
     expect(
@@ -842,8 +829,8 @@ describe('fromMultisig', () => {
 
     const initializedAccount = Account.fromMultisig(account.address)
     expect(initializedAccount.config).toBeUndefined()
-    const updatePending = await client.multisig.approveTransactionSync({
-      account: owner_1,
+    const update = await prepareTransactionRequest(client, {
+      account: initializedAccount,
       calls: [
         Actions.multisig.updateConfig.call({
           threshold: 2,
@@ -854,14 +841,15 @@ describe('fromMultisig', () => {
         }),
       ],
       feeToken,
-      multisig: initializedAccount,
     })
-    expect(updatePending.request.multisig).toBe(initializedAccount.address)
-    expect(updatePending.request.multisigInit).toBeUndefined()
-    expect(updatePending.status).toBe('pending')
-    const updateSuccess = await client.multisig.approveTransactionSync({
-      ...updatePending.request,
-      account: owner_2,
+    const updateSignatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...update, account: owner }),
+      ),
+    )
+    const updateSuccess = await sendTransactionSync(client, {
+      ...update,
+      signatures: updateSignatures,
     })
     const updateReceipt = await getReceipt(updateSuccess)
     expect(
@@ -875,37 +863,32 @@ describe('fromMultisig', () => {
       ]),
     })
 
-    const pending = await client.multisig.approveTransactionSync({
-      account: owner_3,
+    const request = await prepareTransactionRequest(client, {
+      account: initializedAccount,
       calls: [{ to, value: 0n }],
       feeToken,
-      multisig: initializedAccount,
     })
-    expect(pending.request.multisigSignatureCount).toBeUndefined()
-    expect(pending.request.multisigOwnerStates?.[0]).toEqual({
-      account: initializedAccount.address,
-      config: {
-        owners: expect.arrayContaining([
-          { owner: owner_3.address, weight: 1 },
-          { owner: owner_4.address, weight: 1 },
-        ]),
-        threshold: 2,
-      },
-      initialized: true,
-      version: 1n,
-    })
-    expect(pending.request.multisigVersion).toBe(1n)
-    expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
-      account: owner_4,
+    const signatures = await Promise.all(
+      [owner_3, owner_4].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const success = await sendTransactionSync(client, {
+      ...request,
+      signatures,
     })
     const receipt = await getReceipt(success)
     expect(receipt.from).toBe(initializedAccount.address.toLowerCase())
   })
 })
 
-describe('multisig store', () => {
+describe('stateful', () => {
+  const client = createClient({
+    chain: tempoLocalnet,
+    experimental_multisig: true,
+    tokens: tempo.tokens,
+    transport: tempo.http(),
+  })
   test('examples: bootstrap and initialized', async () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
@@ -927,7 +910,7 @@ describe('multisig store', () => {
       account: recipient,
       token: tempo.feeToken,
     })
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [
         Actions.token.transfer.call(client, {
@@ -937,14 +920,15 @@ describe('multisig store', () => {
         }),
       ],
       feeToken: tempo.feeToken,
-      multisig: account.config,
+      multisig: account,
     })
-    const { request, ...pendingResult } = pending
+    const pendingResult = pending.multisig
+    if (!pendingResult) throw new Error('Expected multisig operation.')
     expect(pendingResult).toMatchInlineSnapshot(
       {
         approvals: [expect.any(String)],
         createdAt: expect.any(Number),
-        id: expect.any(String),
+        hash: expect.any(String),
         transaction: {
           gas: expect.any(BigInt),
           maxFeePerGas: expect.any(BigInt),
@@ -972,7 +956,7 @@ describe('multisig store', () => {
           "threshold": 2,
         },
         "createdAt": Any<Number>,
-        "id": Any<String>,
+        "hash": Any<String>,
         "init": true,
         "schemaVersion": 1,
         "signatures": 1,
@@ -1000,29 +984,30 @@ describe('multisig store', () => {
       }
     `,
     )
-    const id = pending.id
+    const hash = pending.transactionHash
 
-    await client.multisig.approveTransactionSync({
-      ...request,
+    await sendTransactionSync(client, {
       account: owner_1,
+      hash,
     })
 
-    const pendingOperation = await client.multisig.getOperation({ id })
+    const pendingOperation = (await getTransaction(client, { hash })).multisig
     expect(pendingOperation).toStrictEqual({
       ...pendingResult,
       updatedAt: expect.any(Number),
     })
 
-    const success = await client.multisig.approveTransactionSync({
-      ...request,
+    const success = await sendTransactionSync(client, {
       account: owner_2,
+      hash,
     })
-    const { request: _, ...successResult } = success
+    const successResult = success.multisig
+    if (!successResult) throw new Error('Expected multisig operation.')
     expect(successResult).toMatchInlineSnapshot(
       {
         approvals: [expect.any(String), expect.any(String)],
         createdAt: expect.any(Number),
-        id: expect.any(String),
+        hash: expect.any(String),
         transactionHash: expect.any(String),
         updatedAt: expect.any(Number),
       },
@@ -1048,7 +1033,7 @@ describe('multisig store', () => {
           "threshold": 2,
         },
         "createdAt": Any<Number>,
-        "id": Any<String>,
+        "hash": Any<String>,
         "schemaVersion": 1,
         "signatures": 2,
         "status": "success",
@@ -1100,11 +1085,11 @@ describe('multisig store', () => {
     `,
     )
 
-    expect(await client.multisig.getOperation({ id })).toStrictEqual(
+    expect((await getTransaction(client, { hash })).multisig).toStrictEqual(
       successResult,
     )
 
-    const initializedPending = await client.multisig.approveTransaction({
+    const initializedPending = await sendTransaction(client, {
       account: owner_1,
       calls: [
         Actions.token.transfer.call(client, {
@@ -1116,14 +1101,14 @@ describe('multisig store', () => {
       feeToken: tempo.feeToken,
       multisig: account.address,
     })
-    const initializedId = initializedPending.id
+    const initializedId = initializedPending
     expect(
-      await client.multisig.getOperation({ id: initializedId }),
+      (await getTransaction(client, { hash: initializedId })).multisig,
     ).toMatchInlineSnapshot(
       {
         approvals: [expect.any(String)],
         createdAt: expect.any(Number),
-        id: expect.any(String),
+        hash: expect.any(String),
         transaction: {
           gas: expect.any(BigInt),
           maxFeePerGas: expect.any(BigInt),
@@ -1151,7 +1136,7 @@ describe('multisig store', () => {
           "threshold": 2,
         },
         "createdAt": Any<Number>,
-        "id": Any<String>,
+        "hash": Any<String>,
         "init": false,
         "schemaVersion": 1,
         "signatures": 1,
@@ -1180,14 +1165,14 @@ describe('multisig store', () => {
     `,
     )
 
-    const initializedSuccess = await client.multisig.approveTransaction({
-      ...initializedPending.request,
+    const initializedSuccess = await sendTransaction(client, {
       account: owner_2,
+      hash: initializedId,
     })
-    const { request: __, ...initializedSuccessResult } = initializedSuccess
+    expect(initializedSuccess).toBe(initializedId)
     expect(
-      await client.multisig.getOperation({ id: initializedId }),
-    ).toStrictEqual(initializedSuccessResult)
+      (await getTransaction(client, { hash: initializedId })).multisig,
+    ).toMatchObject({ hash: initializedId, status: 'success', weight: 2 })
   })
 
   test('2-of-3 (M-of-N): threshold subset of owners approves', async () => {
@@ -1207,7 +1192,7 @@ describe('multisig store', () => {
       token: tempo.feeToken,
     })
 
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
@@ -1215,8 +1200,8 @@ describe('multisig store', () => {
     })
     expect(pending.status).toBe('pending')
 
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
+    const success = await sendTransactionSync(client, {
+      hash: pending.transactionHash,
       account: owner_3,
     })
     const receipt = await getReceipt(success)
@@ -1247,25 +1232,21 @@ describe('multisig store', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const pending = await client.multisig.approveTransactionSync({
+      const pending = await sendTransactionSync(client, {
         account: owners[0],
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         feeToken: tempo.feeToken,
         multisig: account,
       })
-      expect(pending.request).toMatchObject({
-        keyData: '0x0578',
-        keyType: 'webAuthn',
-      })
       for (const owner of owners.slice(1, -1)) {
-        const operation = await client.multisig.approveTransactionSync({
-          ...pending.request,
+        const operation = await sendTransactionSync(client, {
+          hash: pending.transactionHash,
           account: owner,
         })
         expect(operation.status).toBe('pending')
       }
-      const success = await client.multisig.approveTransactionSync({
-        ...pending.request,
+      const success = await sendTransactionSync(client, {
+        hash: pending.transactionHash,
         account: owners[3],
       })
 
@@ -1308,15 +1289,15 @@ describe('multisig store', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const pending = await client.multisig.approveTransactionSync({
+      const pending = await sendTransactionSync(client, {
         account: externalOwner,
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         feeToken: tempo.feeToken,
         multisig: account,
       })
       expect(pending.status).toBe('pending')
-      const success = await client.multisig.approveTransactionSync({
-        ...pending.request,
+      const success = await sendTransactionSync(client, {
+        hash: pending.transactionHash,
         account: localOwner,
       })
 
@@ -1349,7 +1330,7 @@ describe('multisig store', () => {
       token: tempo.feeToken,
     })
 
-    const childSuccess = await client.multisig.approveTransactionSync({
+    const childSuccess = await sendTransactionSync(client, {
       account: childOwner,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
@@ -1370,7 +1351,7 @@ describe('multisig store', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const success = await client.multisig.approveTransactionSync({
+      const success = await sendTransactionSync(client, {
         account: child,
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         feeToken: tempo.feeToken,
@@ -1379,11 +1360,11 @@ describe('multisig store', () => {
 
       const receipt = await getReceipt(success)
       expect(receipt.from).toBe(account.address.toLowerCase())
-      expect(success.request.nonce).toBe(nonce)
 
       const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
+      expect(transaction.nonce).toBe(nonce)
       expect(transaction.signature?.type).toBe('multisig')
       if (transaction.signature?.type !== 'multisig')
         throw new Error('unreachable')
@@ -1443,49 +1424,49 @@ describe('multisig store', () => {
       token: tempo.feeToken,
     })
 
-    const bootstrapPending = await client.multisig.approveTransactionSync({
+    const bootstrapPending = await sendTransactionSync(client, {
       account: heavy,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
       multisig: account,
     })
     expect(bootstrapPending.status).toBe('pending')
-    expect(bootstrapPending.weight).toBe(2)
-    const bootstrapSuccess = await client.multisig.approveTransactionSync({
-      ...bootstrapPending.request,
+    expect(bootstrapPending.multisig?.weight).toBe(2)
+    const bootstrapSuccess = await sendTransactionSync(client, {
+      hash: bootstrapPending.transactionHash,
       account: light_1,
     })
     assertSuccess(bootstrapSuccess)
 
-    const validPending = await client.multisig.approveTransactionSync({
+    const validPending = await sendTransactionSync(client, {
       account: heavy,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
       multisig: account,
     })
     expect(validPending.status).toBe('pending')
-    const validSuccess = await client.multisig.approveTransactionSync({
-      ...validPending.request,
+    const validSuccess = await sendTransactionSync(client, {
+      hash: validPending.transactionHash,
       account: light_2,
     })
     assertSuccess(validSuccess)
 
-    const lightPending_1 = await client.multisig.approveTransactionSync({
+    const lightPending_1 = await sendTransactionSync(client, {
       account: light_1,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
       multisig: account,
     })
     expect(lightPending_1.status).toBe('pending')
-    expect(lightPending_1.weight).toBe(1)
-    const lightPending_2 = await client.multisig.approveTransactionSync({
-      ...lightPending_1.request,
+    expect(lightPending_1.multisig?.weight).toBe(1)
+    const lightPending_2 = await sendTransactionSync(client, {
+      hash: lightPending_1.transactionHash,
       account: light_2,
     })
     expect(lightPending_2.status).toBe('pending')
-    expect(lightPending_2.weight).toBe(2)
-    const success = await client.multisig.approveTransactionSync({
-      ...lightPending_1.request,
+    expect(lightPending_2.multisig?.weight).toBe(2)
+    const success = await sendTransactionSync(client, {
+      hash: lightPending_1.transactionHash,
       account: heavy,
     })
     assertSuccess(success)
@@ -1514,7 +1495,7 @@ describe('multisig store', () => {
       token: tempo.feeToken,
     })
 
-    const success = await client.multisig.approveTransactionSync({
+    const success = await sendTransactionSync(client, {
       account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
@@ -1525,7 +1506,7 @@ describe('multisig store', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('infer multisig from `account` (no `multisig` field)', async () => {
+  test('supports prepared requests without a `multisig` field', async () => {
     const owner_1 = tempo.accounts[10]
     const owner_2 = tempo.accounts[11]
     const account = Account.fromMultisig({
@@ -1546,12 +1527,12 @@ describe('multisig store', () => {
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
     })
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       ...request,
       account: owner_1,
     })
     expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
+    const success = await sendTransactionSync(client, {
       ...request,
       account: owner_2,
     })
@@ -1564,7 +1545,7 @@ describe('multisig store', () => {
     const account = Account.fromMultisig(tempo.accounts[0].address)
 
     await expect(
-      client.multisig.approveTransactionSync({
+      sendTransactionSync(client, {
         account: tempo.accounts[0],
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         feeToken: tempo.feeToken,
@@ -1584,7 +1565,7 @@ describe('multisig store', () => {
       threshold: 2,
     })
 
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_1,
       feePayer: tempo.accounts[0],
       multisig: account,
@@ -1592,8 +1573,8 @@ describe('multisig store', () => {
       value: 0n,
     })
     expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
+    const success = await sendTransactionSync(client, {
+      hash: pending.transactionHash,
       account: owner_2,
     })
 
@@ -1632,13 +1613,13 @@ describe('multisig store', () => {
       feePayerSignature,
       feeToken: tempo.feeToken,
     }
-    const feePayerFirstPending = await client.multisig.approveTransactionSync({
+    const feePayerFirstPending = await sendTransactionSync(client, {
       ...sponsored,
       account: owner_1,
     })
     expect(feePayerFirstPending.status).toBe('pending')
-    const feePayerFirstSuccess = await client.multisig.approveTransactionSync({
-      ...feePayerFirstPending.request,
+    const feePayerFirstSuccess = await sendTransactionSync(client, {
+      hash: feePayerFirstPending.transactionHash,
       account: owner_2,
     })
 
@@ -1813,17 +1794,16 @@ describe('multisig store', () => {
       token: tempo.feeToken,
     })
 
-    const bootstrapPending = await client.multisig.approveTransactionSync({
+    const bootstrapPending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
       multisig: account,
     })
-    expect(bootstrapPending.request.multisigSignatureCount).toBeUndefined()
-    expect(bootstrapPending.request.multisigVersion).toBe(0n)
+    expect(bootstrapPending.multisig?.version).toBe(0n)
     expect(bootstrapPending.status).toBe('pending')
-    const bootstrapSuccess = await client.multisig.approveTransactionSync({
-      ...bootstrapPending.request,
+    const bootstrapSuccess = await sendTransactionSync(client, {
+      hash: bootstrapPending.transactionHash,
       account: owner_2,
     })
     assertSuccess(bootstrapSuccess)
@@ -1837,7 +1817,7 @@ describe('multisig store', () => {
 
     const initializedAccount = Account.fromMultisig(account.address)
     expect(initializedAccount.config).toBeUndefined()
-    const updatePending = await client.multisig.approveTransactionSync({
+    const updatePending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [
         Actions.multisig.updateConfig.call({
@@ -1851,11 +1831,11 @@ describe('multisig store', () => {
       feeToken: tempo.feeToken,
       multisig: initializedAccount,
     })
-    expect(updatePending.request.multisig).toBe(initializedAccount.address)
-    expect(updatePending.request.multisigInit).toBeUndefined()
+    expect(updatePending.multisig?.account).toBe(initializedAccount.address)
+    expect(updatePending.multisig?.init).toBe(false)
     expect(updatePending.status).toBe('pending')
-    const updateSuccess = await client.multisig.approveTransactionSync({
-      ...updatePending.request,
+    const updateSuccess = await sendTransactionSync(client, {
+      hash: updatePending.transactionHash,
       account: owner_2,
     })
     const updateReceipt = await getReceipt(updateSuccess)
@@ -1870,29 +1850,24 @@ describe('multisig store', () => {
       ]),
     })
 
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_3,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
       multisig: initializedAccount,
     })
-    expect(pending.request.multisigSignatureCount).toBeUndefined()
-    expect(pending.request.multisigOwnerStates?.[0]).toEqual({
-      account: initializedAccount.address,
-      config: {
-        owners: expect.arrayContaining([
-          { owner: owner_3.address, weight: 1 },
-          { owner: owner_4.address, weight: 1 },
-        ]),
-        threshold: 2,
-      },
-      initialized: true,
-      version: 1n,
+    expect(pending.multisig?.config).toEqual({
+      owners: expect.arrayContaining([
+        { owner: owner_3.address, weight: 1 },
+        { owner: owner_4.address, weight: 1 },
+      ]),
+      salt: expect.any(String),
+      threshold: 2,
     })
-    expect(pending.request.multisigVersion).toBe(1n)
+    expect(pending.multisig?.version).toBe(1n)
     expect(pending.status).toBe('pending')
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
+    const success = await sendTransactionSync(client, {
+      hash: pending.transactionHash,
       account: owner_4,
     })
 
@@ -1918,7 +1893,7 @@ describe('multisig store', () => {
       account: recipient,
       token: tempo.feeToken,
     })
-    const success = await client.multisig.approveTransactionSync({
+    const success = await sendTransactionSync(client, {
       account,
       calls: [
         Actions.token.transfer.call(client, {
@@ -2020,7 +1995,7 @@ describe('multisig store', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
@@ -2030,12 +2005,12 @@ describe('multisig store', () => {
 
     collect = true
     const results = await Promise.allSettled([
-      client.multisig.approveTransactionSync({
-        ...pending.request,
+      sendTransactionSync(client, {
+        hash: pending.transactionHash,
         account: owner_2,
       }),
-      client.multisig.approveTransactionSync({
-        ...pending.request,
+      sendTransactionSync(client, {
+        hash: pending.transactionHash,
         account: owner_3,
       }),
     ])
@@ -2043,9 +2018,9 @@ describe('multisig store', () => {
     expect(serializedTransactions).toHaveLength(2)
     expect(serializedTransactions[0]).toBe(serializedTransactions[1])
     expect(results.some((result) => result.status === 'fulfilled')).toBe(true)
-    const operation = await client.multisig.getOperation({
-      id: pending.id,
-    })
+    const operation = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
     expect(operation?.status).toBe('success')
   })
 
@@ -2101,7 +2076,7 @@ describe('multisig store', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await client.multisig.approveTransactionSync({
+    const pending = await sendTransactionSync(client, {
       account: owner_1,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       feeToken: tempo.feeToken,
@@ -2111,27 +2086,27 @@ describe('multisig store', () => {
 
     fail = true
     await expect(
-      client.multisig.approveTransactionSync({
-        ...pending.request,
+      sendTransactionSync(client, {
+        hash: pending.transactionHash,
         account: owner_2,
       }),
     ).rejects.toThrow('Submission failed.')
-    const failedOperation = await client.multisig.getOperation({
-      id: pending.id,
-    })
+    const failedOperation = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
     expect(failedOperation?.status).toBe('pending')
     expect(failedOperation?.weight).toBe(2)
 
-    const success = await client.multisig.approveTransactionSync({
-      ...pending.request,
+    const success = await sendTransactionSync(client, {
+      hash: pending.transactionHash,
       account: owner_2,
     })
     assertSuccess(success)
     expect(serializedTransactions).toHaveLength(2)
     expect(serializedTransactions[0]).toBe(serializedTransactions[1])
-    const operation = await client.multisig.getOperation({
-      id: pending.id,
-    })
+    const operation = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
     expect(operation?.status).toBe('success')
     if (operation?.status !== 'success') throw new Error('unreachable')
     expect(operation.transactionHash).toBe(success.transactionHash)
@@ -2139,16 +2114,18 @@ describe('multisig store', () => {
 })
 
 function assertSuccess(
-  operation: Multisig.Operation.Transaction,
-): asserts operation is Multisig.Operation.TransactionSuccess {
-  if (operation.status !== 'success') throw new Error('Expected success.')
+  receipt: Transaction.TransactionReceipt,
+): asserts receipt is Transaction.TransactionReceipt<
+  bigint,
+  number,
+  'success'
+> {
+  if (receipt.status !== 'success') throw new Error('Expected success.')
 }
 
 async function getReceipt(
-  operation: Multisig.Operation.Transaction,
+  receipt: Transaction.TransactionReceipt,
 ): Promise<Transaction.TransactionReceipt> {
-  assertSuccess(operation)
-  return await getTransactionReceipt(client, {
-    hash: operation.transactionHash,
-  })
+  assertSuccess(receipt)
+  return receipt
 }

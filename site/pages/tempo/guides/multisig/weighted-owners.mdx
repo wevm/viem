@@ -22,7 +22,7 @@ account can reach quorum with any two owners.
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Create three independent owners.
 const owner_1 = Account.fromSecp256k1(
@@ -42,22 +42,20 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Store the first owner's approval.
-const pending = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: owner_1,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
+  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 
-// 4. Reach quorum with any other owner.
-const success = await client.multisig.approveTransaction({
-  ...pending.request,
+// 4. Reach quorum with any other owner using the operation hash.
+const receipt = await client.sendTransactionSync({
   account: owner_3,
+  hash: pending.transactionHash,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 

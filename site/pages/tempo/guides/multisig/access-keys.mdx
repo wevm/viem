@@ -14,7 +14,8 @@ the multisig account, subject to the authorization's expiry, scopes, and spendin
 :::warning
 The experimental multisig store does not yet coordinate approvals inside a key authorization.
 Assemble a complete authorization quorum before signing the transaction that carries it.
-`multisig.approveTransaction` coordinates the outer transaction signature only.
+Transaction coordination through `sendTransaction` applies only to the outer transaction
+signature.
 :::
 
 ## Recipes

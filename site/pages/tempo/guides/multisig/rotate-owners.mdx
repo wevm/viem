@@ -18,13 +18,13 @@ This example assumes that `multisig` has already been initialized.
 ### Approve the New Configuration
 
 Put [`multisig.updateConfig.call`](/tempo/actions/multisig.updateConfig) in the first approval. Each
-current owner then reuses the returned request.
+later owner then passes the returned operation hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account, Actions } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Load the current and replacement owners.
 const owner_1 = Account.fromSecp256k1(
@@ -46,7 +46,7 @@ const multisig = Account.fromMultisig(
 )
 
 // 3. Store the first current owner's approval for the update.
-const pending = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: owner_1,
   calls: [
     Actions.multisig.updateConfig.call({
@@ -61,13 +61,13 @@ const pending = await client.multisig.approveTransaction({
 })
 
 // 4. Reach quorum with the second current owner.
-const success = await client.multisig.approveTransaction({
-  ...pending.request,
+const receipt = await client.sendTransactionSync({
   account: owner_2,
+  hash: pending.transactionHash,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
@@ -80,7 +80,7 @@ so the new owners can coordinate the next request.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Create the replacement owner signers.
 const newOwner_1 = Account.fromSecp256k1(
@@ -96,18 +96,16 @@ const multisig = Account.fromMultisig(
 )
 
 // 3. Store the first new owner's approval.
-const pending = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: newOwner_1,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
+  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 
 // 4. Reach quorum with the second new owner.
-const success = await client.multisig.approveTransaction({
-  ...pending.request,
+const receipt = await client.sendTransactionSync({
   account: newOwner_2,
+  hash: pending.transactionHash,
 })
 ```
 

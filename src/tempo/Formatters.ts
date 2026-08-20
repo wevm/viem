@@ -12,6 +12,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account } from './Account.js'
+import * as Operation from './multisig/Operation.js'
 import {
   isTempo,
   type Transaction,
@@ -32,6 +33,7 @@ export function formatTransaction(
     transaction.blockTimestamp == null
       ? undefined
       : BigInt(transaction.blockTimestamp)
+  const multisig = transaction.multisig
   const {
     feePayerSignature,
     gasPrice: _,
@@ -51,6 +53,7 @@ export function formatTransaction(
           yParity: feePayerSignature.yParity,
         }
       : undefined,
+    multisig: formatMultisig(multisig),
     nonce: Number(nonce),
     typeHex:
       ox_Transaction.toRpcType[
@@ -63,7 +66,23 @@ export function formatTransaction(
 export function formatTransactionReceipt(
   receipt: TransactionReceiptRpc,
 ): TransactionReceipt {
-  return viem_formatTransactionReceipt(receipt as never)
+  const transactionReceipt = viem_formatTransactionReceipt(receipt as never)
+  return {
+    ...transactionReceipt,
+    multisig: formatMultisig(receipt.multisig),
+    ...(receipt.status === 'pending'
+      ? { status: 'pending', type: 'tempo' }
+      : {}),
+  } as never
+}
+
+/** Deserializes a transaction operation attached to an RPC result. */
+function formatMultisig(value: string | undefined) {
+  if (!value) return undefined
+  const operation = Operation.deserialize(value)
+  if (operation.keyAuthorization)
+    throw new Error('Expected a multisig transaction operation.')
+  return operation
 }
 
 export function formatTransactionRequest(

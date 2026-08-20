@@ -1,7 +1,13 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
+import {
+  MultisigConfig,
+  SignatureEnvelope,
+  type TokenId,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
@@ -23,9 +29,14 @@ import {
   createMultisigStateResolver,
   getMultisigOwnerStates,
 } from './internal/multisig.js'
+import type * as Operation from './multisig/Operation.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
+
+// TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
+const serializeTransaction = ((transaction, signature) =>
+  Transaction.serialize(transaction, signature)) as SerializeTransactionFn
 
 /** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
 function randomValidAfter(): number {
@@ -65,11 +76,40 @@ export const chainConfig = {
           | undefined
         feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
+        hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-        multisig?: Address | MultisigConfig.Config | undefined
+        multisig?: Address | MultisigAccount | MultisigConfig.Config | undefined
         multisigOwnerStates?: Transaction.TransactionRequestTempo['multisigOwnerStates']
         signatures?: readonly unknown[] | undefined
+      }
+
+      if (request.hash) {
+        const transaction = await getAction(
+          client,
+          getTransaction,
+          'getTransaction',
+        )({ hash: request.hash })
+        const operation =
+          'multisig' in transaction
+            ? (transaction.multisig as Operation.Transaction | undefined)
+            : undefined
+        if (!operation || operation.status !== 'pending')
+          throw new Error('Expected a pending multisig operation.')
+        const hash = MultisigConfig.getSignPayload({
+          account: operation.account,
+          payload: TxEnvelopeTempo.getSignPayload(operation.transaction),
+          version: operation.version,
+        })
+        if (hash.toLowerCase() !== request.hash.toLowerCase())
+          throw new Error('Multisig operation hash does not match transaction.')
+        return {
+          ...operation.transaction,
+          from: operation.account,
+          multisig: operation.init ? operation.config : operation.account,
+          multisigVersion: operation.version,
+          signatures: operation.approvals,
+        } as unknown as typeof r
       }
 
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
@@ -98,12 +138,19 @@ export const chainConfig = {
       // The config is taken from an explicit `multisig` field, or inferred from
       // a multisig account (so callers can just pass `account` to
       // `prepareTransactionRequest` without also passing `multisig`).
-      const multisigIdentity =
-        request.multisig ??
-        (request.account?.source === 'multisig'
-          ? ((request.account as MultisigAccount).config ??
-            request.account.address)
-          : undefined)
+      const multisigIdentity = (() => {
+        const multisig = request.multisig
+        if (typeof multisig === 'string') return multisig
+        if (multisig && 'source' in multisig)
+          return multisig.config ?? multisig.address
+        if (multisig) return multisig
+        if (request.account?.source === 'multisig')
+          return (
+            (request.account as MultisigAccount).config ??
+            request.account.address
+          )
+        return undefined
+      })()
       if (multisigIdentity) {
         const initialConfig =
           typeof multisigIdentity === 'string'
@@ -254,9 +301,20 @@ export const chainConfig = {
     { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
   ],
   serializers: {
-    // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
-    transaction: ((transaction, signature) =>
-      Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
+    transaction: serializeTransaction,
+    async transactionEnvelope({ serializedTransaction, transaction }) {
+      const request = transaction as Transaction.TransactionSerializableTempo
+      if (!request.multisig) return serializedTransaction
+      try {
+        SignatureEnvelope.deserialize(serializedTransaction)
+      } catch {
+        return serializedTransaction
+      }
+      return await serializeTransaction({
+        ...request,
+        signatures: [...(request.signatures ?? []), serializedTransaction],
+      } as never)
+    },
   },
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters

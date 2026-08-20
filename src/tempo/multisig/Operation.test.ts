@@ -3,7 +3,8 @@ import { Storage } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Operation from './Operation.js'
 
-const id = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const hash =
+  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 const otherId =
   '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
 const ownerSignature = {
@@ -26,7 +27,7 @@ const base = {
     threshold: 2,
   },
   createdAt: 1,
-  id,
+  hash,
   signatures: 1,
   threshold: 2,
   updatedAt: 1,
@@ -54,12 +55,12 @@ describe('read', () => {
   test('default', async () => {
     const store = Storage.memory()
     await store.compareAndSet?.(
-      `multisig:operation:${id}`,
+      `multisig:operation:${hash}`,
       null,
       Operation.serialize(operation),
     )
 
-    expect(await Operation.read(store, id)).toMatchInlineSnapshot(`
+    expect(await Operation.read(store, hash)).toMatchInlineSnapshot(`
       {
         "account": "0x1111111111111111111111111111111111111111",
         "approvals": [
@@ -80,7 +81,7 @@ describe('read', () => {
           "threshold": 2,
         },
         "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "init": false,
         "schemaVersion": 1,
         "signatures": 1,
@@ -103,18 +104,18 @@ describe('read', () => {
   })
 
   test('behavior: unknown operation', async () => {
-    await expect(Operation.read(Storage.memory(), id)).resolves.toBeNull()
+    await expect(Operation.read(Storage.memory(), hash)).resolves.toBeNull()
   })
 
-  test('error: mismatched operation ID', async () => {
+  test('error: mismatched operation hash', async () => {
     const store = Storage.memory()
     await store.compareAndSet?.(
-      `multisig:operation:${id}`,
+      `multisig:operation:${hash}`,
       null,
-      Operation.serialize({ ...operation, id: otherId }),
+      Operation.serialize({ ...operation, hash: otherId }),
     )
 
-    await expect(Operation.read(store, id)).rejects.toThrowError(
+    await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
     )
   })
@@ -154,7 +155,7 @@ describe('read', () => {
           "threshold": 2,
         },
         "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "keyAuthorization": {
           "address": "0x3333333333333333333333333333333333333333",
           "chainId": 4217n,
@@ -191,7 +192,7 @@ describe('read', () => {
           "threshold": 2,
         },
         "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "keyAuthorization": {
           "address": "0x3333333333333333333333333333333333333333",
           "chainId": 4217n,
@@ -236,7 +237,7 @@ describe('update', () => {
     })
 
     await expect(
-      Operation.update(store, id, () => operation),
+      Operation.update(store, hash, () => operation),
     ).resolves.toMatchInlineSnapshot(`
       {
         "account": "0x1111111111111111111111111111111111111111",
@@ -258,7 +259,7 @@ describe('update', () => {
           "threshold": 2,
         },
         "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "init": false,
         "schemaVersion": 1,
         "signatures": 1,
@@ -278,7 +279,7 @@ describe('update', () => {
         "weight": 1,
       }
     `)
-    await expect(Operation.read(store, id)).resolves.toMatchInlineSnapshot(`
+    await expect(Operation.read(store, hash)).resolves.toMatchInlineSnapshot(`
       {
         "account": "0x1111111111111111111111111111111111111111",
         "approvals": [
@@ -299,7 +300,7 @@ describe('update', () => {
           "threshold": 2,
         },
         "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "init": false,
         "schemaVersion": 1,
         "signatures": 1,
@@ -330,9 +331,9 @@ describe('update', () => {
     })
 
     await expect(
-      Operation.update(store, id, () => operation),
+      Operation.update(store, hash, () => operation),
     ).resolves.toStrictEqual(operation)
-    await expect(Operation.read(store, id)).resolves.toStrictEqual(operation)
+    await expect(Operation.read(store, hash)).resolves.toStrictEqual(operation)
   })
 
   test('error: repeated compare-and-set conflicts', async () => {
@@ -344,28 +345,28 @@ describe('update', () => {
     })
 
     await expect(
-      Operation.update(store, id, () => operation),
+      Operation.update(store, hash, () => operation),
     ).rejects.toThrowError(Operation.StoreConflictError)
   })
 
-  test('error: stored operation ID does not match', async () => {
+  test('error: stored operation hash does not match', async () => {
     const store = Storage.from({
       compareAndSet: async () => true,
-      getItem: async () => Operation.serialize({ ...operation, id: otherId }),
+      getItem: async () => Operation.serialize({ ...operation, hash: otherId }),
       removeItem() {},
       setItem() {},
     })
 
     await expect(
-      Operation.update(store, id, () => operation),
+      Operation.update(store, hash, () => operation),
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 
-  test('error: updated operation ID does not match', async () => {
+  test('error: updated operation hash does not match', async () => {
     await expect(
-      Operation.update(Storage.memory(), id, () => ({
+      Operation.update(Storage.memory(), hash, () => ({
         ...operation,
-        id: otherId,
+        hash: otherId,
       })),
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })

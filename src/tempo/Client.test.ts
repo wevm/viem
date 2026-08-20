@@ -1,6 +1,6 @@
 import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { createClient, Storage } from 'viem/tempo'
+import { createClient } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
 
@@ -74,42 +74,12 @@ describe('createClient', () => {
     )
   })
 
-  test('behavior: multisig operation store resolution', async () => {
-    const id = `0x${'aa'.repeat(32)}` as const
-    const configuredStore = Storage.from({
-      getItem: async () => {
-        throw new Error('Configured store used.')
-      },
-      removeItem() {},
-      setItem() {},
-    })
-    const explicitStore = Storage.from({
-      getItem: async () => {
-        throw new Error('Explicit store used.')
-      },
-      removeItem() {},
-      setItem() {},
-    })
+  test('behavior: multisig coordination preserves the transport', () => {
     const client = createClient({
       experimental_multisig: true,
       transport: http('http://localhost'),
     })
-    const configuredClient = createClient({
-      experimental_multisig: { store: configuredStore },
-      transport: http('http://localhost'),
-    })
 
-    await expect(client.multisig.getOperation({ id })).resolves.toBeNull()
-    await expect(
-      configuredClient.multisig.getOperation({ id }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Configured store used.]`,
-    )
-    await expect(
-      client.multisig.getOperation({ id, store: explicitStore }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Explicit store used.]`,
-    )
-    expect(client.transport.type).toMatchInlineSnapshot(`"http"`)
+    expect(client.transport.type).toBe('http')
   })
 })

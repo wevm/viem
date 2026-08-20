@@ -11,20 +11,23 @@ const client = createClient({
   experimental_multisig: true,
 })
 
-test('approval actions return transaction operations', async () => {
-  const operation = await client.multisig.approveTransaction({
+test('wallet actions expose multisig operations', async () => {
+  const hash = await client.sendTransaction({
     account: owner,
     calls: [],
     multisig: account,
   })
-  const operationSync = await client.multisig.approveTransactionSync({
-    ...operation.request,
+  const receipt = await client.sendTransactionSync({
     account: owner,
+    hash,
   })
+  const transaction = await client.getTransaction({ hash })
 
-  expectTypeOf(operation).toMatchTypeOf<Multisig.Operation.Transaction>()
-  expectTypeOf(operation.request.from).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(operation.request.gas).toEqualTypeOf<bigint>()
-  expectTypeOf(operationSync).toMatchTypeOf<Multisig.Operation.Transaction>()
-  expectTypeOf(operationSync.request.gas).toEqualTypeOf<bigint>()
+  expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(receipt.multisig).toEqualTypeOf<
+    Multisig.Operation.Transaction | undefined
+  >()
+  expectTypeOf(transaction.multisig).toEqualTypeOf<
+    Multisig.Operation.Transaction | undefined
+  >()
 })

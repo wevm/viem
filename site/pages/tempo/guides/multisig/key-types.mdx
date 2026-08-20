@@ -19,7 +19,7 @@ approves through its own account implementation, and the shared store combines t
 
 ```ts twoslash [example.ts]
 import { Account, P256, WebCryptoP256 } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Create owners that use different signature schemes.
 const secp256k1Owner = Account.fromSecp256k1(
@@ -41,28 +41,26 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Store the secp256k1 owner's approval.
-const first = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: secp256k1Owner,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
+  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 
-// 4. Reuse the request for the P256 owner's approval.
-const second = await client.multisig.approveTransaction({
-  ...first.request,
+// 4. Approve the stored transaction with the P256 owner.
+const pending2 = await client.sendTransactionSync({
   account: p256Owner,
+  hash: pending.transactionHash,
 })
 
 // 5. Reach quorum with the WebCrypto P256 owner.
-const success = await client.multisig.approveTransaction({
-  ...second.request,
+const receipt = await client.sendTransactionSync({
   account: webCryptoOwner,
+  hash: pending.transactionHash,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
@@ -70,13 +68,13 @@ const success = await client.multisig.approveTransaction({
 
 WebAuthn owners use the same sequence with
 [`Account.fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256). Each call can happen in a
-different process as long as every coordinator uses the same store and prepared request.
+different process as long as every coordinator uses the same store and operation hash.
 
 ## Best Practices
 
 ### Expect Passkey Prompts
 
-A WebAuthn owner prompts for approval when its `approveTransaction` call signs the request.
+A WebAuthn owner prompts for approval when its `sendTransactionSync` call signs the request.
 
 ### Let Viem Estimate Approval Gas
 

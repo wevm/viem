@@ -2804,23 +2804,8 @@ export default defineConfig({
               items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'approveTransaction',
-                  link: '/tempo/actions/multisig.approveTransaction',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'approveTransactionSync',
-                  link: '/tempo/actions/multisig.approveTransactionSync',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'getConfig',
                   link: '/tempo/actions/multisig.getConfig',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getOperation',
-                  link: '/tempo/actions/multisig.getOperation',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

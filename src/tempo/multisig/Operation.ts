@@ -29,8 +29,8 @@ type Base = {
   config: MultisigConfig.Config
   /** Time when the operation was created. */
   createdAt: number
-  /** Deterministic operation ID. */
-  id: Hex.Hex
+  /** Deterministic operation hash. */
+  hash: Hex.Hex
   /** Persisted operation schema version. */
   schemaVersion: typeof schemaVersion
   /** Number of owner approvals selected for quorum evaluation. */
@@ -107,17 +107,17 @@ export type Operation = OneOf<
  * Reads a persisted multisig operation.
  *
  * @param store - Multisig store.
- * @param id - Operation ID.
+ * @param hash - Operation hash.
  * @returns The operation, or `null` when it is unknown.
  */
 export async function read(
   store: Storage.Storage,
-  id: Hex.Hex,
+  hash: Hex.Hex,
 ): Promise<Operation | null> {
-  const value = await store.getItem(operationKey(id))
+  const value = await store.getItem(operationKey(hash))
   if (value === null || value === undefined) return null
   const operation = deserialize(value)
-  if (operation.id.toLowerCase() !== id.toLowerCase())
+  if (operation.hash.toLowerCase() !== hash.toLowerCase())
     throw new InvalidStoreValueError()
   return operation
 }
@@ -126,23 +126,23 @@ export async function read(
  * Updates a multisig operation, atomically when the store supports it.
  *
  * @param store - Multisig store.
- * @param id - Operation ID.
+ * @param hash - Operation hash.
  * @param update - Function that creates the next operation value.
  * @returns The persisted operation.
  */
 export async function update(
   store: Storage.Storage,
-  id: Hex.Hex,
+  hash: Hex.Hex,
   update: (operation: Operation | null) => Operation | Promise<Operation>,
 ): Promise<Operation> {
-  const key = operationKey(id)
+  const key = operationKey(hash)
   for (let attempt = 0; attempt < maxUpdateAttempts; attempt++) {
     const value = (await store.getItem(key)) ?? null
     const current = value === null ? null : deserialize(value)
-    if (current && current.id.toLowerCase() !== id.toLowerCase())
+    if (current && current.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
     const next = await update(current)
-    if (next.id.toLowerCase() !== id.toLowerCase())
+    if (next.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
     const serialized = serialize(next)
     if (!store.compareAndSet) {
@@ -205,9 +205,9 @@ export function serialize(operation: Operation): string {
   return value
 }
 
-/** Returns the store key for an operation ID. */
-function operationKey(id: Hex.Hex) {
-  return `multisig:operation:${id.toLowerCase()}`
+/** Returns the store key for an operation hash. */
+function operationKey(hash: Hex.Hex) {
+  return `multisig:operation:${hash.toLowerCase()}`
 }
 
 /** Type returned by {@link InvalidStoreValueError}. */

@@ -44,7 +44,7 @@ const multisig = Account.fromMultisig({
 })
 
 // 2. Store the first owner approval with a relay fee payer.
-const pending = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: owner_1,
   feePayer: true,
   multisig,
@@ -53,18 +53,19 @@ const pending = await client.multisig.approveTransaction({
 })
 
 // 3. Reach quorum and let the relay sponsor the final transaction.
-const success = await client.multisig.approveTransaction({
-  ...pending.request,
+const receipt = await client.sendTransactionSync({
   account: owner_2,
+  hash: pending.transactionHash,
 })
 ```
 
 ```ts twoslash [relay.config.ts] filename="relay.config.ts"
 import { createClient, http, withRelay } from 'viem/tempo'
+import { store } from './store.db'
 
 // 1. Enable coordination and relay sponsorship on the client.
 export const client = createClient({
-  experimental_multisig: true,
+  experimental_multisig: { store },
   transport: withRelay(http(), http('https://relay.example.com')),
 })
 ```
@@ -74,14 +75,14 @@ export const client = createClient({
 ### Local Account
 
 Pass a local fee-payer account when the application or service already controls the fee-payer key
-and does not need a separate sponsorship service. Viem adds its signature while preparing the
-request, and later owners reuse that same request.
+and does not need a separate sponsorship service. Viem adds its signature before storing the
+operation, and later owners approve that same operation by hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Create the owners, fee payer, and multisig.
 const owner_1 = Account.fromSecp256k1(
@@ -99,7 +100,7 @@ const multisig = Account.fromMultisig({
 })
 
 // 2. Store the first approval with the local fee payer.
-const pending = await client.multisig.approveTransaction({
+const pending = await client.sendTransactionSync({
   account: owner_1,
   feePayer,
   multisig,
@@ -107,14 +108,14 @@ const pending = await client.multisig.approveTransaction({
   value: 1n,
 })
 
-// 3. Reuse the fee-paid request for the second owner.
-const success = await client.multisig.approveTransaction({
-  ...pending.request,
+// 3. Approve the fee-paid operation with the second owner.
+const receipt = await client.sendTransactionSync({
   account: owner_2,
+  hash: pending.transactionHash,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
@@ -122,10 +123,11 @@ const success = await client.multisig.approveTransaction({
 
 ## Best Practices
 
-### Keep the Prepared Request Immutable
+### Keep the Operation Immutable
 
 Owner and fee-payer signatures cover the prepared transaction fields. Do not change gas, fees,
-nonce, validity window, calls, or fee payer after either party signs.
+nonce, validity window, calls, or fee payer after either party signs. Later owners should pass only
+the operation hash and their account.
 
 ## See More
 

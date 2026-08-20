@@ -2,7 +2,12 @@ import type { Address } from 'abitype'
 import * as Hash from 'ox/Hash'
 import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
-import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import {
+  MultisigConfig,
+  Transaction as ox_Transaction,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import * as multisigActions from './actions/multisig.js'
@@ -28,30 +33,48 @@ export function handleRequest(
   })
 
   return async (request) => {
-    if (request.method === 'multisig_getOperation') {
-      const id = request.params?.[0]
-      if (typeof id !== 'string' || !Hash.validate(id))
-        throw new RpcResponse.InvalidParamsError({
-          message: 'Expected a multisig operation ID.',
+    if (
+      request.method === 'eth_getTransactionByHash' ||
+      request.method === 'eth_getTransactionReceipt'
+    ) {
+      const hash = request.params?.[0]
+      if (typeof hash !== 'string' || !Hash.validate(hash))
+        return await next(request)
+      const operation = await Operation.read(parameters.store, hash)
+      if (!operation || operation.keyAuthorization) return await next(request)
+      if (request.method === 'eth_getTransactionReceipt') {
+        if (operation.status === 'pending') return null
+        const receipt = await next({
+          ...request,
+          params: [operation.transactionHash],
         })
-      const operation = await multisigActions.getOperation(client, {
-        id,
-        store: parameters.store,
+        if (!receipt || typeof receipt !== 'object') return receipt
+        return {
+          ...receipt,
+          multisig: Operation.serialize(operation),
+        }
+      }
+      if (operation.status === 'pending')
+        return await pendingTransaction(client, operation)
+      const transaction = await next({
+        ...request,
+        params: [operation.transactionHash],
       })
-      return operation ? Operation.serialize(operation) : null
+      if (!transaction || typeof transaction !== 'object') return transaction
+      return {
+        ...transaction,
+        multisig: Operation.serialize(operation),
+      }
     }
 
     if (
-      request.method !== 'multisig_approveTransaction' &&
-      request.method !== 'multisig_approveTransactionSync'
+      request.method !== 'eth_sendRawTransaction' &&
+      request.method !== 'eth_sendRawTransactionSync'
     )
       return await next(request)
 
     const serialized = request.params?.[0]
-    if (!isSerializedTempoTransaction(serialized))
-      throw new RpcResponse.InvalidParamsError({
-        message: 'Expected a serialized Tempo transaction.',
-      })
+    if (!isSerializedTempoTransaction(serialized)) return await next(request)
 
     return await submit({
       client,
@@ -85,11 +108,18 @@ export declare namespace handleRequest {
 /** Collects approvals and submits a transaction after quorum. @internal */
 // biome-ignore lint/correctness/noUnusedVariables: _
 async function submit(options: submit.Options) {
-  const transaction = deserialize(options.serialized)
-  const signature = transaction.signature
-  if (signature?.type !== 'multisig')
-    throw new RpcResponse.InvalidParamsError({
-      message: 'Expected a multisig transaction.',
+  const transaction = (() => {
+    try {
+      return deserialize(options.serialized)
+    } catch {
+      return undefined
+    }
+  })()
+  const signature = transaction?.signature
+  if (!transaction || signature?.type !== 'multisig')
+    return await options.next({
+      method: options.method,
+      params: [options.serialized],
     })
 
   const { signature: _, ...unsigned } = transaction
@@ -106,7 +136,7 @@ async function submit(options: submit.Options) {
       version,
     }
   })()
-  const id = MultisigConfig.getSignPayload({
+  const operationHash = MultisigConfig.getSignPayload({
     account: signature.account,
     payload,
     version: resolved.version,
@@ -117,7 +147,7 @@ async function submit(options: submit.Options) {
   const now = Date.now()
   const operation = await Operation.update(
     options.store,
-    id,
+    operationHash,
     async (existing) => {
       if (existing?.keyAuthorization)
         throw new Operation.InvalidStoreValueError()
@@ -137,7 +167,7 @@ async function submit(options: submit.Options) {
         approvals: approvals.all,
         config: resolved.config,
         createdAt: existing?.createdAt ?? now,
-        id,
+        hash: operationHash,
         init: !!signature.init,
         signatures: approvals.selected.length,
         status: 'pending',
@@ -151,9 +181,10 @@ async function submit(options: submit.Options) {
   )
 
   if (operation.keyAuthorization) throw new Operation.InvalidStoreValueError()
-  if (operation.status === 'success') return Operation.serialize(operation)
+  if (operation.status === 'success')
+    return await submittedResult(options, operation)
   if (operation.weight < operation.threshold)
-    return Operation.serialize(operation)
+    return pendingResult(options.method, operation)
 
   const finalApprovals = await selectApprovals({
     account: operation.account,
@@ -172,30 +203,33 @@ async function submit(options: submit.Options) {
     version: operation.version,
   })
   const result = await options.next({
-    method:
-      options.method === 'multisig_approveTransaction'
-        ? 'eth_sendRawTransaction'
-        : 'eth_sendRawTransactionSync',
+    method: options.method,
     params: [final],
   })
   const transactionHash = getTransactionHash(result)
-  const success = await Operation.update(options.store, id, (current) => {
-    if (!current) throw new Operation.InvalidStoreValueError()
-    if (current.status === 'success') return current
-    const {
-      init: __,
-      keyAuthorization: ___,
-      transaction: _,
-      ...operation
-    } = current
-    return Operation.from({
-      ...operation,
-      status: 'success',
-      transactionHash,
-      updatedAt: Date.now(),
-    })
-  })
-  return Operation.serialize(success)
+  const success = await Operation.update(
+    options.store,
+    operationHash,
+    (current) => {
+      if (!current) throw new Operation.InvalidStoreValueError()
+      if (current.status === 'success') return current
+      const {
+        init: __,
+        keyAuthorization: ___,
+        transaction: _,
+        ...operation
+      } = current
+      return Operation.from({
+        ...operation,
+        status: 'success',
+        transactionHash,
+        updatedAt: Date.now(),
+      })
+    },
+  )
+  if (options.method === 'eth_sendRawTransaction') return success.hash
+  if (!result || typeof result !== 'object') return result
+  return { ...result, multisig: Operation.serialize(success) }
 }
 
 declare namespace submit {
@@ -204,7 +238,7 @@ declare namespace submit {
     /** Client used to resolve initialized configurations. */
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
-    method: 'multisig_approveTransaction' | 'multisig_approveTransactionSync'
+    method: 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync'
     /** Downstream RPC request handler. */
     next: handleRequest.Handler
     /** Serialized Tempo transaction. */
@@ -444,7 +478,6 @@ declare namespace selectApprovals {
 }
 
 /** Serializes a transaction with its selected approvals. @internal */
-// biome-ignore lint/correctness/noUnusedVariables: _
 function serializeFinal(options: serializeFinal.Options) {
   const envelope = TxEnvelopeTempo.from(options.transaction)
   const signatures = SignatureEnvelope.sortMultisigApprovals({
@@ -468,6 +501,83 @@ function serializeFinal(options: serializeFinal.Options) {
       : {}),
     signature,
   })
+}
+
+/** Returns an existing successful operation through the requested send method. */
+async function submittedResult(
+  options: submit.Options,
+  operation: Operation.TransactionSuccess,
+) {
+  if (options.method === 'eth_sendRawTransaction') return operation.hash
+  const receipt = await options.next({
+    method: 'eth_getTransactionReceipt',
+    params: [operation.transactionHash],
+  })
+  if (!receipt || typeof receipt !== 'object') return receipt
+  return { ...receipt, multisig: Operation.serialize(operation) }
+}
+
+/** Returns a pending result for an operation that has not reached quorum. */
+function pendingResult(
+  method: submit.Options['method'],
+  operation: Operation.TransactionPending,
+) {
+  if (method === 'eth_sendRawTransaction') return operation.hash
+  return {
+    blockHash: null,
+    blockNumber: null,
+    contractAddress: null,
+    cumulativeGasUsed: null,
+    effectiveGasPrice: null,
+    from: operation.account,
+    gasUsed: null,
+    logs: [],
+    logsBloom: null,
+    multisig: Operation.serialize(operation),
+    status: 'pending',
+    to: null,
+    transactionHash: operation.hash,
+    transactionIndex: null,
+    type: '0x76',
+  } as const
+}
+
+/** Returns a pending transaction with its multisig operation. */
+async function pendingTransaction(
+  client: ReturnType<typeof createClient>,
+  operation: Operation.TransactionPending,
+) {
+  const approvals = await selectApprovals({
+    account: operation.account,
+    client,
+    config: operation.config,
+    path: [operation.account.toLowerCase()],
+    payload: TxEnvelopeTempo.getSignPayload(operation.transaction),
+    signatures: operation.approvals,
+    version: operation.version,
+  })
+  const serialized = serializeFinal({
+    account: operation.account,
+    initConfig: operation.init ? operation.config : null,
+    signatures: approvals.selected,
+    transaction: operation.transaction,
+    version: operation.version,
+  })
+  const transaction = deserialize(serialized)
+  return {
+    ...ox_Transaction.toRpc(
+      {
+        ...transaction,
+        blockHash: null,
+        blockNumber: null,
+        from: operation.account,
+        hash: operation.hash,
+        transactionIndex: null,
+      } as never,
+      { pending: true },
+    ),
+    multisig: Operation.serialize(operation),
+  }
 }
 
 declare namespace serializeFinal {

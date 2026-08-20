@@ -2366,27 +2366,6 @@ type DecoratorBase<
   }
   multisig: {
     /**
-     * Signs and submits an owner approval for a multisig transaction.
-     *
-     * @param parameters - Transaction request, multisig identity, and owner account.
-     * @returns The pending or successful multisig operation and prepared request.
-     */
-    approveTransaction: (
-      parameters: multisigActions.approveTransaction.Parameters<chain, account>,
-    ) => Promise<multisigActions.approveTransaction.ReturnValue<chain>>
-    /**
-     * Signs and synchronously submits an owner approval for a multisig transaction.
-     *
-     * @param parameters - Transaction request, multisig identity, and owner account.
-     * @returns The pending or successful multisig operation and prepared request.
-     */
-    approveTransactionSync: (
-      parameters: multisigActions.approveTransactionSync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<multisigActions.approveTransactionSync.ReturnValue<chain>>
-    /**
      * Gets the current configuration for an initialized multisig account.
      *
      * @param parameters - Parameters.
@@ -2395,15 +2374,6 @@ type DecoratorBase<
     getConfig: (
       parameters: multisigActions.getConfig.Parameters,
     ) => Promise<multisigActions.getConfig.ReturnValue>
-    /**
-     * Gets a multisig operation.
-     *
-     * @param parameters - Parameters.
-     * @returns The multisig operation, or `null` when it is unknown.
-     */
-    getOperation: (
-      parameters: multisigActions.getOperation.Parameters,
-    ) => Promise<multisigActions.getOperation.ReturnValue>
     /**
      * Checks whether an address is an initialized native multisig account.
      *
@@ -6027,10 +5997,7 @@ export function decorator() {
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
-        'approveTransaction',
-        'approveTransactionSync',
         'getConfig',
-        'getOperation',
         'isInitialized',
         'updateConfig',
         'updateConfigSync',

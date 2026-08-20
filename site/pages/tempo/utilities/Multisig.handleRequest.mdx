@@ -4,9 +4,9 @@ description: Creates an RPC request handler that coordinates native multisig app
 
 # `Multisig.handleRequest`
 
-Creates an RPC request handler that stores multisig approvals and broadcasts a canonical final
-transaction after quorum. Requests outside the multisig coordination methods pass to the
-downstream handler unchanged.
+Creates an RPC request handler that coordinates multisig transactions through standard Ethereum
+JSON-RPC methods. Non-multisig transactions and unrelated requests pass to the downstream handler
+unchanged.
 
 ## Usage
 
@@ -18,23 +18,9 @@ const handleRequest = Multisig.handleRequest(
   (request) => rpc.request(request),
   { store },
 )
-
-const result = await handleRequest({
-  method: 'multisig_getOperation',
-  params: ['0x23a9cbceb2775b93cd60d3ca7c98435c700aa0d7254850efdce71468d326ddf6'],
-})
 ```
 
-Use a shared persistent store in production. The in-memory store in this example is process-local.
-
-## Return Type
-
-```ts
-type ReturnType = (request: {
-  method: string
-  params?: readonly unknown[]
-}) => Promise<unknown>
-```
+Use a shared persistent store in production. The in-memory store is process-local.
 
 ## Parameters
 
@@ -42,8 +28,7 @@ type ReturnType = (request: {
 
 - **Type:** `(request) => Promise<unknown>`
 
-The downstream RPC request handler. The coordinator uses this handler for configuration reads and
-final transaction submission.
+The downstream RPC request handler used for configuration reads and final transaction submission.
 
 ### store
 
@@ -53,43 +38,32 @@ The authoritative store shared by requests that coordinate the same multisig ope
 
 ## RPC Methods
 
-### `multisig_approveTransaction`
+### `eth_sendRawTransaction`
 
-Adds approvals from a serialized Tempo multisig transaction.
+A partial multisig transaction returns its operation hash. Once quorum is reached, the handler
+broadcasts the canonical transaction and continues to return the operation hash.
 
-```ts
-type Parameters = [serializedTransaction: Hex]
-type Result = string // Serialized Multisig.Operation.Transaction
-```
+### `eth_sendRawTransactionSync`
 
-Below quorum, the result contains a pending operation. At quorum, the handler broadcasts through
-`eth_sendRawTransaction` and returns a successful operation containing `transactionHash`.
+Below quorum, this method returns a pending receipt whose `transactionHash` is the operation hash
+and whose `multisig` property contains the current operation. At quorum, it returns the submitted
+transaction receipt with the successful operation attached.
 
-### `multisig_approveTransactionSync`
+The pending receipt uses `null` for block, index, gas, and bloom fields because no transaction has
+been submitted to the node yet.
 
-Adds approvals and uses synchronous submission when quorum is reached.
+### `eth_getTransactionByHash`
 
-```ts
-type Parameters = [serializedTransaction: Hex]
-type Result = string // Serialized Multisig.Operation.Transaction
-```
+Passing an operation hash returns the pending transaction or aliases the lookup to the submitted
+transaction. Before quorum, the handler constructs the pending transaction from the stored unsigned
+Tempo transaction and selected approvals. Its block fields are `null`, its `hash` is the operation
+hash, and its `multisig` property contains the pending operation.
 
-Below quorum, this method returns the same pending operation as the asynchronous method. At quorum,
-the handler broadcasts through `eth_sendRawTransactionSync`.
+### `eth_getTransactionReceipt`
 
-### `multisig_getOperation`
-
-Gets an operation by its deterministic ID.
-
-```ts
-type Parameters = [id: Hash]
-type Result = string | null // Serialized Multisig.Operation.Operation
-```
-
-The method returns `null` when the operation is unknown.
+Passing a pending operation hash returns `null`. After submission, the handler aliases the lookup
+to the final transaction receipt and attaches `multisig`.
 
 ## See Also
 
-- [`multisig.approveTransaction`](/tempo/actions/multisig.approveTransaction)
-- [`multisig.getOperation`](/tempo/actions/multisig.getOperation)
 - [`Storage`](/tempo/utilities/Storage)

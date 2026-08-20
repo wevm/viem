@@ -16,32 +16,18 @@ The `Multisig` module coordinates owner approvals for native multisig transactio
 handler validates each approval, stores the operation, selects a canonical quorum, and broadcasts
 the final transaction after the configured threshold is reached.
 
-Use [`multisig.approveTransaction`](/tempo/actions/multisig.approveTransaction) for the standard
-client flow. Use [`Multisig.handleRequest`](/tempo/utilities/Multisig.handleRequest) when integrating
-the coordinator into another RPC handler.
+Use normal [`sendTransaction`](/docs/actions/wallet/sendTransaction) and
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) for the standard client flow.
+Use [`Multisig.handleRequest`](/tempo/utilities/Multisig.handleRequest) when integrating the
+coordinator into another RPC handler.
 
 ## Client Setup
 
-Enable multisig coordination with a process-local store:
+Enable multisig coordination with a shared store:
 
 ```ts twoslash
 import { createClient } from 'viem/tempo'
-
-const client = createClient({
-  experimental_multisig: true,
-})
-```
-
-This option creates a new [`Storage.memory`](/tempo/utilities/Storage.memory) store
-for the client. The store exists only in the current process and loses its operations when the
-process restarts.
-
-For production, pass a shared store:
-
-```ts twoslash
-import { createClient, type Storage } from 'viem/tempo'
-
-declare const store: Storage.Storage
+import { store } from './store.db'
 
 const client = createClient({
   experimental_multisig: { store },

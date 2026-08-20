@@ -1,7 +1,8 @@
 // [!region setup]
 import { createClient } from 'viem/tempo'
+import { store } from './store.db'
 
 export const client = createClient({
-  experimental_multisig: true,
+  experimental_multisig: { store },
 })
 // [!endregion setup]

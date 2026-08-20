@@ -25,7 +25,11 @@ type TransactionSuccess = Base & {
 ```
 
 The shared fields include the multisig `account`, serialized `approvals`, configuration, operation
-`id`, selected signature count, `threshold`, selected `weight`, version, and timestamps.
+`hash`, selected signature count, `threshold`, selected `weight`, version, and timestamps.
+
+Applications read an operation through `getTransaction({ hash })`. Viem exposes the operation on
+the returned transaction's `multisig` property. The functions below support request handlers and
+store integrations.
 
 The module also exports `KeyAuthorizationPending`, `KeyAuthorizationSuccess`, and
 `KeyAuthorization` types. Multisig key-authorization coordination is not implemented yet, so the
@@ -43,10 +47,10 @@ Multisig.Operation.from(operation)
 
 ### `read`
 
-Reads an operation by ID and verifies that the stored operation matches the requested ID.
+Reads an operation by hash and verifies that the stored operation matches the requested hash.
 
 ```ts
-const operation = await Multisig.Operation.read(store, id)
+const operation = await Multisig.Operation.read(store, hash)
 ```
 
 ### `update`
@@ -55,7 +59,7 @@ Updates an operation. When the store provides `compareAndSet`, the update retrie
 request changes the operation concurrently. Otherwise, it falls back to `getItem` and `setItem`.
 
 ```ts
-const operation = await Multisig.Operation.update(store, id, (current) => next)
+const operation = await Multisig.Operation.update(store, hash, (current) => next)
 ```
 
 ### `serialize`

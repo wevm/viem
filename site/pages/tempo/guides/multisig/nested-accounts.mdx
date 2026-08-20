@@ -19,13 +19,13 @@ remains zero until that child quorum is complete.
 
 ### Create and Initialize the Child
 
-This child has one owner, so one coordinated approval initializes it.
+This child has one local owner, so it can initialize through the normal local-quorum flow.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Create the child multisig and its local owner.
 const childOwner = Account.fromSecp256k1(
@@ -33,15 +33,14 @@ const childOwner = Account.fromSecp256k1(
 )
 const child = Account.fromMultisig({ owners: [childOwner] })
 
-// 2. Submit the child's first transaction to initialize it.
-const childOperation = await client.multisig.approveTransactionSync({
-  account: childOwner,
-  multisig: child,
+// 2. Submit the child's first transaction with its complete local quorum.
+const receipt = await client.sendTransactionSync({
+  account: child,
   to: child.address,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
@@ -56,7 +55,7 @@ which the coordinator verifies before counting the child toward the parent thres
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import { client } from './multisig.config'
+import { client } from './viem.config'
 
 // 1. Recreate the initialized child and make it the parent owner.
 const childOwner = Account.fromSecp256k1(
@@ -66,16 +65,14 @@ const child = Account.fromMultisig({ owners: [childOwner] })
 const parent = Account.fromMultisig({ owners: [child] })
 
 // 2. Approve the parent request with the child's complete quorum.
-const success = await client.multisig.approveTransaction({
+const receipt = await client.sendTransactionSync({
   account: child,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
+  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig: parent,
 })
 ```
 
-```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
@@ -92,10 +89,10 @@ the parent threshold are satisfied.
 The child address must have enough fee token to initialize itself. A parent approval fails when a
 nested multisig owner has not been initialized.
 
-### Reuse the Parent Request
+### Reuse the Parent Operation Hash
 
-Every primitive and nested owner must approve the same parent request. Configuration reads and
-signature payloads are tied to that request.
+Every primitive and nested owner must approve the transaction identified by the same parent
+operation hash. Configuration reads and signature payloads are tied to that transaction.
 
 ## See More
 
