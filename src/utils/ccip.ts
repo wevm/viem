@@ -263,19 +263,42 @@ function assertCcipRequestUrl(url: string) {
   }
 }
 
-function isBlockedCcipHostname(hostname: string) {
-  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname)
-  if (ipv4) {
-    const octets = ipv4.slice(1, 5).map(Number)
-    if (octets.some((octet) => octet > 255)) return false
-    const [a, b] = octets
-    // 0.0.0.0/8 unspecified, 169.254.0.0/16 link-local / cloud metadata
-    return a === 0 || (a === 169 && b === 254)
-  }
+function isBlockedIpv4([a, b]: readonly number[]) {
+  // 0.0.0.0/8 unspecified, 169.254.0.0/16 link-local / cloud metadata
+  return a === 0 || (a === 169 && b === 254)
+}
 
-  const normalized = hostname.toLowerCase()
-  if (normalized === '::' || normalized === '0:0:0:0:0:0:0:0') return true
+function parseIpv4Literal(host: string) {
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host)
+  if (!ipv4) return null
+  const octets = ipv4.slice(1, 5).map(Number)
+  if (octets.some((octet) => octet > 255)) return null
+  return octets
+}
+
+/** Node keeps brackets on IPv6 `URL.hostname` and rewrites ::ffff:a.b.c.d to hex. */
+function parseIpv4Mapped(host: string) {
+  const dotted = /:ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.exec(host)
+  if (dotted) return parseIpv4Literal(dotted[1])
+
+  const hex = /:ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(host)
+  if (!hex) return null
+  const hi = Number.parseInt(hex[1], 16)
+  const lo = Number.parseInt(hex[2], 16)
+  return [(hi >> 8) & 0xff, hi & 0xff, (lo >> 8) & 0xff, lo & 0xff]
+}
+
+function isBlockedCcipHostname(hostname: string) {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, '')
+
+  const ipv4 = parseIpv4Literal(host)
+  if (ipv4) return isBlockedIpv4(ipv4)
+
+  const mapped = parseIpv4Mapped(host)
+  if (mapped) return isBlockedIpv4(mapped)
+
+  if (host === '::' || host === '0:0:0:0:0:0:0:0') return true
   // IPv6 link-local
-  if (normalized === 'fe80' || normalized.startsWith('fe80:')) return true
+  if (host === 'fe80' || host.startsWith('fe80:')) return true
   return false
 }

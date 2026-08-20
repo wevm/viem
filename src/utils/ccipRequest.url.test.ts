@@ -56,6 +56,46 @@ describe('ccipRequest url checks', () => {
     ).rejects.toThrowError('blocked link-local or unspecified range')
   })
 
+  test('error: bracketed ipv6 unspecified', async () => {
+    await expect(() =>
+      ccipRequest({
+        data,
+        sender,
+        urls: ['http://[::]/'],
+      }),
+    ).rejects.toThrowError('blocked link-local or unspecified range')
+  })
+
+  test('error: bracketed ipv6 link-local', async () => {
+    await expect(() =>
+      ccipRequest({
+        data,
+        sender,
+        urls: ['http://[fe80::1]/'],
+      }),
+    ).rejects.toThrowError('blocked link-local or unspecified range')
+  })
+
+  test('error: ipv4-mapped link-local (node hex form)', async () => {
+    await expect(() =>
+      ccipRequest({
+        data,
+        sender,
+        urls: ['http://[::ffff:169.254.169.254]/latest/meta-data'],
+      }),
+    ).rejects.toThrowError('blocked link-local or unspecified range')
+  })
+
+  test('error: ipv4-mapped unspecified', async () => {
+    await expect(() =>
+      ccipRequest({
+        data,
+        sender,
+        urls: ['http://[::ffff:0.0.0.0]/'],
+      }),
+    ).rejects.toThrowError('blocked link-local or unspecified range')
+  })
+
   test('skips blocked url and uses the next gateway', async () => {
     const server = await createJsonServer({ data: '0xcafebabe' })
     const result = await ccipRequest({
