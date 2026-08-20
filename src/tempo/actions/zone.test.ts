@@ -4,9 +4,11 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import {
   type Address,
   createClient,
+  custom,
   decodeAbiParameters,
   decodeFunctionData,
   encodeFunctionData,
+  encodeFunctionResult,
   type Hash,
   isAddressEqual,
   keccak256,
@@ -378,21 +380,64 @@ describe('getZoneInfo', () => {
 
 describe('getPortalInfo', () => {
   test('default', async () => {
-    const info = await zoneActions.getPortalInfo(mainnetClient, { zoneId })
+    const client = createClient({
+      chain: tempoModerato,
+      transport: custom({
+        async request({ method, params }) {
+          if (method !== 'eth_call')
+            throw new Error(`Unexpected request: ${method}`)
+
+          const { args, functionName } = decodeFunctionData({
+            abi: ZoneAbis.zonePortal,
+            data: params[0].data,
+          })
+          if (
+            functionName === 'enabledTokenAt' ||
+            functionName === 'sequencerAt'
+          )
+            expect(args).toEqual([0n])
+
+          const results: Record<string, unknown> = {
+            admin: portalAdmin.address,
+            enabledTokenAt: parentToken,
+            enabledTokenCount: 1n,
+            messenger: accounts[1].address,
+            pauseExpiry: 0n,
+            paused: false,
+            pendingAdmin: accounts[2].address,
+            sequencerAt: portalAdmin.address,
+            sequencerCount: 1n,
+            sequencerSetVersion: 1n,
+            sequencerThreshold: 1,
+            verifier: accounts[3].address,
+          }
+          const result = results[functionName]
+          if (result === undefined)
+            throw new Error(`Unexpected function: ${functionName}`)
+          return encodeFunctionResult({
+            abi: ZoneAbis.zonePortal,
+            functionName,
+            result,
+          } as never)
+        },
+      }),
+    })
+
+    const info = await zoneActions.getPortalInfo(client, { zoneId: 1 })
 
     expect(isAddressEqual(info.admin, portalAdmin.address)).toBe(true)
     expect(
       info.enabledTokens.some((token) => isAddressEqual(token, parentToken)),
     ).toBe(true)
-    expect(info.messenger).toBeDefined()
-    expect(info.pauseExpiry).toBeGreaterThanOrEqual(0n)
-    expect(typeof info.paused).toBe('boolean')
-    expect(info.pendingAdmin).toBeDefined()
+    expect(isAddressEqual(info.messenger, accounts[1].address)).toBe(true)
+    expect(info.pauseExpiry).toBe(0n)
+    expect(info.paused).toBe(false)
+    expect(isAddressEqual(info.pendingAdmin, accounts[2].address)).toBe(true)
     expect(info.sequencers).toHaveLength(1)
     expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
-    expect(info.sequencerSetVersion).toBeGreaterThan(0n)
+    expect(info.sequencerSetVersion).toBe(1n)
     expect(info.sequencerThreshold).toBe(1)
-    expect(info.verifier).toBeDefined()
+    expect(isAddressEqual(info.verifier, accounts[3].address)).toBe(true)
   })
 })
 
