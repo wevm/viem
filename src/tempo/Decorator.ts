@@ -5512,6 +5512,31 @@ type DecoratorBase<
       parameters: zoneActions.getEncryptionKey.Parameters,
     ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
     /**
+     * Gets the current configuration of a Zone portal.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const info = await client.zone.getPortalInfo({
+     *   portalAddress: '0x5Ad0000000000000000000000000000000000003',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The current Zone portal configuration.
+     */
+    getPortalInfo: (
+      parameters: zoneActions.getPortalInfo.Parameters,
+    ) => Promise<zoneActions.getPortalInfo.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
@@ -6144,6 +6169,7 @@ export function decorator() {
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
         'getEncryptionKey',
+        'getPortalInfo',
         'getWithdrawalFee',
         'getZoneInfo',
         'requestWithdrawal',

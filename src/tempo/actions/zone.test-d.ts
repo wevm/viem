@@ -24,6 +24,7 @@ const publicClient = createClient({
   chain: tempoModerato,
   transport,
 })
+const decoratedClient = client.extend(decorator())
 const zoneClient = createClient({
   account: '0x0000000000000000000000000000000000000001',
   chain: zoneModerato(7),
@@ -212,6 +213,25 @@ test('getZoneInfo returns sequencers and the imported Tempo block number', async
 
   expectTypeOf(info.sequencers).toEqualTypeOf<readonly Address[]>()
   expectTypeOf(info.tempoBlockNumber).toEqualTypeOf<bigint>()
+})
+
+test('getPortalInfo returns the current portal configuration', async () => {
+  const info = await zoneActions.getPortalInfo(client, {
+    portalAddress: '0x0000000000000000000000000000000000000001',
+  })
+
+  expectTypeOf(info).toEqualTypeOf<zoneActions.getPortalInfo.ReturnValue>()
+  expectTypeOf(info.admin).toEqualTypeOf<Address>()
+  expectTypeOf(info.paused).toEqualTypeOf<boolean>()
+  expectTypeOf(info.sequencers).toEqualTypeOf<readonly Address[]>()
+  expectTypeOf(info.tokens[0]!.depositsActive).toEqualTypeOf<boolean>()
+
+  const decoratedInfo = await decoratedClient.zone.getPortalInfo({
+    portalAddress: '0x0000000000000000000000000000000000000001',
+  })
+  expectTypeOf(
+    decoratedInfo,
+  ).toEqualTypeOf<zoneActions.getPortalInfo.ReturnValue>()
 })
 
 test('waitForTempoBlock returns zone info', async () => {

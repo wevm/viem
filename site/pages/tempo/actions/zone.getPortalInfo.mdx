@@ -1,0 +1,57 @@
+# `zone.getPortalInfo`
+
+Gets the current configuration of a Zone portal from the parent Tempo chain.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const info = await client.zone.getPortalInfo({
+  portalAddress: '0x5Ad0000000000000000000000000000000000003',
+})
+
+console.log('Admin:', info.admin)
+console.log('Sequencers:', info.sequencers)
+console.log('Tokens:', info.tokens)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action reads fixed fields, indexed sequencers and tokens, and token configurations in three deployless multicall stages.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  admin: Address
+  messenger: Address
+  paused: boolean
+  pauseExpiry: bigint
+  pendingAdmin: Address
+  portalAddress: Address
+  sequencers: readonly Address[]
+  sequencerSetVersion: bigint
+  sequencerThreshold: number
+  tokens: readonly {
+    address: Address
+    depositsActive: boolean
+    enabled: boolean
+  }[]
+  verifier: Address
+}
+```
+
+## Parameters
+
+### portalAddress
+
+- **Type:** `Address`
+
+Zone portal address on the parent Tempo chain.

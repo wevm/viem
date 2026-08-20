@@ -376,6 +376,27 @@ describe('getZoneInfo', () => {
   })
 })
 
+describe('getPortalInfo', () => {
+  test('behavior: returns the current portal configuration', async () => {
+    const info = await zoneActions.getPortalInfo(mainnetClient, {
+      portalAddress,
+    })
+
+    expect(isAddressEqual(info.portalAddress, portalAddress)).toBe(true)
+    expect(isAddressEqual(info.admin, portalAdmin.address)).toBe(true)
+    expect(info.messenger).toBeDefined()
+    expect(info.verifier).toBeDefined()
+    expect(info.paused).toBe(false)
+    expect(info.pauseExpiry).toBe(0n)
+    expect(info.sequencers).toHaveLength(1)
+    expect(info.sequencerThreshold).toBe(1)
+    expect(info.sequencerSetVersion).toBeGreaterThanOrEqual(0n)
+    expect(
+      info.tokens.some(({ address }) => isAddressEqual(address, parentToken)),
+    ).toBe(true)
+  })
+})
+
 describe('getTokenMetadata', () => {
   test('behavior: supports disabled client multicall', async () => {
     const client = getZoneClient({

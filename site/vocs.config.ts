@@ -3290,6 +3290,10 @@ export default defineConfig({
                   link: '/tempo/actions/zone.getEncryptionKey',
                 },
                 {
+                  text: 'getPortalInfo',
+                  link: '/tempo/actions/zone.getPortalInfo',
+                },
+                {
                   text: 'getWithdrawalFee',
                   link: '/tempo/actions/zone.getWithdrawalFee',
                 },

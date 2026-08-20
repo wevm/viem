@@ -437,6 +437,170 @@ export namespace getEncryptionKey {
 }
 
 /**
+ * Gets the current configuration of a Zone portal.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.zone.getPortalInfo(client, {
+ *   portalAddress: '0x5Ad0000000000000000000000000000000000003',
+ * })
+ * ```
+ *
+ * @param client - Public client connected to the parent Tempo chain.
+ * @param parameters - Zone portal parameters.
+ * @returns The current Zone portal configuration.
+ */
+export async function getPortalInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPortalInfo.Parameters,
+): Promise<getPortalInfo.ReturnValue> {
+  const { account, portalAddress, ...rest } = parameters
+  const options = {
+    ...rest,
+    account: account ? parseAccount(account).address : undefined,
+    allowFailure: false,
+    batchSize: 0,
+    deployless: true,
+  } as const
+  const portal = { address: portalAddress, abi: ZoneAbis.zonePortal } as const
+  const [
+    messenger,
+    verifier,
+    admin,
+    pendingAdmin,
+    paused,
+    pauseExpiry,
+    sequencerSetVersion,
+    sequencerThreshold,
+    sequencerCount,
+    enabledTokenCount,
+  ] = await multicall(client, {
+    ...options,
+    contracts: [
+      defineCall({ ...portal, functionName: 'messenger' }),
+      defineCall({ ...portal, functionName: 'verifier' }),
+      defineCall({ ...portal, functionName: 'admin' }),
+      defineCall({ ...portal, functionName: 'pendingAdmin' }),
+      defineCall({ ...portal, functionName: 'paused' }),
+      defineCall({ ...portal, functionName: 'pauseExpiry' }),
+      defineCall({ ...portal, functionName: 'sequencerSetVersion' }),
+      defineCall({ ...portal, functionName: 'sequencerThreshold' }),
+      defineCall({ ...portal, functionName: 'sequencerCount' }),
+      defineCall({ ...portal, functionName: 'enabledTokenCount' }),
+    ],
+  })
+  const [sequencers, tokenAddresses] = await Promise.all([
+    multicall(client, {
+      ...options,
+      contracts: Array.from({ length: Number(sequencerCount) }, (_, index) =>
+        defineCall({
+          ...portal,
+          functionName: 'sequencerAt',
+          args: [BigInt(index)],
+        }),
+      ),
+    }),
+    multicall(client, {
+      ...options,
+      contracts: Array.from({ length: Number(enabledTokenCount) }, (_, index) =>
+        defineCall({
+          ...portal,
+          functionName: 'enabledTokenAt',
+          args: [BigInt(index)],
+        }),
+      ),
+    }),
+  ])
+  const tokenConfigs = await multicall(client, {
+    ...options,
+    contracts: tokenAddresses.map((token) =>
+      defineCall({
+        ...portal,
+        functionName: 'tokenConfig',
+        args: [token],
+      }),
+    ),
+  })
+
+  return {
+    admin,
+    messenger,
+    paused,
+    pauseExpiry,
+    pendingAdmin,
+    portalAddress,
+    sequencers,
+    sequencerSetVersion,
+    sequencerThreshold,
+    tokens: tokenAddresses.map((address, index) => ({
+      address,
+      ...tokenConfigs[index]!,
+    })),
+    verifier,
+  }
+}
+
+export namespace getPortalInfo {
+  export type Parameters = UnionOmit<
+    MulticallParameters,
+    | 'allowFailure'
+    | 'batchSize'
+    | 'contracts'
+    | 'deployless'
+    | 'multicallAddress'
+  > &
+    Args
+
+  export type Args = {
+    /** Zone portal address on the parent Tempo chain. */
+    portalAddress: Address
+  }
+
+  export type ReturnValue = Compute<{
+    /** Current Zone administrator. */
+    admin: Address
+    /** Zone messenger contract. */
+    messenger: Address
+    /** Whether deposits and withdrawal processing are currently paused. */
+    paused: boolean
+    /** Unix timestamp at which the current pause expires. */
+    pauseExpiry: bigint
+    /** Pending Zone administrator. */
+    pendingAdmin: Address
+    /** Zone portal address on the parent Tempo chain. */
+    portalAddress: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Current sequencer set version. */
+    sequencerSetVersion: bigint
+    /** Signatures required from the active sequencer set. */
+    sequencerThreshold: number
+    /** Enabled token configurations. */
+    tokens: readonly {
+      /** Whether deposits are active for the token. */
+      depositsActive: boolean
+      /** Whether the token is enabled. */
+      enabled: boolean
+      /** Token address on the parent Tempo chain. */
+      address: Address
+    }[]
+    /** Zone verifier contract. */
+    verifier: Address
+  }>
+
+  export type ErrorType = MulticallErrorType | BaseErrorType
+}
+
+/**
  * Deposits tokens into a zone on the parent Tempo chain with encrypted
  * recipient and memo. Batches approve and depositEncrypted into a single
  * transaction.
