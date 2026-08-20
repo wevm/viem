@@ -6,12 +6,9 @@ import {
   type KeyAuthorization as ox_KeyAuthorization,
   TxEnvelopeTempo,
 } from 'ox/tempo'
+import { BaseError } from '../../errors/base.js'
 import type { OneOf } from '../../types/utils.js'
-import {
-  InvalidStoreValueError,
-  type Store,
-  StoreConflictError,
-} from './Store.js'
+import type * as Storage from '../Storage.js'
 
 /** Bounds parsing and serialization work if a store returns malformed or unexpectedly large data. */
 const maxStoredValueLength = 1_048_576
@@ -114,18 +111,19 @@ export type Operation = OneOf<
  * @returns The operation, or `null` when it is unknown.
  */
 export async function read(
-  store: Store,
+  store: Storage.Storage,
   id: Hex.Hex,
 ): Promise<Operation | null> {
-  const operation = await store.get(operationKey(id))
-  if (operation === null) return null
+  const value = await store.getItem(operationKey(id))
+  if (value === null || value === undefined) return null
+  const operation = deserialize(value)
   if (operation.id.toLowerCase() !== id.toLowerCase())
     throw new InvalidStoreValueError()
   return operation
 }
 
 /**
- * Atomically updates a multisig operation.
+ * Updates a multisig operation, atomically when the store supports it.
  *
  * @param store - Multisig store.
  * @param id - Operation ID.
@@ -133,19 +131,25 @@ export async function read(
  * @returns The persisted operation.
  */
 export async function update(
-  store: Store,
+  store: Storage.Storage,
   id: Hex.Hex,
   update: (operation: Operation | null) => Operation | Promise<Operation>,
 ): Promise<Operation> {
   const key = operationKey(id)
   for (let attempt = 0; attempt < maxUpdateAttempts; attempt++) {
-    const current = await store.get(key)
+    const value = (await store.getItem(key)) ?? null
+    const current = value === null ? null : deserialize(value)
     if (current && current.id.toLowerCase() !== id.toLowerCase())
       throw new InvalidStoreValueError()
     const next = await update(current)
     if (next.id.toLowerCase() !== id.toLowerCase())
       throw new InvalidStoreValueError()
-    if (await store.compareAndSet(key, current, next)) return next
+    const serialized = serialize(next)
+    if (!store.compareAndSet) {
+      await store.setItem(key, serialized)
+      return next
+    }
+    if (await store.compareAndSet(key, value, serialized)) return next
   }
   throw new StoreConflictError()
 }
@@ -201,7 +205,42 @@ export function serialize(operation: Operation): string {
   return value
 }
 
-/** Returns the storage key for an operation ID. */
+/** Returns the store key for an operation ID. */
 function operationKey(id: Hex.Hex) {
   return `multisig:operation:${id.toLowerCase()}`
+}
+
+/** Type returned by {@link InvalidStoreValueError}. */
+export type InvalidStoreValueErrorType = InvalidStoreValueError & {
+  /** Error name. */
+  name: 'Multisig.Operation.InvalidStoreValueError'
+}
+
+/** Thrown when a stored multisig operation is malformed or unsupported. */
+export class InvalidStoreValueError extends BaseError {
+  /** Creates an invalid store value error. */
+  constructor(options: InvalidStoreValueError.Options = {}) {
+    super('Stored multisig operation is malformed or unsupported.', {
+      cause: options.cause as Error | undefined,
+      name: 'Multisig.Operation.InvalidStoreValueError',
+    })
+  }
+}
+
+export declare namespace InvalidStoreValueError {
+  /** Error construction options. */
+  export type Options = {
+    /** Underlying error. */
+    cause?: unknown | undefined
+  }
+}
+
+/** Thrown when a multisig operation cannot be updated due to contention. */
+export class StoreConflictError extends BaseError {
+  /** Creates a store conflict error. */
+  constructor() {
+    super('Multisig operation could not be updated after repeated conflicts.', {
+      name: 'Multisig.Operation.StoreConflictError',
+    })
+  }
 }

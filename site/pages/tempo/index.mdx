@@ -45,16 +45,22 @@ Tempo mainnet chain and an `http` transport, and comes preconfigured with `tempo
 
 :::tip
 `createClient` also accepts Tempo options like `testnet` to target the Tempo testnet and
-`feeToken` to set a default fee token for every transaction.
+`feeToken` to set a default fee token for every transaction. Set `experimental_multisig` to
+coordinate multisig approvals with a client-local store.
 
 ```ts
 import { createClient } from 'viem/tempo'
 
 export const client = createClient({
+  experimental_multisig: true, // [!code hl]
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
   testnet: true, // [!code hl]
 })
 ```
+
+Pass `experimental_multisig: { store }` to use shared production
+[`Storage`](/tempo/utilities/Storage). Stores can implement `compareAndSet` to preserve concurrent
+approvals atomically.
 :::
 
 ### Use Viem Actions

@@ -26,6 +26,7 @@ import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
 import * as Multisig from './Multisig.js'
+import * as Storage from './Storage.js'
 
 /**
  * Configuration for a Tempo {@link Client}.
@@ -62,8 +63,8 @@ export type ClientConfig<
     experimental_multisig?:
       | true
       | {
-          /** Shared, authoritative multisig state. */
-          store: Multisig.Store.Store
+          /** Storage shared by multisig coordinators. */
+          store: Storage.Storage
         }
       | undefined
     /**
@@ -202,7 +203,7 @@ export function createClient<
     ? wrapTransport(
         transport_,
         experimental_multisig === true
-          ? { store: Multisig.Store.memory() }
+          ? { store: Storage.memory() }
           : experimental_multisig,
       )
     : transport_

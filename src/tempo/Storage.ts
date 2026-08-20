@@ -1,13 +1,22 @@
 import type { MaybePromise } from '../types/utils.js'
 
 export type Storage = {
+  /** Atomically replaces `expected` with `value` when supported. */
+  compareAndSet?(
+    key: string,
+    expected: string | null,
+    value: string,
+  ): MaybePromise<boolean>
+  /** Reads a value. */
   getItem(key: string): MaybePromise<string | null | undefined>
-  setItem(key: string, value: string): MaybePromise<void>
+  /** Removes a value. */
   removeItem(key: string): MaybePromise<void>
+  /** Writes a value. */
+  setItem(key: string, value: string): MaybePromise<void>
 }
 
 /**
- * Wraps a base storage with an optional key prefix and request
+ * Wraps a base store with an optional key prefix and request
  * deduplication — concurrent `getItem` calls for the same key share
  * a single in-flight promise.
  *
@@ -15,21 +24,31 @@ export type Storage = {
  * ```ts
  * import * as Storage from 'viem/tempo/zones'
  *
- * const storage = Storage.from(Storage.memory(), { key: 'tempo' })
- * await storage.setItem('foo', 'bar')
+ * const store = Storage.from(Storage.memory(), { key: 'tempo' })
+ * await store.setItem('foo', 'bar')
  * // stored under "tempo:foo"
  * ```
  */
-export function from(storage: Storage, options: from.Options = {}): Storage {
+export function from(store: Storage, options: from.Options = {}): Storage {
   const { key } = options
   const prefix = key ? `${key}:` : ''
   const inflight = new Map<string, Promise<string | null | undefined>>()
+  const compareAndSet = store.compareAndSet?.bind(store)
   return {
+    ...(compareAndSet
+      ? {
+          compareAndSet(k, expected, value) {
+            const fullKey = `${prefix}${k}`
+            inflight.delete(fullKey)
+            return compareAndSet(fullKey, expected, value)
+          },
+        }
+      : {}),
     getItem(k) {
       const fullKey = `${prefix}${k}`
       const existing = inflight.get(fullKey)
       if (existing) return existing
-      const result = Promise.resolve(storage.getItem(fullKey)).finally(() => {
+      const result = Promise.resolve(store.getItem(fullKey)).finally(() => {
         inflight.delete(fullKey)
       })
       inflight.set(fullKey, result)
@@ -38,28 +57,33 @@ export function from(storage: Storage, options: from.Options = {}): Storage {
     setItem(k, value) {
       const fullKey = `${prefix}${k}`
       inflight.delete(fullKey)
-      return storage.setItem(fullKey, value)
+      return store.setItem(fullKey, value)
     },
     removeItem(k) {
       const fullKey = `${prefix}${k}`
       inflight.delete(fullKey)
-      return storage.removeItem(fullKey)
+      return store.removeItem(fullKey)
     },
   }
 }
 
 export declare namespace from {
   type Options = {
-    /** Key prefix prepended to all storage keys. */
+    /** Key prefix prepended to all store keys. */
     key?: string | undefined
   }
 }
 
-/** Creates an in-memory storage backed by a `Map`. */
+/** Creates an in-memory store backed by a `Map`. */
 export function memory(options: from.Options = {}): Storage {
   const store = new Map<string, string>()
   return from(
     {
+      compareAndSet(key, expected, value) {
+        if ((store.get(key) ?? null) !== expected) return false
+        store.set(key, value)
+        return true
+      },
       getItem(key) {
         return store.get(key) ?? null
       },
@@ -74,7 +98,7 @@ export function memory(options: from.Options = {}): Storage {
   )
 }
 
-/** Creates a storage backed by `globalThis.sessionStorage`. */
+/** Creates a store backed by `globalThis.sessionStorage`. */
 export function session(options: from.Options = {}): Storage {
   return from(
     {
@@ -97,13 +121,13 @@ export function session(options: from.Options = {}): Storage {
 let _default: Storage | undefined
 
 /**
- * Returns the default storage for the current environment.
+ * Returns the default store for the current environment.
  *
  * Returns a singleton so that the zone transport and actions share the
  * same instance without requiring explicit plumbing.
  *
  * - Browser: `sessionStorage`
- * - Server/unsupported: in-memory `Map`-based storage
+ * - Server/unsupported: in-memory `Map`-based store
  */
 export function defaultStorage(): Storage {
   if (_default) return _default

@@ -1,0 +1,75 @@
+---
+description: Inspect and serialize pending and successful multisig operations.
+---
+
+# Multisig.Operation
+
+## Overview
+
+An operation records the approvals collected for one multisig payload. Transaction operations are
+either pending or successful.
+
+```ts
+type Transaction = TransactionPending | TransactionSuccess
+
+type TransactionPending = Base & {
+  init: boolean
+  status: 'pending'
+  transaction: UnsignedTempoTransaction
+}
+
+type TransactionSuccess = Base & {
+  status: 'success'
+  transactionHash: Hash
+}
+```
+
+The shared fields include the multisig `account`, serialized `approvals`, configuration, operation
+`id`, selected signature count, `threshold`, selected `weight`, version, and timestamps.
+
+The module also exports `KeyAuthorizationPending`, `KeyAuthorizationSuccess`, and
+`KeyAuthorization` types. Multisig key-authorization coordination is not implemented yet, so the
+current request handler produces transaction operations only.
+
+## API Reference
+
+### `from`
+
+Creates and validates an operation while adding the current schema version.
+
+```ts
+Multisig.Operation.from(operation)
+```
+
+### `read`
+
+Reads an operation by ID and verifies that the stored operation matches the requested ID.
+
+```ts
+const operation = await Multisig.Operation.read(store, id)
+```
+
+### `update`
+
+Updates an operation. When the store provides `compareAndSet`, the update retries if another
+request changes the operation concurrently. Otherwise, it falls back to `getItem` and `setItem`.
+
+```ts
+const operation = await Multisig.Operation.update(store, id, (current) => next)
+```
+
+### `serialize`
+
+Serializes an operation for RPC or a string-backed persistent store.
+
+```ts
+const value = Multisig.Operation.serialize(operation)
+```
+
+### `deserialize`
+
+Deserializes and restores an operation from RPC or a persistent store.
+
+```ts
+const operation = Multisig.Operation.deserialize(value)
+```

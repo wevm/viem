@@ -7,7 +7,7 @@ import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import * as multisigActions from './actions/multisig.js'
 import * as Operation from './multisig/Operation.js'
-import * as Store from './multisig/Store.js'
+import type * as Storage from './Storage.js'
 import * as Transaction from './Transaction.js'
 
 /**
@@ -59,7 +59,6 @@ export function handleRequest(
       next,
       serialized,
       store: parameters.store,
-      timeout: request.params?.[1],
     })
   }
 }
@@ -78,8 +77,8 @@ export declare namespace handleRequest {
 
   /** Parameters for {@link handleRequest}. */
   export type Parameters = {
-    /** Shared, authoritative multisig state. */
-    store: Store.Store
+    /** Storage shared by multisig coordinators. */
+    store: Storage.Storage
   }
 }
 
@@ -120,7 +119,8 @@ async function submit(options: submit.Options) {
     options.store,
     id,
     async (existing) => {
-      if (existing?.keyAuthorization) throw new Store.InvalidStoreValueError()
+      if (existing?.keyAuthorization)
+        throw new Operation.InvalidStoreValueError()
       if (existing?.status === 'success') return existing
       if (existing && existing.weight >= existing.threshold) return existing
       const approvals = await selectApprovals({
@@ -150,7 +150,7 @@ async function submit(options: submit.Options) {
     },
   )
 
-  if (operation.keyAuthorization) throw new Store.InvalidStoreValueError()
+  if (operation.keyAuthorization) throw new Operation.InvalidStoreValueError()
   if (operation.status === 'success') return Operation.serialize(operation)
   if (operation.weight < operation.threshold)
     return Operation.serialize(operation)
@@ -176,14 +176,11 @@ async function submit(options: submit.Options) {
       options.method === 'eth_approveMultisigTransaction'
         ? 'eth_sendRawTransaction'
         : 'eth_sendRawTransactionSync',
-    params:
-      options.method === 'eth_approveMultisigTransactionSync' && options.timeout
-        ? [final, options.timeout]
-        : [final],
+    params: [final],
   })
   const transactionHash = getTransactionHash(result)
   const success = await Operation.update(options.store, id, (current) => {
-    if (!current) throw new Store.InvalidStoreValueError()
+    if (!current) throw new Operation.InvalidStoreValueError()
     if (current.status === 'success') return current
     const {
       init: __,
@@ -215,9 +212,7 @@ declare namespace submit {
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
-    store: Store.Store
-    /** Synchronous submission timeout. */
-    timeout: unknown
+    store: Storage.Storage
   }
 }
 
@@ -518,6 +513,3 @@ function isSerializedTempoTransaction(value: unknown): value is Hex.Hex {
 /** Multisig operation utilities. */
 // biome-ignore lint/performance/noBarrelFile: namespace module
 export * as Operation from './multisig/Operation.js'
-
-/** Multisig storage utilities. */
-export * as Store from './multisig/Store.js'

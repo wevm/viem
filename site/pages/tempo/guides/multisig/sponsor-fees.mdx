@@ -1,5 +1,5 @@
 ---
-description: Pay fees for a native multisig transaction with a separate fee payer.
+description: Pay fees for a coordinated multisig transaction with a separate fee payer.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,56 +8,114 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A fee payer can cover the fees for a multisig sender. Prepare the request with both accounts,
-then collect owner approvals for that prepared request.
+Choose how the transaction gets its fee-payer signature:
+
+- **[Relay](#relay):** Use a relay when a separate service controls the fee-payer key or applies
+  sponsorship policy for many clients. Set `feePayer: true`; the relay signs and broadcasts the
+  transaction after the multisig reaches quorum.
+- **[Local account](#local-account):** Use a local account when the current trusted process
+  controls the fee-payer key. Pass that account as `feePayer`, and Viem adds its signature to the
+  transaction that every multisig owner approves.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo).
+### Relay
 
-### Sponsor a Multisig Transaction
+Compose the multisig coordinator with [`withRelay`](/tempo/transports/withRelay). The owners approve
+a request with `feePayer: true`. This keeps the fee-payer key and sponsorship policy in the relay
+instead of each application. After quorum, the relay signs and broadcasts the final transaction.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransaction,
-  signTransaction,
-} from 'viem/actions'
-import { client } from './viem.config'
+import { client } from './relay.config'
 
+// 1. Create the independent owners and multisig.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const sponsor = Account.fromSecp256k1(
-  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
-)
-const account = Account.fromMultisig({
+const multisig = Account.fromMultisig({
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 
-const request = await prepareTransactionRequest(client, {
-  account,
-  feePayer: sponsor,
+// 2. Store the first owner approval with a relay fee payer.
+const pending = await client.multisig.approveTransaction({
+  account: owner_1,
+  feePayer: true,
+  multisig,
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
   value: 1n,
 })
-const signatures = await Promise.all(
-  [owner_1, owner_2].map((owner) =>
-    signTransaction(client, { ...request, account: owner })
-  )
-)
-const hash = await sendTransaction(client, { ...request, signatures })
+
+// 3. Reach quorum and let the relay sponsor the final transaction.
+const success = await client.multisig.approveTransaction({
+  ...pending.request,
+  account: owner_2,
+})
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+```ts twoslash [relay.config.ts] filename="relay.config.ts"
+import { createClient, http, withRelay } from 'viem/tempo'
+
+// 1. Enable coordination and relay sponsorship on the client.
+export const client = createClient({
+  experimental_multisig: true,
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+```
+
+:::
+
+### Local Account
+
+Pass a local fee-payer account when the application or service already controls the fee-payer key
+and does not need a separate sponsorship service. Viem adds its signature while preparing the
+request, and later owners reuse that same request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './multisig.config'
+
+// 1. Create the owners, fee payer, and multisig.
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const feePayer = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const multisig = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+
+// 2. Store the first approval with the local fee payer.
+const pending = await client.multisig.approveTransaction({
+  account: owner_1,
+  feePayer,
+  multisig,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  value: 1n,
+})
+
+// 3. Reuse the fee-paid request for the second owner.
+const success = await client.multisig.approveTransaction({
+  ...pending.request,
+  account: owner_2,
+})
+```
+
+```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
@@ -66,33 +124,13 @@ const hash = await sendTransaction(client, { ...request, signatures })
 
 ### Keep the Prepared Request Immutable
 
-The owner and fee payer signatures cover the prepared transaction fields. Do not change the gas,
-fees, nonce, validity window, calls, or fee payer after either party signs.
-
-### Separate Remote Fee Payers
-
-For a remote fee payer service, pass `feePayer: true` and use the service's signing flow. Keep the
-fee payer key in the service instead of sharing it with multisig owners.
+Owner and fee-payer signatures cover the prepared transaction fields. Do not change gas, fees,
+nonce, validity window, calls, or fee payer after either party signs.
 
 ## See More
 
 <Cards>
-  <Card
-    icon="lucide:hand-coins"
-    title="Sponsor User Fees"
-    description="Integrate a remote fee payer service."
-    to="/tempo/guides/sponsor-fees"
-  />
-  <Card
-    icon="lucide:send"
-    title="Send Transactions"
-    description="Prepare one request and collect independent multisig approvals."
-    to="/tempo/guides/multisig/send"
-  />
-  <Card
-    icon="lucide:receipt"
-    title="Tempo Transactions"
-    description="Learn how Tempo transaction fees and fee payers work."
-    to="/tempo/transactions"
-  />
+  <Card icon="lucide:hand-coins" title="Sponsor User Fees" description="Integrate a remote fee-payer service." to="/tempo/guides/sponsor-fees" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent multisig approvals." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:receipt" title="Tempo Transactions" description="Learn how Tempo transaction fees and fee payers work." to="/tempo/transactions" />
 </Cards>

@@ -1846,7 +1846,7 @@ export namespace requestVerifiableWithdrawalSync {
  * ```
  *
  * @param client - Zone wallet client.
- * @param parameters - Options including optional storage override.
+ * @param parameters - Options including optional store override.
  * @returns The authentication object and serialized token.
  */
 export async function signAuthorizationToken<
@@ -1864,7 +1864,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
-    storage = Storage.defaultStorage(),
+    store = Storage.defaultStorage(),
   } = parameters
 
   const chain = parameters.chain ?? client.chain
@@ -1892,8 +1892,8 @@ export async function signAuthorizationToken<
     signature,
   })
 
-  await storage.setItem(storageKey, token)
-  await storage.setItem(`auth:token:${chain.id}`, token)
+  await store.setItem(storageKey, token)
+  await store.setItem(`auth:token:${chain.id}`, token)
 
   return { authentication, token }
 }
@@ -1912,8 +1912,8 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
-    /** Storage to persist the token. @default sessionStorage (web) or memory (server). */
-    storage?: Storage.Storage | undefined
+    /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
+    store?: Storage.Storage | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
     zoneId?: number | undefined
   }

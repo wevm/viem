@@ -11,121 +11,96 @@ import { Card, Cards } from 'vocs'
 A multisig account can own another multisig. Initialize every nested owner before using it to
 approve a parent transaction.
 
-## Recipes
+A nested owner contributes its configured weight to the parent only after the nested owner's own
+approvals reach quorum. The store can retain a partial nested approval tree, but its parent weight
+remains zero until that child quorum is complete.
 
-These recipes assume you have [set up a Tempo client](/tempo).
+## Recipes
 
 ### Create and Initialize the Child
 
-This child account has one local owner. Its first transaction initializes the child config
-onchain.
+This child has one owner, so one coordinated approval initializes it.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendRawTransaction,
-  signTransaction,
-} from 'viem/actions'
-import { client } from './viem.config'
+import { client } from './multisig.config'
 
+// 1. Create the child multisig and its local owner.
 const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const child = Account.fromMultisig({ owners: [childOwner] })
 
-const childRequest = await prepareTransactionRequest(client, {
-  account: child,
+// 2. Submit the child's first transaction to initialize it.
+const childOperation = await client.multisig.approveTransactionSync({
+  account: childOwner,
+  multisig: child,
   to: child.address,
-  value: 0n,
 })
-const childTransaction = await signTransaction(client, childRequest)
-await sendRawTransaction(client, { serializedTransaction: childTransaction })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
 
-### Use the Child as an Owner
+### Approve as the Nested Owner
 
-Pass the child account as the parent owner. When the child signs the parent request, its local
-owner produces the nested approval.
+Pass the initialized child account as a parent owner. The child signs a complete nested quorum,
+which the coordinator verifies before counting the child toward the parent threshold.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { Account } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransaction,
-  signTransaction,
-} from 'viem/actions'
-import { client } from './viem.config'
+import { client } from './multisig.config'
 
+// 1. Recreate the initialized child and make it the parent owner.
 const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const child = Account.fromMultisig({ owners: [childOwner] })
-const account = Account.fromMultisig({ owners: [child] })
+const parent = Account.fromMultisig({ owners: [child] })
 
-const request = await prepareTransactionRequest(client, {
-  account,
+// 2. Approve the parent request with the child's complete quorum.
+const success = await client.multisig.approveTransaction({
+  account: child,
   calls: [
     { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
   ],
-})
-const signature = await signTransaction(client, {
-  ...request,
-  account: child,
-})
-const hash = await sendTransaction(client, {
-  ...request,
-  signatures: [signature],
+  multisig: parent,
 })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+```ts twoslash [multisig.config.ts] filename="multisig.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
+
+For a child whose owners approve separately, each child approval is merged into the nested branch
+for the same parent request. The parent operation remains pending until both the child quorum and
+the parent threshold are satisfied.
 
 ## Best Practices
 
 ### Initialize Every Child First
 
-The child address must have enough fee token to initialize itself. Signing fails when a nested
-multisig owner has not been initialized.
+The child address must have enough fee token to initialize itself. A parent approval fails when a
+nested multisig owner has not been initialized.
 
-### Resolve Current Configurations During Preparation
+### Reuse the Parent Request
 
-Prepare the parent request before collecting approvals. Preparation resolves the current version
-and configuration for each initialized nested account.
+Every primitive and nested owner must approve the same parent request. Configuration reads and
+signature payloads are tied to that request.
 
 ## See More
 
 <Cards>
-  <Card
-    icon="lucide:send"
-    title="Send Transactions"
-    description="Prepare one request and collect independent owner approvals."
-    to="/tempo/guides/multisig/send"
-  />
-  <Card
-    icon="lucide:scale"
-    title="Weighted Owners"
-    description="Combine nested ownership with weighted approval thresholds."
-    to="/tempo/guides/multisig/weighted-owners"
-  />
-  <Card
-    icon="lucide:settings"
-    title="multisig.getConfig"
-    description="Read a multisig account's current configuration and version."
-    to="/tempo/actions/multisig.getConfig"
-  />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals through a shared store." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:scale" title="Weighted Owners" description="Combine nested ownership with weighted approval thresholds." to="/tempo/guides/multisig/weighted-owners" />
+  <Card icon="lucide:settings" title="multisig.getConfig" description="Read a multisig account's current configuration and version." to="/tempo/actions/multisig.getConfig" />
 </Cards>

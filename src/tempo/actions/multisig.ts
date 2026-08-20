@@ -27,7 +27,7 @@ import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import * as Operation from '../multisig/Operation.js'
-import type * as Store from '../multisig/Store.js'
+import type * as Storage from '../Storage.js'
 import * as Transaction from '../Transaction.js'
 
 /**
@@ -162,11 +162,10 @@ export async function approveTransactionSync<
     request
   >,
 ): Promise<approveTransactionSync.ReturnValue<chain, chainOverride>> {
-  const { timeout, ...parameters_ } = parameters
-  const { request, serialized } = await prepareApproval(client, parameters_)
+  const { request, serialized } = await prepareApproval(client, parameters)
   const value = await client.request({
     method: 'eth_approveMultisigTransactionSync',
-    params: timeout ? [serialized, timeout] : [serialized],
+    params: [serialized],
   } as never)
   return { ...transactionOperation(value), request } as never
 }
@@ -181,10 +180,7 @@ export declare namespace approveTransactionSync {
       chain,
       chainOverride
     > = SignTransactionRequest<chain, chainOverride>,
-  > = approveTransaction.Parameters<chain, account, chainOverride, request> & {
-    /** Timeout in milliseconds for synchronous transaction submission. */
-    timeout?: number | undefined
-  }
+  > = approveTransaction.Parameters<chain, account, chainOverride, request>
 
   /** Pending or successful multisig operation and its prepared request. */
   export type ReturnValue<
@@ -361,7 +357,7 @@ export namespace getOperation {
     /** Operation ID returned by a pending multisig submission. */
     id: Hex.Hex
     /** Local multisig store. */
-    store?: Store.Store | undefined
+    store?: Storage.Storage | undefined
   }
 
   export type ReturnValue = Operation.Operation | null

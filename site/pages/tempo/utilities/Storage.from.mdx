@@ -1,6 +1,7 @@
 # `Storage.from`
 
-Wraps a base storage with a key prefix. All keys are automatically prefixed with `{key}:`.
+Wraps a base store with a key prefix. All keys are automatically prefixed with `{key}:`. The
+wrapper preserves `compareAndSet` when the base store provides it.
 
 ## Usage
 
@@ -9,28 +10,28 @@ Wraps a base storage with a key prefix. All keys are automatically prefixed with
 import { Storage } from 'viem/tempo'
 
 const base = Storage.memory()
-const storage = Storage.from(base, { key: 'tempo' })
+const store = Storage.from(base, { key: 'tempo' })
 
-await storage.setItem('foo', 'bar')
+await store.setItem('foo', 'bar')
 
-// Stored under "tempo:foo" in the base storage.
+// Stored under "tempo:foo" in the base store.
 const value = await base.getItem('tempo:foo')
 // @log: 'bar'
 ```
 
 ## Parameters
 
-### storage
+### store
 
 - **Type:** `Storage`
 
-The base storage to wrap.
+The base store to wrap.
 
 ### options.key (optional)
 
 - **Type:** `string`
 
-Key prefix prepended to all storage keys. If omitted, the base storage is returned as-is.
+Key prefix prepended to all store keys. If omitted, the base store is returned as-is.
 
 ## Return Type
 

@@ -8,7 +8,7 @@ import {
   waitForTransactionReceipt,
 } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, createClient, Multisig } from 'viem/tempo'
+import { Account, createClient, Multisig, Storage } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -175,7 +175,6 @@ describe('approveTransactionSync', () => {
     const success = await actions.multisig.approveTransactionSync(client, {
       ...pending.request,
       account: owner_2,
-      timeout: 30_000,
     })
     if (success.status !== 'success' || !success.transactionHash)
       throw new Error('Expected success.')
@@ -214,7 +213,7 @@ describe('approveTransactionSync', () => {
 
 describe('getOperation', () => {
   test('returns a key authorization operation', async () => {
-    const store = Multisig.Store.memory()
+    const store = Storage.memory()
     const id = `0x${'aa'.repeat(32)}` as const
     const now = Date.now()
     const operation = Multisig.Operation.from({

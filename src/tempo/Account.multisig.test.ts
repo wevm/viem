@@ -14,9 +14,10 @@ import {
   Account,
   Actions,
   createClient,
-  Multisig,
+  type Multisig,
   MultisigConfig,
   P256,
+  Storage,
   type Transaction,
   WebCryptoP256,
 } from 'viem/tempo'
@@ -1977,7 +1978,7 @@ describe('multisig store', () => {
       salt: toHex(0x10612f, { size: 32 }),
       threshold: 2,
     })
-    const store = Multisig.Store.memory()
+    const store = Storage.memory()
     const serializedTransactions: string[] = []
     let collect = false
     let release: (() => void) | undefined
@@ -2056,7 +2057,7 @@ describe('multisig store', () => {
       salt: toHex(0x106130, { size: 32 }),
       threshold: 2,
     })
-    const store = Multisig.Store.memory()
+    const store = Storage.memory()
     const serializedTransactions: string[] = []
     let fail = false
     const baseTransport = tempo.http()

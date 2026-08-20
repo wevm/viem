@@ -1,6 +1,6 @@
 import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { createClient, Multisig } from 'viem/tempo'
+import { createClient, Storage } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
 
@@ -76,21 +76,19 @@ describe('createClient', () => {
 
   test('behavior: multisig operation store resolution', async () => {
     const id = `0x${'aa'.repeat(32)}` as const
-    const configuredStore = Multisig.Store.from({
-      source: {
-        compareAndSet: async () => true,
-        get: async () => {
-          throw new Error('Configured store used.')
-        },
+    const configuredStore = Storage.from({
+      getItem: async () => {
+        throw new Error('Configured store used.')
       },
+      removeItem() {},
+      setItem() {},
     })
-    const explicitStore = Multisig.Store.from({
-      source: {
-        compareAndSet: async () => true,
-        get: async () => {
-          throw new Error('Explicit store used.')
-        },
+    const explicitStore = Storage.from({
+      getItem: async () => {
+        throw new Error('Explicit store used.')
       },
+      removeItem() {},
+      setItem() {},
     })
     const client = createClient({
       experimental_multisig: true,

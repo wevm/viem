@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-`viem/tempo`: Added persistent multisig operation coordination and explicit owner approval actions.
+`viem/tempo`: Added persistent multisig coordination and renamed Zone storage options to `store`.
 
 ```ts
 import { createClient, http } from 'viem/tempo'

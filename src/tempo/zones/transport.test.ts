@@ -12,9 +12,9 @@ import { zoneModerato } from './zone.js'
 const zone = zoneModerato(6)
 
 describe('http transport', () => {
-  test('injects X-Authorization-Token header from storage', async () => {
-    const storage = Storage.memory()
-    await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+  test('injects X-Authorization-Token header from store', async () => {
+    const store = Storage.memory()
+    await store.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
     const headers: Record<string, string>[] = []
     const server = await createHttpServer(async (req, res) => {
@@ -39,7 +39,7 @@ describe('http transport', () => {
 
       const client = createClient({
         chain,
-        transport: http(undefined, { storage }),
+        transport: http(undefined, { store }),
       })
 
       await getBlockNumber(client)
@@ -51,8 +51,8 @@ describe('http transport', () => {
     }
   })
 
-  test('proceeds without header when no token in storage', async () => {
-    const storage = Storage.memory()
+  test('proceeds without header when no token in store', async () => {
+    const store = Storage.memory()
 
     const headers: Record<string, string | undefined>[] = []
     const server = await createHttpServer(async (req, res) => {
@@ -79,7 +79,7 @@ describe('http transport', () => {
 
       const client = createClient({
         chain,
-        transport: http(undefined, { storage }),
+        transport: http(undefined, { store }),
       })
 
       await getBlockNumber(client)
@@ -92,7 +92,7 @@ describe('http transport', () => {
   })
 
   test('proceeds without header when no chain is configured', async () => {
-    const storage = Storage.memory()
+    const store = Storage.memory()
 
     const headers: (string | undefined)[] = []
     const server = await createHttpServer(async (req, res) => {
@@ -109,7 +109,7 @@ describe('http transport', () => {
 
     try {
       const client = createClient({
-        transport: http(server.url, { storage }),
+        transport: http(server.url, { store }),
       })
 
       await getBlockNumber(client)
@@ -121,7 +121,7 @@ describe('http transport', () => {
   })
 
   test('signed token is injected into subsequent requests', async () => {
-    const storage = Storage.memory()
+    const store = Storage.memory()
     const account = privateKeyToAccount(Secp256k1.randomPrivateKey())
 
     const receivedHeaders: (string | undefined)[] = []
@@ -148,10 +148,10 @@ describe('http transport', () => {
       const client = createWalletClient({
         account,
         chain,
-        transport: http(undefined, { storage }),
+        transport: http(undefined, { store }),
       }).extend(decorator())
 
-      await client.zone.signAuthorizationToken({ storage })
+      await client.zone.signAuthorizationToken({ store })
       await getBlockNumber(client)
 
       expect(receivedHeaders).toHaveLength(1)

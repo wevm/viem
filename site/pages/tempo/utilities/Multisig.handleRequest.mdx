@@ -1,0 +1,95 @@
+---
+description: Creates an RPC request handler that coordinates native multisig approvals.
+---
+
+# `Multisig.handleRequest`
+
+Creates an RPC request handler that stores multisig approvals and broadcasts a canonical final
+transaction after quorum. Requests outside the multisig coordination methods pass to the
+downstream handler unchanged.
+
+## Usage
+
+```ts
+import { Multisig, Storage } from 'viem/tempo'
+
+const store = Storage.memory()
+const handleRequest = Multisig.handleRequest(
+  (request) => rpc.request(request),
+  { store },
+)
+
+const result = await handleRequest({
+  method: 'eth_getMultisigOperation',
+  params: ['0x23a9cbceb2775b93cd60d3ca7c98435c700aa0d7254850efdce71468d326ddf6'],
+})
+```
+
+Use a shared persistent store in production. The in-memory store in this example is process-local.
+
+## Return Type
+
+```ts
+type ReturnType = (request: {
+  method: string
+  params?: readonly unknown[]
+}) => Promise<unknown>
+```
+
+## Parameters
+
+### next
+
+- **Type:** `(request) => Promise<unknown>`
+
+The downstream RPC request handler. The coordinator uses this handler for configuration reads and
+final transaction submission.
+
+### store
+
+- **Type:** `Storage.Storage`
+
+The authoritative store shared by requests that coordinate the same multisig operations.
+
+## RPC Methods
+
+### `eth_approveMultisigTransaction`
+
+Adds approvals from a serialized Tempo multisig transaction.
+
+```ts
+type Parameters = [serializedTransaction: Hex]
+type Result = string // Serialized Multisig.Operation.Transaction
+```
+
+Below quorum, the result contains a pending operation. At quorum, the handler broadcasts through
+`eth_sendRawTransaction` and returns a successful operation containing `transactionHash`.
+
+### `eth_approveMultisigTransactionSync`
+
+Adds approvals and uses synchronous submission when quorum is reached.
+
+```ts
+type Parameters = [serializedTransaction: Hex]
+type Result = string // Serialized Multisig.Operation.Transaction
+```
+
+Below quorum, this method returns the same pending operation as the asynchronous method. At quorum,
+the handler broadcasts through `eth_sendRawTransactionSync`.
+
+### `eth_getMultisigOperation`
+
+Gets an operation by its deterministic ID.
+
+```ts
+type Parameters = [id: Hash]
+type Result = string | null // Serialized Multisig.Operation.Operation
+```
+
+The method returns `null` when the operation is unknown.
+
+## See Also
+
+- [`multisig.approveTransaction`](/tempo/actions/multisig.approveTransaction)
+- [`multisig.getOperation`](/tempo/actions/multisig.getOperation)
+- [`Storage`](/tempo/utilities/Storage)

@@ -109,7 +109,7 @@ const info = await client.zone.getZoneInfo()
 
 The signed token is persisted with `Storage`. By default `Storage.defaultStorage()` auto-detects the
 environment (in-memory for Node.js, `sessionStorage` for browsers), so a connected session reuses the
-token instead of re-signing on every request. Provide a custom `storage` to control where it lives.
+token instead of re-signing on every request. Provide a custom `store` to control where it lives.
 
 ### Check Token Expiry
 

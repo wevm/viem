@@ -1,7 +1,7 @@
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import { Storage } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Operation from './Operation.js'
-import * as Store from './Store.js'
 
 const id = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
 const otherId =
@@ -52,8 +52,12 @@ const keyAuthorization = KeyAuthorization.from({
 
 describe('read', () => {
   test('default', async () => {
-    const store = Store.memory()
-    await store.compareAndSet(`multisig:operation:${id}`, null, operation)
+    const store = Storage.memory()
+    await store.compareAndSet?.(
+      `multisig:operation:${id}`,
+      null,
+      Operation.serialize(operation),
+    )
 
     expect(await Operation.read(store, id)).toMatchInlineSnapshot(`
       {
@@ -99,18 +103,19 @@ describe('read', () => {
   })
 
   test('behavior: unknown operation', async () => {
-    await expect(Operation.read(Store.memory(), id)).resolves.toBeNull()
+    await expect(Operation.read(Storage.memory(), id)).resolves.toBeNull()
   })
 
   test('error: mismatched operation ID', async () => {
-    const store = Store.memory()
-    await store.compareAndSet(`multisig:operation:${id}`, null, {
-      ...operation,
-      id: otherId,
-    })
+    const store = Storage.memory()
+    await store.compareAndSet?.(
+      `multisig:operation:${id}`,
+      null,
+      Operation.serialize({ ...operation, id: otherId }),
+    )
 
     await expect(Operation.read(store, id)).rejects.toThrowError(
-      Store.InvalidStoreValueError,
+      Operation.InvalidStoreValueError,
     )
   })
 
@@ -215,19 +220,19 @@ describe('read', () => {
 
 describe('update', () => {
   test('behavior: retries compare-and-set conflicts', async () => {
-    const memory = Store.memory()
+    const memory = Storage.memory()
     let conflict = true
-    const store = Store.from({
-      source: {
-        compareAndSet: async (key, expected, value) => {
-          if (conflict) {
-            conflict = false
-            return false
-          }
-          return await memory.compareAndSet(key, expected, value)
-        },
-        get: (key) => memory.get(key),
+    const store = Storage.from({
+      async compareAndSet(key, expected, value) {
+        if (conflict) {
+          conflict = false
+          return false
+        }
+        return await memory.compareAndSet!(key, expected, value)
       },
+      getItem: (key) => memory.getItem(key),
+      removeItem: (key) => memory.removeItem(key),
+      setItem: (key, value) => memory.setItem(key, value),
     })
 
     await expect(
@@ -316,39 +321,53 @@ describe('update', () => {
     `)
   })
 
-  test('error: repeated compare-and-set conflicts', async () => {
-    const store = Store.from({
-      source: {
-        compareAndSet: async () => false,
-        get: async () => null,
-      },
+  test('behavior: falls back to get and set', async () => {
+    const values = new Map<string, string>()
+    const store = Storage.from({
+      getItem: (key) => values.get(key),
+      removeItem: (key) => values.delete(key),
+      setItem: (key, value) => values.set(key, value),
     })
 
     await expect(
       Operation.update(store, id, () => operation),
-    ).rejects.toThrowError(Store.StoreConflictError)
+    ).resolves.toStrictEqual(operation)
+    await expect(Operation.read(store, id)).resolves.toStrictEqual(operation)
+  })
+
+  test('error: repeated compare-and-set conflicts', async () => {
+    const store = Storage.from({
+      compareAndSet: async () => false,
+      getItem: async () => null,
+      removeItem() {},
+      setItem() {},
+    })
+
+    await expect(
+      Operation.update(store, id, () => operation),
+    ).rejects.toThrowError(Operation.StoreConflictError)
   })
 
   test('error: stored operation ID does not match', async () => {
-    const store = Store.from({
-      source: {
-        compareAndSet: async () => true,
-        get: async () => ({ ...operation, id: otherId }),
-      },
+    const store = Storage.from({
+      compareAndSet: async () => true,
+      getItem: async () => Operation.serialize({ ...operation, id: otherId }),
+      removeItem() {},
+      setItem() {},
     })
 
     await expect(
       Operation.update(store, id, () => operation),
-    ).rejects.toThrowError(Store.InvalidStoreValueError)
+    ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 
   test('error: updated operation ID does not match', async () => {
     await expect(
-      Operation.update(Store.memory(), id, () => ({
+      Operation.update(Storage.memory(), id, () => ({
         ...operation,
         id: otherId,
       })),
-    ).rejects.toThrowError(Store.InvalidStoreValueError)
+    ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 })
 
@@ -366,10 +385,27 @@ describe('serialize', () => {
     }
 
     expect(() => Operation.serialize(oversized)).toThrowError(
-      Store.InvalidStoreValueError,
+      Operation.InvalidStoreValueError,
     )
     expect(() => Operation.deserialize(' '.repeat(1_048_577))).toThrowError(
-      Store.InvalidStoreValueError,
+      Operation.InvalidStoreValueError,
     )
+  })
+})
+
+describe('InvalidStoreValueError', () => {
+  test('default', () => {
+    expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
+      [Multisig.Operation.InvalidStoreValueError: Stored multisig operation is malformed or unsupported.
+
+      Version: viem@2.55.19]
+    `)
+  })
+
+  test('behavior: cause', () => {
+    const cause = new Error('invalid value')
+    const error = new Operation.InvalidStoreValueError({ cause })
+
+    expect(error.cause).toBe(cause)
   })
 })
