@@ -1,4 +1,4 @@
-import { custom, http } from 'viem'
+import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { createClient, Multisig } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
@@ -85,42 +85,9 @@ describe('createClient', () => {
         },
       },
     })
-    const request = async ({ method }: { method: string }) => {
-      if (method === 'eth_getMultisigOperation')
-        return {
-          account: '0x1111111111111111111111111111111111111111',
-          approvals: [],
-          config: {
-            owners: [
-              {
-                owner: '0x1111111111111111111111111111111111111111',
-                weight: 1,
-              },
-            ],
-            salt: `0x${'00'.repeat(32)}`,
-            threshold: 1,
-          },
-          createdAt: 1,
-          id,
-          init: false,
-          schemaVersion: 1,
-          signatures: 0,
-          status: 'pending',
-          threshold: 1,
-          transaction: {
-            calls: [],
-            chainId: 4217,
-            type: 'tempo',
-          },
-          updatedAt: 1,
-          version: 0n,
-          weight: 0,
-        }
-      throw new Error(`Unexpected request: ${method}`)
-    }
     const client = createClient({
       multisig: { store: configuredStore },
-      transport: custom({ request }),
+      transport: http('http://localhost'),
     })
 
     await expect(client.multisig.getOperation({ id })).resolves.toBeNull()
@@ -129,41 +96,6 @@ describe('createClient', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: Explicit store used.]`,
     )
-
-    const remoteClient = createClient({ transport: custom({ request }) })
-    await expect(
-      remoteClient.multisig.getOperation({ id }),
-    ).resolves.toMatchInlineSnapshot(`
-      {
-        "account": "0x1111111111111111111111111111111111111111",
-        "approvals": [],
-        "config": {
-          "owners": [
-            {
-              "owner": "0x1111111111111111111111111111111111111111",
-              "weight": 1,
-            },
-          ],
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "threshold": 1,
-        },
-        "createdAt": 1,
-        "id": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "init": false,
-        "schemaVersion": 1,
-        "signatures": 0,
-        "status": "pending",
-        "threshold": 1,
-        "transaction": {
-          "calls": [],
-          "chainId": 4217,
-          "type": "tempo",
-        },
-        "updatedAt": 1,
-        "version": 0n,
-        "weight": 0,
-      }
-    `)
-    expect(client.transport.type).toMatchInlineSnapshot(`"custom"`)
+    expect(client.transport.type).toMatchInlineSnapshot(`"http"`)
   })
 })

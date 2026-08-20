@@ -39,54 +39,6 @@ describe('formatTransaction', () => {
   })
 })
 
-describe('formatTransactionReceipt', () => {
-  test('behavior: pending multisig transaction', () => {
-    const transactionHash =
-      '0x0000000000000000000000000000000000000000000000000000000000000001'
-    const receipt = Formatters.formatTransactionReceipt({
-      blockHash: null,
-      blockNumber: null,
-      contractAddress: null,
-      cumulativeGasUsed: null,
-      effectiveGasPrice: null,
-      from: accounts[0].address,
-      gasUsed: null,
-      logs: [],
-      logsBloom: null,
-      multisigAccount: accounts[0].address,
-      multisigSignatures: 1,
-      multisigThreshold: 2,
-      multisigWeight: 1,
-      status: 'pending',
-      to: null,
-      transactionHash,
-      transactionIndex: null,
-      type: '0x76',
-    } as never)
-
-    expect(receipt).toEqual({
-      blockHash: null,
-      blockNumber: null,
-      contractAddress: null,
-      cumulativeGasUsed: null,
-      effectiveGasPrice: null,
-      from: accounts[0].address,
-      gasUsed: null,
-      logs: [],
-      logsBloom: null,
-      multisigAccount: accounts[0].address,
-      multisigSignatures: 1,
-      multisigThreshold: 2,
-      multisigWeight: 1,
-      status: 'pending',
-      to: null,
-      transactionHash,
-      transactionIndex: null,
-      type: 'tempo',
-    })
-  })
-})
-
 describe('formatTransactionRequest', () => {
   test('behavior: webAuthn account populates keyType and keyData', async () => {
     const webAuthnAccount = Account.fromHeadlessWebAuthn(

@@ -34,37 +34,24 @@ export function handleRequest(
         throw new RpcResponse.InvalidParamsError({
           message: 'Expected a multisig operation ID.',
         })
-      return await multisigActions.getOperation(client, {
+      const operation = await multisigActions.getOperation(client, {
         id,
         store: parameters.store,
       })
+      return operation ? Operation.serialize(operation) : null
     }
 
     if (
-      request.method === 'eth_getTransactionByHash' ||
-      request.method === 'eth_getTransactionReceipt'
-    ) {
-      const id = request.params?.[0]
-      if (typeof id !== 'string' || !Hash.validate(id))
-        return await next(request)
-      const operation = await Operation.read(parameters.store, id)
-      if (!operation) return await next(request)
-      if (operation.keyAuthorization) return await next(request)
-      if (operation.status !== 'success') return null
-      return await next({
-        ...request,
-        params: [operation.transactionHash],
-      })
-    }
-
-    if (
-      request.method !== 'eth_sendRawTransaction' &&
-      request.method !== 'eth_sendRawTransactionSync'
+      request.method !== 'eth_approveMultisigTransaction' &&
+      request.method !== 'eth_approveMultisigTransactionSync'
     )
       return await next(request)
 
     const serialized = request.params?.[0]
-    if (!isSerializedTempoTransaction(serialized)) return await next(request)
+    if (!isSerializedTempoTransaction(serialized))
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Expected a serialized Tempo transaction.',
+      })
 
     return await submit({
       client,
@@ -72,6 +59,7 @@ export function handleRequest(
       next,
       serialized,
       store: parameters.store,
+      timeout: request.params?.[1],
     })
   }
 }
@@ -101,9 +89,8 @@ async function submit(options: submit.Options) {
   const transaction = deserialize(options.serialized)
   const signature = transaction.signature
   if (signature?.type !== 'multisig')
-    return await options.next({
-      method: options.method,
-      params: [options.serialized],
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a multisig transaction.',
     })
 
   const { signature: _, ...unsigned } = transaction
@@ -164,10 +151,9 @@ async function submit(options: submit.Options) {
   )
 
   if (operation.keyAuthorization) throw new Store.InvalidStoreValueError()
-  if (operation.status === 'success')
-    return await submittedResult(options.next, options.method, operation)
+  if (operation.status === 'success') return Operation.serialize(operation)
   if (operation.weight < operation.threshold)
-    return pendingResult(options.method, operation)
+    return Operation.serialize(operation)
 
   const finalApprovals = await selectApprovals({
     account: operation.account,
@@ -186,11 +172,17 @@ async function submit(options: submit.Options) {
     version: operation.version,
   })
   const result = await options.next({
-    method: options.method,
-    params: [final],
+    method:
+      options.method === 'eth_approveMultisigTransaction'
+        ? 'eth_sendRawTransaction'
+        : 'eth_sendRawTransactionSync',
+    params:
+      options.method === 'eth_approveMultisigTransactionSync' && options.timeout
+        ? [final, options.timeout]
+        : [final],
   })
   const transactionHash = getTransactionHash(result)
-  await Operation.update(options.store, id, (current) => {
+  const success = await Operation.update(options.store, id, (current) => {
     if (!current) throw new Store.InvalidStoreValueError()
     if (current.status === 'success') return current
     const {
@@ -206,7 +198,7 @@ async function submit(options: submit.Options) {
       updatedAt: Date.now(),
     })
   })
-  return result
+  return Operation.serialize(success)
 }
 
 declare namespace submit {
@@ -215,13 +207,17 @@ declare namespace submit {
     /** Client used to resolve initialized configurations. */
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
-    method: 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync'
+    method:
+      | 'eth_approveMultisigTransaction'
+      | 'eth_approveMultisigTransactionSync'
     /** Downstream RPC request handler. */
     next: handleRequest.Handler
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
     store: Store.Store
+    /** Synchronous submission timeout. */
+    timeout: unknown
   }
 }
 
@@ -495,48 +491,6 @@ declare namespace serializeFinal {
     /** Multisig configuration version. */
     version: bigint
   }
-}
-
-/** Returns the previously submitted result for an operation. */
-async function submittedResult(
-  next: handleRequest.Handler,
-  method: 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync',
-  operation: Extract<Operation.Transaction, { status: 'success' }>,
-) {
-  if (method === 'eth_sendRawTransaction') return operation.transactionHash
-  const receipt = await next({
-    method: 'eth_getTransactionReceipt',
-    params: [operation.transactionHash],
-  })
-  return receipt ?? operation.transactionHash
-}
-
-/** Returns the pending result for an operation. */
-function pendingResult(
-  method: 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync',
-  operation: Operation.Operation,
-) {
-  if (method === 'eth_sendRawTransaction') return operation.id
-  return {
-    blockHash: null,
-    blockNumber: null,
-    contractAddress: null,
-    cumulativeGasUsed: null,
-    effectiveGasPrice: null,
-    from: operation.account,
-    gasUsed: null,
-    logs: [],
-    logsBloom: null,
-    multisigAccount: operation.account,
-    multisigSignatures: operation.signatures,
-    multisigThreshold: operation.threshold,
-    multisigWeight: operation.weight,
-    status: 'pending',
-    to: null,
-    transactionHash: operation.id,
-    transactionIndex: null,
-    type: '0x76',
-  } as const
 }
 
 /** Extracts a transaction hash from an RPC submission result. */

@@ -27,10 +27,6 @@ import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
 
-// TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
-const serializeTransaction = ((transaction, signature) =>
-  Transaction.serialize(transaction, signature)) as SerializeTransactionFn
-
 /** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
 function randomValidAfter(): number {
   const now = BigInt(Math.floor(Date.now() / 1_000))
@@ -258,20 +254,9 @@ export const chainConfig = {
     { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
   ],
   serializers: {
-    transaction: serializeTransaction,
-    async transactionEnvelope({ serializedTransaction, transaction }) {
-      const request = transaction as Transaction.TransactionSerializableTempo
-      if (!request.multisig) return serializedTransaction
-      try {
-        SignatureEnvelope.deserialize(serializedTransaction)
-      } catch {
-        return serializedTransaction
-      }
-      return await serializeTransaction({
-        ...request,
-        signatures: [...(request.signatures ?? []), serializedTransaction],
-      } as never)
-    },
+    // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
+    transaction: ((transaction, signature) =>
+      Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
   },
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters

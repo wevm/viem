@@ -98,21 +98,17 @@ export type TransactionRequestRpc = OneOf<
 export type TransactionReceipt<
   quantity = bigint,
   index = number,
-  status = 'success' | 'reverted' | 'pending',
+  status = 'success' | 'reverted',
   type = TransactionType,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
-  multisigAccount?: Address | undefined
-  multisigSignatures?: number | undefined
-  multisigThreshold?: number | undefined
-  multisigWeight?: number | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   Hex.Hex,
-  ox_TransactionReceipt.RpcStatus | 'pending',
+  ox_TransactionReceipt.RpcStatus,
   ox_TransactionReceipt.RpcType
 >
 
@@ -146,16 +142,7 @@ export type TransactionRequestTempo<
         }
       | undefined
     /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?:
-      | readonly {
-          account: Address
-          config?:
-            | Pick<MultisigConfig.Config, 'owners' | 'threshold'>
-            | undefined
-          initialized: boolean
-          version: bigint
-        }[]
-      | undefined
+    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
     /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
     multisigSignatureCount?: number | undefined
     /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
@@ -184,16 +171,7 @@ export type TransactionSerializableTempo<
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: Address | MultisigConfig.Config<index> | undefined
     /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?:
-      | readonly {
-          account: Address
-          config?:
-            | Pick<MultisigConfig.Config, 'owners' | 'threshold'>
-            | undefined
-          initialized: boolean
-          version: bigint
-        }[]
-      | undefined
+    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
     /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
     multisigVersion?: bigint | undefined
     nonceKey?: quantity | undefined

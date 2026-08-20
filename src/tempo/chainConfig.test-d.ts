@@ -1,26 +1,9 @@
-import type { Address } from 'abitype'
 import { MultisigConfig } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
-import { sendRawTransactionSync } from '../actions/wallet/sendRawTransactionSync.js'
 import { tempoLocalnet } from '../chains/index.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { http } from '../clients/transports/http.js'
-import type { Hash } from '../types/misc.js'
-import type {
-  MultisigOwnerState,
-  TransactionRequestTempo,
-  TransactionSerializableTempo,
-} from './Transaction.js'
-
-test('multisig owner state keeps its structural type', () => {
-  expectTypeOf<
-    NonNullable<TransactionRequestTempo['multisigOwnerStates']>
-  >().toEqualTypeOf<readonly MultisigOwnerState[]>()
-  expectTypeOf<
-    NonNullable<TransactionSerializableTempo['multisigOwnerStates']>
-  >().toEqualTypeOf<readonly MultisigOwnerState[]>()
-})
 
 test('prepareTransactionRequest preserves tempo transaction type', async () => {
   const client = createWalletClient({
@@ -90,26 +73,5 @@ test('prepareTransactionRequest stays a union when ambiguous', async () => {
   })
   expectTypeOf(request.type).toEqualTypeOf<
     'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'tempo'
-  >()
-})
-
-test('sendRawTransactionSync returns pending multisig details', async () => {
-  const client = createWalletClient({
-    account: '0x',
-    chain: tempoLocalnet,
-    transport: http(),
-  })
-
-  const receipt = await sendRawTransactionSync(client, {
-    serializedTransaction: '0x76',
-  })
-
-  expectTypeOf(receipt.blockHash).toEqualTypeOf<Hash>()
-  expectTypeOf(receipt.multisigAccount).toEqualTypeOf<Address | undefined>()
-  expectTypeOf(receipt.multisigSignatures).toEqualTypeOf<number | undefined>()
-  expectTypeOf(receipt.multisigThreshold).toEqualTypeOf<number | undefined>()
-  expectTypeOf(receipt.multisigWeight).toEqualTypeOf<number | undefined>()
-  expectTypeOf(receipt.status).toEqualTypeOf<
-    'pending' | 'reverted' | 'success'
   >()
 })

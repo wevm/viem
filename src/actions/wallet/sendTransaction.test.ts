@@ -175,17 +175,12 @@ test('sends transaction (w/ serializer)', async () => {
       return concatHex(['0x08', toRlp(serializedTransaction)])
     },
   )
-  const transactionEnvelope = vi.fn(
-    (parameters: { serializedTransaction: Hex }) =>
-      parameters.serializedTransaction,
-  )
 
   const chain = defineChain({
     ...localhost,
     id: 1,
     serializers: {
       transaction: serializer,
-      transactionEnvelope,
     },
   })
 
@@ -200,18 +195,6 @@ test('sends transaction (w/ serializer)', async () => {
 
   expect(serializer).toHaveReturned()
   expect(serializer.mock.results[0]!.value).toMatch(/^0x08/)
-  expect({
-    calls: transactionEnvelope.mock.calls.length,
-    type: transactionEnvelope.mock.calls[0]?.[0].serializedTransaction.slice(
-      0,
-      4,
-    ),
-  }).toMatchInlineSnapshot(`
-    {
-      "calls": 1,
-      "type": "0x08",
-    }
-  `)
 })
 
 // TODO: This test is flaky. Need to figure out how to mitigate.

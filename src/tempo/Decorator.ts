@@ -2366,6 +2366,27 @@ type DecoratorBase<
   }
   multisig: {
     /**
+     * Signs and submits an owner approval for a multisig transaction.
+     *
+     * @param parameters - Prepared transaction request and owner account.
+     * @returns The pending or successful multisig operation.
+     */
+    approveTransaction: (
+      parameters: multisigActions.approveTransaction.Parameters<chain, account>,
+    ) => Promise<multisigActions.approveTransaction.ReturnValue>
+    /**
+     * Signs and synchronously submits an owner approval for a multisig transaction.
+     *
+     * @param parameters - Prepared transaction request and owner account.
+     * @returns The pending or successful multisig operation.
+     */
+    approveTransactionSync: (
+      parameters: multisigActions.approveTransactionSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<multisigActions.approveTransactionSync.ReturnValue>
+    /**
      * Gets the current configuration for an initialized multisig account.
      *
      * @param parameters - Parameters.
@@ -6006,6 +6027,8 @@ export function decorator() {
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
+        'approveTransaction',
+        'approveTransactionSync',
         'getConfig',
         'getOperation',
         'isInitialized',

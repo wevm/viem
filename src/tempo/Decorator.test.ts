@@ -80,6 +80,8 @@ describe('decorator', () => {
   test('binds missing action entries', () => {
     expect(typeof client2.dex.getOrderbook).toBe('function')
     expect(typeof client2.fee.getValidatorToken).toBe('function')
+    expect(typeof client2.multisig.approveTransaction).toBe('function')
+    expect(typeof client2.multisig.approveTransactionSync).toBe('function')
     expect(typeof client2.multisig.getOperation).toBe('function')
     expect(typeof client2.reward.getPendingRewards).toBe('function')
     expect(typeof client2.token.prepareUpdateQuoteToken).toBe('function')
