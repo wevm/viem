@@ -45,8 +45,7 @@ const multisig = Account.fromMultisig({
 // 2. Send with all owner approvals created locally.
 const receipt = await client.sendTransactionSync({
   account: multisig,
-  to: '0xcafebabecafebabecafebabecafebabecafebabe',
-  value: 1n,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
 })
 // @log: { status: 'success', transactionHash: '0x...' }
 ```
@@ -124,7 +123,7 @@ import { client } from './viem.config'
 
 const pending = await client.sendTransactionSync({
   account: owner_1,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 // @log: { status: 'pending', transactionHash: '0x...', multisig: { status: 'pending', weight: 1, threshold: 3 } }
@@ -203,7 +202,7 @@ const multisig = Account.fromMultisig({
 // 2. Prepare the request once for every owner.
 const request = await prepareTransactionRequest(client, {
   account: multisig,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
 })
 
 // 3. Collect every approval over the same request.

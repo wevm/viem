@@ -98,7 +98,7 @@ const multisig = Account.fromMultisig(
 // 3. Store the first new owner's approval.
 const pending = await client.sendTransactionSync({
   account: newOwner_1,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 

@@ -46,10 +46,9 @@ const multisig = Account.fromMultisig({
 // 2. Store the first owner approval with a relay fee payer.
 const pending = await client.sendTransactionSync({
   account: owner_1,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer: true,
   multisig,
-  to: '0xcafebabecafebabecafebabecafebabecafebabe',
-  value: 1n,
 })
 
 // 3. Reach quorum and let the relay sponsor the final transaction.
@@ -102,10 +101,9 @@ const multisig = Account.fromMultisig({
 // 2. Store the first approval with the local fee payer.
 const pending = await client.sendTransactionSync({
   account: owner_1,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer,
   multisig,
-  to: '0xcafebabecafebabecafebabecafebabecafebabe',
-  value: 1n,
 })
 
 // 3. Approve the fee-paid operation with the second owner.

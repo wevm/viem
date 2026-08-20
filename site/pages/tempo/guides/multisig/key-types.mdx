@@ -43,7 +43,7 @@ const multisig = Account.fromMultisig({
 // 3. Store the secp256k1 owner's approval.
 const pending = await client.sendTransactionSync({
   account: secp256k1Owner,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   multisig,
 })
 
