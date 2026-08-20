@@ -4,6 +4,7 @@ import { MultisigConfig } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
+import { prepareTransactionRequest } from '../../actions/wallet/prepareTransactionRequest.js'
 import {
   type SignTransactionParameters,
   type SignTransactionRequest,
@@ -21,6 +22,7 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
+import type { MultisigAccount } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -37,19 +39,20 @@ import * as Transaction from '../Transaction.js'
  *
  * @example
  * ```ts
- * const request = await client.prepareTransactionRequest({
- *   account: multisig,
+ * const pending = await client.multisig.approveTransaction({
+ *   account: owner_1,
  *   calls: [],
+ *   multisig,
  * })
- * const operation = await client.multisig.approveTransaction({
- *   ...request,
- *   account: owner,
+ * const success = await client.multisig.approveTransaction({
+ *   ...pending.request,
+ *   account: owner_2,
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Prepared transaction request and owner account.
- * @returns The pending or successful multisig operation.
+ * @param parameters - Transaction request, multisig identity, and owner account.
+ * @returns The pending or successful multisig operation and prepared request.
  */
 export async function approveTransaction<
   chain extends Chain | undefined,
@@ -67,18 +70,13 @@ export async function approveTransaction<
     chainOverride,
     request
   >,
-): Promise<approveTransaction.ReturnValue> {
-  const signature = await signTransaction(client, parameters)
-  const {
-    account: _,
-    chain: __,
-    ...transaction
-  } = parameters as typeof parameters & Transaction.TransactionSerializableTempo
+): Promise<approveTransaction.ReturnValue<chain, chainOverride>> {
+  const { request, serialized } = await prepareApproval(client, parameters)
   const value = await client.request({
     method: 'eth_approveMultisigTransaction',
-    params: [await serializeApproval({ signature, transaction })],
+    params: [serialized],
   } as never)
-  return transactionOperation(value)
+  return { ...transactionOperation(value), request } as never
 }
 
 export declare namespace approveTransaction {
@@ -91,10 +89,40 @@ export declare namespace approveTransaction {
       chain,
       chainOverride
     > = SignTransactionRequest<chain, chainOverride>,
-  > = SignTransactionParameters<chain, account, chainOverride, request>
+  > =
+    | SignTransactionParameters<chain, account, chainOverride, request>
+    | WithMultisigAccount<
+        SignTransactionParameters<chain, account, chainOverride, request>
+      >
 
-  /** Pending or successful multisig transaction operation. */
-  export type ReturnValue = Operation.Transaction
+  /** Multisig identity accepted by an approval action. */
+  export type Multisig = Address | MultisigAccount | MultisigConfig.Config
+
+  /** Pending or successful multisig operation and its prepared request. */
+  export type ReturnValue<
+    chain extends Chain | undefined = Chain | undefined,
+    chainOverride extends Chain | undefined = Chain | undefined,
+  > = Operation.Transaction & {
+    /** Prepared transaction request that subsequent owners must approve. */
+    request: Request<chainOverride extends Chain ? chainOverride : chain>
+  }
+
+  /** Prepared multisig transaction request returned with an operation. */
+  export type Request<chain extends Chain | undefined = Chain | undefined> =
+    Transaction.TransactionRequestTempo & {
+      /** Multisig account when it also signs the transaction locally. */
+      account?: Account | Address | undefined
+      /** Chain used to prepare the transaction. */
+      chain?: chain | null | undefined
+      /** Chain ID used to sign the transaction. */
+      chainId: number
+      /** Multisig sender address. */
+      from: Address
+      /** Prepared gas limit. */
+      gas: bigint
+      /** Prepared nonce. */
+      nonce: number
+    }
 }
 
 /**
@@ -107,14 +135,15 @@ export declare namespace approveTransaction {
  * @example
  * ```ts
  * const operation = await client.multisig.approveTransactionSync({
- *   ...request,
  *   account: owner,
+ *   calls: [],
+ *   multisig,
  * })
  * ```
  *
  * @param client - Client.
- * @param parameters - Prepared transaction request and owner account.
- * @returns The pending or successful multisig operation.
+ * @param parameters - Transaction request, multisig identity, and owner account.
+ * @returns The pending or successful multisig operation and prepared request.
  */
 export async function approveTransactionSync<
   chain extends Chain | undefined,
@@ -129,21 +158,14 @@ export async function approveTransactionSync<
     chainOverride,
     request
   >,
-): Promise<approveTransactionSync.ReturnValue> {
+): Promise<approveTransactionSync.ReturnValue<chain, chainOverride>> {
   const { timeout, ...parameters_ } = parameters
-  const signature = await signTransaction(client, parameters_ as never)
-  const {
-    account: _,
-    chain: __,
-    ...transaction
-  } = parameters_ as typeof parameters_ &
-    Transaction.TransactionSerializableTempo
-  const serialized = await serializeApproval({ signature, transaction })
+  const { request, serialized } = await prepareApproval(client, parameters_)
   const value = await client.request({
     method: 'eth_approveMultisigTransactionSync',
     params: timeout ? [serialized, timeout] : [serialized],
   } as never)
-  return transactionOperation(value)
+  return { ...transactionOperation(value), request } as never
 }
 
 export declare namespace approveTransactionSync {
@@ -156,13 +178,16 @@ export declare namespace approveTransactionSync {
       chain,
       chainOverride
     > = SignTransactionRequest<chain, chainOverride>,
-  > = SignTransactionParameters<chain, account, chainOverride, request> & {
+  > = approveTransaction.Parameters<chain, account, chainOverride, request> & {
     /** Timeout in milliseconds for synchronous transaction submission. */
     timeout?: number | undefined
   }
 
-  /** Pending or successful multisig transaction operation. */
-  export type ReturnValue = Operation.Transaction
+  /** Pending or successful multisig operation and its prepared request. */
+  export type ReturnValue<
+    chain extends Chain | undefined = Chain | undefined,
+    chainOverride extends Chain | undefined = Chain | undefined,
+  > = approveTransaction.ReturnValue<chain, chainOverride>
 }
 
 /**
@@ -324,7 +349,8 @@ export async function getOperation(
     params: [id],
   } as never)
   if (value === null) return null
-  return transactionOperation(value)
+  if (typeof value !== 'string') throw new Error('Invalid multisig operation.')
+  return Operation.deserialize(value)
 }
 
 export namespace getOperation {
@@ -543,6 +569,50 @@ function transactionOperation(value: unknown): Operation.Transaction {
     throw new Error('Expected a multisig transaction operation.')
   return operation
 }
+
+/** Prepares a transaction and serializes one owner's approval. */
+async function prepareApproval(
+  client: Client,
+  parameters: {
+    /** Owner account used to sign the prepared request. */
+    account?: Account | Address | null | undefined
+    /** Multisig account, config, or address. */
+    multisig?: approveTransaction.Multisig | undefined
+  },
+) {
+  const account = parameters.account ?? client.account
+  const multisig =
+    typeof parameters.multisig === 'object' &&
+    'source' in parameters.multisig &&
+    parameters.multisig.source === 'multisig'
+      ? (parameters.multisig.config ?? parameters.multisig.address)
+      : parameters.multisig
+  const request = await prepareTransactionRequest(client, {
+    ...parameters,
+    multisig,
+  } as never)
+  const signature = await signTransaction(client, {
+    ...request,
+    account,
+  } as never)
+  const {
+    account: _,
+    chain: __,
+    ...transaction
+  } = request as typeof request & Transaction.TransactionSerializableTempo
+  return {
+    request,
+    serialized: await serializeApproval({ signature, transaction }),
+  }
+}
+
+/** Adds multisig-account input support without widening transaction requests. */
+type WithMultisigAccount<parameters> = parameters extends unknown
+  ? Omit<parameters, 'multisig'> & {
+      /** Multisig account. */
+      multisig: MultisigAccount
+    }
+  : never
 
 /** Serializes one approval or preserves an already-complete multisig envelope. */
 // biome-ignore lint/correctness/noUnusedVariables: called by the approval actions above

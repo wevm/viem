@@ -12,8 +12,14 @@ const client = createClient({
   transport: http(),
 })
 
-const operation = await client.multisig.approveTransaction({
-  ...request,
-  account: owner,
+const pending = await client.multisig.approveTransaction({
+  account: owner_1,
+  calls,
+  multisig: account,
+})
+
+const success = await client.multisig.approveTransaction({
+  ...pending.request,
+  account: owner_2,
 })
 ```

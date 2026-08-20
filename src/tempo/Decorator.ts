@@ -2368,24 +2368,24 @@ type DecoratorBase<
     /**
      * Signs and submits an owner approval for a multisig transaction.
      *
-     * @param parameters - Prepared transaction request and owner account.
-     * @returns The pending or successful multisig operation.
+     * @param parameters - Transaction request, multisig identity, and owner account.
+     * @returns The pending or successful multisig operation and prepared request.
      */
     approveTransaction: (
       parameters: multisigActions.approveTransaction.Parameters<chain, account>,
-    ) => Promise<multisigActions.approveTransaction.ReturnValue>
+    ) => Promise<multisigActions.approveTransaction.ReturnValue<chain>>
     /**
      * Signs and synchronously submits an owner approval for a multisig transaction.
      *
-     * @param parameters - Prepared transaction request and owner account.
-     * @returns The pending or successful multisig operation.
+     * @param parameters - Transaction request, multisig identity, and owner account.
+     * @returns The pending or successful multisig operation and prepared request.
      */
     approveTransactionSync: (
       parameters: multisigActions.approveTransactionSync.Parameters<
         chain,
         account
       >,
-    ) => Promise<multisigActions.approveTransactionSync.ReturnValue>
+    ) => Promise<multisigActions.approveTransactionSync.ReturnValue<chain>>
     /**
      * Gets the current configuration for an initialized multisig account.
      *

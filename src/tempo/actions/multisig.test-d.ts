@@ -12,19 +12,19 @@ const client = createClient({
 })
 
 test('approval actions return transaction operations', async () => {
-  const request = await client.prepareTransactionRequest({
-    account,
-    calls: [],
-  })
   const operation = await client.multisig.approveTransaction({
-    ...request,
     account: owner,
+    calls: [],
+    multisig: account,
   })
   const operationSync = await client.multisig.approveTransactionSync({
-    ...request,
+    ...operation.request,
     account: owner,
   })
 
-  expectTypeOf(operation).toEqualTypeOf<Multisig.Operation.Transaction>()
-  expectTypeOf(operationSync).toEqualTypeOf<Multisig.Operation.Transaction>()
+  expectTypeOf(operation).toMatchTypeOf<Multisig.Operation.Transaction>()
+  expectTypeOf(operation.request.from).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(operation.request.gas).toEqualTypeOf<bigint>()
+  expectTypeOf(operationSync).toMatchTypeOf<Multisig.Operation.Transaction>()
+  expectTypeOf(operationSync.request.gas).toEqualTypeOf<bigint>()
 })

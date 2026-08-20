@@ -4,6 +4,8 @@ import * as Operation from './Operation.js'
 import * as Store from './Store.js'
 
 const id = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+const otherId =
+  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
 const ownerSignature = {
   signature: {
     r: BigInt(`0x76${'11'.repeat(31)}`),
@@ -51,11 +53,7 @@ const keyAuthorization = KeyAuthorization.from({
 describe('read', () => {
   test('default', async () => {
     const store = Store.memory()
-    await store.compareAndSet(
-      `multisig:operation:${id}`,
-      null,
-      Operation.serialize(operation),
-    )
+    await store.compareAndSet(`multisig:operation:${id}`, null, operation)
 
     expect(await Operation.read(store, id)).toMatchInlineSnapshot(`
       {
@@ -102,6 +100,18 @@ describe('read', () => {
 
   test('behavior: unknown operation', async () => {
     await expect(Operation.read(Store.memory(), id)).resolves.toBeNull()
+  })
+
+  test('error: mismatched operation ID', async () => {
+    const store = Store.memory()
+    await store.compareAndSet(`multisig:operation:${id}`, null, {
+      ...operation,
+      id: otherId,
+    })
+
+    await expect(Operation.read(store, id)).rejects.toThrowError(
+      Store.InvalidStoreValueError,
+    )
   })
 
   test('behavior: key authorization states', () => {
@@ -317,5 +327,49 @@ describe('update', () => {
     await expect(
       Operation.update(store, id, () => operation),
     ).rejects.toThrowError(Store.StoreConflictError)
+  })
+
+  test('error: stored operation ID does not match', async () => {
+    const store = Store.from({
+      source: {
+        compareAndSet: async () => true,
+        get: async () => ({ ...operation, id: otherId }),
+      },
+    })
+
+    await expect(
+      Operation.update(store, id, () => operation),
+    ).rejects.toThrowError(Store.InvalidStoreValueError)
+  })
+
+  test('error: updated operation ID does not match', async () => {
+    await expect(
+      Operation.update(Store.memory(), id, () => ({
+        ...operation,
+        id: otherId,
+      })),
+    ).rejects.toThrowError(Store.InvalidStoreValueError)
+  })
+})
+
+describe('serialize', () => {
+  test('behavior: round trip', () => {
+    expect(Operation.deserialize(Operation.serialize(operation))).toStrictEqual(
+      operation,
+    )
+  })
+
+  test('error: oversized value', () => {
+    const oversized = {
+      ...operation,
+      approvals: [`0x${'aa'.repeat(524_288)}` as const],
+    }
+
+    expect(() => Operation.serialize(oversized)).toThrowError(
+      Store.InvalidStoreValueError,
+    )
+    expect(() => Operation.deserialize(' '.repeat(1_048_577))).toThrowError(
+      Store.InvalidStoreValueError,
+    )
   })
 })

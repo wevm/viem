@@ -1,15 +1,16 @@
 import { BaseError } from '../../errors/base.js'
+import type * as Operation from './Operation.js'
 
 /** Storage used to coordinate multisig operations. */
 export type Store = {
-  /** Atomically replaces `expected` with `value`. */
+  /** Atomically replaces `expected` with `value`; persistent stores own serialization. */
   compareAndSet(
     key: string,
-    expected: string | null,
-    value: string,
+    expected: Operation.Operation | null,
+    value: Operation.Operation,
   ): Promise<boolean>
-  /** Reads an opaque multisig operation value. */
-  get(key: string): Promise<string | null>
+  /** Reads a multisig operation. */
+  get(key: string): Promise<Operation.Operation | null>
 }
 
 /**
@@ -25,7 +26,7 @@ export function from(options: from.Options): Store {
 export declare namespace from {
   /** Options for {@link from}. */
   export type Options = {
-    /** Storage implementation. */
+    /** Storage implementation that owns any required serialization. */
     source: Store
   }
 }
@@ -36,7 +37,7 @@ export declare namespace from {
  * @returns The in-memory multisig store.
  */
 export function memory(): Store {
-  const values = new Map<string, string>()
+  const values = new Map<string, Operation.Operation>()
   return from({
     source: {
       async compareAndSet(key, expected, value) {

@@ -133,7 +133,6 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
     multisigInit?:
       | {
           salt: Hex.Hex
@@ -141,11 +140,8 @@ export type TransactionRequestTempo<
           owners: readonly { owner: Address; weight: number }[]
         }
       | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
     multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
     multisigSignatureCount?: number | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
     multisigVersion?: bigint | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined

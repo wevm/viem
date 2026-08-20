@@ -117,9 +117,8 @@ export async function read(
   store: Store,
   id: Hex.Hex,
 ): Promise<Operation | null> {
-  const value = await store.get(operationKey(id))
-  if (value === null) return null
-  const operation = deserialize(value)
+  const operation = await store.get(operationKey(id))
+  if (operation === null) return null
   if (operation.id.toLowerCase() !== id.toLowerCase())
     throw new InvalidStoreValueError()
   return operation
@@ -141,14 +140,12 @@ export async function update(
   const key = operationKey(id)
   for (let attempt = 0; attempt < maxUpdateAttempts; attempt++) {
     const current = await store.get(key)
-    const operation = current === null ? null : deserialize(current)
-    if (operation && operation.id.toLowerCase() !== id.toLowerCase())
+    if (current && current.id.toLowerCase() !== id.toLowerCase())
       throw new InvalidStoreValueError()
-    const next = await update(operation)
+    const next = await update(current)
     if (next.id.toLowerCase() !== id.toLowerCase())
       throw new InvalidStoreValueError()
-    const serialized = serialize(next)
-    if (await store.compareAndSet(key, current, serialized)) return next
+    if (await store.compareAndSet(key, current, next)) return next
   }
   throw new StoreConflictError()
 }
@@ -175,7 +172,7 @@ export declare namespace from {
 /**
  * Deserializes a multisig operation.
  *
- * @param value - Serialized operation value.
+ * @param value - Serialized operation from a string-backed store or RPC.
  * @returns The operation.
  */
 export function deserialize(value: string): Operation {
@@ -196,7 +193,7 @@ export function deserialize(value: string): Operation {
  * Serializes a multisig operation.
  *
  * @param operation - Operation to serialize.
- * @returns The serialized operation value.
+ * @returns The serialized operation for a string-backed store or RPC.
  */
 export function serialize(operation: Operation): string {
   const value = Json.stringify(operation)
