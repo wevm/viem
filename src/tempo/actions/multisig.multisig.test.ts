@@ -32,16 +32,12 @@ const uninitializedAccount = Account.fromMultisig({
 })
 
 function getStoreClient() {
-  const store = Multisig.Store.memory()
-  return {
-    client: createClient({
-      chain: tempoLocalnet,
-      multisig: { store },
-      tokens,
-      transport: http(),
-    }),
-    store,
-  }
+  return createClient({
+    chain: tempoLocalnet,
+    experimental_multisig: true,
+    tokens,
+    transport: http(),
+  })
 }
 
 beforeAll(async () => {
@@ -109,7 +105,7 @@ describe('approveTransaction', () => {
       salt: toHex(0x502220, { size: 32 }),
       threshold: 2,
     })
-    const { client, store } = getStoreClient()
+    const client = getStoreClient()
 
     await actions.token.transferSync(client, {
       account: accounts[0],
@@ -130,9 +126,6 @@ describe('approveTransaction', () => {
     expect(pending.request.from).toBe(account.address.toLowerCase())
     const { request: _, ...pendingOperation } = pending
     expect(
-      await actions.multisig.getOperation(client, { id: pending.id, store }),
-    ).toStrictEqual(pendingOperation)
-    expect(
       await actions.multisig.getOperation(client, { id: pending.id }),
     ).toStrictEqual(pendingOperation)
 
@@ -145,12 +138,6 @@ describe('approveTransaction', () => {
     await expect(
       waitForTransactionReceipt(client, { hash: success.transactionHash }),
     ).resolves.toMatchObject({ status: 'success' })
-    await expect(
-      actions.multisig.getOperation(client, {
-        id: `0x${'ff'.repeat(32)}`,
-        store,
-      }),
-    ).resolves.toBeNull()
     await expect(
       actions.multisig.getOperation(client, {
         id: `0x${'ff'.repeat(32)}`,
@@ -168,7 +155,7 @@ describe('approveTransactionSync', () => {
       salt: toHex(0x502221, { size: 32 }),
       threshold: 2,
     })
-    const { client } = getStoreClient()
+    const client = getStoreClient()
 
     await actions.token.transferSync(client, {
       account: accounts[0],
@@ -203,7 +190,7 @@ describe('approveTransactionSync', () => {
       owners: [owner],
       salt: toHex(0x502222, { size: 32 }),
     })
-    const { client } = getStoreClient()
+    const client = getStoreClient()
 
     await actions.token.transferSync(client, {
       account: accounts[0],
@@ -227,7 +214,7 @@ describe('approveTransactionSync', () => {
 
 describe('getOperation', () => {
   test('returns a key authorization operation', async () => {
-    const { client, store } = getStoreClient()
+    const store = Multisig.Store.memory()
     const id = `0x${'aa'.repeat(32)}` as const
     const now = Date.now()
     const operation = Multisig.Operation.from({
@@ -252,7 +239,7 @@ describe('getOperation', () => {
     await store.compareAndSet(`multisig:operation:${id}`, null, operation)
 
     await expect(
-      actions.multisig.getOperation(client, { id }),
+      actions.multisig.getOperation(client, { id, store }),
     ).resolves.toEqual(operation)
   })
 })

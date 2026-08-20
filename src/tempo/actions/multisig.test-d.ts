@@ -1,5 +1,5 @@
 import { tempoLocalnet } from 'viem/chains'
-import { Account, createClient, Multisig } from 'viem/tempo'
+import { Account, createClient, type Multisig } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -8,7 +8,7 @@ const owner = Account.fromSecp256k1(
 const account = Account.fromMultisig({ owners: [owner] })
 const client = createClient({
   chain: tempoLocalnet,
-  multisig: { store: Multisig.Store.memory() },
+  experimental_multisig: true,
 })
 
 test('approval actions return transaction operations', async () => {

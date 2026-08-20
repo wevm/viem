@@ -25,7 +25,7 @@ import * as tempo from '~test/tempo/config.js'
 
 const client = createClient({
   chain: tempoLocalnet,
-  multisig: { store: Multisig.Store.memory() },
+  experimental_multisig: true,
   tokens: tempo.tokens,
   transport: tempo.http(),
 })
@@ -2008,7 +2008,7 @@ describe('multisig store', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      multisig: { store },
+      experimental_multisig: { store },
       tokens: tempo.tokens,
       transport,
     })
@@ -2089,7 +2089,7 @@ describe('multisig store', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      multisig: { store },
+      experimental_multisig: { store },
       tokens: tempo.tokens,
       transport,
     })

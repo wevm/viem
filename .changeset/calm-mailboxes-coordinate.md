@@ -5,10 +5,10 @@
 `viem/tempo`: Added persistent multisig operation coordination and explicit owner approval actions.
 
 ```ts
-import { Multisig, createClient, http } from 'viem/tempo'
+import { createClient, http } from 'viem/tempo'
 
 const client = createClient({
-  multisig: { store: Multisig.Store.memory() },
+  experimental_multisig: true,
   transport: http(),
 })
 

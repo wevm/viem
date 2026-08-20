@@ -54,17 +54,23 @@ export type ClientConfig<
      */
     chain?: chain | Chain | undefined
     /**
-     * Default fee token for the Client. Extended onto the chain so it applies
-     * to every transaction sent with the Client.
+     * Enables native multisig approval coordination. Pass `true` to use an
+     * in-memory store or provide a shared store.
+     *
+     * @default undefined
      */
-    feeToken?: TokenId.TokenIdOrAddress | undefined
-    /** Coordinates native multisig approvals through a shared store. */
-    multisig?:
+    experimental_multisig?:
+      | true
       | {
           /** Shared, authoritative multisig state. */
           store: Multisig.Store.Store
         }
       | undefined
+    /**
+     * Default fee token for the Client. Extended onto the chain so it applies
+     * to every transaction sent with the Client.
+     */
+    feeToken?: TokenId.TokenIdOrAddress | undefined
     /**
      * Whether to use the Tempo testnet chain.
      *
@@ -114,7 +120,8 @@ export type CreateClientErrorType = ErrorType
  * Defaults to the `tempo` mainnet chain and `http` transport, so a minimal
  * client can be created with `createClient()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
- * to set a default fee token for every transaction.
+ * to set a default fee token for every transaction. Pass
+ * `experimental_multisig` to coordinate multisig owner approvals.
  *
  * @example
  * ```ts
@@ -146,6 +153,16 @@ export type CreateClientErrorType = ErrorType
  * })
  * ```
  *
+ * @example
+ * ```ts
+ * import { createClient } from 'viem/tempo'
+ *
+ * // Multisig coordination with a client-local in-memory store.
+ * const client = createClient({
+ *   experimental_multisig: true,
+ * })
+ * ```
+ *
  * @param parameters - Parameters.
  * @returns The Tempo Client.
  */
@@ -164,8 +181,15 @@ export function createClient<
     : accountOrAddress,
   rpcSchema
 > {
-  const { chain, feeToken, multisig, testnet, tokens, transport, ...rest } =
-    parameters
+  const {
+    chain,
+    experimental_multisig,
+    feeToken,
+    testnet,
+    tokens,
+    transport,
+    ...rest
+  } = parameters
   const baseChain = chain ?? (testnet ? tempoTestnet : tempo)
   const resolvedChain =
     feeToken && typeof (baseChain as { extend?: unknown }).extend === 'function'
@@ -174,8 +198,13 @@ export function createClient<
         })
       : baseChain
   const transport_ = transport ?? http()
-  const resolvedTransport = multisig
-    ? wrapTransport(transport_, multisig)
+  const resolvedTransport = experimental_multisig
+    ? wrapTransport(
+        transport_,
+        experimental_multisig === true
+          ? { store: Multisig.Store.memory() }
+          : experimental_multisig,
+      )
     : transport_
   return createClient_({
     ...rest,

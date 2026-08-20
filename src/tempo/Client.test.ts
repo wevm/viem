@@ -76,7 +76,14 @@ describe('createClient', () => {
 
   test('behavior: multisig operation store resolution', async () => {
     const id = `0x${'aa'.repeat(32)}` as const
-    const configuredStore = Multisig.Store.memory()
+    const configuredStore = Multisig.Store.from({
+      source: {
+        compareAndSet: async () => true,
+        get: async () => {
+          throw new Error('Configured store used.')
+        },
+      },
+    })
     const explicitStore = Multisig.Store.from({
       source: {
         compareAndSet: async () => true,
@@ -86,11 +93,20 @@ describe('createClient', () => {
       },
     })
     const client = createClient({
-      multisig: { store: configuredStore },
+      experimental_multisig: true,
+      transport: http('http://localhost'),
+    })
+    const configuredClient = createClient({
+      experimental_multisig: { store: configuredStore },
       transport: http('http://localhost'),
     })
 
     await expect(client.multisig.getOperation({ id })).resolves.toBeNull()
+    await expect(
+      configuredClient.multisig.getOperation({ id }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Configured store used.]`,
+    )
     await expect(
       client.multisig.getOperation({ id, store: explicitStore }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
