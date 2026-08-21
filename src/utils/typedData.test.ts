@@ -356,6 +356,196 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test('array: valid', () => {
+    validateTypedData({
+      types: {
+        EIP712Domain: [],
+        Mail: [
+          { name: 'to', type: 'Person[]' },
+          { name: 'wallets', type: 'address[]' },
+          { name: 'hashes', type: 'bytes32[2]' },
+          { name: 'amounts', type: 'uint8[][]' },
+        ],
+        Person: [
+          { name: 'name', type: 'string' },
+          { name: 'wallet', type: 'address' },
+        ],
+      },
+      primaryType: 'Mail',
+      message: {
+        to: [
+          { name: 'Bob', wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB' },
+        ],
+        wallets: ['0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826'],
+        hashes: [
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          '0x0000000000000000000000000000000000000000000000000000000000000001',
+        ],
+        amounts: [[1, 2], [255]],
+      },
+    })
+  })
+
+  test('array: invalid address', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'wallets', type: 'address[]' }],
+        },
+        primaryType: 'Mail',
+        message: {
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0x000000000000000000000000000000000000z',
+          ],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: uint overflow', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'amounts', type: 'uint8[]' }],
+        },
+        primaryType: 'Mail',
+        message: {
+          amounts: [1, 256],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: bytes size mismatch', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'hashes', type: 'bytes32[]' }],
+        },
+        primaryType: 'Mail',
+        message: {
+          hashes: ['0x0000000000000000000000000000000000000000'],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [BytesSizeMismatchError: Expected bytes32, got bytes20.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: nested struct with invalid address', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'to', type: 'Person[]' }],
+          Person: [
+            { name: 'name', type: 'string' },
+            { name: 'wallet', type: 'address' },
+          ],
+        },
+        primaryType: 'Mail',
+        message: {
+          to: [
+            { name: 'Bob', wallet: '0x000000000000000000000000000000000000z' },
+          ],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: nested array uint overflow', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'amounts', type: 'uint8[][]' }],
+        },
+        primaryType: 'Mail',
+        message: {
+          amounts: [[1], [2, 256]],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: fixed size with invalid address', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          EIP712Domain: [],
+          Mail: [{ name: 'wallets', type: 'address[2]' }],
+        },
+        primaryType: 'Mail',
+        message: {
+          wallets: [
+            '0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826',
+            '0x000000000000000000000000000000000000z',
+          ],
+        },
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('array: domain', () => {
+    expect(() =>
+      validateTypedData({
+        domain: {
+          name: 'Ether!',
+          wallets: ['0x000000000000000000000000000000000000z'],
+        },
+        primaryType: 'EIP712Domain',
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'wallets', type: 'address[]' },
+          ],
+        },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidAddressError: Address "0x000000000000000000000000000000000000z" is invalid.
+
+      - Address must be a hex value of 20 bytes (40 hex characters).
+      - Address must match its checksum counterpart.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('domain: invalid chainId', () => {
     expect(() =>
       validateTypedData({
