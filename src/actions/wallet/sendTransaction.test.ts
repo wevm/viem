@@ -785,6 +785,7 @@ describe('local account', () => {
     const recipient = privateKeyToAccount(generatePrivateKey())
 
     const client_sepolia = anvilSepolia.getClient({ account: relay })
+    await reset(client_sepolia, { jsonRpcUrl: anvilSepolia.forkUrl })
 
     await setBalance(client, { address: eoa.address, value: parseEther('10') })
     await setBalance(client_sepolia, {
