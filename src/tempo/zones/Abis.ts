@@ -1442,3 +1442,58 @@ export const zoneOutbox = [
   { name: 'ZeroAmountWithdrawal', type: 'error', inputs: [] },
   { name: 'StaticCallNotAllowed', type: 'error', inputs: [] },
 ] as const
+
+export const zoneMessenger = [
+  {
+    name: 'relayMessage',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint32', name: 'zoneId' },
+      { type: 'address', name: 'token' },
+      { type: 'bytes32', name: 'senderTag' },
+      { type: 'address', name: 'target' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'uint64', name: 'gasLimit' },
+      { type: 'bytes', name: 'data' },
+    ],
+    outputs: [],
+  },
+] as const
+
+export const zoneVerifier = [
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint32', name: 'zoneId' },
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'anchorBlockNumber' },
+      { type: 'bytes32', name: 'anchorBlockHash' },
+      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+] as const

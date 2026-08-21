@@ -544,6 +544,11 @@ function zonesAdapter(): SourceAdapter {
     'crates/contracts/src/precompiles/zone_portal.rs',
     'crates/contracts/src/precompiles/outbox.rs',
   ] as const
+  const interfaceSource = 'crates/contracts/src/runtime/interfaces/IZone.sol'
+  const runtimeInterfaces = [
+    { exportName: 'zoneMessenger', name: 'IZoneMessenger' },
+    { exportName: 'zoneVerifier', name: 'IVerifier' },
+  ] as const
   const version = versions.zones
 
   return {
@@ -551,15 +556,25 @@ function zonesAdapter(): SourceAdapter {
     async generate() {
       const commit =
         version === 'latest' ? await getLatestCommit(repositoryApi) : version
-      const sourceFiles = await Promise.all(
-        sources.map(async (file) => ({
-          content: await getText(`${repository}/${commit}/${file}`),
-          file,
-        })),
-      )
+      const [sourceFiles, interfaceContent] = await Promise.all([
+        Promise.all(
+          sources.map(async (file) => ({
+            content: await getText(`${repository}/${commit}/${file}`),
+            file,
+          })),
+        ),
+        getText(`${repository}/${commit}/${interfaceSource}`),
+      ])
       const definitions = parseSolInterfaces(
         sourceFiles.map(({ content }) => content).join('\n\n'),
       )
+      const solidityDefinitions = parseSolidityInterfaces(interfaceContent)
+      for (const { exportName, name } of runtimeInterfaces) {
+        const definition = solidityDefinitions.get(name)
+        if (!definition)
+          throw new Error(`Zone runtime interface ${name} not found.`)
+        definitions.set(exportName, { ...definition, name: exportName })
+      }
       const exports = [...definitions.values()].map((definition) => {
         const items = new Map<string, AbiItem.AbiItem>()
         for (const item of Abi.from(definition.items))
@@ -577,7 +592,7 @@ function zonesAdapter(): SourceAdapter {
       const abis = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\n${exports.join('\n\n')}\n`
       const addresses = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\nimport { tempoModerato } from '../../chains/definitions/tempoModerato.js'\n\nexport const messenger = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.messenger[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n\nexport const portal = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.portal[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n`
       console.log(
-        `  ${definitions.size} ABIs from ${sourceFiles.length} contract files at ${commit.slice(0, 7)}`,
+        `  ${definitions.size} ABIs from ${sourceFiles.length + 1} contract files at ${commit.slice(0, 7)}`,
       )
       return [
         { content: abis, path: outputs.abis },
@@ -675,10 +690,70 @@ function parseSolInterfaces(content: string) {
   return interfaces
 }
 
+function parseSolidityInterfaces(content: string) {
+  const enumTypes = new Set(
+    [...content.matchAll(/^enum\s+(\w+)\s*\{[^}]+\}/gm)]
+      .map((match) => match[1])
+      .filter((name): name is string => Boolean(name)),
+  )
+  const replaceEnumTypes = (definition: string) => {
+    let result = definition
+    for (const enumType of enumTypes)
+      result = result.replace(new RegExp(`\\b${enumType}\\b`, 'g'), 'uint8')
+    return result
+  }
+  const sharedStructs: string[] = []
+  for (const structMatch of content.matchAll(
+    /^struct\s+(\w+)\s*\{([^}]+)\}/gm,
+  )) {
+    const [, name, body] = structMatch
+    if (!name || !body) continue
+    const fields = parseSolStructFields(body)
+    if (fields.length > 0)
+      sharedStructs.push(
+        replaceEnumTypes(`struct ${name} { ${fields.join('; ')}; }`),
+      )
+  }
+
+  const interfaces = new Map<string, InterfaceDefinition>()
+  for (const interfaceMatch of content.matchAll(
+    /^interface\s+(\w+)(?:\s+is\s+[^{]+)?\s*\{([\s\S]*?)^\}/gm,
+  )) {
+    const [, name, body] = interfaceMatch
+    if (!name || !body) continue
+    const items = [...sharedStructs]
+    const normalizedBody = body
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('//'))
+      .join(' ')
+    for (const pattern of [
+      /function\s+[^;]+;/g,
+      /event\s+[^;]+;/g,
+      /error\s+\w+\([^)]*\)/g,
+    ]) {
+      for (const match of normalizedBody.matchAll(pattern)) {
+        const [definition] = match
+        items.push(
+          replaceEnumTypes(
+            definition
+              .replace(/\s+/g, ' ')
+              .replace(/\s*;\s*$/, '')
+              .trim(),
+          ),
+        )
+      }
+    }
+    if (items.length > sharedStructs.length)
+      interfaces.set(name, { items, name })
+  }
+  return interfaces
+}
+
 function parseSolStructFields(body: string) {
   return body
     .split('\n')
-    .filter((line) => !line.trim().startsWith('///'))
+    .map((line) => line.replace(/\/\/.*$/, ''))
     .join('\n')
     .split(';')
     .map((field) => field.replace(/\s+/g, ' ').trim())
