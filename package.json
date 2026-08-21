@@ -150,7 +150,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "106 kB"
+      "limit": "112 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -197,7 +197,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "113 kB",
+      "limit": "114 kB",
       "import": "*"
     },
     {

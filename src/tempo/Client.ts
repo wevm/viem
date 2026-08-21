@@ -223,7 +223,7 @@ function wrapTransport(
   transport: Transport,
   parameters: Multisig.handleRequest.Parameters,
 ): Transport {
-  return ((options: Parameters<Transport>[0]) => {
+  return (options: Parameters<Transport>[0]) => {
     const value = transport(options)
     return {
       ...value,
@@ -234,5 +234,5 @@ function wrapTransport(
       ) as typeof value.request,
       value: { ...value.value, multisig: true },
     }
-  })
+  }
 }
