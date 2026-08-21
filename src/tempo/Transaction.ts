@@ -105,40 +105,11 @@ export type TransactionReceipt<
   status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
   multisig = Operation.Transaction,
-> = status extends 'pending'
-  ? Omit<
-      viem_TransactionReceipt<quantity, index, status, type>,
-      | 'blockHash'
-      | 'blockNumber'
-      | 'cumulativeGasUsed'
-      | 'effectiveGasPrice'
-      | 'gasUsed'
-      | 'logsBloom'
-      | 'transactionIndex'
-    > & {
-      /** No block contains a pending multisig operation. */
-      blockHash: null
-      /** No block contains a pending multisig operation. */
-      blockNumber: null
-      /** No gas has been charged for a pending multisig operation. */
-      cumulativeGasUsed: null
-      /** No gas price applies to a pending multisig operation. */
-      effectiveGasPrice: null
-      feePayer?: Address | undefined
-      feeToken?: Address | undefined
-      /** No gas has been used by a pending multisig operation. */
-      gasUsed: null
-      /** No logs bloom exists for a pending multisig operation. */
-      logsBloom: null
-      multisig?: multisig | undefined
-      /** No block index exists for a pending multisig operation. */
-      transactionIndex: null
-    }
-  : viem_TransactionReceipt<quantity, index, status, type> & {
-      feePayer?: Address | undefined
-      feeToken?: Address | undefined
-      multisig?: multisig | undefined
-    }
+> = viem_TransactionReceipt<quantity, index, status, type> & {
+  feePayer?: Address | undefined
+  feeToken?: Address | undefined
+  multisig?: multisig | undefined
+}
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,

@@ -73,8 +73,6 @@ export type HttpTransport<
   'http',
   {
     fetchOptions?: HttpTransportConfig['fetchOptions'] | undefined
-    /** Whether the transport returns raw JSON-RPC response envelopes. */
-    raw: boolean
     url?: string | undefined
   },
   EIP1193RequestFn<rpcSchema, raw>
@@ -190,7 +188,6 @@ export function http<
       },
       {
         fetchOptions,
-        raw: raw === true,
         url: url_,
       },
     )

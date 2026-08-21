@@ -17,12 +17,11 @@ import {
 } from '../clients/decorators/wallet.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import { http } from '../clients/transports/http.js'
-import { RpcRequestError } from '../errors/request.js'
 import type { ErrorType } from '../errors/utils.js'
 import { tokens as tokenSets } from '../tokens/sets.js'
 import type { Account } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
-import type { EIP1193RequestOptions, RpcSchema } from '../types/eip1193.js'
+import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
@@ -220,65 +219,20 @@ export function createClient<
 }
 
 /** Wraps a transport with multisig request handling. */
-function wrapTransport<transport extends Transport>(
-  transport: transport,
+function wrapTransport(
+  transport: Transport,
   parameters: Multisig.handleRequest.Parameters,
-): transport {
+): Transport {
   return ((options: Parameters<Transport>[0]) => {
     const value = transport(options)
-    const raw = (value.value as { raw?: boolean } | undefined)?.raw === true
-    const request = Multisig.handleRequest(async (request, requestOptions) => {
-      const response = await value.request(request as never, requestOptions)
-      if (!raw) return response
-      if (
-        response &&
-        typeof response === 'object' &&
-        'error' in response &&
-        response.error
-      )
-        throw new RpcRequestError({
-          body: request,
-          error: response.error as never,
-          url:
-            (value.value as { url?: string } | undefined)?.url ?? 'unknown://',
-        })
-      return response && typeof response === 'object' && 'result' in response
-        ? response.result
-        : response
-    }, parameters)
     return {
       ...value,
-      request: (async (
-        rpcRequest: Multisig.handleRequest.Request,
-        requestOptions?: EIP1193RequestOptions,
-      ) => {
-        try {
-          const result = await request(rpcRequest, requestOptions)
-          return raw ? { result } : result
-        } catch (error) {
-          if (
-            raw &&
-            error &&
-            typeof error === 'object' &&
-            'code' in error &&
-            typeof error.code === 'number'
-          )
-            return {
-              error: {
-                code: error.code,
-                ...('data' in error ? { data: error.data } : {}),
-                message:
-                  'details' in error && typeof error.details === 'string'
-                    ? error.details
-                    : error instanceof Error
-                      ? error.message
-                      : 'RPC request failed.',
-              },
-            }
-          throw error
-        }
-      }) as typeof value.request,
+      request: Multisig.handleRequest(
+        (request, requestOptions) =>
+          value.request(request as never, requestOptions),
+        parameters,
+      ) as typeof value.request,
       value: { ...value.value, multisig: true },
     }
-  }) as unknown as transport
+  })
 }
