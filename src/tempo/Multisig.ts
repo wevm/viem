@@ -641,7 +641,10 @@ async function submittedResult(
   operation: Operation.TransactionSuccess,
 ) {
   if (options.method === 'eth_sendRawTransaction') return operation.hash
-  const deadline = Date.now() + getTimeout(options.request)
+  const timeout = options.request.params?.[1]
+  const deadline =
+    Date.now() +
+    (typeof timeout === 'number' && timeout >= 0 ? timeout : submissionTtl)
   while (true) {
     const receipt = await options.next(
       {
@@ -654,7 +657,7 @@ async function submittedResult(
       return { ...receipt, multisig: Operation.serialize(operation) }
     if (Date.now() >= deadline)
       throw new Error('Timed out while waiting for the multisig transaction.')
-    await delay(pollingInterval)
+    await new Promise((resolve) => setTimeout(resolve, pollingInterval))
   }
 }
 
@@ -664,7 +667,10 @@ async function submittingResult(
   operation: Operation.TransactionSubmitting,
 ): Promise<unknown> {
   if (options.method === 'eth_sendRawTransaction') return operation.hash
-  const deadline = Date.now() + getTimeout(options.request)
+  const timeout = options.request.params?.[1]
+  const deadline =
+    Date.now() +
+    (typeof timeout === 'number' && timeout >= 0 ? timeout : submissionTtl)
   while (true) {
     const current = await Operation.read(options.store, operation.hash)
     if (!current || current.keyAuthorization)
@@ -677,7 +683,7 @@ async function submittingResult(
     )
       return await submit(options)
     if (Date.now() >= deadline) return pendingResult(options.method, current)
-    await delay(pollingInterval)
+    await new Promise((resolve) => setTimeout(resolve, pollingInterval))
   }
 }
 
@@ -767,17 +773,6 @@ function mergeTransaction(
   if (incoming.feePayerSignature !== null) return incoming
   if (!('feePayerSignature' in existing)) return incoming
   return existing
-}
-
-/** Returns the synchronous RPC timeout. */
-function getTimeout(request: handleRequest.Request) {
-  const timeout = request.params?.[1]
-  return typeof timeout === 'number' && timeout >= 0 ? timeout : submissionTtl
-}
-
-/** Waits before polling shared operation state again. */
-function delay(duration: number) {
-  return new Promise((resolve) => setTimeout(resolve, duration))
 }
 
 /** Returns a pending transaction with its multisig operation. */
