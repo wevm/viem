@@ -79,13 +79,86 @@ test('zonePortal decodes token configuration', () => {
   }>()
 })
 
-test('zonePortal encodes pause operations', () => {
+test('zonePortal encodes administration operations', () => {
   const pause = encodeFunctionData({
     abi: Abis.zonePortal,
     functionName: 'pause',
   })
+  const resume = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'resume',
+  })
+  const setPauseGuardian = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'setPauseGuardian',
+    args: [zeroAddress, true],
+  })
+  const acceptAdmin = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'acceptAdmin',
+  })
 
   expectTypeOf(pause).toEqualTypeOf<Hex>()
+  expectTypeOf(resume).toEqualTypeOf<Hex>()
+  expectTypeOf(setPauseGuardian).toEqualTypeOf<Hex>()
+  expectTypeOf(acceptAdmin).toEqualTypeOf<Hex>()
+})
+
+test('zonePortal encodes batch submissions', () => {
+  const data = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'submitBatch',
+    args: [
+      1n,
+      1n,
+      { prevBlockHash: zeroHash, nextBlockHash: zeroHash },
+      {
+        prevProcessedHash: zeroHash,
+        nextProcessedHash: zeroHash,
+        prevDepositNumber: 0n,
+        nextDepositNumber: 0n,
+      },
+      zeroHash,
+      '0x',
+      '0x',
+      1n,
+      [],
+    ],
+  })
+
+  expectTypeOf(data).toEqualTypeOf<Hex>()
+})
+
+test('zoneMessenger and zoneVerifier expose callable ABIs', () => {
+  const relay = encodeFunctionData({
+    abi: Abis.zoneMessenger,
+    functionName: 'relayMessage',
+    args: [1, zeroAddress, zeroHash, zeroAddress, 1n, 100_000n, '0x'],
+  })
+  const verify = encodeFunctionData({
+    abi: Abis.zoneVerifier,
+    functionName: 'verify',
+    args: [
+      1,
+      1n,
+      1n,
+      zeroHash,
+      1n,
+      { prevBlockHash: zeroHash, nextBlockHash: zeroHash },
+      {
+        prevProcessedHash: zeroHash,
+        nextProcessedHash: zeroHash,
+        prevDepositNumber: 0n,
+        nextDepositNumber: 0n,
+      },
+      zeroHash,
+      '0x',
+      '0x',
+    ],
+  })
+
+  expectTypeOf(relay).toEqualTypeOf<Hex>()
+  expectTypeOf(verify).toEqualTypeOf<Hex>()
 })
 
 test('zoneOutbox decodes WithdrawalRequested fallback nonces', () => {

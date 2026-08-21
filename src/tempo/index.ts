@@ -51,6 +51,7 @@ export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
+export * as BlockHashHistory from './BlockHashHistory.js'
 export * as Capabilities from './Capabilities.js'
 export * as Chain from './Chain.js'
 export {
@@ -74,6 +75,7 @@ export * as Scopes from './Scopes.js'
 /** @experimental */
 export * as Selectors from './Selectors.js'
 export * as Storage from './Storage.js'
+export * as SystemContracts from './SystemContracts.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {

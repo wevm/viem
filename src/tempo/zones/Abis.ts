@@ -1,3 +1,5 @@
+import { parseAbi } from 'abitype'
+
 export const zoneFactory = [
   {
     type: 'event',
@@ -135,9 +137,49 @@ export const zoneFactory = [
     inputs: [],
     outputs: [{ name: '', type: 'address' }],
   },
+  ...parseAbi([
+    'event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)',
+    'function transferOwnership(address newOwner)',
+    'function isZonePortal(address portal) view returns (bool isPortal)',
+    'error InvalidToken()',
+    'error NotOwner()',
+    'error InvalidAdmin()',
+    'error InvalidSequencerSet()',
+    'error InvalidClosedLoopConfig()',
+    'error DuplicateAllowedAccount()',
+    'error DuplicateZoneGateway()',
+  ]),
 ] as const
 
+const zonePortalCurrent = parseAbi([
+  'event BatchSubmitted(uint64 indexed withdrawalBatchIndex, uint256 indexed withdrawalQueueIndex, bytes32 nextProcessedDepositQueueHash, bytes32 nextBlockHash, bytes32 withdrawalQueueHash, uint64 lastProcessedDepositNumber)',
+  'event WithdrawalBounceBack(bytes32 indexed newCurrentDepositQueueHash, uint64 indexed fallbackNonce, address token, uint128 amount, uint64 depositNumber)',
+  'event AdminTransferStarted(address indexed currentAdmin, address indexed pendingAdmin)',
+  'event AdminTransferred(address indexed previousAdmin, address indexed newAdmin)',
+  'event DepositMade(bytes32 indexed newCurrentDepositQueueHash, address indexed sender, address token, uint128 netAmount, uint128 fee, uint256 keyIndex, bytes32 ephemeralPubkeyX, uint8 ephemeralPubkeyYParity, bytes ciphertext, bytes12 nonce, bytes16 tag, address tempoRefundRecipient, uint64 depositNumber)',
+  'event DepositBounceBack(address indexed tempoRefundRecipient, address token, uint128 amount, uint128 bouncebackFee)',
+  'event DepositBounceBackPending(address indexed tempoRefundRecipient, address token, uint128 amount, uint128 bouncebackFee)',
+  'event RefundClaimed(address indexed recipient, address indexed token, uint128 amount)',
+  'event SequencerEncryptionKeyUpdated(bytes32 x, uint8 yParity, address pubkey, uint256 keyIndex, uint64 activationBlock)',
+  'event ZoneGasRateUpdated(uint128 zoneGasRate)',
+  'event MaxTempoGasRateUpdated(uint128 maxTempoGasRate)',
+  'event BouncebackGasUpdated(uint64 bouncebackGas)',
+  'event TokenEnabled(address indexed token, string name, string symbol, string currency)',
+  'event DepositsPaused(address indexed token)',
+  'event DepositsResumed(address indexed token)',
+  'event PortalPaused(address indexed account)',
+  'event PortalResumed(address indexed account)',
+  'event AbdicationScheduled(uint8 indexed capability, uint64 effectiveAt)',
+  'event RpcUrlUpdated(string rpcUrl)',
+  'event SequencerSetUpdated(uint64 indexed nonce, uint8 threshold, address[] sequencers)',
+  'event LeaderUpdated(address indexed previousLeader, address indexed newLeader, uint64 indexed epoch, uint64 activationTempoBlock)',
+  'event EnforcementModesUpdated(bool accessMode, bool gatewayMode)',
+  'event RoleUpdated(address indexed account, uint8 prev, uint8 next)',
+  'function submitBatch(uint64 tempoBlockNumber, uint64 recentTempoBlockNumber, (bytes32 prevBlockHash, bytes32 nextBlockHash) blockTransition, (bytes32 prevProcessedHash, bytes32 nextProcessedHash, uint64 prevDepositNumber, uint64 nextDepositNumber) depositQueueTransition, bytes32 withdrawalQueueHash, bytes verifierConfig, bytes proof, uint256 zoneHeight, bytes[] signatures)',
+])
+
 export const zonePortal = [
+  ...zonePortalCurrent,
   {
     name: 'WithdrawalProcessed',
     type: 'event',
@@ -252,6 +294,30 @@ export const zonePortal = [
     outputs: [],
   },
   {
+    name: 'resume',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'setPauseGuardian',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'account', type: 'address' },
+      { name: 'allowed', type: 'bool' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'acceptAdmin',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
     name: 'sequencerSetVersion',
     type: 'function',
     stateMutability: 'view',
@@ -327,6 +393,14 @@ export const zonePortal = [
     outputs: [{ name: '', type: 'uint256' }],
   },
 ] as const
+
+export const zoneMessenger = parseAbi([
+  'function relayMessage(uint32 zoneId, address token, bytes32 senderTag, address target, uint128 amount, uint64 gasLimit, bytes data)',
+])
+
+export const zoneVerifier = parseAbi([
+  'function verify(uint32 zoneId, uint64 tempoBlockNumber, uint64 anchorBlockNumber, bytes32 anchorBlockHash, uint64 expectedWithdrawalBatchIndex, (bytes32 prevBlockHash, bytes32 nextBlockHash) blockTransition, (bytes32 prevProcessedHash, bytes32 nextProcessedHash, uint64 prevDepositNumber, uint64 nextDepositNumber) depositQueueTransition, bytes32 withdrawalQueueHash, bytes verifierConfig, bytes proof) view returns (bool)',
+])
 
 export const zoneOutbox = [
   {

@@ -1,6 +1,13 @@
 import { tempoModerato } from 'viem/chains'
 import type { Addresses as TempoAddresses } from 'viem/tempo'
-import { Addresses, zoneModerato } from 'viem/tempo/zones'
+import {
+  Addresses,
+  Contracts,
+  getZonePortalAddress,
+  getZonePortalId,
+  isZonePortalAddress,
+  zoneModerato,
+} from 'viem/tempo/zones'
 import { expectTypeOf, test } from 'vitest'
 
 test('exposes Zone E contracts', () => {
@@ -30,4 +37,15 @@ test('exposes Zone protocol addresses', () => {
   expectTypeOf<
     typeof TempoAddresses.zoneVerifier
   >().toEqualTypeOf<'0x5a56000000000000000000000000000000000000'>()
+})
+
+test('exposes Zone system contracts and deterministic Portal helpers', () => {
+  expectTypeOf(
+    Contracts.factory.address,
+  ).toEqualTypeOf<'0x5aF2000000000000000000000000000000000000'>()
+  expectTypeOf(getZonePortalAddress(3)).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(getZonePortalId(getZonePortalAddress(3))).toEqualTypeOf<
+    number | undefined
+  >()
+  expectTypeOf(isZonePortalAddress('0x')).toEqualTypeOf<boolean>()
 })
