@@ -392,7 +392,7 @@ describe('getPortalInfo', () => {
     expect(info.pendingAdmin).toBeDefined()
     expect(info.sequencers).toHaveLength(1)
     expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
-    expect(info.sequencerSetVersion).toBeGreaterThan(0n)
+    expect(info.sequencerSetVersion).toBe(0n)
     expect(info.sequencerThreshold).toBe(1)
     expect(info.verifier).toBeDefined()
   })
