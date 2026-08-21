@@ -5512,6 +5512,22 @@ type DecoratorBase<
       parameters: zoneActions.getEncryptionKey.Parameters,
     ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
     /**
+     * Gets metadata and configuration for a zone portal.
+     *
+     * @example
+     * ```ts
+     * const info = await client.zone.getPortalInfo({
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The portal metadata and configuration.
+     */
+    getPortalInfo: (
+      parameters: zoneActions.getPortalInfo.Parameters,
+    ) => Promise<zoneActions.getPortalInfo.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
@@ -6144,6 +6160,7 @@ export function decorator() {
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
         'getEncryptionKey',
+        'getPortalInfo',
         'getWithdrawalFee',
         'getZoneInfo',
         'requestWithdrawal',
