@@ -13,6 +13,7 @@ type SelectorMap = Record<string, string | Record<string, string>>
 const selectorMaps = {
   accountKeychain: Selectors.accountKeychain,
   addressRegistry: Selectors.addressRegistry,
+  currentCommittee: Selectors.currentCommittee,
   feeAmm: Selectors.feeAmm,
   feeManager: Selectors.feeManager,
   nativeMultisig: Selectors.nativeMultisig,
@@ -27,6 +28,7 @@ const selectorMaps = {
   tip403Registry: Selectors.tip403Registry,
   validatorConfig: Selectors.validatorConfig,
   validatorConfigV2: Selectors.validatorConfigV2,
+  zoneFactory: Selectors.zoneFactory,
 } satisfies Record<string, SelectorMap>
 
 // Earn slices are ABIs of user-deployed contracts, not precompiles;

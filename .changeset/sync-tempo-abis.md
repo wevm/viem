@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Updated Tempo precompile ABIs to `tempo-contracts@1.11.0` without requiring the Tempo submodule.
+Updated Tempo contract generation to source current Tempo, Earn, and Zone definitions directly from their upstream repositories.

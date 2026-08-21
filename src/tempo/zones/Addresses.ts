@@ -1,3 +1,6 @@
+// Generated with `pnpm gen:tempo-abis`. Do not modify manually.
+// Source: tempoxyz/zones at 387e88c55ba4700e050b04f2f490df7253700b9f.
+
 import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
 
 export const messenger = {
