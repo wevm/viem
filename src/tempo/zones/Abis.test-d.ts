@@ -79,13 +79,29 @@ test('zonePortal decodes token configuration', () => {
   }>()
 })
 
-test('zonePortal encodes pause operations', () => {
+test('zonePortal encodes administration operations', () => {
   const pause = encodeFunctionData({
     abi: Abis.zonePortal,
     functionName: 'pause',
   })
+  const resume = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'resume',
+  })
+  const setPauseGuardian = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'setPauseGuardian',
+    args: [zeroAddress, true],
+  })
+  const acceptAdmin = encodeFunctionData({
+    abi: Abis.zonePortal,
+    functionName: 'acceptAdmin',
+  })
 
   expectTypeOf(pause).toEqualTypeOf<Hex>()
+  expectTypeOf(resume).toEqualTypeOf<Hex>()
+  expectTypeOf(setPauseGuardian).toEqualTypeOf<Hex>()
+  expectTypeOf(acceptAdmin).toEqualTypeOf<Hex>()
 })
 
 test('zonePortal encodes batch submissions', () => {

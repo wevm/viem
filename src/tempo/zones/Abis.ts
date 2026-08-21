@@ -294,6 +294,30 @@ export const zonePortal = [
     outputs: [],
   },
   {
+    name: 'resume',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'setPauseGuardian',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'account', type: 'address' },
+      { name: 'allowed', type: 'bool' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'acceptAdmin',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
     name: 'sequencerSetVersion',
     type: 'function',
     stateMutability: 'view',
