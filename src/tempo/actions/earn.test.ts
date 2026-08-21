@@ -126,16 +126,19 @@ describe('deployEarnStack', { timeout: 30_000 }, () => {
 
 describe('configureExitSafePolicy', { timeout: 30_000 }, () => {
   test('default', async () => {
-    const stack = await setupStack()
+    const { token: shareToken } = await setupToken(client, {
+      name: 'Earn Share',
+      symbol: 'EARN',
+    })
     const accessAdministrator = accounts[2].address
-    const initialMembers = [stack.adapter, accounts[1].address]
+    const initialMembers = [account.address, accounts[1].address]
 
     const { policy, receipts } = await Actions.earn.configureExitSafePolicy(
       client,
       {
         accessAdministrator,
         initialMembers: [...initialMembers, accounts[1].address],
-        shareToken: stack.shareToken,
+        shareToken,
       },
     )
 
@@ -152,7 +155,7 @@ describe('configureExitSafePolicy', { timeout: 30_000 }, () => {
         accessAdministrator,
         policy,
         requiredMembers: initialMembers,
-        shareToken: stack.shareToken,
+        shareToken,
       }),
     ).resolves.toBeUndefined()
 
@@ -161,7 +164,7 @@ describe('configureExitSafePolicy', { timeout: 30_000 }, () => {
         accessAdministrator,
         policy,
         requiredMembers: [accounts[3].address],
-        shareToken: stack.shareToken,
+        shareToken,
       }),
     ).rejects.toThrow(
       `Required TIP-403 member is unauthorized: ${accounts[3].address}`,

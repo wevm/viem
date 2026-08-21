@@ -47,9 +47,6 @@ function tempoAdapter(): SourceAdapter {
     name: string
     type: string
   }
-  type GitHubObject = { sha: string; type: string; url: string }
-  type GitHubRef = { object: GitHubObject; ref: string }
-  type GitHubTag = { object: GitHubObject }
 
   const compatibilityInterfaces: Record<
     string,
@@ -88,27 +85,13 @@ function tempoAdapter(): SourceAdapter {
     selectors: Path.resolve(import.meta.dirname, '../src/tempo/Selectors.ts'),
   }
   const repository = 'https://api.github.com/repos/tempoxyz/tempo'
-  const tagPrefix = 'tempo-contracts@'
   const version = versions.tempo
 
   return {
     name: 'tempo',
     async generate() {
-      const source =
-        version === 'latest'
-          ? { commit: await getLatestCommit(repository), ref: version }
-          : process.argv.includes('--sync')
-            ? await getReleaseSource()
-            : getTrackedSource()
-      if (
-        source.ref !== 'latest' &&
-        !new RegExp(`^${tagPrefix}\\d+\\.\\d+\\.\\d+$`).test(source.ref)
-      )
-        throw new Error(`Invalid Tempo contracts ref: ${source.ref}.`)
-      if (!/^[0-9a-f]{40}$/.test(source.commit))
-        throw new Error(`Invalid Tempo commit: ${source.commit}.`)
-
-      const { content, files } = await getPrecompileSources(source.commit)
+      const commit = await getLatestCommit(repository)
+      const { content, files } = await getPrecompileSources(commit)
       const interfaces = parseSolInterfaces(content)
       for (const [name, { after, items }] of Object.entries(
         compatibilityInterfaces,
@@ -130,7 +113,7 @@ function tempoAdapter(): SourceAdapter {
         abi: ReturnType<typeof Abi.from>
         exportName: string
       }[] = []
-      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: \`${source.ref}\` at \`${source.commit}\`.\n\nimport * as Abi from 'ox/Abi'\n\n`
+      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: \`${version}\` at \`${commit}\`.\n\nimport * as Abi from 'ox/Abi'\n\n`
       for (const [interfaceName, definition] of interfaces) {
         const isExtension = Object.values(extensions)
           .flat()
@@ -194,43 +177,13 @@ function tempoAdapter(): SourceAdapter {
         selectors += `export const ${exportName} = ${JSON.stringify(values, null, 2)} as const satisfies ${selectorType}\n\n`
       }
       console.log(
-        `  ${processed.length} ABIs from ${files.length} precompile files at ${source.ref} (${source.commit.slice(0, 7)})`,
+        `  ${processed.length} ABIs from ${files.length} precompile files at ${version} (${commit.slice(0, 7)})`,
       )
       return [
         { content: output, path: outputs.abis },
         { content: selectors, path: outputs.selectors },
       ]
     },
-  }
-
-  async function getReleaseSource() {
-    const ref = `${tagPrefix}${version}`
-    const release = await getJson<GitHubRef>(
-      `${repository}/git/ref/tags/${encodeURIComponent(ref)}`,
-    )
-    if (release.ref !== `refs/tags/${ref}`)
-      throw new Error(`Unexpected Tempo contracts ref: ${release.ref}.`)
-    return { commit: await getCommit(release.object), ref }
-  }
-
-  function getTrackedSource() {
-    const match = Fs.readFileSync(outputs.abis, 'utf8').match(
-      /^\/\/ Source: `(tempo-contracts@\d+\.\d+\.\d+)` at `([0-9a-f]{40})`\.$/m,
-    )
-    const [, ref, commit] = match ?? []
-    if (!ref || !commit)
-      throw new Error(
-        'Missing Tempo source pin. Run `pnpm sync:tempo-abis` to restore it.',
-      )
-    return { commit, ref }
-  }
-
-  async function getCommit(object: GitHubObject): Promise<string> {
-    if (object.type === 'commit') return object.sha
-    if (object.type !== 'tag')
-      throw new Error(`Unsupported Tempo ref object: ${object.type}.`)
-    const tag = await getJson<GitHubTag>(object.url)
-    return getCommit(tag.object)
   }
 
   async function getPrecompileSources(ref: string) {
