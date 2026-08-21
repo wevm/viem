@@ -376,8 +376,11 @@ describe('getZoneInfo', () => {
 })
 
 describe('getPortalInfo', () => {
-  test('default', async () => {
-    const info = await zoneActions.getPortalInfo(mainnetClient, { zoneId })
+  test.runIf(!hardfork || hardfork === 'Tnext')('default', async () => {
+    const info = await zoneActions.getPortalInfo(mainnetClient, {
+      portalAddress,
+      zoneId,
+    })
 
     expect(isAddressEqual(info.admin, portalAdmin.address)).toBe(true)
     expect(
