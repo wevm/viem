@@ -66,8 +66,7 @@ const unredactedZoneClient = getZoneClient({
   transport: zoneHttp(unredactedRpcUrl),
 })
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback =
-  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const legacyZoneCallback = hardfork === 'T9'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -159,7 +158,7 @@ async function createUnconfiguredZone() {
               rpcUrl: 'http://127.0.0.1:0',
             },
           ],
-          gas: 20_000_000n,
+          gas: 30_000_000n,
         })
       : await (async () => {
           const verifier = await readContract(mainnetClient, {
@@ -189,7 +188,7 @@ async function createUnconfiguredZone() {
                 rpcUrl: 'http://127.0.0.1:0',
               },
             ],
-            gas: 20_000_000n,
+            gas: 30_000_000n,
           })
         })()
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
