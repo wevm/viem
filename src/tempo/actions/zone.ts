@@ -7,11 +7,18 @@ import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
+  type GetContractReturnType,
+  getContract,
+} from '../../actions/getContract.js'
+import {
   type MulticallErrorType,
   type MulticallParameters,
   multicall,
 } from '../../actions/public/multicall.js'
-import { readContract } from '../../actions/public/readContract.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import {
   type PrepareTransactionRequestErrorType,
   type PrepareTransactionRequestRequest,
@@ -24,6 +31,7 @@ import {
 } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -434,6 +442,131 @@ export namespace getEncryptionKey {
       }),
     ] as const
   }
+}
+
+/**
+ * Gets metadata and configuration for a zone portal.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.zone.getPortalInfo(client, {
+ *   zoneId: 7,
+ * })
+ * ```
+ *
+ * @param client - Public client connected to the parent Tempo chain.
+ * @param parameters - Zone portal parameters.
+ * @returns The portal metadata and configuration.
+ */
+export async function getPortalInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPortalInfo.Parameters,
+): Promise<getPortalInfo.ReturnValue> {
+  const chainId = client.chain?.id
+  if (!chainId) throw new Error('`chain` is required.')
+
+  const { portalAddress: portalAddress_, zoneId, ...rest } = parameters
+  const portal = getContract({
+    abi: ZoneAbis.zonePortal,
+    address: portalAddress_ ?? getPortalAddress(chainId, zoneId),
+    client,
+  }) as unknown as GetContractReturnType<
+    typeof ZoneAbis.zonePortal,
+    PublicClient<Transport, Chain>
+  >
+  const [
+    admin,
+    enabledTokenCount,
+    messenger,
+    pauseExpiry,
+    paused,
+    pendingAdmin,
+    sequencerCount,
+    sequencerSetVersion,
+    sequencerThreshold,
+    verifier,
+  ] = await Promise.all([
+    portal.read.admin(rest),
+    portal.read.enabledTokenCount(rest),
+    portal.read.messenger(rest),
+    portal.read.pauseExpiry(rest),
+    portal.read.paused(rest),
+    portal.read.pendingAdmin(rest),
+    portal.read.sequencerCount(rest),
+    portal.read.sequencerSetVersion(rest),
+    portal.read.sequencerThreshold(rest),
+    portal.read.verifier(rest),
+  ])
+  const [sequencers, enabledTokens] = await Promise.all([
+    Promise.all(
+      Array.from({ length: Number(sequencerCount) }, (_, index) =>
+        portal.read.sequencerAt([BigInt(index)], rest),
+      ),
+    ),
+    Promise.all(
+      Array.from({ length: Number(enabledTokenCount) }, (_, index) =>
+        portal.read.enabledTokenAt([BigInt(index)], rest),
+      ),
+    ),
+  ])
+
+  return {
+    admin,
+    enabledTokens,
+    messenger,
+    pauseExpiry,
+    paused,
+    pendingAdmin,
+    sequencers,
+    sequencerSetVersion,
+    sequencerThreshold,
+    verifier,
+  }
+}
+
+export namespace getPortalInfo {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Zone portal address. @default resolved via the portal registry. */
+    portalAddress?: Address | undefined
+    /** Zone ID (e.g. `7`). */
+    zoneId: number
+  }
+
+  export type ReturnValue = Compute<{
+    /** Portal governance admin. */
+    admin: Address
+    /** Tokens enabled for deposits into the zone. */
+    enabledTokens: readonly Address[]
+    /** Zone messenger assigned to the portal. */
+    messenger: Address
+    /** Timestamp when the current emergency pause expires. */
+    pauseExpiry: bigint
+    /** Whether the portal is paused. */
+    paused: boolean
+    /** Pending governance admin. */
+    pendingAdmin: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Version of the active sequencer set. */
+    sequencerSetVersion: bigint
+    /** Number of sequencers required to attest to a settlement. */
+    sequencerThreshold: number
+    /** Settlement verifier assigned to the portal. */
+    verifier: Address
+  }>
+
+  export type ErrorType = ReadContractErrorType | BaseErrorType
 }
 
 /**

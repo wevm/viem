@@ -207,6 +207,16 @@ test('getEncryptionKey returns the active key and index', async () => {
   })
 })
 
+test('getPortalInfo returns portal metadata and configuration', async () => {
+  const result = await zoneActions.getPortalInfo(client, { zoneId: 7 })
+
+  expectTypeOf(result).toEqualTypeOf<zoneActions.getPortalInfo.ReturnValue>()
+  expectTypeOf(result.admin).toEqualTypeOf<Address>()
+  expectTypeOf(result.enabledTokens).toEqualTypeOf<readonly Address[]>()
+  expectTypeOf(result.sequencers).toEqualTypeOf<readonly Address[]>()
+  expectTypeOf(result.sequencerThreshold).toEqualTypeOf<number>()
+})
+
 test('getZoneInfo returns sequencers and the imported Tempo block number', async () => {
   const info = await zoneActions.getZoneInfo(zoneClient)
 
