@@ -57,14 +57,20 @@ which the coordinator verifies before counting the child toward the parent thres
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
-// 1. Recreate the initialized child and make it the parent owner.
+// 1. Create and initialize the child.
 const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const child = Account.fromMultisig({ owners: [childOwner] })
+const childReceipt = await client.sendTransactionSync({
+  account: child,
+  calls: [{ data: '0xdeadbeef', to: child.address }],
+})
+
+// 2. Make the initialized child the parent owner.
 const parent = Account.fromMultisig({ owners: [child] })
 
-// 2. Approve the parent request with the child's complete quorum.
+// 3. Approve the parent request with the child's complete quorum.
 const receipt = await client.sendTransactionSync({
   account: child,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],

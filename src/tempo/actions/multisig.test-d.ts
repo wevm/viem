@@ -27,6 +27,13 @@ test('wallet actions expose multisig operations', async () => {
   expectTypeOf(receipt.multisig).toEqualTypeOf<
     Multisig.Operation.Transaction | undefined
   >()
+  if (receipt.status === 'pending') {
+    expectTypeOf(receipt.blockHash).toEqualTypeOf<null>()
+    expectTypeOf(receipt.gasUsed).toEqualTypeOf<null>()
+  } else {
+    expectTypeOf(receipt.blockHash).toEqualTypeOf<`0x${string}`>()
+    expectTypeOf(receipt.gasUsed).toEqualTypeOf<bigint>()
+  }
   expectTypeOf(transaction.multisig).toEqualTypeOf<
     Multisig.Operation.Transaction | undefined
   >()

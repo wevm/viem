@@ -1191,6 +1191,8 @@ describe('earn', () => {
           zoneId,
         },
       )
+      if (assetDeposit.receipt.status === 'pending')
+        throw new Error('Expected submitted deposit receipt.')
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,

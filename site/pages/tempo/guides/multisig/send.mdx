@@ -19,6 +19,9 @@ Choose the flow based on how the account reaches quorum:
 
 ## Recipes
 
+These recipes assume that you have [set up a Tempo client](/tempo). Coordinated signing also
+requires a store that every coordinating process can access.
+
 ### Local Signing
 
 When one trusted process holds enough owner accounts, put those accounts in the multisig and use
@@ -119,7 +122,22 @@ The first owner passes the transaction fields and multisig account. Each later o
 the operation hash and their account:
 
 ```ts
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_3 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const multisig = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
+})
 
 const pending = await client.sendTransactionSync({
   account: owner_1,
@@ -147,7 +165,9 @@ initial multisig configuration. Later transactions resolve the current onchain c
 
 [`sendTransaction`](/docs/actions/wallet/sendTransaction) always returns the operation hash.
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) returns a pending receipt below
-quorum and the submitted receipt when an approval reaches quorum.
+quorum and the submitted receipt when an approval reaches quorum. A pending receipt is synthetic:
+its `status` is `pending`, its `transactionHash` is the operation hash, and its block, gas, and log
+fields are empty or `null` because no transaction has been broadcast yet.
 
 #### Inspect the Transaction
 
@@ -155,9 +175,10 @@ Read the transaction by its operation hash to inspect the current quorum state:
 
 ```ts
 import { getTransaction } from 'viem/actions'
+import { client } from './viem.config'
 
 const transaction = await getTransaction(client, {
-  hash: pending.transactionHash,
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
 })
 const operation = transaction.multisig
 

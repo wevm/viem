@@ -1,5 +1,5 @@
 ---
-description: Inspect and serialize pending and successful multisig operations.
+description: Inspect and serialize multisig transaction operations.
 ---
 
 # Multisig.Operation
@@ -7,10 +7,13 @@ description: Inspect and serialize pending and successful multisig operations.
 ## Overview
 
 An operation records the approvals collected for one multisig payload. Transaction operations are
-either pending or successful.
+pending, submitting, or successful.
 
 ```ts
-type Transaction = TransactionPending | TransactionSuccess
+type Transaction =
+  | TransactionPending
+  | TransactionSubmitting
+  | TransactionSuccess
 
 type TransactionPending = Base & {
   init: boolean
@@ -18,8 +21,19 @@ type TransactionPending = Base & {
   transaction: UnsignedTempoTransaction
 }
 
+type TransactionSubmitting = Base & {
+  init: boolean
+  submissionExpiresAt: number
+  submissionId: Hash
+  status: 'submitting'
+  transaction: UnsignedTempoTransaction
+  transactionHash: Hash
+}
+
 type TransactionSuccess = Base & {
+  init: boolean
   status: 'success'
+  transaction: UnsignedTempoTransaction
   transactionHash: Hash
 }
 ```
@@ -27,7 +41,12 @@ type TransactionSuccess = Base & {
 The shared fields include the multisig `account`, serialized `approvals`, configuration, operation
 `hash`, selected signature count, `threshold`, selected `weight`, version, and timestamps.
 
-Applications read an operation through `getTransaction({ hash })`. Viem exposes the operation on
+The `submitting` state is a recoverable lease. It allows one coordinator to broadcast the final
+transaction while concurrent coordinators wait for the same result. Another coordinator can retry
+after `submissionExpiresAt` if the first coordinator stops before recording success.
+
+Applications read an operation through
+[`getTransaction({ hash })`](/docs/actions/public/getTransaction). Viem exposes the operation on
 the returned transaction's `multisig` property. The functions below support request handlers and
 store integrations.
 
@@ -35,45 +54,205 @@ The module also exports `KeyAuthorizationPending`, `KeyAuthorizationSuccess`, an
 `KeyAuthorization` types. Multisig key-authorization coordination is not implemented yet, so the
 current request handler produces transaction operations only.
 
-## API Reference
+## Recipes
 
-### `from`
+These recipes assume that you have [set up a Tempo client](/tempo) with multisig coordination.
+
+### Inspect an Operation
+
+Read the transaction by its operation hash, then inspect its `multisig` property.
+
+```ts
+import { getTransaction } from 'viem/actions'
+import { client } from './viem.config'
+
+const transaction = await getTransaction(client, {
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+})
+
+console.log(transaction.multisig)
+```
+
+### Persist an Operation
+
+Use `serialize` and `deserialize` when an integration stores operation values outside the provided
+storage contract.
+
+```ts
+import { Multisig } from 'viem/tempo'
+
+const value = Multisig.Operation.serialize(operation)
+const restored = Multisig.Operation.deserialize(value)
+```
+
+## `Multisig.Operation.from`
 
 Creates and validates an operation while adding the current schema version.
 
+### Usage
+
 ```ts
-Multisig.Operation.from(operation)
+const operation = Multisig.Operation.from(value)
 ```
 
-### `read`
+### Parameters
 
-Reads an operation by hash and verifies that the stored operation matches the requested hash.
+#### `value`
+
+- **Type:** `Omit<Multisig.Operation.Operation, 'schemaVersion'>`
+
+Operation fields without the persisted schema version.
+
+### Return Value
+
+`Multisig.Operation.Operation`
+
+The validated operation with its schema version.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Multisig.Operation.InvalidStoreValueError` | The operation is malformed or unsupported. |
+
+## `Multisig.Operation.read`
+
+Reads an operation from storage by its deterministic hash.
+
+### Usage
 
 ```ts
 const operation = await Multisig.Operation.read(store, hash)
 ```
 
-### `update`
+### Parameters
 
-Updates an operation. When the store provides `compareAndSet`, the update retries if another
-request changes the operation concurrently. Otherwise, it falls back to `getItem` and `setItem`.
+#### `store`
+
+- **Type:** `Storage.Storage`
+
+Storage that contains the operation.
+
+#### `hash`
+
+- **Type:** `Hex`
+
+Deterministic operation hash.
+
+### Return Value
+
+`Promise<Multisig.Operation.Operation | null>`
+
+The stored operation, or `null` when the hash is unknown.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Multisig.Operation.InvalidStoreValueError` | The stored value is malformed, unsupported, or does not match the requested hash. |
+
+## `Multisig.Operation.update`
+
+Updates an operation and uses atomic comparison when the store supports it.
+
+### Usage
 
 ```ts
-const operation = await Multisig.Operation.update(store, hash, (current) => next)
+const operation = await Multisig.Operation.update(store, hash, (current) => ({
+  ...current!,
+  updatedAt: Date.now(),
+}))
 ```
 
-### `serialize`
+### Parameters
 
-Serializes an operation for RPC or a string-backed persistent store.
+#### `store`
+
+- **Type:** `Storage.Storage`
+
+Storage that contains the operation.
+
+#### `hash`
+
+- **Type:** `Hex`
+
+Deterministic operation hash.
+
+#### `update`
+
+- **Type:** `(operation: Operation | null) => MaybePromise<Operation>`
+
+Function that receives the current value and returns its replacement.
+
+### Return Value
+
+`Promise<Multisig.Operation.Operation>`
+
+The persisted replacement operation.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Multisig.Operation.InvalidStoreValueError` | A stored or replacement value is malformed or uses another hash. |
+| `Multisig.Operation.StoreConflictError` | Atomic updates continued to conflict after the retry limit. |
+
+## `Multisig.Operation.serialize`
+
+Serializes an operation for RPC or string-backed persistent storage.
+
+### Usage
 
 ```ts
 const value = Multisig.Operation.serialize(operation)
 ```
 
-### `deserialize`
+### Parameters
 
-Deserializes and restores an operation from RPC or a persistent store.
+#### `operation`
+
+- **Type:** `Multisig.Operation.Operation`
+
+Operation to serialize.
+
+### Return Value
+
+`string`
+
+The serialized operation.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Multisig.Operation.InvalidStoreValueError` | The serialized value exceeds the operation size limit. |
+
+## `Multisig.Operation.deserialize`
+
+Deserializes an operation and verifies its persisted schema version.
+
+### Usage
 
 ```ts
 const operation = Multisig.Operation.deserialize(value)
 ```
+
+### Parameters
+
+#### `value`
+
+- **Type:** `string`
+
+Serialized operation value.
+
+### Return Value
+
+`Multisig.Operation.Operation`
+
+The restored operation.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Multisig.Operation.InvalidStoreValueError` | The value is malformed, unsupported, or exceeds the operation size limit. |

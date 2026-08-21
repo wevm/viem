@@ -1,3 +1,4 @@
+import * as Json from 'ox/Json'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { Storage } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
@@ -395,6 +396,12 @@ describe('serialize', () => {
     expect(() => Operation.deserialize(' '.repeat(1_048_577))).toThrowError(
       Operation.InvalidStoreValueError,
     )
+  })
+
+  test('error: unsupported schema version', () => {
+    expect(() =>
+      Operation.deserialize(Json.stringify({ ...operation, schemaVersion: 2 })),
+    ).toThrowError(Operation.InvalidStoreValueError)
   })
 })
 

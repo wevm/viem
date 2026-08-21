@@ -63,10 +63,30 @@ export type TransactionPending = Base & {
   transaction: Omit<TxEnvelopeTempo.TxEnvelopeTempo, 'signature'>
 }
 
+/** Transaction state while one coordinator owns the submission lease. */
+export type TransactionSubmitting = Base & {
+  /** Whether the transaction initializes the multisig account. */
+  init: boolean
+  /** Identifies the coordinator that owns the submission lease. */
+  submissionId: Hex.Hex
+  /** Time when another coordinator may reclaim the submission lease. */
+  submissionExpiresAt: number
+  /** Operation is being submitted by one coordinator. */
+  status: 'submitting'
+  /** Unsigned transaction used to build the final envelope. */
+  transaction: Omit<TxEnvelopeTempo.TxEnvelopeTempo, 'signature'>
+  /** Deterministic hash of the final signed transaction. */
+  transactionHash: Hex.Hex
+}
+
 /** Successful transaction state. */
 export type TransactionSuccess = Base & {
+  /** Whether the transaction initializes the multisig account. */
+  init: boolean
   /** Operation was submitted successfully. */
   status: 'success'
+  /** Unsigned transaction used to build the final envelope. */
+  transaction: Omit<TxEnvelopeTempo.TxEnvelopeTempo, 'signature'>
   /** Submitted transaction hash. */
   transactionHash: Hex.Hex
 }
@@ -88,7 +108,9 @@ export type KeyAuthorizationSuccess = Base & {
 }
 
 /** Persisted state for one transaction operation. */
-export type Transaction = OneOf<TransactionPending | TransactionSuccess>
+export type Transaction = OneOf<
+  TransactionPending | TransactionSubmitting | TransactionSuccess
+>
 
 /** Persisted state for one key-authorization operation. */
 export type KeyAuthorization = OneOf<
@@ -98,6 +120,7 @@ export type KeyAuthorization = OneOf<
 /** Persisted state for one multisig operation. */
 export type Operation = OneOf<
   | TransactionPending
+  | TransactionSubmitting
   | TransactionSuccess
   | KeyAuthorizationPending
   | KeyAuthorizationSuccess
@@ -182,15 +205,16 @@ export declare namespace from {
 export function deserialize(value: string): Operation {
   if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
   const operation = Json.parse(value) as Operation
+  if (operation.schemaVersion !== schemaVersion)
+    throw new InvalidStoreValueError()
   const config = MultisigConfig.from(operation.config)
   if (operation.keyAuthorization) return { ...operation, config }
-  if (operation.status === 'pending')
-    return {
-      ...operation,
-      config,
-      transaction: TxEnvelopeTempo.from(operation.transaction),
-    }
-  return { ...operation, config }
+  const transaction = operation as Transaction
+  return {
+    ...transaction,
+    config,
+    transaction: TxEnvelopeTempo.from(transaction.transaction),
+  } as Operation
 }
 
 /**

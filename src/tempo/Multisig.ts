@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import * as Hash from 'ox/Hash'
-import type * as Hex from 'ox/Hex'
+import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
   MultisigConfig,
@@ -10,10 +10,14 @@ import {
 } from 'ox/tempo'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
+import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import * as multisigActions from './actions/multisig.js'
 import * as Operation from './multisig/Operation.js'
 import type * as Storage from './Storage.js'
 import * as Transaction from './Transaction.js'
+
+const submissionTtl = 30_000
+const pollingInterval = 100
 
 /**
  * Creates an RPC request handler that coordinates native multisig approvals.
@@ -28,42 +32,62 @@ export function handleRequest(
 ): handleRequest.Handler {
   const client = createClient({
     transport: custom({
-      request: ({ method, params }) => next({ method, params }),
+      request: ({ method, params }, options) =>
+        next({ method, params }, options),
     }),
   })
 
-  return async (request) => {
+  return async (request, requestOptions) => {
     if (
       request.method === 'eth_getTransactionByHash' ||
       request.method === 'eth_getTransactionReceipt'
     ) {
       const hash = request.params?.[0]
       if (typeof hash !== 'string' || !Hash.validate(hash))
-        return await next(request)
+        return await next(request, requestOptions)
       const operation = await Operation.read(parameters.store, hash)
-      if (!operation || operation.keyAuthorization) return await next(request)
+      if (!operation || operation.keyAuthorization)
+        return await next(request, requestOptions)
       if (request.method === 'eth_getTransactionReceipt') {
         if (operation.status === 'pending') return null
-        const receipt = await next({
-          ...request,
-          params: [operation.transactionHash],
-        })
+        const receipt = await next(
+          {
+            ...request,
+            params: [operation.transactionHash],
+          },
+          requestOptions,
+        )
         if (!receipt || typeof receipt !== 'object') return receipt
+        const success =
+          operation.status === 'submitting'
+            ? await completeSubmission(parameters.store, operation)
+            : operation
         return {
           ...receipt,
-          multisig: Operation.serialize(operation),
+          multisig: Operation.serialize(success),
         }
       }
       if (operation.status === 'pending')
         return await pendingTransaction(client, operation)
-      const transaction = await next({
-        ...request,
-        params: [operation.transactionHash],
-      })
-      if (!transaction || typeof transaction !== 'object') return transaction
+      const transaction = await next(
+        {
+          ...request,
+          params: [operation.transactionHash],
+        },
+        requestOptions,
+      )
+      if (!transaction || typeof transaction !== 'object') {
+        if (operation.status === 'submitting')
+          return await pendingTransaction(client, operation)
+        return transaction
+      }
+      const success =
+        operation.status === 'submitting'
+          ? await completeSubmission(parameters.store, operation)
+          : operation
       return {
         ...transaction,
-        multisig: Operation.serialize(operation),
+        multisig: Operation.serialize(success),
       }
     }
 
@@ -71,15 +95,18 @@ export function handleRequest(
       request.method !== 'eth_sendRawTransaction' &&
       request.method !== 'eth_sendRawTransactionSync'
     )
-      return await next(request)
+      return await next(request, requestOptions)
 
     const serialized = request.params?.[0]
-    if (!isSerializedTempoTransaction(serialized)) return await next(request)
+    if (!isSerializedTempoTransaction(serialized))
+      return await next(request, requestOptions)
 
     return await submit({
       client,
       method: request.method,
       next,
+      request,
+      requestOptions,
       serialized,
       store: parameters.store,
     })
@@ -88,7 +115,10 @@ export function handleRequest(
 
 export declare namespace handleRequest {
   /** RPC request handler. */
-  export type Handler = (request: Request) => Promise<unknown>
+  export type Handler = (
+    request: Request,
+    options?: EIP1193RequestOptions | undefined,
+  ) => Promise<unknown>
 
   /** RPC request passed to a handler. */
   export type Request = {
@@ -117,10 +147,13 @@ async function submit(options: submit.Options) {
   })()
   const signature = transaction?.signature
   if (!transaction || signature?.type !== 'multisig')
-    return await options.next({
-      method: options.method,
-      params: [options.serialized],
-    })
+    return await options.next(
+      {
+        method: options.method,
+        params: options.request.params,
+      },
+      options.requestOptions,
+    )
 
   const { signature: _, ...unsigned } = transaction
   const envelope = TxEnvelopeTempo.from(unsigned as never)
@@ -144,6 +177,10 @@ async function submit(options: submit.Options) {
   const incoming = signature.signatures.map((signature) =>
     SignatureEnvelope.serialize(signature),
   )
+  if (incoming.length === 0)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'A multisig approval envelope must include a signature.',
+    })
   const now = Date.now()
   const operation = await Operation.update(
     options.store,
@@ -152,14 +189,30 @@ async function submit(options: submit.Options) {
       if (existing?.keyAuthorization)
         throw new Operation.InvalidStoreValueError()
       if (existing?.status === 'success') return existing
-      if (existing && existing.weight >= existing.threshold) return existing
+      if (
+        existing?.status === 'submitting' &&
+        existing.submissionExpiresAt > now
+      )
+        return existing
+      const existingApprovals = existing
+        ? await selectApprovals({
+            account: signature.account,
+            client: options.client,
+            config: resolved.config,
+            ignoreInvalidNested: true,
+            path: [signature.account.toLowerCase()],
+            payload,
+            signatures: existing.approvals,
+            version: resolved.version,
+          })
+        : undefined
       const approvals = await selectApprovals({
         account: signature.account,
         client: options.client,
         config: resolved.config,
         path: [signature.account.toLowerCase()],
         payload,
-        signatures: [...(existing?.approvals ?? []), ...incoming],
+        signatures: [...(existingApprovals?.all ?? []), ...incoming],
         version: resolved.version,
       })
       return Operation.from({
@@ -172,7 +225,7 @@ async function submit(options: submit.Options) {
         signatures: approvals.selected.length,
         status: 'pending',
         threshold: approvals.threshold,
-        transaction: envelope,
+        transaction: mergeTransaction(existing?.transaction, envelope),
         updatedAt: now,
         version: resolved.version,
         weight: approvals.weight,
@@ -183,6 +236,11 @@ async function submit(options: submit.Options) {
   if (operation.keyAuthorization) throw new Operation.InvalidStoreValueError()
   if (operation.status === 'success')
     return await submittedResult(options, operation)
+  if (
+    operation.status === 'submitting' &&
+    operation.submissionExpiresAt > Date.now()
+  )
+    return await submittingResult(options, operation)
   if (operation.weight < operation.threshold)
     return pendingResult(options.method, operation)
 
@@ -202,23 +260,80 @@ async function submit(options: submit.Options) {
     transaction: operation.transaction,
     version: operation.version,
   })
-  const result = await options.next({
-    method: options.method,
-    params: [final],
-  })
-  const transactionHash = getTransactionHash(result)
+  const transactionHash = TxEnvelopeTempo.hash(deserialize(final) as never)
+  const submissionId = Hex.random(32)
+  const claim = await Operation.update(
+    options.store,
+    operationHash,
+    (current) => {
+      if (!current || current.keyAuthorization)
+        throw new Operation.InvalidStoreValueError()
+      if (current.status === 'success') return current
+      if (
+        current.status === 'submitting' &&
+        current.submissionExpiresAt > Date.now()
+      )
+        return current
+      return Operation.from({
+        ...current,
+        status: 'submitting',
+        submissionExpiresAt: Date.now() + submissionTtl,
+        submissionId,
+        transactionHash,
+        updatedAt: Date.now(),
+      })
+    },
+  )
+  if (claim.keyAuthorization) throw new Operation.InvalidStoreValueError()
+  if (claim.status === 'success')
+    return await submittedResult(options, claim as Operation.TransactionSuccess)
+  if (claim.status !== 'submitting')
+    throw new Operation.InvalidStoreValueError()
+  if (claim.submissionId !== submissionId)
+    return await submittingResult(
+      options,
+      claim as Operation.TransactionSubmitting,
+    )
+
+  let result: unknown
+  try {
+    result = await options.next(
+      {
+        method: options.method,
+        params: [final, ...(options.request.params?.slice(1) ?? [])],
+      },
+      options.requestOptions,
+    )
+    if (
+      getTransactionHash(result).toLowerCase() !== transactionHash.toLowerCase()
+    )
+      throw new Error(
+        'Multisig broadcast returned an unexpected transaction hash.',
+      )
+  } catch (error) {
+    const transaction = await options
+      .next(
+        { method: 'eth_getTransactionByHash', params: [transactionHash] },
+        options.requestOptions,
+      )
+      .catch(() => null)
+    if (!transaction) {
+      await releaseSubmission(options.store, operationHash, submissionId)
+      throw error
+    }
+  }
   const success = await Operation.update(
     options.store,
     operationHash,
     (current) => {
       if (!current) throw new Operation.InvalidStoreValueError()
       if (current.status === 'success') return current
-      const {
-        init: __,
-        keyAuthorization: ___,
-        transaction: _,
-        ...operation
-      } = current
+      if (
+        current.status !== 'submitting' ||
+        current.submissionId !== submissionId
+      )
+        throw new Operation.InvalidStoreValueError()
+      const { submissionExpiresAt: _, submissionId: __, ...operation } = current
       return Operation.from({
         ...operation,
         status: 'success',
@@ -227,9 +342,12 @@ async function submit(options: submit.Options) {
       })
     },
   )
+  if (success.keyAuthorization || success.status !== 'success')
+    throw new Operation.InvalidStoreValueError()
   if (options.method === 'eth_sendRawTransaction') return success.hash
-  if (!result || typeof result !== 'object') return result
-  return { ...result, multisig: Operation.serialize(success) }
+  if (result && typeof result === 'object')
+    return { ...result, multisig: Operation.serialize(success) }
+  return await submittedResult(options, success as Operation.TransactionSuccess)
 }
 
 declare namespace submit {
@@ -241,6 +359,10 @@ declare namespace submit {
     method: 'eth_sendRawTransaction' | 'eth_sendRawTransactionSync'
     /** Downstream RPC request handler. */
     next: handleRequest.Handler
+    /** Original RPC request. */
+    request: handleRequest.Request
+    /** Original request overrides. */
+    requestOptions?: EIP1193RequestOptions | undefined
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
@@ -337,19 +459,27 @@ async function selectApprovals(options: selectApprovals.Options) {
         options.client,
         { account: group.address },
       )
-      const selected = await selectApprovals({
-        account: group.address,
-        client: options.client,
-        config: MultisigConfig.from({ owners, threshold }),
-        path: [...options.path, group.address.toLowerCase()],
-        payload: digest,
-        signatures: nested.flatMap((signature) =>
-          signature.signatures.map((approval) =>
-            SignatureEnvelope.serialize(approval),
-          ),
-        ),
-        version,
-      })
+      const selected = await (async () => {
+        try {
+          return await selectApprovals({
+            account: group.address,
+            client: options.client,
+            config: MultisigConfig.from({ owners, threshold }),
+            path: [...options.path, group.address.toLowerCase()],
+            payload: digest,
+            signatures: nested.flatMap((signature) =>
+              signature.signatures.map((approval) =>
+                SignatureEnvelope.serialize(approval),
+              ),
+            ),
+            version,
+          })
+        } catch (error) {
+          if (options.ignoreInvalidNested) return undefined
+          throw error
+        }
+      })()
+      if (!selected) continue
       stored.push({
         address: group.address,
         signature: SignatureEnvelope.serialize(
@@ -466,6 +596,8 @@ declare namespace selectApprovals {
     client: ReturnType<typeof createClient>
     /** Multisig owner configuration. */
     config: MultisigConfig.Config
+    /** Discards stored nested approvals that no longer match the current child configuration. */
+    ignoreInvalidNested?: boolean | undefined
     /** Multisig accounts traversed while validating nested approvals. */
     path: readonly string[]
     /** Unsigned transaction signing payload. */
@@ -509,18 +641,50 @@ async function submittedResult(
   operation: Operation.TransactionSuccess,
 ) {
   if (options.method === 'eth_sendRawTransaction') return operation.hash
-  const receipt = await options.next({
-    method: 'eth_getTransactionReceipt',
-    params: [operation.transactionHash],
-  })
-  if (!receipt || typeof receipt !== 'object') return receipt
-  return { ...receipt, multisig: Operation.serialize(operation) }
+  const deadline = Date.now() + getTimeout(options.request)
+  while (true) {
+    const receipt = await options.next(
+      {
+        method: 'eth_getTransactionReceipt',
+        params: [operation.transactionHash],
+      },
+      options.requestOptions,
+    )
+    if (receipt && typeof receipt === 'object')
+      return { ...receipt, multisig: Operation.serialize(operation) }
+    if (Date.now() >= deadline)
+      throw new Error('Timed out while waiting for the multisig transaction.')
+    await delay(pollingInterval)
+  }
+}
+
+/** Waits for the coordinator that owns a live submission lease. */
+async function submittingResult(
+  options: submit.Options,
+  operation: Operation.TransactionSubmitting,
+): Promise<unknown> {
+  if (options.method === 'eth_sendRawTransaction') return operation.hash
+  const deadline = Date.now() + getTimeout(options.request)
+  while (true) {
+    const current = await Operation.read(options.store, operation.hash)
+    if (!current || current.keyAuthorization)
+      throw new Operation.InvalidStoreValueError()
+    if (current.status === 'success')
+      return await submittedResult(options, current)
+    if (
+      current.status === 'pending' ||
+      current.submissionExpiresAt <= Date.now()
+    )
+      return await submit(options)
+    if (Date.now() >= deadline) return pendingResult(options.method, current)
+    await delay(pollingInterval)
+  }
 }
 
 /** Returns a pending result for an operation that has not reached quorum. */
 function pendingResult(
   method: submit.Options['method'],
-  operation: Operation.TransactionPending,
+  operation: Operation.TransactionPending | Operation.TransactionSubmitting,
 ) {
   if (method === 'eth_sendRawTransaction') return operation.hash
   return {
@@ -542,15 +706,90 @@ function pendingResult(
   } as const
 }
 
+/** Marks a transaction as successful after a lookup proves that it was submitted. */
+async function completeSubmission(
+  store: Storage.Storage,
+  operation: Operation.TransactionSubmitting,
+) {
+  return (await Operation.update(store, operation.hash, (current) => {
+    if (!current || current.keyAuthorization)
+      throw new Operation.InvalidStoreValueError()
+    if (current.status === 'success') return current
+    const value = (() => {
+      if (current.status === 'pending') return current
+      const { submissionExpiresAt: _, submissionId: __, ...value } = current
+      return value
+    })()
+    return Operation.from({
+      ...value,
+      status: 'success',
+      transactionHash: operation.transactionHash,
+      updatedAt: Date.now(),
+    })
+  })) as Operation.TransactionSuccess
+}
+
+/** Releases a failed submission lease without discarding collected approvals. */
+async function releaseSubmission(
+  store: Storage.Storage,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+) {
+  await Operation.update(store, hash, (current) => {
+    if (!current || current.keyAuthorization)
+      throw new Operation.InvalidStoreValueError()
+    if (
+      current.status !== 'submitting' ||
+      current.submissionId !== submissionId
+    )
+      return current
+    const {
+      submissionExpiresAt: _,
+      submissionId: __,
+      transactionHash: ___,
+      ...operation
+    } = current
+    return Operation.from({
+      ...operation,
+      status: 'pending',
+      updatedAt: Date.now(),
+    })
+  })
+}
+
+/** Preserves or upgrades a fee-payer envelope without removing an existing signature. */
+function mergeTransaction(
+  existing: Operation.Transaction['transaction'] | undefined,
+  incoming: Operation.Transaction['transaction'],
+) {
+  if (!existing) return incoming
+  if (!('feePayerSignature' in incoming)) return existing
+  if (incoming.feePayerSignature !== null) return incoming
+  if (!('feePayerSignature' in existing)) return incoming
+  return existing
+}
+
+/** Returns the synchronous RPC timeout. */
+function getTimeout(request: handleRequest.Request) {
+  const timeout = request.params?.[1]
+  return typeof timeout === 'number' && timeout >= 0 ? timeout : submissionTtl
+}
+
+/** Waits before polling shared operation state again. */
+function delay(duration: number) {
+  return new Promise((resolve) => setTimeout(resolve, duration))
+}
+
 /** Returns a pending transaction with its multisig operation. */
 async function pendingTransaction(
   client: ReturnType<typeof createClient>,
-  operation: Operation.TransactionPending,
+  operation: Operation.TransactionPending | Operation.TransactionSubmitting,
 ) {
   const approvals = await selectApprovals({
     account: operation.account,
     client,
     config: operation.config,
+    ignoreInvalidNested: true,
     path: [operation.account.toLowerCase()],
     payload: TxEnvelopeTempo.getSignPayload(operation.transaction),
     signatures: operation.approvals,
@@ -559,7 +798,12 @@ async function pendingTransaction(
   const serialized = serializeFinal({
     account: operation.account,
     initConfig: operation.init ? operation.config : null,
-    signatures: approvals.selected,
+    // Keep one stored approval in the synthetic envelope when every nested
+    // approval became stale. The next submission replaces it before broadcast.
+    signatures:
+      approvals.selected.length > 0
+        ? approvals.selected
+        : operation.approvals.slice(0, 1),
     transaction: operation.transaction,
     version: operation.version,
   })

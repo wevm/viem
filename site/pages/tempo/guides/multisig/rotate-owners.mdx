@@ -15,6 +15,43 @@ This example assumes that `multisig` has already been initialized.
 
 ## Recipes
 
+### Add a Passkey to a 1-of-1 Account
+
+Use the current owner to add a passkey as an alternative signer. The initial configuration remains
+the source of the stable account address; the update changes only the active configuration.
+
+```ts twoslash
+import { Account, Actions, WebAuthnP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Restore the current owner and create the new passkey owner.
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+const passkeyOwner = Account.fromWebAuthnP256(credential)
+
+// 2. Recreate the initialized account from its stable address.
+const multisig = Account.fromMultisig(
+  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
+)
+
+// 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
+const receipt = await client.sendTransactionSync({
+  account: owner,
+  calls: [
+    Actions.multisig.updateConfig.call({
+      owners: [
+        { owner: owner.address, weight: 1 },
+        { owner: passkeyOwner.address, weight: 1 },
+      ],
+      threshold: 1,
+    }),
+  ],
+  multisig,
+})
+```
+
 ### Approve the New Configuration
 
 Put [`multisig.updateConfig.call`](/tempo/actions/multisig.updateConfig) in the first approval. Each

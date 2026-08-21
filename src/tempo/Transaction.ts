@@ -105,11 +105,40 @@ export type TransactionReceipt<
   status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
   multisig = Operation.Transaction,
-> = viem_TransactionReceipt<quantity, index, status, type> & {
-  feePayer?: Address | undefined
-  feeToken?: Address | undefined
-  multisig?: multisig | undefined
-}
+> = status extends 'pending'
+  ? Omit<
+      viem_TransactionReceipt<quantity, index, status, type>,
+      | 'blockHash'
+      | 'blockNumber'
+      | 'cumulativeGasUsed'
+      | 'effectiveGasPrice'
+      | 'gasUsed'
+      | 'logsBloom'
+      | 'transactionIndex'
+    > & {
+      /** No block contains a pending multisig operation. */
+      blockHash: null
+      /** No block contains a pending multisig operation. */
+      blockNumber: null
+      /** No gas has been charged for a pending multisig operation. */
+      cumulativeGasUsed: null
+      /** No gas price applies to a pending multisig operation. */
+      effectiveGasPrice: null
+      feePayer?: Address | undefined
+      feeToken?: Address | undefined
+      /** No gas has been used by a pending multisig operation. */
+      gasUsed: null
+      /** No logs bloom exists for a pending multisig operation. */
+      logsBloom: null
+      multisig?: multisig | undefined
+      /** No block index exists for a pending multisig operation. */
+      transactionIndex: null
+    }
+  : viem_TransactionReceipt<quantity, index, status, type> & {
+      feePayer?: Address | undefined
+      feeToken?: Address | undefined
+      multisig?: multisig | undefined
+    }
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
@@ -147,6 +176,7 @@ export type TransactionRequestTempo<
       | MultisigAccount
       | MultisigConfig.Config<index>
       | undefined
+    /** @internal Bootstrap multisig configuration encoded into the transaction. */
     multisigInit?:
       | {
           salt: Hex.Hex
@@ -154,8 +184,11 @@ export type TransactionRequestTempo<
           owners: readonly { owner: Address; weight: number }[]
         }
       | undefined
+    /** @internal Local signing state for nested multisig owner accounts. */
     multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
+    /** @internal Number of multisig approvals modeled during gas estimation. */
     multisigSignatureCount?: number | undefined
+    /** @internal Current multisig configuration version. */
     multisigVersion?: bigint | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined

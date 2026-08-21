@@ -85,6 +85,10 @@ export const chainConfig = {
       }
 
       if (request.hash) {
+        if (!request.account || typeof request.account === 'string')
+          throw new Error(
+            'A local owner account is required to approve a stored multisig transaction.',
+          )
         const transaction = await getAction(
           client,
           getTransaction,
@@ -94,8 +98,8 @@ export const chainConfig = {
           'multisig' in transaction
             ? (transaction.multisig as Operation.Transaction | undefined)
             : undefined
-        if (!operation || operation.status !== 'pending')
-          throw new Error('Expected a pending multisig operation.')
+        if (!operation)
+          throw new Error('Expected a multisig operation transaction.')
         const hash = MultisigConfig.getSignPayload({
           account: operation.account,
           payload: TxEnvelopeTempo.getSignPayload(operation.transaction),
@@ -103,10 +107,28 @@ export const chainConfig = {
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
           throw new Error('Multisig operation hash does not match transaction.')
+        const ownerStates =
+          request.account.source === 'multisig'
+            ? await getMultisigOwnerStates(
+                request.account as MultisigAccount,
+                createMultisigStateResolver((account) =>
+                  getAction(
+                    client,
+                    multisig.getConfig,
+                    'getConfig',
+                  )({
+                    account,
+                  }),
+                ),
+              )
+            : []
         return {
           ...operation.transaction,
           from: operation.account,
           multisig: operation.init ? operation.config : operation.account,
+          ...(ownerStates.length > 0 && {
+            multisigOwnerStates: ownerStates,
+          }),
           multisigVersion: operation.version,
         } as unknown as typeof r
       }
@@ -150,6 +172,11 @@ export const chainConfig = {
           )
         return undefined
       })()
+      if (multisigIdentity && typeof request.account === 'string')
+        throw new Error(
+          'A local owner account is required to approve a multisig transaction.',
+        )
+      let initializedMultisig = false
       if (multisigIdentity) {
         const initialConfig =
           typeof multisigIdentity === 'string'
@@ -178,6 +205,7 @@ export const chainConfig = {
               )
             : undefined
         const state = await getState(multisigAddress)
+        initializedMultisig = state.initialized
         if (!initialConfig && !state.initialized)
           throw new Error(
             'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
@@ -227,7 +255,11 @@ export const chainConfig = {
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
-        if (multisigIdentity) return false
+        if (multisigIdentity)
+          return (
+            initializedMultisig &&
+            (client.transport as { multisig?: boolean }).multisig === true
+          )
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as

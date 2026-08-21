@@ -1,5 +1,5 @@
 import { TxEnvelopeTempo } from 'ox/tempo'
-import { parseSignature, type Transport, toHex } from 'viem'
+import { maxUint256, parseSignature, type Transport, toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
   getTransaction,
@@ -22,6 +22,7 @@ import {
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
+import { withResolvers } from '../utils/promise/withResolvers.js'
 
 describe('stateless', () => {
   const client = tempo.getClient()
@@ -585,6 +586,8 @@ describe('stateless', () => {
       feeToken,
     })
     if (!feePayerFirst.calls) throw new Error('Expected prepared calls.')
+    if (feePayerFirst.nonceKey === 'expiring')
+      throw new Error('Expected prepared nonce key.')
     const transaction = TxEnvelopeTempo.from({
       calls: feePayerFirst.calls,
       chainId: feePayerFirst.chainId,
@@ -594,7 +597,10 @@ describe('stateless', () => {
       maxFeePerGas: feePayerFirst.maxFeePerGas,
       maxPriorityFeePerGas: feePayerFirst.maxPriorityFeePerGas,
       nonce: BigInt(feePayerFirst.nonce),
+      nonceKey: feePayerFirst.nonceKey,
       type: 'tempo',
+      validAfter: feePayerFirst.validAfter,
+      validBefore: feePayerFirst.validBefore,
     })
     const feePayerSignature = parseSignature(
       await accounts[0].sign({
@@ -889,6 +895,25 @@ describe('stateful', () => {
     tokens: tempo.tokens,
     transport: tempo.http(),
   })
+
+  test('rejects a JSON-RPC owner account', async () => {
+    const owner = tempo.accounts[1]
+    const account = Account.fromMultisig({
+      owners: [owner.address],
+      salt: toHex(0x106139, { size: 32 }),
+    })
+
+    await expect(
+      prepareTransactionRequest(client, {
+        account: owner.address,
+        calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+        multisig: account,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a multisig transaction.]`,
+    )
+  })
+
   test('examples: bootstrap and initialized', async () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
@@ -1008,6 +1033,10 @@ describe('stateful', () => {
         approvals: [expect.any(String), expect.any(String)],
         createdAt: expect.any(Number),
         hash: expect.any(String),
+        transaction: {
+          gas: expect.any(BigInt),
+          maxFeePerGas: expect.any(BigInt),
+        },
         transactionHash: expect.any(String),
         updatedAt: expect.any(Number),
       },
@@ -1034,10 +1063,27 @@ describe('stateful', () => {
         },
         "createdAt": Any<Number>,
         "hash": Any<String>,
+        "init": true,
         "schemaVersion": 1,
         "signatures": 2,
         "status": "success",
         "threshold": 2,
+        "transaction": {
+          "calls": [
+            {
+              "data": "0xa9059cbb0000000000000000000000000f9e2db5d73bf2698b3cc235a719200d209cd77c0000000000000000000000000000000000000000000000000000000000000001",
+              "to": "0x20c0000000000000000000000000000000000000",
+            },
+          ],
+          "chainId": 1337,
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "from": "0x717a5616be548146187031a15fa458b78f2ef75f",
+          "gas": Any<BigInt>,
+          "maxFeePerGas": Any<BigInt>,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "type": "tempo",
+        },
         "transactionHash": Any<String>,
         "updatedAt": Any<Number>,
         "version": 0n,
@@ -1112,6 +1158,8 @@ describe('stateful', () => {
         transaction: {
           gas: expect.any(BigInt),
           maxFeePerGas: expect.any(BigInt),
+          validAfter: expect.any(Number),
+          validBefore: expect.any(Number),
         },
         updatedAt: expect.any(Number),
       },
@@ -1154,9 +1202,11 @@ describe('stateful', () => {
           "from": "0x717a5616be548146187031a15fa458b78f2ef75f",
           "gas": Any<BigInt>,
           "maxFeePerGas": Any<BigInt>,
-          "nonce": 1,
-          "nonceKey": 0n,
+          "nonce": 0,
+          "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
           "type": "tempo",
+          "validAfter": Any<Number>,
+          "validBefore": Any<Number>,
         },
         "updatedAt": Any<Number>,
         "version": 0n,
@@ -1173,6 +1223,14 @@ describe('stateful', () => {
     expect(
       (await getTransaction(client, { hash: initializedId })).multisig,
     ).toMatchObject({ hash: initializedId, status: 'success', weight: 2 })
+    const replayedReceipt = await sendTransactionSync(client, {
+      account: owner_2,
+      hash: initializedId,
+    })
+    expect(replayedReceipt).toMatchObject({
+      multisig: { hash: initializedId, status: 'success', weight: 2 },
+      status: 'success',
+    })
   })
 
   test('2-of-3 (M-of-N): threshold subset of owners approves', async () => {
@@ -1254,7 +1312,8 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: success.transactionHash,
       })
-      expect(transaction.nonce).toBe(nonce)
+      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonceKey).toBe(nonce === 0 ? 0n : maxUint256)
       expect(transaction.signature?.type).toBe('multisig')
       if (transaction.signature?.type !== 'multisig')
         throw new Error('unreachable')
@@ -1306,7 +1365,8 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(transaction.nonce).toBe(nonce)
+      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonceKey).toBe(nonce === 0 ? 0n : maxUint256)
       expect(transaction.signature?.type).toBe('multisig')
       if (transaction.signature?.type !== 'multisig')
         throw new Error('unreachable')
@@ -1364,7 +1424,8 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(transaction.nonce).toBe(nonce)
+      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonceKey).toBe(nonce === 0 ? 0n : maxUint256)
       expect(transaction.signature?.type).toBe('multisig')
       if (transaction.signature?.type !== 'multisig')
         throw new Error('unreachable')
@@ -1399,6 +1460,136 @@ describe('stateful', () => {
     expect(
       nestedAuthorization.keyAuthorization.signature.signatures[0]?.type,
     ).toBe('multisig')
+  })
+
+  test('refreshes a nested owner after its configuration version changes', async () => {
+    const childOwner = tempo.accounts[14]
+    const parentOwner = tempo.accounts[15]
+    const child = Account.fromMultisig({
+      owners: [childOwner],
+      salt: toHex(0x106136, { size: 32 }),
+    })
+    const parent = Account.fromMultisig({
+      owners: [child, parentOwner.address],
+      salt: toHex(0x106137, { size: 32 }),
+      threshold: 2,
+    })
+
+    for (const account of [child, parent])
+      await Actions.token.transferSync(client, {
+        account: tempo.accounts[0],
+        amount: { formatted: '10000' },
+        to: account.address,
+        token: tempo.feeToken,
+      })
+
+    await sendTransactionSync(client, {
+      account: childOwner,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+      multisig: child,
+    })
+    const pending = await sendTransactionSync(client, {
+      account: child,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+      multisig: parent,
+    })
+    expect(pending.status).toBe('pending')
+
+    const rotation = await sendTransactionSync(client, {
+      account: childOwner,
+      calls: [
+        Actions.multisig.updateConfig.call({
+          owners: child.config.owners,
+          threshold: child.config.threshold,
+        }),
+      ],
+      feeToken: tempo.feeToken,
+      multisig: Account.fromMultisig(child.address),
+    })
+    expect(rotation.status).toBe('success')
+
+    const refreshed = await sendTransactionSync(client, {
+      account: parentOwner,
+      hash: pending.transactionHash,
+    })
+    expect(refreshed).toMatchObject({
+      multisig: { signatures: 1, status: 'pending', weight: 1 },
+      status: 'pending',
+    })
+
+    const success = await sendTransactionSync(client, {
+      account: child,
+      hash: pending.transactionHash,
+    })
+    expect(success).toMatchObject({
+      multisig: { signatures: 2, status: 'success', weight: 2 },
+      status: 'success',
+    })
+  })
+
+  test('allocates independent nonces for concurrent pending operations', async () => {
+    const owner_1 = tempo.accounts[12]
+    const owner_2 = tempo.accounts[13]
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106138, { size: 32 }),
+      threshold: 2,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    await sendTransactionSync(client, {
+      account,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+    })
+
+    const [pending_1, pending_2] = await Promise.all([
+      sendTransactionSync(client, {
+        account: owner_1,
+        calls: [{ data: '0x01', to: tempo.accounts[20].address }],
+        feeToken: tempo.feeToken,
+        multisig: Account.fromMultisig(account.address),
+      }),
+      sendTransactionSync(client, {
+        account: owner_1,
+        calls: [{ data: '0x02', to: tempo.accounts[20].address }],
+        feeToken: tempo.feeToken,
+        multisig: Account.fromMultisig(account.address),
+      }),
+    ])
+    expect(pending_1.transactionHash).not.toBe(pending_2.transactionHash)
+
+    const operation_1 = (
+      await getTransaction(client, { hash: pending_1.transactionHash })
+    ).multisig
+    const operation_2 = (
+      await getTransaction(client, { hash: pending_2.transactionHash })
+    ).multisig
+    expect(operation_1?.transaction.nonceKey).toBe(maxUint256)
+    expect(operation_2?.transaction.nonceKey).toBe(maxUint256)
+    expect(operation_1?.transaction.validAfter).not.toBe(
+      operation_2?.transaction.validAfter,
+    )
+
+    const [success_1, success_2] = await Promise.all([
+      sendTransactionSync(client, {
+        account: owner_2,
+        hash: pending_1.transactionHash,
+      }),
+      sendTransactionSync(client, {
+        account: owner_2,
+        hash: pending_2.transactionHash,
+      }),
+    ])
+    expect(success_1.status).toBe('success')
+    expect(success_2.status).toBe('success')
   })
 
   test('example: weighted quorum', async () => {
@@ -1589,6 +1780,8 @@ describe('stateful', () => {
       feeToken: tempo.feeToken,
     })
     if (!feePayerFirst.calls) throw new Error('Expected prepared calls.')
+    if (feePayerFirst.nonceKey === 'expiring')
+      throw new Error('Expected prepared nonce key.')
     const transaction = TxEnvelopeTempo.from({
       calls: feePayerFirst.calls,
       chainId: feePayerFirst.chainId,
@@ -1598,14 +1791,21 @@ describe('stateful', () => {
       maxFeePerGas: feePayerFirst.maxFeePerGas,
       maxPriorityFeePerGas: feePayerFirst.maxPriorityFeePerGas,
       nonce: BigInt(feePayerFirst.nonce),
+      nonceKey: feePayerFirst.nonceKey,
       type: 'tempo',
+      validAfter: feePayerFirst.validAfter,
+      validBefore: feePayerFirst.validBefore,
     })
+    const feePayerPayload = TxEnvelopeTempo.getFeePayerSignPayload(
+      transaction,
+      { sender: account.address },
+    )
     const feePayerSignature = parseSignature(
-      await tempo.accounts[0].sign({
-        hash: TxEnvelopeTempo.getFeePayerSignPayload(transaction, {
-          sender: account.address,
-        }),
-      }),
+      await tempo.accounts[0].sign({ hash: feePayerPayload }),
+    )
+    const unfundedFeePayer = Account.fromSecp256k1(generatePrivateKey())
+    const unfundedFeePayerSignature = parseSignature(
+      await unfundedFeePayer.sign({ hash: feePayerPayload }),
     )
     const sponsored = {
       ...feePayerFirst,
@@ -1616,10 +1816,23 @@ describe('stateful', () => {
     const feePayerFirstPending = await sendTransactionSync(client, {
       ...sponsored,
       account: owner_1,
+      feePayerSignature: unfundedFeePayerSignature,
     })
+    expect(
+      TxEnvelopeTempo.getFeePayerSignPayload(
+        TxEnvelopeTempo.from(feePayerFirstPending.multisig!.transaction),
+        { sender: account.address },
+      ),
+    ).toBe(feePayerPayload)
     expect(feePayerFirstPending.status).toBe('pending')
+    await expect(
+      sendTransactionSync(client, {
+        hash: feePayerFirstPending.transactionHash,
+        account: owner_2,
+      }),
+    ).rejects.toThrow()
     const feePayerFirstSuccess = await sendTransactionSync(client, {
-      hash: feePayerFirstPending.transactionHash,
+      ...sponsored,
       account: owner_2,
     })
 
@@ -1877,6 +2090,53 @@ describe('stateful', () => {
     expect(receipt.from).toBe(initializedAccount.address.toLowerCase())
   })
 
+  test('upgrades a 1-of-1 account to a passkey-compatible 1-of-2 account', async () => {
+    const owner = tempo.accounts[18]
+    const passkeyOwner = Account.fromP256(P256.randomPrivateKey())
+    const account = Account.fromMultisig({
+      owners: [owner],
+      salt: toHex(0x106135, { size: 32 }),
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    await sendTransactionSync(client, {
+      account: owner,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+      multisig: account,
+    })
+    const receipt = await sendTransactionSync(client, {
+      account: owner,
+      calls: [
+        Actions.multisig.updateConfig.call({
+          owners: [
+            { owner: owner.address, weight: 1 },
+            { owner: passkeyOwner.address, weight: 1 },
+          ],
+          threshold: 1,
+        }),
+      ],
+      feeToken: tempo.feeToken,
+      multisig: Account.fromMultisig(account.address),
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(
+      await Actions.multisig.getConfig(client, { account: account.address }),
+    ).toMatchObject({
+      owners: expect.arrayContaining([
+        { owner: owner.address, weight: 1 },
+        { owner: passkeyOwner.address, weight: 1 },
+      ]),
+      threshold: 1,
+    })
+  })
+
   test('broadcasts multiple approvals from one submission', async () => {
     const account = Account.fromMultisig({
       owners: [tempo.accounts[3], tempo.accounts[4]],
@@ -1958,10 +2218,8 @@ describe('stateful', () => {
     const store = Storage.memory()
     const serializedTransactions: string[] = []
     let collect = false
-    let release: (() => void) | undefined
-    const thresholdCrossed = new Promise<void>((resolve) => {
-      release = resolve
-    })
+    const broadcast = withResolvers<void>()
+    const release = withResolvers<void>()
     const baseTransport = tempo.http()
     const transport: Transport = (options) => {
       const value = baseTransport(options)
@@ -1977,8 +2235,8 @@ describe('stateful', () => {
             typeof serialized === 'string'
           ) {
             serializedTransactions.push(serialized)
-            if (serializedTransactions.length === 2) release?.()
-            await thresholdCrossed
+            broadcast.resolve()
+            await release.promise
           }
           return await value.request(request as never)
         },
@@ -2006,24 +2264,87 @@ describe('stateful', () => {
     expect(pending.status).toBe('pending')
 
     collect = true
-    const results = await Promise.allSettled([
-      sendTransactionSync(client, {
-        hash: pending.transactionHash,
-        account: owner_2,
-      }),
-      sendTransactionSync(client, {
-        hash: pending.transactionHash,
-        account: owner_3,
-      }),
-    ])
+    const submission_1 = sendTransactionSync(client, {
+      hash: pending.transactionHash,
+      account: owner_2,
+    })
+    await broadcast.promise
+    const submission_2 = sendTransactionSync(client, {
+      hash: pending.transactionHash,
+      account: owner_3,
+    })
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(serializedTransactions).toHaveLength(2)
-    expect(serializedTransactions[0]).toBe(serializedTransactions[1])
-    expect(results.some((result) => result.status === 'fulfilled')).toBe(true)
+    expect(serializedTransactions).toHaveLength(1)
+    release.resolve()
+    const results = await Promise.allSettled([submission_1, submission_2])
+    expect(results).toMatchObject([
+      { status: 'fulfilled' },
+      { status: 'fulfilled' },
+    ])
     const operation = (
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig
     expect(operation?.status).toBe('success')
+  })
+
+  test('reconciles a successful broadcast after its response is lost', async () => {
+    const owner_1 = tempo.accounts[5]
+    const owner_2 = tempo.accounts[6]
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106134, { size: 32 }),
+      threshold: 2,
+    })
+    const baseTransport = tempo.http()
+    let loseResponse = false
+    const transport: Transport = (options) => {
+      const value = baseTransport(options)
+      return {
+        ...value,
+        request: async (request, requestOptions) => {
+          if (loseResponse && request.method === 'eth_sendRawTransactionSync') {
+            if (!Array.isArray(request.params) || request.params[1] !== 5_000)
+              throw new Error('Expected forwarded synchronous timeout.')
+            loseResponse = false
+            await value.request(request as never, requestOptions)
+            throw new Error('Response lost.')
+          }
+          return await value.request(request as never, requestOptions)
+        },
+      }
+    }
+    const client = createClient({
+      chain: tempoLocalnet,
+      experimental_multisig: true,
+      tokens: tempo.tokens,
+      transport,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const pending = await sendTransactionSync(client, {
+      account: owner_1,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+      multisig: account,
+    })
+    loseResponse = true
+    const receipt = await sendTransactionSync(client, {
+      hash: pending.transactionHash,
+      account: owner_2,
+      timeout: 5_000,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(
+      (await getTransaction(client, { hash: pending.transactionHash }))
+        .multisig,
+    ).toMatchObject({ status: 'success' })
   })
 
   test('retries the same transaction after submission fails', async () => {

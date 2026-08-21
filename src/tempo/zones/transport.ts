@@ -12,6 +12,8 @@ export type ZoneHttpConfig = Omit<
 > & {
   /** Store for reading zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
   store?: Storage | undefined
+  /** @deprecated Use `store` instead. */
+  storage?: Storage | undefined
 }
 
 /**
@@ -36,7 +38,8 @@ export function http(
   url?: string | undefined,
   config: ZoneHttpConfig = {},
 ): HttpTransport {
-  const { store = Storage_.defaultStorage(), onFetchRequest, ...rest } = config
+  const { store: store_, storage, onFetchRequest, ...rest } = config
+  const store = store_ ?? storage ?? Storage_.defaultStorage()
 
   return (config) =>
     http_(url, {

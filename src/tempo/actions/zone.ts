@@ -1864,7 +1864,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
-    store = Storage.defaultStorage(),
+    store = parameters.storage ?? Storage.defaultStorage(),
   } = parameters
 
   const chain = parameters.chain ?? client.chain
@@ -1914,6 +1914,8 @@ export namespace signAuthorizationToken {
     issuedAt?: number | undefined
     /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
     store?: Storage.Storage | undefined
+    /** @deprecated Use `store` instead. */
+    storage?: Storage.Storage | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
     zoneId?: number | undefined
   }
