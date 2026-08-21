@@ -3,6 +3,7 @@ export const accountImplementation =
 export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
 export const accountRegistrar = '0x7702ac0000000000000000000000000000000000'
 export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
+export const blockHashHistory = '0x0000F90827F1C53a10cb7A02335B175320002935'
 export const feeManager = '0xfeec000000000000000000000000000000000000'
 export const nativeMultisig = '0xAACC000000000000000000000000000000000000'
 export const nonceManager = '0x4e4F4E4345000000000000000000000000000000'
