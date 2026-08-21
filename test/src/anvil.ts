@@ -34,7 +34,7 @@ export const anvilSepolia = defineAnvil({
     'VITE_ANVIL_FORK_URL_SEPOLIA',
     'https://rpc.sepolia.ethpandaops.io',
   ),
-  forkBlockNumber: 10_000_000n,
+  forkBlockNumber: 11_532_670n,
   noMining: true,
   port: 8845,
 })
