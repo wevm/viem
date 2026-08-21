@@ -8,6 +8,8 @@ const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
+const versions = { tempo: '1.11.0' }
+
 const compatibilityInterfaces: Record<
   string,
   { after: string; items: string[] }
@@ -73,7 +75,9 @@ const selectorsOut = Path.resolve(
   '../src/tempo/Selectors.ts',
 )
 const sync = process.argv.includes('--sync')
-const source = sync ? await getLatestSource() : getTrackedSource()
+const source = sync
+  ? await getReleaseSource(versions.tempo)
+  : getTrackedSource()
 if (!new RegExp(`^${tagPrefix}\\d+\\.\\d+\\.\\d+$`).test(source.ref))
   throw new Error(`Invalid Tempo contracts ref: ${source.ref}.`)
 if (!/^[0-9a-f]{40}$/.test(source.commit))
@@ -418,26 +422,15 @@ console.log(
   `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files at ${source.ref} (${source.commit.slice(0, 7)})`,
 )
 
-async function getLatestSource(): Promise<Source> {
-  const refs: GitHubRef[] = []
-  for (let page = 1; ; page++) {
-    const result = await getJson<readonly GitHubRef[]>(
-      `${githubApi}/git/matching-refs/tags/${encodeURIComponent(tagPrefix)}?per_page=100&page=${page}`,
-    )
-    refs.push(...result)
-    if (result.length < 100) break
-  }
-
-  const versions = refs
-    .flatMap(({ object, ref }) => {
-      const match = ref.match(/^refs\/tags\/tempo-contracts@(\d+\.\d+\.\d+)$/)
-      return match?.[1] ? [{ object, version: match[1] }] : []
-    })
-    .sort((a, b) => compareVersions(a.version, b.version))
-  const release = versions.at(-1)
-  if (!release) throw new Error('No Tempo contracts releases found.')
+async function getReleaseSource(version: string): Promise<Source> {
+  const ref = `${tagPrefix}${version}`
+  const release = await getJson<GitHubRef>(
+    `${githubApi}/git/ref/tags/${encodeURIComponent(ref)}`,
+  )
+  if (release.ref !== `refs/tags/${ref}`)
+    throw new Error(`Unexpected Tempo contracts ref: ${release.ref}.`)
   return {
-    ref: `${tagPrefix}${release.version}`,
+    ref,
     commit: await getCommit(release.object),
   }
 }
@@ -488,16 +481,6 @@ async function getPrecompileSources(ref: string) {
     content: content.join('\n\n'),
     files: files.map(({ name }) => name),
   }
-}
-
-function compareVersions(a: string, b: string) {
-  const left = a.split('.').map(Number)
-  const right = b.split('.').map(Number)
-  for (let index = 0; index < 3; index++) {
-    const difference = left[index]! - right[index]!
-    if (difference !== 0) return difference
-  }
-  return 0
 }
 
 async function getJson<result>(url: string) {
