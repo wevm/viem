@@ -11,6 +11,13 @@ import { Card, Cards } from 'vocs'
 A multisig quorum can authorize an access key. The access key then signs later transactions for
 the multisig account, subject to the authorization's expiry, scopes, and spending limits.
 
+:::warning
+The experimental multisig store does not yet coordinate approvals inside a key authorization.
+Assemble a complete authorization quorum before signing the transaction that carries it.
+Transaction coordination through `sendTransaction` applies only to the outer transaction
+signature.
+:::
+
 ## Recipes
 
 These recipes assume you have [set up a Tempo client](/tempo).
@@ -23,24 +30,29 @@ These recipes assume you have [set up a Tempo client](/tempo).
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
+// 1. Create a multisig with enough local owners for quorum.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const account = Account.fromMultisig({
+const multisig = Account.fromMultisig({
   owners: [owner_1, owner_2],
   threshold: 2,
 })
+
+// 2. Create and authorize an access key for the multisig.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
+  access: multisig,
 })
 
 const keyAuthorization = await client.accessKey.signAuthorization({
-  account,
+  account: multisig,
   accessKey,
 })
+
+// 3. Submit the authorization with the access key's first transaction.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,
@@ -63,9 +75,10 @@ before the owners sign.
 
 ### Collect Owner Approvals Separately
 
-When owners sign on separate devices or services, instantiate the multisig with owner addresses.
-Prepare the authorization once, collect signatures over its `signPayload`, and pass the serialized
-approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+Until key-authorization coordination is available, applications must assemble the complete
+authorization quorum themselves. Instantiate the multisig with owner addresses, prepare the
+authorization once, collect signatures over its `signPayload`, and pass every serialized approval
+to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization) before signing the transaction.
 
 :::code-group
 
@@ -73,34 +86,41 @@ approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
+// 1. Create a multisig whose owners sign independently.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const account = Account.fromMultisig({
+const multisig = Account.fromMultisig({
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
+  access: multisig,
 })
 
+// 2. Prepare one authorization for every owner to inspect.
 const authorization = await client.accessKey.prepareAuthorization({
-  account,
+  account: multisig,
   accessKey,
 })
+
+// 3. Collect every owner signature over the same payload.
 const signatures = await Promise.all(
   [owner_1, owner_2].map((owner) =>
     owner.sign({ hash: authorization.signPayload })
   )
 )
+
+// 4. Assemble the complete key authorization.
 const keyAuthorization = await client.accessKey.signAuthorization({
   ...authorization,
   signatures,
 })
 
+// 5. Submit the authorization with the access key's first transaction.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,
@@ -127,9 +147,12 @@ import { client } from './viem.config'
 
 declare const account: Account.MultisigAccount
 
+// 1. Recreate the access key for the authorized multisig.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
+
+// 2. Use it without resubmitting the registered authorization.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,

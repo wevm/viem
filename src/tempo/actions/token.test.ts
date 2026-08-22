@@ -2895,6 +2895,8 @@ describe('watchRole', () => {
       name: 'Role Watch Token',
       symbol: 'ROLE',
     })
+    if (receipt.status === 'pending')
+      throw new Error('Expected submitted token receipt.')
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args

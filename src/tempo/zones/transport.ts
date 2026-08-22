@@ -10,7 +10,9 @@ export type ZoneHttpConfig = Omit<
   HttpTransportConfig,
   'batch' | 'raw' | 'rpcSchema'
 > & {
-  /** Storage for reading zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  /** Store for reading zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  store?: Storage | undefined
+  /** @deprecated Use `store` instead. */
   storage?: Storage | undefined
 }
 
@@ -36,8 +38,8 @@ export function http(
   url?: string | undefined,
   config: ZoneHttpConfig = {},
 ): HttpTransport {
-  const { storage: storage_, onFetchRequest, ...rest } = config
-  const storage = storage_ ?? Storage_.defaultStorage()
+  const { store: store_, storage, onFetchRequest, ...rest } = config
+  const store = store_ ?? storage ?? Storage_.defaultStorage()
 
   return (config) =>
     http_(url, {
@@ -48,7 +50,7 @@ export function http(
 
         const chainId = config.chain?.id
         if (chainId) {
-          const token = (await storage.getItem(`auth:token:${chainId}`)) ?? null
+          const token = (await store.getItem(`auth:token:${chainId}`)) ?? null
           if (token) headers.set('X-Authorization-Token', token)
         }
 

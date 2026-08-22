@@ -1,0 +1,38 @@
+---
+description: Store Tempo client data in memory, session storage, or a custom store.
+---
+
+# Storage
+
+The `Storage` utility provides a string-backed key-value contract for Tempo features. Use
+[`Storage.memory`](/tempo/utilities/Storage.memory) for process-local data or
+[`Storage.from`](/tempo/utilities/Storage.from) to wrap another store.
+
+## Contract
+
+```ts
+type Storage = {
+  compareAndSet?(
+    key: string,
+    expected: string | null,
+    value: string,
+  ): MaybePromise<boolean>
+  getItem(key: string): MaybePromise<string | null | undefined>
+  removeItem(key: string): MaybePromise<void>
+  setItem(key: string, value: string): MaybePromise<void>
+}
+```
+
+### `compareAndSet`
+
+Atomically replaces the current value when it equals `expected`. Multisig coordination uses this
+method when available to preserve approvals submitted concurrently.
+
+Without `compareAndSet`, multisig coordination falls back to `getItem` and `setItem`. Concurrent
+submissions can overwrite an approval, so an owner may need to submit the approval again.
+
+## See Also
+
+- [`Storage.from`](/tempo/utilities/Storage.from)
+- [`Storage.memory`](/tempo/utilities/Storage.memory)
+- [`Storage.session`](/tempo/utilities/Storage.session)

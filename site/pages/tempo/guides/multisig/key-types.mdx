@@ -9,93 +9,81 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 A native multisig can combine secp256k1, P256, WebAuthn, and WebCrypto P256 owners. Each owner
-signs with its own account implementation, and the multisig envelope combines the approvals.
+approves through its own account implementation, and the shared store combines those approvals.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo).
-
-### Combine Owner Key Types
+### Approve from Different Key Types
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, P256, WebAuthnP256, WebCryptoP256 } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransaction,
-  signTransaction,
-} from 'viem/actions'
+import { Account, P256, WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-const owners = [
-  Account.fromSecp256k1(
-    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-  ),
-  Account.fromP256(P256.randomPrivateKey()),
-  Account.fromWebAuthnP256(
-    await WebAuthnP256.createCredential({ name: 'Multisig owner' })
-  ),
-  Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
-]
-
-const account = Account.fromMultisig({
-  owners: owners.map((owner) => owner.address),
-  threshold: owners.length,
-})
-const request = await prepareTransactionRequest(client, {
-  account,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
-})
-
-const signatures = await Promise.all(
-  owners.map((owner) =>
-    signTransaction(client, { ...request, account: owner })
-  )
+// 1. Create owners that use different signature schemes.
+const secp256k1Owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const hash = await sendTransaction(client, { ...request, signatures })
+const p256Owner = Account.fromP256(P256.randomPrivateKey())
+const webCryptoOwner = Account.fromWebCryptoP256(
+  await WebCryptoP256.createKeyPair()
+)
+
+// 2. Create a multisig from their addresses.
+const multisig = Account.fromMultisig({
+  owners: [
+    secp256k1Owner.address,
+    p256Owner.address,
+    webCryptoOwner.address,
+  ],
+  threshold: 3,
+})
+
+// 3. Store the secp256k1 owner's approval.
+const pending = await client.sendTransactionSync({
+  account: secp256k1Owner,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  multisig,
+})
+
+// 4. Approve the stored transaction with the P256 owner.
+const pending2 = await client.sendTransactionSync({
+  account: p256Owner,
+  hash: pending.transactionHash,
+})
+
+// 5. Reach quorum with the WebCrypto P256 owner.
+const receipt = await client.sendTransactionSync({
+  account: webCryptoOwner,
+  hash: pending.transactionHash,
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
+
+WebAuthn owners use the same sequence with
+[`Account.fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256). Each call can happen in a
+different process as long as every coordinator uses the same store and operation hash.
 
 ## Best Practices
 
 ### Expect Passkey Prompts
 
-[`Account.fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256) creates the passkey owner
-from a WebAuthn credential. The passkey prompts for approval when it signs the transaction.
+A WebAuthn owner prompts for approval when its `sendTransactionSync` call signs the request.
 
 ### Let Viem Estimate Approval Gas
 
-During preparation, Viem conservatively estimates the request for maximum-size WebAuthn
-approvals because key types are not stored in the multisig config. Multiple WebAuthn owners do
-not require a manual gas hint.
+During preparation, Viem conservatively estimates the request for maximum-size WebAuthn approvals
+because key types are not stored in the multisig config.
 
 ## See More
 
 <Cards>
-  <Card
-    icon="lucide:fingerprint"
-    title="Sign In with a Passkey"
-    description="Create, restore, and use a WebAuthn passkey account."
-    to="/tempo/guides/accounts/passkeys"
-  />
-  <Card
-    icon="lucide:square-function"
-    title="Account.fromWebAuthnP256"
-    description="Create an account from a WebAuthn passkey credential."
-    to="/tempo/accounts/account.fromWebAuthnP256"
-  />
-  <Card
-    icon="lucide:send"
-    title="Send Transactions"
-    description="Collect independent approvals from multisig owners."
-    to="/tempo/guides/multisig/send"
-  />
+  <Card icon="lucide:fingerprint" title="Sign In with a Passkey" description="Create, restore, and use a WebAuthn passkey account." to="/tempo/guides/accounts/passkeys" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent approvals from multisig owners." to="/tempo/guides/multisig/send" />
 </Cards>

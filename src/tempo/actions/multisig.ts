@@ -18,7 +18,7 @@ import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
-import type { TransactionReceipt } from '../Transaction.js'
+import type * as Transaction from '../Transaction.js'
 
 /**
  * Checks whether an address is an initialized native multisig account.
@@ -348,7 +348,7 @@ export namespace updateConfigSync {
       'MultisigConfigUpdated',
       { IndexedOnly: false; Required: true }
     > & {
-      receipt: TransactionReceipt
+      receipt: Transaction.TransactionReceipt
     }
   >
 

@@ -40,6 +40,8 @@ import {
   parseTransaction as viem_parseTransaction,
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
+import type { MultisigAccount } from './Account.js'
+import type * as Operation from './multisig/Operation.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -57,6 +59,7 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
     > & {
       authorizationList?: AuthorizationTempo.ListRpc | undefined
       keyAuthorization?: KeyAuthorization.Rpc | null | undefined
+      multisig?: string | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
 >
@@ -77,6 +80,7 @@ export type TransactionTempo<
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
+  multisig?: Operation.Transaction | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
@@ -98,18 +102,21 @@ export type TransactionRequestRpc = OneOf<
 export type TransactionReceipt<
   quantity = bigint,
   index = number,
-  status = 'success' | 'reverted',
+  status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
+  multisig = Operation.Transaction,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
+  multisig?: multisig | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   Hex.Hex,
-  ox_TransactionReceipt.RpcStatus,
-  ox_TransactionReceipt.RpcType
+  ox_TransactionReceipt.RpcStatus | 'pending',
+  ox_TransactionReceipt.RpcType,
+  string
 >
 
 /** @internal */
@@ -131,9 +138,16 @@ export type TransactionRequestTempo<
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
+    /** Multisig operation hash whose stored transaction should be approved. */
+    hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
+    /** Multisig account, address, or initial configuration. */
+    multisig?:
+      | Address
+      | MultisigAccount
+      | MultisigConfig.Config<index>
+      | undefined
+    /** @internal Bootstrap multisig configuration encoded into the transaction. */
     multisigInit?:
       | {
           salt: Hex.Hex
@@ -143,9 +157,9 @@ export type TransactionRequestTempo<
       | undefined
     /** @internal Local signing state for nested multisig owner accounts. */
     multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
+    /** @internal Number of multisig approvals modeled during gas estimation. */
     multisigSignatureCount?: number | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
+    /** @internal Current multisig configuration version. */
     multisigVersion?: bigint | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined

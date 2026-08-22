@@ -1,0 +1,62 @@
+---
+description: Coordinate native multisig approvals through a shared operation store.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Multisig
+
+## Overview
+
+:::warning
+**Experimental.** The multisig coordination API may change in a future release.
+:::
+
+The `Multisig` module coordinates owner approvals for native multisig transactions. A request
+handler validates each approval, stores the operation, selects a canonical quorum, and broadcasts
+the final transaction after the configured threshold is reached.
+
+Use normal [`sendTransaction`](/docs/actions/wallet/sendTransaction) and
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) for the standard client flow.
+Use [`Multisig.handleRequest`](/tempo/utilities/Multisig.handleRequest) when integrating the
+coordinator into another RPC handler.
+
+## Client Setup
+
+Enable multisig coordination with a shared store:
+
+```ts twoslash
+import { createClient } from 'viem/tempo'
+import { store } from './store.db'
+
+const client = createClient({
+  experimental_multisig: { store },
+})
+```
+
+Every client or RPC process that coordinates the same approvals must use the same shared store.
+Implement `compareAndSet` to prevent concurrent approvals from overwriting each other. Without it,
+the coordinator falls back to `getItem` and `setItem`.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:server-cog"
+    title="Multisig.handleRequest"
+    description="Integrate multisig coordination into an RPC request handler."
+    to="/tempo/utilities/Multisig.handleRequest"
+  />
+  <Card
+    icon="lucide:database"
+    title="Storage"
+    description="Configure a process-local or persistent operation store."
+    to="/tempo/utilities/Storage"
+  />
+  <Card
+    icon="lucide:workflow"
+    title="Multisig.Operation"
+    description="Inspect and serialize pending and successful operations."
+    to="/tempo/utilities/Multisig.Operation"
+  />
+</Cards>

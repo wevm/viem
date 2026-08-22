@@ -50,7 +50,7 @@ auditConfig:
     - GHSA-jmr9-qjv8-65gv
 
 overrides:
-  ox: 0.14.34
+  ox: 0.14.36
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
