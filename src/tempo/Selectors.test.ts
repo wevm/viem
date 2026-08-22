@@ -13,6 +13,7 @@ type SelectorMap = Record<string, string | Record<string, string>>
 const selectorMaps = {
   accountKeychain: Selectors.accountKeychain,
   addressRegistry: Selectors.addressRegistry,
+  currentCommittee: Selectors.currentCommittee,
   feeAmm: Selectors.feeAmm,
   feeManager: Selectors.feeManager,
   nativeMultisig: Selectors.nativeMultisig,
@@ -27,27 +28,16 @@ const selectorMaps = {
   tip403Registry: Selectors.tip403Registry,
   validatorConfig: Selectors.validatorConfig,
   validatorConfigV2: Selectors.validatorConfigV2,
+  zoneFactory: Selectors.zoneFactory,
 } satisfies Record<string, SelectorMap>
 
-// Earn slices are ABIs of user-deployed contracts, not precompiles;
-// `Selectors` covers the precompile set only.
-const earnAbis = new Set<string>([
-  'earnContributionController',
-  'earnEngine',
-  'earnEngineAsyncRedeem',
-  'earnEngineInKindDeposit',
-  'earnFactory',
-  'earnFees',
-  'earnRouter',
-  'earnRouterCallbackData',
-  'earnVault',
-  'erc4626Engine',
-  'erc4626EngineFactory',
-  'vedaEngine',
-])
+const precompileAbiItems = new Set<unknown>(Abis.abis)
 
 const selectorFixtures = Object.entries(Abis)
-  .filter(([name]) => name !== 'abis' && !earnAbis.has(name))
+  .filter(
+    ([name, abi]) =>
+      name !== 'abis' && abi.some((item) => precompileAbiItems.has(item)),
+  )
   .map(([name, abi]) => ({
     name,
     abi,

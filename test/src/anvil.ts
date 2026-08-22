@@ -34,7 +34,10 @@ export const anvilSepolia = defineAnvil({
     'VITE_ANVIL_FORK_URL_SEPOLIA',
     'https://rpc.sepolia.ethpandaops.io',
   ),
-  forkBlockNumber: 11_533_671n,
+  // The public Sepolia RPC only retains state for the most recent blocks, so
+  // a pinned block ages out of its retention window within hours. Resolve a
+  // fresh fork block on startup instead.
+  forkBlockNumber: undefined,
   noMining: true,
   port: 8845,
 })
@@ -62,6 +65,27 @@ export const anvilZksync = defineAnvil({
 ////////////////////////////////////////////////////////////
 // Utilities
 
+async function getRecentBlockNumber(forkUrl: string): Promise<bigint> {
+  const response = await fetch(forkUrl, {
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: '2.0',
+      method: 'eth_blockNumber',
+      params: [],
+    }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  if (!response.ok)
+    throw new Error(
+      `Failed to fetch block number from ${forkUrl}: ${response.status} ${response.statusText}.`,
+    )
+  const { result } = (await response.json()) as { result?: `0x${string}` }
+  if (!result) throw new Error(`Invalid block number from ${forkUrl}.`)
+  // Trail the chain head so every node behind a load balancer has the state.
+  return BigInt(result) - 32n
+}
+
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string' && process.env[key]?.trim() !== '')
     return process.env[key] as string
@@ -72,20 +96,23 @@ function getEnv(key: string, fallback: string): string {
   return fallback
 }
 
-type DefineAnvilParameters<chain extends Chain> = Omit<
-  Instance.anvil.Parameters,
-  'forkBlockNumber' | 'forkUrl'
-> & {
+type DefineAnvilParameters<
+  chain extends Chain,
+  forkBlockNumber extends bigint | undefined = bigint,
+> = Omit<Instance.anvil.Parameters, 'forkBlockNumber' | 'forkUrl'> & {
   chain: chain
-  forkBlockNumber: bigint
+  forkBlockNumber: forkBlockNumber
   forkUrl: string
   port: number
 }
 
-type DefineAnvilReturnType<chain extends Chain> = {
+type DefineAnvilReturnType<
+  chain extends Chain,
+  forkBlockNumber extends bigint | undefined = bigint,
+> = {
   chain: chain
   clientConfig: ClientConfig<Transport, chain, undefined>
-  forkBlockNumber: bigint
+  forkBlockNumber: forkBlockNumber
   forkUrl: string
   getClient<
     config extends ExactPartial<
@@ -120,9 +147,12 @@ type DefineAnvilReturnType<chain extends Chain> = {
   start(): Promise<() => Promise<void>>
 }
 
-function defineAnvil<const chain extends Chain>(
-  parameters: DefineAnvilParameters<chain>,
-): DefineAnvilReturnType<chain> {
+function defineAnvil<
+  const chain extends Chain,
+  const forkBlockNumber extends bigint | undefined,
+>(
+  parameters: DefineAnvilParameters<chain, forkBlockNumber>,
+): DefineAnvilReturnType<chain, forkBlockNumber> {
   const {
     chain: chain_,
     forkUrl,
@@ -293,7 +323,8 @@ function defineAnvil<const chain extends Chain>(
         instance: Instance.anvil({
           chainId: chain.id,
           forkUrl,
-          forkBlockNumber,
+          forkBlockNumber:
+            forkBlockNumber ?? (await getRecentBlockNumber(forkUrl)),
           hardfork: 'Prague',
           ...options,
         }),
