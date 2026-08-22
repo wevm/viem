@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/zones@387e88c55ba4700e050b04f2f490df7253700b9f
+// Source: tempoxyz/zones@7e38642cdd5a1500784fd15cf30eda5366f3350a
 
 export const zoneFactory = [
   {

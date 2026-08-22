@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@4d248169172ff2602b1bc95930c70bbc72d23bb0
+// Source: tempoxyz/tempo@d656ef5581505b59f1611b358e611f5a602d399e
 
 export const accountKeychain = [
   {
