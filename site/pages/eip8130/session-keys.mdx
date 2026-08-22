@@ -1,0 +1,276 @@
+---
+description: Create policy-gated session keys on an EIP-8130 account
+---
+
+# Session Keys
+
+A session key is a **policy-gated actor**: a key authorized with a restricted scope and a policy commitment. The protocol forces every call that key makes to land on a `PolicyManager`, which enforces the committed policy (spend limits, target/selector allowlists) and then drives the account. This lets you hand out a scoped key without granting full ownership.
+
+:::warning[Warning]
+The `PolicyManager` and `SessionPolicy` contracts are an unaudited reference implementation from [base/eip-8130](https://github.com/base/eip-8130/tree/main/src/examples/policies). Addresses default to the Base Sepolia deployment — override `manager` / `policy` for other chains.
+:::
+
+## The flow
+
+1. **Author** a `SessionPolicy` config — the allowlists and spend limits.
+2. **Bind** it to the account with `defineSessionPolicy` to get the commitment, the `authorizeActor` policy, and the install call.
+3. **Authorize + install** the key in one transaction. The install initializes the binding and MUST land before the key's first use.
+4. **Use** the key: it sends `executeCall(action)`, and its only reachable target is the manager.
+
+## Author + bind
+
+```ts
+import { parseUnits } from 'viem'
+import {
+  defineSessionPolicy,
+  encodeSessionPolicyConfig,
+} from 'viem/eip8130'
+
+const session = defineSessionPolicy({
+  account: account.address,
+  policyConfig: encodeSessionPolicyConfig({
+    // ≤ 100 USDC per week.
+    tokenLimits: [
+      { token: usdc, limit: parseUnits('100', 6), period: 7n * 86_400n },
+    ],
+    // Only `transfer(address,uint256)` on the USDC contract.
+    callScopes: [
+      { target: usdc, selectorRules: [{ selector: '0xa9059cbb' }] },
+    ],
+  }),
+})
+
+session.commitment   // the policy commitment stored on the actor
+session.actorPolicy  // pass to `authorizeActor(key, { scope, policy })`
+```
+
+:::warning[Native ETH is fail-closed]
+A session key can move ETH (a call with `value > 0`) **only** when the config has a `tokenLimits` entry for the **zero address** (`0x0000000000000000000000000000000000000000`); its `limit` caps cumulative native spend per `period`. With no native limit, any call carrying `value` reverts with `NativeValueNotAllowed` — an absent native limit means **no ETH**, not unlimited. (ERC-20s differ: an absent token limit is unbounded, because moving a token still requires an allowlisted `callScope` to its contract, which acts as the gate.)
+:::
+
+To let a key spend ETH, add a native `tokenLimits` entry:
+
+```ts
+import { parseEther, zeroAddress } from 'viem'
+import { encodeSessionPolicyConfig } from 'viem/eip8130'
+
+encodeSessionPolicyConfig({
+  // ≤ 0.1 ETH per day.
+  tokenLimits: [
+    { token: zeroAddress, limit: parseEther('0.1'), period: 86_400n },
+  ],
+})
+```
+
+`selectorRules` may bind recipients for the standard ERC-20 selectors (`transfer`, `transferFrom`, `approve`):
+
+```ts
+import { encodeSessionPolicyConfig } from 'viem/eip8130'
+
+encodeSessionPolicyConfig({
+  callScopes: [
+    {
+      target: usdc,
+      selectorRules: [{ selector: '0xa9059cbb', recipients: [payroll] }],
+    },
+  ],
+})
+```
+
+## Authorize + install
+
+Authorize the session key with a **restricted** scope (a policy-bearing actor must not have `config` scope) and ride the install call in the same transaction:
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  sendCalls,
+} from 'viem/eip8130'
+
+const sessionKey = key.p256({ x, y })
+
+const change = await account.change(
+  [
+    authorizeActor(sessionKey, {
+      scope: actorScope.sender,
+      policy: session.actorPolicy,
+    }),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+
+const hash = await sendCalls(client, {
+  account,
+  accountChanges: [change],
+  // The install call initializes the binding — it must land before first use.
+  calls: [session.installCall(sessionKey.actorId)],
+  gas: 300_000n,
+})
+```
+
+## Use the session key
+
+Build the account with the session signer and send an `executeCall`. The manager verifies the action against the committed policy, then executes it:
+
+```ts
+import { encodeFunctionData, erc20Abi, parseUnits } from 'viem'
+import {
+  encodeSessionPolicyAction,
+  newSmartAccount,
+  sendCalls,
+  toP256Signer,
+} from 'viem/eip8130'
+
+// Same account address, driven by the session key (match the account's proxy).
+const sessionAccount = newSmartAccount({
+  signer: toP256Signer({ privateKey: sessionPrivateKey }),
+  proxy: 'erc1167',
+  salt: accountSalt,
+})
+
+const transfer = encodeFunctionData({
+  abi: erc20Abi,
+  functionName: 'transfer',
+  args: [recipient, parseUnits('10', 6)],
+})
+
+const hash = await sendCalls(client, {
+  account: sessionAccount,
+  calls: [
+    session.executeCall(
+      encodeSessionPolicyAction({ target: usdc, data: transfer }),
+    ),
+  ],
+  gas: 250_000n,
+})
+```
+
+A transfer that exceeds the weekly limit, or targets a contract/selector outside the allowlist, reverts inside the manager — so the key can only ever act within its committed policy.
+
+## Fulfilling an ERC-7715 request
+
+When a dApp asks a wallet for permissions via [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715) `wallet_grantPermissions`, the request arrives as a set of `permissions` (+ policies) and a top-level `expiry`. `fulfillGrantPermissions` lowers that request directly onto the EIP-8130 primitives above — building the `SessionPolicyConfig`, binding it, and returning the ready-to-sign `changes`. It supports two roles, both **POLICY-gated** to the same committed policy:
+
+- `role: 'session'` (default) — a **key on the account**. The protocol dispatches its calls as the account (`PolicyManager.execute`). Uses a secp256k1 (`k1`) actor.
+- `role: 'pull'` — an **external caller** (e.g. a subscription provider) that draws against the policy via `PolicyManager.executeFor` from its own address. Uses the `externalPolicyAuthenticator` sentinel actor, which can *only* act through the external-pull path.
+
+The single `expiry` drives **both** the actor authorization and the policy binding's `validUntil`, so they can't drift. The action also reads the account and, if the policy manager isn't yet a trusted-executor actor (required so its forwarded `executeBatch` can land), folds that one-time registration into `changes` — so a single `account.change(changes)` provisions the manager *and* authorizes the grantee:
+
+```ts
+import { parseUnits } from 'viem'
+import { fulfillGrantPermissions } from 'viem/eip8130'
+
+// The `permissions` + `expiry` a dApp sent via `wallet_grantPermissions`.
+const { changes, session } = await fulfillGrantPermissions(client, {
+  account: account.address,
+  grantee: sessionKeyAddress, // the key to authorize (k1)
+  expiry: Math.floor(Date.now() / 1000) + 7 * 86_400,
+  permissions: [
+    {
+      // ≤ 100 USDC / week (a recurring "subscription")
+      type: 'erc20-token-transfer',
+      data: { address: usdc, ticker: 'USDC' },
+      policies: [
+        { type: 'token-allowance', data: { allowance: parseUnits('100', 6) } },
+        { type: 'rate-limit', data: { count: 1, interval: 7 * 86_400 } },
+      ],
+    },
+  ],
+})
+
+// Grant the key (+ register the manager if needed) — the signed commitment *is*
+// the authorization.
+await account.change(changes)
+
+// Later, the session key spends within its limit (routed through the manager):
+// session.executeCall({ target: usdc, data: transferCalldata })
+```
+
+For an **external pull** subscription, pass `role: 'pull'` and the provider's address. The provider later submits `session.executeForCall(action)` as an ordinary transaction from its own address:
+
+```ts
+const pull = await fulfillGrantPermissions(client, {
+  account: account.address,
+  grantee: providerAddress,
+  role: 'pull',
+  expiry,
+  permissions,
+})
+await account.change(pull.changes)
+// provider draws (from its own address): pull.session.executeForCall({ target: usdc, data })
+```
+
+:::info
+The manager registration is checked on-chain and included automatically only when missing. Pass `assumeManagerRegistered: true` to skip the read when you already know it's provisioned.
+:::
+
+### Redeeming a grant
+
+`fulfillGrantPermissions` also returns a `permissionsContext` — an opaque, **self-describing** string (per [ERC-7715](https://eips.ethereum.org/EIPS/eip-7715)) that encodes everything needed to redeem the grant later: the account, role, actor identity, and full policy binding. No wallet-side storage is required.
+
+When the granted key wants to act, `routePermissionedCalls` decodes it and wraps each action so it lands on the policy manager — `execute` for a session key (dispatched as the account) or `executeFor` for an external pull actor:
+
+```ts
+import {
+  actorScope,
+  routePermissionedCalls,
+  sendCalls,
+  toAccount,
+} from 'viem/eip8130'
+
+const { account, actor, calls } = routePermissionedCalls({
+  context: permissionsContext, // returned at grant time
+  calls: [{ target: usdc, data: transferCalldata }],
+})
+
+// A session key signs and sends the routed calls AS the account:
+const handle = toAccount({
+  signer: sessionSigner,
+  address: account,
+  authenticator: actor.authenticator,
+  actorId: actor.actorId,
+  scope: actorScope.policy,
+})
+
+const hash = await sendCalls(client, { account: handle, calls, gas: 250_000n })
+```
+
+For a `pull` grant the routed calls target `executeFor`, and the external provider submits them from **its own** address (not through the account). Use `parsePermissionsContext` if you only need to inspect a context (account, role, actor, rebound `SessionPolicy`) without routing calls.
+
+The permission → policy mapping is:
+
+| ERC-7715 | EIP-8130 `SessionPolicy` |
+| --- | --- |
+| `native-token-transfer` + `token-allowance` | native-ETH `tokenLimit` (gated on each call's `value`) |
+| `erc20-token-transfer` + `token-allowance` | ERC-20 `tokenLimit` **and** a `callScope` for `transfer`/`transferFrom` on the token |
+| `contract-call` `{ address, calls }` | a `callScope` restricting the key to those selectors on the target |
+| `rate-limit` `interval` (on a transfer) | the cap's reset `period` (a recurring allowance) |
+| `gas-limit` | ignored — gas is settled by the payer / [ERC-8168](/eip8168) layer |
+
+A transfer permission without a `token-allowance` throws (an unbounded spend can't be safely granted), as do `custom` permissions/policies — build the `SessionPolicyConfig` explicitly for those. Use `toSessionPolicyConfig` (the pure mapping) or `toSessionPolicy` (mapping + binding) directly if you only need the lowered config or the bound policy without the `authorizeActor` change.
+
+## Advertising support (EIP-5792)
+
+So a dApp can discover — before requesting — which permission, policy, and key types it can rely on, a wallet returns `eip8130Capabilities` from its [EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) `wallet_getCapabilities` handler. It describes exactly what the adapters here support: atomic batches, ERC-7715 grants (`fulfillGrantPermissions`), and ERC-7895 sub-accounts (`fulfillAddSubAccount`).
+
+```ts
+import { eip8130CapabilitiesByChain } from 'viem/eip8130'
+
+// In the wallet's `wallet_getCapabilities` handler (per chain):
+const capabilities = eip8130CapabilitiesByChain([8453, 84532], {
+  paymasterService: true, // if the wallet exposes an ERC-8168 payer
+})
+// {
+//   '0x2105': {
+//     atomic: { status: 'supported' },
+//     permissions: { supported: true, signerTypes, permissionTypes, policyTypes },
+//     unstable_addSubAccount: { supported: true, keyTypes },
+//     paymasterService: { supported: true },
+//   },
+//   ...
+// }
+```
+
+The advertised lists (`supportedPermissionTypes`, `supportedPolicyTypes`, `supportedSubAccountKeyTypes`) mirror what the adapters actually accept — `custom` and `gas-limit` are deliberately excluded, since they can't be lowered to a `SessionPolicy`.

@@ -54,6 +54,16 @@
       "import": "./_esm/chains/utils.js",
       "default": "./_cjs/chains/utils.js"
     },
+    "./eip8130": {
+      "types": "./_types/eip8130/index.d.ts",
+      "import": "./_esm/eip8130/index.js",
+      "default": "./_cjs/eip8130/index.js"
+    },
+    "./eip8168": {
+      "types": "./_types/eip8168/index.d.ts",
+      "import": "./_esm/eip8168/index.js",
+      "default": "./_cjs/eip8168/index.js"
+    },
     "./ens": {
       "types": "./_types/ens/index.d.ts",
       "import": "./_esm/ens/index.js",
@@ -178,6 +188,12 @@
       ],
       "experimental": [
         "./_types/experimental/index.d.ts"
+      ],
+      "eip8130": [
+        "./_types/eip8130/index.d.ts"
+      ],
+      "eip8168": [
+        "./_types/eip8168/index.d.ts"
       ],
       "experimental/erc7739": [
         "./_types/experimental/erc7739/index.d.ts"

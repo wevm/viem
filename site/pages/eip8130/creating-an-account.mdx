@@ -1,0 +1,143 @@
+---
+description: Create an EIP-8130 smart account from a secp256k1, P-256, or WebAuthn passkey signer
+---
+
+# Creating an Account
+
+`newSmartAccount` turns a signer into an EIP-8130 smart account. It auto-derives the controlling actor, the deployment bytecode, and the counterfactual CREATE2 address. The account is **not** deployed yet — it is deployed atomically inside its [first transaction](/eip8130/sending-a-transaction#deploy-on-first-use).
+
+There are two proxy shapes:
+
+- **`proxy: 'upgradeable'` (default)** — a 93-byte ERC-1967 `UpgradeableProxy` delegating to a real UUPS `UpgradeableAccount`, so the account is genuinely upgradeable via an owner-signed, multichain-safe `upgradeBySignature`. Pass the UUPS `implementation` you deployed.
+- **`proxy: 'erc1167'`** — an immutable 45-byte minimal proxy to the canonical `DefaultAccount`. Smallest attack surface (no upgrade slot), but not multichain-upgrade-safe.
+
+```ts
+newSmartAccount({ signer, implementation: upgradeableImpl }) // upgradeable (default)
+newSmartAccount({ signer, proxy: 'erc1167' })                // immutable → DefaultAccount
+```
+
+:::warning
+**Pending final implementation.** No canonical UUPS `UpgradeableAccount` is enshrined yet (the expected long-term implementation is Coinbase Smart Wallet v2). Until one is, the default `proxy: 'upgradeable'` **requires an explicit `implementation`** — a UUPS `UpgradeableAccount` you deployed (see [base/eip-8130-examples](https://github.com/base/eip-8130-examples)); it never silently falls back to the non-UUPS `DefaultAccount`. Once the address is enshrined the default goes live with no code change.
+:::
+
+The signer type (K1 / P-256 / WebAuthn) is detected automatically.
+
+## secp256k1 (EOA key)
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount } from 'viem/eip8130'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+
+// Immutable DefaultAccount-backed account (no upgrade slot).
+const account = newSmartAccount({ signer: owner, proxy: 'erc1167' })
+
+account.address        // counterfactual address (deterministic from the salt)
+account.createChange   // include in `accountChanges` to deploy on first use
+```
+
+Pass a fixed `salt` to recover the same address across sessions:
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount } from 'viem/eip8130'
+const owner = privateKeyToAccount(generatePrivateKey())
+const account = newSmartAccount({
+  signer: owner,
+  proxy: 'erc1167',
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+## P-256
+
+```ts
+import * as P256 from 'ox/P256'
+import { newSmartAccount, toP256Signer } from 'viem/eip8130'
+
+const signer = toP256Signer({ privateKey: P256.randomPrivateKey() })
+
+const account = newSmartAccount({ signer, proxy: 'erc1167' })
+```
+
+## WebAuthn / passkey
+
+```ts
+import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
+import { newSmartAccount, toWebAuthnSigner } from 'viem/eip8130'
+
+const credential = await createWebAuthnCredential({ name: 'vibes' })
+const signer = toWebAuthnSigner(toWebAuthnAccount({ credential }))
+
+const account = newSmartAccount({ signer, proxy: 'erc1167' })
+```
+
+## Multiple initial keys
+
+Register additional actors at creation:
+
+- **`admins`** — extra **unrestricted** (scope `0`) co-owners: multisig owners, recovery keys, a second device. Any scope you pass is ignored (forced to admin).
+- **`extraActors`** — **scoped** actors: session keys, delegates, trusted executors, each carrying its own `scope`/`policyData` (see [`authorizeActor`](/eip8130/rotating-owners)).
+
+Use the [`key`](/eip8130/rotating-owners#actors-and-keys) builders — the library merges the signer, admins, and extra actors and sorts them by `actorId` for you (a protocol requirement), rejecting duplicates.
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { actorScope, authorizeActor, key, newSmartAccount, toP256Signer } from 'viem/eip8130'
+import * as P256 from 'ox/P256'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+const recovery = toP256Signer({ privateKey: P256.randomPrivateKey() })
+const session = toP256Signer({ privateKey: P256.randomPrivateKey() })
+
+const account = newSmartAccount({
+  signer: owner,
+  proxy: 'erc1167',
+  admins: [key.p256(recovery.publicKey)],                                   // co-owner / recovery
+  extraActors: [authorizeActor(key.p256(session.publicKey), { scope: actorScope.sender })], // session key
+})
+```
+
+## Plain / delegated EOAs
+
+To use a raw secp256k1 EOA as its own account (cheapest auth path — a bare 65-byte signature, no contract required), use `toEoaAccount`. The same account can later be upgraded to a smart account via an EIP-7702 delegation in its first transaction.
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { toEoaAccount } from 'viem/eip8130'
+
+const account = toEoaAccount(privateKeyToAccount(generatePrivateKey()))
+
+// Later, install smart-account code with `account.delegate(impl)` in the first
+// transaction's `accountChanges`.
+```
+
+## Cross-chain (ERC-4337) portability
+
+The same EIP-8130 account works on chains **without** native 8130 support through a bundler, by wrapping it as a standard Viem Smart Account. Execution routes through `executeBatch` on the `BackwardsCompatible4337Account` implementation, and deployment uses the Keystore contract as the ERC-4337 factory.
+
+`BackwardsCompatible4337Account` is **not** part of the canonical deployment yet — the ERC-4337 portable path is out of scope for the initial release, so `canonicalEip8130Deployment.accounts.erc4337` is intentionally unset. Deploy the implementation yourself (see [`base/eip-8130-examples`](https://github.com/base/eip-8130-examples)) and pass its address as `implementation`:
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { toSmartAccount } from 'viem/eip8130'
+
+// Address of your deployed `BackwardsCompatible4337Account` (same CREATE2
+// address on every chain you deploy it to).
+const erc4337Implementation = '0x0000000000000000000000000000000000000000'
+
+const account = await toSmartAccount({
+  client,
+  owner: privateKeyToAccount(generatePrivateKey()),
+  userSalt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  initialActors: [/* key.k1(owner.address), ... */],
+  implementation: erc4337Implementation,
+})
+```
+
+On a chain without native EIP-8130, the account must delegate to (or be deployed as) this ERC-4337 implementation, and its EntryPoint must be registered as a trusted-executor actor (`key.trustedExecutor(entryPoint)`) so it can drive `executeBatch`.
+
+## Next
+
+Now [send a transaction](/eip8130/sending-a-transaction) with your account.

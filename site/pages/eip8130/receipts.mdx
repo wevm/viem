@@ -1,0 +1,95 @@
+---
+description: Read EIP-8130 receipt fields — per-phase statuses, payer, and metadata
+---
+
+# Receipts
+
+An `AA_TX_TYPE` (`0x79`) receipt carries extra fields beyond a standard receipt: the resolved gas **payer**, the **per-phase execution statuses**, and the echoed **metadata**. `getTransactionReceipt` and `waitForTransactionReceipt` surface these under a parsed `eip8130` property while still returning the raw receipt.
+
+## Wait for a receipt
+
+```ts
+import { waitForTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await waitForTransactionReceipt(client, { hash })
+
+receipt.status                  // top-level tx status ('0x1' / '0x0')
+receipt.eip8130.payer           // who paid gas (sender for self-pay)
+receipt.eip8130.phaseStatuses   // e.g. ['0x1', '0x0'] — per phase, in order
+receipt.eip8130.metadata        // opaque bytes echoed from the signed tx
+```
+
+It polls `eth_getTransactionReceipt` until the transaction is mined (default every `500ms`, timing out after `60_000ms` — both configurable). Unlike the generic `waitForTransactionReceipt`, it skips same-nonce replacement detection, since EIP-8130 uses 2D channel nonces.
+
+### Expiring transactions
+
+Any transaction with a non-zero `validBefore` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `validBefore` (unix **milliseconds**) you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
+
+Thread the resolved `validBefore` out of `sendCalls` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
+
+```ts
+import {
+  TransactionExpiredError,
+  sendCalls,
+  waitForTransactionReceipt,
+} from 'viem/eip8130'
+
+let validBefore: bigint | undefined
+const hash = await sendCalls(client, {
+  account,
+  calls,
+  gas,
+  onTransaction: (tx) => { validBefore = tx.validBefore },
+})
+
+try {
+  const receipt = await waitForTransactionReceipt(client, { hash, validBefore })
+} catch (e) {
+  if (e instanceof TransactionExpiredError) {
+    // tx can never land — resubmit with a fresh `validBefore`
+  }
+}
+```
+
+If you omit `validBefore`, the wait still tries to read it off the pending transaction, but that is best-effort only — a node is not obligated to serve a pending `eth_getTransactionByHash`.
+
+## Fetch without waiting
+
+`getTransactionReceipt` returns `null` if the receipt is not yet available:
+
+```ts
+import { getTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await getTransactionReceipt(client, { hash })
+if (receipt) console.log(receipt.eip8130.phaseStatuses)
+```
+
+The `eip8130` fields are only populated for `AA_TX_TYPE` receipts on a node with the extension; they are `undefined` for standard receipts or older nodes.
+
+## Per-phase statuses
+
+`phaseStatuses` reports each [call phase](/eip8130/calls-and-batching) in order — `0x1` for success, `0x0` for revert. Because a reverted phase halts execution, every phase after the first failure is reported `0x0`. The array is empty when the transaction has no calls (e.g. a config-only change).
+
+`allPhasesSucceeded` collapses this to a single boolean:
+
+```ts
+import { allPhasesSucceeded, waitForTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await waitForTransactionReceipt(client, { hash })
+if (!allPhasesSucceeded(receipt.eip8130)) {
+  // The tx was still included and the fee was paid, but a phase reverted.
+  const failedPhase = receipt.eip8130.phaseStatuses?.findIndex((s) => s !== '0x1')
+}
+```
+
+:::warning[A reverted 8130 transaction is still included]
+Unlike a failed EVM call, a reverted `AA_TX_TYPE` transaction is mined: its nonce is consumed and its fee is paid. Always check `phaseStatuses` / `allPhasesSucceeded` (not just `receipt.status`) to confirm your calls actually executed.
+:::
+
+## The payer field
+
+`eip8130.payer` is the account that paid the gas: the sender for a self-paid transaction, or the named [payer](/eip8130/sponsoring-transactions) for a sponsored one. Use it to confirm sponsorship landed as expected.
+
+## Next
+
+- Attach and read application data with [metadata](/eip8130/metadata).
