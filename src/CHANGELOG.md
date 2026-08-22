@@ -1,5 +1,13 @@
 # viem
 
+## 2.55.20
+
+### Patch Changes
+
+- [#5034](https://github.com/wevm/viem/pull/5034) [`b8707d998ab8c7d4ee95c9a70989cd6fbd145356`](https://github.com/wevm/viem/commit/b8707d998ab8c7d4ee95c9a70989cd6fbd145356) Thanks [@jxom](https://github.com/jxom)! - Added `zone.getPortalInfo` to read Zone Portal administration, sequencer, and token metadata.
+
+- [#5030](https://github.com/wevm/viem/pull/5030) [`901bf2f09b057e03f34067fdee6c3f6a2dae7bd3`](https://github.com/wevm/viem/commit/901bf2f09b057e03f34067fdee6c3f6a2dae7bd3) Thanks [@decofe](https://github.com/decofe)! - Added Zone protocol addresses, ZoneFactory registry reads, and ZonePortal administration operations to Tempo exports.
+
 ## 2.55.19
 
 ### Patch Changes
