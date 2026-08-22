@@ -84,7 +84,7 @@ function tempoAdapter(): SourceAdapter {
     selectors: Path.resolve(import.meta.dirname, '../src/tempo/Selectors.ts'),
   }
   const repository = 'https://api.github.com/repos/tempoxyz/tempo'
-  const sourcePattern = /^\/\/ Source: tempoxyz\/tempo at ([0-9a-f]{40})\.$/m
+  const sourcePattern = /^\/\/ Source: tempoxyz\/tempo@([0-9a-f]{40})$/m
 
   return {
     name: 'tempo',
@@ -114,7 +114,7 @@ function tempoAdapter(): SourceAdapter {
         abi: ReturnType<typeof Abi.from>
         exportName: string
       }[] = []
-      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: tempoxyz/tempo at ${commit}.\n\nimport * as Abi from 'ox/Abi'\n\n`
+      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: tempoxyz/tempo@${commit}\n\nimport * as Abi from 'ox/Abi'\n\n`
       for (const [interfaceName, definition] of interfaces) {
         const isExtension = Object.values(extensions)
           .flat()
@@ -259,9 +259,9 @@ function earnAdapter(): SourceAdapter {
     ),
   }
   const repository = 'https://github.com/tempoxyz/earn.git'
-  const marker = '// Earn source: tempoxyz/earn at '
+  const marker = '// Source: tempoxyz/earn@'
   const sourcePattern = new RegExp(
-    `^${escapeRegex(marker)}([0-9a-f]{40})\\.`,
+    `^${escapeRegex(marker)}([0-9a-f]{40})$`,
     'm',
   )
 
@@ -307,7 +307,7 @@ function earnAdapter(): SourceAdapter {
             })
           return `export const ${exportName} = ${JSON.stringify(abi)} as const`
         })
-      const abiSlice = `${marker}${commit}. Do not modify manually.\n\n${abiExports.join('\n\n')}\n\n// \`SingleZoneEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter(checkout))} as const\n`
+      const abiSlice = `${marker}${commit}\n\n${abiExports.join('\n\n')}\n\n// \`SingleZoneEarnRouter.CallbackData\` parameter for \`encodeAbiParameters\`.\nexport const earnRouterCallbackData = ${JSON.stringify(routerCallbackDataParameter(checkout))} as const\n`
       const currentAbis = context.read(outputs.abis)
       const markerIndex = currentAbis.indexOf(marker)
       const base = (
@@ -324,7 +324,7 @@ function earnAdapter(): SourceAdapter {
         ({ abi, bytecode, name }) =>
           `export const ${abiExportName(name)} = {\n  abi: ${JSON.stringify(abi.map(normalizeAbiItem))},\n  bytecode: '${bytecode}',\n} as const`,
       )
-      const contractsOutput = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${marker}${commit}.\n\n${contracts.join('\n\n')}\n`
+      const contractsOutput = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${marker}${commit}\n\n${contracts.join('\n\n')}\n`
 
       console.log(
         `  ${abiGroups.size} ABI exports and ${deployables.length} deploy artifacts at ${commit.slice(0, 7)}`,
@@ -594,7 +594,7 @@ function zonesAdapter(): SourceAdapter {
         )
         return `export const ${exportName} = ${JSON.stringify([...items.values()])} as const`
       })
-      const sourceHeader = `// Source: tempoxyz/zones at ${commit}.`
+      const sourceHeader = `// Source: tempoxyz/zones@${commit}`
       const abis = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\n${exports.join('\n\n')}\n`
       const addresses = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\nimport { tempoModerato } from '../../chains/definitions/tempoModerato.js'\n\nexport const messenger = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.messenger[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n\nexport const portal = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.portal[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n`
       console.log(

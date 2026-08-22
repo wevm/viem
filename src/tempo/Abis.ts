@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo at 4d248169172ff2602b1bc95930c70bbc72d23bb0.
+// Source: tempoxyz/tempo@4d248169172ff2602b1bc95930c70bbc72d23bb0
 
 export const accountKeychain = [
   {
@@ -3328,7 +3328,7 @@ export const abis = [
   ...zonePortal,
 ] as const
 
-// Earn source: tempoxyz/earn at e8c4c47216b61e727524e5283daf2c7b76f516f7. Do not modify manually.
+// Source: tempoxyz/earn@e8c4c47216b61e727524e5283daf2c7b76f516f7
 
 export const earnContributionController = [
   {

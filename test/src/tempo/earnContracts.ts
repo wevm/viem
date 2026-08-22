@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Earn source: tempoxyz/earn at e8c4c47216b61e727524e5283daf2c7b76f516f7.
+// Source: tempoxyz/earn@e8c4c47216b61e727524e5283daf2c7b76f516f7
 
 export const demoReserveStore = {
   abi: [
