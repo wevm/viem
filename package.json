@@ -32,7 +32,6 @@
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "sync:tempo-abis": "bun scripts/generateTempoAbis.ts --sync && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts src/tempo/zones/Abis.ts src/tempo/zones/Addresses.ts test/src/tempo/earnContracts.ts",
     "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
