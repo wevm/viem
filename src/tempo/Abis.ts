@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: `latest` at `4d248169172ff2602b1bc95930c70bbc72d23bb0`.
+// Source: tempoxyz/tempo at 4d248169172ff2602b1bc95930c70bbc72d23bb0.
 
 export const accountKeychain = [
   {

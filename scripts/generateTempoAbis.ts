@@ -6,11 +6,10 @@ import * as Abi from 'ox/Abi'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiItem from 'ox/AbiItem'
 
-const versions = {
-  earn: 'latest',
-  tempo: 'latest',
-  zones: 'latest',
-} as const
+// `pnpm gen:tempo-abis` regenerates from the source commits pinned in the
+// generated file headers, so output is reproducible. `pnpm sync:tempo-abis`
+// resolves the current upstream commits and updates the pins.
+const sync = process.argv.includes('--sync')
 
 const zoneDeployments = {
   messenger: {
@@ -31,7 +30,7 @@ type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
 type SourceAdapter = {
   generate: (context: AdapterContext) => Promise<readonly GeneratedFile[]>
-  name: keyof typeof versions
+  name: 'earn' | 'tempo' | 'zones'
 }
 type InterfaceDefinition = { items: string[]; name: string }
 
@@ -85,12 +84,14 @@ function tempoAdapter(): SourceAdapter {
     selectors: Path.resolve(import.meta.dirname, '../src/tempo/Selectors.ts'),
   }
   const repository = 'https://api.github.com/repos/tempoxyz/tempo'
-  const version = versions.tempo
+  const sourcePattern = /^\/\/ Source: tempoxyz\/tempo at ([0-9a-f]{40})\.$/m
 
   return {
     name: 'tempo',
-    async generate() {
-      const commit = await getLatestCommit(repository)
+    async generate(context) {
+      const commit = sync
+        ? await getLatestCommit(repository)
+        : getPinnedCommit(context, outputs.abis, sourcePattern)
       const { content, files } = await getPrecompileSources(commit)
       const interfaces = parseSolInterfaces(content)
       for (const [name, { after, items }] of Object.entries(
@@ -113,7 +114,7 @@ function tempoAdapter(): SourceAdapter {
         abi: ReturnType<typeof Abi.from>
         exportName: string
       }[] = []
-      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: \`${version}\` at \`${commit}\`.\n\nimport * as Abi from 'ox/Abi'\n\n`
+      let output = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: tempoxyz/tempo at ${commit}.\n\nimport * as Abi from 'ox/Abi'\n\n`
       for (const [interfaceName, definition] of interfaces) {
         const isExtension = Object.values(extensions)
           .flat()
@@ -177,7 +178,7 @@ function tempoAdapter(): SourceAdapter {
         selectors += `export const ${exportName} = ${JSON.stringify(values, null, 2)} as const satisfies ${selectorType}\n\n`
       }
       console.log(
-        `  ${processed.length} ABIs from ${files.length} precompile files at ${version} (${commit.slice(0, 7)})`,
+        `  ${processed.length} ABIs from ${files.length} precompile files at ${commit.slice(0, 7)}`,
       )
       return [
         { content: output, path: outputs.abis },
@@ -259,13 +260,17 @@ function earnAdapter(): SourceAdapter {
   }
   const repository = 'https://github.com/tempoxyz/earn.git'
   const marker = '// Earn source: tempoxyz/earn at '
-  const version = versions.earn
+  const sourcePattern = new RegExp(
+    `^${escapeRegex(marker)}([0-9a-f]{40})\\.`,
+    'm',
+  )
 
   return {
     name: 'earn',
     async generate(context) {
-      const commit =
-        version === 'latest' ? getLatestGitCommit(repository) : version
+      const commit = sync
+        ? getLatestGitCommit(repository)
+        : getPinnedCommit(context, outputs.contracts, sourcePattern)
       const checkout = prepareCheckout(commit)
       const artifacts = getArtifacts(checkout)
       const abiGroups = new Map<string, FoundryArtifact[]>()
@@ -549,13 +554,14 @@ function zonesAdapter(): SourceAdapter {
     { exportName: 'zoneMessenger', name: 'IZoneMessenger' },
     { exportName: 'zoneVerifier', name: 'IVerifier' },
   ] as const
-  const version = versions.zones
+  const sourcePattern = /^\/\/ Source: tempoxyz\/zones at ([0-9a-f]{40})\.$/m
 
   return {
     name: 'zones',
-    async generate() {
-      const commit =
-        version === 'latest' ? await getLatestCommit(repositoryApi) : version
+    async generate(context) {
+      const commit = sync
+        ? await getLatestCommit(repositoryApi)
+        : getPinnedCommit(context, outputs.abis, sourcePattern)
       const [sourceFiles, interfaceContent] = await Promise.all([
         Promise.all(
           sources.map(async (file) => ({
@@ -801,6 +807,19 @@ async function getJson<result>(url: string) {
       `Failed to fetch ${url}: ${response.status} ${response.statusText}.`,
     )
   return response.json() as Promise<result>
+}
+
+function getPinnedCommit(
+  context: AdapterContext,
+  path: string,
+  pattern: RegExp,
+) {
+  const [, commit] = context.read(path).match(pattern) ?? []
+  if (!commit)
+    throw new Error(
+      `Missing pinned source commit in ${path}. Run \`pnpm sync:tempo-abis\` to restore it.`,
+    )
+  return commit
 }
 
 async function getLatestCommit(repository: string) {
