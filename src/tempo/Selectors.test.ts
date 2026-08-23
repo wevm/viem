@@ -71,6 +71,22 @@ const selectorDefinitions = {
     abi: Abis.zoneFactory,
     selectors: Selectors.zoneFactory,
   },
+  zoneMessenger: {
+    abi: Abis.zoneMessenger,
+    selectors: Selectors.zoneMessenger,
+  },
+  zoneOutbox: {
+    abi: Abis.zoneOutbox,
+    selectors: Selectors.zoneOutbox,
+  },
+  zonePortal: {
+    abi: Abis.zonePortal,
+    selectors: Selectors.zonePortal,
+  },
+  zoneVerifier: {
+    abi: Abis.zoneVerifier,
+    selectors: Selectors.zoneVerifier,
+  },
 } satisfies Record<string, { abi: readonly unknown[]; selectors: SelectorMap }>
 
 const selectorFixtures = Object.entries(selectorDefinitions)

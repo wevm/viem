@@ -14,3 +14,28 @@ test('groups Tempo, Earn, and Zone ABIs', () => {
     ...(Abis.zone as readonly unknown[]),
   ])
 })
+
+test('preserves Tempo ABI items when merging Zone ABIs', () => {
+  expect(Abis.zoneFactory).toContainEqual({
+    name: 'zones',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint32', name: 'id' }],
+    outputs: [
+      expect.objectContaining({
+        type: 'tuple',
+        name: 'info',
+      }),
+    ],
+  })
+  expect(Abis.zonePortal).toContainEqual({
+    name: 'LeaderUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'previousLeader', indexed: true },
+      { type: 'address', name: 'newLeader', indexed: true },
+      { type: 'uint64', name: 'leaderEpoch', indexed: true },
+      { type: 'uint64', name: 'leaderActivationTempoBlock' },
+    ],
+  })
+})

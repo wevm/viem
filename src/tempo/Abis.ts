@@ -3198,10 +3198,11 @@ export const zoneFactory = [
     name: 'zones',
     type: 'function',
     stateMutability: 'view',
-    inputs: [{ type: 'uint32', name: 'zoneId' }],
+    inputs: [{ type: 'uint32', name: 'id' }],
     outputs: [
       {
         type: 'tuple',
+        name: 'info',
         components: [
           { type: 'uint32', name: 'zoneId' },
           { type: 'address', name: 'portal' },
@@ -3355,8 +3356,8 @@ export const zonePortal = [
     inputs: [
       { type: 'address', name: 'previousLeader', indexed: true },
       { type: 'address', name: 'newLeader', indexed: true },
-      { type: 'uint64', name: 'epoch', indexed: true },
-      { type: 'uint64', name: 'activationTempoBlock' },
+      { type: 'uint64', name: 'leaderEpoch', indexed: true },
+      { type: 'uint64', name: 'leaderActivationTempoBlock' },
     ],
   },
   {

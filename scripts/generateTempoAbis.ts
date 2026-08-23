@@ -530,19 +530,22 @@ function zonesAdapter(): SourceAdapter {
       let selectors = context.read(outputs.selectors)
       for (const generatedAbi of generated) {
         const current = readAbiExport(abis, generatedAbi.exportName)
+        let abi = generatedAbi.abi
         if (!current) {
           appended.push(
-            `export const ${generatedAbi.exportName} = ${JSON.stringify(generatedAbi.abi)} as const`,
+            `export const ${generatedAbi.exportName} = ${JSON.stringify(abi)} as const`,
           )
-          continue
+        } else {
+          const items = new Map<string, AbiItem.AbiItem>()
+          for (const item of current)
+            items.set(AbiItem.getSignature(item), item)
+          for (const item of generatedAbi.abi) {
+            const signature = AbiItem.getSignature(item)
+            if (!items.has(signature)) items.set(signature, item)
+          }
+          abi = [...items.values()]
+          abis = replaceAbiExport(abis, generatedAbi.exportName, abi)
         }
-
-        const items = new Map<string, AbiItem.AbiItem>()
-        for (const item of current) items.set(AbiItem.getSignature(item), item)
-        for (const item of generatedAbi.abi)
-          items.set(AbiItem.getSignature(item), item)
-        const abi = [...items.values()]
-        abis = replaceAbiExport(abis, generatedAbi.exportName, abi)
         selectors = replaceSelectorExport(
           selectors,
           generatedAbi.exportName,
@@ -799,7 +802,8 @@ function replaceSelectorExport(
   replacement: string,
 ) {
   const start = content.indexOf(`export const ${name} = `)
-  if (start === -1 || !replacement) return content
+  if (!replacement) return content
+  if (start === -1) return `${content.trimEnd()}\n\n${replacement}`
   const end = content.indexOf('\n\n', start)
   if (end === -1) return `${content.slice(0, start)}${replacement.trimEnd()}\n`
   return `${content.slice(0, start)}${replacement}${content.slice(end + 2)}`
