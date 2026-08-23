@@ -13,6 +13,7 @@ import { client } from './viem.config'
 
 const result = await client.earn.bindErc4626EngineSync({
   engine: '0x0000000000000000000000000000000000000001',
+  finalOwner: client.account.address,
   vault: '0x0000000000000000000000000000000000000002',
 })
 // @log: { engine: '0x...', vault: '0x...', receipt: { ... } }
@@ -24,9 +25,8 @@ const result = await client.earn.bindErc4626EngineSync({
 
 :::
 
-The transaction must be signed by the engine's final owner. Binding remains a separate operation so
-deployment and final ownership can use different accounts. It cannot be changed after
-initialization.
+The action initializes the vault. Set `finalOwner` to transfer engine ownership atomically, or omit
+it to retain the current owner. The binding cannot be changed after initialization.
 
 ### Asynchronous Usage
 
@@ -40,6 +40,7 @@ import { client } from './viem.config'
 const engine = '0x0000000000000000000000000000000000000001'
 const hash = await client.earn.bindErc4626Engine({
   engine,
+  finalOwner: client.account.address,
   vault: '0x0000000000000000000000000000000000000002',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
@@ -70,6 +71,12 @@ The asynchronous action returns the transaction hash instead.
 - **Type:** `Address`
 
 ERC-4626 engine address.
+
+### finalOwner
+
+- **Type:** `Address | undefined`
+
+Address that will own the initialized engine. Omit to retain the current owner.
 
 ### vault
 

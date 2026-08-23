@@ -647,6 +647,7 @@ export namespace createStackSync {
  * })
  * const hash = await Actions.earn.bindErc4626Engine(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -669,6 +670,8 @@ export namespace bindErc4626Engine {
   export type Args = {
     /** ERC-4626 engine address. */
     engine: Address
+    /** Address that will own the initialized engine. Omit to retain the current owner. */
+    finalOwner?: Address | undefined
     /** Factory-created EarnVault address. */
     vault: Address
   }
@@ -690,10 +693,10 @@ export namespace bindErc4626Engine {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { engine, vault, ...rest } = parameters
+    const { engine, finalOwner, vault, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...bindErc4626Engine.call({ engine, vault }),
+      ...bindErc4626Engine.call({ engine, finalOwner, vault }),
     } as never)) as never
   }
 
@@ -716,6 +719,7 @@ export namespace bindErc4626Engine {
    * await client.sendTransaction({
    *   calls: [Actions.earn.bindErc4626Engine.call({
    *     engine: '0x...',
+   *     finalOwner: '0x...',
    *     vault: '0x...',
    *   })],
    * })
@@ -725,11 +729,19 @@ export namespace bindErc4626Engine {
    * @returns The call.
    */
   export function call(args: Args) {
+    const { engine, finalOwner, vault } = args
+    if (finalOwner)
+      return defineCall({
+        address: engine,
+        abi: Abis.erc4626Engine,
+        functionName: 'initializeEarnVault',
+        args: [vault, finalOwner],
+      })
     return defineCall({
-      address: args.engine,
+      address: engine,
       abi: Abis.erc4626Engine,
       functionName: 'initializeEarnVault',
-      args: [args.vault],
+      args: [vault],
     })
   }
 
@@ -773,6 +785,7 @@ export namespace bindErc4626Engine {
  * })
  * const result = await Actions.earn.bindErc4626EngineSync(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -1091,12 +1104,17 @@ export async function deployErc4626StackSync<
         ...writeParameters,
         account: bindingAccount,
         engine: predictedEngine,
+        finalOwner: owner,
         vault,
       }
       await simulateContract(client, {
         ...sharedWriteParameters,
         account: bindingAccount,
-        ...bindErc4626Engine.call({ engine: predictedEngine, vault }),
+        ...bindErc4626Engine.call({
+          engine: predictedEngine,
+          finalOwner: owner,
+          vault,
+        }),
       } as never)
       const receipt = await bindErc4626Engine.inner(
         writeContractSync,

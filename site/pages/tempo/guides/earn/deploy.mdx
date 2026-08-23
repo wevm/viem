@@ -181,6 +181,7 @@ const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
 })
 await client.earn.bindErc4626EngineSync({
   engine,
+  finalOwner: client.account.address,
   vault: args.earnVault,
 })
 ```

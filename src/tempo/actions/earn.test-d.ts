@@ -76,6 +76,13 @@ test('deployment actions preserve account requirements and result types', async 
   // @ts-expect-error account required when the client has none
   await earnActions.bindErc4626Engine(client, {
     engine: address,
+    finalOwner: address,
+    vault: address,
+  })
+  await earnActions.bindErc4626Engine(client, {
+    account: address,
+    engine: address,
+    finalOwner: address,
     vault: address,
   })
   await earnActions.bindErc4626Engine(client, {
@@ -117,6 +124,7 @@ test('deployment actions preserve account requirements and result types', async 
 
   const binding = await decoratedClient.earn.bindErc4626EngineSync({
     engine: address,
+    finalOwner: address,
     vault: address,
   })
   expectTypeOf(binding.vault).toEqualTypeOf<Address>()

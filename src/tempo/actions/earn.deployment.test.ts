@@ -19,6 +19,24 @@ function setup() {
   return fixturePromise
 }
 
+describe('bindErc4626Engine.call', () => {
+  test('encodes optional final ownership transfer', () => {
+    expect(
+      Actions.earn.bindErc4626Engine.call({
+        engine: account.address,
+        vault: accounts[1].address,
+      }).args,
+    ).toEqual([accounts[1].address])
+    expect(
+      Actions.earn.bindErc4626Engine.call({
+        engine: account.address,
+        finalOwner: accounts[2].address,
+        vault: accounts[1].address,
+      }).args,
+    ).toEqual([accounts[1].address, accounts[2].address])
+  })
+})
+
 describe('createStack.call', () => {
   test('defaults to a fee-free stack with no privileged control seats', () => {
     const call = Actions.earn.createStack.call({
@@ -219,9 +237,20 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
 
     const binding = await Actions.earn.bindErc4626EngineSync(client, {
       engine,
+      finalOwner: accounts[1].address,
       vault: stackEvent.args.earnVault,
     })
     expect(binding.receipt.status).toBe('success')
+    expect(
+      isAddressEqual(
+        await readContract(client, {
+          abi: Abis.erc4626Engine,
+          address: engine,
+          functionName: 'owner',
+        }),
+        accounts[1].address,
+      ),
+    ).toBe(true)
   })
 
   test('deploys, resumes, binds, and reruns idempotently', async () => {
