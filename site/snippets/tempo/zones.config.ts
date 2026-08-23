@@ -5,6 +5,6 @@ import { createClient, http, Zone } from 'viem/tempo'
 export const client = createClient({
   account: privateKeyToAccount('0x...'),
   chain: Zone.a,
-  transport: http('https://rpc.example.com'),
+  transport: http(),
 })
 // [!endregion setup]

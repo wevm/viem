@@ -5536,8 +5536,8 @@ type DecoratorBase<
      * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const info = await client.zone.getAuthorizationTokenInfo()
@@ -5555,8 +5555,8 @@ type DecoratorBase<
      * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const fee = await client.zone.getWithdrawalFee()
@@ -5577,8 +5577,8 @@ type DecoratorBase<
      * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const info = await client.zone.getZoneInfo()
@@ -5608,8 +5608,8 @@ type DecoratorBase<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const hash = await client.zone.requestWithdrawal({
@@ -5651,8 +5651,8 @@ type DecoratorBase<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
@@ -5720,8 +5720,8 @@ type DecoratorBase<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-     *   transport: http('https://rpc.example.com'),
+     *   chain: Zone.a,
+     *   transport: http(),
      * }).extend(tempoActions())
      *
      * const result = await client.zone.signAuthorizationToken()

@@ -2,16 +2,9 @@
 'viem': minor
 ---
 
-**Breaking (`viem/tempo`):** Replaced curried Zone network factories with `Zone.from`, which accepts a complete chain configuration.
+**Breaking (`viem/tempo`):** Replaced curried Zone network factories with built-in Zone definitions and `Zone.from` for custom chains.
 
 ```diff
--const zone = zoneModerato(7)
-+const zone = Zone.from({
-+  id: 4_217_000_007,
-+  name: 'Zone B',
-+  rpcUrls: {
-+    default: { http: ['https://rpc-zone-b.testnet.tempo.xyz'] },
-+  },
-+  sourceId: 42_431,
-+})
+-const zone = zoneModerato(6)
++const zone = Zone.a
 ```

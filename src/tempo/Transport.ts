@@ -43,8 +43,8 @@ export type HttpConfig = Omit<
  * import { http, Zone } from 'viem/tempo'
  *
  * const client = createPublicClient({
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  * ```
  */

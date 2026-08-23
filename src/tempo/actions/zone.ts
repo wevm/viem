@@ -1059,8 +1059,8 @@ export namespace encryptedDepositSync {
  * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const info = await Actions.zone.getAuthorizationTokenInfo(client)
@@ -1116,8 +1116,8 @@ export namespace getAuthorizationTokenInfo {
  * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const fee = await Actions.zone.getWithdrawalFee(client)
@@ -1164,8 +1164,8 @@ export namespace getWithdrawalFee {
  * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const info = await Actions.zone.getZoneInfo(client)
@@ -1254,8 +1254,8 @@ export namespace getZoneInfo {
  * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const info = await Actions.zone.waitForTempoBlock(client, {
@@ -1358,8 +1358,8 @@ export namespace waitForTempoBlock {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const hash = await Actions.zone.requestWithdrawal(client, {
@@ -1480,8 +1480,8 @@ export namespace requestWithdrawal {
    * import { Actions, http, Zone } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
-   *   transport: http('https://rpc.example.com'),
+   *   chain: Zone.a,
+   *   transport: http(),
    * })
    *
    * const prepared = await Actions.zone.requestWithdrawal.prepare(client, {
@@ -1640,8 +1640,8 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: zoneHttp('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: zoneHttp(),
  * })
  *
  * const { receipt, senderTag } =
@@ -1742,8 +1742,8 @@ export namespace requestWithdrawalSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const hash = await Actions.zone.requestVerifiableWithdrawal(client, {
@@ -1855,8 +1855,8 @@ export namespace requestVerifiableWithdrawal {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const result = await Actions.zone.requestVerifiableWithdrawalSync(client, {
@@ -1927,8 +1927,8 @@ export namespace requestVerifiableWithdrawalSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
- *   transport: http('https://rpc.example.com'),
+ *   chain: Zone.a,
+ *   transport: http(),
  * })
  *
  * const result = await Actions.zone.signAuthorizationToken(client)
