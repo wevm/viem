@@ -4,12 +4,12 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getBlockNumber } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
-import { decorator } from '../Decorator.js'
-import * as Storage from '../Storage.js'
-import { http } from './transport.js'
-import { zoneModerato } from './zone.js'
+import { decorator } from './Decorator.js'
+import * as Storage from './Storage.js'
+import { http } from './Transport.js'
+import * as Zone from './Zone.js'
 
-const zone = zoneModerato(6)
+const zone = Zone.internalTestnet
 
 describe('http transport', () => {
   test('injects X-Authorization-Token header from storage', async () => {

@@ -47,7 +47,7 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
       sender: accounts[0].address,
       tempoRefundRecipient: accounts[0].address,
       token: addresses.pathUsd,
-      zoneId: 7,
+      zoneId: 3,
     })
 
     expect(prepared.amount).toBe(1n)
@@ -60,7 +60,7 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
     expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(prepared.portalAddress).toBeDefined()
     expect(prepared.token).toBe(addresses.pathUsd)
-    expect(prepared.zoneId).toBe(7)
+    expect(prepared.zoneId).toBe(3)
   })
 })
 

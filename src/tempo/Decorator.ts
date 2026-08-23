@@ -5533,11 +5533,10 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5553,11 +5552,10 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5576,11 +5574,10 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5607,12 +5604,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5651,12 +5647,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5721,12 +5716,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
