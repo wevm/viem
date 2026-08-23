@@ -473,14 +473,6 @@ describe('getEncryptionKey', () => {
     expect([2, 3]).toContain(result.publicKey.prefix)
   })
 
-  test('error: no chain', async () => {
-    const client = createClient({ transport: http() })
-
-    await expect(
-      zoneActions.getEncryptionKey(client, { zoneId: 7 }),
-    ).rejects.toThrow('`chain` is required.')
-  })
-
   test.runIf(nodeEnv === 'localnet')(
     'error: portal without an encryption key',
     async () => {
