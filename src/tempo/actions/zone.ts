@@ -1657,7 +1657,7 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  *   transport: http(),
  * })
  * const [withdrawal] = await tempoClient.getContractEvents({
- *   address: Addresses.zonePortal(3),
+ *   address: Addresses.zonePortal(6),
  *   abi: Abis.zonePortal,
  *   eventName: 'WithdrawalProcessed',
  *   args: { senderTag },

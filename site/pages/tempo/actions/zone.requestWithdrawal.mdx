@@ -28,7 +28,7 @@ const tempoClient = createPublicClient({
   transport: http(),
 })
 const [withdrawal] = await tempoClient.getContractEvents({
-  address: Addresses.zonePortal(7),
+  address: Addresses.zonePortal(6),
   abi: Abis.zonePortal,
   eventName: 'WithdrawalProcessed',
   args: { senderTag },
