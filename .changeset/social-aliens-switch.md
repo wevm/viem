@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updates Berachain Bepolia Block Explorer
+Updated the Berachain Bepolia block explorer.
