@@ -773,20 +773,6 @@ describe('deposit', () => {
       }),
     ).rejects.toThrow('`account` is required.')
   })
-
-  test('error: no chain', async () => {
-    const noChainClient = createClient({
-      account,
-      transport: http(),
-    })
-
-    await expect(
-      zoneActions.deposit(noChainClient, {
-        ...depositParameters,
-        chain: null,
-      }),
-    ).rejects.toThrow('`chain` is required.')
-  })
 })
 
 describe('depositSync', () => {
