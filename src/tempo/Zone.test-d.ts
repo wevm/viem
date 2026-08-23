@@ -20,7 +20,7 @@ test('exposes Zone definitions', () => {
     string[]
   >()
   expectTypeOf(Zone.internalTestnet.sourceId).toEqualTypeOf<42431>()
-  expectTypeOf(Addresses.zonePortal(1)).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(Addresses.zonePortal(Zone.a.id)).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(
     Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 }),
   ).toHaveProperty('id')
