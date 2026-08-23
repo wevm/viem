@@ -13,7 +13,7 @@ export type Storage = {
  *
  * @example
  * ```ts
- * import * as Storage from 'viem/tempo/zones'
+ * import { Storage } from 'viem/tempo'
  *
  * const storage = Storage.from(Storage.memory(), { key: 'tempo' })
  * await storage.setItem('foo', 'bar')

@@ -1,3 +1,5 @@
+import * as Hex from 'ox/Hex'
+
 export const accountImplementation =
   '0x7702c00000000000000000000000000000000000'
 export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
@@ -22,3 +24,17 @@ export const zoneOutbox = '0x1c00000000000000000000000000000000000002'
 export const zonePortalImplementation =
   '0x5AD1000000000000000000000000000000000000'
 export const zoneVerifier = '0x5a56000000000000000000000000000000000000'
+
+/**
+ * Returns the Zone portal address for a Zone ID.
+ *
+ * @param id - Zone ID.
+ * @returns The Zone portal address.
+ */
+export function zonePortal(id: number): `0x${string}` {
+  // TODO: Remove legacy Zone portal address compatibility.
+  if (id === 6) return '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23'
+  if (id === 7) return '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac'
+  const suffix = Hex.fromNumber(id, { size: 8 }).slice(2)
+  return `0x5ad000000000000000000000${suffix}`
+}

@@ -5533,12 +5533,11 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const info = await client.zone.getAuthorizationTokenInfo()
@@ -5553,12 +5552,11 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const fee = await client.zone.getWithdrawalFee()
@@ -5576,12 +5574,11 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const info = await client.zone.getZoneInfo()
@@ -5607,13 +5604,12 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const hash = await client.zone.requestWithdrawal({
@@ -5651,13 +5647,12 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
@@ -5721,13 +5716,12 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
-     *   transport: http(),
+     *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+     *   transport: http('https://rpc.example.com'),
      * }).extend(tempoActions())
      *
      * const result = await client.zone.signAuthorizationToken()

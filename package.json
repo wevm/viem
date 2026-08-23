@@ -23,7 +23,7 @@
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
-    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts src/tempo/zones/Abis.ts src/tempo/zones/Addresses.ts test/src/tempo/earnContracts.ts",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts test/src/tempo/earnContracts.ts",
     "gen:tokenlist": "bun scripts/generateTokenlist.ts && biome check --write --unsafe src/tokens && pnpm gen:token-lookup",
     "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
@@ -124,7 +124,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,tokens,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tokens,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [

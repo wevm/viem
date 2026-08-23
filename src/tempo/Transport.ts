@@ -12,9 +12,66 @@ import {
   createTransport,
   type Transport,
 } from '../clients/transports/createTransport.js'
+import {
+  type HttpTransport,
+  type HttpTransportConfig,
+  http as http_,
+} from '../clients/transports/http.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import type { Storage } from './Storage.js'
+import * as Storage_ from './Storage.js'
 import * as Transaction from './Transaction.js'
+
+export type HttpConfig = Omit<
+  HttpTransportConfig,
+  'batch' | 'raw' | 'rpcSchema'
+> & {
+  /** Storage for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  storage?: Storage | undefined
+}
+
+/**
+ * Creates an HTTP transport with support for Zone authentication tokens.
+ *
+ * Reads the authorization token from Storage and injects the
+ * `X-Authorization-Token` header on every request.
+ *
+ * @example
+ * ```ts
+ * import { createPublicClient } from 'viem'
+ * import { http, Zone } from 'viem/tempo'
+ *
+ * const client = createPublicClient({
+ *   chain: Zone.from({ id: 1234, name: 'My Zone', sourceId: 42_431 }),
+ *   transport: http('https://rpc.example.com'),
+ * })
+ * ```
+ */
+export function http(
+  url?: string | undefined,
+  config: HttpConfig = {},
+): HttpTransport {
+  const { storage: storage_, onFetchRequest, ...rest } = config
+  const storage = storage_ ?? Storage_.defaultStorage()
+
+  return (config) =>
+    http_(url, {
+      ...rest,
+      async onFetchRequest(request, init) {
+        const next = (await onFetchRequest?.(request, init)) ?? init
+        const headers = new Headers(next.headers)
+
+        const chainId = config.chain?.id
+        if (chainId) {
+          const token = (await storage.getItem(`auth:token:${chainId}`)) ?? null
+          if (token) headers.set('X-Authorization-Token', token)
+        }
+
+        return { ...next, headers }
+      },
+    })(config)
+}
 
 type RelayProxyParameters = {
   /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */

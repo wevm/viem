@@ -7,42 +7,74 @@ import * as Abis from './Abis.js'
 import { Selectors as TempoSelectors } from './index.js'
 import * as Selectors from './Selectors.js'
 
-type AbiFunction = Extract<(typeof Abis.abis)[number], { type: 'function' }>
+type AbiFunction = Extract<(typeof Abis.all)[number], { type: 'function' }>
 type SelectorMap = Record<string, string | Record<string, string>>
 
-const selectorMaps = {
-  accountKeychain: Selectors.accountKeychain,
-  addressRegistry: Selectors.addressRegistry,
-  currentCommittee: Selectors.currentCommittee,
-  feeAmm: Selectors.feeAmm,
-  feeManager: Selectors.feeManager,
-  nativeMultisig: Selectors.nativeMultisig,
-  nonce: Selectors.nonce,
-  receivePolicyGuard: Selectors.receivePolicyGuard,
-  signatureVerifier: Selectors.signatureVerifier,
-  stablecoinDex: Selectors.stablecoinDex,
-  storageCredits: Selectors.storageCredits,
-  tip20: Selectors.tip20,
-  tip20ChannelReserve: Selectors.tip20ChannelReserve,
-  tip20Factory: Selectors.tip20Factory,
-  tip403Registry: Selectors.tip403Registry,
-  validatorConfig: Selectors.validatorConfig,
-  validatorConfigV2: Selectors.validatorConfigV2,
-  zoneFactory: Selectors.zoneFactory,
-} satisfies Record<string, SelectorMap>
+const selectorDefinitions = {
+  accountKeychain: {
+    abi: Abis.accountKeychain,
+    selectors: Selectors.accountKeychain,
+  },
+  addressRegistry: {
+    abi: Abis.addressRegistry,
+    selectors: Selectors.addressRegistry,
+  },
+  currentCommittee: {
+    abi: Abis.currentCommittee,
+    selectors: Selectors.currentCommittee,
+  },
+  feeAmm: { abi: Abis.feeAmm, selectors: Selectors.feeAmm },
+  feeManager: { abi: Abis.feeManager, selectors: Selectors.feeManager },
+  nativeMultisig: {
+    abi: Abis.nativeMultisig,
+    selectors: Selectors.nativeMultisig,
+  },
+  nonce: { abi: Abis.nonce, selectors: Selectors.nonce },
+  receivePolicyGuard: {
+    abi: Abis.receivePolicyGuard,
+    selectors: Selectors.receivePolicyGuard,
+  },
+  signatureVerifier: {
+    abi: Abis.signatureVerifier,
+    selectors: Selectors.signatureVerifier,
+  },
+  stablecoinDex: {
+    abi: Abis.stablecoinDex,
+    selectors: Selectors.stablecoinDex,
+  },
+  storageCredits: {
+    abi: Abis.storageCredits,
+    selectors: Selectors.storageCredits,
+  },
+  tip20: { abi: Abis.tip20, selectors: Selectors.tip20 },
+  tip20ChannelReserve: {
+    abi: Abis.tip20ChannelReserve,
+    selectors: Selectors.tip20ChannelReserve,
+  },
+  tip20Factory: {
+    abi: Abis.tip20Factory,
+    selectors: Selectors.tip20Factory,
+  },
+  tip403Registry: {
+    abi: Abis.tip403Registry,
+    selectors: Selectors.tip403Registry,
+  },
+  validatorConfig: {
+    abi: Abis.validatorConfig,
+    selectors: Selectors.validatorConfig,
+  },
+  validatorConfigV2: {
+    abi: Abis.validatorConfigV2,
+    selectors: Selectors.validatorConfigV2,
+  },
+  zoneFactory: {
+    abi: Abis.zoneFactory,
+    selectors: Selectors.zoneFactory,
+  },
+} satisfies Record<string, { abi: readonly unknown[]; selectors: SelectorMap }>
 
-const precompileAbiItems = new Set<unknown>(Abis.abis)
-
-const selectorFixtures = Object.entries(Abis)
-  .filter(
-    ([name, abi]) =>
-      name !== 'abis' && abi.some((item) => precompileAbiItems.has(item)),
-  )
-  .map(([name, abi]) => ({
-    name,
-    abi,
-    selectors: selectorMaps[name as keyof typeof selectorMaps]!,
-  }))
+const selectorFixtures = Object.entries(selectorDefinitions)
+  .map(([name, { abi, selectors }]) => ({ name, abi, selectors }))
   .filter(({ abi }) => getFunctions(abi).length > 0)
 
 function getFunctions(abi: readonly unknown[]) {
@@ -65,7 +97,9 @@ describe('Selectors', () => {
   })
 
   test('exports one selector map per ABI', () => {
-    expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))
+    expect(Object.keys(Selectors).sort()).toEqual(
+      Object.keys(selectorDefinitions),
+    )
     expect(Object.keys(Selectors).sort()).toEqual(
       selectorFixtures.map((fixture) => fixture.name).sort(),
     )

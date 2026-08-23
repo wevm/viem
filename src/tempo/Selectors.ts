@@ -287,10 +287,17 @@ export const validatorConfig = {
 } as const satisfies FunctionSelectors<typeof Abis.validatorConfig>
 
 export const zoneFactory = {
-  createZone: '0x89677d9e',
+  createZone: {
+    'createZone((address,address,address,address,(bytes32,bytes32,uint64),string))':
+      '0x2d45796a',
+    'createZone((address,bool,bool,address[],address[],address,address[],uint8,string))':
+      '0x89677d9e',
+  },
   isZonePortal: '0x01b290d3',
   nextZoneId: '0x266db436',
   owner: '0x8da5cb5b',
   transferOwnership: '0xf2fde38b',
+  verifier: '0x2b7ac3f3',
   zones: '0x90b7f6fd',
-} as const satisfies FunctionSelectors<typeof Abis.zoneFactory>
+} as const satisfies FunctionSelectors<typeof Abis.zoneFactory, 'createZone'> &
+  OverloadedFunctionSelectors<'createZone'>

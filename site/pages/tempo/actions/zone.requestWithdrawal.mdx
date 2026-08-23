@@ -11,7 +11,7 @@ Requests a withdrawal from a zone to the parent Tempo chain.
 ```ts twoslash [example.ts]
 import { createPublicClient, http, parseUnits } from 'viem'
 import { tempoModerato } from 'viem/chains'
-import { Abis, getPortalAddress } from 'viem/tempo/zones'
+import { Abis, Addresses } from 'viem/tempo'
 import { client } from './zones.config'
 
 const { receipt, senderTag } = await client.zone.requestWithdrawalSync({
@@ -28,7 +28,7 @@ const tempoClient = createPublicClient({
   transport: http(),
 })
 const [withdrawal] = await tempoClient.getContractEvents({
-  address: getPortalAddress(tempoModerato.id, 7),
+  address: Addresses.zonePortal(7),
   abi: Abis.zonePortal,
   eventName: 'WithdrawalProcessed',
   args: { senderTag },

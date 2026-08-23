@@ -6,21 +6,6 @@ import * as Abi from 'ox/Abi'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiItem from 'ox/AbiItem'
 
-const zoneDeployments = {
-  messenger: {
-    42431: {
-      1: '0x254356112cCf6f32fAd84F16CC5E0A0cCA17Beb7',
-    },
-  },
-  portal: {
-    42431: {
-      1: '0x59831A17340EE14FE136d751EfbeA8b630470fD2',
-      6: '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23',
-      7: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
-    },
-  },
-} as const
-
 type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
 type SourceAdapter = {
@@ -127,48 +112,14 @@ function tempoAdapter(): SourceAdapter {
         output += `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
         processed.push({ abi, exportName })
       }
-      output += `export const abis = [\n${processed.map(({ exportName }) => `  ...${exportName},`).join('\n')}\n] as const\n`
-
       let selectors =
         "// Generated with `pnpm gen:tempo-abis`. Do not modify manually.\n\nimport type { Abi, ExtractAbiFunctionNames } from 'abitype'\nimport type { Hex } from '../types/misc.js'\nimport type * as Abis from './Abis.js'\n\n"
       selectors +=
         'type FunctionSelectors<\n  abi extends Abi,\n  excluded extends string = never,\n> = {\n  readonly [name in Exclude<ExtractAbiFunctionNames<abi>, excluded>]: Hex\n}\n\n'
       selectors +=
         'type OverloadedFunctionSelectors<names extends string> = {\n  readonly [name in names]: Record<string, Hex>\n}\n\n'
-      for (const { abi, exportName } of processed) {
-        const functions = abi
-          .filter((item) => item.type === 'function')
-          .sort(
-            (a, b) =>
-              compareStrings(a.name, b.name) ||
-              compareStrings(AbiItem.getSignature(a), AbiItem.getSignature(b)),
-          )
-        if (functions.length === 0) continue
-        const names = functions.map((item) => item.name)
-        const overloadedNames = Array.from(
-          new Set(names.filter((name, index) => names.indexOf(name) !== index)),
-        ).sort(compareStrings)
-        const values: Record<string, string | Record<string, string>> = {}
-        for (const item of functions) {
-          const selector = AbiFunction.getSelector(item)
-          if (!overloadedNames.includes(item.name)) {
-            values[item.name] = selector
-            continue
-          }
-          values[item.name] ??= {}
-          ;(values[item.name] as Record<string, string>)[
-            AbiItem.getSignature(item)
-          ] = selector
-        }
-        const overloadedNameType = overloadedNames
-          .map((name) => `'${name}'`)
-          .join(' | ')
-        const selectorType =
-          overloadedNames.length > 0
-            ? `FunctionSelectors<typeof Abis.${exportName}, ${overloadedNameType}> & OverloadedFunctionSelectors<${overloadedNameType}>`
-            : `FunctionSelectors<typeof Abis.${exportName}>`
-        selectors += `export const ${exportName} = ${JSON.stringify(values, null, 2)} as const satisfies ${selectorType}\n\n`
-      }
+      for (const { abi, exportName } of processed)
+        selectors += selectorExport(abi, exportName)
       console.log(
         `  ${processed.length} ABIs from ${files.length} precompile files at ${commit.slice(0, 7)}`,
       )
@@ -522,11 +473,8 @@ function zonesAdapter(): SourceAdapter {
     ]),
   }
   const outputs = {
-    abis: Path.resolve(import.meta.dirname, '../src/tempo/zones/Abis.ts'),
-    addresses: Path.resolve(
-      import.meta.dirname,
-      '../src/tempo/zones/Addresses.ts',
-    ),
+    abis: Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts'),
+    selectors: Path.resolve(import.meta.dirname, '../src/tempo/Selectors.ts'),
   }
   const repository = 'https://raw.githubusercontent.com/tempoxyz/zones'
   const repositoryApi = 'https://api.github.com/repos/tempoxyz/zones'
@@ -542,7 +490,7 @@ function zonesAdapter(): SourceAdapter {
   ] as const
   return {
     name: 'zones',
-    async generate() {
+    async generate(context) {
       const commit = await getLatestCommit(repositoryApi)
       const [sourceFiles, interfaceContent] = await Promise.all([
         Promise.all(
@@ -563,7 +511,7 @@ function zonesAdapter(): SourceAdapter {
           throw new Error(`Zone runtime interface ${name} not found.`)
         definitions.set(exportName, { ...definition, name: exportName })
       }
-      const exports = [...definitions.values()].map((definition) => {
+      const generated = [...definitions.values()].map((definition) => {
         const items = new Map<string, AbiItem.AbiItem>()
         for (const item of Abi.from(definition.items))
           items.set(AbiItem.getSignature(item), item)
@@ -574,26 +522,73 @@ function zonesAdapter(): SourceAdapter {
             ? definition.name.slice(1)
             : definition.name,
         )
-        return `export const ${exportName} = ${JSON.stringify([...items.values()])} as const`
+        return { abi: [...items.values()], exportName }
       })
+
+      let abis = context.read(outputs.abis)
+      const appended: string[] = []
+      let selectors = context.read(outputs.selectors)
+      for (const generatedAbi of generated) {
+        const current = readAbiExport(abis, generatedAbi.exportName)
+        if (!current) {
+          appended.push(
+            `export const ${generatedAbi.exportName} = ${JSON.stringify(generatedAbi.abi)} as const`,
+          )
+          continue
+        }
+
+        const items = new Map<string, AbiItem.AbiItem>()
+        for (const item of current) items.set(AbiItem.getSignature(item), item)
+        for (const item of generatedAbi.abi)
+          items.set(AbiItem.getSignature(item), item)
+        const abi = [...items.values()]
+        abis = replaceAbiExport(abis, generatedAbi.exportName, abi)
+        selectors = replaceSelectorExport(
+          selectors,
+          generatedAbi.exportName,
+          selectorExport(abi, generatedAbi.exportName),
+        )
+      }
       const sourceHeader = `// Source: tempoxyz/zones@${commit}`
-      const abis = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\n${exports.join('\n\n')}\n`
-      const addresses = `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n${sourceHeader}\n\nimport { tempoModerato } from '../../chains/definitions/tempoModerato.js'\n\nexport const messenger = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.messenger[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n\nexport const portal = {\n  [tempoModerato.id]: ${formatDeployments(zoneDeployments.portal[42431])},\n} as const satisfies Record<number, Record<number, \`0x\${string}\`>>\n`
+      abis = `${abis.trimEnd()}\n\n${sourceHeader}\n\n${appended.join('\n\n')}\n`
+      const earnSourceIndex = abis.indexOf('// Source: tempoxyz/earn@')
+      const zoneSourceIndex = abis.indexOf(sourceHeader)
+      if (earnSourceIndex === -1 || zoneSourceIndex === -1)
+        throw new Error('Could not find generated ABI source sections.')
+      const groups = [
+        [
+          'core',
+          getAbiExportNames(abis.slice(0, earnSourceIndex)).sort(
+            compareStrings,
+          ),
+        ],
+        [
+          'earn',
+          getAbiExportNames(abis.slice(earnSourceIndex, zoneSourceIndex)).sort(
+            compareStrings,
+          ),
+        ],
+        [
+          'zone',
+          getAbiExportNames(abis.slice(zoneSourceIndex)).sort(compareStrings),
+        ],
+      ] as const
+      abis += `\n${groups
+        .map(
+          ([group, names]) =>
+            `export const ${group} = [\n${names.map((name) => `  ...${name},`).join('\n')}\n] as const`,
+        )
+        .join(
+          '\n\n',
+        )}\n\nexport const all = [\n${groups.map(([group]) => `  ...${group},`).join('\n')}\n] as const\n`
       console.log(
         `  ${definitions.size} ABIs from ${sourceFiles.length + 1} contract files at ${commit.slice(0, 7)}`,
       )
       return [
         { content: abis, path: outputs.abis },
-        { content: addresses, path: outputs.addresses },
+        { content: selectors, path: outputs.selectors },
       ]
     },
-  }
-
-  function formatDeployments(deployments: Record<number, `0x${string}`>) {
-    const entries = Object.entries(deployments)
-      .map(([zoneId, address]) => `  ${zoneId}: '${address}',`)
-      .join('\n')
-    return `{\n${entries}\n}`
   }
 }
 
@@ -757,6 +752,91 @@ function camelCase(name: string) {
       index ? word[0]!.toUpperCase() + word.slice(1) : word,
     )
     .join('')
+}
+
+function readAbiExport(content: string, name: string) {
+  const prefix = `export const ${name} = `
+  const start = content.indexOf(prefix)
+  if (start === -1) return undefined
+  const valueStart = start + prefix.length
+  const valueEnd = content.indexOf(' as const', valueStart)
+  if (valueEnd === -1)
+    throw new Error(`Could not parse generated ABI export ${name}.`)
+  return JSON.parse(content.slice(valueStart, valueEnd)) as AbiItem.AbiItem[]
+}
+
+function getAbiExportNames(content: string) {
+  return [...content.matchAll(/^export const (\w+) = \[/gm)]
+    .map((match) => match[1]!)
+    .filter(
+      (name) =>
+        name !== 'all' &&
+        name !== 'core' &&
+        name !== 'earn' &&
+        name !== 'earnRouterCallbackData' &&
+        name !== 'zone',
+    )
+}
+
+function replaceAbiExport(
+  content: string,
+  name: string,
+  abi: readonly AbiItem.AbiItem[],
+) {
+  const prefix = `export const ${name} = `
+  const start = content.indexOf(prefix)
+  if (start === -1) return content
+  const valueStart = start + prefix.length
+  const valueEnd = content.indexOf(' as const', valueStart)
+  if (valueEnd === -1)
+    throw new Error(`Could not parse generated ABI export ${name}.`)
+  return `${content.slice(0, valueStart)}${JSON.stringify(abi)}${content.slice(valueEnd)}`
+}
+
+function replaceSelectorExport(
+  content: string,
+  name: string,
+  replacement: string,
+) {
+  const start = content.indexOf(`export const ${name} = `)
+  if (start === -1 || !replacement) return content
+  const end = content.indexOf('\n\n', start)
+  if (end === -1) return `${content.slice(0, start)}${replacement.trimEnd()}\n`
+  return `${content.slice(0, start)}${replacement}${content.slice(end + 2)}`
+}
+
+function selectorExport(abi: readonly AbiItem.AbiItem[], exportName: string) {
+  const functions = abi
+    .filter((item) => item.type === 'function')
+    .sort(
+      (a, b) =>
+        compareStrings(a.name, b.name) ||
+        compareStrings(AbiItem.getSignature(a), AbiItem.getSignature(b)),
+    )
+  if (functions.length === 0) return ''
+  const names = functions.map((item) => item.name)
+  const overloadedNames = Array.from(
+    new Set(names.filter((name, index) => names.indexOf(name) !== index)),
+  ).sort(compareStrings)
+  const values: Record<string, string | Record<string, string>> = {}
+  for (const item of functions) {
+    const selector = AbiFunction.getSelector(item)
+    if (!overloadedNames.includes(item.name)) {
+      values[item.name] = selector
+      continue
+    }
+    values[item.name] ??= {}
+    ;(values[item.name] as Record<string, string>)[AbiItem.getSignature(item)] =
+      selector
+  }
+  const overloadedNameType = overloadedNames
+    .map((name) => `'${name}'`)
+    .join(' | ')
+  const selectorType =
+    overloadedNames.length > 0
+      ? `FunctionSelectors<typeof Abis.${exportName}, ${overloadedNameType}> & OverloadedFunctionSelectors<${overloadedNameType}>`
+      : `FunctionSelectors<typeof Abis.${exportName}>`
+  return `export const ${exportName} = ${JSON.stringify(values, null, 2)} as const satisfies ${selectorType}\n\n`
 }
 
 function compareStrings(a: string, b: string) {
