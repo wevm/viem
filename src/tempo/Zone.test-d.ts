@@ -13,8 +13,12 @@ test('exposes Zone definitions', () => {
   ).toEqualTypeOf<'https://rpc-zone-b.testnet.tempo.xyz'>()
   expectTypeOf(Zone.b.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Zone.internal.id).toEqualTypeOf<421700001>()
+  expectTypeOf(Zone.internal.rpcUrls.default.http).toEqualTypeOf<string[]>()
   expectTypeOf(Zone.internal.sourceId).toEqualTypeOf<4217>()
   expectTypeOf(Zone.internalTestnet.id).toEqualTypeOf<1424310003>()
+  expectTypeOf(Zone.internalTestnet.rpcUrls.default.http).toEqualTypeOf<
+    string[]
+  >()
   expectTypeOf(Zone.internalTestnet.sourceId).toEqualTypeOf<42431>()
   expectTypeOf(Addresses.zonePortal(1)).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(

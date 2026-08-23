@@ -11,10 +11,11 @@ export function from<const config extends from.Parameters>(config: config) {
       symbol: 'USD',
       decimals: 6,
     },
+    rpcUrls: { default: { http: [] as string[] } },
     supportsTransactionReplacementDetection: false,
     ...config,
   }
-  return defineChain(chain as typeof chain & Pick<Chain, 'rpcUrls'>)
+  return defineChain(chain)
 }
 
 export declare namespace from {

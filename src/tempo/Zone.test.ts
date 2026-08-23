@@ -1,6 +1,8 @@
 import { ZoneId } from 'ox/tempo'
+import { createClient } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
+import { http } from './Transport.js'
 import * as Zone from './Zone.js'
 
 describe('Zone.from', () => {
@@ -22,22 +24,28 @@ describe('Zone.from', () => {
     expect(Zone.internal).toMatchObject({
       id: ZoneId.toChainId(1, tempo.id),
       name: 'Internal Zone',
+      rpcUrls: { default: { http: [] } },
       sourceId: tempo.id,
       supportsTransactionReplacementDetection: false,
     })
     expect(Zone.internal.contracts).toBeUndefined()
-    expect('rpcUrls' in Zone.internal).toBe(false)
   })
 
   test('defines the internal testnet zone', () => {
     expect(Zone.internalTestnet).toMatchObject({
       id: ZoneId.toChainId(3, tempoModerato.id),
       name: 'Internal Testnet Zone',
+      rpcUrls: { default: { http: [] } },
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: false,
     })
     expect(Zone.internalTestnet.contracts).toBeUndefined()
-    expect('rpcUrls' in Zone.internalTestnet).toBe(false)
+  })
+
+  test('requires a transport URL for zones without an RPC endpoint', () => {
+    expect(() =>
+      createClient({ chain: Zone.internal, transport: http() }),
+    ).toThrow('No URL was provided to the Transport.')
   })
 
   test('applies chain config over the defaults', () => {
