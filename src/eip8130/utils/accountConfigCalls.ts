@@ -6,7 +6,7 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { accountConfigurationAbi } from '../abis.js'
-import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 import type {
   AaActor,
   AaChange,
@@ -59,13 +59,7 @@ export function encodeCreateAccountData(
   })
 }
 
-export type ToFactoryArgsParameters = EncodeCreateAccountDataParameters & {
-  /**
-   * Account Configuration contract address (the ERC-4337 factory). Defaults to
-   * the placeholder {@link accountConfigAddress} constant.
-   */
-  accountConfigAddress?: Address | undefined
-}
+export type ToFactoryArgsParameters = EncodeCreateAccountDataParameters
 
 export type ToFactoryArgsReturnType = {
   factory: Address
@@ -78,19 +72,16 @@ export type ToFactoryArgsErrorType =
 
 /**
  * Returns the ERC-4337 `{ factory, factoryData }` for deploying an EIP-8130
- * account through the `AccountConfiguration` contract on a non-8130 chain. The
- * resulting account address matches {@link computeAddress}.
+ * account through the keystore on a non-8130 chain. The resulting account
+ * address matches {@link computeAddress}. The factory is the enshrined
+ * {@link keystoreAddress}.
  */
 export function toFactoryArgs(
   parameters: ToFactoryArgsParameters,
 ): ToFactoryArgsReturnType {
-  const {
-    accountConfigAddress = defaultAccountConfigAddress,
-    ...createParameters
-  } = parameters
   return {
-    factory: accountConfigAddress,
-    factoryData: encodeCreateAccountData(createParameters),
+    factory: keystoreAddress,
+    factoryData: encodeCreateAccountData(parameters),
   }
 }
 

@@ -5,19 +5,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
-import {
-  accountConfigAddress as defaultAccountConfigAddress,
-  unsequencedLocalHalf,
-} from '../constants.js'
+import { keystoreAddress, unsequencedLocalHalf } from '../constants.js'
 
 export type GetConfigSequenceParameters = {
   /** The account whose local config sequence to read. */
   account: Address
-  /**
-   * `AccountConfiguration` (keystore) system contract. Defaults to the canonical
-   * (enshrined) address, which is identical on every supported chain.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type GetConfigSequenceReturnType = {
@@ -61,11 +53,10 @@ export async function getConfigSequence<
   client: Client<Transport, chain, account>,
   parameters: GetConfigSequenceParameters,
 ): Promise<GetConfigSequenceReturnType> {
-  const { account, accountConfiguration = defaultAccountConfigAddress } =
-    parameters
+  const { account } = parameters
 
   const result = await readContract(client, {
-    address: accountConfiguration,
+    address: keystoreAddress,
     abi: accountConfigurationAbi,
     functionName: 'getChangeSequences',
     args: [account],

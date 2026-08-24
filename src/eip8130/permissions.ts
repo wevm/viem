@@ -302,11 +302,6 @@ export type FulfillGrantPermissionsParameters = Omit<
    * if the manager still needs registering. @default false
    */
   assumeManagerRegistered?: boolean | undefined
-  /**
-   * `AccountConfiguration` system contract used for the manager check. Defaults
-   * to the canonical (enshrined) address.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type FulfillGrantPermissionsReturnType = {
@@ -406,7 +401,6 @@ export async function fulfillGrantPermissions<
     permissions,
     expiry,
     assumeManagerRegistered = false,
-    accountConfiguration,
     ...rest
   } = parameters
   const expiryBig = expiry === undefined ? undefined : BigInt(expiry)
@@ -434,7 +428,6 @@ export async function fulfillGrantPermissions<
     const { authenticator } = await getActorConfig(client, {
       account,
       actorId: managerActor.actorId,
-      ...(accountConfiguration ? { accountConfiguration } : {}),
     })
     const registered =
       authenticator.toLowerCase() === trustedExecutorAuthenticator.toLowerCase()

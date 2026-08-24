@@ -8,7 +8,7 @@ import {
   register8130Chains,
   unregister8130Chains,
 } from '../chains.js'
-import { accountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 import type { AaActor, AaChange } from '../types/transaction.js'
 import {
   encodeApplySignedAccountChangesData,
@@ -48,9 +48,9 @@ describe('toFactoryArgs (ERC-4337 factory)', () => {
     initialActors: [actor],
   } as const
 
-  test('factory is the account config contract; factoryData is createAccount', () => {
+  test('factory is the keystore; factoryData is createAccount', () => {
     const { factory, factoryData } = toFactoryArgs(params)
-    expect(factory).toBe(accountConfigAddress)
+    expect(factory).toBe(keystoreAddress)
     expect(factoryData).toBe(encodeCreateAccountData(params))
 
     const { functionName, args } = decodeFunctionData({
@@ -68,15 +68,6 @@ describe('toFactoryArgs (ERC-4337 factory)', () => {
         policyData: '0x',
       },
     ])
-  })
-
-  test('custom factory address', () => {
-    const factoryAddress = '0x00000000000000000000000000000000000000aa' as const
-    const { factory } = toFactoryArgs({
-      ...params,
-      accountConfigAddress: factoryAddress,
-    })
-    expect(factory).toBe(factoryAddress)
   })
 
   test('factory deploys to the computeAddress address', () => {

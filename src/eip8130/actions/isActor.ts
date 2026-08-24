@@ -12,11 +12,6 @@ export type IsActorParameters = {
   account: Address
   /** The 32-byte actor identifier (see `key.*(...).actorId`). */
   actorId: Hex
-  /**
-   * `AccountConfiguration` system contract. Defaults to the canonical
-   * (enshrined) address, which is identical on every supported chain.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type IsActorReturnType = boolean
@@ -52,12 +47,11 @@ export async function isActor<
   client: Client<Transport, chain, account>,
   parameters: IsActorParameters,
 ): Promise<IsActorReturnType> {
-  const { account, actorId, accountConfiguration } = parameters
+  const { account, actorId } = parameters
 
   const { authenticator } = await getActorConfig(client, {
     account,
     actorId,
-    ...(accountConfiguration ? { accountConfiguration } : {}),
   })
   return authenticator !== zeroAddress
 }

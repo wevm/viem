@@ -3,15 +3,14 @@ import type { Address } from 'abitype'
 /**
  * Onchain addresses for an EIP-8130 deployment ([base/eip-8130](https://github.com/base/eip-8130)).
  *
- * On chains **without** native EIP-8130 support, these contracts provide the
- * portable path: `accountConfiguration` is the ERC-4337 factory / config
- * registry, `accounts` are the wallet implementations (proxied via ERC-1167),
- * and `authenticators` are the deployed authenticator contracts used during EVM
+ * The keystore itself is enshrined and identical on every chain (see
+ * {@link keystoreAddress}); it is not part of this per-chain record. On chains
+ * **without** native EIP-8130 support, these contracts provide the portable
+ * path: `accounts` are the wallet implementations (proxied via ERC-1167), and
+ * `authenticators` are the deployed authenticator contracts used during EVM
  * execution (native chains use the protocol sentinels instead).
  */
 export type Eip8130Deployment = {
-  /** AccountConfiguration system contract (factory + actor-config registry). */
-  accountConfiguration: Address
   /** Deployed wallet implementation contracts (the singletons account proxies delegate to). */
   accounts: {
     /**
@@ -78,14 +77,13 @@ export type Eip8130Deployment = {
  * the `0x8130…` vanity prefix (except `alwaysValid`, deployed under the zero
  * salt).
  *
- * `accountConfiguration` is enshrined in the execution client; using any other
- * value derives a different account address and the create transaction fails.
+ * The keystore is enshrined at {@link keystoreAddress} (not listed here, since it
+ * is fixed and not configurable).
  *
  * When the `base/eip-8130` contracts are recompiled (Solidity upgrade or
  * bytecode change), all addresses must be re-derived and this object updated.
  */
 export const canonicalEip8130Deployment = {
-  accountConfiguration: '0x81305d4f4976220D2af17E5Dc246848E235600AC',
   accounts: {
     // PENDING FINAL IMPLEMENTATION: the default `newSmartAccount` proxy is
     // `'upgradeable'`, which must delegate to a real UUPS `UpgradeableAccount`
@@ -128,7 +126,7 @@ export const baseSepoliaDeployment = {
  * EIP-8130 deployment for the Base "vibenet" devnet (chain id `84538453`).
  *
  * The devnet runs EIP-8130 **natively**: the execution client enshrines the
- * canonical `accountConfiguration`. Using any other value derives a different
+ * keystore at {@link keystoreAddress}. Using any other value derives a different
  * account address and create transactions fail with "create address mismatch".
  */
 export const vibenetDevnetDeployment = {

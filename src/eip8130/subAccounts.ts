@@ -88,8 +88,6 @@ export type FulfillAddSubAccountParameters = {
   implementation?: Address | undefined
   /** Deployment bytecode override (bypasses `proxy`/`implementation`). */
   code?: Hex | undefined
-  /** AccountConfiguration contract override. Defaults to canonical. */
-  accountConfigAddress?: Address | undefined
 }
 
 export type FulfillAddSubAccountReturnType = ToAccountReturnType & {
@@ -152,7 +150,6 @@ export function fulfillAddSubAccount(
     keyPolicy,
     proxy = 'upgradeable',
     implementation,
-    accountConfigAddress,
   } = parameters
 
   const parentActor = key.delegate(parent)
@@ -212,7 +209,6 @@ export function fulfillAddSubAccount(
     authenticator: canonicalAuthenticators.delegate,
     actorId: parentActor.actorId,
     scope: scopeUnrestricted,
-    accountConfigAddress,
   })
 
   return {

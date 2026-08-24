@@ -20,10 +20,7 @@ import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { getAction } from '../../utils/getAction.js'
 import { erc4337AccountAbi } from '../abis.js'
-import {
-  accountConfigAddress as defaultAccountConfigAddress,
-  ecrecoverAuthenticator,
-} from '../constants.js'
+import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 import { toFactoryArgs } from '../utils/accountConfigCalls.js'
 import { computeAddress } from '../utils/computeAddress.js'
@@ -62,8 +59,6 @@ export type ToSmartAccountParameters<
    * {@link sign} (e.g. 129 bytes for P-256).
    */
   stubData?: Hex | undefined
-  /** Account Configuration contract (the ERC-4337 factory). */
-  accountConfigAddress?: Address | undefined
 } & (
   | {
       /** Pre-deployed / known account address. */
@@ -140,7 +135,6 @@ export async function toSmartAccount<
     },
     getNonce,
     authenticator = ecrecoverAuthenticator,
-    accountConfigAddress = defaultAccountConfigAddress,
   } = parameters
 
   const entryPoint = {
@@ -187,7 +181,6 @@ export async function toSmartAccount<
       userSalt: parameters.userSalt,
       code,
       initialActors: parameters.initialActors,
-      accountConfigAddress,
     }
   }
 

@@ -4,7 +4,7 @@ import { isAddress } from '../../utils/address/isAddress.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
-import { accountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 import { computeAddress, deploymentHeader } from './computeAddress.js'
 
@@ -50,7 +50,7 @@ describe('computeAddress (EIP-8130)', () => {
     const effectiveSalt = keccak256(concatHex([userSalt, actorsCommitment]))
     const deploymentCode = concatHex([deploymentHeader(2), code])
     const expected = getCreate2Address({
-      from: accountConfigAddress,
+      from: keystoreAddress,
       salt: effectiveSalt,
       bytecode: deploymentCode,
     })
@@ -70,21 +70,6 @@ describe('computeAddress (EIP-8130)', () => {
       ...base,
       userSalt:
         '0x0000000000000000000000000000000000000000000000000000000000000002',
-    })
-    expect(a).not.toBe(b)
-  })
-
-  test('custom accountConfigAddress changes the address', () => {
-    const base = {
-      userSalt:
-        '0x0000000000000000000000000000000000000000000000000000000000000001',
-      code: '0x6080',
-      initialActors: [actorA],
-    } as const
-    const a = computeAddress(base)
-    const b = computeAddress({
-      ...base,
-      accountConfigAddress: '0x00000000000000000000000000000000000000ff',
     })
     expect(a).not.toBe(b)
   })

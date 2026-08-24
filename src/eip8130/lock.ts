@@ -27,7 +27,7 @@ import type { AaLock, AaUnlock } from './types/transaction.js'
  * @example
  * ```ts
  * import {
- *   accountConfigAddress,
+ *   keystoreAddress,
  *   lockChange,
  *   signAccountChanges,
  *   encodeApplySignedAccountChangesData,
@@ -45,7 +45,7 @@ import type { AaLock, AaUnlock } from './types/transaction.js'
  *   changes: [lockChange({ unlockDelay: 3600 })],
  * })
  * const data = encodeApplySignedAccountChangesData({ account, ...entry })
- * await sendCalls(client, { account, calls: [{ to: accountConfigAddress, data }], gas })
+ * await sendCalls(client, { account, calls: [{ to: keystoreAddress, data }], gas })
  * ```
  */
 

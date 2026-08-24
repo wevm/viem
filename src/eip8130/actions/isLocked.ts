@@ -6,16 +6,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
-import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 
 export type IsLockedParameters = {
   /** The account to check. */
   account: Address
-  /**
-   * `AccountConfiguration` system contract. Defaults to the canonical
-   * (enshrined) address, which is identical on every supported chain.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type IsLockedReturnType = boolean
@@ -43,11 +38,10 @@ export async function isLocked<
   client: Client<Transport, chain, account>,
   parameters: IsLockedParameters,
 ): Promise<IsLockedReturnType> {
-  const { account, accountConfiguration = defaultAccountConfigAddress } =
-    parameters
+  const { account } = parameters
 
   return readContract(client, {
-    address: accountConfiguration,
+    address: keystoreAddress,
     abi: accountConfigurationAbi,
     functionName: 'isLocked',
     args: [account],

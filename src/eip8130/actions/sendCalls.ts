@@ -64,18 +64,15 @@ async function resolveSigningScope(
   const { actorId, scope: declared } = account
   if (!actorId) return declared
 
-  const accountConfiguration = account.accountConfigAddress
   const bound = await isActor(client, {
     account: account.address,
     actorId,
-    ...(accountConfiguration ? { accountConfiguration } : {}),
   })
   if (!bound) return declared
 
   const { scope: onChain } = await getActorConfig(client, {
     account: account.address,
     actorId,
-    ...(accountConfiguration ? { accountConfiguration } : {}),
   })
   if (declared !== undefined && declared !== onChain)
     throw new ScopeMismatchError({ declared, onChain })

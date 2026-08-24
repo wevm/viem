@@ -14,10 +14,7 @@ import {
   type Keccak256ErrorType,
   keccak256,
 } from '../../utils/hash/keccak256.js'
-import {
-  accountConfigAddress as defaultAccountConfigAddress,
-  maxCodeSize,
-} from '../constants.js'
+import { keystoreAddress, maxCodeSize } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 
 /**
@@ -57,11 +54,6 @@ export type ComputeAddressParameters = {
    * (this also rejects duplicate `actorId`s).
    */
   initialActors: readonly AaActor[]
-  /**
-   * Account Configuration contract address (CREATE2 deployer). Defaults to the
-   * placeholder {@link accountConfigAddress} constant.
-   */
-  accountConfigAddress?: Address | undefined
 }
 
 export type ComputeAddressErrorType =
@@ -88,12 +80,7 @@ export type ComputeAddressErrorType =
  * the packed leaves are hashed once.
  */
 export function computeAddress(parameters: ComputeAddressParameters): Address {
-  const {
-    userSalt,
-    code,
-    initialActors,
-    accountConfigAddress = defaultAccountConfigAddress,
-  } = parameters
+  const { userSalt, code, initialActors } = parameters
 
   const codeSize = size(code)
   if (codeSize === 0) throw new BaseError('`code` must not be empty.')
@@ -133,7 +120,7 @@ export function computeAddress(parameters: ComputeAddressParameters): Address {
   const deploymentCode = concatHex([deploymentHeader(codeSize), code])
 
   return getCreate2Address({
-    from: accountConfigAddress,
+    from: keystoreAddress,
     salt: effectiveSalt,
     bytecode: deploymentCode,
   })

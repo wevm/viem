@@ -84,18 +84,19 @@ register8130Chains(vibenet.id)
 
 ## Deployment addresses
 
-Every protocol contract is deployed through a deterministic CREATE2 factory with a per-contract mined salt, so each address is a pure function of its bytecode — **identical on every chain**. The `viem/eip8130` actions already default to this canonical set (`accountConfiguration` is enshrined in the execution client), so you normally don't pass any addresses at all.
+Every protocol contract is deployed through a deterministic CREATE2 factory with a per-contract mined salt, so each address is a pure function of its bytecode — **identical on every chain**. The `viem/eip8130` actions already default to this canonical set, so you normally don't pass any addresses at all.
 
-The default is implied but extensible — fall back to `canonicalEip8130Deployment`, and override only if a chain ever pins a different set:
+The keystore itself is enshrined in the execution client and is not configurable: it lives at the fixed `keystoreAddress` constant, so it is not part of the per-chain deployment record. The rest of the addresses fall back to `canonicalEip8130Deployment`, and can be overridden only if a chain ever pins a different set:
 
 ```ts
-import { getEip8130Deployment, canonicalEip8130Deployment } from 'viem/eip8130'
+import { keystoreAddress, getEip8130Deployment, canonicalEip8130Deployment } from 'viem/eip8130'
+
+keystoreAddress                     // Keystore — factory + actor-config registry (enshrined, fixed)
 
 const deployment =
   getEip8130Deployment(chainId) ?? // per-chain override, if one is ever registered
   canonicalEip8130Deployment       // canonical default (every chain today)
 
-deployment.accountConfiguration     // Keystore — factory + actor-config registry (enshrined)
 deployment.accounts.default         // DefaultAccount — EIP-7702 delegate / proxy impl
 deployment.accounts.defaultHighRate // CanonicalHighRatePayerAccount — immutable (ERC-1167)
 deployment.authenticators.p256      // P-256 (webAuthn, delegate, k1, alwaysValid alongside)

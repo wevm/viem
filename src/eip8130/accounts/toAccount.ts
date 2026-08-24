@@ -6,7 +6,6 @@ import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { bytesToHex } from '../../utils/encoding/toHex.js'
 import {
   canonicalAuthenticators,
-  accountConfigAddress as defaultAccountConfigAddress,
   ecrecoverAuthenticator,
   scopeUnrestricted,
 } from '../constants.js'
@@ -85,8 +84,6 @@ export type ToAccountParameters = ToAccountBase &
          * ascending order.
          */
         initialActors: readonly AaActor[]
-        /** Account Configuration contract (CREATE2 deployer). Defaults to canonical. */
-        accountConfigAddress?: Address | undefined
         /** Override the derived address (advanced). */
         address?: Address | undefined
       }
@@ -101,8 +98,6 @@ export type ToAccountParameters = ToAccountBase &
         userSalt?: undefined
         code?: undefined
         initialActors?: undefined
-        /** AccountConfiguration for on-chain actor reads. Defaults to canonical. */
-        accountConfigAddress?: Address | undefined
       }
   )
 
@@ -121,8 +116,6 @@ export type ToAccountReturnType = {
    * set explicitly for non-K1 authenticators.
    */
   readonly actorId?: Hex | undefined
-  /** AccountConfiguration address used for on-chain actor reads (when known). */
-  readonly accountConfigAddress?: Address | undefined
   /**
    * Builds the `create` account-change entry (include in the first tx for
    * smart accounts). Throws if the account was constructed with a known `address`
@@ -190,9 +183,6 @@ export function toAccount(
   // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
   const isAddressOnly = parameters.userSalt === undefined
 
-  const accountConfigAddress =
-    parameters.accountConfigAddress ?? defaultAccountConfigAddress
-
   const address: Address = (() => {
     if (parameters.address) return parameters.address
     if (isAddressOnly)
@@ -203,7 +193,6 @@ export function toAccount(
       userSalt: parameters.userSalt!,
       code: parameters.code!,
       initialActors: parameters.initialActors!,
-      accountConfigAddress,
     })
   })()
 
@@ -224,7 +213,6 @@ export function toAccount(
     initialActors,
     scope,
     actorId,
-    accountConfigAddress,
 
     create() {
       if (isAddressOnly)
@@ -338,8 +326,6 @@ export type NewSmartAccountParameters = {
    * sorted by `actorId` in strictly ascending order (protocol requirement).
    */
   extraActors?: readonly AaActor[] | undefined
-  /** AccountConfiguration contract override (advanced). Defaults to canonical. */
-  accountConfigAddress?: Address | undefined
 }
 
 export type NewSmartAccountReturnType = ToAccountReturnType & {
@@ -414,7 +400,6 @@ export function newSmartAccount(
     proxy = 'upgradeable',
     admins = [],
     extraActors = [],
-    accountConfigAddress,
   } = parameters
 
   // Detect signer type and derive the primary actor.
@@ -494,7 +479,6 @@ export function newSmartAccount(
     code,
     initialActors: allActors,
     authenticator: signer.authenticator,
-    accountConfigAddress,
     // The primary (controlling) actor is registered without a scope, i.e. as an
     // admin actor (`scopeUnrestricted`). Admin actors may use ordered *or*
     // nonce-free nonces, so sends default to ordered (sequenced) mode — surface

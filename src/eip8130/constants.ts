@@ -243,16 +243,19 @@ export const txContextAddress =
   '0x813000000000000000000000000000000000aa02' satisfies Hex
 
 /**
- * Account Configuration system contract address (`ACCOUNT_CONFIG_ADDRESS`),
- * used as the CREATE2 deployer for account address derivation.
+ * The EIP-8130 keystore (`AccountConfiguration`) system contract address
+ * (`ACCOUNT_CONFIG_ADDRESS`), also used as the CREATE2 deployer for account
+ * address derivation.
  *
  * @remarks
- * Defaults to the [base/eip-8130](https://github.com/base/eip-8130) deployment
- * (Base Sepolia). The address may differ per chain — resolve via
- * {@link getEip8130Deployment}, or override via the `accountConfigAddress`
- * parameter of {@link computeAddress}.
+ * There is a single keystore: it is **enshrined** in the execution client and is
+ * identical on every supported chain (Base Sepolia, vibenet devnet, mainnet when
+ * live). It is deployed via [base/eip-8130](https://github.com/base/eip-8130)
+ * through Nick's deterministic CREATE2 factory with a mined salt. This value is
+ * not configurable — using any other address derives a different account address
+ * and the create transaction fails.
  */
-export const accountConfigAddress =
+export const keystoreAddress =
   '0x81305d4f4976220D2af17E5Dc246848E235600AC' satisfies Hex
 
 /**
@@ -261,7 +264,7 @@ export const accountConfigAddress =
  *
  * @remarks
  * Defaults to the base/eip-8130 deployment (Base Sepolia); see
- * {@link accountConfigAddress}.
+ * {@link keystoreAddress}.
  */
 export const defaultAccountAddress =
   '0x813078f98b3eb214046C8Dc93A771ac9de5AaDEf' satisfies Hex

@@ -7,18 +7,13 @@ import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import { accountConfigurationAbi } from '../abis.js'
-import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 
 export type GetPolicyParameters = {
   /** The account whose actor policy to read. */
   account: Address
   /** The 32-byte actor identifier (see `key.*(...).actorId`). */
   actorId: Hex
-  /**
-   * `AccountConfiguration` system contract. Defaults to the canonical
-   * (enshrined) address, which is identical on every supported chain.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type GetPolicyReturnType = {
@@ -57,17 +52,13 @@ export async function getPolicy<
   client: Client<Transport, chain, account>,
   parameters: GetPolicyParameters,
 ): Promise<GetPolicyReturnType> {
-  const {
-    account,
-    actorId,
-    accountConfiguration = defaultAccountConfigAddress,
-  } = parameters
+  const { account, actorId } = parameters
 
   // The finalized Keystore exposes a single combined read that returns the actor
   // config plus its policy manager and commitment; `policyManager` and
   // `policyCommitment` are zero for a non-live / ungated actor.
   const [, policyManager, policyCommitment] = await readContract(client, {
-    address: accountConfiguration,
+    address: keystoreAddress,
     abi: accountConfigurationAbi,
     functionName: 'getActor',
     args: [account, actorId],

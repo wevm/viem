@@ -6,16 +6,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
-import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
+import { keystoreAddress } from '../constants.js'
 
 export type GetLockStatusParameters = {
   /** The account whose lock status to read. */
   account: Address
-  /**
-   * `AccountConfiguration` system contract. Defaults to the canonical
-   * (enshrined) address, which is identical on every supported chain.
-   */
-  accountConfiguration?: Address | undefined
 }
 
 export type GetLockStatusReturnType = {
@@ -52,12 +47,11 @@ export async function getLockStatus<
   client: Client<Transport, chain, account>,
   parameters: GetLockStatusParameters,
 ): Promise<GetLockStatusReturnType> {
-  const { account, accountConfiguration = defaultAccountConfigAddress } =
-    parameters
+  const { account } = parameters
 
   const [locked, hasInitiatedUnlock, unlocksAt, unlockDelay] =
     await readContract(client, {
-      address: accountConfiguration,
+      address: keystoreAddress,
       abi: accountConfigurationAbi,
       functionName: 'getLockStatus',
       args: [account],
