@@ -336,26 +336,29 @@ async function submit(options: submit.Options) {
   if (claim.submissionId !== submissionId)
     return await submittingResult(options, claim)
 
-  let final: TxEnvelopeTempo.Serialized
-  let transactionHash: Hex.Hex
-  try {
-    const finalApprovals = await selectApprovals({
-      account: claim.account,
-      client: options.client,
-      config: claim.config,
-      hash: claim.hash,
-      approvals: claim.approvals,
-    })
-    final = MultisigOperation.serializeTransaction(claim, {
-      approvals: finalApprovals.selectedApprovals,
-    })
-    transactionHash = TxEnvelopeTempo.hash(
-      TxEnvelopeTempo.deserialize(final) as TxEnvelopeTempo.Signed,
-    )
-  } catch (error) {
-    await releaseSubmission(options.store, operationHash, submissionId)
-    throw error
-  }
+  const { final, transactionHash } = await (async () => {
+    try {
+      const finalApprovals = await selectApprovals({
+        account: claim.account,
+        client: options.client,
+        config: claim.config,
+        hash: claim.hash,
+        approvals: claim.approvals,
+      })
+      const final = MultisigOperation.serializeTransaction(claim, {
+        approvals: finalApprovals.selectedApprovals,
+      })
+      return {
+        final,
+        transactionHash: TxEnvelopeTempo.hash(
+          TxEnvelopeTempo.deserialize(final) as TxEnvelopeTempo.Signed,
+        ),
+      }
+    } catch (error) {
+      await releaseSubmission(options.store, operationHash, submissionId)
+      throw error
+    }
+  })()
 
   let result: unknown
   try {
