@@ -919,7 +919,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
     const account = Account.fromMultisig({
-      owners: [owner_1, owner_2],
+      owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613a, { size: 32 }),
       threshold: 2,
     })
