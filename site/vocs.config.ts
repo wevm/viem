@@ -3383,16 +3383,6 @@ export default defineConfig({
                   text: 'handleRequest',
                   link: '/tempo/utilities/Multisig.handleRequest',
                 },
-                {
-                  text: 'Operation',
-                  collapsed: true,
-                  items: [
-                    {
-                      text: 'Overview',
-                      link: '/tempo/utilities/Multisig.Operation',
-                    },
-                  ],
-                },
               ],
             },
             {

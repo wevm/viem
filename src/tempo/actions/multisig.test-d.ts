@@ -1,5 +1,5 @@
 import { tempoLocalnet } from 'viem/chains'
-import { Account, createClient, type Multisig } from 'viem/tempo'
+import { Account, createClient, type MultisigOperation } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -26,10 +26,10 @@ test('wallet actions expose multisig operations', async () => {
 
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(receipt.multisig).toEqualTypeOf<
-    Multisig.Operation.TransactionOperation | undefined
+    MultisigOperation.TransactionOperation | undefined
   >()
   expectTypeOf(transaction.multisig).toEqualTypeOf<
-    Multisig.Operation.TransactionOperation | undefined
+    MultisigOperation.TransactionOperation | undefined
   >()
-  expectTypeOf(operation).toEqualTypeOf<Multisig.Operation.Operation | null>()
+  expectTypeOf(operation).toEqualTypeOf<MultisigOperation.Operation | null>()
 })

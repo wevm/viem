@@ -741,7 +741,3 @@ function isSerializedTempoTransaction(value: unknown): value is Hex.Hex {
     (value.startsWith('0x76') || value.startsWith('0x78'))
   )
 }
-
-/** @experimental */
-// biome-ignore lint/performance/noBarrelFile: namespace module
-export * as Operation from 'ox/tempo/MultisigOperation'

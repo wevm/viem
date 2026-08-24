@@ -15,6 +15,7 @@ export {
   Channel,
   EarnShares,
   MultisigConfig,
+  MultisigOperation,
   Period,
   ReceivePolicyReceipt,
   TempoAddress,

@@ -14,8 +14,8 @@ import {
   Account,
   Actions,
   createClient,
-  Multisig,
   MultisigConfig,
+  MultisigOperation,
   P256,
   Storage,
   type Transaction,
@@ -949,8 +949,8 @@ describe('stateful', () => {
       method: 'multisig_approveRawTransactionSync',
       params: [transaction_1],
     } as never)
-    const pending = Multisig.Operation.fromRpc(
-      pendingRpc as Multisig.Operation.TransactionRpc,
+    const pending = MultisigOperation.fromRpc(
+      pendingRpc as MultisigOperation.TransactionRpc,
     )
     expect(pending).toMatchInlineSnapshot(
       {
