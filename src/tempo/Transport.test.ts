@@ -13,7 +13,7 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, Transaction } from 'viem/tempo'
+import { Account, Actions, Storage, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -22,7 +22,29 @@ import {
   getClient,
   http,
 } from '~test/tempo/config.js'
-import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
+import {
+  walletNamespaceCompat,
+  withFeePayer,
+  withMultisig,
+  withRelay,
+} from './Transport.js'
+
+describe('withMultisig', () => {
+  test('default', async () => {
+    const client = getClient({
+      transport: withMultisig(http(), { store: Storage.memory() }),
+    })
+
+    expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
+    expect(client.transport.type).toMatchInlineSnapshot(`"http"`)
+    await expect(
+      client.request({
+        method: 'multisig_getOperation',
+        params: [`0x${'ff'.repeat(32)}`],
+      } as never),
+    ).resolves.toMatchInlineSnapshot(`null`)
+  })
+})
 
 describe('withRelay', () => {
   let server: Http.Server

@@ -3318,6 +3318,11 @@ export default defineConfig({
           text: 'Transports',
           items: [
             {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'withMultisig',
+              link: '/tempo/transports/withMultisig',
+            },
+            {
               text: 'withRelay',
               link: '/tempo/transports/withRelay',
             },

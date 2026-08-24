@@ -25,8 +25,8 @@ import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
-import * as Multisig from './Multisig.js'
 import * as Storage from './Storage.js'
+import { withMultisig } from './Transport.js'
 
 /**
  * Configuration for a Tempo {@link Client}.
@@ -200,7 +200,7 @@ export function createClient<
       : baseChain
   const transport_ = transport ?? http()
   const resolvedTransport = experimental_multisig
-    ? wrapTransport(
+    ? withMultisig(
         transport_,
         experimental_multisig === true
           ? { store: Storage.memory() }
@@ -216,23 +216,4 @@ export function createClient<
     .extend(publicActions)
     .extend(walletActions)
     .extend(tempoActions()) as never
-}
-
-/** Wraps a transport with multisig request handling. */
-function wrapTransport(
-  transport: Transport,
-  parameters: Multisig.handleRequest.Parameters,
-): Transport {
-  return (options: Parameters<Transport>[0]) => {
-    const value = transport(options)
-    return {
-      ...value,
-      request: Multisig.handleRequest(
-        (request, requestOptions) =>
-          value.request(request as never, requestOptions),
-        parameters,
-      ) as typeof value.request,
-      value: { ...value.value, multisig: true },
-    }
-  }
 }

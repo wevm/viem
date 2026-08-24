@@ -19,7 +19,8 @@ the final transaction after the configured threshold is reached.
 Use normal [`sendTransaction`](/docs/actions/wallet/sendTransaction) and
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) for the standard client flow.
 Use [`Multisig.handleRequest`](/tempo/utilities/Multisig.handleRequest) when integrating the
-coordinator into another RPC handler.
+coordinator into another RPC handler. Use [`withMultisig`](/tempo/transports/withMultisig) when
+composing a transport directly.
 
 ## Client Setup
 

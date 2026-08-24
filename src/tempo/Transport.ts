@@ -14,6 +14,7 @@ import {
 } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Multisig from './Multisig.js'
 import * as Transaction from './Transaction.js'
 
 type RelayProxyParameters = {
@@ -23,6 +24,63 @@ type RelayProxyParameters = {
 
 export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type>
+
+/**
+ * Wraps a transport with native multisig request handling.
+ *
+ * @example
+ * ```ts
+ * import { http, Storage, withMultisig } from 'viem/tempo'
+ *
+ * const transport = withMultisig(http(), {
+ *   store: Storage.memory(),
+ * })
+ * ```
+ *
+ * @param transport - Transport to wrap.
+ * @param parameters - Multisig request handler parameters.
+ * @returns The wrapped transport.
+ * @experimental
+ */
+export function withMultisig<transport extends Transport>(
+  transport: transport,
+  parameters: withMultisig.Parameters,
+): withMultisig.ReturnValue<transport> {
+  return ((options: Parameters<Transport>[0]) => {
+    const value = transport(options)
+    return {
+      ...value,
+      request: Multisig.handleRequest(
+        (request, requestOptions) =>
+          value.request(request as never, requestOptions),
+        parameters,
+      ) as typeof value.request,
+      value: { ...value.value, multisig: true },
+    }
+  }) as withMultisig.ReturnValue<transport>
+}
+
+export declare namespace withMultisig {
+  /** Multisig transport parameters. */
+  export type Parameters = Multisig.handleRequest.Parameters
+
+  /** Multisig transport return type. */
+  export type ReturnValue<transport extends Transport = Transport> =
+    transport extends Transport<
+      infer type,
+      infer rpcAttributes,
+      infer eip1193RequestFn
+    >
+      ? Transport<
+          type,
+          rpcAttributes & {
+            /** Whether the transport coordinates native multisig approvals. */
+            multisig: true
+          },
+          eip1193RequestFn
+        >
+      : never
+}
 
 /**
  * Creates a relay transport that routes requests between
