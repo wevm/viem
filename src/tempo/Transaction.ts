@@ -7,6 +7,7 @@ import {
   type AuthorizationTempo,
   type KeyAuthorization,
   type MultisigConfig,
+  type MultisigOperation,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -41,7 +42,6 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { MultisigAccount } from './Account.js'
-import type * as Operation from './multisig/Operation.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -59,7 +59,7 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
     > & {
       authorizationList?: AuthorizationTempo.ListRpc | undefined
       keyAuthorization?: KeyAuthorization.Rpc | null | undefined
-      multisig?: string | undefined
+      multisig?: MultisigOperation.TransactionRpc | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
 >
@@ -80,7 +80,7 @@ export type TransactionTempo<
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
-  multisig?: Operation.Transaction | undefined
+  multisig?: MultisigOperation.TransactionOperation | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
@@ -104,7 +104,7 @@ export type TransactionReceipt<
   index = number,
   status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
-  multisig = Operation.Transaction,
+  multisig = MultisigOperation.TransactionOperation,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
@@ -116,7 +116,7 @@ export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   ox_TransactionReceipt.RpcStatus | 'pending',
   ox_TransactionReceipt.RpcType,
-  string
+  MultisigOperation.TransactionRpc
 >
 
 /** @internal */

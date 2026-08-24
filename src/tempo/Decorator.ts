@@ -2366,6 +2366,15 @@ type DecoratorBase<
   }
   multisig: {
     /**
+     * Gets a coordinated multisig operation by its hash.
+     *
+     * @param parameters - Parameters.
+     * @returns The operation, or `null` when it is unknown.
+     */
+    getOperation: (
+      parameters: multisigActions.getOperation.Parameters,
+    ) => Promise<multisigActions.getOperation.ReturnValue>
+    /**
      * Gets the current configuration for an initialized multisig account.
      *
      * @param parameters - Parameters.
@@ -6014,6 +6023,7 @@ export function decorator() {
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
         'getConfig',
+        'getOperation',
         'isInitialized',
         'updateConfig',
         'updateConfigSync',

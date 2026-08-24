@@ -14,6 +14,7 @@ import {
   Account,
   Actions,
   createClient,
+  Multisig,
   MultisigConfig,
   P256,
   Storage,
@@ -914,6 +915,221 @@ describe('stateful', () => {
     )
   })
 
+  test('supports standard and explicit approval RPCs', async () => {
+    const owner_1 = tempo.accounts[1]
+    const owner_2 = tempo.accounts[2]
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x10613a, { size: 32 }),
+      threshold: 2,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+    })
+    const approval_1 = await signTransaction(client, {
+      ...request,
+      account: owner_1,
+    })
+    const transaction_1 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_1],
+    })
+
+    const pendingRpc = await client.request({
+      method: 'multisig_approveRawTransactionSync',
+      params: [transaction_1],
+    } as never)
+    const pending = Multisig.Operation.fromRpc(
+      pendingRpc as Multisig.Operation.TransactionRpc,
+    )
+    expect(pending).toMatchInlineSnapshot(
+      {
+        approvals: [expect.any(String)],
+        createdAt: expect.any(Number),
+        hash: expect.any(String),
+        transaction: expect.any(String),
+        updatedAt: expect.any(Number),
+      },
+      `
+      {
+        "account": "0xca2be2dfec2bf1cb2ffe9e6b54fdd48dd07cdd76",
+        "approvals": [
+          Any<String>,
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x000000000000000000000000000000000000000000000000000000000010613a",
+          "threshold": 2,
+        },
+        "configVersion": 0n,
+        "createdAt": Any<Number>,
+        "hash": Any<String>,
+        "init": true,
+        "signatureCount": 1,
+        "status": "pending",
+        "threshold": 2,
+        "transaction": Any<String>,
+        "type": "transaction",
+        "updatedAt": Any<Number>,
+        "weight": 1,
+      }
+    `,
+    )
+    await expect(
+      client.multisig.getOperation({ hash: pending.hash }),
+    ).resolves.toStrictEqual(pending)
+
+    const pendingReceipt = await sendRawTransactionSync(client, {
+      serializedTransaction: transaction_1,
+      timeout: 1_000,
+    })
+    expect(pendingReceipt).toMatchInlineSnapshot(
+      {
+        multisig: {
+          approvals: [expect.any(String)],
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          transaction: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        transactionHash: expect.any(String),
+      },
+      `
+      {
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": null,
+        "effectiveGasPrice": null,
+        "from": "0xca2be2dfec2bf1cb2ffe9e6b54fdd48dd07cdd76",
+        "gasUsed": null,
+        "logs": [],
+        "logsBloom": null,
+        "multisig": {
+          "account": "0xca2be2dfec2bf1cb2ffe9e6b54fdd48dd07cdd76",
+          "approvals": [
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+                "weight": 1,
+              },
+              {
+                "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010613a",
+            "threshold": 2,
+          },
+          "configVersion": 0n,
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "init": true,
+          "signatureCount": 1,
+          "status": "pending",
+          "threshold": 2,
+          "transaction": Any<String>,
+          "type": "transaction",
+          "updatedAt": Any<Number>,
+          "weight": 1,
+        },
+        "status": "pending",
+        "to": null,
+        "transactionHash": Any<String>,
+        "transactionIndex": null,
+        "type": "tempo",
+      }
+    `,
+    )
+
+    const approval_2 = await signTransaction(client, {
+      ...request,
+      account: owner_2,
+    })
+    const transaction_2 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_2],
+    })
+    const hash = await client.request({
+      method: 'multisig_approveRawTransaction',
+      params: [transaction_2],
+    } as never)
+
+    expect(hash).toBe(pending.hash)
+    expect(
+      await client.multisig.getOperation({ hash: pending.hash }),
+    ).toMatchInlineSnapshot(
+      {
+        approvals: [expect.any(String), expect.any(String)],
+        createdAt: expect.any(Number),
+        hash: expect.any(String),
+        transaction: expect.any(String),
+        transactionHash: expect.any(String),
+        updatedAt: expect.any(Number),
+      },
+      `
+      {
+        "account": "0xca2be2dfec2bf1cb2ffe9e6b54fdd48dd07cdd76",
+        "approvals": [
+          Any<String>,
+          Any<String>,
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x000000000000000000000000000000000000000000000000000000000010613a",
+          "threshold": 2,
+        },
+        "configVersion": 0n,
+        "createdAt": Any<Number>,
+        "hash": Any<String>,
+        "init": true,
+        "signatureCount": 2,
+        "status": "success",
+        "threshold": 2,
+        "transaction": Any<String>,
+        "transactionHash": Any<String>,
+        "type": "transaction",
+        "updatedAt": Any<Number>,
+        "weight": 2,
+      }
+    `,
+    )
+    await expect(
+      client.multisig.getOperation({ hash: `0x${'ff'.repeat(32)}` }),
+    ).resolves.toMatchInlineSnapshot(`null`)
+  })
+
   test('examples: bootstrap and initialized', async () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
@@ -954,10 +1170,7 @@ describe('stateful', () => {
         approvals: [expect.any(String)],
         createdAt: expect.any(Number),
         hash: expect.any(String),
-        transaction: {
-          gas: expect.any(BigInt),
-          maxFeePerGas: expect.any(BigInt),
-        },
+        transaction: expect.any(String),
         updatedAt: expect.any(Number),
       },
       `
@@ -980,31 +1193,16 @@ describe('stateful', () => {
           "salt": "0x0000000000000000000000000000000000000000000000000000000000106120",
           "threshold": 2,
         },
+        "configVersion": 0n,
         "createdAt": Any<Number>,
         "hash": Any<String>,
         "init": true,
-        "schemaVersion": 1,
-        "signatures": 1,
+        "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "data": "0xa9059cbb0000000000000000000000000f9e2db5d73bf2698b3cc235a719200d209cd77c0000000000000000000000000000000000000000000000000000000000000001",
-              "to": "0x20c0000000000000000000000000000000000000",
-            },
-          ],
-          "chainId": 1337,
-          "feeToken": "0x20c0000000000000000000000000000000000000",
-          "from": "0x717a5616be548146187031a15fa458b78f2ef75f",
-          "gas": Any<BigInt>,
-          "maxFeePerGas": Any<BigInt>,
-          "nonce": 0,
-          "nonceKey": 0n,
-          "type": "tempo",
-        },
+        "transaction": Any<String>,
+        "type": "transaction",
         "updatedAt": Any<Number>,
-        "version": 0n,
         "weight": 1,
       }
     `,
@@ -1033,10 +1231,7 @@ describe('stateful', () => {
         approvals: [expect.any(String), expect.any(String)],
         createdAt: expect.any(Number),
         hash: expect.any(String),
-        transaction: {
-          gas: expect.any(BigInt),
-          maxFeePerGas: expect.any(BigInt),
-        },
+        transaction: expect.any(String),
         transactionHash: expect.any(String),
         updatedAt: expect.any(Number),
       },
@@ -1061,32 +1256,17 @@ describe('stateful', () => {
           "salt": "0x0000000000000000000000000000000000000000000000000000000000106120",
           "threshold": 2,
         },
+        "configVersion": 0n,
         "createdAt": Any<Number>,
         "hash": Any<String>,
         "init": true,
-        "schemaVersion": 1,
-        "signatures": 2,
+        "signatureCount": 2,
         "status": "success",
         "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "data": "0xa9059cbb0000000000000000000000000f9e2db5d73bf2698b3cc235a719200d209cd77c0000000000000000000000000000000000000000000000000000000000000001",
-              "to": "0x20c0000000000000000000000000000000000000",
-            },
-          ],
-          "chainId": 1337,
-          "feeToken": "0x20c0000000000000000000000000000000000000",
-          "from": "0x717a5616be548146187031a15fa458b78f2ef75f",
-          "gas": Any<BigInt>,
-          "maxFeePerGas": Any<BigInt>,
-          "nonce": 0,
-          "nonceKey": 0n,
-          "type": "tempo",
-        },
+        "transaction": Any<String>,
         "transactionHash": Any<String>,
+        "type": "transaction",
         "updatedAt": Any<Number>,
-        "version": 0n,
         "weight": 2,
       }
     `,
@@ -1155,12 +1335,7 @@ describe('stateful', () => {
         approvals: [expect.any(String)],
         createdAt: expect.any(Number),
         hash: expect.any(String),
-        transaction: {
-          gas: expect.any(BigInt),
-          maxFeePerGas: expect.any(BigInt),
-          validAfter: expect.any(Number),
-          validBefore: expect.any(Number),
-        },
+        transaction: expect.any(String),
         updatedAt: expect.any(Number),
       },
       `
@@ -1183,33 +1358,16 @@ describe('stateful', () => {
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 2,
         },
+        "configVersion": 0n,
         "createdAt": Any<Number>,
         "hash": Any<String>,
         "init": false,
-        "schemaVersion": 1,
-        "signatures": 1,
+        "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "data": "0xa9059cbb0000000000000000000000000f9e2db5d73bf2698b3cc235a719200d209cd77c0000000000000000000000000000000000000000000000000000000000000002",
-              "to": "0x20c0000000000000000000000000000000000000",
-            },
-          ],
-          "chainId": 1337,
-          "feeToken": "0x20c0000000000000000000000000000000000000",
-          "from": "0x717a5616be548146187031a15fa458b78f2ef75f",
-          "gas": Any<BigInt>,
-          "maxFeePerGas": Any<BigInt>,
-          "nonce": 0,
-          "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
-          "type": "tempo",
-          "validAfter": Any<Number>,
-          "validBefore": Any<Number>,
-        },
+        "transaction": Any<String>,
+        "type": "transaction",
         "updatedAt": Any<Number>,
-        "version": 0n,
         "weight": 1,
       }
     `,
@@ -1515,7 +1673,7 @@ describe('stateful', () => {
       hash: pending.transactionHash,
     })
     expect(refreshed).toMatchObject({
-      multisig: { signatures: 1, status: 'pending', weight: 1 },
+      multisig: { signatureCount: 1, status: 'pending', weight: 1 },
       status: 'pending',
     })
 
@@ -1524,7 +1682,7 @@ describe('stateful', () => {
       hash: pending.transactionHash,
     })
     expect(success).toMatchObject({
-      multisig: { signatures: 2, status: 'success', weight: 2 },
+      multisig: { signatureCount: 2, status: 'success', weight: 2 },
       status: 'success',
     })
   })
@@ -1572,11 +1730,17 @@ describe('stateful', () => {
     const operation_2 = (
       await getTransaction(client, { hash: pending_2.transactionHash })
     ).multisig
-    expect(operation_1?.transaction.nonceKey).toBe(maxUint256)
-    expect(operation_2?.transaction.nonceKey).toBe(maxUint256)
-    expect(operation_1?.transaction.validAfter).not.toBe(
-      operation_2?.transaction.validAfter,
+    if (!operation_1 || !operation_2)
+      throw new Error('Expected multisig operations.')
+    const transaction_1 = TxEnvelopeTempo.deserialize(
+      operation_1.transaction as never,
     )
+    const transaction_2 = TxEnvelopeTempo.deserialize(
+      operation_2.transaction as never,
+    )
+    expect(transaction_1.nonceKey).toBe(maxUint256)
+    expect(transaction_2.nonceKey).toBe(maxUint256)
+    expect(transaction_1.validAfter).not.toBe(transaction_2.validAfter)
 
     const [success_1, success_2] = await Promise.all([
       sendTransactionSync(client, {
@@ -1820,7 +1984,9 @@ describe('stateful', () => {
     })
     expect(
       TxEnvelopeTempo.getFeePayerSignPayload(
-        TxEnvelopeTempo.from(feePayerFirstPending.multisig!.transaction),
+        TxEnvelopeTempo.deserialize(
+          feePayerFirstPending.multisig!.transaction as never,
+        ),
         { sender: account.address },
       ),
     ).toBe(feePayerPayload)
@@ -2013,7 +2179,7 @@ describe('stateful', () => {
       feeToken: tempo.feeToken,
       multisig: account,
     })
-    expect(bootstrapPending.multisig?.version).toBe(0n)
+    expect(bootstrapPending.multisig?.configVersion).toBe(0n)
     expect(bootstrapPending.status).toBe('pending')
     const bootstrapSuccess = await sendTransactionSync(client, {
       hash: bootstrapPending.transactionHash,
@@ -2079,7 +2245,7 @@ describe('stateful', () => {
       salt: expect.any(String),
       threshold: 2,
     })
-    expect(pending.multisig?.version).toBe(1n)
+    expect(pending.multisig?.configVersion).toBe(1n)
     expect(pending.status).toBe('pending')
     const success = await sendTransactionSync(client, {
       hash: pending.transactionHash,

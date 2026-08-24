@@ -22,12 +22,14 @@ test('wallet actions expose multisig operations', async () => {
     hash,
   })
   const transaction = await client.getTransaction({ hash })
+  const operation = await client.multisig.getOperation({ hash })
 
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(receipt.multisig).toEqualTypeOf<
-    Multisig.Operation.Transaction | undefined
+    Multisig.Operation.TransactionOperation | undefined
   >()
   expectTypeOf(transaction.multisig).toEqualTypeOf<
-    Multisig.Operation.Transaction | undefined
+    Multisig.Operation.TransactionOperation | undefined
   >()
+  expectTypeOf(operation).toEqualTypeOf<Multisig.Operation.Operation | null>()
 })

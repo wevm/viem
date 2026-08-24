@@ -1,5 +1,11 @@
 import type { Address } from 'abitype'
-import { MultisigConfig } from 'ox/tempo'
+import type * as Hex from 'ox/Hex'
+import type * as RpcSchema from 'ox/RpcSchema'
+import {
+  MultisigConfig,
+  MultisigOperation,
+  type RpcSchemaTempo,
+} from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -19,6 +25,42 @@ import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
+
+/**
+ * Gets a coordinated multisig operation by its hash.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The operation, or `null` when it is unknown.
+ */
+export async function getOperation(
+  client: Client,
+  parameters: getOperation.Parameters,
+): Promise<getOperation.ReturnValue> {
+  type multisig_getOperation = Extract<
+    RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
+    { Method: 'multisig_getOperation' }
+  >
+  const operation = await client.request<multisig_getOperation>({
+    method: 'multisig_getOperation',
+    params: [parameters.hash],
+  })
+  return operation ? MultisigOperation.fromRpc(operation) : null
+}
+
+export declare namespace getOperation {
+  /** Parameters for {@link getOperation}. */
+  export type Parameters = {
+    /** Multisig operation hash. */
+    hash: Hex.Hex
+  }
+
+  /** Return value for {@link getOperation}. */
+  export type ReturnValue = MultisigOperation.Operation | null
+
+  /** Error type for {@link getOperation}. */
+  export type ErrorType = BaseErrorType
+}
 
 /**
  * Checks whether an address is an initialized native multisig account.

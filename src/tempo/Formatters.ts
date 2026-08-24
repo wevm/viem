@@ -3,6 +3,7 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import {
+  MultisigOperation,
   Transaction as ox_Transaction,
   TransactionRequest as ox_TransactionRequest,
 } from 'ox/tempo'
@@ -12,7 +13,6 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account } from './Account.js'
-import * as Operation from './multisig/Operation.js'
 import {
   isTempo,
   type Transaction,
@@ -76,11 +76,11 @@ export function formatTransactionReceipt(
   } as never
 }
 
-/** Deserializes a transaction operation attached to an RPC result. */
-function formatMultisig(value: string | undefined) {
+/** Formats a transaction operation attached to an RPC result. */
+function formatMultisig(value: MultisigOperation.TransactionRpc | undefined) {
   if (!value) return undefined
-  const operation = Operation.deserialize(value)
-  if (operation.keyAuthorization)
+  const operation = MultisigOperation.fromRpc(value)
+  if (operation.type !== 'transaction')
     throw new Error('Expected a multisig transaction operation.')
   return operation
 }

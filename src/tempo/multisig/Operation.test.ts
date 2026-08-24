@@ -1,107 +1,157 @@
-import * as Json from 'ox/Json'
-import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import { Address, P256 } from 'ox'
+import {
+  KeyAuthorization,
+  MultisigConfig,
+  MultisigOperation,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { Storage } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Operation from './Operation.js'
 
-const hash =
-  '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-const otherId =
-  '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-const ownerSignature = {
-  signature: {
-    r: BigInt(`0x76${'11'.repeat(31)}`),
-    s: 1n,
-    yParity: 0,
-  },
-  type: 'secp256k1',
-} as const
-const approval = SignatureEnvelope.serialize(ownerSignature)
-const base = {
-  account: '0x1111111111111111111111111111111111111111',
-  approvals: [approval],
-  config: {
-    owners: [
-      { owner: '0x1111111111111111111111111111111111111111', weight: 1 },
-      { owner: '0x2222222222222222222222222222222222222222', weight: 1 },
-    ],
-    threshold: 2,
-  },
-  createdAt: 1,
-  hash,
-  signatures: 1,
+const owners = [1n, 2n]
+  .map((value, index) => {
+    const publicKey = P256.getPublicKey({
+      privateKey: `0x${value.toString(16).padStart(64, '0')}`,
+    })
+    return {
+      address: Address.fromPublicKey(publicKey),
+      signature: SignatureEnvelope.serialize({
+        prehash: false,
+        publicKey,
+        signature: { r: BigInt(index * 2 + 1), s: BigInt(index * 2 + 2) },
+        type: 'p256',
+      }),
+    }
+  })
+  .sort((a, b) => a.address.localeCompare(b.address))
+const config = MultisigConfig.from({
+  owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
   threshold: 2,
-  updatedAt: 1,
+})
+const account = MultisigConfig.getAddress(config)
+const transaction = TxEnvelopeTempo.serialize(
+  TxEnvelopeTempo.from({
+    calls: [{ data: '0x1234', to: owners[0]!.address }],
+    chainId: 4217,
+  }),
+)
+const hash = MultisigConfig.getSignPayload({
+  account,
+  payload: TxEnvelopeTempo.getSignPayload(
+    TxEnvelopeTempo.deserialize(transaction),
+  ),
   version: 1n,
+})
+const base = {
+  account,
+  approvals: [owners[0]!.signature],
+  config,
+  configVersion: 1n,
+  createdAt: 1,
+  init: false,
+  signatureCount: 1,
+  threshold: 2,
+  updatedAt: 2,
   weight: 1,
 } as const
-const operation = Operation.from({
+const operation = MultisigOperation.from({
   ...base,
-  init: false,
+  hash,
   status: 'pending',
-  transaction: TxEnvelopeTempo.from({
-    calls: [{ to: '0x1111111111111111111111111111111111111111' }],
-    chainId: 4217,
-    type: 'tempo',
-  }),
+  transaction,
+  type: 'transaction',
 })
-const keyAuthorization = KeyAuthorization.from({
-  address: '0x3333333333333333333333333333333333333333',
-  chainId: 4217n,
-  expiry: 1_800_000_000,
-  type: 'secp256k1',
+const otherTransaction = TxEnvelopeTempo.serialize(
+  TxEnvelopeTempo.from({
+    calls: [{ data: '0x5678', to: owners[1]!.address }],
+    chainId: 4217,
+  }),
+)
+const otherOperation = MultisigOperation.from({
+  ...base,
+  hash: MultisigConfig.getSignPayload({
+    account,
+    payload: TxEnvelopeTempo.getSignPayload(
+      TxEnvelopeTempo.deserialize(otherTransaction),
+    ),
+    version: 1n,
+  }),
+  status: 'pending',
+  transaction: otherTransaction,
+  type: 'transaction',
+})
+const keyAuthorization = KeyAuthorization.serialize(
+  KeyAuthorization.from({
+    account,
+    address: '0x3333333333333333333333333333333333333333',
+    chainId: 4217n,
+    isAdmin: false,
+    type: 'secp256k1',
+  }),
+)
+const keyAuthorizationOperation = MultisigOperation.from({
+  ...base,
+  hash: MultisigConfig.getSignPayload({
+    account,
+    payload: KeyAuthorization.getSignPayload(
+      KeyAuthorization.deserialize(keyAuthorization),
+    ),
+    version: 1n,
+  }),
+  keyAuthorization,
+  status: 'pending',
+  type: 'keyAuthorization',
 })
 
 describe('read', () => {
   test('default', async () => {
     const store = Storage.memory()
-    await store.compareAndSet?.(
+    await store.setItem(
       `multisig:operation:${hash}`,
-      null,
       Operation.serialize(operation),
     )
 
-    expect(await Operation.read(store, hash)).toMatchInlineSnapshot(`
+    expect(await Operation.read(store, hash)).toMatchInlineSnapshot(
       {
-        "account": "0x1111111111111111111111111111111111111111",
+        approvals: [expect.any(String)],
+        transaction: expect.any(String),
+      },
+      `
+      {
+        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
         "approvals": [
-          "0x761111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011b",
+          Any<String>,
         ],
         "config": {
           "owners": [
             {
-              "owner": "0x1111111111111111111111111111111111111111",
+              "owner": "0x288f0cd85005f34168f731a468aef268c2f9456f",
               "weight": 1,
             },
             {
-              "owner": "0x2222222222222222222222222222222222222222",
+              "owner": "0xd3a9f047ad43d7e2e4e7e491f1fe2e657a2651b6",
               "weight": 1,
             },
           ],
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 2,
         },
+        "configVersion": 1n,
         "createdAt": 1,
-        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "hash": "0xbd127c104f2fa25a517f87e18b0ab95fba2ad308c8c404c5a0cc91ca14b0b2b0",
         "init": false,
-        "schemaVersion": 1,
-        "signatures": 1,
+        "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "to": "0x1111111111111111111111111111111111111111",
-            },
-          ],
-          "chainId": 4217,
-          "type": "tempo",
-        },
-        "updatedAt": 1,
-        "version": 1n,
+        "transaction": Any<String>,
+        "type": "transaction",
+        "updatedAt": 2,
         "weight": 1,
       }
-    `)
+    `,
+    )
   })
 
   test('behavior: unknown operation', async () => {
@@ -110,10 +160,9 @@ describe('read', () => {
 
   test('error: mismatched operation hash', async () => {
     const store = Storage.memory()
-    await store.compareAndSet?.(
+    await store.setItem(
       `multisig:operation:${hash}`,
-      null,
-      Operation.serialize({ ...operation, hash: otherId }),
+      Operation.serialize(otherOperation),
     )
 
     await expect(Operation.read(store, hash)).rejects.toThrowError(
@@ -121,102 +170,48 @@ describe('read', () => {
     )
   })
 
-  test('behavior: key authorization states', () => {
-    const pending = Operation.from({
-      ...base,
-      keyAuthorization,
-      status: 'pending',
-    })
-    const success = Operation.from({
-      ...base,
-      keyAuthorization: KeyAuthorization.from(keyAuthorization, {
-        signature: ownerSignature,
-      }),
-      status: 'success',
-    })
-
-    expect(pending).toMatchInlineSnapshot(`
+  test('behavior: key authorization operation', () => {
+    expect(
+      Operation.deserialize(Operation.serialize(keyAuthorizationOperation)),
+    ).toMatchInlineSnapshot(
       {
-        "account": "0x1111111111111111111111111111111111111111",
+        approvals: [expect.any(String)],
+        keyAuthorization: expect.any(String),
+      },
+      `
+      {
+        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
         "approvals": [
-          "0x761111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011b",
+          Any<String>,
         ],
         "config": {
           "owners": [
             {
-              "owner": "0x1111111111111111111111111111111111111111",
+              "owner": "0x288f0cd85005f34168f731a468aef268c2f9456f",
               "weight": 1,
             },
             {
-              "owner": "0x2222222222222222222222222222222222222222",
+              "owner": "0xd3a9f047ad43d7e2e4e7e491f1fe2e657a2651b6",
               "weight": 1,
             },
           ],
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 2,
         },
+        "configVersion": 1n,
         "createdAt": 1,
-        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "keyAuthorization": {
-          "address": "0x3333333333333333333333333333333333333333",
-          "chainId": 4217n,
-          "expiry": 1800000000,
-          "type": "secp256k1",
-        },
-        "schemaVersion": 1,
-        "signatures": 1,
+        "hash": "0x14570ae04d1d0ef96c67a67effbc75dc769f4658c675aac6a3e18cebcfdb2b6c",
+        "init": false,
+        "keyAuthorization": Any<String>,
+        "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
-        "updatedAt": 1,
-        "version": 1n,
+        "type": "keyAuthorization",
+        "updatedAt": 2,
         "weight": 1,
       }
-    `)
-    expect(success).toMatchInlineSnapshot(`
-      {
-        "account": "0x1111111111111111111111111111111111111111",
-        "approvals": [
-          "0x761111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011b",
-        ],
-        "config": {
-          "owners": [
-            {
-              "owner": "0x1111111111111111111111111111111111111111",
-              "weight": 1,
-            },
-            {
-              "owner": "0x2222222222222222222222222222222222222222",
-              "weight": 1,
-            },
-          ],
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "threshold": 2,
-        },
-        "createdAt": 1,
-        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "keyAuthorization": {
-          "address": "0x3333333333333333333333333333333333333333",
-          "chainId": 4217n,
-          "expiry": 1800000000,
-          "signature": {
-            "signature": {
-              "r": 53403070322730984920610472513121428335453422615325374717156088874482852237585n,
-              "s": 1n,
-              "yParity": 0,
-            },
-            "type": "secp256k1",
-          },
-          "type": "secp256k1",
-        },
-        "schemaVersion": 1,
-        "signatures": 1,
-        "status": "success",
-        "threshold": 2,
-        "updatedAt": 1,
-        "version": 1n,
-        "weight": 1,
-      }
-    `)
+    `,
+    )
   })
 })
 
@@ -239,88 +234,8 @@ describe('update', () => {
 
     await expect(
       Operation.update(store, hash, () => operation),
-    ).resolves.toMatchInlineSnapshot(`
-      {
-        "account": "0x1111111111111111111111111111111111111111",
-        "approvals": [
-          "0x761111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011b",
-        ],
-        "config": {
-          "owners": [
-            {
-              "owner": "0x1111111111111111111111111111111111111111",
-              "weight": 1,
-            },
-            {
-              "owner": "0x2222222222222222222222222222222222222222",
-              "weight": 1,
-            },
-          ],
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "threshold": 2,
-        },
-        "createdAt": 1,
-        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "init": false,
-        "schemaVersion": 1,
-        "signatures": 1,
-        "status": "pending",
-        "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "to": "0x1111111111111111111111111111111111111111",
-            },
-          ],
-          "chainId": 4217,
-          "type": "tempo",
-        },
-        "updatedAt": 1,
-        "version": 1n,
-        "weight": 1,
-      }
-    `)
-    await expect(Operation.read(store, hash)).resolves.toMatchInlineSnapshot(`
-      {
-        "account": "0x1111111111111111111111111111111111111111",
-        "approvals": [
-          "0x761111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000011b",
-        ],
-        "config": {
-          "owners": [
-            {
-              "owner": "0x1111111111111111111111111111111111111111",
-              "weight": 1,
-            },
-            {
-              "owner": "0x2222222222222222222222222222222222222222",
-              "weight": 1,
-            },
-          ],
-          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "threshold": 2,
-        },
-        "createdAt": 1,
-        "hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "init": false,
-        "schemaVersion": 1,
-        "signatures": 1,
-        "status": "pending",
-        "threshold": 2,
-        "transaction": {
-          "calls": [
-            {
-              "to": "0x1111111111111111111111111111111111111111",
-            },
-          ],
-          "chainId": 4217,
-          "type": "tempo",
-        },
-        "updatedAt": 1,
-        "version": 1n,
-        "weight": 1,
-      }
-    `)
+    ).resolves.toStrictEqual(operation)
+    await expect(Operation.read(store, hash)).resolves.toStrictEqual(operation)
   })
 
   test('behavior: falls back to get and set', async () => {
@@ -357,7 +272,7 @@ describe('update', () => {
   test('error: stored operation hash does not match', async () => {
     const store = Storage.from({
       compareAndSet: async () => true,
-      getItem: async () => Operation.serialize({ ...operation, hash: otherId }),
+      getItem: async () => Operation.serialize(otherOperation),
       removeItem() {},
       setItem() {},
     })
@@ -369,10 +284,7 @@ describe('update', () => {
 
   test('error: updated operation hash does not match', async () => {
     await expect(
-      Operation.update(Storage.memory(), hash, () => ({
-        ...operation,
-        hash: otherId,
-      })),
+      Operation.update(Storage.memory(), hash, () => otherOperation),
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 })
@@ -385,10 +297,28 @@ describe('serialize', () => {
   })
 
   test('error: oversized value', () => {
-    const oversized = {
+    const oversizedTransaction = TxEnvelopeTempo.serialize(
+      TxEnvelopeTempo.from({
+        calls: [
+          {
+            data: `0x${'aa'.repeat(524_288)}`,
+            to: owners[0]!.address,
+          },
+        ],
+        chainId: 4217,
+      }),
+    )
+    const oversized = MultisigOperation.from({
       ...operation,
-      approvals: [`0x${'aa'.repeat(524_288)}` as const],
-    }
+      hash: MultisigConfig.getSignPayload({
+        account,
+        payload: TxEnvelopeTempo.getSignPayload(
+          TxEnvelopeTempo.deserialize(oversizedTransaction),
+        ),
+        version: 1n,
+      }),
+      transaction: oversizedTransaction,
+    })
 
     expect(() => Operation.serialize(oversized)).toThrowError(
       Operation.InvalidStoreValueError,
@@ -398,10 +328,10 @@ describe('serialize', () => {
     )
   })
 
-  test('error: unsupported schema version', () => {
-    expect(() =>
-      Operation.deserialize(Json.stringify({ ...operation, schemaVersion: 2 })),
-    ).toThrowError(Operation.InvalidStoreValueError)
+  test('error: malformed value', () => {
+    expect(() => Operation.deserialize('{')).toThrowError(
+      Operation.InvalidStoreValueError,
+    )
   })
 })
 

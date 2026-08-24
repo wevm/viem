@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import {
   MultisigConfig,
+  type MultisigOperation,
   SignatureEnvelope,
   type TokenId,
   TxEnvelopeTempo,
@@ -29,7 +30,6 @@ import {
   createMultisigStateResolver,
   getMultisigOwnerStates,
 } from './internal/multisig.js'
-import type * as Operation from './multisig/Operation.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -96,14 +96,19 @@ export const chainConfig = {
         )({ hash: request.hash })
         const operation =
           'multisig' in transaction
-            ? (transaction.multisig as Operation.Transaction | undefined)
+            ? (transaction.multisig as
+                | MultisigOperation.TransactionOperation
+                | undefined)
             : undefined
         if (!operation)
           throw new Error('Expected a multisig operation transaction.')
+        const storedTransaction = TxEnvelopeTempo.deserialize(
+          operation.transaction as never,
+        )
         const hash = MultisigConfig.getSignPayload({
           account: operation.account,
-          payload: TxEnvelopeTempo.getSignPayload(operation.transaction),
-          version: operation.version,
+          payload: TxEnvelopeTempo.getSignPayload(storedTransaction),
+          version: operation.configVersion,
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
           throw new Error('Multisig operation hash does not match transaction.')
@@ -123,13 +128,13 @@ export const chainConfig = {
               )
             : []
         return {
-          ...operation.transaction,
+          ...storedTransaction,
           from: operation.account,
           multisig: operation.init ? operation.config : operation.account,
           ...(ownerStates.length > 0 && {
             multisigOwnerStates: ownerStates,
           }),
-          multisigVersion: operation.version,
+          multisigVersion: operation.configVersion,
         } as unknown as typeof r
       }
 
