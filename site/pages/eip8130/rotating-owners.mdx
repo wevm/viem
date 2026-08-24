@@ -48,11 +48,9 @@ An unrestricted (full-owner) actor uses scope `0`.
 Every config change is signed against the account's **next** config sequence. Read it first to avoid sequence-mismatch rejections:
 
 ```ts
-import { getConfigSequence, getEip8130Deployment } from 'viem/eip8130'
+import { getConfigSequence } from 'viem/eip8130'
 
-const { accountConfiguration } = getEip8130Deployment(client.chain.id)!
 const { local: sequence } = await getConfigSequence(client, {
-  accountConfiguration,
   account: account.address,
 })
 ```
@@ -115,7 +113,6 @@ const rotate = await account.change(
 import { getConfigSequence, incrementLocalEpoch, sendCalls } from 'viem/eip8130'
 
 const { local: sequence } = await getConfigSequence(client, {
-  accountConfiguration,
   account: account.address,
 })
 

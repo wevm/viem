@@ -39,6 +39,7 @@ export {
   type GetConfigSequenceParameters,
   type GetConfigSequenceReturnType,
   getConfigSequence,
+  unsequencedLocalSequence,
 } from './actions/getConfigSequence.js'
 export {
   type GetLockStatusParameters,
@@ -142,6 +143,7 @@ export {
   scopeUnrestricted,
   trustedExecutorAuthenticator,
   txContextAddress,
+  unsequencedLocalHalf,
 } from './constants.js'
 export {
   baseSepoliaDeployment,

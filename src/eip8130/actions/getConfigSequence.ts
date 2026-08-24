@@ -5,12 +5,19 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { accountConfigurationAbi } from '../abis.js'
+import {
+  accountConfigAddress as defaultAccountConfigAddress,
+  unsequencedLocalHalf,
+} from '../constants.js'
 
 export type GetConfigSequenceParameters = {
-  /** The EIP-8130 AccountConfiguration system contract address. */
-  accountConfiguration: Address
   /** The account whose local config sequence to read. */
   account: Address
+  /**
+   * `AccountConfiguration` (keystore) system contract. Defaults to the canonical
+   * (enshrined) address, which is identical on every supported chain.
+   */
+  accountConfiguration?: Address | undefined
 }
 
 export type GetConfigSequenceReturnType = {
@@ -40,11 +47,11 @@ export type GetConfigSequenceReturnType = {
  * Calling this before signing any owner change (authorize / revoke) prevents
  * sequence-mismatch rejections caused by a stale local cache.
  *
+ * For an *unsequenced* (JIT) local change, don't use `local` — build the word
+ * from `localEpoch` via {@link unsequencedLocalSequence} instead.
+ *
  * @example
- * const { local } = await getConfigSequence(client, {
- *   accountConfiguration: deployment.accountConfiguration,
- *   account: accountAddress,
- * })
+ * const { local } = await getConfigSequence(client, { account: accountAddress })
  * // Use `local` as the sequence for the next AccountChange.
  */
 export async function getConfigSequence<
@@ -54,7 +61,8 @@ export async function getConfigSequence<
   client: Client<Transport, chain, account>,
   parameters: GetConfigSequenceParameters,
 ): Promise<GetConfigSequenceReturnType> {
-  const { accountConfiguration, account } = parameters
+  const { account, accountConfiguration = defaultAccountConfigAddress } =
+    parameters
 
   const result = await readContract(client, {
     address: accountConfiguration,
@@ -73,4 +81,31 @@ export async function getConfigSequence<
     localEpoch: result.localEpoch,
     localSequence: result.localSequence,
   }
+}
+
+/**
+ * Builds an *unsequenced* (JIT) `'local'` channel sequence word from the current
+ * `localEpoch`: `localEpoch (high 32) || UNSEQUENCED (low 32)`, where
+ * `UNSEQUENCED` is {@link unsequencedLocalHalf} (`type(uint32).max`).
+ *
+ * A change signed at this word is bound to the current epoch but not pinned to a
+ * monotonic `localSequence`: it may land at any position within the epoch and is
+ * invalidated by an `incrementLocalEpoch` bump. Pass it as the `sequence` to
+ * `account.change(...)` / `signAccountChanges(...)`.
+ *
+ * @example
+ * import { getConfigSequence, unsequencedLocalSequence } from 'viem/eip8130'
+ *
+ * const { localEpoch } = await getConfigSequence(client, { account: account.address })
+ * const change = await account.change(changes, {
+ *   channel: 'local',
+ *   chainId: client.chain.id,
+ *   sequence: unsequencedLocalSequence(localEpoch),
+ * })
+ *
+ * @param localEpoch - The current local epoch (from {@link getConfigSequence}).
+ * @returns The packed `uint64` local sequence word with the unsequenced sentinel.
+ */
+export function unsequencedLocalSequence(localEpoch: number): bigint {
+  return (BigInt(localEpoch) << 32n) | unsequencedLocalHalf
 }

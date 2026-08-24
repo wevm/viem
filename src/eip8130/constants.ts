@@ -85,6 +85,19 @@ export const changeType = {
 } as const
 
 /**
+ * JIT sentinel for the **local** channel's low 32 bits (`localSequence`):
+ * `type(uint32).max`. When a `'local'` sequence word's low half equals this, the
+ * signed change is *unsequenced* — bound to the current `localEpoch` (the high 32
+ * bits) but not pinned to a monotonic `localSequence`, so it may land at any
+ * position within the epoch and is invalidated by an `incrementLocalEpoch` bump.
+ * Mirrors `Keystore.UNSEQUENCED`.
+ *
+ * Build the full `uint64` sequence word from the current epoch with
+ * {@link unsequencedLocalSequence}.
+ */
+export const unsequencedLocalHalf = 0xffff_ffffn
+
+/**
  * Actor scope permission bitmask values (base/eip-8130 `AccountConfiguration`).
  *
  * `0x00` (unrestricted) is admin: an actor is admin iff `scope == 0`. There is

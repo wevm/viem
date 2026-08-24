@@ -224,7 +224,7 @@ export function revokeActor(actor: AaActor | Hex): AaRevokeActor {
  * sequence from {@link getConfigSequence}; it takes no payload.
  *
  * @example
- * const { local } = await getConfigSequence(client, { accountConfiguration, account })
+ * const { local } = await getConfigSequence(client, { account })
  * const bump = await account.change([incrementLocalEpoch()], { chainId, sequence: local })
  */
 export function incrementLocalEpoch(): AaIncrementLocalEpoch {
