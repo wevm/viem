@@ -48,7 +48,7 @@ Multisig request handler configuration.
 
 #### parameters.store
 
-- **Type:** `Storage.Storage`
+- **Type:** `Storage.Atomic`
 
-Storage shared by every coordinator for the same multisig accounts. Production stores should
-implement atomic `compareAndSet` to prevent concurrent approvals from overwriting each other.
+Store shared by every coordinator for the same multisig accounts. It must implement atomic
+`compareAndSet` to prevent concurrent approvals from overwriting each other.

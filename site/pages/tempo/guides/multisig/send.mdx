@@ -90,9 +90,8 @@ Every process coordinating the same multisig must use the same persistent store.
 coordination across processes.
 :::
 
-When the store implements `compareAndSet`, concurrent approvals cannot overwrite each other.
-Without it, coordination falls back to `getItem` and `setItem`, so an owner may need to retry after
-concurrent submissions.
+The store must implement atomic `compareAndSet` so concurrent approvals cannot overwrite each
+other.
 
 #### Set Up the Owners and Account
 

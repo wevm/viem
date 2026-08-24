@@ -23,9 +23,9 @@ export async function read(
   return operation
 }
 
-/** Updates a multisig operation, atomically when the store supports it. */
+/** Atomically updates a multisig operation. */
 export async function update(
-  store: Storage.Storage,
+  store: Storage.Atomic,
   hash: Hex.Hex,
   update: (
     operation: MultisigOperation.Operation | null,
@@ -37,19 +37,16 @@ export async function update(
     const current = value === null ? null : deserialize(value)
     if (current && current.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
+    const value_ = await update(current)
     let next: MultisigOperation.Operation
     try {
-      next = MultisigOperation.from(await update(current))
+      next = MultisigOperation.from(value_)
     } catch (cause) {
       throw new InvalidStoreValueError({ cause })
     }
     if (next.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
     const serialized = serialize(next)
-    if (!store.compareAndSet) {
-      await store.setItem(key, serialized)
-      return next
-    }
     if (await store.compareAndSet(key, value, serialized)) return next
   }
   throw new StoreConflictError()
@@ -59,7 +56,9 @@ export async function update(
 export function deserialize(value: string): MultisigOperation.Operation {
   try {
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
-    return MultisigOperation.from(Json.parse(value) as never)
+    const operation = MultisigOperation.from(Json.parse(value) as never)
+    assertHash(operation)
+    return operation
   } catch (cause) {
     if (cause instanceof InvalidStoreValueError) throw cause
     throw new InvalidStoreValueError({ cause })
@@ -69,13 +68,36 @@ export function deserialize(value: string): MultisigOperation.Operation {
 /** Serializes a multisig operation for storage. */
 export function serialize(operation: MultisigOperation.Operation): string {
   try {
-    const value = Json.stringify(MultisigOperation.from(operation))
+    const operation_ = MultisigOperation.from(operation)
+    assertHash(operation_)
+    const value = Json.stringify(operation_)
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
     return value
   } catch (cause) {
     if (cause instanceof InvalidStoreValueError) throw cause
     throw new InvalidStoreValueError({ cause })
   }
+}
+
+/** Verifies that the operation hash commits to its stored payload. */
+function assertHash(operation: MultisigOperation.Operation) {
+  const hash = MultisigOperation.getHash(
+    operation.type === 'transaction'
+      ? {
+          account: operation.account,
+          configVersion: operation.configVersion,
+          transaction: operation.transaction,
+          type: operation.type,
+        }
+      : {
+          account: operation.account,
+          configVersion: operation.configVersion,
+          keyAuthorization: operation.keyAuthorization,
+          type: operation.type,
+        },
+  )
+  if (hash.toLowerCase() !== operation.hash.toLowerCase())
+    throw new InvalidStoreValueError()
 }
 
 /** Returns the store key for an operation hash. */

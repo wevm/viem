@@ -30,6 +30,11 @@ export function handleRequest(
   next: handleRequest.Handler,
   parameters: handleRequest.Parameters,
 ): handleRequest.Handler {
+  if (!parameters.store.compareAndSet)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Multisig coordination requires a store with atomic `compareAndSet`.',
+    })
   const client = createClient({
     transport: custom({
       request: ({ method, params }, options) =>
@@ -166,8 +171,14 @@ export declare namespace handleRequest {
   /** Parameters for {@link handleRequest}. */
   export type Parameters = {
     /** Storage shared by multisig coordinators. */
-    store: Storage.Storage
+    store: Storage.Atomic
   }
+
+  /** Error type for {@link handleRequest}. */
+  export type ErrorType =
+    | OperationStore.InvalidStoreValueError
+    | OperationStore.StoreConflictError
+    | RpcResponse.InvalidParamsError
 }
 
 /** Collects approvals and submits a transaction after quorum. @internal */
@@ -285,20 +296,11 @@ async function submit(options: submit.Options) {
   if (operation.weight < operation.threshold)
     return pendingResult(options.method, operation)
 
-  const finalApprovals = await selectApprovals({
-    account: operation.account,
-    client: options.client,
-    config: operation.config,
-    hash: operation.hash,
-    approvals: operation.approvals,
-  })
-  const final = MultisigOperation.serializeTransaction(operation, {
-    approvals: finalApprovals.selectedApprovals,
-  })
-  const transactionHash = TxEnvelopeTempo.hash(
-    TxEnvelopeTempo.deserialize(final) as TxEnvelopeTempo.Signed,
-  )
   const submissionId = Hex.random(32)
+  const timeout = options.request.params?.[1]
+  const synchronous =
+    options.method === 'eth_sendRawTransactionSync' ||
+    options.method === 'multisig_approveRawTransactionSync'
   const claim = await OperationStore.update(
     options.store,
     operationHash,
@@ -308,22 +310,52 @@ async function submit(options: submit.Options) {
       if (current.status === 'success') return current
       if (current.status === 'submitting' && current.expiresAt! > Date.now())
         return current
+      if (current.weight < current.threshold) return current
+      const now = Date.now()
+      // Keep the lease live for the full synchronous broadcast timeout.
+      const leaseTtl =
+        synchronous &&
+        typeof timeout === 'number' &&
+        Number.isSafeInteger(timeout) &&
+        timeout >= 0
+          ? timeout + submissionTtl
+          : submissionTtl
       return MultisigOperation.from({
         ...current,
-        expiresAt: Date.now() + submissionTtl,
+        expiresAt: Math.min(now + leaseTtl, Number.MAX_SAFE_INTEGER),
         status: 'submitting',
         submissionId,
-        updatedAt: Date.now(),
+        updatedAt: now,
       })
     },
   )
   if (claim.type !== 'transaction')
     throw new OperationStore.InvalidStoreValueError()
   if (claim.status === 'success') return await submittedResult(options, claim)
-  if (claim.status !== 'submitting')
-    throw new OperationStore.InvalidStoreValueError()
+  if (claim.status === 'pending') return pendingResult(options.method, claim)
   if (claim.submissionId !== submissionId)
     return await submittingResult(options, claim)
+
+  let final: TxEnvelopeTempo.Serialized
+  let transactionHash: Hex.Hex
+  try {
+    const finalApprovals = await selectApprovals({
+      account: claim.account,
+      client: options.client,
+      config: claim.config,
+      hash: claim.hash,
+      approvals: claim.approvals,
+    })
+    final = MultisigOperation.serializeTransaction(claim, {
+      approvals: finalApprovals.selectedApprovals,
+    })
+    transactionHash = TxEnvelopeTempo.hash(
+      TxEnvelopeTempo.deserialize(final) as TxEnvelopeTempo.Signed,
+    )
+  } catch (error) {
+    await releaseSubmission(options.store, operationHash, submissionId)
+    throw error
+  }
 
   let result: unknown
   try {
@@ -408,7 +440,7 @@ declare namespace submit {
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
-    store: Storage.Storage
+    store: Storage.Atomic
   }
 }
 
@@ -589,7 +621,7 @@ function pendingResult(
 
 /** Marks a transaction as successful after a lookup proves that it was submitted. */
 async function completeSubmission(
-  store: Storage.Storage,
+  store: Storage.Atomic,
   operation: MultisigOperation.TransactionOperation,
   transactionHash: Hex.Hex,
 ) {
@@ -614,7 +646,7 @@ async function completeSubmission(
 
 /** Releases a failed submission lease without discarding collected approvals. */
 async function releaseSubmission(
-  store: Storage.Storage,
+  store: Storage.Atomic,
   hash: Hex.Hex,
   submissionId: Hex.Hex,
 ) {

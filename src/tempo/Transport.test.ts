@@ -44,6 +44,22 @@ describe('withMultisig', () => {
       } as never),
     ).resolves.toMatchInlineSnapshot(`null`)
   })
+
+  test('error: non-atomic store', () => {
+    const store = Storage.from({
+      getItem: async () => null,
+      removeItem() {},
+      setItem() {},
+    })
+
+    expect(() =>
+      getClient({
+        transport: withMultisig(http(), { store } as never),
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RpcResponse.InvalidParamsError: Multisig coordination requires a store with atomic \`compareAndSet\`.]
+    `)
+  })
 })
 
 describe('withRelay', () => {

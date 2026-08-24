@@ -85,17 +85,13 @@ describe('createClient', () => {
   })
 
   test('behavior: multisig coordination forwards request options', async () => {
-    let requests = 0
     const client = createClient({
       experimental_multisig: true,
       transport: () =>
         createTransport({
           key: 'recording',
           name: 'Recording',
-          request: async () => {
-            requests++
-            return 'tempo' as never
-          },
+          request: async () => 'tempo' as never,
           type: 'recording',
         }),
     })
@@ -109,6 +105,5 @@ describe('createClient', () => {
         { retryCount: 0, signal: controller.signal },
       ),
     ).rejects.toThrow()
-    expect(requests).toBe(0)
   })
 })

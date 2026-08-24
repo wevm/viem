@@ -59,8 +59,8 @@ export const client = createClient({
 })
 ```
 
-The store must implement [`Storage`](/tempo/utilities/Storage). Stores can implement
-`compareAndSet` to preserve concurrent approvals atomically. Coordinated owners use normal
+The store must implement [`Storage.Atomic`](/tempo/utilities/Storage), including atomic
+`compareAndSet`. Coordinated owners use normal
 `sendTransaction` actions and pass the first approval's operation hash to later approvals. See
 [Send Multisig Transactions](/tempo/guides/multisig/send).
 :::

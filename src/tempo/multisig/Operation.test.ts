@@ -225,29 +225,11 @@ describe('update', () => {
           conflict = false
           return false
         }
-        return await memory.compareAndSet!(key, expected, value)
+        return await memory.compareAndSet(key, expected, value)
       },
       getItem: (key) => memory.getItem(key),
       removeItem: (key) => memory.removeItem(key),
       setItem: (key, value) => memory.setItem(key, value),
-    })
-
-    await expect(
-      Operation.update(store, hash, () => operation),
-    ).resolves.toStrictEqual(operation)
-    await expect(Operation.read(store, hash)).resolves.toStrictEqual(operation)
-  })
-
-  test('behavior: falls back to get and set', async () => {
-    const values = new Map<string, string>()
-    const store = Storage.from({
-      getItem: (key) => values.get(key),
-      removeItem: (key) => {
-        values.delete(key)
-      },
-      setItem: (key, value) => {
-        values.set(key, value)
-      },
     })
 
     await expect(
@@ -286,6 +268,25 @@ describe('update', () => {
     await expect(
       Operation.update(Storage.memory(), hash, () => otherOperation),
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
+  })
+
+  test('error: updated operation payload does not match hash', async () => {
+    await expect(
+      Operation.update(Storage.memory(), hash, () => ({
+        ...operation,
+        transaction: otherTransaction,
+      })),
+    ).rejects.toThrowError(Operation.InvalidStoreValueError)
+  })
+
+  test('error: update callback error', async () => {
+    const error = new Error('Invalid approval.')
+
+    await expect(
+      Operation.update(Storage.memory(), hash, () => {
+        throw error
+      }),
+    ).rejects.toBe(error)
   })
 })
 
@@ -330,6 +331,18 @@ describe('serialize', () => {
 
   test('error: malformed value', () => {
     expect(() => Operation.deserialize('{')).toThrowError(
+      Operation.InvalidStoreValueError,
+    )
+  })
+
+  test.each([
+    Operation.serialize(otherOperation).replace(otherOperation.hash, hash),
+    Operation.serialize(keyAuthorizationOperation).replace(
+      keyAuthorizationOperation.hash,
+      hash,
+    ),
+  ])('error: operation payload does not match hash %#', (value) => {
+    expect(() => Operation.deserialize(value)).toThrowError(
       Operation.InvalidStoreValueError,
     )
   })

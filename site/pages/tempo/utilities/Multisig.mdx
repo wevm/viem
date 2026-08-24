@@ -36,8 +36,8 @@ const client = createClient({
 ```
 
 Every client or RPC process that coordinates the same approvals must use the same shared store.
-Implement `compareAndSet` to prevent concurrent approvals from overwriting each other. Without it,
-the coordinator falls back to `getItem` and `setItem`.
+The store must implement atomic `compareAndSet` to prevent concurrent approvals from overwriting
+each other.
 
 ## See More
 

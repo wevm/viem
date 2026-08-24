@@ -64,7 +64,7 @@ export type ClientConfig<
       | true
       | {
           /** Storage shared by multisig coordinators. */
-          store: Storage.Storage
+          store: Storage.Atomic
         }
       | undefined
     /**

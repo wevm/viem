@@ -105,6 +105,11 @@ export function formatTransactionRequest(
     ? parseAccount<Account | viem_Account | Address>(request.account)
     : undefined
 
+  if (request.multisig && account?.type === 'json-rpc')
+    throw new Error(
+      'A local owner account is required to approve a multisig transaction.',
+    )
+
   // If the request is not a Tempo transaction, route to Viem formatter.
   if (!isTempo(request))
     return viem_formatTransactionRequest(

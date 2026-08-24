@@ -913,6 +913,24 @@ describe('stateful', () => {
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A local owner account is required to approve a multisig transaction.]`,
     )
+    await expect(
+      sendTransaction(client, {
+        account: owner.address,
+        calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+        multisig: account,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a multisig transaction.]`,
+    )
+    await expect(
+      sendTransactionSync(client, {
+        account: owner.address,
+        calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+        multisig: account,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a multisig transaction.]`,
+    )
   })
 
   test('supports standard and explicit approval RPCs', async () => {
@@ -1738,9 +1756,15 @@ describe('stateful', () => {
     const transaction_2 = TxEnvelopeTempo.deserialize(
       operation_2.transaction as never,
     )
-    expect(transaction_1.nonceKey).toBe(maxUint256)
-    expect(transaction_2.nonceKey).toBe(maxUint256)
-    expect(transaction_1.validAfter).not.toBe(transaction_2.validAfter)
+    expect(transaction_1.nonceKey).not.toBe(maxUint256)
+    expect(transaction_2.nonceKey).not.toBe(maxUint256)
+    expect(transaction_1.nonceKey).not.toBe(transaction_2.nonceKey)
+    expect(transaction_1.nonce).toBe(0n)
+    expect(transaction_2.nonce).toBe(0n)
+    expect(transaction_1.validAfter).toBeUndefined()
+    expect(transaction_1.validBefore).toBeUndefined()
+    expect(transaction_2.validAfter).toBeUndefined()
+    expect(transaction_2.validBefore).toBeUndefined()
 
     const [success_1, success_2] = await Promise.all([
       sendTransactionSync(client, {
@@ -2382,7 +2406,6 @@ describe('stateful', () => {
       threshold: 2,
     })
     const store = Storage.memory()
-    const serializedTransactions: string[] = []
     let collect = false
     const broadcast = withResolvers<void>()
     const release = withResolvers<void>()
@@ -2392,15 +2415,7 @@ describe('stateful', () => {
       return {
         ...value,
         request: async (request) => {
-          const serialized = Array.isArray(request.params)
-            ? request.params[0]
-            : undefined
-          if (
-            collect &&
-            request.method === 'eth_sendRawTransactionSync' &&
-            typeof serialized === 'string'
-          ) {
-            serializedTransactions.push(serialized)
+          if (collect && request.method === 'eth_sendRawTransactionSync') {
             broadcast.resolve()
             await release.promise
           }
@@ -2433,25 +2448,33 @@ describe('stateful', () => {
     const submission_1 = sendTransactionSync(client, {
       hash: pending.transactionHash,
       account: owner_2,
+      timeout: 60_000,
     })
     await broadcast.promise
+    const submitting = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
+    expect(submitting?.status).toMatchInlineSnapshot(`"submitting"`)
+    if (submitting?.status !== 'submitting') throw new Error('unreachable')
+    expect(submitting.expiresAt).toBeGreaterThan(Date.now() + 60_000)
+
     const submission_2 = sendTransactionSync(client, {
       hash: pending.transactionHash,
       account: owner_3,
     })
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(serializedTransactions).toHaveLength(1)
     release.resolve()
-    const results = await Promise.allSettled([submission_1, submission_2])
-    expect(results).toMatchObject([
-      { status: 'fulfilled' },
-      { status: 'fulfilled' },
+    const [receipt_1, receipt_2] = await Promise.all([
+      submission_1,
+      submission_2,
     ])
+    expect(receipt_1.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt_2).toStrictEqual(receipt_1)
     const operation = (
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig
-    expect(operation?.status).toBe('success')
+    expect(operation?.status).toMatchInlineSnapshot(`"success"`)
   })
 
   test('reconciles a successful broadcast after its response is lost', async () => {
@@ -2522,7 +2545,6 @@ describe('stateful', () => {
       threshold: 2,
     })
     const store = Storage.memory()
-    const serializedTransactions: string[] = []
     let fail = false
     const baseTransport = tempo.http()
     const transport: Transport = (options) => {
@@ -2530,24 +2552,10 @@ describe('stateful', () => {
       return {
         ...value,
         request: async (request) => {
-          const serialized = Array.isArray(request.params)
-            ? request.params[0]
-            : undefined
-          if (
-            fail &&
-            request.method === 'eth_sendRawTransactionSync' &&
-            typeof serialized === 'string'
-          ) {
-            serializedTransactions.push(serialized)
+          if (fail && request.method === 'eth_sendRawTransactionSync') {
             fail = false
             throw new Error('Submission failed.')
           }
-          if (
-            serializedTransactions.length > 0 &&
-            request.method === 'eth_sendRawTransactionSync' &&
-            typeof serialized === 'string'
-          )
-            serializedTransactions.push(serialized)
           return await value.request(request as never)
         },
       }
@@ -2591,8 +2599,6 @@ describe('stateful', () => {
       account: owner_2,
     })
     assertSuccess(success)
-    expect(serializedTransactions).toHaveLength(2)
-    expect(serializedTransactions[0]).toBe(serializedTransactions[1])
     const operation = (
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig

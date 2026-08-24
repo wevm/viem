@@ -2,17 +2,26 @@ import type { MaybePromise } from '../types/utils.js'
 
 export type Storage = {
   /** Atomically replaces `expected` with `value` when supported. */
-  compareAndSet?(
-    key: string,
-    expected: string | null,
-    value: string,
-  ): MaybePromise<boolean>
+  compareAndSet?: CompareAndSet | undefined
   /** Reads a value. */
   getItem(key: string): MaybePromise<string | null | undefined>
   /** Removes a value. */
   removeItem(key: string): MaybePromise<void>
   /** Writes a value. */
   setItem(key: string, value: string): MaybePromise<void>
+}
+
+/** Atomic compare-and-set operation. */
+export type CompareAndSet = (
+  key: string,
+  expected: string | null,
+  value: string,
+) => MaybePromise<boolean>
+
+/** Storage with atomic compare-and-set support. */
+export type Atomic = Storage & {
+  /** Atomically replaces `expected` with `value`. */
+  compareAndSet: CompareAndSet
 }
 
 /**
@@ -29,6 +38,11 @@ export type Storage = {
  * // stored under "tempo:foo"
  * ```
  */
+export function from(store: Atomic, options?: from.Options | undefined): Atomic
+export function from(
+  store: Storage,
+  options?: from.Options | undefined,
+): Storage
 export function from(store: Storage, options: from.Options = {}): Storage {
   const { key } = options
   const prefix = key ? `${key}:` : ''
@@ -68,6 +82,7 @@ export function from(store: Storage, options: from.Options = {}): Storage {
 }
 
 export declare namespace from {
+  /** Store options. */
   type Options = {
     /** Key prefix prepended to all store keys. */
     key?: string | undefined
@@ -75,7 +90,7 @@ export declare namespace from {
 }
 
 /** Creates an in-memory store backed by a `Map`. */
-export function memory(options: from.Options = {}): Storage {
+export function memory(options: from.Options = {}): Atomic {
   const store = new Map<string, string>()
   return from(
     {

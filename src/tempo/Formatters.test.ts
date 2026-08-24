@@ -94,6 +94,22 @@ describe('formatTransactionRequest', () => {
     expect((rpc as Record<string, unknown>).multisigVersion).toBeUndefined()
   })
 
+  test('error: JSON-RPC multisig owner', () => {
+    expect(() =>
+      Formatters.formatTransactionRequest({
+        account: accounts[1].address,
+        calls: [{ data: '0xdeadbeef', to: accounts[2].address }],
+        chainId: 1,
+        multisig: MultisigConfig.from({
+          owners: [{ owner: accounts[1].address, weight: 1 }],
+          threshold: 1,
+        }),
+      } as never),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a multisig transaction.]`,
+    )
+  })
+
   test('behavior: multisig key authorization', () => {
     const initialConfig = MultisigConfig.from({
       threshold: 1,

@@ -36,7 +36,9 @@ Key prefix prepended to all store keys. If omitted, the base store is returned a
 ## Return Type
 
 ```ts
-type ReturnType = Storage
+type ReturnType<store extends Storage.Storage> = store extends Storage.Atomic
+  ? Storage.Atomic
+  : Storage
 ```
 
-A `Storage` instance that prefixes all keys.
+A store that prefixes all keys and preserves atomic support from the base store.

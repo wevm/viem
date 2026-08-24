@@ -256,16 +256,17 @@ export const chainConfig = {
           delete request.account
       }
 
+      const coordinatedMultisig =
+        !!multisigIdentity &&
+        initializedMultisig &&
+        (client.transport as { multisig?: boolean }).multisig === true
+
       // Register concurrency before account preparation performs storage or
       // network I/O so overlapping requests cannot miss each other.
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
-        if (multisigIdentity)
-          return (
-            initializedMultisig &&
-            (client.transport as { multisig?: boolean }).multisig === true
-          )
+        if (typeof request.nonceKey !== 'undefined') return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as
@@ -279,7 +280,12 @@ export const chainConfig = {
         return false
       })()
 
-      if (useExpiringNonce) {
+      if (coordinatedMultisig && typeof request.nonceKey === 'undefined') {
+        // A random nonce lane lets a stored approval ceremony remain valid
+        // indefinitely without blocking other pending operations.
+        request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
+        request.nonce = 0
+      } else if (useExpiringNonce) {
         request.nonceKey = maxUint256
         request.nonce = 0
         if (typeof request.validAfter === 'undefined')

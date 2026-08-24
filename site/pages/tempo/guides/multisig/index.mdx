@@ -171,11 +171,10 @@ const receipt = await sendTransactionSync(client, { ...request, signatures })
 Pass the operation hash returned by the first approval to every later owner. The coordinator loads
 the exact stored transaction, so later approvals cannot accidentally change its signed fields.
 
-### Use Shared Storage
+### Use a Shared Store
 
 Production coordinators must share one persistent [`Storage`](/tempo/utilities/Storage)
-implementation. Implement `compareAndSet` to prevent concurrent approvals from overwriting each
-other. The in-memory store is for one process only.
+implementation with atomic `compareAndSet`. The in-memory store is for one process only.
 
 ## See More
 
