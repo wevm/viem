@@ -129,11 +129,6 @@
       "import": "./_esm/tempo/chains/index.js",
       "default": "./_cjs/tempo/chains/index.js"
     },
-    "./tempo/zones": {
-      "types": "./_types/tempo/zones/index.d.ts",
-      "import": "./_esm/tempo/zones/index.js",
-      "default": "./_cjs/tempo/zones/index.js"
-    },
     "./tokens": {
       "types": "./_types/tokens/index.d.ts",
       "import": "./_esm/tokens/index.js",

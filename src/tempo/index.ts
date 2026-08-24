@@ -36,11 +36,10 @@ export {
   type FallbackTransportErrorType,
   fallback,
 } from '../clients/transports/fallback.js'
-export {
-  type HttpTransport,
-  type HttpTransportConfig,
-  type HttpTransportErrorType,
-  http,
+export type {
+  HttpTransport,
+  HttpTransportConfig,
+  HttpTransportErrorType,
 } from '../clients/transports/http.js'
 export {
   type WebSocketTransport,
@@ -110,6 +109,8 @@ export type {
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
 export {
+  type HttpConfig,
+  http,
   walletNamespaceCompat,
   withFeePayer,
   withMultisig,
@@ -117,3 +118,4 @@ export {
 } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'
 export * as WebCryptoP256 from './WebCryptoP256.js'
+export * as Zone from './Zone.js'

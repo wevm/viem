@@ -1,4 +1,4 @@
-// Generated with `pnpm gen:abis`. Do not modify manually.
+// Generated with `pnpm gen:tempo-abis`. Do not modify manually.
 
 import type { Abi, ExtractAbiFunctionNames } from 'abitype'
 import type { Hex } from '../types/misc.js'
@@ -56,6 +56,11 @@ export const nativeMultisig = {
   updateConfig: '0xe175d479',
 } as const satisfies FunctionSelectors<typeof Abis.nativeMultisig>
 
+export const currentCommittee = {
+  getCommitteeMembers: '0xb2a275f9',
+  setCommitteeMembers: '0x229bdd9c',
+} as const satisfies FunctionSelectors<typeof Abis.currentCommittee>
+
 export const nonce = {
   getNonce: '0x89535803',
 } as const satisfies FunctionSelectors<typeof Abis.nonce>
@@ -82,6 +87,8 @@ export const stablecoinDex = {
   PRICE_SCALE: '0xc33f59d3',
   TICK_SPACING: '0x46ca626b',
   balanceOf: '0xf7888aec',
+  bookIndexForKey: '0x61285475',
+  bookKeyForIndex: '0x3c047a7a',
   books: '0x0c0dee70',
   cancel: '0x81649d06',
   cancelStaleOrder: '0x928b0e7f',
@@ -95,6 +102,8 @@ export const stablecoinDex = {
   priceToTick: '0x87b4e352',
   quoteSwapExactAmountIn: '0xe7c98f1a',
   quoteSwapExactAmountOut: '0x1576fa0e',
+  setBookIndex: '0xaecbd005',
+  storageCredits: '0x4d65338b',
   swapExactAmountIn: '0xf8856c0f',
   swapExactAmountOut: '0xf0122b75',
   tickToPrice: '0x269a311d',
@@ -108,6 +117,62 @@ export const storageCredits = {
   setBudget: '0xffe295c3',
   setMode: '0x21175b4a',
 } as const satisfies FunctionSelectors<typeof Abis.storageCredits>
+
+export const feeManager = {
+  collectedFees: '0x4c97f766',
+  distributeFees: '0xa6c07924',
+  setUserToken: '0xe7897444',
+  setValidatorToken: '0xb60d2ddb',
+  userTokens: '0xed498fa8',
+  validatorTokens: '0x6dc54a7a',
+} as const satisfies FunctionSelectors<typeof Abis.feeManager>
+
+export const feeAmm = {
+  M: '0x693f917e',
+  MIN_LIQUIDITY: '0x21b77d63',
+  N: '0xc9e525df',
+  SCALE: '0xeced5526',
+  burn: '0xfa291e53',
+  getPool: '0x531aa03e',
+  getPoolId: '0x2ef61c21',
+  liquidityBalances: '0x4fb5bf7f',
+  mint: '0xf1aa8cb8',
+  pools: '0xb5217bb4',
+  rebalanceSwap: '0x1bd94ac7',
+  totalSupply: '0xb524abcf',
+} as const satisfies FunctionSelectors<typeof Abis.feeAmm>
+
+export const tip20ChannelReserve = {
+  CLOSE_GRACE_PERIOD: '0x956c8327',
+  VOUCHER_TYPEHASH: '0x94739e87',
+  close: '0x73b57f74',
+  computeChannelId: '0x185eeeac',
+  domainSeparator: '0xf698da25',
+  getChannel: '0xeef95313',
+  getChannelState: '0xd18da8b1',
+  getChannelStatesBatch: '0xd1f4cda2',
+  getVoucherDigest: '0xf3b349e8',
+  open: '0xedc53b00',
+  requestClose: '0x675402e5',
+  settle: '0x97fb5104',
+  storageCredits: '0x4d65338b',
+  topUp: '0xdc48471e',
+  withdraw: '0x41e2c664',
+} as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
+
+export const tip20Factory = {
+  createToken: {
+    'createToken(string,string,string,address,address,bytes32)': '0x68130445',
+    'createToken(string,string,string,address,address,bytes32,string)':
+      '0x5323d222',
+  },
+  getTokenAddress: '0x9ed7cd64',
+  isTIP20: '0x35ec42c9',
+} as const satisfies FunctionSelectors<
+  typeof Abis.tip20Factory,
+  'createToken'
+> &
+  OverloadedFunctionSelectors<'createToken'>
 
 export const tip20 = {
   BURN_BLOCKED_ROLE: '0x32ad9be8',
@@ -162,37 +227,6 @@ export const tip20 = {
   userRewardInfo: '0x360b8ed9',
 } as const satisfies FunctionSelectors<typeof Abis.tip20>
 
-export const tip20ChannelReserve = {
-  CLOSE_GRACE_PERIOD: '0x956c8327',
-  VOUCHER_TYPEHASH: '0x94739e87',
-  close: '0x73b57f74',
-  computeChannelId: '0x185eeeac',
-  domainSeparator: '0xf698da25',
-  getChannel: '0xeef95313',
-  getChannelState: '0xd18da8b1',
-  getChannelStatesBatch: '0xd1f4cda2',
-  getVoucherDigest: '0xf3b349e8',
-  open: '0xedc53b00',
-  requestClose: '0x675402e5',
-  settle: '0x97fb5104',
-  topUp: '0xdc48471e',
-  withdraw: '0x41e2c664',
-} as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
-
-export const tip20Factory = {
-  createToken: {
-    'createToken(string,string,string,address,address,bytes32)': '0x68130445',
-    'createToken(string,string,string,address,address,bytes32,string)':
-      '0x5323d222',
-  },
-  getTokenAddress: '0x9ed7cd64',
-  isTIP20: '0x35ec42c9',
-} as const satisfies FunctionSelectors<
-  typeof Abis.tip20Factory,
-  'createToken'
-> &
-  OverloadedFunctionSelectors<'createToken'>
-
 export const tip403Registry = {
   compoundPolicyData: '0xb6266019',
   createCompoundPolicy: '0x5da414ee',
@@ -202,6 +236,7 @@ export const tip403Registry = {
   isAuthorizedMintRecipient: '0xb389e305',
   isAuthorizedRecipient: '0x6fbc13d6',
   isAuthorizedSender: '0x14abd81d',
+  migrateTransferPolicyIds: '0xa783dc99',
   modifyPolicyBlacklist: '0xc62b27d4',
   modifyPolicyWhitelist: '0x71ec67a3',
   policyData: '0x50214329',
@@ -210,47 +245,9 @@ export const tip403Registry = {
   receivePolicy: '0xe111e611',
   setPolicyAdmin: '0x25f7d376',
   setReceivePolicy: '0xdda03d86',
+  tokenTransferPolicyId: '0x23143aff',
   validateReceivePolicy: '0xb72b0c59',
 } as const satisfies FunctionSelectors<typeof Abis.tip403Registry>
-
-export const feeManager = {
-  collectedFees: '0x4c97f766',
-  distributeFees: '0xa6c07924',
-  setUserToken: '0xe7897444',
-  setValidatorToken: '0xb60d2ddb',
-  userTokens: '0xed498fa8',
-  validatorTokens: '0x6dc54a7a',
-} as const satisfies FunctionSelectors<typeof Abis.feeManager>
-
-export const feeAmm = {
-  M: '0x693f917e',
-  MIN_LIQUIDITY: '0x21b77d63',
-  N: '0xc9e525df',
-  SCALE: '0xeced5526',
-  burn: '0xfa291e53',
-  getPool: '0x531aa03e',
-  getPoolId: '0x2ef61c21',
-  liquidityBalances: '0x4fb5bf7f',
-  mint: '0xf1aa8cb8',
-  pools: '0xb5217bb4',
-  rebalanceSwap: '0x1bd94ac7',
-  totalSupply: '0xb524abcf',
-} as const satisfies FunctionSelectors<typeof Abis.feeAmm>
-
-export const validatorConfig = {
-  addValidator: '0xffb4822e',
-  changeOwner: '0xa6f9dae1',
-  changeValidatorStatus: '0xa1b3f4a9',
-  changeValidatorStatusByIndex: '0x5aa3d0e1',
-  getNextFullDkgCeremony: '0x281a69ec',
-  getValidators: '0xb7ab4db5',
-  owner: '0x8da5cb5b',
-  setNextFullDkgCeremony: '0xc3576d46',
-  updateValidator: '0x09970c76',
-  validatorCount: '0x0f43a677',
-  validators: '0xfa52c7d8',
-  validatorsArray: '0x031fadbd',
-} as const satisfies FunctionSelectors<typeof Abis.validatorConfig>
 
 export const validatorConfigV2 = {
   addValidator: '0x6dcf616a',
@@ -273,3 +270,153 @@ export const validatorConfigV2 = {
   validatorByPublicKey: '0x1b425d5e',
   validatorCount: '0x0f43a677',
 } as const satisfies FunctionSelectors<typeof Abis.validatorConfigV2>
+
+export const validatorConfig = {
+  addValidator: '0xffb4822e',
+  changeOwner: '0xa6f9dae1',
+  changeValidatorStatus: '0xa1b3f4a9',
+  changeValidatorStatusByIndex: '0x5aa3d0e1',
+  getNextFullDkgCeremony: '0x281a69ec',
+  getValidators: '0xb7ab4db5',
+  owner: '0x8da5cb5b',
+  setNextFullDkgCeremony: '0xc3576d46',
+  updateValidator: '0x09970c76',
+  validatorCount: '0x0f43a677',
+  validators: '0xfa52c7d8',
+  validatorsArray: '0x031fadbd',
+} as const satisfies FunctionSelectors<typeof Abis.validatorConfig>
+
+export const zoneFactory = {
+  createZone: {
+    'createZone((address,address,address,address,(bytes32,bytes32,uint64),string))':
+      '0x2d45796a',
+    'createZone((address,bool,bool,address[],address[],address,address[],uint8,string))':
+      '0x89677d9e',
+  },
+  isZonePortal: '0x01b290d3',
+  nextZoneId: '0x266db436',
+  owner: '0x8da5cb5b',
+  transferOwnership: '0xf2fde38b',
+  verifier: '0x2b7ac3f3',
+  zones: '0x90b7f6fd',
+} as const satisfies FunctionSelectors<typeof Abis.zoneFactory, 'createZone'> &
+  OverloadedFunctionSelectors<'createZone'>
+
+export const zonePortal = {
+  FIXED_DEPOSIT_GAS: '0xf706cfbf',
+  MAX_DEPOSITS_PER_TEMPO_BLOCK: '0x1bf00ca8',
+  MAX_GAS_FEE_RATE: '0xf490ca96',
+  MAX_TOKENS_ENABLED_PER_TEMPO_BLOCK: '0x3fcf7df4',
+  MAX_TOKEN_METADATA_BYTES: '0x996329a2',
+  MAX_WITHDRAWAL_GAS_LIMIT: '0x86f47e55',
+  abdicate: '0xbf4c5411',
+  abdicationEffectiveAt: '0x04a3b098',
+  acceptAdmin: '0x0e18b681',
+  admin: '0xf851a440',
+  areDepositsActive: '0x37f981d8',
+  blockHash: '0xf22a195e',
+  bouncebackGas: '0xfb2f1206',
+  calculateBouncebackFee: '0x83a146b3',
+  calculateDepositFee: '0x8976248d',
+  claimRefund: '0xbffa55d5',
+  currentDepositQueueHash: '0x45c5d2fb',
+  deliverWithdrawal: '0x005d97ef',
+  deposit: {
+    'deposit(address,address,uint128,bytes32,address)': '0x09a0a234',
+    'deposit(address,uint128,uint256,(bytes32,uint8,bytes,bytes12,bytes16),address)':
+      '0x03dd6f34',
+  },
+  depositCount: '0x2dfdf0b5',
+  depositEncrypted: '0xb01f22e4',
+  enableToken: '0xc690908a',
+  enabledTokenAt: '0xb02690f2',
+  enabledTokenCount: '0xe4717849',
+  encryptionKeyAt: '0x9a97784b',
+  encryptionKeyAtBlock: '0x39dc015d',
+  encryptionKeyCount: '0x4256ce38',
+  hasRole: '0x95a8c58d',
+  initialize: '0x86829b82',
+  isAccessEnforced: '0x71649b6e',
+  isEncryptionKeyValid: '0x9ecd4cc0',
+  isGatewayOpen: '0x1b32199b',
+  isSequencer: '0x6d46e987',
+  isTokenEnabled: '0x748538d9',
+  lastProcessedDepositNumber: '0xe84abe69',
+  lastSyncedTempoBlockNumber: '0xbe2a63ee',
+  leader: '0x40eedabb',
+  leaderActivationTempoBlock: '0xb83c755f',
+  leaderEpoch: '0x3a6b889b',
+  maxTempoGasRate: '0x8d8bd5fb',
+  messenger: '0x3cb747bf',
+  pause: '0x8456cb59',
+  pauseDeposits: '0x27c71b50',
+  pauseExpiry: '0xf125af6b',
+  paused: '0x5c975abb',
+  pendingAdmin: '0x26782247',
+  processWithdrawals: '0x91aa3f04',
+  refunds: '0x857e85f8',
+  resume: '0x046f7da2',
+  resumeDeposits: '0x00ebfdb4',
+  rpcUrl: '0x959f47c3',
+  sequencerAt: '0x129c8240',
+  sequencerCount: '0x84b71123',
+  sequencerEncryptionKey: '0x3488ce0d',
+  sequencerSetVersion: '0x83888ecc',
+  sequencerThreshold: '0x1950dd11',
+  setAccessMode: '0xf6087442',
+  setAllowedAccount: '0x90f59598',
+  setBouncebackGas: '0xe09eae10',
+  setGateway: '0x10cea857',
+  setGatewayMode: '0x0f3804b8',
+  setLeader: '0x4fdf2ec2',
+  setMaxTempoGasRate: '0x78d8599e',
+  setPauseGuardian: '0x35577962',
+  setRpcUrl: '0x652ef10b',
+  setSequencerEncryptionKey: '0xef10b187',
+  setSequencerSet: '0x86012b45',
+  setZoneGasRate: '0x0e86bbdc',
+  submitBatch: '0x78fb159b',
+  tokenConfig: '0xfe136c4e',
+  tokenEnablementHash: '0xb456c0dd',
+  transferAdmin: '0x75829def',
+  verifier: '0x2b7ac3f3',
+  withdrawalBatchIndex: '0x2c37826e',
+  withdrawalQueueHead: '0x94ce88b0',
+  withdrawalQueueSlot: '0xcfaabb4d',
+  withdrawalQueueTail: '0x8081a8b2',
+  zoneGasRate: '0xecf79a4e',
+  zoneHeight: '0x430f8b4f',
+  zoneId: '0xd179978a',
+} as const satisfies FunctionSelectors<typeof Abis.zonePortal, 'deposit'> &
+  OverloadedFunctionSelectors<'deposit'>
+
+export const zoneOutbox = {
+  AUTHENTICATED_WITHDRAWAL_CIPHERTEXT_LENGTH: '0x43c3cb83',
+  MAX_CALLBACK_DATA_SIZE: '0x53a8d739',
+  MAX_WITHDRAWAL_GAS_LIMIT: '0x86f47e55',
+  REVEAL_TO_KEY_LENGTH: '0x378fa8fa',
+  WITHDRAWAL_BASE_GAS: '0xc9b6ca9b',
+  calculateWithdrawalFee: '0x7b9c9aa4',
+  consumeFallbackRecipient: '0xa3a124c3',
+  enqueueDepositBounceBack: '0xe2e3ee5c',
+  finalizeWithdrawalBatch: '0xce7025e9',
+  getPendingWithdrawals: '0xc37fc8a8',
+  lastBatch: '0x48aa4108',
+  lastFallbackNonce: '0x3d1c5a93',
+  lastFinalizedTimestamp: '0x413e9cde',
+  maxWithdrawalsPerBlock: '0x545525f1',
+  nextWithdrawalIndex: '0xbba9282e',
+  pendingWithdrawalsCount: '0xd93af1d2',
+  requestWithdrawal: '0xb3b200aa',
+  setMaxWithdrawalsPerBlock: '0xb9d1fd68',
+  setTempoGasRate: '0x79fa3289',
+  tempoGasRate: '0x34065272',
+} as const satisfies FunctionSelectors<typeof Abis.zoneOutbox>
+
+export const zoneMessenger = {
+  relayMessage: '0x11da5261',
+} as const satisfies FunctionSelectors<typeof Abis.zoneMessenger>
+
+export const zoneVerifier = {
+  verify: '0x7106a43e',
+} as const satisfies FunctionSelectors<typeof Abis.zoneVerifier>

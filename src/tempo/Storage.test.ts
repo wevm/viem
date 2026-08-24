@@ -38,6 +38,29 @@ describe('Storage.memory', () => {
 })
 
 describe('Storage.default', () => {
+  test('falls back to memory when session storage access is denied', async () => {
+    const descriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      'sessionStorage',
+    )
+    Object.defineProperty(globalThis, 'sessionStorage', {
+      configurable: true,
+      get() {
+        throw new DOMException('Access denied.', 'SecurityError')
+      },
+    })
+
+    try {
+      const store = Storage.defaultStorage()
+      await store.setItem('fallback', 'value')
+      expect(await store.getItem('fallback')).toBe('value')
+    } finally {
+      if (descriptor)
+        Object.defineProperty(globalThis, 'sessionStorage', descriptor)
+      else delete (globalThis as { sessionStorage?: unknown }).sessionStorage
+    }
+  })
+
   test('returns a working store', async () => {
     const store = Storage.defaultStorage()
     expect(store).toBeDefined()

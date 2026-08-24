@@ -4,59 +4,52 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { getBlockNumber } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
-import { decorator } from '../Decorator.js'
-import * as Storage from '../Storage.js'
-import { http } from './transport.js'
-import { zoneModerato } from './zone.js'
+import { decorator } from './Decorator.js'
+import * as Storage from './Storage.js'
+import { http } from './Transport.js'
+import * as Zone from './Zone.js'
 
-const zone = zoneModerato(6)
+const zone = Zone.internalTestnet
 
 describe('http transport', () => {
-  test.each(['store', 'storage'] as const)(
-    'injects X-Authorization-Token header from %s',
-    async (property) => {
-      const store = Storage.memory()
-      await store.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+  test('injects X-Authorization-Token header from store', async () => {
+    const store = Storage.memory()
+    await store.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
-      const headers: Record<string, string>[] = []
-      const server = await createHttpServer(async (req, res) => {
-        let body = ''
-        req.setEncoding('utf8')
-        for await (const chunk of req) body += chunk
+    const headers: Record<string, string>[] = []
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
 
-        headers.push({
-          'x-authorization-token': req.headers[
-            'x-authorization-token'
-          ] as string,
-        })
-
-        const request = JSON.parse(body)
-        res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(
-          JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }),
-        )
+      headers.push({
+        'x-authorization-token': req.headers['x-authorization-token'] as string,
       })
 
-      try {
-        const chain = defineChain({
-          ...zone,
-          rpcUrls: { default: { http: [server.url] } },
-        })
+      const request = JSON.parse(body)
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
+    })
 
-        const client = createClient({
-          chain,
-          transport: http(undefined, { [property]: store }),
-        })
+    try {
+      const chain = defineChain({
+        ...zone,
+        rpcUrls: { default: { http: [server.url] } },
+      })
 
-        await getBlockNumber(client)
+      const client = createClient({
+        chain,
+        transport: http(undefined, { store }),
+      })
 
-        expect(headers).toHaveLength(1)
-        expect(headers[0]!['x-authorization-token']).toBe('deadbeef1234')
-      } finally {
-        await server.close()
-      }
-    },
-  )
+      await getBlockNumber(client)
+
+      expect(headers).toHaveLength(1)
+      expect(headers[0]!['x-authorization-token']).toBe('deadbeef1234')
+    } finally {
+      await server.close()
+    }
+  })
 
   test('proceeds without header when no token in store', async () => {
     const store = Storage.memory()

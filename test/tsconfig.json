@@ -15,7 +15,6 @@
       "viem/chains": ["../src/chains/index.ts"],
       "viem/tempo": ["../src/tempo/index.ts"],
       "viem/tempo/chains": ["../src/tempo/chains/index.ts"],
-      "viem/tempo/zones": ["../src/tempo/zones/index.ts"],
       "viem/tokens": ["../src/tokens/index.ts"],
       "viem/utils": ["../src/utils/index.ts"]
     }

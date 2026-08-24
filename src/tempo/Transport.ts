@@ -12,10 +12,67 @@ import {
   createTransport,
   type Transport,
 } from '../clients/transports/createTransport.js'
+import {
+  type HttpTransport,
+  type HttpTransportConfig,
+  http as http_,
+} from '../clients/transports/http.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Multisig from './Multisig.js'
+import type { Storage } from './Storage.js'
+import * as Storage_ from './Storage.js'
 import * as Transaction from './Transaction.js'
+
+export type HttpConfig = Omit<
+  HttpTransportConfig,
+  'batch' | 'raw' | 'rpcSchema'
+> & {
+  /** Store for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  store?: Storage | undefined
+}
+
+/**
+ * Creates an HTTP transport with support for Zone authentication tokens.
+ *
+ * Reads the authorization token from Storage and injects the
+ * `X-Authorization-Token` header on every request.
+ *
+ * @example
+ * ```ts
+ * import { createPublicClient } from 'viem'
+ * import { http, Zone } from 'viem/tempo'
+ *
+ * const client = createPublicClient({
+ *   chain: Zone.a,
+ *   transport: http(),
+ * })
+ * ```
+ */
+export function http(
+  url?: string | undefined,
+  config: HttpConfig = {},
+): HttpTransport {
+  const { store: store_, onFetchRequest, ...rest } = config
+  const store = store_ ?? Storage_.defaultStorage()
+
+  return (config) =>
+    http_(url, {
+      ...rest,
+      async onFetchRequest(request, init) {
+        const next = (await onFetchRequest?.(request, init)) ?? init
+        const headers = new Headers(next.headers)
+
+        const chainId = config.chain?.id
+        if (chainId) {
+          const token = (await store.getItem(`auth:token:${chainId}`)) ?? null
+          if (token) headers.set('X-Authorization-Token', token)
+        }
+
+        return { ...next, headers }
+      },
+    })(config)
+}
 
 type RelayProxyParameters = {
   /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */

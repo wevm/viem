@@ -22,7 +22,7 @@ export type Storage = {
  *
  * @example
  * ```ts
- * import * as Storage from 'viem/tempo/zones'
+ * import { Storage } from 'viem/tempo'
  *
  * const store = Storage.from(Storage.memory(), { key: 'tempo' })
  * await store.setItem('foo', 'bar')
@@ -131,12 +131,9 @@ let _default: Storage | undefined
  */
 export function defaultStorage(): Storage {
   if (_default) return _default
-  if (
-    typeof globalThis !== 'undefined' &&
-    'sessionStorage' in globalThis &&
-    globalThis.sessionStorage
-  )
-    _default = session()
-  else _default = memory()
+  try {
+    if (globalThis.sessionStorage) _default = session()
+  } catch {}
+  _default ??= memory()
   return _default
 }
