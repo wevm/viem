@@ -1,4 +1,5 @@
 import { Address, P256 } from 'ox'
+import * as Json from 'ox/Json'
 import {
   KeyAuthorization,
   MultisigConfig,
@@ -108,10 +109,7 @@ const keyAuthorizationOperation = MultisigOperation.from({
 describe('read', () => {
   test('default', async () => {
     const store = Store.memory()
-    await store.setItem(
-      `multisig:operation:${hash}`,
-      Operation.serialize(operation),
-    )
+    await Operation.update(store, hash, () => operation)
 
     expect(await Operation.read(store, hash)).toMatchInlineSnapshot(
       {
@@ -162,7 +160,7 @@ describe('read', () => {
     const store = Store.memory()
     await store.setItem(
       `multisig:operation:${hash}`,
-      Operation.serialize(otherOperation),
+      Json.stringify(otherOperation),
     )
 
     await expect(Operation.read(store, hash)).rejects.toThrowError(
@@ -170,9 +168,16 @@ describe('read', () => {
     )
   })
 
-  test('behavior: key authorization operation', () => {
+  test('behavior: key authorization operation', async () => {
+    const store = Store.memory()
+    await Operation.update(
+      store,
+      keyAuthorizationOperation.hash,
+      () => keyAuthorizationOperation,
+    )
+
     expect(
-      Operation.deserialize(Operation.serialize(keyAuthorizationOperation)),
+      await Operation.read(store, keyAuthorizationOperation.hash),
     ).toMatchInlineSnapshot(
       {
         approvals: [expect.any(String)],
@@ -254,7 +259,7 @@ describe('update', () => {
   test('error: stored operation hash does not match', async () => {
     const store = Store.from({
       compareAndSet: async () => true,
-      getItem: async () => Operation.serialize(otherOperation),
+      getItem: async () => Json.stringify(otherOperation),
       removeItem() {},
       setItem() {},
     })
@@ -290,14 +295,15 @@ describe('update', () => {
   })
 })
 
-describe('serialize', () => {
-  test('behavior: round trip', () => {
-    expect(Operation.deserialize(Operation.serialize(operation))).toStrictEqual(
-      operation,
-    )
+describe('storage serialization', () => {
+  test('behavior: round trip', async () => {
+    const store = Store.memory()
+    await Operation.update(store, hash, () => operation)
+
+    await expect(Operation.read(store, hash)).resolves.toStrictEqual(operation)
   })
 
-  test('error: oversized value', () => {
+  test('error: oversized value', async () => {
     const oversizedTransaction = TxEnvelopeTempo.serialize(
       TxEnvelopeTempo.from({
         calls: [
@@ -321,28 +327,37 @@ describe('serialize', () => {
       transaction: oversizedTransaction,
     })
 
-    expect(() => Operation.serialize(oversized)).toThrowError(
-      Operation.InvalidStoreValueError,
-    )
-    expect(() => Operation.deserialize(' '.repeat(1_048_577))).toThrowError(
+    await expect(
+      Operation.update(Store.memory(), oversized.hash, () => oversized),
+    ).rejects.toThrowError(Operation.InvalidStoreValueError)
+
+    const store = Store.memory()
+    await store.setItem(`multisig:operation:${hash}`, ' '.repeat(1_048_577))
+    await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
     )
   })
 
-  test('error: malformed value', () => {
-    expect(() => Operation.deserialize('{')).toThrowError(
+  test('error: malformed value', async () => {
+    const store = Store.memory()
+    await store.setItem(`multisig:operation:${hash}`, '{')
+
+    await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
     )
   })
 
   test.each([
-    Operation.serialize(otherOperation).replace(otherOperation.hash, hash),
-    Operation.serialize(keyAuthorizationOperation).replace(
+    Json.stringify(otherOperation).replace(otherOperation.hash, hash),
+    Json.stringify(keyAuthorizationOperation).replace(
       keyAuthorizationOperation.hash,
       hash,
     ),
-  ])('error: operation payload does not match hash %#', (value) => {
-    expect(() => Operation.deserialize(value)).toThrowError(
+  ])('error: operation payload does not match hash %#', async (value) => {
+    const store = Store.memory()
+    await store.setItem(`multisig:operation:${hash}`, value)
+
+    await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
     )
   })

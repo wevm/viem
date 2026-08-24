@@ -53,7 +53,7 @@ export async function update(
 }
 
 /** Deserializes a multisig operation from storage. */
-export function deserialize(value: string): MultisigOperation.Operation {
+function deserialize(value: string): MultisigOperation.Operation {
   try {
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
     const operation = MultisigOperation.from(Json.parse(value) as never)
@@ -66,7 +66,7 @@ export function deserialize(value: string): MultisigOperation.Operation {
 }
 
 /** Serializes a multisig operation for storage. */
-export function serialize(operation: MultisigOperation.Operation): string {
+function serialize(operation: MultisigOperation.Operation): string {
   try {
     const operation_ = MultisigOperation.from(operation)
     assertHash(operation_)
@@ -103,12 +103,6 @@ function assertHash(operation: MultisigOperation.Operation) {
 /** Returns the store key for an operation hash. */
 function operationKey(hash: Hex.Hex) {
   return `multisig:operation:${hash.toLowerCase()}`
-}
-
-/** Type returned by {@link InvalidStoreValueError}. */
-export type InvalidStoreValueErrorType = InvalidStoreValueError & {
-  /** Error name. */
-  name: 'Multisig.Operation.InvalidStoreValueError'
 }
 
 /** Thrown when a stored multisig operation is malformed or unsupported. */
