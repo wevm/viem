@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import {
   MultisigConfig,
-  type MultisigOperation,
+  MultisigOperation,
   SignatureEnvelope,
   type TokenId,
   TxEnvelopeTempo,
@@ -105,10 +105,11 @@ export const chainConfig = {
         const storedTransaction = TxEnvelopeTempo.deserialize(
           operation.transaction as never,
         )
-        const hash = MultisigConfig.getSignPayload({
+        const hash = MultisigOperation.getHash({
           account: operation.account,
-          payload: TxEnvelopeTempo.getSignPayload(storedTransaction),
-          version: operation.configVersion,
+          configVersion: operation.configVersion,
+          transaction: operation.transaction,
+          type: 'transaction',
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
           throw new Error('Multisig operation hash does not match transaction.')
