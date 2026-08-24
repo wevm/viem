@@ -5,7 +5,6 @@ import {
   MultisigOperation,
   SignatureEnvelope,
   type TokenId,
-  TxEnvelopeTempo,
 } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
@@ -102,8 +101,8 @@ export const chainConfig = {
             : undefined
         if (!operation)
           throw new Error('Expected a multisig operation transaction.')
-        const storedTransaction = TxEnvelopeTempo.deserialize(
-          operation.transaction as never,
+        const storedTransaction = Transaction.deserialize(
+          operation.transaction as Transaction.TransactionSerializedTempo,
         )
         const hash = MultisigOperation.getHash({
           account: operation.account,
@@ -267,6 +266,7 @@ export const chainConfig = {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
         if (typeof request.nonceKey !== 'undefined') return false
+        if (multisigIdentity) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as

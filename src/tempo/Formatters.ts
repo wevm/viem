@@ -199,6 +199,8 @@ export function formatTransactionRequest(
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
+    // Keep the key visible to `extract`; the undefined value never reaches JSON-RPC.
+    ...(request.multisig ? { multisig: undefined } : {}),
     ...(typeof request.feePayer !== 'undefined'
       ? {
           feePayer:
