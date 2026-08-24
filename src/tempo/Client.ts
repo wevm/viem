@@ -25,7 +25,7 @@ import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
-import * as Storage from './Storage.js'
+import * as Store from './Store.js'
 import { withMultisig } from './Transport.js'
 
 /**
@@ -63,8 +63,8 @@ export type ClientConfig<
     experimental_multisig?:
       | true
       | {
-          /** Storage shared by multisig coordinators. */
-          store: Storage.Atomic
+          /** Store shared by multisig coordinators. */
+          store: Store.Atomic
         }
       | undefined
     /**
@@ -203,7 +203,7 @@ export function createClient<
     ? withMultisig(
         transport_,
         experimental_multisig === true
-          ? { store: Storage.memory() }
+          ? { store: Store.memory() }
           : experimental_multisig,
       )
     : transport_

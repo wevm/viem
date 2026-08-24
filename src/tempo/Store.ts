@@ -1,6 +1,6 @@
 import type { MaybePromise } from '../types/utils.js'
 
-export type Storage = {
+export type Store = {
   /** Atomically replaces `expected` with `value` when supported. */
   compareAndSet?: CompareAndSet | undefined
   /** Reads a value. */
@@ -18,32 +18,28 @@ export type CompareAndSet = (
   value: string,
 ) => MaybePromise<boolean>
 
-/** Storage with atomic compare-and-set support. */
-export type Atomic = Storage & {
+/** Store with atomic compare-and-set support. */
+export type Atomic = Store & {
   /** Atomically replaces `expected` with `value`. */
   compareAndSet: CompareAndSet
 }
 
 /**
- * Wraps a base store with an optional key prefix and request
- * deduplication — concurrent `getItem` calls for the same key share
- * a single in-flight promise.
+ * Wraps a base store with an optional key prefix and request deduplication.
+ * Concurrent `getItem` calls for the same key share one in-flight promise.
  *
  * @example
  * ```ts
- * import { Storage } from 'viem/tempo'
+ * import { Store } from 'viem/tempo'
  *
- * const store = Storage.from(Storage.memory(), { key: 'tempo' })
+ * const store = Store.from(Store.memory(), { key: 'tempo' })
  * await store.setItem('foo', 'bar')
  * // stored under "tempo:foo"
  * ```
  */
 export function from(store: Atomic, options?: from.Options | undefined): Atomic
-export function from(
-  store: Storage,
-  options?: from.Options | undefined,
-): Storage
-export function from(store: Storage, options: from.Options = {}): Storage {
+export function from(store: Store, options?: from.Options | undefined): Store
+export function from(store: Store, options: from.Options = {}): Store {
   const { key } = options
   const prefix = key ? `${key}:` : ''
   const inflight = new Map<string, Promise<string | null | undefined>>()
@@ -114,7 +110,7 @@ export function memory(options: from.Options = {}): Atomic {
 }
 
 /** Creates a store backed by `globalThis.sessionStorage`. */
-export function session(options: from.Options = {}): Storage {
+export function session(options: from.Options = {}): Store {
   return from(
     {
       getItem(key) {
@@ -133,7 +129,7 @@ export function session(options: from.Options = {}): Storage {
   )
 }
 
-let _default: Storage | undefined
+let _default: Store | undefined
 
 /**
  * Returns the default store for the current environment.
@@ -144,7 +140,7 @@ let _default: Storage | undefined
  * - Browser: `sessionStorage`
  * - Server/unsupported: in-memory `Map`-based store
  */
-export function defaultStorage(): Storage {
+export function defaultStore(): Store {
   if (_default) return _default
   try {
     if (globalThis.sessionStorage) _default = session()

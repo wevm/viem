@@ -86,7 +86,7 @@ export const client = createClient({
 
 :::info
 Every process coordinating the same multisig must use the same persistent store. A
-[`Storage.memory`](/tempo/utilities/Storage.memory) store is process-local and is not suitable for
+[`Store.memory`](/tempo/utilities/Store.memory) store is process-local and is not suitable for
 coordination across processes.
 :::
 
@@ -248,7 +248,7 @@ complete quorum, retain the prepared request and collected signatures in your ow
 ### Share One Store Across Coordinators
 
 Every process that receives approvals for the same operation must use the same authoritative
-store. Do not use `Storage.memory()` across processes or in a production service.
+store. Do not use `Store.memory()` across processes or in a production service.
 
 ### Keep Owner Signers Separate
 
@@ -266,9 +266,9 @@ multisig only when one environment intentionally holds those signers.
   />
   <Card
     icon="lucide:database"
-    title="Storage"
+    title="Store"
     description="Provide a shared store for coordinated approvals."
-    to="/tempo/utilities/Storage"
+    to="/tempo/utilities/Store"
   />
   <Card
     icon="lucide:wallet-cards"

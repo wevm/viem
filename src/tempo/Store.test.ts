@@ -1,9 +1,9 @@
+import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import * as Storage from './Storage.js'
 
-describe('Storage.memory', () => {
+describe('Store.memory', () => {
   test('compareAndSet', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
 
     expect(await store.compareAndSet?.('key', null, 'one')).toBe(true)
     expect(await store.compareAndSet?.('key', null, 'two')).toBe(false)
@@ -12,32 +12,32 @@ describe('Storage.memory', () => {
   })
 
   test('getItem returns null for missing keys', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     expect(await store.getItem('missing')).toBeNull()
   })
 
   test('setItem + getItem', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     await store.setItem('key', 'value')
     expect(await store.getItem('key')).toBe('value')
   })
 
   test('removeItem', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     await store.setItem('key', 'value')
     await store.removeItem('key')
     expect(await store.getItem('key')).toBeNull()
   })
 
   test('overwrite', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     await store.setItem('key', 'first')
     await store.setItem('key', 'second')
     expect(await store.getItem('key')).toBe('second')
   })
 })
 
-describe('Storage.default', () => {
+describe('Store.defaultStore', () => {
   test('falls back to memory when session storage access is denied', async () => {
     const descriptor = Object.getOwnPropertyDescriptor(
       globalThis,
@@ -51,7 +51,7 @@ describe('Storage.default', () => {
     })
 
     try {
-      const store = Storage.defaultStorage()
+      const store = Store.defaultStore()
       await store.setItem('fallback', 'value')
       expect(await store.getItem('fallback')).toBe('value')
     } finally {
@@ -62,7 +62,7 @@ describe('Storage.default', () => {
   })
 
   test('returns a working store', async () => {
-    const store = Storage.defaultStorage()
+    const store = Store.defaultStore()
     expect(store).toBeDefined()
 
     await store.setItem('test-default', 'val')
@@ -72,18 +72,18 @@ describe('Storage.default', () => {
   })
 })
 
-describe('Storage.from', () => {
+describe('Store.from', () => {
   test('prefixes compareAndSet keys', async () => {
-    const base = Storage.memory()
-    const store = Storage.from(base, { key: 'tempo' })
+    const base = Store.memory()
+    const store = Store.from(base, { key: 'tempo' })
 
     expect(await store.compareAndSet?.('foo', null, 'bar')).toBe(true)
     expect(await base.getItem('tempo:foo')).toBe('bar')
   })
 
   test('prefixes keys', async () => {
-    const base = Storage.memory()
-    const store = Storage.from(base, { key: 'tempo' })
+    const base = Store.memory()
+    const store = Store.from(base, { key: 'tempo' })
 
     await store.setItem('foo', 'bar')
     expect(await store.getItem('foo')).toBe('bar')
@@ -91,8 +91,8 @@ describe('Storage.from', () => {
   })
 
   test('removeItem with prefix', async () => {
-    const base = Storage.memory()
-    const store = Storage.from(base, { key: 'tempo' })
+    const base = Store.memory()
+    const store = Store.from(base, { key: 'tempo' })
 
     await store.setItem('foo', 'bar')
     await store.removeItem('foo')
@@ -100,8 +100,8 @@ describe('Storage.from', () => {
   })
 
   test('no prefix when key is omitted', async () => {
-    const base = Storage.memory()
-    const store = Storage.from(base)
+    const base = Store.memory()
+    const store = Store.from(base)
 
     await store.setItem('raw', 'val')
     expect(await base.getItem('raw')).toBe('val')
@@ -109,7 +109,7 @@ describe('Storage.from', () => {
 
   test('deduplicates concurrent getItem calls for the same key', async () => {
     let calls = 0
-    const slow: Storage.Storage = {
+    const slow: Store.Store = {
       async getItem(_key) {
         calls++
         await new Promise((r) => setTimeout(r, 50))
@@ -119,7 +119,7 @@ describe('Storage.from', () => {
       async removeItem() {},
     }
 
-    const store = Storage.from(slow)
+    const store = Store.from(slow)
 
     const [a, b, c] = await Promise.all([
       store.getItem('x'),
@@ -135,7 +135,7 @@ describe('Storage.from', () => {
 
   test('does not deduplicate different keys', async () => {
     let calls = 0
-    const slow: Storage.Storage = {
+    const slow: Store.Store = {
       async getItem(_key) {
         calls++
         await new Promise((r) => setTimeout(r, 10))
@@ -145,14 +145,14 @@ describe('Storage.from', () => {
       async removeItem() {},
     }
 
-    const store = Storage.from(slow)
+    const store = Store.from(slow)
     await Promise.all([store.getItem('a'), store.getItem('b')])
     expect(calls).toBe(2)
   })
 
   test('allows new getItem after previous resolves', async () => {
     let calls = 0
-    const slow: Storage.Storage = {
+    const slow: Store.Store = {
       async getItem(_key) {
         calls++
         await new Promise((r) => setTimeout(r, 10))
@@ -162,7 +162,7 @@ describe('Storage.from', () => {
       async removeItem() {},
     }
 
-    const store = Storage.from(slow)
+    const store = Store.from(slow)
 
     const first = await store.getItem('x')
     const second = await store.getItem('x')
@@ -175,7 +175,7 @@ describe('Storage.from', () => {
   test('setItem invalidates in-flight read', async () => {
     let calls = 0
     const values = new Map<string, string>()
-    const slow: Storage.Storage = {
+    const slow: Store.Store = {
       async getItem(key) {
         calls++
         await new Promise((r) => setTimeout(r, 50))
@@ -189,7 +189,7 @@ describe('Storage.from', () => {
       },
     }
 
-    const store = Storage.from(slow)
+    const store = Store.from(slow)
 
     // Start a read, then write, then read again.
     const p1 = store.getItem('x')

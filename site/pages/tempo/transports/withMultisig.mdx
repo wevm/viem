@@ -48,7 +48,7 @@ Multisig request handler configuration.
 
 #### parameters.store
 
-- **Type:** `Storage.Atomic`
+- **Type:** `Store.Atomic`
 
 Store shared by every coordinator for the same multisig accounts. It must implement atomic
 `compareAndSet` to prevent concurrent approvals from overwriting each other.

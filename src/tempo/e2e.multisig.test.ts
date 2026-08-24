@@ -17,7 +17,7 @@ import {
   MultisigConfig,
   MultisigOperation,
   P256,
-  Storage,
+  Store,
   type Transaction,
   WebCryptoP256,
 } from 'viem/tempo'
@@ -2405,7 +2405,7 @@ describe('stateful', () => {
       salt: toHex(0x10612f, { size: 32 }),
       threshold: 2,
     })
-    const store = Storage.memory()
+    const store = Store.memory()
     let collect = false
     const broadcast = withResolvers<void>()
     const release = withResolvers<void>()
@@ -2544,7 +2544,7 @@ describe('stateful', () => {
       salt: toHex(0x106130, { size: 32 }),
       threshold: 2,
     })
-    const store = Storage.memory()
+    const store = Store.memory()
     let fail = false
     const baseTransport = tempo.http()
     const transport: Transport = (options) => {

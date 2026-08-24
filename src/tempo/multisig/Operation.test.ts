@@ -6,7 +6,7 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { Storage } from 'viem/tempo'
+import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Operation from './Operation.js'
 
@@ -107,7 +107,7 @@ const keyAuthorizationOperation = MultisigOperation.from({
 
 describe('read', () => {
   test('default', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     await store.setItem(
       `multisig:operation:${hash}`,
       Operation.serialize(operation),
@@ -155,11 +155,11 @@ describe('read', () => {
   })
 
   test('behavior: unknown operation', async () => {
-    await expect(Operation.read(Storage.memory(), hash)).resolves.toBeNull()
+    await expect(Operation.read(Store.memory(), hash)).resolves.toBeNull()
   })
 
   test('error: mismatched operation hash', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     await store.setItem(
       `multisig:operation:${hash}`,
       Operation.serialize(otherOperation),
@@ -217,9 +217,9 @@ describe('read', () => {
 
 describe('update', () => {
   test('behavior: retries compare-and-set conflicts', async () => {
-    const memory = Storage.memory()
+    const memory = Store.memory()
     let conflict = true
-    const store = Storage.from({
+    const store = Store.from({
       async compareAndSet(key, expected, value) {
         if (conflict) {
           conflict = false
@@ -239,7 +239,7 @@ describe('update', () => {
   })
 
   test('error: repeated compare-and-set conflicts', async () => {
-    const store = Storage.from({
+    const store = Store.from({
       compareAndSet: async () => false,
       getItem: async () => null,
       removeItem() {},
@@ -252,7 +252,7 @@ describe('update', () => {
   })
 
   test('error: stored operation hash does not match', async () => {
-    const store = Storage.from({
+    const store = Store.from({
       compareAndSet: async () => true,
       getItem: async () => Operation.serialize(otherOperation),
       removeItem() {},
@@ -266,13 +266,13 @@ describe('update', () => {
 
   test('error: updated operation hash does not match', async () => {
     await expect(
-      Operation.update(Storage.memory(), hash, () => otherOperation),
+      Operation.update(Store.memory(), hash, () => otherOperation),
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 
   test('error: updated operation payload does not match hash', async () => {
     await expect(
-      Operation.update(Storage.memory(), hash, () => ({
+      Operation.update(Store.memory(), hash, () => ({
         ...operation,
         transaction: otherTransaction,
       })),
@@ -283,7 +283,7 @@ describe('update', () => {
     const error = new Error('Invalid approval.')
 
     await expect(
-      Operation.update(Storage.memory(), hash, () => {
+      Operation.update(Store.memory(), hash, () => {
         throw error
       }),
     ).rejects.toBe(error)

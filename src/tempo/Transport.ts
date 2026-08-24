@@ -20,8 +20,8 @@ import {
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Multisig from './Multisig.js'
-import type { Storage } from './Storage.js'
-import * as Storage_ from './Storage.js'
+import type { Store } from './Store.js'
+import * as Store_ from './Store.js'
 import * as Transaction from './Transaction.js'
 
 export type HttpConfig = Omit<
@@ -29,13 +29,13 @@ export type HttpConfig = Omit<
   'batch' | 'raw' | 'rpcSchema'
 > & {
   /** Store for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
-  store?: Storage | undefined
+  store?: Store | undefined
 }
 
 /**
  * Creates an HTTP transport with support for Zone authentication tokens.
  *
- * Reads the authorization token from Storage and injects the
+ * Reads the authorization token from the store and injects the
  * `X-Authorization-Token` header on every request.
  *
  * @example
@@ -54,7 +54,7 @@ export function http(
   config: HttpConfig = {},
 ): HttpTransport {
   const { store: store_, onFetchRequest, ...rest } = config
-  const store = store_ ?? Storage_.defaultStorage()
+  const store = store_ ?? Store_.defaultStore()
 
   return (config) =>
     http_(url, {
@@ -87,10 +87,10 @@ export type Relay = Transport<typeof withRelay.type>
  *
  * @example
  * ```ts
- * import { http, Storage, withMultisig } from 'viem/tempo'
+ * import { http, Store, withMultisig } from 'viem/tempo'
  *
  * const transport = withMultisig(http(), {
- *   store: Storage.memory(),
+ *   store: Store.memory(),
  * })
  * ```
  *

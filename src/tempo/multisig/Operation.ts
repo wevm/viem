@@ -2,7 +2,7 @@ import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { MultisigOperation } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
-import type * as Storage from '../Storage.js'
+import type * as Store from '../Store.js'
 
 /** Bounds parsing and serialization work if a store returns unexpectedly large data. */
 const maxStoredValueLength = 1_048_576
@@ -12,7 +12,7 @@ const maxUpdateAttempts = 32
 
 /** Reads a persisted multisig operation. */
 export async function read(
-  store: Storage.Storage,
+  store: Store.Store,
   hash: Hex.Hex,
 ): Promise<MultisigOperation.Operation | null> {
   const value = await store.getItem(operationKey(hash))
@@ -25,7 +25,7 @@ export async function read(
 
 /** Atomically updates a multisig operation. */
 export async function update(
-  store: Storage.Atomic,
+  store: Store.Atomic,
   hash: Hex.Hex,
   update: (
     operation: MultisigOperation.Operation | null,

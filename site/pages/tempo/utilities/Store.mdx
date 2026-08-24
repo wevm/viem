@@ -2,11 +2,11 @@
 description: Store Tempo client data in memory, session storage, or a custom store.
 ---
 
-# Storage
+# Store
 
-The `Storage` utility provides a string-backed key-value contract for Tempo features. Use
-[`Storage.memory`](/tempo/utilities/Storage.memory) for process-local data or
-[`Storage.from`](/tempo/utilities/Storage.from) to wrap another store.
+The `Store` utility provides a string-backed key-value contract for Tempo features. Use
+[`Store.memory`](/tempo/utilities/Store.memory) for process-local data or
+[`Store.from`](/tempo/utilities/Store.from) to wrap another store.
 
 ## Contract
 
@@ -17,14 +17,14 @@ type CompareAndSet = (
   value: string,
 ) => MaybePromise<boolean>
 
-type Storage = {
+type Store = {
   compareAndSet?: CompareAndSet | undefined
   getItem(key: string): MaybePromise<string | null | undefined>
   removeItem(key: string): MaybePromise<void>
   setItem(key: string, value: string): MaybePromise<void>
 }
 
-type Atomic = Storage & {
+type Atomic = Store & {
   compareAndSet: CompareAndSet
 }
 ```
@@ -33,10 +33,10 @@ type Atomic = Storage & {
 
 Atomically replaces the current value when it equals `expected`. Multisig coordination uses this
 method to preserve approvals submitted concurrently. A store passed to multisig coordination must
-implement `compareAndSet` and satisfy `Storage.Atomic`.
+implement `compareAndSet` and satisfy `Store.Atomic`.
 
 ## See Also
 
-- [`Storage.from`](/tempo/utilities/Storage.from)
-- [`Storage.memory`](/tempo/utilities/Storage.memory)
-- [`Storage.session`](/tempo/utilities/Storage.session)
+- [`Store.from`](/tempo/utilities/Store.from)
+- [`Store.memory`](/tempo/utilities/Store.memory)
+- [`Store.session`](/tempo/utilities/Store.session)

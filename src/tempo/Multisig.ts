@@ -13,7 +13,7 @@ import { custom } from '../clients/transports/custom.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import * as multisigActions from './actions/multisig.js'
 import * as OperationStore from './multisig/Operation.js'
-import type * as Storage from './Storage.js'
+import type * as Store from './Store.js'
 import * as Transaction from './Transaction.js'
 
 const submissionTtl = 30_000
@@ -170,8 +170,8 @@ export declare namespace handleRequest {
 
   /** Parameters for {@link handleRequest}. */
   export type Parameters = {
-    /** Storage shared by multisig coordinators. */
-    store: Storage.Atomic
+    /** Store shared by multisig coordinators. */
+    store: Store.Atomic
   }
 
   /** Error type for {@link handleRequest}. */
@@ -440,7 +440,7 @@ declare namespace submit {
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
-    store: Storage.Atomic
+    store: Store.Atomic
   }
 }
 
@@ -621,7 +621,7 @@ function pendingResult(
 
 /** Marks a transaction as successful after a lookup proves that it was submitted. */
 async function completeSubmission(
-  store: Storage.Atomic,
+  store: Store.Atomic,
   operation: MultisigOperation.TransactionOperation,
   transactionHash: Hex.Hex,
 ) {
@@ -646,7 +646,7 @@ async function completeSubmission(
 
 /** Releases a failed submission lease without discarding collected approvals. */
 async function releaseSubmission(
-  store: Storage.Atomic,
+  store: Store.Atomic,
   hash: Hex.Hex,
   submissionId: Hex.Hex,
 ) {

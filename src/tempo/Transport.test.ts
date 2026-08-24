@@ -13,7 +13,7 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, Storage, Transaction } from 'viem/tempo'
+import { Account, Actions, Store, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -32,7 +32,7 @@ import {
 describe('withMultisig', () => {
   test('default', async () => {
     const client = getClient({
-      transport: withMultisig(http(), { store: Storage.memory() }),
+      transport: withMultisig(http(), { store: Store.memory() }),
     })
 
     expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
@@ -46,7 +46,7 @@ describe('withMultisig', () => {
   })
 
   test('error: non-atomic store', () => {
-    const store = Storage.from({
+    const store = Store.from({
       getItem: async () => null,
       removeItem() {},
       setItem() {},

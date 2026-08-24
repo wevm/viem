@@ -75,7 +75,7 @@ export * as P256 from './P256.js'
 export * as Scopes from './Scopes.js'
 /** @experimental */
 export * as Selectors from './Selectors.js'
-export * as Storage from './Storage.js'
+export * as Store from './Store.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {

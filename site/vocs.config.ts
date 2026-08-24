@@ -3337,28 +3337,28 @@ export default defineConfig({
           text: 'Utilities',
           items: [
             {
-              text: 'Storage',
+              text: 'Store',
               collapsed: true,
               items: [
                 {
                   text: 'Overview',
-                  link: '/tempo/utilities/Storage',
+                  link: '/tempo/utilities/Store',
                 },
                 {
-                  text: 'defaultStorage',
-                  link: '/tempo/utilities/Storage.defaultStorage',
+                  text: 'defaultStore',
+                  link: '/tempo/utilities/Store.defaultStore',
                 },
                 {
                   text: 'from',
-                  link: '/tempo/utilities/Storage.from',
+                  link: '/tempo/utilities/Store.from',
                 },
                 {
                   text: 'memory',
-                  link: '/tempo/utilities/Storage.memory',
+                  link: '/tempo/utilities/Store.memory',
                 },
                 {
                   text: 'session',
-                  link: '/tempo/utilities/Storage.session',
+                  link: '/tempo/utilities/Store.session',
                 },
               ],
             },

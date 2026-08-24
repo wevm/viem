@@ -66,7 +66,7 @@ import {
   pickWriteSyncParameters,
 } from '../internal/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 const defaultWithdrawalGas = 10_000_000n
@@ -1953,7 +1953,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
-    store = Storage.defaultStorage(),
+    store = Store.defaultStore(),
   } = parameters
 
   const chain = parameters.chain ?? client.chain
@@ -1965,7 +1965,7 @@ export async function signAuthorizationToken<
   if (!account_ || !account_.sign)
     throw new Error('`account` with `sign` is required.')
 
-  const storageKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
+  const storeKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
 
   const authentication = ZoneRpcAuthentication.from({
     chainId: chain.id,
@@ -1981,7 +1981,7 @@ export async function signAuthorizationToken<
     signature,
   })
 
-  await store.setItem(storageKey, token)
+  await store.setItem(storeKey, token)
   await store.setItem(`auth:token:${chain.id}`, token)
 
   return { authentication, token }
@@ -2002,7 +2002,7 @@ export namespace signAuthorizationToken {
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
     /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
-    store?: Storage.Storage | undefined
+    store?: Store.Store | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
     zoneId?: number | undefined
   }

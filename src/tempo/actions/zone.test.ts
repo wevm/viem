@@ -38,7 +38,7 @@ import {
 } from '~test/tempo/zones.js'
 import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
@@ -271,7 +271,7 @@ describe('signAuthorizationToken', () => {
   })
 
   test('behavior: custom issuedAt/expiresAt/store', async () => {
-    const store = Storage.memory()
+    const store = Store.memory()
     const issuedAt = Math.floor(Date.now() / 1000) - 100
     const expiresAt = issuedAt + 300
 

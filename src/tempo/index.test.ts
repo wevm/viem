@@ -38,7 +38,7 @@ test('exports tempo', () => {
       "P256",
       "Scopes",
       "Selectors",
-      "Storage",
+      "Store",
       "TokenIds",
       "Transaction",
       "Transport",

@@ -11,9 +11,9 @@ unchanged.
 ## Usage
 
 ```ts
-import { Multisig, Storage } from 'viem/tempo'
+import { Multisig, Store } from 'viem/tempo'
 
-const store = Storage.memory()
+const store = Store.memory()
 const handleRequest = Multisig.handleRequest(
   (request) => rpc.request(request),
   { store },
@@ -32,7 +32,7 @@ The downstream RPC request handler used for configuration reads and final transa
 
 ### store
 
-- **Type:** `Storage.Atomic`
+- **Type:** `Store.Atomic`
 
 The authoritative atomic store shared by requests that coordinate the same multisig operations.
 
@@ -66,4 +66,4 @@ to the final transaction receipt and attaches `multisig`.
 
 ## See Also
 
-- [`Storage`](/tempo/utilities/Storage)
+- [`Store`](/tempo/utilities/Store)
