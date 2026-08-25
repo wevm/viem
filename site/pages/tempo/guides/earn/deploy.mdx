@@ -136,7 +136,7 @@ factory event when needed, and skips stages that are already complete.
 
 Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine),
 [`earn.createStack`](/tempo/actions/earn.createStack), and
-[`earn.bindErc4626Engine`](/tempo/actions/earn.bindErc4626Engine) when a deployment system needs to
+[`earn.bindEngine`](/tempo/actions/earn.bindEngine) when a deployment system needs to
 own each transaction.
 
 Each primitive exposes a `call` helper for
@@ -179,7 +179,7 @@ const receipt = await client.sendTransactionSync({
 const { args } = Actions.earn.createStack.extractEvent(receipt.logs, {
   factory: earnFactory,
 })
-await client.earn.bindErc4626EngineSync({
+await client.earn.bindEngineSync({
   engine,
   finalOwner: client.account.address,
   vault: args.earnVault,
@@ -234,5 +234,5 @@ before beginning the deployment.
   <Card title="Deploy a Stack" to="/tempo/actions/earn.deployErc4626StackSync" />
   <Card title="Deploy an Engine" to="/tempo/actions/earn.createErc4626Engine" />
   <Card title="Create Core Contracts" to="/tempo/actions/earn.createStack" />
-  <Card title="Bind an Engine" to="/tempo/actions/earn.bindErc4626Engine" />
+  <Card title="Bind an Engine" to="/tempo/actions/earn.bindEngine" />
 </Cards>

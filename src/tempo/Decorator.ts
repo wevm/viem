@@ -1764,14 +1764,14 @@ type DecoratorBase<
     createStackSync: (
       parameters: earnActions.createStackSync.Parameters<chain, account>,
     ) => Promise<earnActions.createStackSync.ReturnValue>
-    /** Binds an ERC-4626 engine to its EarnVault. */
-    bindErc4626Engine: (
-      parameters: earnActions.bindErc4626Engine.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626Engine.ReturnValue>
-    /** Binds an ERC-4626 engine and waits for confirmation. */
-    bindErc4626EngineSync: (
-      parameters: earnActions.bindErc4626EngineSync.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626EngineSync.ReturnValue>
+    /** Binds an engine to its EarnVault. */
+    bindEngine: (
+      parameters: earnActions.bindEngine.Parameters<chain, account>,
+    ) => Promise<earnActions.bindEngine.ReturnValue>
+    /** Binds an engine and waits for confirmation. */
+    bindEngineSync: (
+      parameters: earnActions.bindEngineSync.Parameters<chain, account>,
+    ) => Promise<earnActions.bindEngineSync.ReturnValue>
     /** Deploys and binds a complete, resumable ERC-4626 Earn stack. */
     deployErc4626StackSync: (
       parameters: earnActions.deployErc4626StackSync.Parameters<chain, account>,
@@ -5982,8 +5982,8 @@ export function decorator() {
         'watchOrderPlaced',
       ]),
       earn: bindActions(client, earnActions, [
-        'bindErc4626Engine',
-        'bindErc4626EngineSync',
+        'bindEngine',
+        'bindEngineSync',
         'configureExitSafePolicy',
         'createErc4626Engine',
         'createErc4626EngineSync',

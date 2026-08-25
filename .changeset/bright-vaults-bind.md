@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-Added optional final ownership transfer to `tempo`'s `earn.bindErc4626Engine` action.
+Replaced `tempo.earn.bindErc4626Engine` with the engine-agnostic `tempo.earn.bindEngine` action and added optional final ownership transfer.

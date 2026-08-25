@@ -19,16 +19,16 @@ function setup() {
   return fixturePromise
 }
 
-describe('bindErc4626Engine.call', () => {
+describe('bindEngine.call', () => {
   test('encodes optional final ownership transfer', () => {
     expect(
-      Actions.earn.bindErc4626Engine.call({
+      Actions.earn.bindEngine.call({
         engine: account.address,
         vault: accounts[1].address,
       }).args,
     ).toEqual([accounts[1].address])
     expect(
-      Actions.earn.bindErc4626Engine.call({
+      Actions.earn.bindEngine.call({
         engine: account.address,
         finalOwner: accounts[2].address,
         vault: accounts[1].address,
@@ -235,7 +235,7 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(isAddressEqual(engineEvent.args.engine, engine)).toBe(true)
     expect(isAddressEqual(stackEvent.args.engine, engine)).toBe(true)
 
-    const binding = await Actions.earn.bindErc4626EngineSync(client, {
+    const binding = await Actions.earn.bindEngineSync(client, {
       engine,
       finalOwner: accounts[1].address,
       vault: stackEvent.args.earnVault,

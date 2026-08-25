@@ -1,8 +1,8 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `earn.bindErc4626Engine`
+# `earn.bindEngine`
 
-Permanently binds an ERC-4626 engine to its factory-created EarnVault. This API is experimental.
+Permanently binds an engine to its factory-created EarnVault. This API is experimental.
 
 ## Usage
 
@@ -11,7 +11,7 @@ Permanently binds an ERC-4626 engine to its factory-created EarnVault. This API 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const result = await client.earn.bindErc4626EngineSync({
+const result = await client.earn.bindEngineSync({
   engine: '0x0000000000000000000000000000000000000001',
   finalOwner: client.account.address,
   vault: '0x0000000000000000000000000000000000000002',
@@ -30,21 +30,21 @@ it to retain the current owner. The binding cannot be changed after initializati
 
 ### Asynchronous Usage
 
-`earn.bindErc4626EngineSync` waits for inclusion and returns the decoded binding event. Use
-`earn.bindErc4626Engine` to return the transaction hash immediately.
+`earn.bindEngineSync` waits for inclusion and returns the decoded binding event. Use
+`earn.bindEngine` to return the transaction hash immediately.
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const engine = '0x0000000000000000000000000000000000000001'
-const hash = await client.earn.bindErc4626Engine({
+const hash = await client.earn.bindEngine({
   engine,
   finalOwner: client.account.address,
   vault: '0x0000000000000000000000000000000000000002',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
-const { args } = Actions.earn.bindErc4626Engine.extractEvent(receipt.logs, {
+const { args } = Actions.earn.bindEngine.extractEvent(receipt.logs, {
   engine,
 })
 ```
@@ -53,7 +53,7 @@ const { args } = Actions.earn.bindErc4626Engine.extractEvent(receipt.logs, {
 
 ```ts
 type ReturnValue = {
-  /** ERC-4626 engine address. */
+  /** Engine address. */
   engine: Address
   /** Transaction receipt. */
   receipt: TransactionReceipt
@@ -70,7 +70,7 @@ The asynchronous action returns the transaction hash instead.
 
 - **Type:** `Address`
 
-ERC-4626 engine address.
+Engine address.
 
 ### finalOwner
 
