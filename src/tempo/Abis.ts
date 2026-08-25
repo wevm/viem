@@ -4016,6 +4016,7 @@ export const zonePortal = [
     outputs: [
       { type: 'bytes32', name: 'x' },
       { type: 'uint8', name: 'yParity' },
+      { type: 'address', name: 'pubkey' },
     ],
   },
   {
