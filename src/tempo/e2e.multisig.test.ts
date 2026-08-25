@@ -25,6 +25,7 @@ import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as Multisig from './Multisig.js'
+import * as OperationStore from './multisig/Operation.js'
 
 describe('stateless', () => {
   const client = tempo.getClient()
@@ -2593,6 +2594,250 @@ describe('stateful', () => {
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig
     expect(stored?.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: ignores cleanup errors after a successful submission', async () => {
+    const owner_1 = tempo.accounts[10]
+    const owner_2 = tempo.accounts[11]
+    const account = Account.fromMultisig({
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x10613b, { size: 32 }),
+      threshold: 2,
+    })
+    const backing = Store.memory()
+    const store: Store.Atomic = {
+      compareAndSet(key, expected, value) {
+        return backing.compareAndSet(key, expected, value)
+      },
+      getItem(key) {
+        return backing.getItem(key)
+      },
+      removeItem() {
+        throw new Error('Cleanup failed.')
+      },
+      setItem(key, value) {
+        return backing.setItem(key, value)
+      },
+    }
+    const broadcast = withResolvers<void>()
+    const release = withResolvers<void>()
+    let hold = false
+    const client = tempo.getClient()
+    const handle = Multisig.handleRequest(
+      async (request, requestOptions) => {
+        if (hold) {
+          hold = false
+          if (request.method !== 'eth_sendRawTransactionSync')
+            throw new Error(`Unexpected request: ${request.method}`)
+          const result = await client.request(request as never, requestOptions)
+          broadcast.resolve()
+          await release.promise
+          return result
+        }
+        return await client.request(request as never, requestOptions)
+      },
+      { store },
+    )
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+    })
+    const approval_1 = await signTransaction(client, {
+      ...request,
+      account: owner_1,
+    })
+    const transaction_1 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_1],
+    })
+    const pending = MultisigOperation.fromRpc(
+      (await handle({
+        method: 'multisig_approveRawTransactionSync',
+        params: [transaction_1],
+      })) as MultisigOperation.TransactionRpc,
+    )
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    const approval_2 = await signTransaction(client, {
+      ...request,
+      account: owner_2,
+    })
+    const transaction_2 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_2],
+    })
+
+    hold = true
+    const submission = handle({
+      method: 'eth_sendRawTransactionSync',
+      params: [transaction_2],
+    })
+    await Promise.race([
+      broadcast.promise,
+      submission.then(() => {
+        throw new Error('Expected blocked submission.')
+      }),
+    ])
+    const transaction = await handle({
+      method: 'eth_getTransactionByHash',
+      params: [pending.hash],
+    })
+    if (
+      !transaction ||
+      typeof transaction !== 'object' ||
+      !('multisig' in transaction)
+    )
+      throw new Error('Expected multisig transaction.')
+    const operation = MultisigOperation.fromRpc(
+      transaction.multisig as MultisigOperation.TransactionRpc,
+    )
+    expect(operation.status).toMatchInlineSnapshot(`"success"`)
+
+    release.resolve()
+    const receipt = await submission
+    if (!receipt || typeof receipt !== 'object' || !('status' in receipt))
+      throw new Error('Expected transaction receipt.')
+    expect(receipt.status).toMatchInlineSnapshot(`"0x1"`)
+  })
+
+  test('behavior: does not settle a replaced submission', async () => {
+    const owner_1 = tempo.accounts[12]
+    const owner_2 = tempo.accounts[13]
+    const account = Account.fromMultisig({
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x10613c, { size: 32 }),
+      threshold: 2,
+    })
+    const store = Store.memory()
+    const replacementId = `0x${'bb'.repeat(32)}` as const
+    const broadcast = withResolvers<void>()
+    const release = withResolvers<void>()
+    let hold = false
+    let operationHash: `0x${string}` | undefined
+    let replaceSubmission = false
+    const client = tempo.getClient()
+    const handle = Multisig.handleRequest(
+      async (request, requestOptions) => {
+        if (hold) {
+          hold = false
+          if (request.method !== 'eth_sendRawTransactionSync')
+            throw new Error(`Unexpected request: ${request.method}`)
+          const result = await client.request(request as never, requestOptions)
+          broadcast.resolve()
+          await release.promise
+          return result
+        }
+        if (
+          replaceSubmission &&
+          request.method === 'eth_getTransactionByHash'
+        ) {
+          replaceSubmission = false
+          if (!operationHash) throw new Error('Expected operation hash.')
+          await OperationStore.update(store, operationHash, (current) => {
+            if (
+              current?.type !== 'transaction' ||
+              current.status !== 'submitting'
+            )
+              throw new Error('Expected submitting operation.')
+            return MultisigOperation.from({
+              ...current,
+              submissionId: replacementId,
+              updatedAt: Date.now(),
+            })
+          })
+        }
+        return await client.request(request as never, requestOptions)
+      },
+      { store },
+    )
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      feeToken: tempo.feeToken,
+    })
+    const approval_1 = await signTransaction(client, {
+      ...request,
+      account: owner_1,
+    })
+    const transaction_1 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_1],
+    })
+    const pending = MultisigOperation.fromRpc(
+      (await handle({
+        method: 'multisig_approveRawTransactionSync',
+        params: [transaction_1],
+      })) as MultisigOperation.TransactionRpc,
+    )
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    operationHash = pending.hash
+    const approval_2 = await signTransaction(client, {
+      ...request,
+      account: owner_2,
+    })
+    const transaction_2 = await signTransaction(client, {
+      ...request,
+      signatures: [approval_2],
+    })
+
+    hold = true
+    const submission = handle({
+      method: 'eth_sendRawTransactionSync',
+      params: [transaction_2],
+    })
+    await Promise.race([
+      broadcast.promise,
+      submission.then(() => {
+        throw new Error('Expected blocked submission.')
+      }),
+    ])
+    const submitting = await OperationStore.read(store, operationHash)
+    if (
+      submitting?.type !== 'transaction' ||
+      submitting.status !== 'submitting'
+    )
+      throw new Error('Expected submitting operation.')
+
+    replaceSubmission = true
+    await expect(
+      handle({
+        method: 'eth_getTransactionByHash',
+        params: [operationHash],
+      }),
+    ).rejects.toThrowError(OperationStore.InvalidStoreValueError)
+    const replaced = await OperationStore.read(store, operationHash)
+    if (replaced?.type !== 'transaction' || replaced.status !== 'submitting')
+      throw new Error('Expected submitting operation.')
+    expect(replaced.submissionId).toMatchInlineSnapshot(`"${replacementId}"`)
+
+    await OperationStore.update(store, operationHash, (current) => {
+      if (current?.type !== 'transaction' || current.status !== 'submitting')
+        throw new Error('Expected submitting operation.')
+      return MultisigOperation.from({
+        ...current,
+        submissionId: submitting.submissionId,
+        updatedAt: Date.now(),
+      })
+    })
+    release.resolve()
+    const receipt = await submission
+    if (!receipt || typeof receipt !== 'object' || !('status' in receipt))
+      throw new Error('Expected transaction receipt.')
+    expect(receipt.status).toMatchInlineSnapshot(`"0x1"`)
   })
 
   test('behavior: retries the same transaction after submission fails', async () => {

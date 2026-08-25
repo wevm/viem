@@ -1,6 +1,6 @@
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import { MultisigOperation, TxEnvelopeTempo } from 'ox/tempo'
+import { MultisigOperation, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
 import type * as Store from '../Store.js'
 
@@ -55,17 +55,25 @@ export async function update(
 /** Reads a submission hash without rebuilding its envelope from mutable configurations. */
 export async function readSubmission(
   store: Store.Store,
-  hash: Hex.Hex,
+  operation: MultisigOperation.TransactionOperation,
   submissionId: Hex.Hex,
 ): Promise<Hex.Hex | null> {
-  const value = await store.getItem(submissionKey(hash, submissionId))
+  const value = await store.getItem(submissionKey(operation.hash, submissionId))
   if (value === null || value === undefined) return null
   try {
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
     const transaction = TxEnvelopeTempo.deserialize(
       value as TxEnvelopeTempo.Serialized,
     )
-    if (!transaction.signature) throw new InvalidStoreValueError()
+    if (transaction.signature?.type !== 'multisig')
+      throw new InvalidStoreValueError()
+    const serialized = MultisigOperation.serializeTransaction(operation, {
+      approvals: transaction.signature.signatures.map((signature) =>
+        SignatureEnvelope.serialize(signature),
+      ),
+    })
+    if (serialized.toLowerCase() !== value.toLowerCase())
+      throw new InvalidStoreValueError()
     return TxEnvelopeTempo.hash(transaction as TxEnvelopeTempo.Signed)
   } catch (cause) {
     if (cause instanceof InvalidStoreValueError) throw cause

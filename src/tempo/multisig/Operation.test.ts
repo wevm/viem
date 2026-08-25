@@ -307,7 +307,7 @@ describe('submission', () => {
     await Operation.writeSubmission(store, hash, submissionId, signed)
 
     expect(
-      await Operation.readSubmission(store, hash, submissionId),
+      await Operation.readSubmission(store, operation, submissionId),
     ).toMatchInlineSnapshot(
       `"0x21ae038538df6a21674491be76c8ff151a51ba06844ee3eec214ea5d0ff22e54"`,
     )
@@ -323,14 +323,26 @@ describe('submission', () => {
     await Operation.removeSubmission(store, hash, submissionId)
 
     await expect(
-      Operation.readSubmission(store, hash, submissionId),
+      Operation.readSubmission(store, operation, submissionId),
     ).resolves.toMatchInlineSnapshot(`null`)
   })
 
   test('behavior: unknown submission', async () => {
     await expect(
-      Operation.readSubmission(Store.memory(), hash, submissionId),
+      Operation.readSubmission(Store.memory(), operation, submissionId),
     ).resolves.toBeNull()
+  })
+
+  test('error: submission belongs to another operation', async () => {
+    const store = Store.memory()
+    const signed = MultisigOperation.serializeTransaction(otherOperation, {
+      approvals: otherOperation.approvals,
+    })
+    await Operation.writeSubmission(store, hash, submissionId, signed)
+
+    await expect(
+      Operation.readSubmission(store, operation, submissionId),
+    ).rejects.toThrowError(Operation.InvalidStoreValueError)
   })
 
   test('error: refuses an unsigned transaction', async () => {
@@ -351,7 +363,7 @@ describe('submission', () => {
       await store.setItem(`multisig:submission:${hash}:${submissionId}`, value)
 
       await expect(
-        Operation.readSubmission(store, hash, submissionId),
+        Operation.readSubmission(store, operation, submissionId),
       ).rejects.toThrowError(Operation.InvalidStoreValueError)
     },
   )

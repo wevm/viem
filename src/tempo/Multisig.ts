@@ -399,7 +399,7 @@ async function submit(options: submit.Options) {
     } catch (error) {
       const submittedHash = await OperationStore.readSubmission(
         options.store,
-        operationHash,
+        claim,
         submissionId,
       )
       const transaction = await (async () => {
@@ -429,7 +429,14 @@ async function submit(options: submit.Options) {
     (current) => {
       if (!current || current.type !== 'transaction')
         throw new OperationStore.InvalidStoreValueError()
-      if (current.status === 'success') return current
+      if (current.status === 'success') {
+        if (
+          current.transactionHash?.toLowerCase() !==
+          transactionHash.toLowerCase()
+        )
+          throw new OperationStore.InvalidStoreValueError()
+        return current
+      }
       if (
         current.status !== 'submitting' ||
         current.submissionId !== submissionId
@@ -446,11 +453,7 @@ async function submit(options: submit.Options) {
   )
   if (success.type !== 'transaction' || success.status !== 'success')
     throw new OperationStore.InvalidStoreValueError()
-  await OperationStore.removeSubmission(
-    options.store,
-    operationHash,
-    submissionId,
-  )
+  await removeSettledSubmission(options.store, operationHash, submissionId)
   if (
     options.method === 'eth_sendRawTransactionSync' &&
     result &&
@@ -673,7 +676,19 @@ async function completeSubmission(
     (current) => {
       if (!current || current.type !== 'transaction')
         throw new OperationStore.InvalidStoreValueError()
-      if (current.status === 'success') return current
+      if (current.status === 'success') {
+        if (
+          current.transactionHash?.toLowerCase() !==
+          transactionHash.toLowerCase()
+        )
+          throw new OperationStore.InvalidStoreValueError()
+        return current
+      }
+      if (
+        current.status !== 'submitting' ||
+        current.submissionId !== operation.submissionId
+      )
+        throw new OperationStore.InvalidStoreValueError()
       const {
         expiresAt: _,
         submissionId: __,
@@ -688,11 +703,7 @@ async function completeSubmission(
       })
     },
   )
-  await OperationStore.removeSubmission(
-    store,
-    operation.hash,
-    operation.submissionId,
-  )
+  await removeSettledSubmission(store, operation.hash, operation.submissionId)
   return success as MultisigOperation.TransactionOperation
 }
 
@@ -718,6 +729,17 @@ async function releaseSubmission(
     })
   })
   await OperationStore.removeSubmission(store, hash, submissionId)
+}
+
+/** Removes settled submission data without replacing a successful result with a cleanup error. */
+async function removeSettledSubmission(
+  store: Store.Store,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+) {
+  try {
+    await OperationStore.removeSubmission(store, hash, submissionId)
+  } catch {}
 }
 
 /** Preserves or upgrades a fee-payer envelope without removing an existing signature. */
@@ -792,7 +814,7 @@ async function getSubmittedTransactionHash(
     throw new OperationStore.InvalidStoreValueError()
   return await OperationStore.readSubmission(
     store,
-    operation.hash,
+    operation,
     operation.submissionId,
   )
 }
