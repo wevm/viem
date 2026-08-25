@@ -111,8 +111,6 @@ export type Zone = {
   chainId: number
   /** ZoneFactory address on the parent (L1) chain. */
   factoryAddress: `0x${string}`
-  /** Portal address on the parent (L1) chain. */
-  portalAddress: `0x${string}`
   /** Private (authenticated) zone RPC URL. */
   privateRpcUrl: string
   /** Public zone RPC URL. */
@@ -227,10 +225,7 @@ async function startZone(
   const factoryAddress = logs.match(
     /ZoneFactory:\s+(0x[0-9a-fA-F]{40})/,
   )?.[1] as `0x${string}` | undefined
-  const portalAddress = logs.match(/Portal:\s+(0x[0-9a-fA-F]{40})/)?.[1] as
-    | `0x${string}`
-    | undefined
-  if (!zoneId || !chainId || !factoryAddress || !portalAddress) {
+  if (!zoneId || !chainId || !factoryAddress) {
     await instance.stop().catch(() => {})
     throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
   }
@@ -246,7 +241,6 @@ async function startZone(
   return {
     chainId,
     factoryAddress,
-    portalAddress,
     privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
     rpcUrl: `http://${instance.host}:${instance.port}`,
     stop: () => instance.stop(),

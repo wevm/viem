@@ -62,7 +62,6 @@ import {
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import { getPortalAddress } from '../zones/zone.js'
 import * as policyActions from './policy.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
@@ -1029,7 +1028,7 @@ export namespace privateDeposit {
       withdrawalMemo,
       zoneId,
     } = parameters
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),
@@ -2411,7 +2410,7 @@ export namespace privateRedeem {
       withdrawalMemo,
       zoneId,
     } = parameters
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const readParameters = pickReadParameters(parameters)
     const [fromBlock, config] = await Promise.all([
       getBlockNumber(client, { cacheTime: 0 }),

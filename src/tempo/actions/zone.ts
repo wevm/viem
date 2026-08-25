@@ -68,8 +68,6 @@ import {
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import * as ZoneAbis from '../zones/Abis.js'
-import { getPortalAddress } from '../zones/zone.js'
 
 const defaultWithdrawalGas = 10_000_000n
 
@@ -152,9 +150,6 @@ export async function deposit<
   client: Client<Transport, chain, account>,
   parameters: deposit.Parameters<chain, account>,
 ): Promise<deposit.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const { account = client.account, ...rest } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
@@ -165,7 +160,6 @@ export async function deposit<
     parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    chainId,
     recipient,
     tempoRefundRecipient,
   }
@@ -181,7 +175,7 @@ export namespace deposit {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
-    Omit<Args, 'chainId' | 'recipient' | 'tempoRefundRecipient'> & {
+    Omit<Args, 'recipient' | 'tempoRefundRecipient'> & {
       /** Recipient address in the zone. @default `account.address` */
       recipient?: Address | undefined
       /** Refund recipient on the parent chain. @default `account.address` */
@@ -191,11 +185,9 @@ export namespace deposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
-    /** Parent chain ID (e.g. `42431` for moderato). */
-    chainId: number
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
@@ -221,15 +213,13 @@ export namespace deposit {
   export function calls(args: Args) {
     const {
       amount,
-      chainId,
       memo = zeroHash,
       recipient,
       tempoRefundRecipient,
       token,
       zoneId,
     } = args
-    const portalAddress =
-      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
     const tokenAddress = TokenId.toAddress(token)
     const approveCall = defineCall({
       address: tokenAddress,
@@ -239,7 +229,7 @@ export namespace deposit {
     })
     const depositCall = defineCall({
       address: portalAddress,
-      abi: ZoneAbis.zonePortal,
+      abi: Abis.zonePortal,
       functionName: 'deposit',
       args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
     })
@@ -282,9 +272,6 @@ export async function depositSync<
   client: Client<Transport, chain, account>,
   parameters: depositSync.Parameters<chain, account>,
 ): Promise<depositSync.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const {
     account = client.account,
     throwOnReceiptRevert = true,
@@ -299,7 +286,6 @@ export async function depositSync<
     parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    chainId,
     recipient,
     tempoRefundRecipient,
   }
@@ -356,11 +342,8 @@ export async function getEncryptionKey<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getEncryptionKey.Parameters,
 ): Promise<getEncryptionKey.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const { account, portalAddress: portalAddress_, zoneId, ...rest } = parameters
-  const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+  const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
   const [keyCountResult, publicKeyResult] = await multicall(client, {
     ...rest,
     account: account ? parseAccount(account).address : undefined,
@@ -400,7 +383,7 @@ export namespace getEncryptionKey {
     }
 
   export type Args = {
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Zone ID (e.g. `7`). */
     zoneId: number
@@ -432,12 +415,12 @@ export namespace getEncryptionKey {
     return [
       defineCall({
         address: args.portalAddress,
-        abi: ZoneAbis.zonePortal,
+        abi: Abis.zonePortal,
         functionName: 'encryptionKeyCount',
       }),
       defineCall({
         address: args.portalAddress,
-        abi: ZoneAbis.zonePortal,
+        abi: Abis.zonePortal,
         functionName: 'sequencerEncryptionKey',
       }),
     ] as const
@@ -471,16 +454,13 @@ export async function getPortalInfo<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPortalInfo.Parameters,
 ): Promise<getPortalInfo.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const { portalAddress: portalAddress_, zoneId, ...rest } = parameters
   const portal = getContract({
-    abi: ZoneAbis.zonePortal,
-    address: portalAddress_ ?? getPortalAddress(chainId, zoneId),
+    abi: Abis.zonePortal,
+    address: portalAddress_ ?? Addresses.zonePortal(zoneId),
     client,
   }) as unknown as GetContractReturnType<
-    typeof ZoneAbis.zonePortal,
+    typeof Abis.zonePortal,
     PublicClient<Transport, Chain>
   >
   const [
@@ -537,7 +517,7 @@ export namespace getPortalInfo {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Zone ID (e.g. `7`). */
     zoneId: number
@@ -683,7 +663,7 @@ export namespace encryptedDeposit {
     keyIndex: bigint
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
@@ -751,7 +731,7 @@ export namespace encryptedDeposit {
     } = parameters
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
 
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
@@ -799,7 +779,7 @@ export namespace encryptedDeposit {
       amount: bigint
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
-      /** Zone portal address. @default resolved via the portal registry. */
+      /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
@@ -867,7 +847,7 @@ export namespace encryptedDeposit {
     } = parameters
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
       portalAddress,
@@ -908,7 +888,7 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
-      /** Zone portal address. @default resolved via the portal registry. */
+      /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
@@ -930,17 +910,9 @@ export namespace encryptedDeposit {
    * @returns The calls.
    */
   export function calls(args: Args | PreparedEncryptedDeposit) {
-    const {
-      amount,
-      chainId,
-      encrypted,
-      keyIndex,
-      tempoRefundRecipient,
-      token,
-      zoneId,
-    } = args
-    const portalAddress =
-      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const { amount, encrypted, keyIndex, tempoRefundRecipient, token, zoneId } =
+      args
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
     const tokenAddress = TokenId.toAddress(token)
     const encryptedPayload = {
       ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
@@ -957,7 +929,7 @@ export namespace encryptedDeposit {
     })
     const depositCall = defineCall({
       address: portalAddress,
-      abi: ZoneAbis.zonePortal,
+      abi: Abis.zonePortal,
       functionName: 'depositEncrypted',
       args: [
         tokenAddress,
@@ -1084,11 +1056,10 @@ export namespace encryptedDepositSync {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1142,11 +1113,10 @@ export namespace getAuthorizationTokenInfo {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1168,7 +1138,7 @@ export async function getWithdrawalFee<
   return readContract(client, {
     ...rest,
     address: Addresses.zoneOutbox,
-    abi: ZoneAbis.zoneOutbox,
+    abi: Abis.zoneOutbox,
     functionName: 'calculateWithdrawalFee',
     args: [callbackGas],
   })
@@ -1191,11 +1161,10 @@ export namespace getWithdrawalFee {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1282,11 +1251,10 @@ export namespace getZoneInfo {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { Actions } from 'viem/tempo'
- * import { http, zoneModerato } from 'viem/tempo/zones'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1386,12 +1354,11 @@ export namespace waitForTempoBlock {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1485,7 +1452,7 @@ export namespace requestWithdrawal {
       }),
       defineCall({
         address: Addresses.zoneOutbox,
-        abi: ZoneAbis.zoneOutbox,
+        abi: Abis.zoneOutbox,
         functionName: 'requestWithdrawal',
         args: [
           TokenId.toAddress(token),
@@ -1510,11 +1477,10 @@ export namespace requestWithdrawal {
    * @example
    * ```ts
    * import { createClient } from 'viem'
-   * import { http, zoneModerato } from 'viem/tempo/zones'
-   * import { Actions } from 'viem/tempo'
+   * import { Actions, http, Zone } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: zoneModerato(7),
+   *   chain: Zone.a,
    *   transport: http(),
    * })
    *
@@ -1670,17 +1636,11 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  * import { createClient, createPublicClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- * import {
- *   Abis,
- *   getPortalAddress,
- *   http as zoneHttp,
- *   zoneModerato,
- * } from 'viem/tempo/zones'
+ * import { Abis, Actions, Addresses, http as zoneHttp, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: zoneHttp(),
  * })
  *
@@ -1697,7 +1657,7 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  *   transport: http(),
  * })
  * const [withdrawal] = await tempoClient.getContractEvents({
- *   address: getPortalAddress(tempoModerato.id, 7),
+ *   address: Addresses.zonePortal(Zone.a.id),
  *   abi: Abis.zonePortal,
  *   eventName: 'WithdrawalProcessed',
  *   args: { senderTag },
@@ -1733,7 +1693,7 @@ export async function requestWithdrawalSync<
     throwOnReceiptRevert,
   } as never)
   const [event] = parseEventLogs({
-    abi: ZoneAbis.zoneOutbox,
+    abi: Abis.zoneOutbox,
     logs: receipt.logs,
     eventName: 'WithdrawalRequested',
     strict: true,
@@ -1778,12 +1738,11 @@ export namespace requestWithdrawalSync {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1867,7 +1826,7 @@ export namespace requestVerifiableWithdrawal {
       }),
       defineCall({
         address: Addresses.zoneOutbox,
-        abi: ZoneAbis.zoneOutbox,
+        abi: Abis.zoneOutbox,
         functionName: 'requestWithdrawal',
         args: [
           TokenId.toAddress(token),
@@ -1892,12 +1851,11 @@ export namespace requestVerifiableWithdrawal {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1959,19 +1917,17 @@ export namespace requestVerifiableWithdrawalSync {
 /**
  * Signs a zone authorization token and stores it for the zone HTTP transport.
  *
- * Zone chains should define `contracts.zonePortal` with the portal address.
  * The `zoneId` is derived from `ZoneId.fromChainId(chain.id)` and can be overridden.
  *
  * @example
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *

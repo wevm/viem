@@ -8,7 +8,7 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decorator } from '../Decorator.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import { zoneModerato } from '../zones/zone.js'
+import * as Zone from '../Zone.js'
 import * as earnActions from './earn.js'
 import type * as zoneActions from './zone.js'
 
@@ -43,7 +43,7 @@ const clientWithAccount = createClient({
 const decoratedClient = clientWithAccount.extend(decorator())
 const zoneClientWithAccount = createClient({
   account: address,
-  chain: zoneModerato(7),
+  chain: Zone.internalTestnet,
   transport,
 })
 const decoratedZoneClient = zoneClientWithAccount.extend(decorator())
