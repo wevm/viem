@@ -2093,6 +2093,12 @@ describe('stateful', () => {
     })
     expect(rotation.status).toBe('success')
 
+    const current = await getTransaction(client, {
+      hash: pending.transactionHash,
+    })
+    expect(current.multisig?.signatureCount).toMatchInlineSnapshot(`0`)
+    expect(current.multisig?.weight).toMatchInlineSnapshot(`0`)
+
     const refreshed = await sendTransactionSync(client, {
       account: parentOwner,
       hash: pending.transactionHash,

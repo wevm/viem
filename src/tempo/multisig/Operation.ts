@@ -1,6 +1,6 @@
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import { MultisigOperation } from 'ox/tempo'
+import { MultisigOperation, TxEnvelopeTempo } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
 import type * as Store from '../Store.js'
 
@@ -50,6 +50,47 @@ export async function update(
     if (await store.compareAndSet(key, value, serialized)) return next
   }
   throw new StoreConflictError()
+}
+
+/** Reads a submission hash without rebuilding its envelope from mutable configurations. */
+export async function readSubmission(
+  store: Store.Store,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+): Promise<Hex.Hex | null> {
+  const value = await store.getItem(submissionKey(hash, submissionId))
+  if (value === null || value === undefined) return null
+  try {
+    if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
+    const transaction = TxEnvelopeTempo.deserialize(
+      value as TxEnvelopeTempo.Serialized,
+    )
+    if (!transaction.signature) throw new InvalidStoreValueError()
+    return TxEnvelopeTempo.hash(transaction as TxEnvelopeTempo.Signed)
+  } catch (cause) {
+    if (cause instanceof InvalidStoreValueError) throw cause
+    throw new InvalidStoreValueError({ cause })
+  }
+}
+
+/** Persists the final envelope before broadcast so recovery uses the exact transaction. */
+export async function writeSubmission(
+  store: Store.Store,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+  transaction: TxEnvelopeTempo.Serialized,
+): Promise<void> {
+  try {
+    if (transaction.length > maxStoredValueLength)
+      throw new InvalidStoreValueError()
+    const envelope = TxEnvelopeTempo.deserialize(transaction)
+    if (!envelope.signature) throw new InvalidStoreValueError()
+    TxEnvelopeTempo.hash(envelope as TxEnvelopeTempo.Signed)
+    await store.setItem(submissionKey(hash, submissionId), transaction)
+  } catch (cause) {
+    if (cause instanceof InvalidStoreValueError) throw cause
+    throw new InvalidStoreValueError({ cause })
+  }
 }
 
 /** Deserializes a multisig operation from storage. */
@@ -103,6 +144,11 @@ function assertHash(operation: MultisigOperation.Operation) {
 /** Returns the store key for an operation hash. */
 function operationKey(hash: Hex.Hex) {
   return `multisig:operation:${hash.toLowerCase()}`
+}
+
+/** Returns the store key for a submission attempt. */
+function submissionKey(hash: Hex.Hex, submissionId: Hex.Hex) {
+  return `multisig:submission:${hash.toLowerCase()}:${submissionId.toLowerCase()}`
 }
 
 /** Thrown when a stored multisig operation is malformed or unsupported. */

@@ -107,13 +107,13 @@ describe('Store.from', () => {
     expect(await base.getItem('raw')).toBe('val')
   })
 
-  test('deduplicates concurrent getItem calls for the same key', async () => {
-    let calls = 0
+  test('behavior: deduplicates concurrent getItem calls for the same key', async () => {
+    const values = ['first', 'second', 'third'].values()
     const slow: Store.Store = {
       async getItem(_key) {
-        calls++
+        const value = values.next().value ?? null
         await new Promise((r) => setTimeout(r, 50))
-        return 'val'
+        return value
       },
       async setItem() {},
       async removeItem() {},
@@ -121,42 +121,47 @@ describe('Store.from', () => {
 
     const store = Store.from(slow)
 
-    const [a, b, c] = await Promise.all([
+    const result = await Promise.all([
       store.getItem('x'),
       store.getItem('x'),
       store.getItem('x'),
     ])
 
-    expect(a).toBe('val')
-    expect(b).toBe('val')
-    expect(c).toBe('val')
-    expect(calls).toBe(1)
+    expect(result).toMatchInlineSnapshot(`
+      [
+        "first",
+        "first",
+        "first",
+      ]
+    `)
   })
 
-  test('does not deduplicate different keys', async () => {
-    let calls = 0
+  test('behavior: does not deduplicate different keys', async () => {
     const slow: Store.Store = {
-      async getItem(_key) {
-        calls++
+      async getItem(key) {
         await new Promise((r) => setTimeout(r, 10))
-        return 'val'
+        return key
       },
       async setItem() {},
       async removeItem() {},
     }
 
     const store = Store.from(slow)
-    await Promise.all([store.getItem('a'), store.getItem('b')])
-    expect(calls).toBe(2)
+    const result = await Promise.all([store.getItem('a'), store.getItem('b')])
+    expect(result).toMatchInlineSnapshot(`
+      [
+        "a",
+        "b",
+      ]
+    `)
   })
 
-  test('allows new getItem after previous resolves', async () => {
-    let calls = 0
+  test('behavior: allows new getItem after previous resolves', async () => {
+    const values = ['first', 'second'].values()
     const slow: Store.Store = {
       async getItem(_key) {
-        calls++
         await new Promise((r) => setTimeout(r, 10))
-        return `val-${calls}`
+        return values.next().value ?? null
       },
       async setItem() {},
       async removeItem() {},
@@ -167,19 +172,21 @@ describe('Store.from', () => {
     const first = await store.getItem('x')
     const second = await store.getItem('x')
 
-    expect(first).toBe('val-1')
-    expect(second).toBe('val-2')
-    expect(calls).toBe(2)
+    expect([first, second]).toMatchInlineSnapshot(`
+      [
+        "first",
+        "second",
+      ]
+    `)
   })
 
-  test('setItem invalidates in-flight read', async () => {
-    let calls = 0
+  test('behavior: setItem invalidates in-flight read', async () => {
     const values = new Map<string, string>()
     const slow: Store.Store = {
       async getItem(key) {
-        calls++
+        const value = values.get(key) ?? null
         await new Promise((r) => setTimeout(r, 50))
-        return values.get(key) ?? null
+        return value
       },
       setItem(key, value) {
         values.set(key, value)
@@ -191,15 +198,15 @@ describe('Store.from', () => {
 
     const store = Store.from(slow)
 
-    // Start a read, then write, then read again.
     const p1 = store.getItem('x')
-    store.setItem('x', 'new')
+    await store.setItem('x', 'new')
     const p2 = store.getItem('x')
 
-    await p1
-    const result = await p2
-    // Second read should have triggered a new call.
-    expect(calls).toBe(2)
-    expect(result).toBe('new')
+    expect(await Promise.all([p1, p2])).toMatchInlineSnapshot(`
+      [
+        null,
+        "new",
+      ]
+    `)
   })
 })

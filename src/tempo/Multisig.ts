@@ -66,9 +66,10 @@ export function handleRequest(
       if (request.method === 'eth_getTransactionReceipt') {
         if (operation.status === 'pending') return null
         const transactionHash = await getSubmittedTransactionHash(
-          client,
+          parameters.store,
           operation,
         )
+        if (!transactionHash) return null
         const receipt = await next(
           {
             ...request,
@@ -93,9 +94,10 @@ export function handleRequest(
       if (operation.status === 'pending')
         return await pendingTransaction(client, operation)
       const transactionHash = await getSubmittedTransactionHash(
-        client,
+        parameters.store,
         operation,
       )
+      if (!transactionHash) return await pendingTransaction(client, operation)
       const transaction = await next(
         {
           ...request,
@@ -301,6 +303,13 @@ async function submit(options: submit.Options) {
   const synchronous =
     options.method === 'eth_sendRawTransactionSync' ||
     options.method === 'multisig_approveRawTransactionSync'
+  const leaseTtl =
+    synchronous &&
+    typeof timeout === 'number' &&
+    Number.isSafeInteger(timeout) &&
+    timeout >= 0
+      ? timeout + submissionTtl
+      : submissionTtl
   const claim = await OperationStore.update(
     options.store,
     operationHash,
@@ -312,14 +321,6 @@ async function submit(options: submit.Options) {
         return current
       if (current.weight < current.threshold) return current
       const now = Date.now()
-      // Keep the lease live for the full synchronous broadcast timeout.
-      const leaseTtl =
-        synchronous &&
-        typeof timeout === 'number' &&
-        Number.isSafeInteger(timeout) &&
-        timeout >= 0
-          ? timeout + submissionTtl
-          : submissionTtl
       return MultisigOperation.from({
         ...current,
         expiresAt: Math.min(now + leaseTtl, Number.MAX_SAFE_INTEGER),
@@ -336,60 +337,94 @@ async function submit(options: submit.Options) {
   if (claim.submissionId !== submissionId)
     return await submittingResult(options, claim)
 
-  const { final, transactionHash } = await (async () => {
-    try {
-      const finalApprovals = await selectApprovals({
-        account: claim.account,
-        client: options.client,
-        config: claim.config,
-        hash: claim.hash,
-        approvals: claim.approvals,
-      })
-      const final = MultisigOperation.serializeTransaction(claim, {
-        approvals: finalApprovals.selectedApprovals,
-      })
-      return {
-        final,
-        transactionHash: TxEnvelopeTempo.hash(
+  const { final, transactionHash: initialTransactionHash } =
+    await (async () => {
+      try {
+        const finalApprovals = await selectApprovals({
+          account: claim.account,
+          client: options.client,
+          config: claim.config,
+          hash: claim.hash,
+          approvals: claim.approvals,
+        })
+        const final = MultisigOperation.serializeTransaction(claim, {
+          approvals: finalApprovals.selectedApprovals,
+        })
+        const transactionHash = TxEnvelopeTempo.hash(
           TxEnvelopeTempo.deserialize(final) as TxEnvelopeTempo.Signed,
-        ),
+        )
+        await OperationStore.writeSubmission(
+          options.store,
+          operationHash,
+          submissionId,
+          final,
+        )
+        return { final, transactionHash }
+      } catch (error) {
+        await releaseSubmission(options.store, operationHash, submissionId)
+        throw error
       }
-    } catch (error) {
-      await releaseSubmission(options.store, operationHash, submissionId)
-      throw error
-    }
-  })()
+    })()
+  let transactionHash = initialTransactionHash
 
   let result: unknown
+  const stopLease = maintainSubmissionLease(
+    options.store,
+    operationHash,
+    submissionId,
+    leaseTtl,
+  )
+  let leaseStopped = false
+  const stopLeaseOnce = async () => {
+    if (leaseStopped) return
+    leaseStopped = true
+    await stopLease()
+  }
   try {
-    result = await options.next(
-      {
-        method:
-          options.method === 'eth_sendRawTransaction' ||
-          options.method === 'multisig_approveRawTransaction'
-            ? 'eth_sendRawTransaction'
-            : 'eth_sendRawTransactionSync',
-        params: [final, ...(options.request.params?.slice(1) ?? [])],
-      },
-      options.requestOptions,
-    )
-    if (
-      getTransactionHash(result).toLowerCase() !== transactionHash.toLowerCase()
-    )
-      throw new Error(
-        'Multisig broadcast returned an unexpected transaction hash.',
-      )
-  } catch (error) {
-    const transaction = await options
-      .next(
-        { method: 'eth_getTransactionByHash', params: [transactionHash] },
+    try {
+      result = await options.next(
+        {
+          method:
+            options.method === 'eth_sendRawTransaction' ||
+            options.method === 'multisig_approveRawTransaction'
+              ? 'eth_sendRawTransaction'
+              : 'eth_sendRawTransactionSync',
+          params: [final, ...(options.request.params?.slice(1) ?? [])],
+        },
         options.requestOptions,
       )
-      .catch(() => null)
-    if (!transaction) {
-      await releaseSubmission(options.store, operationHash, submissionId)
-      throw error
+      const returnedHash = getTransactionHash(result)
+      if (returnedHash.toLowerCase() !== transactionHash.toLowerCase())
+        transactionHash = returnedHash
+    } catch (error) {
+      const submittedHash = await OperationStore.readSubmission(
+        options.store,
+        operationHash,
+        submissionId,
+      )
+      const transaction = await (async () => {
+        if (!submittedHash) return null
+        try {
+          return await options.next(
+            {
+              method: 'eth_getTransactionByHash',
+              params: [submittedHash],
+            },
+            options.requestOptions,
+          )
+        } catch {
+          return null
+        }
+      })()
+      await stopLeaseOnce()
+      if (!submittedHash || !transaction) {
+        await releaseSubmission(options.store, operationHash, submissionId)
+        throw error
+      }
+      transactionHash = submittedHash
     }
+  } finally {
+    await stopLeaseOnce()
   }
   const success = await OperationStore.update(
     options.store,
@@ -694,14 +729,27 @@ async function pendingTransaction(
     discardInvalidNested: true,
     hash: operation.hash,
   })
-  const serialized = MultisigOperation.serializeTransaction(operation, {
-    // Keep one stored approval in the synthetic envelope when every nested
-    // approval became stale. The next submission replaces it before broadcast.
-    approvals:
-      approvals.selectedApprovals.length > 0
-        ? approvals.selectedApprovals
-        : operation.approvals.slice(0, 1),
-  })
+  const current =
+    operation.status === 'pending'
+      ? MultisigOperation.from({
+          ...operation,
+          approvals: approvals.approvals,
+          signatureCount: approvals.signatureCount,
+          threshold: approvals.threshold,
+          weight: approvals.weight,
+        })
+      : operation
+  const serialized = MultisigOperation.serializeTransaction(
+    approvals.approvals.length > 0 ? current : operation,
+    {
+      // Keep one stored approval in the synthetic envelope when every nested
+      // approval became stale. The next submission replaces it before broadcast.
+      approvals:
+        approvals.selectedApprovals.length > 0
+          ? approvals.selectedApprovals
+          : operation.approvals.slice(0, 1),
+    },
+  )
   const transaction = deserialize(serialized)
   return {
     ...ox_Transaction.toRpc(
@@ -715,29 +763,78 @@ async function pendingTransaction(
       } as never,
       { pending: true },
     ),
-    multisig: MultisigOperation.toRpc(operation),
+    multisig: MultisigOperation.toRpc(current),
   }
 }
 
-/** Returns the final signed hash for a submitting or successful operation. */
+/** Returns the persisted transaction hash for a submitting or successful operation. */
 async function getSubmittedTransactionHash(
-  client: ReturnType<typeof createClient>,
+  store: Store.Store,
   operation: MultisigOperation.TransactionOperation,
 ) {
   if (operation.status === 'success') return operation.transactionHash!
-  const approvals = await selectApprovals({
-    account: operation.account,
-    approvals: operation.approvals,
-    client,
-    config: operation.config,
-    hash: operation.hash,
-  })
-  const serialized = MultisigOperation.serializeTransaction(operation, {
-    approvals: approvals.selectedApprovals,
-  })
-  return TxEnvelopeTempo.hash(
-    TxEnvelopeTempo.deserialize(serialized) as TxEnvelopeTempo.Signed,
+  if (operation.status !== 'submitting' || !operation.submissionId)
+    throw new OperationStore.InvalidStoreValueError()
+  return await OperationStore.readSubmission(
+    store,
+    operation.hash,
+    operation.submissionId,
   )
+}
+
+/** Renews a submission lease until the returned cleanup function runs. */
+function maintainSubmissionLease(
+  store: Store.Atomic,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+  leaseTtl: number,
+) {
+  let active = true
+  let error: unknown
+  let renewal = Promise.resolve()
+  const timer = setInterval(() => {
+    renewal = renewal.then(async () => {
+      if (!active || error) return
+      try {
+        const operation = await OperationStore.update(
+          store,
+          hash,
+          (current) => {
+            if (!current || current.type !== 'transaction')
+              throw new OperationStore.InvalidStoreValueError()
+            if (
+              current.status !== 'submitting' ||
+              current.submissionId !== submissionId
+            )
+              return current
+            return MultisigOperation.from({
+              ...current,
+              expiresAt: Math.min(
+                Date.now() + leaseTtl,
+                Number.MAX_SAFE_INTEGER,
+              ),
+              updatedAt: Date.now(),
+            })
+          },
+        )
+        if (
+          operation.type !== 'transaction' ||
+          operation.status !== 'submitting' ||
+          operation.submissionId !== submissionId
+        )
+          throw new OperationStore.InvalidStoreValueError()
+      } catch (cause) {
+        error = cause
+      }
+    })
+  }, submissionTtl / 2)
+
+  return async () => {
+    active = false
+    clearInterval(timer)
+    await renewal
+    if (error) throw error
+  }
 }
 
 /** Canonically serializes an unsigned Tempo transaction. */

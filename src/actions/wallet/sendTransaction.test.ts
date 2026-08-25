@@ -553,6 +553,30 @@ describe('args: chain', async () => {
     ).toBeDefined
   })
 
+  test('behavior: null uses the client transaction envelope serializer', async () => {
+    const chain = defineChain({
+      ...anvilMainnet.chain,
+      serializers: {
+        transactionEnvelope() {
+          throw new Error('client transaction envelope serializer')
+        },
+      },
+    })
+    const client = createWalletClient({
+      chain,
+      transport: anvilMainnet.clientConfig.transport,
+    })
+
+    await expect(
+      sendTransaction(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        chain: null,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowError('client transaction envelope serializer')
+  })
+
   test('chain mismatch', async () => {
     await expect(() =>
       sendTransaction(client, {

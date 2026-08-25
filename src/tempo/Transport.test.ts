@@ -580,6 +580,47 @@ describe('withRelay', () => {
       },
     )
 
+    test.runIf(import.meta.env.VITE_TEMPO_MULTISIG)(
+      'behavior: coordinated multisig accepts the relay transaction hash',
+      async () => {
+        const owner_1 = Account.fromSecp256k1(generatePrivateKey())
+        const owner_2 = Account.fromSecp256k1(generatePrivateKey())
+        const account = Account.fromMultisig({
+          owners: [owner_1, owner_2],
+          threshold: 2,
+        })
+        const coordinated = getClient({
+          transport: withMultisig(
+            withRelay(http(), http('http://localhost:3051')),
+            { store: Store.memory() },
+          ),
+        })
+
+        const pending = await sendTransactionSync(coordinated, {
+          account: owner_1,
+          calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
+          feePayer: true,
+          multisig: account,
+        })
+        expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+
+        const receipt = await sendTransactionSync(coordinated, {
+          account: owner_2,
+          hash: pending.transactionHash,
+        })
+        expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+        expect(receipt.from).toBe(account.address.toLowerCase())
+        expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+
+        const transaction = await getTransaction(coordinated, {
+          hash: pending.transactionHash,
+        })
+        expect(transaction.multisig?.transactionHash).toBe(
+          receipt.transactionHash,
+        )
+      },
+    )
+
     test('behavior: non-sponsored transaction uses default transport', async () => {
       const receipt = await sendTransactionSync(client, {
         account: accounts[0],

@@ -1,4 +1,5 @@
 import { MultisigConfig } from 'ox/tempo'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
@@ -60,5 +61,23 @@ describe('prepareTransactionRequest', () => {
     })
 
     expect(request.multisigVersion).toBe(2n)
+  })
+
+  test('error: rejects a generic local owner account', async () => {
+    const owner = privateKeyToAccount(generatePrivateKey())
+    const config = MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+
+    await expect(
+      prepareTransactionRequest(client, {
+        account: owner,
+        multisig: config,
+        parameters: ['chainId'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A Tempo owner account is required to approve a multisig transaction.]`,
+    )
   })
 })

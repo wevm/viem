@@ -181,6 +181,15 @@ export const chainConfig = {
         throw new Error(
           'A local owner account is required to approve a multisig transaction.',
         )
+      if (
+        multisigIdentity &&
+        request.account &&
+        request.account.source !== 'root' &&
+        request.account.source !== 'multisig'
+      )
+        throw new Error(
+          'A Tempo owner account is required to approve a multisig transaction.',
+        )
       let initializedMultisig = false
       if (multisigIdentity) {
         const initialConfig =
@@ -351,7 +360,14 @@ export const chainConfig = {
       try {
         SignatureEnvelope.deserialize(serializedTransaction)
       } catch {
-        return serializedTransaction
+        const transaction = Transaction.deserialize(
+          serializedTransaction as Transaction.TransactionSerializedTempo,
+        )
+        if (transaction.signature?.type === 'multisig')
+          return serializedTransaction
+        throw new Error(
+          'A Tempo owner account is required to approve a multisig transaction.',
+        )
       }
       return await serializeTransaction({
         ...request,

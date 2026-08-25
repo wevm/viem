@@ -368,8 +368,10 @@ export async function sendTransaction<
           serializer,
         },
       )) as Hash
-      const serializedTransaction = chain?.serializers?.transactionEnvelope
-        ? await chain.serializers.transactionEnvelope({
+      const transactionEnvelope = (chain ?? client.chain)?.serializers
+        ?.transactionEnvelope
+      const serializedTransaction = transactionEnvelope
+        ? await transactionEnvelope({
             serializedTransaction: signedTransaction,
             transaction: request as never,
           })
