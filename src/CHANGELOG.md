@@ -1,5 +1,62 @@
 # viem
 
+## 2.56.0
+
+### Minor Changes
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Renamed `Abis.abis` to `Abis.all` and expanded the aggregate with Earn and Zone ABIs.
+
+  ```diff
+  -const abis = Abis.abis
+  +const abis = Abis.all
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Moved Zone exports from `viem/tempo/zones` into `viem/tempo`.
+
+  ```diff
+  -import { Abis, Addresses, http, zoneModerato } from 'viem/tempo/zones'
+  +import { Abis, Addresses, http, Zone } from 'viem/tempo'
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced curried Zone network factories with built-in Zone definitions and `Zone.from` for custom chains.
+
+  ```diff
+  -const zone = zoneModerato(6)
+  +const zone = Zone.a
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced chain-specific Zone portal registries with deterministic `Addresses.zonePortal(id)` resolution for Zone IDs and chain IDs.
+
+  ```diff
+  -import { getPortalAddress } from 'viem/tempo/zones'
+  +import { Addresses, Zone } from 'viem/tempo'
+
+  -const portal = getPortalAddress(42_431, 7)
+  +const portal = Addresses.zonePortal(Zone.b.id)
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added selector maps for Zone portal, outbox, messenger, and verifier ABIs.
+
+  ```ts
+  import { Selectors } from "viem/tempo";
+
+  const selector = Selectors.zonePortal.admin;
+  ```
+
+### Patch Changes
+
+- [#5039](https://github.com/wevm/viem/pull/5039) [`e802c6b16e03c83d61c144d0b6388a21a8391a22`](https://github.com/wevm/viem/commit/e802c6b16e03c83d61c144d0b6388a21a8391a22) Thanks [@struong](https://github.com/struong)! - Replaced `tempo.earn.bindErc4626Engine` with the engine-agnostic `tempo.earn.bindEngine` action and added optional final ownership transfer.
+
+- [#5034](https://github.com/wevm/viem/pull/5034) [`b8707d998ab8c7d4ee95c9a70989cd6fbd145356`](https://github.com/wevm/viem/commit/b8707d998ab8c7d4ee95c9a70989cd6fbd145356) Thanks [@jxom](https://github.com/jxom)! - Added `zone.getPortalInfo` to read Zone Portal administration, sequencer, and token metadata.
+
+- [#5030](https://github.com/wevm/viem/pull/5030) [`901bf2f09b057e03f34067fdee6c3f6a2dae7bd3`](https://github.com/wevm/viem/commit/901bf2f09b057e03f34067fdee6c3f6a2dae7bd3) Thanks [@decofe](https://github.com/decofe)! - Added Zone protocol addresses, ZoneFactory registry reads, and ZonePortal administration operations to Tempo exports.
+
+- [#5028](https://github.com/wevm/viem/pull/5028) [`ffbf342ba3f5b312433ec927332f817b754fdafb`](https://github.com/wevm/viem/commit/ffbf342ba3f5b312433ec927332f817b754fdafb) Thanks [@codingwithmanny](https://github.com/codingwithmanny)! - Updated the Berachain Bepolia block explorer.
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added `Abis.core`, `Abis.earn`, and `Abis.zone` contract groups.
+
+- [#5044](https://github.com/wevm/viem/pull/5044) [`56a54cc3c80c5c774963be4f02d68c4b43e261d4`](https://github.com/wevm/viem/commit/56a54cc3c80c5c774963be4f02d68c4b43e261d4) Thanks [@decofe](https://github.com/decofe)! - Added the derived public key address to the `sequencerEncryptionKey` Zone Portal ABI output while preserving T10 encryption key reads.
+
 ## 2.55.19
 
 ### Patch Changes
