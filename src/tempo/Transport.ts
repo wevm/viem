@@ -79,7 +79,62 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
+export type HostedFeePayer = Transport<typeof withHostedFeePayer.type>
 export type Relay = Transport<typeof withRelay.type>
+
+/**
+ * Creates a hosted fee-payer transport that routes sponsored
+ * `eth_fillTransaction` requests to a fee-payer service.
+ *
+ * All other requests, including transaction broadcast, use the default
+ * transport. The fee-payer service must return a sponsored transaction from
+ * `eth_fillTransaction` without requiring a later signing or broadcast request.
+ *
+ * @param defaultTransport - The default transport to use.
+ * @param feePayerTransport - The hosted fee-payer transport to use for sponsored fills.
+ * @returns A hosted fee-payer transport.
+ */
+export function withHostedFeePayer(
+  defaultTransport: Transport,
+  feePayerTransport: Transport,
+): withHostedFeePayer.ReturnValue {
+  return (config) => {
+    const transport_default = defaultTransport(config)
+    const transport_feePayer = feePayerTransport(config)
+
+    return createTransport({
+      key: withHostedFeePayer.type,
+      name: 'Hosted Fee Payer Proxy',
+      async request({ method, params }, options) {
+        if (method === 'eth_fillTransaction') {
+          const request = (params as readonly unknown[] | undefined)?.[0]
+          if (
+            request &&
+            typeof request === 'object' &&
+            'feePayer' in request &&
+            request.feePayer === true
+          )
+            return transport_feePayer.request(
+              { method, params },
+              options,
+            ) as never
+        }
+
+        return (await transport_default.request(
+          { method, params },
+          options,
+        )) as never
+      },
+      type: withHostedFeePayer.type,
+    })
+  }
+}
+
+export declare namespace withHostedFeePayer {
+  export const type = 'hostedFeePayer'
+
+  export type ReturnValue = HostedFeePayer
+}
 
 /**
  * Creates a relay transport that routes requests between
@@ -170,7 +225,7 @@ export declare namespace withRelay {
   export type ReturnValue = Relay
 }
 
-/** @deprecated Use `withRelay` instead. */
+/** @deprecated Use `withRelay` or `withHostedFeePayer` instead. */
 export function withFeePayer(
   defaultTransport: Transport,
   relayTransport: Transport,

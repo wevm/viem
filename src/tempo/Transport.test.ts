@@ -22,9 +22,14 @@ import {
   getClient,
   http,
 } from '~test/tempo/config.js'
-import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
+import {
+  walletNamespaceCompat,
+  withFeePayer,
+  withHostedFeePayer,
+  withRelay,
+} from './Transport.js'
 
-describe('withRelay', () => {
+describe('relay transports', () => {
   let server: Http.Server
   let overrideSponsorFields = false
   let overrideSponsorNonce = false
@@ -636,6 +641,45 @@ describe('withRelay', () => {
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
       })
+    })
+  })
+
+  describe('withHostedFeePayer', () => {
+    const client = getClient({
+      transport: withHostedFeePayer(http(), http('http://localhost:3051')),
+    })
+
+    test('behavior: routes sponsored fill only and broadcasts with default transport', async () => {
+      sponsorFills = true
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000004',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: routes unsponsored fill through default transport', async () => {
+      await client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: accounts[0].address,
+            to: '0x0000000000000000000000000000000000000005',
+          },
+        ],
+      })
+
+      expect(relayRequests).toHaveLength(0)
     })
   })
 })

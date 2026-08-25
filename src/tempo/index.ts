@@ -110,6 +110,7 @@ export {
   http,
   walletNamespaceCompat,
   withFeePayer,
+  withHostedFeePayer,
   withRelay,
 } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'

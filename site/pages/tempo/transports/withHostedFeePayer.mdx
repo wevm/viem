@@ -1,0 +1,59 @@
+# `withHostedFeePayer`
+
+Creates a transport that sends sponsored transaction fills to a hosted fee-payer service while keeping transaction broadcast on the default transport.
+
+- [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
+- [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
+
+Only `eth_fillTransaction` requests with `feePayer: true` are sent to the hosted fee payer. Every other request, including `eth_sendRawTransaction` and `eth_sendRawTransactionSync`, uses the default transport.
+
+The hosted fee payer must return a sponsored transaction from `eth_fillTransaction`. Use [`withRelay`](/tempo/transports/withRelay) when the service signs or broadcasts through separate RPC methods.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, http, withHostedFeePayer } from 'viem/tempo'
+
+const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  testnet: true,
+  transport: withHostedFeePayer(
+    http(),                                    // ← Default Transport
+    http('https://fee-payer.example.com'),     // ← Hosted Fee Payer Transport // [!code hl]
+  ),
+})
+
+const receipt = await client.sendTransactionSync({
+  feePayer: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Transport<'hostedFeePayer'>
+```
+
+## Parameters
+
+### defaultTransport
+
+- **Type:** `Transport`
+
+The transport used for unsponsored fills and every other RPC method, including transaction broadcast.
+
+### feePayerTransport
+
+- **Type:** `Transport`
+
+The hosted fee-payer transport used only for `eth_fillTransaction` requests with `feePayer: true`.
