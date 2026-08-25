@@ -73,6 +73,15 @@ export async function readSubmission(
   }
 }
 
+/** Removes a persisted final envelope after its submission is settled. */
+export async function removeSubmission(
+  store: Store.Store,
+  hash: Hex.Hex,
+  submissionId: Hex.Hex,
+): Promise<void> {
+  await store.removeItem(submissionKey(hash, submissionId))
+}
+
 /** Persists the final envelope before broadcast so recovery uses the exact transaction. */
 export async function writeSubmission(
   store: Store.Store,

@@ -313,6 +313,20 @@ describe('submission', () => {
     )
   })
 
+  test('behavior: removes a persisted transaction', async () => {
+    const store = Store.memory()
+    const signed = MultisigOperation.serializeTransaction(operation, {
+      approvals: operation.approvals,
+    })
+    await Operation.writeSubmission(store, hash, submissionId, signed)
+
+    await Operation.removeSubmission(store, hash, submissionId)
+
+    await expect(
+      Operation.readSubmission(store, hash, submissionId),
+    ).resolves.toMatchInlineSnapshot(`null`)
+  })
+
   test('behavior: unknown submission', async () => {
     await expect(
       Operation.readSubmission(Store.memory(), hash, submissionId),

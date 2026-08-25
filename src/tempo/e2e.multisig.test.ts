@@ -24,6 +24,7 @@ import {
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
+import * as Multisig from './Multisig.js'
 
 describe('stateless', () => {
   const client = tempo.getClient()
@@ -2490,6 +2491,7 @@ describe('stateful', () => {
     ).multisig
     expect(submitting?.status).toMatchInlineSnapshot(`"submitting"`)
     if (submitting?.status !== 'submitting') throw new Error('unreachable')
+    if (!submitting.submissionId) throw new Error('Expected submission ID.')
     expect(submitting.expiresAt).toBeGreaterThan(Date.now() + 60_000)
 
     const submission_2 = sendTransactionSync(client, {
@@ -2509,9 +2511,14 @@ describe('stateful', () => {
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig
     expect(operation?.status).toMatchInlineSnapshot(`"success"`)
+    await expect(
+      store.getItem(
+        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+      ),
+    ).resolves.toMatchInlineSnapshot(`null`)
   })
 
-  test('behavior: reconciles a successful broadcast after its response is lost', async () => {
+  test('behavior: reconciles a successful broadcast after the caller aborts', async () => {
     const owner_1 = tempo.accounts[5]
     const owner_2 = tempo.accounts[6]
     const account = Account.fromMultisig({
@@ -2519,29 +2526,29 @@ describe('stateful', () => {
       salt: toHex(0x106134, { size: 32 }),
       threshold: 2,
     })
-    const baseTransport = tempo.http()
-    let loseResponse = false
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request, requestOptions) => {
-          if (loseResponse && request.method === 'eth_sendRawTransactionSync') {
-            if (!Array.isArray(request.params) || request.params[1] !== 5_000)
-              throw new Error('Expected forwarded synchronous timeout.')
-            loseResponse = false
-            await value.request(request as never, requestOptions)
-            throw new Error('Response lost.')
-          }
-          return await value.request(request as never, requestOptions)
-        },
-      }
-    }
+    const controller = new AbortController()
+    const store = Store.memory()
+    const downstream = tempo.getClient()
+    let abortResponse = false
+    const handle = Multisig.handleRequest(
+      async (request, requestOptions) => {
+        if (abortResponse && request.method === 'eth_sendRawTransactionSync') {
+          if (!Array.isArray(request.params) || request.params[1] !== 5_000)
+            throw new Error('Expected forwarded synchronous timeout.')
+          abortResponse = false
+          await downstream.request(request as never, requestOptions)
+          controller.abort()
+          throw controller.signal.reason
+        }
+        return await downstream.request(request as never, requestOptions)
+      },
+      { store },
+    )
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: true,
+      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: tempo.http(),
     })
 
     await Actions.token.transferSync(client, {
@@ -2556,18 +2563,36 @@ describe('stateful', () => {
       feeToken: tempo.feeToken,
       multisig: account,
     })
-    loseResponse = true
-    const receipt = await sendTransactionSync(client, {
-      hash: pending.transactionHash,
+    const request = await prepareTransactionRequest(client, {
       account: owner_2,
-      timeout: 5_000,
+      hash: pending.transactionHash,
     })
+    const approval = await signTransaction(client, {
+      ...request,
+      account: owner_2,
+    })
+    const transaction = await signTransaction(client, {
+      ...request,
+      account,
+      signatures: [approval],
+    })
+    abortResponse = true
+    await expect(
+      handle(
+        {
+          method: 'eth_sendRawTransactionSync',
+          params: [transaction, 5_000],
+        },
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
 
-    expect(receipt.status).toBe('success')
-    expect(
-      (await getTransaction(client, { hash: pending.transactionHash }))
-        .multisig,
-    ).toMatchObject({ status: 'success' })
+    const stored = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
+    expect(stored?.status).toMatchInlineSnapshot(`"success"`)
   })
 
   test('behavior: retries the same transaction after submission fails', async () => {
@@ -2580,17 +2605,21 @@ describe('stateful', () => {
     })
     const store = Store.memory()
     let fail = false
+    const broadcast = withResolvers<void>()
+    const release = withResolvers<void>()
     const baseTransport = tempo.http()
     const transport: Transport = (options) => {
       const value = baseTransport(options)
       return {
         ...value,
-        request: async (request) => {
+        request: async (request, requestOptions) => {
           if (fail && request.method === 'eth_sendRawTransactionSync') {
             fail = false
+            broadcast.resolve()
+            await release.promise
             throw new Error('Submission failed.')
           }
-          return await value.request(request as never)
+          return await value.request(request as never, requestOptions)
         },
       }
     }
@@ -2616,17 +2645,39 @@ describe('stateful', () => {
     expect(pending.status).toBe('pending')
 
     fail = true
-    await expect(
-      sendTransactionSync(client, {
-        hash: pending.transactionHash,
-        account: owner_2,
-      }),
-    ).rejects.toThrow('Submission failed.')
+    const failed = sendTransactionSync(client, {
+      hash: pending.transactionHash,
+      account: owner_2,
+    })
+    await broadcast.promise
+    const submitting = (
+      await getTransaction(client, { hash: pending.transactionHash })
+    ).multisig
+    expect(submitting?.status).toMatchInlineSnapshot(`"submitting"`)
+    if (submitting?.status !== 'submitting' || !submitting.submissionId)
+      throw new Error('Expected submitting operation.')
+    release.resolve()
+    await expect(failed).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: An error occurred.
+
+      Request Arguments:
+        from:  0x9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64a
+
+      Details: Submission failed.
+      Version: viem@2.55.19]
+    `,
+    )
     const failedOperation = (
       await getTransaction(client, { hash: pending.transactionHash })
     ).multisig
     expect(failedOperation?.status).toBe('pending')
     expect(failedOperation?.weight).toBe(2)
+    await expect(
+      store.getItem(
+        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+      ),
+    ).resolves.toMatchInlineSnapshot(`null`)
 
     const success = await sendTransactionSync(client, {
       hash: pending.transactionHash,

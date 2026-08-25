@@ -405,13 +405,10 @@ async function submit(options: submit.Options) {
       const transaction = await (async () => {
         if (!submittedHash) return null
         try {
-          return await options.next(
-            {
-              method: 'eth_getTransactionByHash',
-              params: [submittedHash],
-            },
-            options.requestOptions,
-          )
+          return await options.next({
+            method: 'eth_getTransactionByHash',
+            params: [submittedHash],
+          })
         } catch {
           return null
         }
@@ -449,6 +446,11 @@ async function submit(options: submit.Options) {
   )
   if (success.type !== 'transaction' || success.status !== 'success')
     throw new OperationStore.InvalidStoreValueError()
+  await OperationStore.removeSubmission(
+    options.store,
+    operationHash,
+    submissionId,
+  )
   if (
     options.method === 'eth_sendRawTransactionSync' &&
     result &&
@@ -663,23 +665,35 @@ async function completeSubmission(
   operation: MultisigOperation.TransactionOperation,
   transactionHash: Hex.Hex,
 ) {
-  return (await OperationStore.update(store, operation.hash, (current) => {
-    if (!current || current.type !== 'transaction')
-      throw new OperationStore.InvalidStoreValueError()
-    if (current.status === 'success') return current
-    const {
-      expiresAt: _,
-      submissionId: __,
-      transactionHash: ___,
-      ...value
-    } = current
-    return MultisigOperation.from({
-      ...value,
-      status: 'success',
-      transactionHash,
-      updatedAt: Date.now(),
-    })
-  })) as MultisigOperation.TransactionOperation
+  if (operation.status !== 'submitting' || !operation.submissionId)
+    throw new OperationStore.InvalidStoreValueError()
+  const success = await OperationStore.update(
+    store,
+    operation.hash,
+    (current) => {
+      if (!current || current.type !== 'transaction')
+        throw new OperationStore.InvalidStoreValueError()
+      if (current.status === 'success') return current
+      const {
+        expiresAt: _,
+        submissionId: __,
+        transactionHash: ___,
+        ...value
+      } = current
+      return MultisigOperation.from({
+        ...value,
+        status: 'success',
+        transactionHash,
+        updatedAt: Date.now(),
+      })
+    },
+  )
+  await OperationStore.removeSubmission(
+    store,
+    operation.hash,
+    operation.submissionId,
+  )
+  return success as MultisigOperation.TransactionOperation
 }
 
 /** Releases a failed submission lease without discarding collected approvals. */
@@ -703,6 +717,7 @@ async function releaseSubmission(
       updatedAt: Date.now(),
     })
   })
+  await OperationStore.removeSubmission(store, hash, submissionId)
 }
 
 /** Preserves or upgrades a fee-payer envelope without removing an existing signature. */
