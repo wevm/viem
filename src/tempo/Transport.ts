@@ -79,11 +79,11 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
-export type HostedFeePayer = Transport<typeof withHostedFeePayer.type>
+export type RemoteFeePayer = Transport<typeof withRemoteFeePayer.type>
 export type Relay = Transport<typeof withRelay.type>
 
 /**
- * Creates a hosted fee-payer transport that routes sponsored
+ * Creates a remote fee-payer transport that routes sponsored
  * `eth_fillTransaction` requests to a fee-payer service.
  *
  * All other requests, including transaction broadcast, use the default
@@ -91,20 +91,20 @@ export type Relay = Transport<typeof withRelay.type>
  * `eth_fillTransaction` without requiring a later signing or broadcast request.
  *
  * @param defaultTransport - The default transport to use.
- * @param feePayerTransport - The hosted fee-payer transport to use for sponsored fills.
- * @returns A hosted fee-payer transport.
+ * @param remoteFeePayerTransport - The remote fee-payer transport to use for sponsored fills.
+ * @returns A remote fee-payer transport.
  */
-export function withHostedFeePayer(
+export function withRemoteFeePayer(
   defaultTransport: Transport,
-  feePayerTransport: Transport,
-): withHostedFeePayer.ReturnValue {
+  remoteFeePayerTransport: Transport,
+): withRemoteFeePayer.ReturnValue {
   return (config) => {
     const transport_default = defaultTransport(config)
-    const transport_feePayer = feePayerTransport(config)
+    const transport_remoteFeePayer = remoteFeePayerTransport(config)
 
     return createTransport({
-      key: withHostedFeePayer.type,
-      name: 'Hosted Fee Payer Proxy',
+      key: withRemoteFeePayer.type,
+      name: 'Remote Fee Payer Proxy',
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction') {
           const request = (params as readonly unknown[] | undefined)?.[0]
@@ -114,7 +114,7 @@ export function withHostedFeePayer(
             'feePayer' in request &&
             request.feePayer === true
           )
-            return transport_feePayer.request(
+            return transport_remoteFeePayer.request(
               { method, params },
               options,
             ) as never
@@ -125,15 +125,15 @@ export function withHostedFeePayer(
           options,
         )) as never
       },
-      type: withHostedFeePayer.type,
+      type: withRemoteFeePayer.type,
     })
   }
 }
 
-export declare namespace withHostedFeePayer {
-  export const type = 'hostedFeePayer'
+export declare namespace withRemoteFeePayer {
+  export const type = 'remoteFeePayer'
 
-  export type ReturnValue = HostedFeePayer
+  export type ReturnValue = RemoteFeePayer
 }
 
 /**
@@ -225,7 +225,7 @@ export declare namespace withRelay {
   export type ReturnValue = Relay
 }
 
-/** @deprecated Use `withRelay` or `withHostedFeePayer` instead. */
+/** @deprecated Use `withRelay` or `withRemoteFeePayer` instead. */
 export function withFeePayer(
   defaultTransport: Transport,
   relayTransport: Transport,

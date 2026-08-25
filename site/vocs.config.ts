@@ -3325,8 +3325,8 @@ export default defineConfig({
           text: 'Transports',
           items: [
             {
-              text: 'withHostedFeePayer',
-              link: '/tempo/transports/withHostedFeePayer',
+              text: 'withRemoteFeePayer',
+              link: '/tempo/transports/withRemoteFeePayer',
             },
             {
               text: 'withRelay',

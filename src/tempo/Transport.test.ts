@@ -25,8 +25,8 @@ import {
 import {
   walletNamespaceCompat,
   withFeePayer,
-  withHostedFeePayer,
   withRelay,
+  withRemoteFeePayer,
 } from './Transport.js'
 
 describe('relay transports', () => {
@@ -644,9 +644,9 @@ describe('relay transports', () => {
     })
   })
 
-  describe('withHostedFeePayer', () => {
+  describe('withRemoteFeePayer', () => {
     const client = getClient({
-      transport: withHostedFeePayer(http(), http('http://localhost:3051')),
+      transport: withRemoteFeePayer(http(), http('http://localhost:3051')),
     })
 
     test('behavior: routes sponsored fill only and broadcasts with default transport', async () => {
