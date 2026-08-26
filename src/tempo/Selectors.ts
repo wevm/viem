@@ -51,9 +51,8 @@ export const addressRegistry = {
 
 export const nativeMultisig = {
   deriveAccount: '0xce8e071c',
-  getConfig: '0xe48a5f7b',
-  isMultisigAccount: '0x9fbf029a',
-  updateConfig: '0xe175d479',
+  getConfigCommitment: '0x5bd93359',
+  updateConfig: '0x64203645',
 } as const satisfies FunctionSelectors<typeof Abis.nativeMultisig>
 
 export const currentCommittee = {

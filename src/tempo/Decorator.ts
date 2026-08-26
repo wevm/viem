@@ -2374,24 +2374,10 @@ type DecoratorBase<
     getOperation: (
       parameters: multisigActions.getOperation.Parameters,
     ) => Promise<multisigActions.getOperation.ReturnValue>
-    /**
-     * Gets the current configuration for an initialized multisig account.
-     *
-     * @param parameters - Parameters.
-     * @returns The current version, threshold, and owners.
-     */
-    getConfig: (
-      parameters: multisigActions.getConfig.Parameters,
-    ) => Promise<multisigActions.getConfig.ReturnValue>
-    /**
-     * Checks whether an address is an initialized native multisig account.
-     *
-     * @param parameters - Parameters.
-     * @returns Whether the account is initialized.
-     */
-    isInitialized: (
-      parameters: multisigActions.isInitialized.Parameters,
-    ) => Promise<multisigActions.isInitialized.ReturnValue>
+    /** Gets the current configuration commitment for a multisig account. */
+    getConfigCommitment: (
+      parameters: multisigActions.getConfigCommitment.Parameters,
+    ) => Promise<multisigActions.getConfigCommitment.ReturnValue>
     /**
      * Replaces the current configuration for a native multisig account.
      *
@@ -6016,9 +6002,8 @@ export function decorator() {
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
-        'getConfig',
+        'getConfigCommitment',
         'getOperation',
-        'isInitialized',
         'updateConfig',
         'updateConfigSync',
       ]),

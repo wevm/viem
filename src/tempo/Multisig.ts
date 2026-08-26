@@ -8,10 +8,11 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
+import { getBlockNumber } from '../actions/public/getBlockNumber.js'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import * as multisigActions from './actions/multisig.js'
+import { getConfigCommitment } from './actions/multisig.js'
 import * as OperationStore from './multisig/Operation.js'
 import type * as Store from './Store.js'
 import * as Transaction from './Transaction.js'
@@ -92,12 +93,12 @@ export function handleRequest(
         }
       }
       if (operation.status === 'pending')
-        return await pendingTransaction(client, operation)
+        return await toTransaction(client, operation)
       const transactionHash = await getSubmittedTransactionHash(
         parameters.store,
         operation,
       )
-      if (!transactionHash) return await pendingTransaction(client, operation)
+      if (!transactionHash) return await toTransaction(client, operation)
       const transaction = await next(
         {
           ...request,
@@ -105,11 +106,8 @@ export function handleRequest(
         },
         requestOptions,
       )
-      if (!transaction || typeof transaction !== 'object') {
-        if (operation.status === 'submitting')
-          return await pendingTransaction(client, operation)
-        return transaction
-      }
+      if (!transaction || typeof transaction !== 'object')
+        return await toTransaction(client, operation)
       const success =
         operation.status === 'submitting'
           ? await completeSubmission(
@@ -216,20 +214,17 @@ async function submit(options: submit.Options) {
     envelope,
     options.serialized.startsWith(TxEnvelopeTempo.feePayerMagic),
   )
-  const resolved = await (async () => {
-    if (signature.init) return resolveInitialConfig(signature)
-    const { owners, threshold, version } = await multisigActions.getConfig(
-      options.client,
-      { account: signature.account },
-    )
-    return {
-      config: MultisigConfig.from({ owners, threshold }),
-      version,
-    }
-  })()
+  const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
+  const config = MultisigConfig.from(signature.config)
+  await assertConfig({
+    account: signature.account,
+    blockNumber,
+    client: options.client,
+    config,
+  })
   const operationHash = MultisigOperation.getHash({
     account: signature.account,
-    configVersion: resolved.version,
+    config,
     transaction: serializedUnsigned,
     type: 'transaction',
   })
@@ -254,27 +249,27 @@ async function submit(options: submit.Options) {
         ? await selectApprovals({
             account: signature.account,
             client: options.client,
-            config: resolved.config,
+            config,
             discardInvalidNested: true,
             hash: operationHash,
             approvals: existing.approvals,
+            blockNumber,
           })
         : undefined
       const approvals = await selectApprovals({
         account: signature.account,
         client: options.client,
-        config: resolved.config,
+        config,
         hash: operationHash,
         approvals: [...(existingApprovals?.approvals ?? []), ...incoming],
+        blockNumber,
       })
       return MultisigOperation.from({
         account: signature.account,
         approvals: approvals.approvals,
-        config: resolved.config,
-        configVersion: resolved.version,
+        config,
         createdAt: existing?.createdAt ?? now,
         hash: operationHash,
-        init: !!signature.init,
         signatureCount: approvals.signatureCount,
         status: 'pending',
         threshold: approvals.threshold,
@@ -340,8 +335,18 @@ async function submit(options: submit.Options) {
   const { final, transactionHash: initialTransactionHash } =
     await (async () => {
       try {
+        const blockNumber = await getBlockNumber(options.client, {
+          cacheTime: 0,
+        })
+        await assertConfig({
+          account: claim.account,
+          blockNumber,
+          client: options.client,
+          config: claim.config,
+        })
         const finalApprovals = await selectApprovals({
           account: claim.account,
+          blockNumber,
           client: options.client,
           config: claim.config,
           hash: claim.hash,
@@ -466,7 +471,7 @@ async function submit(options: submit.Options) {
 declare namespace submit {
   /** Options for {@link submit}. */
   export type Options = {
-    /** Client used to resolve initialized configurations. */
+    /** Client used to validate configuration witnesses. */
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
     method:
@@ -500,39 +505,63 @@ function deserialize(serialized: Hex.Hex) {
   }
 }
 
-/** Resolves and validates a bootstrap multisig configuration. */
-function resolveInitialConfig(signature: SignatureEnvelope.Multisig) {
-  const config = MultisigConfig.from(signature.init!)
+/** Validates a config witness against the account and chain commitment. */
+async function assertConfig(options: {
+  account: `0x${string}`
+  blockNumber: bigint
+  client: ReturnType<typeof createClient>
+  config: MultisigConfig.Config
+}) {
+  const { account, blockNumber, client, config } = options
   if (
-    MultisigConfig.getAddress(config).toLowerCase() !==
-    signature.account.toLowerCase()
+    config.version === 0n &&
+    MultisigConfig.getAddress(config).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
-      message: 'Bootstrap multisig config does not match the multisig account.',
+      message: 'Initial multisig config does not match the multisig account.',
     })
-  return { config, version: 0n }
+  const commitment = await getConfigCommitment(client, {
+    account,
+    blockNumber,
+  })
+  const expected = (() => {
+    if (config.version === 0n) return Hex.fromNumber(0, { size: 32 })
+    return MultisigConfig.getCommitment(config)
+  })()
+  if (commitment.toLowerCase() !== expected.toLowerCase())
+    throw new RpcResponse.InvalidParamsError({
+      message: `Multisig config witness does not match account ${account}.`,
+    })
 }
 
-/** Selects approvals with current nested multisig configurations. */
+/** Selects approvals after validating every nested configuration witness. */
 // biome-ignore lint/correctness/noUnusedVariables: _
 async function selectApprovals(options: selectApprovals.Options) {
-  const select = (approvals: readonly SignatureEnvelope.Serialized[]) =>
-    MultisigOperation.selectApprovals({
+  const select = async (approvals: readonly SignatureEnvelope.Serialized[]) => {
+    const selection = await MultisigOperation.selectApprovals({
       account: options.account,
       approvals,
       config: options.config,
       hash: options.hash,
-      resolveConfig: async ({ account }) => {
-        const { owners, threshold, version } = await multisigActions.getConfig(
-          options.client,
-          { account },
-        )
-        return {
-          config: MultisigConfig.from({ owners, threshold }),
-          version,
-        }
-      },
     })
+    const visit = async (signature: SignatureEnvelope.SignatureEnvelope) => {
+      if (signature.type !== 'multisig') return
+      const config = MultisigConfig.from(signature.config)
+      await assertConfig({
+        account: signature.account,
+        blockNumber: options.blockNumber,
+        client: options.client,
+        config,
+      })
+      await Promise.all(signature.signatures.map(visit))
+    }
+    await Promise.all(
+      selection.approvals.map((approval) =>
+        visit(SignatureEnvelope.from(approval)),
+      ),
+    )
+    return selection
+  }
   try {
     if (!options.discardInvalidNested) return await select(options.approvals)
 
@@ -544,7 +573,10 @@ async function selectApprovals(options: selectApprovals.Options) {
           try {
             return (await select([approval])).approvals[0]
           } catch (error) {
-            if (error instanceof MultisigOperation.InvalidApprovalError)
+            if (
+              error instanceof MultisigOperation.InvalidApprovalError ||
+              error instanceof RpcResponse.InvalidParamsError
+            )
               return undefined
             throw error
           }
@@ -561,11 +593,10 @@ async function selectApprovals(options: selectApprovals.Options) {
 
 declare namespace selectApprovals {
   /** Options for {@link selectApprovals}. */
-  export type Options = Omit<
-    MultisigOperation.selectApprovals.Options,
-    'resolveConfig'
-  > & {
-    /** Client used to resolve nested multisig configurations. */
+  export type Options = MultisigOperation.selectApprovals.Options & {
+    /** Block used to validate every config witness. */
+    blockNumber: bigint
+    /** Client used to validate nested multisig configurations. */
     client: ReturnType<typeof createClient>
     /** Discards stored nested approvals invalidated by a child configuration change. */
     discardInvalidNested?: boolean | undefined
@@ -753,19 +784,36 @@ function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
   return existing
 }
 
-/** Returns a pending transaction with its multisig operation. */
-async function pendingTransaction(
+/** Returns a synthetic transaction while the downstream transaction is unavailable. */
+async function toTransaction(
   client: ReturnType<typeof createClient>,
   operation: MultisigOperation.TransactionOperation,
 ) {
-  const approvals = await selectApprovals({
-    account: operation.account,
-    approvals: operation.approvals,
-    client,
-    config: operation.config,
-    discardInvalidNested: true,
-    hash: operation.hash,
-  })
+  const approvals = await (async () => {
+    if (operation.status !== 'pending')
+      return await MultisigOperation.selectApprovals({
+        account: operation.account,
+        approvals: operation.approvals,
+        config: operation.config,
+        hash: operation.hash,
+      })
+    const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+    await assertConfig({
+      account: operation.account,
+      blockNumber,
+      client,
+      config: operation.config,
+    })
+    return await selectApprovals({
+      account: operation.account,
+      approvals: operation.approvals,
+      blockNumber,
+      client,
+      config: operation.config,
+      discardInvalidNested: true,
+      hash: operation.hash,
+    })
+  })()
   const current =
     operation.status === 'pending'
       ? MultisigOperation.from({

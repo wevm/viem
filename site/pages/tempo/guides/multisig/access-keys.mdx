@@ -38,8 +38,10 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 const multisig = Account.fromMultisig({
-  owners: [owner_1, owner_2],
-  threshold: 2,
+  initialConfig: {
+    owners: [owner_1, owner_2],
+    threshold: 2,
+  },
 })
 
 // 2. Create and authorize an access key for the multisig.
@@ -94,8 +96,10 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 const multisig = Account.fromMultisig({
-  owners: [owner_1.address, owner_2.address],
-  threshold: 2,
+  initialConfig: {
+    owners: [owner_1.address, owner_2.address],
+    threshold: 2,
+  },
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: multisig,

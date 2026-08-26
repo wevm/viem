@@ -11,7 +11,8 @@ import { Card, Cards } from 'vocs'
 The initial configuration permanently derives the multisig address. Updating the current
 configuration changes which owners can approve future transactions without changing that address.
 
-This example assumes that `multisig` has already been initialized.
+These examples assume that the account is using config version `1` and that you retained its
+current config witness.
 
 ## Recipes
 
@@ -31,16 +32,23 @@ const owner = Account.fromSecp256k1(
 const credential = await WebAuthnP256.createCredential({ name: 'Example' })
 const passkeyOwner = Account.fromWebAuthnP256(credential)
 
-// 2. Recreate the initialized account from its stable address.
-const multisig = Account.fromMultisig(
-  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
-)
+// 2. Recreate the account from its stable address and current config witness.
+const multisig = Account.fromMultisig({
+  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+  config: {
+    owners: [owner],
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    threshold: 1,
+    version: 1,
+  },
+})
 
 // 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
 const receipt = await client.sendTransactionSync({
   account: owner,
   calls: [
     Actions.multisig.updateConfig.call({
+      current: multisig.config,
       owners: [
         { owner: owner.address, weight: 1 },
         { owner: passkeyOwner.address, weight: 1 },
@@ -77,16 +85,23 @@ const newOwner_2 = Account.fromSecp256k1(
   '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
 )
 
-// 2. Recreate the initialized multisig from its stable address.
-const multisig = Account.fromMultisig(
-  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
-)
+// 2. Recreate the multisig from its stable address and current config witness.
+const multisig = Account.fromMultisig({
+  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+  config: {
+    owners: [owner_1, owner_2],
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    threshold: 2,
+    version: 1,
+  },
+})
 
 // 3. Store the first current owner's approval for the update.
 const pending = await client.sendTransactionSync({
   account: owner_1,
   calls: [
     Actions.multisig.updateConfig.call({
+      current: multisig.config,
       owners: [
         { owner: newOwner_1.address, weight: 1 },
         { owner: newOwner_2.address, weight: 1 },
@@ -112,8 +127,8 @@ const receipt = await client.sendTransactionSync({
 
 ### Approve with the New Owners
 
-Keep using the original account address. Preparation reads its latest configuration and version,
-so the new owners can coordinate the next request.
+Keep using the original account address with the updated config witness so the new owners can
+coordinate the next request.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
@@ -127,10 +142,16 @@ const newOwner_2 = Account.fromSecp256k1(
   '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
 )
 
-// 2. Keep using the original multisig address.
-const multisig = Account.fromMultisig(
-  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
-)
+// 2. Keep using the original address with the updated config witness.
+const multisig = Account.fromMultisig({
+  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+  config: {
+    owners: [newOwner_1, newOwner_2],
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    threshold: 2,
+    version: 2,
+  },
+})
 
 // 3. Store the first new owner's approval.
 const pending = await client.sendTransactionSync({
@@ -151,17 +172,17 @@ const receipt = await client.sendTransactionSync({
 ### Keep the Stable Account Address
 
 Do not derive another account from the rotated configuration. That configuration produces a
-different address. Store the original address and reconstruct it with `Account.fromMultisig(address)`.
+different address. Store the original address and reconstruct it with
+`Account.fromMultisig({ address, config })`.
 
-### Read the Current Configuration
+### Retain the Current Configuration
 
-Use [`multisig.getConfig`](/tempo/actions/multisig.getConfig) to display active owners, threshold,
-or version. Transaction preparation resolves these values before signing.
+Tempo stores only a commitment to the current config. Retain each complete config witness, or
+recover updated witnesses from `MultisigConfigUpdated` events.
 
 ## See More
 
 <Cards>
   <Card icon="lucide:square-function" title="multisig.updateConfig" description="Replace a multisig account's current configuration." to="/tempo/actions/multisig.updateConfig" />
-  <Card icon="lucide:settings" title="multisig.getConfig" description="Read the active owners, threshold, and version." to="/tempo/actions/multisig.getConfig" />
   <Card icon="lucide:send" title="Send Transactions" description="Coordinate approvals from the account's current owners." to="/tempo/guides/multisig/send" />
 </Cards>

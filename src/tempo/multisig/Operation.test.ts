@@ -27,11 +27,12 @@ const owners = [1n, 2n]
     }
   })
   .sort((a, b) => a.address.localeCompare(b.address))
-const config = MultisigConfig.from({
+const initialConfig = MultisigConfig.from({
   owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
   threshold: 2,
 })
-const account = MultisigConfig.getAddress(config)
+const account = MultisigConfig.getAddress(initialConfig)
+const config = MultisigConfig.from({ ...initialConfig, version: 1n })
 const transaction = TxEnvelopeTempo.serialize(
   TxEnvelopeTempo.from({
     calls: [{ data: '0x1234', to: owners[0]!.address }],
@@ -40,18 +41,16 @@ const transaction = TxEnvelopeTempo.serialize(
 )
 const hash = MultisigConfig.getSignPayload({
   account,
+  config,
   payload: TxEnvelopeTempo.getSignPayload(
     TxEnvelopeTempo.deserialize(transaction),
   ),
-  version: 1n,
 })
 const base = {
   account,
   approvals: [owners[0]!.signature],
   config,
-  configVersion: 1n,
   createdAt: 1,
-  init: false,
   signatureCount: 1,
   threshold: 2,
   updatedAt: 2,
@@ -74,10 +73,10 @@ const otherOperation = MultisigOperation.from({
   ...base,
   hash: MultisigConfig.getSignPayload({
     account,
+    config,
     payload: TxEnvelopeTempo.getSignPayload(
       TxEnvelopeTempo.deserialize(otherTransaction),
     ),
-    version: 1n,
   }),
   status: 'pending',
   transaction: otherTransaction,
@@ -96,10 +95,10 @@ const keyAuthorizationOperation = MultisigOperation.from({
   ...base,
   hash: MultisigConfig.getSignPayload({
     account,
+    config,
     payload: KeyAuthorization.getSignPayload(
       KeyAuthorization.deserialize(keyAuthorization),
     ),
-    version: 1n,
   }),
   keyAuthorization,
   status: 'pending',
@@ -135,11 +134,10 @@ describe('read', () => {
           ],
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 2,
+          "version": 1n,
         },
-        "configVersion": 1n,
         "createdAt": 1,
         "hash": "0xbd127c104f2fa25a517f87e18b0ab95fba2ad308c8c404c5a0cc91ca14b0b2b0",
-        "init": false,
         "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
@@ -202,11 +200,10 @@ describe('read', () => {
           ],
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 2,
+          "version": 1n,
         },
-        "configVersion": 1n,
         "createdAt": 1,
         "hash": "0x14570ae04d1d0ef96c67a67effbc75dc769f4658c675aac6a3e18cebcfdb2b6c",
-        "init": false,
         "keyAuthorization": Any<String>,
         "signatureCount": 1,
         "status": "pending",
@@ -309,7 +306,7 @@ describe('submission', () => {
     expect(
       await Operation.readSubmission(store, operation, submissionId),
     ).toMatchInlineSnapshot(
-      `"0x21ae038538df6a21674491be76c8ff151a51ba06844ee3eec214ea5d0ff22e54"`,
+      `"0x6cacd29f7c164f40028765b9bb7c3923a295e97ccb8ddb1178f2c3732dfdc0a0"`,
     )
   })
 
@@ -393,10 +390,10 @@ describe('storage serialization', () => {
       ...operation,
       hash: MultisigConfig.getSignPayload({
         account,
+        config,
         payload: TxEnvelopeTempo.getSignPayload(
           TxEnvelopeTempo.deserialize(oversizedTransaction),
         ),
-        version: 1n,
       }),
       transaction: oversizedTransaction,
     })

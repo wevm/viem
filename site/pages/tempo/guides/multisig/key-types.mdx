@@ -32,12 +32,14 @@ const webCryptoOwner = Account.fromWebCryptoP256(
 
 // 2. Create a multisig from their addresses.
 const multisig = Account.fromMultisig({
-  owners: [
-    secp256k1Owner.address,
-    p256Owner.address,
-    webCryptoOwner.address,
-  ],
-  threshold: 3,
+  initialConfig: {
+    owners: [
+      secp256k1Owner.address,
+      p256Owner.address,
+      webCryptoOwner.address,
+    ],
+    threshold: 3,
+  },
 })
 
 // 3. Store the secp256k1 owner's approval.

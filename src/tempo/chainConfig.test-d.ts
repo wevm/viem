@@ -1,4 +1,4 @@
-import { MultisigConfig } from 'ox/tempo'
+import { MultisigConfig, type MultisigWitness } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
 import { tempoLocalnet } from '../chains/index.js'
@@ -50,11 +50,10 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
   })
   const request_multisig = await prepareTransactionRequest(client, {
     multisig: config,
-    multisigVersion: 1n,
   })
   expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
-  expectTypeOf(request_multisig.multisigVersion).toEqualTypeOf<
-    bigint | undefined
+  expectTypeOf(request_multisig.multisigWitness).toEqualTypeOf<
+    MultisigWitness.MultisigWitness<bigint> | undefined
   >()
 })
 

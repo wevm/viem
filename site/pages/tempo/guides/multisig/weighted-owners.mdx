@@ -37,8 +37,10 @@ const owner_3 = Account.fromSecp256k1(
 
 // 2. Require any two owners for quorum.
 const multisig = Account.fromMultisig({
-  owners: [owner_1.address, owner_2.address, owner_3.address],
-  threshold: 2,
+  initialConfig: {
+    owners: [owner_1.address, owner_2.address, owner_3.address],
+    threshold: 2,
+  },
 })
 
 // 3. Store the first owner's approval.
@@ -82,12 +84,14 @@ const carol = Account.fromSecp256k1(
 
 // 2. Assign weights and choose the required total.
 const multisig = Account.fromMultisig({
-  owners: [
-    { owner: alice.address, weight: 2 },
-    { owner: bob.address, weight: 1 },
-    { owner: carol.address, weight: 1 },
-  ],
-  threshold: 3,
+  initialConfig: {
+    owners: [
+      { owner: alice.address, weight: 2 },
+      { owner: bob.address, weight: 1 },
+      { owner: carol.address, weight: 1 },
+    ],
+    threshold: 3,
+  },
 })
 ```
 

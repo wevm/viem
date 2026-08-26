@@ -143,13 +143,8 @@ export function formatTransactionRequest(
     delete request.feeToken
 
   // Client-only TIP-1061 fields drive local signing and envelope assembly.
-  // `multisigInit` and `multisigSignatureCount` remain wire fields for gas modeling.
   const {
     multisig: _multisig,
-    multisigInit,
-    multisigOwnerStates: _multisigOwnerStates,
-    multisigSignatureCount,
-    multisigVersion: _multisigVersion,
     signatures: _signatures,
     ...rpcRequest
   } = request
@@ -191,10 +186,6 @@ export function formatTransactionRequest(
 
   return {
     ...rpc,
-    ...(multisigInit ? { multisigInit } : {}),
-    ...(typeof multisigSignatureCount !== 'undefined'
-      ? { multisigSignatureCount }
-      : {}),
     ...(request.capabilities ? { capabilities: request.capabilities } : {}),
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),

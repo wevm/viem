@@ -36,10 +36,6 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
-import {
-  createMultisigStateResolver,
-  getMultisigOwnerStates,
-} from '../internal/multisig.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -47,7 +43,6 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import * as multisig from './multisig.js'
 
 /** @internal */
 const signatureTypes = {
@@ -1053,12 +1048,11 @@ export async function prepareAuthorization<
     if ('multisig' in parameters) return parameters.multisig
     if (parsed.source !== 'multisig') return undefined
     const account = parsed as MultisigAccount
-    const getState = createMultisigStateResolver((account) =>
-      multisig.getConfig(client, { account }),
-    )
-    const states = await getMultisigOwnerStates(account, getState)
-    const state = states[0]!
-    return { init: !state.initialized, states, version: state.version }
+    if (!account.config)
+      throw new Error(
+        'A multisig config witness is required to prepare a key authorization.',
+      )
+    return { config: account.config }
   })()
   const authorizationSignPayload = getKeyAuthorizationSignPayload(
     parsed as never,
@@ -1072,8 +1066,8 @@ export async function prepareAuthorization<
     parsed.source === 'multisig' && multisigState
       ? MultisigConfig.getSignPayload({
           account: parsed.address,
+          config: multisigState.config,
           payload: authorizationSignPayload,
-          version: multisigState.version,
         })
       : authorizationSignPayload
   return {

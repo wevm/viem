@@ -143,13 +143,13 @@ function assertHash(operation: MultisigOperation.Operation) {
     operation.type === 'transaction'
       ? {
           account: operation.account,
-          configVersion: operation.configVersion,
+          config: operation.config,
           transaction: operation.transaction,
           type: operation.type,
         }
       : {
           account: operation.account,
-          configVersion: operation.configVersion,
+          config: operation.config,
           keyAuthorization: operation.keyAuthorization,
           type: operation.type,
         },

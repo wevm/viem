@@ -6,8 +6,9 @@ import * as Signature from 'ox/Signature'
 import {
   type AuthorizationTempo,
   type KeyAuthorization,
-  type MultisigConfig,
+  MultisigConfig,
   type MultisigOperation,
+  type MultisigWitness,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -119,14 +120,6 @@ export type TransactionReceiptRpc = TransactionReceipt<
   MultisigOperation.TransactionRpc
 >
 
-/** @internal */
-export type MultisigOwnerState = {
-  account: Address
-  config?: Pick<MultisigConfig.Config, 'owners' | 'threshold'> | undefined
-  initialized: boolean
-  version: bigint
-}
-
 export type TransactionRequestTempo<
   quantity = bigint,
   index = number,
@@ -145,22 +138,10 @@ export type TransactionRequestTempo<
     multisig?:
       | Address
       | MultisigAccount
-      | MultisigConfig.Config<index>
+      | MultisigConfig.Config<bigint, index>
       | undefined
-    /** @internal Bootstrap multisig configuration encoded into the transaction. */
-    multisigInit?:
-      | {
-          salt: Hex.Hex
-          threshold: number
-          owners: readonly { owner: Address; weight: number }[]
-        }
-      | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** @internal Number of multisig approvals modeled during gas estimation. */
-    multisigSignatureCount?: number | undefined
-    /** @internal Current multisig configuration version. */
-    multisigVersion?: bigint | undefined
+    /** Complete multisig witness used for RPC simulation. */
+    multisigWitness?: MultisigWitness.MultisigWitness<quantity> | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
@@ -183,11 +164,7 @@ export type TransactionSerializableTempo<
     feePayerSignature?: viem_Signature | null | undefined
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
+    multisig?: Address | MultisigConfig.Config<bigint, index> | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
@@ -221,7 +198,7 @@ export function getType(
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.multisig !== 'undefined' ||
-    typeof transaction.multisigVersion !== 'undefined' ||
+    typeof transaction.multisigWitness !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.signatures !== 'undefined' ||
@@ -405,35 +382,28 @@ async function serializeTempo(
     const signatures = transaction.signatures.map((approval) =>
       SignatureEnvelope.from(approval),
     )
-    const sorted =
-      typeof transaction.multisig === 'string'
-        ? SignatureEnvelope.sortMultisigApprovals({
-            account: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-        : SignatureEnvelope.sortMultisigApprovals({
-            initialConfig: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-    const keyAuthorizationSignature = transaction.keyAuthorization?.signature
-    const keyAuthorizationInitializes =
-      keyAuthorizationSignature?.type === 'multisig' &&
-      typeof keyAuthorizationSignature.init !== 'undefined'
     if (typeof transaction.multisig === 'string')
-      return SignatureEnvelope.from({
-        account: transaction.multisig,
-        signatures: sorted,
-      })
+      throw new Error(
+        'A multisig config witness is required to serialize owner approvals.',
+      )
+    const config = MultisigConfig.from(transaction.multisig)
+    const account = (() => {
+      if (transaction.from) return transaction.from
+      if (config.version === 0n) return MultisigConfig.getAddress(config)
+      throw new Error(
+        'A multisig account address is required for a current config witness.',
+      )
+    })()
+    const sorted = SignatureEnvelope.sortMultisigApprovals({
+      account,
+      config,
+      payload,
+      signatures,
+    })
     return SignatureEnvelope.from({
-      initialConfig: transaction.multisig,
+      account,
+      config,
       signatures: sorted,
-      ...(nonce || transaction.nonceKey || keyAuthorizationInitializes
-        ? {}
-        : { init: true }),
     })
   })()
 

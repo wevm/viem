@@ -545,7 +545,7 @@ describe('withRelay', () => {
             { owner: owner_2.address, weight: 1 },
           ],
         })
-        const account = Account.fromMultisig(config)
+        const account = Account.fromMultisig({ initialConfig: config })
 
         const request = await prepareTransactionRequest(client, {
           feePayer: true,
@@ -586,8 +586,10 @@ describe('withRelay', () => {
         const owner_1 = Account.fromSecp256k1(generatePrivateKey())
         const owner_2 = Account.fromSecp256k1(generatePrivateKey())
         const account = Account.fromMultisig({
-          owners: [owner_1, owner_2],
-          threshold: 2,
+          initialConfig: {
+            owners: [owner_1, owner_2],
+            threshold: 2,
+          },
         })
         const coordinated = getClient({
           transport: withMultisig(

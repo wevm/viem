@@ -31,7 +31,7 @@ import { client } from './viem.config'
 const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const child = Account.fromMultisig({ owners: [childOwner] })
+const child = Account.fromMultisig({ initialConfig: { owners: [childOwner] } })
 
 // 2. Submit the child's first transaction with its complete local quorum.
 const receipt = await client.sendTransactionSync({
@@ -61,14 +61,14 @@ import { client } from './viem.config'
 const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const child = Account.fromMultisig({ owners: [childOwner] })
+const child = Account.fromMultisig({ initialConfig: { owners: [childOwner] } })
 const childReceipt = await client.sendTransactionSync({
   account: child,
   calls: [{ data: '0xdeadbeef', to: child.address }],
 })
 
 // 2. Make the initialized child the parent owner.
-const parent = Account.fromMultisig({ owners: [child] })
+const parent = Account.fromMultisig({ initialConfig: { owners: [child] } })
 
 // 3. Approve the parent request with the child's complete quorum.
 const receipt = await client.sendTransactionSync({

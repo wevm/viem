@@ -51,7 +51,7 @@ describe('decorator', () => {
   test('binds action helpers', () => {
     expect(typeof client2.dex.buy.call).toBe('function')
     expect(typeof client2.amm.getPool.calls).toBe('function')
-    expect(typeof client2.multisig.isInitialized.call).toBe('function')
+    expect(typeof client2.multisig.getConfigCommitment.call).toBe('function')
     expect(typeof client2.multisig.updateConfig.call).toBe('function')
     expect(typeof client2.multisig.updateConfig.extractEvent).toBe('function')
     expect(typeof client2.accessKey.getRemainingLimit.callWithPeriod).toBe(

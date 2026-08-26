@@ -25,8 +25,8 @@ describe('getType', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
   })
 
-  test('behavior: multisigVersion', () => {
-    expect(Transaction.getType({ multisigVersion: 1n })).toBe('tempo')
+  test('behavior: multisigWitness', () => {
+    expect(Transaction.getType({ multisigWitness: {} })).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -316,7 +316,7 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: explicit nonce key omits multisig init', async () => {
+  test('behavior: explicit nonce key preserves multisig config', async () => {
     const owners = [accounts[1], accounts[2]] as const
     const multisig = MultisigConfig.from({
       threshold: 2,
@@ -345,6 +345,21 @@ describe('serialize', () => {
     expect(approvals).toHaveLength(2)
     expect(rest).toMatchInlineSnapshot(`
       {
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 2,
+          "version": 0n,
+        },
         "type": "multisig",
       }
     `)
@@ -352,15 +367,20 @@ describe('serialize', () => {
 
   test('behavior: signs multisig approvals with config version', async () => {
     const owner = accounts[1]!
-    const multisig = MultisigConfig.from({
+    const initialConfig = MultisigConfig.from({
       threshold: 1,
       owners: [{ owner: owner.address, weight: 1 }],
+    })
+    const account = MultisigConfig.getAddress(initialConfig)
+    const multisig = MultisigConfig.from({
+      ...initialConfig,
+      version: 2n,
     })
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
+      from: account,
       multisig,
-      multisigVersion: 2n,
       nonce: 1,
     } as const
 
@@ -375,9 +395,9 @@ describe('serialize', () => {
       }),
     )
     const digest = MultisigConfig.getSignPayload({
-      initialConfig: multisig,
+      account,
+      config: multisig,
       payload,
-      version: transaction.multisigVersion,
     })
 
     expect(

@@ -16,11 +16,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
+import type { MultisigAccount } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -63,7 +63,7 @@ export declare namespace getOperation {
 }
 
 /**
- * Checks whether an address is an initialized native multisig account.
+ * Gets the current configuration commitment for a native multisig account.
  *
  * @example
  * ```ts
@@ -76,99 +76,31 @@ export declare namespace getOperation {
  *   transport: http(),
  * })
  *
- * const initialized = await Actions.multisig.isInitialized(client, {
+ * const commitment = await Actions.multisig.getConfigCommitment(client, {
  *   account: '0x...',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns Whether the account is an initialized native multisig account.
+ * @returns The current configuration commitment, or zero when no config has
+ * been committed.
  */
-export async function isInitialized<
+export async function getConfigCommitment<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: isInitialized.Parameters,
-): Promise<isInitialized.ReturnValue> {
+  parameters: getConfigCommitment.Parameters,
+): Promise<getConfigCommitment.ReturnValue> {
   const { account, ...rest } = parameters
   return readContract(client, {
     ...rest,
-    ...isInitialized.call({ account }),
+    ...getConfigCommitment.call({ account }),
   })
 }
 
-export namespace isInitialized {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** Account address. */
-    account: Address
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.nativeMultisig,
-    'isMultisigAccount',
-    never
-  >
-
-  /**
-   * Defines a call to the precompile's `isMultisigAccount` function.
-   *
-   * Can be passed to [`multicall`](https://viem.sh/docs/contract/multicall).
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
-      args: [args.account],
-      functionName: 'isMultisigAccount',
-    })
-  }
-}
-
-/**
- * Gets the current configuration for an initialized native multisig account.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo,
- *   transport: http(),
- * })
- *
- * const config = await Actions.multisig.getConfig(client, {
- *   account: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The current version, threshold, and owners.
- */
-export async function getConfig<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: getConfig.Parameters,
-): Promise<getConfig.ReturnValue> {
-  const { account, ...rest } = parameters
-  return readContract(client, {
-    ...rest,
-    ...getConfig.call({ account }),
-  })
-}
-
-export namespace getConfig {
+export namespace getConfigCommitment {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -178,12 +110,12 @@ export namespace getConfig {
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.nativeMultisig,
-    'getConfig',
+    'getConfigCommitment',
     never
   >
 
   /**
-   * Defines a call to the `getConfig` function.
+   * Defines a call to the `getConfigCommitment` function.
    *
    * Can be passed to [`multicall`](https://viem.sh/docs/contract/multicall).
    *
@@ -195,7 +127,7 @@ export namespace getConfig {
       address: Addresses.nativeMultisig,
       abi: Abis.nativeMultisig,
       args: [args.account],
-      functionName: 'getConfig',
+      functionName: 'getConfigCommitment',
     })
   }
 }
@@ -217,7 +149,9 @@ export namespace getConfig {
  * const owner = Account.fromSecp256k1(
  *   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
  * )
- * const account = Account.fromMultisig({ owners: [owner] })
+ * const account = Account.fromMultisig({
+ *   initialConfig: { owners: [owner] },
+ * })
  * const client = createClient({
  *   chain: tempoLocalnet,
  *   transport: http(),
@@ -256,6 +190,8 @@ export namespace updateConfig {
   > = WriteParameters<chain, account> & Args
 
   export type Args = {
+    /** Complete current configuration witness. */
+    current?: MultisigConfig.Config | undefined
     /** New multisig owners and their weights. */
     owners: MultisigConfig.Config['owners']
     /** New signature weight required to authorize the account. */
@@ -277,10 +213,18 @@ export namespace updateConfig {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { owners, threshold, ...rest } = parameters
+    const { current: current_, owners, threshold, ...rest } = parameters
+    const account = (parameters.account ?? client.account) as
+      | MultisigAccount
+      | undefined
+    const current = current_ ?? account?.config
+    if (!current)
+      throw new Error(
+        'A current multisig config witness is required to update the config.',
+      )
     return (await action(client, {
       ...rest,
-      ...updateConfig.call({ owners, threshold }),
+      ...updateConfig.call({ current, owners, threshold }),
     } as never)) as never
   }
 
@@ -305,12 +249,18 @@ export namespace updateConfig {
    * @param args - New multisig configuration.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const config = MultisigConfig.from(args)
+  export function call(args: Args & { current: MultisigConfig.Config }) {
+    const current = MultisigConfig.from(args.current)
+    const config = MultisigConfig.from({
+      owners: args.owners,
+      salt: current.salt,
+      threshold: args.threshold,
+      version: current.version + 1n,
+    })
     return defineCall({
       address: Addresses.nativeMultisig,
       abi: Abis.nativeMultisig,
-      args: [config.threshold, config.owners],
+      args: [current, config.threshold, config.owners],
       functionName: 'updateConfig',
     })
   }
@@ -373,7 +323,16 @@ export async function updateConfigSync<
     throwOnReceiptRevert,
   } as never)
   const { args } = updateConfig.extractEvent(receipt.logs)
-  return { ...args, receipt } as never
+  return {
+    account: args.account,
+    config: MultisigConfig.from({
+      owners: args.owners,
+      salt: args.salt,
+      threshold: args.threshold,
+      version: args.version,
+    }),
+    receipt,
+  } as never
 }
 
 export namespace updateConfigSync {
@@ -384,15 +343,11 @@ export namespace updateConfigSync {
 
   export type Args = updateConfig.Args
 
-  export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.nativeMultisig,
-      'MultisigConfigUpdated',
-      { IndexedOnly: false; Required: true }
-    > & {
-      receipt: Transaction.TransactionReceipt
-    }
-  >
+  export type ReturnValue = Compute<{
+    account: Address
+    config: MultisigConfig.Config
+    receipt: Transaction.TransactionReceipt
+  }>
 
   export type ErrorType = updateConfig.ErrorType
 }

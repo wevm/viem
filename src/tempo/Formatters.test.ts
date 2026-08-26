@@ -84,16 +84,6 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('behavior: multisigVersion is client-side only', () => {
-    const rpc = Formatters.formatTransactionRequest({
-      chainId: 1,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      multisigVersion: 2n,
-    } as never)
-
-    expect((rpc as Record<string, unknown>).multisigVersion).toBeUndefined()
-  })
-
   test('error: JSON-RPC multisig owner', () => {
     expect(() =>
       Formatters.formatTransactionRequest({
@@ -117,7 +107,8 @@ describe('formatTransactionRequest', () => {
     })
     const account = MultisigConfig.getAddress(initialConfig)
     const signature = SignatureEnvelope.from({
-      initialConfig,
+      account,
+      config: initialConfig,
       signatures: [
         SignatureEnvelope.from({
           r: 1n,
