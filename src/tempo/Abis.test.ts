@@ -39,3 +39,17 @@ test('preserves Tempo ABI items when merging Zone ABIs', () => {
     ],
   })
 })
+
+test('includes the sequencer encryption key address', () => {
+  expect(Abis.zonePortal).toContainEqual({
+    name: 'sequencerEncryptionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      { type: 'bytes32', name: 'x' },
+      { type: 'uint8', name: 'yParity' },
+      { type: 'address', name: 'pubkey' },
+    ],
+  })
+})

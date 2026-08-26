@@ -464,7 +464,7 @@ function zonesAdapter(): SourceAdapter {
     ]),
     ZonePortal: Abi.from([
       'function deposit(address _token, address to, uint128 amount, bytes32 memo, address tempoRefundRecipient) returns (bytes32)',
-      'function sequencerEncryptionKey() view returns (bytes32 x, uint8 yParity)',
+      'function sequencerEncryptionKey() view returns (bytes32 x, uint8 yParity, address pubkey)',
     ]),
   }
   const outputs = {

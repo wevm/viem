@@ -71,6 +71,21 @@ import type { TransactionReceipt } from '../Transaction.js'
 
 const defaultWithdrawalGas = 10_000_000n
 
+// TODO: Remove this compatibility ABI when T10 support is retired.
+// Later Zone deployments append the derived address to these two values.
+const sequencerEncryptionKeyAbi = [
+  {
+    name: 'sequencerEncryptionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      { type: 'bytes32', name: 'x' },
+      { type: 'uint8', name: 'yParity' },
+    ],
+  },
+] as const
+
 export type EncryptedPayload = {
   ciphertext: Hex.Hex
   ephemeralPubkeyX: Hex.Hex
@@ -420,7 +435,7 @@ export namespace getEncryptionKey {
       }),
       defineCall({
         address: args.portalAddress,
-        abi: Abis.zonePortal,
+        abi: sequencerEncryptionKeyAbi,
         functionName: 'sequencerEncryptionKey',
       }),
     ] as const

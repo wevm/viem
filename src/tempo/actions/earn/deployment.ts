@@ -38,6 +38,32 @@ import {
 } from '../../internal/utils.js'
 import type { TransactionReceipt } from '../../Transaction.js'
 
+const engineBindingAbi = [
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [
+      { name: 'earnVault_', type: 'address' },
+      { name: 'finalOwner_', type: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [{ name: 'earnVault_', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
+    anonymous: false,
+  },
+] as const
+
 /** @experimental Factory addresses for one reviewed Tempo Earn release. */
 export type EarnFactoryAddresses = {
   /** `ERC4626EngineFactory` address. */
@@ -633,7 +659,7 @@ export namespace createStackSync {
 }
 
 /**
- * Permanently binds an ERC-4626 engine to its EarnVault.
+ * Permanently binds an engine to its EarnVault.
  *
  * @experimental
  *
@@ -649,8 +675,9 @@ export namespace createStackSync {
  *   chain: tempoModerato,
  *   transport: http(),
  * })
- * const hash = await Actions.earn.bindErc4626Engine(client, {
+ * const hash = await Actions.earn.bindEngine(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -659,20 +686,22 @@ export namespace createStackSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function bindErc4626Engine<
+export async function bindEngine<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: bindErc4626Engine.Parameters<chain, account>,
-): Promise<bindErc4626Engine.ReturnValue> {
-  return bindErc4626Engine.inner(writeContract, client, parameters)
+  parameters: bindEngine.Parameters<chain, account>,
+): Promise<bindEngine.ReturnValue> {
+  return bindEngine.inner(writeContract, client, parameters)
 }
 
-export namespace bindErc4626Engine {
+export namespace bindEngine {
   export type Args = {
-    /** ERC-4626 engine address. */
+    /** Engine address. */
     engine: Address
+    /** Address that will own the initialized engine. Omit to retain the current owner. */
+    finalOwner?: Address | undefined
     /** Factory-created EarnVault address. */
     vault: Address
   }
@@ -694,15 +723,15 @@ export namespace bindErc4626Engine {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { engine, vault, ...rest } = parameters
+    const { engine, finalOwner, vault, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...bindErc4626Engine.call({ engine, vault }),
+      ...bindEngine.call({ engine, finalOwner, vault }),
     } as never)) as never
   }
 
   /**
-   * Defines a call to `ERC4626Engine.initializeEarnVault`.
+   * Defines a call to `initializeEarnVault` on an Earn engine.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -718,8 +747,9 @@ export namespace bindErc4626Engine {
    * const client = createClient({ chain: tempoModerato, transport: http() })
    *   .extend(walletActions)
    * await client.sendTransaction({
-   *   calls: [Actions.earn.bindErc4626Engine.call({
+   *   calls: [Actions.earn.bindEngine.call({
    *     engine: '0x...',
+   *     finalOwner: '0x...',
    *     vault: '0x...',
    *   })],
    * })
@@ -729,11 +759,19 @@ export namespace bindErc4626Engine {
    * @returns The call.
    */
   export function call(args: Args) {
+    const { engine, finalOwner, vault } = args
+    if (finalOwner)
+      return defineCall({
+        address: engine,
+        abi: engineBindingAbi,
+        functionName: 'initializeEarnVault',
+        args: [vault, finalOwner],
+      })
     return defineCall({
-      address: args.engine,
-      abi: Abis.erc4626Engine,
+      address: engine,
+      abi: engineBindingAbi,
       functionName: 'initializeEarnVault',
-      args: [args.vault],
+      args: [vault],
     })
   }
 
@@ -746,7 +784,7 @@ export namespace bindErc4626Engine {
    */
   export function extractEvent(logs: Log[], parameters: { engine: Address }) {
     const [log] = parseEventLogs({
-      abi: Abis.erc4626Engine,
+      abi: engineBindingAbi,
       eventName: 'EarnVaultInitialized',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, parameters.engine),
@@ -759,7 +797,7 @@ export namespace bindErc4626Engine {
 }
 
 /**
- * Binds an ERC-4626 engine and waits for confirmation.
+ * Binds an engine and waits for confirmation.
  *
  * @experimental
  *
@@ -775,8 +813,9 @@ export namespace bindErc4626Engine {
  *   chain: tempoModerato,
  *   transport: http(),
  * })
- * const result = await Actions.earn.bindErc4626EngineSync(client, {
+ * const result = await Actions.earn.bindEngineSync(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -785,33 +824,33 @@ export namespace bindErc4626Engine {
  * @param parameters - Parameters.
  * @returns The receipt and bound addresses.
  */
-export async function bindErc4626EngineSync<
+export async function bindEngineSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: bindErc4626EngineSync.Parameters<chain, account>,
-): Promise<bindErc4626EngineSync.ReturnValue> {
+  parameters: bindEngineSync.Parameters<chain, account>,
+): Promise<bindEngineSync.ReturnValue> {
   const { engine, throwOnReceiptRevert = true } = parameters
-  const receipt = await bindErc4626Engine.inner(writeContractSync, client, {
+  const receipt = await bindEngine.inner(writeContractSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  const { args } = bindErc4626Engine.extractEvent(receipt.logs, { engine })
+  const { args } = bindEngine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
 
-export namespace bindErc4626EngineSync {
-  export type Args = bindErc4626Engine.Args
+export namespace bindEngineSync {
+  export type Args = bindEngine.Args
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = bindErc4626Engine.Parameters<chain, account> &
+  > = bindEngine.Parameters<chain, account> &
     WriteSyncParameters<chain, account>
   export type ReturnValue = {
-    /** ERC-4626 engine address. */
+    /** Engine address. */
     engine: Address
     /** Transaction receipt. */
     receipt: TransactionReceipt
@@ -1101,14 +1140,19 @@ export async function deployErc4626StackSync<
         ...writeParameters,
         account: bindingAccount,
         engine: predictedEngine,
+        finalOwner: owner,
         vault,
       }
       await simulateContract(client, {
         ...sharedWriteParameters,
         account: bindingAccount,
-        ...bindErc4626Engine.call({ engine: predictedEngine, vault }),
+        ...bindEngine.call({
+          engine: predictedEngine,
+          finalOwner: owner,
+          vault,
+        }),
       } as never)
-      const receipt = await bindErc4626Engine.inner(
+      const receipt = await bindEngine.inner(
         writeContractSync,
         client,
         bindingParameters as never,
@@ -1116,7 +1160,7 @@ export async function deployErc4626StackSync<
       receipts.binding = receipt
       if ((receipt as TransactionReceipt).status === 'pending')
         return { receipt } as never
-      bindErc4626Engine.extractEvent(receipt.logs, { engine: predictedEngine })
+      bindEngine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
     }

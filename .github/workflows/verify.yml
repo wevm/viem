@@ -267,7 +267,7 @@ jobs:
             tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
             zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
           - hardfork: Tnext
-            tempo-tag: latest
+            tempo-tag: sha256:8ceb2ffd223869b6f4782a225fa05c1f5dcb49ad037a69be2252521713ad3527
             zone-tag: sha256:cba4ccc8724ee1b2394b1fbb0fbfc1d645b7791ba26267422b9dd90ef7dabdb7
 
     steps:

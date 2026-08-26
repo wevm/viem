@@ -2681,8 +2681,8 @@ export default defineConfig({
               items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'bindErc4626Engine',
-                  link: '/tempo/actions/earn.bindErc4626Engine',
+                  text: 'bindEngine',
+                  link: '/tempo/actions/earn.bindEngine',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
