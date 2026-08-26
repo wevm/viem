@@ -14,7 +14,10 @@ export {
   type SendTransactionCapabilities,
   type SendTransactionParameters,
   type SendTransactionReturnType,
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncReturnType,
   sendTransaction,
+  sendTransactionSync,
 } from './actions/sendTransaction.js'
 export {
   type CreateAggregatePayerClientParameters,

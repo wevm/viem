@@ -14,6 +14,7 @@ import type { GetTermsReturnType } from '../types.js'
 import {
   prepareTransactionRequest,
   sendTransaction,
+  sendTransactionSync,
 } from './sendTransaction.js'
 
 const owner = privateKeyToAccount(
@@ -225,5 +226,56 @@ describe('sendTransaction', () => {
     )
     expect(parsed.calls).toHaveLength(2)
     expect(parsed.calls?.[0]?.[0]?.to).toBe(USDC.toLowerCase())
+  })
+})
+
+describe('sendTransactionSync', () => {
+  test('submits via payer then returns the awaited EIP-8130 receipt', async () => {
+    const RECEIPT = {
+      transactionHash: `0x${'ab'.repeat(32)}` as const,
+      status: '0x1' as const,
+      payer: PAYER,
+      phaseStatuses: ['0x1'] as const,
+    }
+    // A sync send drives payer_sendTransaction, then polls the chain for the
+    // receipt; the mock chain resolves the receipt immediately.
+    const client = createClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }: { method: string }) {
+          if (method === 'eth_chainId') return '0x1'
+          if (method === 'eth_call') return `0x${'0'.repeat(192)}`
+          if (method === 'eth_getTransactionCount') return '0x0'
+          if (method === 'eth_getTransactionReceipt') return RECEIPT
+          throw new Error(`unexpected chain RPC: ${method}`)
+        },
+      }),
+    })
+    const payer = createPayerClient({
+      transport: custom({
+        async request({ method, params }: { method: string; params: any }) {
+          if (method === 'payer_sendTransaction')
+            return {
+              transactionHash: RECEIPT.transactionHash,
+              tokenCharged: { token: USDC, amount: '0x30D40' },
+            }
+          throw new Error(`unexpected ${method}: ${JSON.stringify(params)}`)
+        },
+      }),
+    })
+
+    const { transactionHash, tokenCharged, receipt } =
+      await sendTransactionSync(client, {
+        account,
+        payerClient: payer,
+        calls: userCalls,
+        capabilities: { paymentOption: sponsoredTerms.options[0], gasEstimate },
+        nonceSequence: 0n,
+      })
+
+    expect(transactionHash).toBe(RECEIPT.transactionHash)
+    expect(tokenCharged?.token).toBe(USDC)
+    expect(receipt.eip8130.phaseStatuses).toEqual(['0x1'])
+    expect(receipt.eip8130.payer).toBe(PAYER)
   })
 })

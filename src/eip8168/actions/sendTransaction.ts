@@ -3,6 +3,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ToAccountReturnType } from '../../eip8130/accounts/toAccount.js'
 import { prepareTransactionRequest as prepareEip8130Request } from '../../eip8130/actions/sendTransaction.js'
+import {
+  type WaitForTransactionReceiptReturnType,
+  waitForTransactionReceipt,
+} from '../../eip8130/actions/waitForTransactionReceipt.js'
 import type {
   AaAccountChange,
   AaCall,
@@ -17,6 +21,7 @@ import type { PayerClient } from '../client.js'
 import type {
   GetTermsReturnType,
   PayerGasEstimate,
+  PayerSendTransactionReturnType,
   PaymentOption,
 } from '../types.js'
 import {
@@ -259,4 +264,69 @@ export async function sendTransaction(
   }
 
   return sendSponsoredCalls(client, { ...rest, terms })
+}
+
+export type SendTransactionSyncParameters = Omit<
+  SendTransactionParameters,
+  'mode' | 'onTransaction'
+> & {
+  /** How often to poll for the receipt (ms). @default 500 */
+  pollingInterval?: number | undefined
+  /** Maximum time to wait for the receipt before rejecting (ms). @default 60_000 */
+  timeout?: number | undefined
+}
+
+export type SendTransactionSyncReturnType = PayerSendTransactionReturnType & {
+  /** The awaited EIP-8130 receipt (with `eip8130` fields). */
+  receipt: WaitForTransactionReceiptReturnType
+}
+
+/**
+ * Sponsored send that waits for the receipt. Submits via the payer
+ * (`payer_sendTransaction`, which returns the hash) and then awaits the
+ * EIP-8130 receipt, threading the resolved `validBefore` for fast expiry
+ * detection. The payer is the submitter, so this is always `mode: "send"`
+ * (there is nothing to await in co-sign-only `"sign"` mode).
+ *
+ * @example
+ * const { transactionHash, tokenCharged, receipt } = await sendTransactionSync(
+ *   client,
+ *   {
+ *     account,
+ *     payerClient,
+ *     calls: [{ to, data }],
+ *     capabilities: { paymentOption, gasEstimate },
+ *   },
+ * )
+ * console.log(receipt.eip8130.phaseStatuses)
+ */
+export async function sendTransactionSync(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: SendTransactionSyncParameters,
+): Promise<SendTransactionSyncReturnType> {
+  const { pollingInterval, timeout, ...rest } = parameters
+
+  let validBefore: bigint | undefined
+  const result = await sendTransaction(client, {
+    ...rest,
+    mode: 'send',
+    onTransaction: (tx) => {
+      validBefore = tx.validBefore
+    },
+  })
+
+  // `mode: 'send'` always resolves to the submit variant (carries a hash).
+  if (!('transactionHash' in result))
+    throw new BaseError(
+      'Payer did not return a transaction hash for a `send`-mode sponsored transaction.',
+    )
+
+  const receipt = await waitForTransactionReceipt(client, {
+    hash: result.transactionHash,
+    ...(validBefore !== undefined ? { validBefore } : {}),
+    ...(pollingInterval !== undefined ? { pollingInterval } : {}),
+    ...(timeout !== undefined ? { timeout } : {}),
+  })
+
+  return { ...result, receipt }
 }
