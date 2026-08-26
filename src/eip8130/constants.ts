@@ -202,8 +202,10 @@ export const externalPolicyAuthenticator =
  *
  * @remarks
  * The non-native addresses below are the [base/eip-8130](https://github.com/base/eip-8130)
- * deployment (Base Sepolia). They may differ per chain — resolve via
- * {@link eip8130Deployments} / {@link getEip8130Deployment}, or override per call.
+ * deployment. Each is deployed through Nick's deterministic CREATE2 factory with
+ * a mined salt, so the address is a pure function of its bytecode and is
+ * identical on every supported chain. Pass a different authenticator per account
+ * via the `authenticator` parameter when using a custom verifier.
  */
 export const canonicalAuthenticators = {
   /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR` / `K1_AUTHENTICATOR`). */
@@ -263,8 +265,8 @@ export const keystoreAddress =
  * (`DEFAULT_ACCOUNT_ADDRESS`).
  *
  * @remarks
- * Defaults to the base/eip-8130 deployment (Base Sepolia); see
- * {@link keystoreAddress}.
+ * Deployed through the deterministic CREATE2 factory, so this address is
+ * identical on every supported chain; see {@link keystoreAddress}.
  */
 export const defaultAccountAddress =
   '0x813035E3fc4a102CE2b4a73D78a25D1Ea5AFadEf' satisfies Hex

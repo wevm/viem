@@ -37,8 +37,11 @@ import type { AaCall } from './types/transaction.js'
  *    on-chain at execute; the manager recomputes its commitment and requires it
  *    to equal the account's live signed commitment.
  *
- * @remarks These contracts are an unaudited reference. Addresses default to the
- * Base Sepolia deployment; override `manager` / `policy` for other chains.
+ * @remarks Unlike the enshrined {@link keystoreAddress}, these are unaudited
+ * *example* contracts (extensible: deploy your own manager/policy), so the
+ * `manager` / `policy` addresses remain overridable. The defaults are the
+ * canonical base/eip-8130 deployment, which — being deterministic CREATE2 — is
+ * identical on every supported chain.
  */
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -317,7 +320,10 @@ export function defineSessionPolicy(
 // SessionPolicy config + action encoders
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Reference `SessionPolicy` deployment address (Base Sepolia). */
+/**
+ * Reference `SessionPolicy` deployment address. Deterministic CREATE2, so it is
+ * identical on every supported chain.
+ */
 export const sessionPolicyAddress = baseSepoliaDeployment.policies
   .sessionPolicy as Address
 

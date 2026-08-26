@@ -26,7 +26,10 @@ export type GetSessionSpendParameters = {
    */
   tokenLimit: SessionPolicyTokenLimit
   /**
-   * `SessionPolicy` contract. Defaults to the reference Base Sepolia deployment.
+   * `SessionPolicy` contract. Defaults to the canonical (deterministic, same on
+   * every chain) deployment. Remains overridable because `SessionPolicy` is an
+   * unaudited, extensible example contract (unlike the enshrined keystore) — pass
+   * your own if you deployed a custom policy.
    */
   sessionPolicy?: Address | undefined
 }
