@@ -150,6 +150,10 @@ export {
   unsequencedLocalHalf,
 } from './constants.js'
 export {
+  type Eip8130Actions,
+  eip8130Actions,
+} from './decorators/eip8130Actions.js'
+export {
   baseSepoliaDeployment,
   canonicalEip8130Deployment,
   type Eip8130Deployment,

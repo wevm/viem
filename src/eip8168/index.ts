@@ -43,6 +43,11 @@ export {
   payerRejectedCode,
   sponsorshipDeclineCode,
 } from './constants.js'
+export {
+  type Eip8168Actions,
+  type Eip8168ActionsParameters,
+  eip8168Actions,
+} from './decorators/eip8168Actions.js'
 export type {
   BalanceLimit,
   BaseOffer,
