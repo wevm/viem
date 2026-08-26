@@ -237,6 +237,8 @@ export async function authorizeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = authorize.extractEvent(receipt.logs)
   return {
     ...args,
@@ -431,6 +433,8 @@ export async function burnWitnessSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burnWitness.extractEvent(receipt.logs)
   return {
     ...args,
@@ -984,6 +988,8 @@ export async function revokeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = revoke.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1347,6 +1353,8 @@ export async function updateLimitSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateLimit.extractEvent(receipt.logs)
   return {
     account: args.account,

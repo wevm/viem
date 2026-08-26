@@ -1692,6 +1692,8 @@ export async function requestWithdrawalSync<
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const [event] = parseEventLogs({
     abi: Abis.zoneOutbox,
     logs: receipt.logs,

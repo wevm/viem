@@ -165,8 +165,11 @@ export namespace getConfigCommitment {
  *
  * const hash = await Actions.multisig.updateConfig(client, {
  *   account,
- *   threshold: 1,
- *   owners: [{ owner: owner.address, weight: 1 }],
+ *   currentConfig: account.config,
+ *   nextConfig: {
+ *     owners: [{ owner: owner.address, weight: 1 }],
+ *     threshold: 1,
+ *   },
  * })
  * ```
  *
@@ -192,11 +195,9 @@ export namespace updateConfig {
 
   export type Args = {
     /** Complete current configuration witness. */
-    current?: MultisigConfig.Config | undefined
-    /** New multisig owners and their weights. */
-    owners: MultisigConfig.Config['owners']
-    /** New signature weight required to authorize the account. */
-    threshold: MultisigConfig.Config['threshold']
+    currentConfig: MultisigConfig.Config
+    /** Replacement owners and threshold. */
+    nextConfig: Pick<MultisigConfig.Config, 'owners' | 'threshold'>
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -214,18 +215,29 @@ export namespace updateConfig {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { current: current_, owners, threshold, ...rest } = parameters
-    const account = (parameters.account ?? client.account) as
-      | MultisigAccount
-      | undefined
-    const current = current_ ?? account?.config
-    if (!current)
-      throw new Error(
-        'A current multisig config witness is required to update the config.',
+    const { currentConfig: currentConfig_, nextConfig, ...rest } = parameters
+    const currentConfig = MultisigConfig.from(currentConfig_)
+    const account = (() => {
+      const account = parameters.account ?? client.account
+      if (typeof account === 'object' && account.source === 'multisig')
+        return account as MultisigAccount
+      return undefined
+    })()
+    const multisig = (() => {
+      const multisig = parameters.multisig
+      if (
+        typeof multisig === 'object' &&
+        'source' in multisig &&
+        multisig.source === 'multisig'
       )
+        return multisig as MultisigAccount
+      return undefined
+    })()
     return (await action(client, {
       ...rest,
-      ...updateConfig.call({ current, owners, threshold }),
+      ...(account ? { account: { ...account, config: currentConfig } } : {}),
+      ...(multisig ? { multisig: { ...multisig, config: currentConfig } } : {}),
+      ...updateConfig.call({ currentConfig, nextConfig }),
     } as never)) as never
   }
 
@@ -239,29 +251,34 @@ export namespace updateConfig {
    *
    * @example
    * ```ts
-   * import { Actions } from 'viem/tempo'
+   * import { Actions, type MultisigConfig } from 'viem/tempo'
+   *
+   * declare const currentConfig: MultisigConfig.Config
    *
    * const call = Actions.multisig.updateConfig.call({
-   *   threshold: 1,
-   *   owners: [{ owner: '0x...', weight: 1 }],
+   *   currentConfig,
+   *   nextConfig: {
+   *     owners: [{ owner: '0x...', weight: 1 }],
+   *     threshold: 1,
+   *   },
    * })
    * ```
    *
-   * @param args - New multisig configuration.
+   * @param args - Current and replacement multisig configurations.
    * @returns The call.
    */
-  export function call(args: Args & { current: MultisigConfig.Config }) {
-    const current = MultisigConfig.from(args.current)
-    const config = MultisigConfig.from({
-      owners: args.owners,
-      salt: current.salt,
-      threshold: args.threshold,
-      version: current.version + 1n,
+  export function call(args: Args) {
+    const currentConfig = MultisigConfig.from(args.currentConfig)
+    const nextConfig = MultisigConfig.from({
+      owners: args.nextConfig.owners,
+      salt: currentConfig.salt,
+      threshold: args.nextConfig.threshold,
+      version: currentConfig.version + 1n,
     })
     return defineCall({
       address: Addresses.nativeMultisig,
       abi: Abis.nativeMultisig,
-      args: [current, config.threshold, config.owners],
+      args: [currentConfig, nextConfig.threshold, nextConfig.owners],
       functionName: 'updateConfig',
     })
   }
@@ -291,9 +308,10 @@ export namespace updateConfig {
  * ```ts
  * import { createWalletClient, custom, type EIP1193Provider } from 'viem'
  * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, type MultisigConfig } from 'viem/tempo'
  *
  * declare const provider: EIP1193Provider
+ * declare const currentConfig: MultisigConfig.Config
  *
  * const client = createWalletClient({
  *   account: '0x...',
@@ -302,8 +320,11 @@ export namespace updateConfig {
  * })
  *
  * const { receipt } = await Actions.multisig.updateConfigSync(client, {
- *   threshold: 1,
- *   owners: [{ owner: '0x...', weight: 1 }],
+ *   currentConfig,
+ *   nextConfig: {
+ *     owners: [{ owner: '0x...', weight: 1 }],
+ *     threshold: 1,
+ *   },
  * })
  * ```
  *
@@ -323,6 +344,8 @@ export async function updateConfigSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as Transaction.TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateConfig.extractEvent(receipt.logs)
   return {
     account: args.account,

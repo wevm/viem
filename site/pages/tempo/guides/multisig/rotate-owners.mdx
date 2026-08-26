@@ -46,12 +46,14 @@ const receipt = await client.sendTransactionSync({
   account: owner,
   calls: [
     Actions.multisig.updateConfig.call({
-      current: multisig.config,
-      owners: [
-        { owner: owner.address, weight: 1 },
-        { owner: passkeyOwner.address, weight: 1 },
-      ],
-      threshold: 1,
+      currentConfig: multisig.config,
+      nextConfig: {
+        owners: [
+          { owner: owner.address, weight: 1 },
+          { owner: passkeyOwner.address, weight: 1 },
+        ],
+        threshold: 1,
+      },
     }),
   ],
   multisig,
@@ -97,12 +99,14 @@ const pending = await client.sendTransactionSync({
   account: owner_1,
   calls: [
     Actions.multisig.updateConfig.call({
-      current: multisig.config,
-      owners: [
-        { owner: newOwner_1.address, weight: 1 },
-        { owner: newOwner_2.address, weight: 1 },
-      ],
-      threshold: 2,
+      currentConfig: multisig.config,
+      nextConfig: {
+        owners: [
+          { owner: newOwner_1.address, weight: 1 },
+          { owner: newOwner_2.address, weight: 1 },
+        ],
+        threshold: 2,
+      },
     }),
   ],
   multisig,

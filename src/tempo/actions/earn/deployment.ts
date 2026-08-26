@@ -340,6 +340,8 @@ export async function createErc4626EngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createErc4626Engine.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -606,6 +608,8 @@ export async function createStackSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createStack.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -793,6 +797,8 @@ export async function bindErc4626EngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = bindErc4626Engine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
@@ -979,6 +985,8 @@ export async function deployErc4626StackSync<
         } as never,
       )
       receipts.engine = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       createErc4626Engine.extractEvent(receipt.logs, {
         factory: parameters.factories.erc4626Engine,
       })
@@ -1033,6 +1041,8 @@ export async function deployErc4626StackSync<
         ...stackArgs,
       } as never)
       receipts.stack = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       const { args } = createStack.extractEvent(receipt.logs, {
         factory: parameters.factories.earn,
       })
@@ -1104,6 +1114,8 @@ export async function deployErc4626StackSync<
         bindingParameters as never,
       )
       receipts.binding = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       bindErc4626Engine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)

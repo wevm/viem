@@ -171,6 +171,8 @@ export async function closeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = close.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }
@@ -511,6 +513,8 @@ export async function openSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = open.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }
@@ -656,6 +660,8 @@ export async function requestCloseSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = requestClose.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }
@@ -811,6 +817,8 @@ export async function settleSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = settle.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }
@@ -1026,6 +1034,8 @@ export async function topUpSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = topUp.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }
@@ -1172,6 +1182,8 @@ export async function withdrawSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = withdraw.extractEvent(receipt.logs)
   return { ...args, receipt } as never
 }

@@ -39,8 +39,11 @@ describe('updateConfig', () => {
   test('behavior: commits the first current config', async () => {
     const hash = await actions.multisig.updateConfig(client, {
       account,
-      owners: account.config.owners,
-      threshold: account.config.threshold,
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
     })
     const receipt = await waitForTransactionReceipt(client, { hash })
     const config = MultisigConfig.from({ ...account.config, version: 1n })
@@ -79,8 +82,11 @@ describe('updateConfigSync', () => {
 
     const result = await actions.multisig.updateConfigSync(client, {
       account,
-      owners: account.config.owners,
-      threshold: account.config.threshold,
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
     })
 
     expect(result).toMatchInlineSnapshot(
@@ -142,5 +148,20 @@ describe('updateConfigSync', () => {
         account: account.address,
       }),
     ).resolves.toBe(MultisigConfig.getCommitment(result.config))
+
+    const rotated = await actions.multisig.updateConfigSync(client, {
+      account,
+      currentConfig: result.config,
+      nextConfig: {
+        owners: result.config.owners,
+        threshold: result.config.threshold,
+      },
+    })
+    expect(rotated.config.version).toMatchInlineSnapshot(`2n`)
+    await expect(
+      actions.multisig.getConfigCommitment(client, {
+        account: account.address,
+      }),
+    ).resolves.toBe(MultisigConfig.getCommitment(rotated.config))
   })
 })

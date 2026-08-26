@@ -537,52 +537,83 @@ async function assertConfig(options: {
 /** Selects approvals after validating every nested configuration witness. */
 // biome-ignore lint/correctness/noUnusedVariables: _
 async function selectApprovals(options: selectApprovals.Options) {
+  const validation = new Map<string, Promise<void>>()
+  let validationCount = 0
   const select = async (approvals: readonly SignatureEnvelope.Serialized[]) => {
-    const selection = await MultisigOperation.selectApprovals({
+    const configs = new Map<string, MultisigConfig.Config>()
+    const visit = (signature: SignatureEnvelope.SignatureEnvelope) => {
+      if (signature.type !== 'multisig') return
+      const config = MultisigConfig.from(signature.config)
+      const account = signature.account.toLowerCase()
+      const existing = configs.get(account)
+      if (
+        existing &&
+        MultisigConfig.getCommitment(existing) !==
+          MultisigConfig.getCommitment(config)
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message: `Conflicting config witnesses for multisig owner ${signature.account}.`,
+        })
+      configs.set(account, config)
+      for (const approval of signature.signatures) visit(approval)
+    }
+    for (const approval of approvals) visit(SignatureEnvelope.from(approval))
+
+    return await MultisigOperation.selectApprovals({
       account: options.account,
       approvals,
       config: options.config,
       hash: options.hash,
+      resolveConfig: async ({ account }) => {
+        const config = configs.get(account.toLowerCase())
+        if (!config)
+          throw new MultisigOperation.InvalidApprovalError({
+            reason: `nested multisig owner ${account} is missing a config witness`,
+          })
+        const key = `${account.toLowerCase()}:${MultisigConfig.getCommitment(config)}`
+        const pending = (() => {
+          const existing = validation.get(key)
+          if (existing) return existing
+          validationCount++
+          if (validationCount > MultisigConfig.maxOwners)
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Multisig approval validation exceeds the owner limit.',
+            })
+          const pending = assertConfig({
+            account,
+            blockNumber: options.blockNumber,
+            client: options.client,
+            config,
+          })
+          validation.set(key, pending)
+          return pending
+        })()
+        await pending
+        return { config, version: config.version }
+      },
     })
-    const visit = async (signature: SignatureEnvelope.SignatureEnvelope) => {
-      if (signature.type !== 'multisig') return
-      const config = MultisigConfig.from(signature.config)
-      await assertConfig({
-        account: signature.account,
-        blockNumber: options.blockNumber,
-        client: options.client,
-        config,
-      })
-      await Promise.all(signature.signatures.map(visit))
-    }
-    await Promise.all(
-      selection.approvals.map((approval) =>
-        visit(SignatureEnvelope.from(approval)),
-      ),
-    )
-    return selection
   }
   try {
     if (!options.discardInvalidNested) return await select(options.approvals)
 
-    const approvals = (
-      await Promise.all(
-        options.approvals.map(async (approval) => {
-          if (SignatureEnvelope.from(approval).type !== 'multisig')
-            return approval
-          try {
-            return (await select([approval])).approvals[0]
-          } catch (error) {
-            if (
-              error instanceof MultisigOperation.InvalidApprovalError ||
-              error instanceof RpcResponse.InvalidParamsError
-            )
-              return undefined
-            throw error
-          }
-        }),
-      )
-    ).filter((approval) => typeof approval !== 'undefined')
+    const approvals: SignatureEnvelope.Serialized[] = []
+    for (const approval of options.approvals) {
+      if (SignatureEnvelope.from(approval).type !== 'multisig') {
+        approvals.push(approval)
+        continue
+      }
+      try {
+        const retained = (await select([approval])).approvals[0]
+        if (retained) approvals.push(retained)
+      } catch (error) {
+        if (
+          error instanceof MultisigOperation.InvalidApprovalError ||
+          error instanceof RpcResponse.InvalidParamsError
+        )
+          continue
+        throw error
+      }
+    }
     return await select(approvals)
   } catch (error) {
     if (error instanceof MultisigOperation.InvalidApprovalError)

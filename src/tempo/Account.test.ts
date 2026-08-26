@@ -531,6 +531,26 @@ describe('signTransaction', () => {
       `"0x76f9015401808502540be40080d8d79400000000000000000000000000000000000000018080c0808080808080c0b901270249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2247394b526f3462364a4336446d4e596241477847514e42373962356a6d41425f486a6e364e562d7a5f3851222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d8825fcab1b36bd74f6171f6a02698f8a3f7c4494005ed58c10526fe292e7583f2421e978ad3f70421e98a22e5c0b940d483793eeb1ba0e0556a1650ebced6ae520fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
   })
+
+  test('error: current multisig config without account address', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+
+    await expect(
+      account.signTransaction({
+        calls: [],
+        chainId: 1,
+        maxFeePerGas: parseGwei('10'),
+        multisig: {
+          owners: [{ owner: account.address, weight: 1 }],
+          salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          threshold: 1,
+          version: 1n,
+        },
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A multisig account address is required for a current config witness.]`,
+    )
+  })
 })
 
 describe('signTypedData', () => {

@@ -383,6 +383,8 @@ export async function setUserTokenSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setUserToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -715,6 +717,8 @@ export async function setValidatorTokenSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setValidatorToken.extractEvent(receipt.logs)
   return {
     ...args,

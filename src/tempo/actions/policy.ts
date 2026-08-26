@@ -233,6 +233,8 @@ export async function createSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = create.extractEvent(receipt.logs)
   return {
     ...args,
@@ -436,6 +438,8 @@ export async function setAdminSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setAdmin.extractEvent(receipt.logs)
   return {
     ...args,
@@ -649,6 +653,8 @@ export async function modifyWhitelistSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = modifyWhitelist.extractEvent(receipt.logs)
   return {
     ...args,
@@ -862,6 +868,8 @@ export async function modifyBlacklistSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = modifyBlacklist.extractEvent(receipt.logs)
   return {
     ...args,

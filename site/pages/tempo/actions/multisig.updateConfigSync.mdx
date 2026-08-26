@@ -42,8 +42,11 @@ const account = Account.fromMultisig({
 
 const result = await client.multisig.updateConfigSync({
   account,
-  owners: [{ owner: newOwner.address, weight: 1 }],
-  threshold: 1,
+  currentConfig: account.config,
+  nextConfig: {
+    owners: [{ owner: newOwner.address, weight: 1 }],
+    threshold: 1,
+  },
 })
 ```
 
@@ -58,24 +61,32 @@ const result = await client.multisig.updateConfigSync({
 ```ts
 type ReturnType = {
   account: Address
-  owners: readonly {
-    owner: Address
-    weight: number
-  }[]
+  config: MultisigConfig.Config
   receipt: TransactionReceipt
-  threshold: number
 }
 ```
 
 ## Parameters
 
-### owners
+### currentConfig
+
+- **Type:** `MultisigConfig.Config`
+
+The account's complete current configuration witness.
+
+### nextConfig
+
+- **Type:** `{ owners: readonly MultisigConfig.Owner[]; threshold: number }`
+
+The replacement owners and approval threshold. Owners are normalized into canonical address order.
+
+#### nextConfig.owners
 
 - **Type:** `readonly { owner: Address; weight: number }[]`
 
-The complete replacement owner set. Owners are normalized into canonical address order.
+The complete replacement owner set.
 
-### threshold
+#### nextConfig.threshold
 
 - **Type:** `number`
 

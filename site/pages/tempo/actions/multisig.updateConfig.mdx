@@ -43,8 +43,11 @@ const account = Account.fromMultisig({
 
 const hash = await client.multisig.updateConfig({
   account,
-  owners: [{ owner: newOwner.address, weight: 1 }],
-  threshold: 1,
+  currentConfig: account.config,
+  nextConfig: {
+    owners: [{ owner: newOwner.address, weight: 1 }],
+    threshold: 1,
+  },
 })
 ```
 
@@ -64,13 +67,25 @@ The transaction hash.
 
 ## Parameters
 
-### owners
+### currentConfig
+
+- **Type:** `MultisigConfig.Config`
+
+The account's complete current configuration witness.
+
+### nextConfig
+
+- **Type:** `{ owners: readonly MultisigConfig.Owner[]; threshold: number }`
+
+The replacement owners and approval threshold. Owners are normalized into canonical address order.
+
+#### nextConfig.owners
 
 - **Type:** `readonly { owner: Address; weight: number }[]`
 
-The complete replacement owner set. Owners are normalized into canonical address order.
+The complete replacement owner set.
 
-### threshold
+#### nextConfig.threshold
 
 - **Type:** `number`
 

@@ -988,7 +988,10 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
           const from = (transaction as { from?: Address.Address | undefined })
             .from
           if (from) return from
-          return MultisigConfig.getAddress(config)
+          if (config.version === 0n) return MultisigConfig.getAddress(config)
+          throw new Error(
+            'A multisig account address is required for a current config witness.',
+          )
         })()
         const digest = MultisigConfig.getSignPayload({
           account,

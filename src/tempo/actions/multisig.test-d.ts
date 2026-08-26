@@ -1,5 +1,10 @@
 import { tempoLocalnet } from 'viem/chains'
-import { Account, createClient, type MultisigOperation } from 'viem/tempo'
+import {
+  Account,
+  createClient,
+  type MultisigConfig,
+  type MultisigOperation,
+} from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -32,4 +37,21 @@ test('wallet actions expose multisig operations', async () => {
     MultisigOperation.TransactionOperation | undefined
   >()
   expectTypeOf(operation).toEqualTypeOf<MultisigOperation.Operation | null>()
+})
+
+test('updateConfig accepts current and replacement configs', async () => {
+  const parameters = {
+    account,
+    currentConfig: account.config,
+    nextConfig: {
+      owners: account.config.owners,
+      threshold: account.config.threshold,
+    },
+  } as const
+
+  const hash = await client.multisig.updateConfig(parameters)
+  const result = await client.multisig.updateConfigSync(parameters)
+
+  expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(result.config).toEqualTypeOf<MultisigConfig.Config>()
 })

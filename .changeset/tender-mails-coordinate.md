@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-Added coordinated native Tempo multisig transactions and explicit initial or current configuration witnesses for multisig accounts.
+Added coordinated native Tempo multisig transactions and explicit configuration witnesses, replacing `getConfig` and `isInitialized` with `getConfigCommitment` for the updated TIP-1061 protocol.
 
 ```ts
 import { Account } from 'viem/tempo'
