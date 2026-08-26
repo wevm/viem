@@ -4,9 +4,9 @@ description: Instantiates a native multisig account from an initial or current c
 
 # `Account.fromMultisig`
 
-Instantiates an Account for a [native multisig](https://tips.sh/1061). Pass `initialConfig` to
-derive the stable account address. After the config changes, pass the stable `address` with its
-current `config` witness.
+Instantiates an Account for a [native multisig](https://tips.sh/1061). Set `address` to `initial`
+to derive the stable account address. After the config changes, replace `initial` with the stable
+address and pass the current config fields.
 
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
@@ -38,10 +38,9 @@ const owner_2 = Account.fromSecp256k1(
 )
 
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1, owner_2],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [owner_1, owner_2],
+  threshold: 2,
 })
 
 console.log('Address:', account.address)
@@ -60,15 +59,13 @@ import { Account } from 'viem/tempo'
 
 const account = Account.fromMultisig({
   address: '0x0000000000000000000000000000000000000001',
-  config: {
-    owners: [
-      '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-    ],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 2,
-    version: 1,
-  },
+  owners: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 2,
+  version: 1,
 })
 ```
 
@@ -88,14 +85,12 @@ const account = Account.fromMultisig(
 ```
 
 An address-only account cannot prepare or sign a transaction because Tempo cannot reconstruct the
-current config from its commitment. Provide the current witness through `{ address, config }`
+current config from its commitment. Provide the current witness through `{ address, ...config }`
 before sending.
 
-`Account.fromMultisig({ address })` is the equivalent explicit form.
-
 :::tip
-Keep using `initialConfig` while the account remains at version `0`. After a config update, use the
-stable address with the new config witness.
+Keep using `address: 'initial'` while the account remains at version `0`. After a config update,
+use the stable address with the new config witness.
 :::
 
 ### External Owners
@@ -106,13 +101,12 @@ Pass addresses when owner approvals are collected outside the current process.
 import { Account } from 'viem/tempo'
 
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [
-      '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-    ],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  threshold: 2,
 })
 ```
 
@@ -128,13 +122,12 @@ const owner = Account.fromSecp256k1(
 )
 
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [
-      { owner, weight: 2 },
-      { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
-    ],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [
+    { owner, weight: 2 },
+    { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
+  ],
+  threshold: 2,
 })
 ```
 
@@ -166,40 +159,37 @@ config witness.
 
 #### value.address
 
-- **Type:** `Address`
+- **Type:** `'initial' | Address`
 
-The stable multisig account address. Provide it for current and address-only accounts.
+Set this field to `initial` to derive an account from a version-zero config. For a current config,
+pass the account's stable address. Pass an `Address` as `value` when no config witness is needed.
 
-#### value.config
-
-- **Type:** `Account.fromMultisig.Current['config']`
-
-The complete current config witness. It includes `owners`, `salt`, `threshold`, and a nonzero
-`version`.
-
-#### value.initialConfig
-
-- **Type:** `Account.fromMultisig.InitialConfig`
-
-The version-zero config used to derive the account address.
-
-##### value.initialConfig.owners
+#### value.owners
 
 - **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
 
-The initial owners. Passing a local account makes that account available for local aggregation.
+The config owners. Passing a local account makes that account available for local aggregation.
 Passing an address keeps that owner's approval external.
 
-##### value.initialConfig.salt (optional)
+#### value.salt
 
 - **Type:** `Hex`
 - **Default:** `0x0000000000000000000000000000000000000000000000000000000000000000`
 
-A 32-byte salt used to derive a distinct address for the same owner set and threshold.
+The 32-byte config salt. This field is optional for an initial config and required for a current
+config witness.
 
-##### value.initialConfig.threshold (optional)
+#### value.threshold
 
 - **Type:** `number`
 - **Default:** `1`
 
-The total owner weight required to authorize a transaction.
+The total owner weight required to authorize an operation. This field is optional for an initial
+config and required for a current config witness.
+
+#### value.version
+
+- **Type:** `bigint | number`
+
+The nonzero current config version. For an initial config, omit this field or pass `0` when
+spreading a normalized `MultisigConfig.Config` value.

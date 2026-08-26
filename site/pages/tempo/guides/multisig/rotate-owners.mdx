@@ -35,12 +35,10 @@ const passkeyOwner = Account.fromWebAuthnP256(credential)
 // 2. Recreate the account from its stable address and current config witness.
 const multisig = Account.fromMultisig({
   address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
-  config: {
-    owners: [owner],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 1,
-    version: 1,
-  },
+  owners: [owner],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 1,
+  version: 1,
 })
 
 // 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
@@ -88,12 +86,10 @@ const newOwner_2 = Account.fromSecp256k1(
 // 2. Recreate the multisig from its stable address and current config witness.
 const multisig = Account.fromMultisig({
   address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
-  config: {
-    owners: [owner_1, owner_2],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 2,
-    version: 1,
-  },
+  owners: [owner_1, owner_2],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 2,
+  version: 1,
 })
 
 // 3. Store the first current owner's approval for the update.
@@ -145,12 +141,10 @@ const newOwner_2 = Account.fromSecp256k1(
 // 2. Keep using the original address with the updated config witness.
 const multisig = Account.fromMultisig({
   address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
-  config: {
-    owners: [newOwner_1, newOwner_2],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 2,
-    version: 2,
-  },
+  owners: [newOwner_1, newOwner_2],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 2,
+  version: 2,
 })
 
 // 3. Store the first new owner's approval.
@@ -173,7 +167,7 @@ const receipt = await client.sendTransactionSync({
 
 Do not derive another account from the rotated configuration. That configuration produces a
 different address. Store the original address and reconstruct it with
-`Account.fromMultisig({ address, config })`.
+`Account.fromMultisig({ address, ...config })`.
 
 ### Retain the Current Configuration
 

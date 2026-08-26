@@ -8,13 +8,13 @@ Added coordinated native Tempo multisig transactions and explicit initial or cur
 import { Account } from 'viem/tempo'
 
 const initial = Account.fromMultisig({
-  initialConfig: {
-    owners: ['0x0000000000000000000000000000000000000001'],
-  },
+  address: 'initial',
+  owners: ['0x0000000000000000000000000000000000000001'],
 })
 const current = Account.fromMultisig({
   address: initial.address,
-  config: { ...initial.config, version: 1 },
+  ...initial.config,
+  version: 1,
 })
 const addressOnly = Account.fromMultisig(initial.address)
 ```

@@ -5,7 +5,7 @@ import { expectTypeOf, test } from 'vitest'
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const account = Account.fromMultisig({ initialConfig: { owners: [owner] } })
+const account = Account.fromMultisig({ address: 'initial', owners: [owner] })
 const client = createClient({
   chain: tempoLocalnet,
   experimental_multisig: true,

@@ -99,7 +99,8 @@ describe('prepareTransactionRequest', () => {
     })
     const account = Account.fromMultisig({
       address: MultisigConfig.getAddress(initial),
-      config: { ...initial, version: 2n },
+      ...initial,
+      version: 2n,
     })
 
     const request = await prepareTransactionRequest(client, {

@@ -36,9 +36,8 @@ const owner_1 = Account.fromSecp256k1(
 )
 const owner_2 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1, owner_2],
-  },
+  address: 'initial',
+  owners: [owner_1, owner_2],
 })
 
 // 3. Send with enough local signatures to reach quorum.
@@ -81,10 +80,9 @@ const owner_3 = Account.fromSecp256k1(
 
 // 2. Create a 3-of-3 multisig from their addresses.
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1.address, owner_2.address, owner_3.address],
-    threshold: 3,
-  },
+  address: 'initial',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
 })
 
 // 3. Store the first owner's approval and receive a pending receipt.
@@ -135,10 +133,9 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1.address, owner_2.address],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
 })
 
 // 2. Prepare one request for both owners.

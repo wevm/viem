@@ -41,10 +41,9 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1, owner_2],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [owner_1, owner_2],
+  threshold: 2,
 })
 
 // 2. Send with all owner approvals created locally.
@@ -112,10 +111,9 @@ const owner_3 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1.address, owner_2.address, owner_3.address],
-    threshold: 3,
-  },
+  address: 'initial',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
 })
 ```
 
@@ -138,10 +136,9 @@ const owner_3 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1.address, owner_2.address, owner_3.address],
-    threshold: 3,
-  },
+  address: 'initial',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
 })
 
 const pending = await client.sendTransactionSync({
@@ -221,10 +218,9 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 const multisig = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1.address, owner_2.address],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
 })
 
 // 2. Prepare the request once for every owner.

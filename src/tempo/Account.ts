@@ -277,10 +277,10 @@ export declare namespace fromSecp256k1 {
 /**
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * The returned account does not hold a key itself. Pass `initialConfig` to
- * derive an account address, or pass a stable `address` with its current
- * `config` witness. Pass an address directly or through `{ address }` for an
- * address-only account.
+ * The returned account does not hold a key itself. Set `address` to `initial`
+ * to derive an account address from its initial config. For a current config
+ * witness, set `address` to the stable account address. Pass the address
+ * directly for an address-only account.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
@@ -296,10 +296,9 @@ export declare namespace fromSecp256k1 {
  * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromMultisig({
- *   initialConfig: {
- *     owners: [owner_1, owner_2],
- *     threshold: 2,
- *   },
+ *   address: 'initial',
+ *   owners: [owner_1, owner_2],
+ *   threshold: 2,
  * })
  *
  * // The multisig config is inferred from the account.
@@ -312,14 +311,11 @@ export declare namespace fromSecp256k1 {
  * @returns Multisig account.
  */
 export function fromMultisig(
-  value: fromMultisig.Initial,
+  value: fromMultisig.InitialConfig,
 ): MultisigAccount<MultisigConfig.Config>
 export function fromMultisig(
-  value: fromMultisig.Current,
+  value: fromMultisig.CurrentConfig,
 ): MultisigAccount<MultisigConfig.Config>
-export function fromMultisig(
-  value: fromMultisig.AddressOnly,
-): MultisigAccount<undefined>
 export function fromMultisig(
   address: Address.Address,
 ): MultisigAccount<undefined>
@@ -327,10 +323,8 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount
 export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
-    if (value.initialConfig)
-      return { ...value.initialConfig, version: 0 as const }
-    if (value.config) return value.config
-    return undefined
+    const { address: _, ...config } = value
+    return config
   })()
   const config = (() => {
     if (!configInput) return undefined
@@ -348,12 +342,16 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       threshold: configInput.threshold ?? 1,
     })
   })()
-  if (typeof value !== 'string' && value.config && config!.version === 0n)
-    throw new Error('A current multisig config witness must have a version.')
+  if (typeof value !== 'string') {
+    if (value.address === 'initial' && config!.version !== 0n)
+      throw new Error('An initial multisig config must have version zero.')
+    if (value.address !== 'initial' && config!.version === 0n)
+      throw new Error('A current multisig config witness must have a version.')
+  }
   const address = Address.checksum(
     (() => {
       if (typeof value === 'string') return value
-      if (value.initialConfig) return MultisigConfig.getAddress(config!)
+      if (value.address === 'initial') return MultisigConfig.getAddress(config!)
       return value.address
     })(),
   )
@@ -456,38 +454,32 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
 }
 
 export declare namespace fromMultisig {
-  /** Multisig account address without a retained config witness. */
-  export type AddressOnly = {
-    /** Stable multisig account address. */
-    address: Address.Address
-  }
-
   /** Stable multisig account address and its current config witness. */
-  export type Current = {
+  export type CurrentConfig = {
     /** Stable multisig account address. */
     address: Address.Address
-    /** Current config witness. */
-    config: Omit<MultisigConfig.Config<bigint | number>, 'owners'> & {
-      /** Weighted owners. */
-      owners: readonly Owner[]
-    }
-  }
-
-  /** Initial multisig config used to derive the stable account address. */
-  export type Initial = {
-    /** Initial version-zero config. */
-    initialConfig: InitialConfig
+    /** Weighted owners. */
+    owners: readonly Owner[]
+    /** Caller-chosen 32-byte salt. */
+    salt: MultisigConfig.Config['salt']
+    /** Minimum total owner weight required for authorization. */
+    threshold: MultisigConfig.Config['threshold']
+    /** Current configuration version. */
+    version: MultisigConfig.Config<bigint | number>['version']
   }
 
   /** Initial version-zero multisig config. */
-  export type InitialConfig = Omit<
-    MultisigConfig.Input,
-    'owners' | 'threshold' | 'version'
-  > & {
+  export type InitialConfig = {
+    /** Derives the stable account address from this initial config. */
+    address: 'initial'
     /** Weighted owners. */
     owners: readonly Owner[]
+    /** Caller-chosen 32-byte salt. */
+    salt?: MultisigConfig.Input['salt'] | undefined
     /** Minimum owner weight required for authorization. */
     threshold?: number | undefined
+    /** Initial configuration version. */
+    version?: 0 | 0n | undefined
   }
 
   /** Multisig owner account or address, optionally with an explicit weight. */
@@ -499,9 +491,7 @@ export declare namespace fromMultisig {
       })
 
   /** Parameters for {@link fromMultisig}. */
-  export type Parameters =
-    | Address.Address
-    | OneOf<AddressOnly | Current | Initial>
+  export type Parameters = Address.Address | CurrentConfig | InitialConfig
 }
 
 export type MultisigAccount<

@@ -22,7 +22,8 @@ describe('fromMultisig', () => {
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromMultisig({
-      initialConfig: { owners: [owner] },
+      address: 'initial',
+      owners: [owner],
     })
 
     expect(account).toMatchInlineSnapshot(
@@ -58,12 +59,10 @@ describe('fromMultisig', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromMultisig({
       address: '0x0000000000000000000000000000000000000001',
-      config: {
-        owners: [owner],
-        salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-        threshold: 1,
-        version: 1,
-      },
+      owners: [owner],
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      threshold: 1,
+      version: 1,
     })
 
     expect(account).toMatchInlineSnapshot(
@@ -120,15 +119,25 @@ describe('fromMultisig', () => {
     expect(() =>
       Account.fromMultisig({
         address: '0x0000000000000000000000000000000000000001',
-        config: {
-          owners: [tempo.accounts[0]],
-          salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-          threshold: 1,
-          version: 0,
-        },
+        owners: [tempo.accounts[0]],
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        threshold: 1,
+        version: 0,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: A current multisig config witness must have a version.]`,
+    )
+  })
+
+  test('error: nonzero initial config version', () => {
+    expect(() =>
+      Account.fromMultisig({
+        address: 'initial',
+        owners: [tempo.accounts[0]],
+        version: 1,
+      } as never),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: An initial multisig config must have version zero.]`,
     )
   })
 })

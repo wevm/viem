@@ -8,11 +8,10 @@ import * as actions from './index.js'
 
 const client = getClient()
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [accounts[17], accounts[18]],
-    salt: toHex(0x502200, { size: 32 }),
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [accounts[17], accounts[18]],
+  salt: toHex(0x502200, { size: 32 }),
+  threshold: 2,
 })
 
 beforeAll(async () => {
@@ -66,11 +65,10 @@ describe('updateConfig', () => {
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
     const account = Account.fromMultisig({
-      initialConfig: {
-        owners: [accounts[17], accounts[18]],
-        salt: toHex(0x502201, { size: 32 }),
-        threshold: 2,
-      },
+      address: 'initial',
+      owners: [accounts[17], accounts[18]],
+      salt: toHex(0x502201, { size: 32 }),
+      threshold: 2,
     })
     await actions.token.transferSync(client, {
       account: accounts[0],

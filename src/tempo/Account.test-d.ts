@@ -1,4 +1,4 @@
-import { Account, type MultisigConfig } from 'viem/tempo'
+import { Account, MultisigConfig } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -7,39 +7,44 @@ const owner = Account.fromSecp256k1(
 
 test('fromMultisig preserves config availability', () => {
   const initial = Account.fromMultisig({
-    initialConfig: { owners: [owner] },
+    address: 'initial',
+    owners: [owner],
+  })
+  const normalizedInitial = Account.fromMultisig({
+    address: 'initial',
+    ...MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    }),
   })
   const current = Account.fromMultisig({
     address: initial.address,
-    config: {
-      owners: [owner],
-      salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-      threshold: 1,
-      version: 1,
-    },
+    owners: [owner],
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    threshold: 1,
+    version: 1,
   })
   const addressOnly = Account.fromMultisig(initial.address)
-  const explicitAddressOnly = Account.fromMultisig({
-    address: initial.address,
-  })
 
   expectTypeOf(initial.config).toEqualTypeOf<MultisigConfig.Config>()
+  expectTypeOf(normalizedInitial.config).toEqualTypeOf<MultisigConfig.Config>()
   expectTypeOf(current.config).toEqualTypeOf<MultisigConfig.Config>()
   expectTypeOf(addressOnly.config).toEqualTypeOf<undefined>()
-  expectTypeOf(explicitAddressOnly.config).toEqualTypeOf<undefined>()
 })
 
-test('fromMultisig requires an explicit config role', () => {
-  // @ts-expect-error Use `initialConfig` for the version-zero config.
-  Account.fromMultisig({ owners: [owner] })
+test('fromMultisig distinguishes initial and current configs', () => {
+  Account.fromMultisig({ address: 'initial', owners: [owner] })
+  // @ts-expect-error Current config witnesses require `salt`.
   Account.fromMultisig({
     address: owner.address,
-    // @ts-expect-error Current config witnesses require all config fields.
-    config: { owners: [owner], version: 1 },
+    owners: [owner],
+    threshold: 1,
+    version: 1,
   })
+  // @ts-expect-error Initial configs use the `initial` address sentinel.
+  Account.fromMultisig({ owners: [owner] })
+  // @ts-expect-error Address-only accounts use the string overload.
   Account.fromMultisig({
     address: owner.address,
-    // @ts-expect-error Initial and current account forms are mutually exclusive.
-    initialConfig: { owners: [owner] },
   })
 })

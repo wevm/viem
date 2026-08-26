@@ -35,10 +35,9 @@ const newOwner = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 const account = Account.fromMultisig({
-  initialConfig: {
-    owners: [owner_1, owner_2],
-    threshold: 2,
-  },
+  address: 'initial',
+  owners: [owner_1, owner_2],
+  threshold: 2,
 })
 
 const result = await client.multisig.updateConfigSync({
