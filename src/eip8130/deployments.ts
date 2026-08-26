@@ -94,8 +94,8 @@ export const canonicalEip8130Deployment = {
     // address is set here, `proxy: 'upgradeable'` requires an explicit
     // `implementation`. Set `upgradeable` once deployed and the default goes live.
     upgradeable: undefined,
-    default: '0x813078f98b3eb214046C8Dc93A771ac9de5AaDEf',
-    defaultHighRate: '0x8130931874c894aC4963e128D6273AE520dAFa57',
+    default: '0x813035E3fc4a102CE2b4a73D78a25D1Ea5AFadEf',
+    defaultHighRate: '0x8130D6819734515f958965eFd2d212541d44FA57',
     // `erc4337` (BackwardsCompatible4337Account) is intentionally out of scope
     // for now — supply it explicitly if you choose the ERC-4337 portable path.
   },
@@ -103,12 +103,12 @@ export const canonicalEip8130Deployment = {
     k1: '0x0000000000000000000000000000000000000001',
     p256: '0x8130C89F65750431b564A4730397552a11CeA256',
     webAuthn: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
-    delegate: '0x8130b7D430D041ED4050935814D493299980aDE1',
+    delegate: '0x8130015119757e0b1F9985F723091a851598Ade1',
     alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
   },
   policies: {
-    manager: '0x813077055d1110F92191ccE13018f51820B40ac1',
-    sessionPolicy: '0x813070914C530d030f4Efd8Fa99C18e836435e55',
+    manager: '0x8130fAA29D2675D05d01D387C576c6525F280ac1',
+    sessionPolicy: '0x81306283dfD94FcDe1a3aD4b7beDF1c5cD0f5e55',
   },
 } as const satisfies Eip8130Deployment
 
