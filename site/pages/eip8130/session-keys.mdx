@@ -86,7 +86,7 @@ import {
   actorScope,
   authorizeActor,
   key,
-  sendCalls,
+  sendTransaction,
 } from 'viem/eip8130'
 
 const sessionKey = key.p256({ x, y })
@@ -101,7 +101,7 @@ const change = await account.change(
   { chainId: client.chain.id, sequence: Number(sequence) },
 )
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   accountChanges: [change],
   // The install call initializes the binding — it must land before first use.
@@ -119,7 +119,7 @@ import { encodeFunctionData, erc20Abi, parseUnits } from 'viem'
 import {
   encodeSessionPolicyAction,
   newSmartAccount,
-  sendCalls,
+  sendTransaction,
   toP256Signer,
 } from 'viem/eip8130'
 
@@ -136,7 +136,7 @@ const transfer = encodeFunctionData({
   args: [recipient, parseUnits('10', 6)],
 })
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account: sessionAccount,
   calls: [
     session.executeCall(
@@ -216,7 +216,7 @@ When the granted key wants to act, `routePermissionedCalls` decodes it and wraps
 import {
   actorScope,
   routePermissionedCalls,
-  sendCalls,
+  sendTransaction,
   toAccount,
 } from 'viem/eip8130'
 
@@ -234,7 +234,7 @@ const handle = toAccount({
   scope: actorScope.policy,
 })
 
-const hash = await sendCalls(client, { account: handle, calls, gas: 250_000n })
+const hash = await sendTransaction(client, { account: handle, calls, gas: 250_000n })
 ```
 
 For a `pull` grant the routed calls target `executeFor`, and the external provider submits them from **its own** address (not through the account). Use `parsePermissionsContext` if you only need to inspect a context (account, role, actor, rebound `SessionPolicy`) without routing calls.

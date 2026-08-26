@@ -11,7 +11,7 @@ import {
   toAccount,
   toDelegateSigner,
 } from './accounts/toAccount.js'
-import { sendCalls } from './actions/sendCalls.js'
+import { sendTransaction } from './actions/sendTransaction.js'
 import {
   actorScope,
   canonicalAuthenticators,
@@ -228,7 +228,7 @@ describe('toAccount', () => {
   })
 })
 
-describe('sendCalls', () => {
+describe('sendTransaction', () => {
   let sent: Hex | undefined
   const client = createClient({
     chain: mainnet,
@@ -255,7 +255,7 @@ describe('sendCalls', () => {
   })
 
   test('builds, signs, serializes and submits an AA_TX_TYPE tx', async () => {
-    const hash = await sendCalls(client, {
+    const hash = await sendTransaction(client, {
       account,
       calls: [
         { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' },
@@ -285,7 +285,7 @@ describe('sendCalls', () => {
   })
 
   test('behavior: dataSuffix is written to metadata', async () => {
-    await sendCalls(client, {
+    await sendTransaction(client, {
       account,
       calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
       accountChanges: [account.create()],
@@ -320,7 +320,7 @@ describe('sendCalls', () => {
       }),
     })
 
-    await sendCalls(suffixedClient, {
+    await sendTransaction(suffixedClient, {
       account,
       calls: [{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', data: '0x' }],
       accountChanges: [account.create()],

@@ -119,7 +119,7 @@ export type FulfillAddSubAccountErrorType = BaseError
  * `createChange` in the first transaction's `accountChanges`.
  *
  * @example
- * import { fulfillAddSubAccount, sendCalls } from 'viem/eip8130'
+ * import { fulfillAddSubAccount, sendTransaction } from 'viem/eip8130'
  *
  * const sub = fulfillAddSubAccount({
  *   parent: parent.address,
@@ -132,7 +132,7 @@ export type FulfillAddSubAccountErrorType = BaseError
  * sub.response.address
  *
  * // deploy + first call in one shot (parent drives it as a delegate)
- * await sendCalls(client, {
+ * await sendTransaction(client, {
  *   account: sub,
  *   accountChanges: [sub.createChange],
  *   calls: [{ to: recipient, value: 1n }],

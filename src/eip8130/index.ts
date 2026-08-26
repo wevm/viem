@@ -86,11 +86,15 @@ export {
   isLocked,
 } from './actions/isLocked.js'
 export {
-  type PrepareTransactionParameters,
-  prepareTransaction,
-  type SendCallsParameters,
-  sendCalls,
-} from './actions/sendCalls.js'
+  type PrepareTransactionRequestParameters,
+  prepareTransactionRequest,
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncReturnType,
+  sendTransaction,
+  sendTransactionSync,
+} from './actions/sendTransaction.js'
 export {
   type WaitForTransactionReceiptParameters,
   type WaitForTransactionReceiptReturnType,

@@ -7,7 +7,7 @@ import { isNoncelessOnly } from './keys.js'
 /**
  * A resolved EIP-8130 nonce selection: the channel key and (for nonce-free
  * mode) the fixed sequence and required expiry. Spread the result directly into
- * {@link sendCalls} / {@link prepareTransaction} parameters.
+ * {@link sendTransaction} / {@link prepareTransactionRequest} parameters.
  */
 export type Nonce = {
   /** 2D nonce channel selector (`uint256`). `0` = standard sequential ordering. */
@@ -29,7 +29,7 @@ export type Nonce = {
  * Builders for EIP-8130 nonce selection. EIP-8130 accounts support three
  * distinct nonce strategies; these helpers produce the correct
  * `nonceKey` / `nonceSequence` / `expiry` fields for each, ready to spread into
- * {@link sendCalls} / {@link prepareTransaction}.
+ * {@link sendTransaction} / {@link prepareTransactionRequest}.
  *
  * - {@link nonce.sequential} — the classic single-file nonce (channel `0`).
  * - {@link nonce.channel} / {@link nonce.randomChannel} — independent 2D nonce
@@ -40,17 +40,17 @@ export type Nonce = {
  *
  * @example
  * ```ts
- * import { nonce, sendCalls } from 'viem/eip8130'
+ * import { nonce, sendTransaction } from 'viem/eip8130'
  *
  * // Two independent channels → can be mined in either order.
- * await sendCalls(client, { account, calls: a, gas, ...nonce.channel(1n) })
- * await sendCalls(client, { account, calls: b, gas, ...nonce.channel(2n) })
+ * await sendTransaction(client, { account, calls: a, gas, ...nonce.channel(1n) })
+ * await sendTransaction(client, { account, calls: b, gas, ...nonce.channel(2n) })
  *
  * // Fire-and-forget parallel txs on random channels.
- * await sendCalls(client, { account, calls, gas, ...nonce.randomChannel() })
+ * await sendTransaction(client, { account, calls, gas, ...nonce.randomChannel() })
  *
  * // Nonce-free: valid for the next 10 minutes, no sequencing.
- * await sendCalls(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 600 }) })
+ * await sendTransaction(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 600 }) })
  * ```
  */
 export const nonce = {

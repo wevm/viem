@@ -42,7 +42,7 @@ type ToAccountBase = {
   /**
    * Scope bitmask of the **signing actor** on this account (see
    * {@link actorScope}). Prefer omitting this once the actor is on-chain —
-   * {@link prepareTransaction} reads `getActorConfig` and derives nonce
+   * {@link prepareTransactionRequest} reads `getActorConfig` and derives nonce
    * mode from chain truth. When set on an already-bound actor, it must match
    * the on-chain value or prepare throws {@link ScopeMismatchError}.
    *
@@ -108,7 +108,7 @@ export type ToAccountReturnType = {
   /**
    * Scope of the signing actor, when known off-chain. Prefer leaving this
    * unset once the actor is authorized — prepare reads chain truth instead.
-   * See {@link prepareTransaction}.
+   * See {@link prepareTransactionRequest}.
    */
   readonly scope?: number | undefined
   /**
@@ -509,7 +509,7 @@ export type ToEoaAccountReturnType = {
   /**
    * Scope of the implicit self-actor (admin by default). Drives automatic
    * nonce-mode selection: admin may use ordered *or* nonce-free, so sends
-   * default to ordered (sequenced) mode. See {@link prepareTransaction}.
+   * default to ordered (sequenced) mode. See {@link prepareTransactionRequest}.
    */
   readonly scope?: number | undefined
   /**

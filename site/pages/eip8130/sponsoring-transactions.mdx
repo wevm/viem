@@ -18,15 +18,15 @@ There are two ways to obtain `payer_auth`:
 
 ## Co-signing locally
 
-Pass a `payer` signer to `sendCalls`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the onchain payer account differs from the signing key.
+Pass a `payer` signer to `sendTransaction`. It signs `payer_auth` bound to the sender and sets the `payer` wire field. Set `payer.address` when the onchain payer account differs from the signing key.
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { sendCalls } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
 
 const sponsor = privateKeyToAccount(process.env.SPONSOR_KEY as `0x${string}`)
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,                       // signs sender_auth
   calls: [{ to: recipient, data }],
   gas: 250_000n,
@@ -55,9 +55,9 @@ To charge the sender in an ERC-20 while the payer fronts native gas, run a two-p
 
 ```ts
 import { encodeTokenTransfer } from 'viem/eip8168'
-import { sendCalls } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   calls: [
     // phase 0 — pay the payer in USDC
@@ -74,13 +74,13 @@ In practice the token amount and payer are negotiated with a [payer service](/ei
 
 ## Lower-level control
 
-`sendCalls` wraps two primitives when you need to inspect or persist the transaction between signing and submitting:
+`sendTransaction` wraps two primitives when you need to inspect or persist the transaction between signing and submitting:
 
 ```ts
 import { sendRawTransaction } from 'viem/actions'
-import { prepareTransaction } from 'viem/eip8130'
+import { prepareTransactionRequest } from 'viem/eip8130'
 
-const tx = await prepareTransaction(client, {
+const tx = await prepareTransactionRequest(client, {
   account,
   calls: /* AaCalls (phased) */ phases,
   gas: 250_000n,

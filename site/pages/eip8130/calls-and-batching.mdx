@@ -32,27 +32,27 @@ Each `AaCall` is `{ to, data?, value? }`:
 
 ## Flat vs. phased
 
-`sendCalls` accepts either shape. A **flat** array is sugar for a single phase; pass a **nested** array to control phases explicitly:
+`sendTransaction` accepts either shape. A **flat** array is sugar for a single phase; pass a **nested** array to control phases explicitly:
 
 ```ts
-import { sendCalls } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
 
 // One atomic phase (flat):
-await sendCalls(client, {
+await sendTransaction(client, {
   account,
   calls: [{ to: a, data }, { to: b, data }],
   gas: 300_000n,
 })
 
 // Two phases (nested):
-await sendCalls(client, {
+await sendTransaction(client, {
   account,
   calls: [[{ to: a, data }], [{ to: b, data }]],
   gas: 300_000n,
 })
 ```
 
-`estimateGas` and `prepareTransaction` always take the **phased** form (`AaCalls`).
+`estimateGas` and `prepareTransactionRequest` always take the **phased** form (`AaCalls`).
 
 ## How value-bearing calls execute
 
@@ -70,10 +70,10 @@ const wire = encodeWalletCalls({
 
 ## Custom executors
 
-Wallets whose bytecode does not expose `executeBatch` must supply their own `encodeExecute` — a function mapping a phase's normalized calls to a single wallet call. Pass it to `sendCalls` (or `encodeWalletCalls`):
+Wallets whose bytecode does not expose `executeBatch` must supply their own `encodeExecute` — a function mapping a phase's normalized calls to a single wallet call. Pass it to `sendTransaction` (or `encodeWalletCalls`):
 
 ```ts
-import { type EncodeExecute, sendCalls } from 'viem/eip8130'
+import { type EncodeExecute, sendTransaction } from 'viem/eip8130'
 import { encodeFunctionData } from 'viem'
 
 const encodeExecute: EncodeExecute = ({ account, calls }) => ({
@@ -85,7 +85,7 @@ const encodeExecute: EncodeExecute = ({ account, calls }) => ({
   }),
 })
 
-await sendCalls(client, { account, calls, gas: 300_000n, encodeExecute })
+await sendTransaction(client, { account, calls, gas: 300_000n, encodeExecute })
 ```
 
 ## Choosing phases

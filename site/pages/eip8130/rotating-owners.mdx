@@ -64,7 +64,7 @@ import {
   actorScope,
   authorizeActor,
   key,
-  sendCalls,
+  sendTransaction,
 } from 'viem/eip8130'
 
 const change = await account.change(
@@ -76,7 +76,7 @@ const change = await account.change(
   { chainId: client.chain.id, sequence }, // bigint, straight from getConfigSequence
 )
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   accountChanges: [change],
   calls: [], // config-only transaction
@@ -110,7 +110,7 @@ const rotate = await account.change(
 `incrementLocalEpoch()` bumps the account's local epoch, invalidating **every** unlanded local-channel signature signed at a prior epoch in one shot — an instant "revoke all pending" kill-switch (e.g. after a suspected key compromise, or to void outstanding just-in-time session-key grants that haven't landed). It takes no payload; sign it at the current `local` sequence like any other change:
 
 ```ts
-import { getConfigSequence, incrementLocalEpoch, sendCalls } from 'viem/eip8130'
+import { getConfigSequence, incrementLocalEpoch, sendTransaction } from 'viem/eip8130'
 
 const { local: sequence } = await getConfigSequence(client, {
   account: account.address,
@@ -121,7 +121,7 @@ const bump = await account.change([incrementLocalEpoch()], {
   sequence,
 })
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   accountChanges: [bump],
   calls: [],
@@ -141,7 +141,7 @@ import {
   authorizeActor,
   canonicalEip8130Deployment,
   key,
-  sendCalls,
+  sendTransaction,
   toEoaAccount,
 } from 'viem/eip8130'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
@@ -153,7 +153,7 @@ const addP256 = await account.change(
   { chainId: client.chain.id, sequence: 0 },
 )
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   accountChanges: [
     account.delegate(canonicalEip8130Deployment.accounts.default),

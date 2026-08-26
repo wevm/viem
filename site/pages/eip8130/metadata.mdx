@@ -14,14 +14,14 @@ Use it to bind off-chain context to a transaction — a payer `policyId`, a clie
 
 ## Setting metadata
 
-`metadata` is a field on the transaction, not a parameter of `sendCalls`. Build the transaction with `prepareTransaction`, set `metadata`, then sign and submit:
+`metadata` is a field on the transaction, not a parameter of `sendTransaction`. Build the transaction with `prepareTransactionRequest`, set `metadata`, then sign and submit:
 
 ```ts
 import { sendRawTransaction } from 'viem/actions'
-import { prepareTransaction } from 'viem/eip8130'
+import { prepareTransactionRequest } from 'viem/eip8130'
 import { stringToHex } from 'viem'
 
-const tx = await prepareTransaction(client, {
+const tx = await prepareTransactionRequest(client, {
   account,
   calls: [[{ to: recipient, data }]],
   gas: 250_000n,

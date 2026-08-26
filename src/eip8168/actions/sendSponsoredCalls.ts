@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ToAccountReturnType } from '../../eip8130/accounts/toAccount.js'
-import { prepareTransaction } from '../../eip8130/actions/sendCalls.js'
+import { prepareTransactionRequest } from '../../eip8130/actions/sendTransaction.js'
 import { nonceFreeMaxExpiryWindow } from '../../eip8130/constants.js'
 import { isNoncelessOnly } from '../../eip8130/keys.js'
 import type {
@@ -253,7 +253,7 @@ export async function sendSponsoredCalls(
 
   // Prepared once so the nonce stays stable across re-signs; only the phase-0
   // transfer (on `requote`) and `gas` (on `minGasLimit`) change between attempts.
-  const transaction = await prepareTransaction(client, {
+  const transaction = await prepareTransactionRequest(client, {
     account,
     calls: built.calls,
     accountChanges,

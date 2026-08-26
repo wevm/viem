@@ -25,17 +25,17 @@ It polls `eth_getTransactionReceipt` until the transaction is mined (default eve
 
 Any transaction with a non-zero `validBefore` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `validBefore` (unix **milliseconds**) you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
 
-Thread the resolved `validBefore` out of `sendCalls` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
+Thread the resolved `validBefore` out of `sendTransaction` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
 
 ```ts
 import {
   TransactionExpiredError,
-  sendCalls,
+  sendTransaction,
   waitForTransactionReceipt,
 } from 'viem/eip8130'
 
 let validBefore: bigint | undefined
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   calls,
   gas,

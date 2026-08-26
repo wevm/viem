@@ -6,7 +6,7 @@ import type { Hex } from '../../types/misc.js'
  *
  * On the wire, EIP-8130 calls carry no ETH value — each call executes with
  * `msg.value == 0`. A `value` MAY be supplied as ERC-5792-style intent: actions
- * that build the wire (e.g. {@link sendCalls}) realize any non-zero `value`
+ * that build the wire (e.g. {@link sendTransaction}) realize any non-zero `value`
  * by routing the phase through the account's wallet bytecode (`executeBatch`),
  * collapsing it back into a value-less `[to, data]`. A call whose `value` is `0`
  * (or omitted) is encoded directly as `[to, data]`. A non-zero `value` that
@@ -234,7 +234,7 @@ export type TransactionSerializable8130 = {
    * is authenticated by both the sender and (when present) the payer. Omit or
    * `'0x'` for none.
    *
-   * High-level helpers (`prepareTransaction` / `sendCalls`) populate
+   * High-level helpers (`prepareTransactionRequest` / `sendTransaction`) populate
    * this from `dataSuffix` / `client.dataSuffix` (EIP-8130 has no calldata
    * suffix; attribution lands here instead).
    */

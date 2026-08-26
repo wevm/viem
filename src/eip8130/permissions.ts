@@ -572,13 +572,13 @@ export type RoutePermissionedCallsReturnType =
 export type RoutePermissionedCallsErrorType = ParsePermissionsContextErrorType
 
 /**
- * The `sendCalls`-level routing step: decodes a `permissionsContext` and wraps
+ * The `sendTransaction`-level routing step: decodes a `permissionsContext` and wraps
  * each user action so it lands on the policy manager under the granted key —
  * `session.executeCall` for a session key (dispatched as the account) or
  * `session.executeForCall` for an external pull actor.
  *
  * @example
- * import { routePermissionedCalls, sendCalls, toAccount, actorScope } from 'viem/eip8130'
+ * import { routePermissionedCalls, sendTransaction, toAccount, actorScope } from 'viem/eip8130'
  *
  * const { account, actor, calls } = routePermissionedCalls({
  *   context: permissionsContext,        // from the grant
@@ -593,7 +593,7 @@ export type RoutePermissionedCallsErrorType = ParsePermissionsContextErrorType
  *   actorId: actor.actorId,
  *   scope: actorScope.policy,
  * })
- * await sendCalls(client, { account: handle, calls, gas })
+ * await sendTransaction(client, { account: handle, calls, gas })
  */
 export function routePermissionedCalls(
   parameters: RoutePermissionedCallsParameters,

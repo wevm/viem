@@ -6,7 +6,7 @@ import { custom } from '../clients/transports/custom.js'
 import type { Hex } from '../types/misc.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { toAccount } from './accounts/toAccount.js'
-import { sendCalls } from './actions/sendCalls.js'
+import { sendTransaction } from './actions/sendTransaction.js'
 import { nonceKeyMax } from './constants.js'
 import { key } from './keys.js'
 import { nonce } from './nonce.js'
@@ -78,7 +78,7 @@ describe('nonce builders', () => {
   })
 })
 
-describe('sendCalls nonce integration', () => {
+describe('sendTransaction nonce integration', () => {
   function makeClient() {
     const methods: string[] = []
     let sent: Hex | undefined
@@ -131,7 +131,7 @@ describe('sendCalls nonce integration', () => {
 
   test('nonceless: no nonce read, tx carries NONCE_KEY_MAX + validBefore', async () => {
     const ctx = makeClient()
-    await sendCalls(ctx.client, {
+    await sendTransaction(ctx.client, {
       account,
       calls,
       ...fees,
@@ -147,7 +147,7 @@ describe('sendCalls nonce integration', () => {
 
   test('channel: reads the sequence with the 2D nonce_key param', async () => {
     const ctx = makeClient()
-    await sendCalls(ctx.client, {
+    await sendTransaction(ctx.client, {
       account,
       calls,
       ...fees,

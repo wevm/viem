@@ -38,7 +38,7 @@ import {
   actorScope,
   authorizeActor,
   key,
-  sendCalls,
+  sendTransaction,
 } from 'viem/eip8130'
 
 // On the sub account, authorize the primary account as a delegate.
@@ -51,7 +51,7 @@ const link = await subAccount.change(
   { chainId: client.chain.id, sequence: Number(sequence) },
 )
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account: subAccount,
   accountChanges: [link],
   calls: [],
@@ -64,7 +64,7 @@ Once linked, build an account handle that signs for the sub account using the **
 ```ts
 import {
   canonicalAuthenticators,
-  sendCalls,
+  sendTransaction,
   toAccount,
 } from 'viem/eip8130'
 
@@ -75,7 +75,7 @@ const subAsDelegate = toAccount({
   address: subAccount.address,
 })
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account: subAsDelegate,
   calls: [{ to: recipient, value: 1n }],
   gas: 200_000n,
@@ -104,7 +104,7 @@ const unlink = await subAccount.change(
 When a dApp asks a wallet to create a sub account via [ERC-7895](https://eips.ethereum.org/EIPS/eip-7895) `wallet_addSubAccount` (`type: 'create'`), `fulfillAddSubAccount` builds the two primitives above in one step: a **distinct** account whose owner set is the requested `keys` **plus** `key.delegate(parent)` — the link installed at creation, so no separate change transaction is needed.
 
 ```ts
-import { fulfillAddSubAccount, sendCalls } from 'viem/eip8130'
+import { fulfillAddSubAccount, sendTransaction } from 'viem/eip8130'
 
 // `keys` are the owner keys the dApp requested (wallet_addSubAccount).
 const sub = fulfillAddSubAccount({
@@ -118,7 +118,7 @@ const sub = fulfillAddSubAccount({
 sub.response.address
 
 // Deploy + first call in one shot — the parent drives it as a delegate:
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account: sub,
   accountChanges: [sub.createChange],
   calls: [{ to: recipient, value: 1n }],

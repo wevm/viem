@@ -36,7 +36,7 @@ export function assertTransaction(
       for (const call of phase)
         if (call.value && call.value !== 0n)
           throw new BaseError(
-            'EIP-8130 calls cannot carry `value` on the wire. Route value-bearing calls through the account wallet (e.g. `encodeWalletCalls` / `sendCalls`).',
+            'EIP-8130 calls cannot carry `value` on the wire. Route value-bearing calls through the account wallet (e.g. `encodeWalletCalls` / `sendTransaction`).',
           )
 
   // Nonce-free mode (`NONCE_KEY_MAX`): sequence must be 0 and validBefore non-zero.

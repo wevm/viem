@@ -17,8 +17,8 @@ export type WaitForTransactionReceiptParameters = {
    * `validBefore` (unix **milliseconds**) of the transaction being awaited. When
    * provided, the wait fails fast with a {@link TransactionExpiredError} once the
    * chain's latest block timestamp passes it. This is the reliable path: it is
-   * the value the transaction was signed with (thread it out of `sendCalls` via
-   * `onTransaction`, or read it off `prepareTransaction`'s result).
+   * the value the transaction was signed with (thread it out of `sendTransaction`
+   * via `onTransaction`, or read it off `prepareTransactionRequest`'s result).
    *
    * If omitted, the wait *opportunistically* tries to read `validBefore` off the
    * still-pending transaction — but nodes are not obligated to return a pending

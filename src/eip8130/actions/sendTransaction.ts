@@ -1,5 +1,6 @@
 import { estimateFeesPerGas } from '../../actions/public/estimateFeesPerGas.js'
 import { sendRawTransaction } from '../../actions/wallet/sendRawTransaction.js'
+import { sendRawTransactionSync } from '../../actions/wallet/sendRawTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
@@ -24,6 +25,10 @@ import {
 import type { Signer } from '../utils/signTransaction.js'
 import { getActorConfig } from './getActorConfig.js'
 import { getTransactionCount } from './getTransactionCount.js'
+import {
+  type GetTransactionReceiptReturnType,
+  parseReceiptFields,
+} from './getTransactionReceipt.js'
 import { isActor } from './isActor.js'
 
 type FeeOverrides = {
@@ -31,7 +36,7 @@ type FeeOverrides = {
   maxPriorityFeePerGas?: bigint | undefined
 }
 
-export type PrepareTransactionParameters = FeeOverrides & {
+export type PrepareTransactionRequestParameters = FeeOverrides & {
   account: ToAccountReturnType
   /** Ordered call phases. */
   calls: AaCalls
@@ -85,9 +90,9 @@ async function resolveSigningScope(
  * `eth_getTransactionCount`'s 2D channel-nonce extension), and EIP-1559 fees
  * from the client when not provided.
  */
-export async function prepareTransaction(
+export async function prepareTransactionRequest(
   client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: PrepareTransactionParameters,
+  parameters: PrepareTransactionRequestParameters,
 ): Promise<TransactionSerializable8130> {
   const { account, calls, accountChanges, payer, gas } = parameters
 
@@ -173,7 +178,7 @@ export async function prepareTransaction(
   }
 }
 
-export type SendCallsParameters = FeeOverrides & {
+type SendTransactionBaseParameters = FeeOverrides & {
   account: ToAccountReturnType
   /**
    * Calls to execute. A flat list runs as a single atomic phase; pass a nested
@@ -203,23 +208,18 @@ export type SendCallsParameters = FeeOverrides & {
   /**
    * Invoked with the fully-resolved transaction just before it is signed and
    * sent. Use it to thread the resolved `validBefore` (which may be auto-computed
-   * for nonce-free sends) into `waitForTransactionReceipt` without re-preparing:
-   *
-   * ```ts
-   * let validBefore: bigint | undefined
-   * const hash = await sendCalls(client, {
-   *   ...params,
-   *   onTransaction: (tx) => { validBefore = tx.validBefore },
-   * })
-   * await waitForTransactionReceipt(client, { hash, validBefore })
-   * ```
+   * for nonce-free sends) into `waitForTransactionReceipt` without re-preparing.
    */
   onTransaction?:
     | ((transaction: TransactionSerializable8130) => void)
     | undefined
 }
 
-function toPhases(calls: SendCallsParameters['calls']): AaCalls {
+export type SendTransactionParameters = SendTransactionBaseParameters
+
+export type SendTransactionReturnType = Hex
+
+function toPhases(calls: SendTransactionBaseParameters['calls']): AaCalls {
   if (calls.length === 0) return []
   // Already phased (array of arrays)?
   if (Array.isArray(calls[0])) return calls as AaCalls
@@ -227,24 +227,16 @@ function toPhases(calls: SendCallsParameters['calls']): AaCalls {
 }
 
 /**
- * Sends an EIP-8130 (`AA_TX_TYPE`) transaction for an account: prepares the
- * transaction body, signs `sender_auth` (and `payer_auth` when sponsored),
- * serializes, and submits via `eth_sendRawTransaction`.
- *
- * @example
- * const hash = await sendCalls(client, {
- *   account,
- *   calls: [{ to, data }],
- *   gas: 200_000n,
- * })
+ * Prepares, signs, and serializes an EIP-8130 (`AA_TX_TYPE`) transaction.
+ * Shared by {@link sendTransaction} and {@link sendTransactionSync}.
  */
-export async function sendCalls(
+async function prepareAndSign(
   client: Client<Transport, Chain | undefined, Account | undefined>,
-  parameters: SendCallsParameters,
+  parameters: SendTransactionBaseParameters,
 ): Promise<Hex> {
   const { account, calls, payer, encodeExecute, onTransaction, ...rest } =
     parameters
-  const transaction = await prepareTransaction(client, {
+  const transaction = await prepareTransactionRequest(client, {
     ...rest,
     account,
     calls: encodeWalletCalls({
@@ -255,12 +247,67 @@ export async function sendCalls(
     payer,
   })
   onTransaction?.(transaction)
-  const serializedTransaction = await account.signTransaction(transaction, {
-    payer,
-  })
+  return account.signTransaction(transaction, { payer })
+}
+
+/**
+ * Sends an EIP-8130 (`AA_TX_TYPE`) transaction for an account: prepares the
+ * transaction body, signs `sender_auth` (and `payer_auth` when sponsored),
+ * serializes, and submits via `eth_sendRawTransaction`.
+ *
+ * @example
+ * const hash = await sendTransaction(client, {
+ *   account,
+ *   calls: [{ to, data }],
+ *   gas: 200_000n,
+ * })
+ */
+export async function sendTransaction(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: SendTransactionParameters,
+): Promise<SendTransactionReturnType> {
+  const serializedTransaction = await prepareAndSign(client, parameters)
   return getAction(
     client,
     sendRawTransaction,
     'sendRawTransaction',
   )({ serializedTransaction })
+}
+
+export type SendTransactionSyncParameters = SendTransactionBaseParameters & {
+  /** Whether to throw if the transaction reverted. @default true */
+  throwOnReceiptRevert?: boolean | undefined
+  /** Timeout for the synchronous send (ms). */
+  timeout?: number | undefined
+}
+
+export type SendTransactionSyncReturnType =
+  NonNullable<GetTransactionReceiptReturnType>
+
+/**
+ * Sends an EIP-8130 (`AA_TX_TYPE`) transaction and waits for its receipt in a
+ * single round-trip via `eth_sendRawTransactionSync` (EIP-7966). Returns the
+ * receipt with the EIP-8130 fields (`payer`, `phaseStatuses`, `metadata`)
+ * attached. Requires a node that supports synchronous sends.
+ *
+ * @example
+ * const receipt = await sendTransactionSync(client, {
+ *   account,
+ *   calls: [{ to, data }],
+ *   gas: 200_000n,
+ * })
+ * console.log(receipt.eip8130.phaseStatuses) // ['0x1']
+ */
+export async function sendTransactionSync(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  parameters: SendTransactionSyncParameters,
+): Promise<SendTransactionSyncReturnType> {
+  const { throwOnReceiptRevert, timeout, ...rest } = parameters
+  const serializedTransaction = await prepareAndSign(client, rest)
+  const receipt = await getAction(
+    client,
+    sendRawTransactionSync,
+    'sendRawTransactionSync',
+  )({ serializedTransaction, throwOnReceiptRevert, timeout })
+  return { ...receipt, eip8130: parseReceiptFields(receipt as never) } as never
 }

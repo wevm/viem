@@ -4,7 +4,7 @@ description: Estimate, sign, and submit an EIP-8130 AA_TX_TYPE transaction
 
 # Sending a Transaction
 
-An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendCalls` handles the full lifecycle: it fills the nonce and fees, encodes the calls, signs `sender_auth` (and `payer_auth` when sponsored), serializes, and submits via `eth_sendRawTransaction`.
+An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendTransaction` handles the full lifecycle: it fills the nonce and fees, encodes the calls, signs `sender_auth` (and `payer_auth` when sponsored), serializes, and submits via `eth_sendRawTransaction`.
 
 ## Estimate gas
 
@@ -47,7 +47,7 @@ import { parseEther } from 'viem'
 import {
   canonicalAuthenticators,
   estimateGas,
-  sendCalls,
+  sendTransaction,
   waitForTransactionReceipt,
 } from 'viem/eip8130'
 
@@ -60,7 +60,7 @@ const gas = await estimateGas(client, {
   senderAuthVerifier: canonicalAuthenticators.k1,
 })
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   accountChanges: [account.createChange], // deploy — omit on later txs
   calls,
@@ -77,14 +77,14 @@ Once the account is deployed, drop `accountChanges` and just pass `calls`. The n
 
 ```ts
 import { encodeFunctionData } from 'viem'
-import { estimateGas, sendCalls } from 'viem/eip8130'
+import { estimateGas, sendTransaction } from 'viem/eip8130'
 
 const gas = await estimateGas(client, {
   sender: account.address,
   calls: [[{ to: token, data: transferData }]],
 })
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   calls: [{ to: token, data: transferData }],
   gas: (gas * 120n) / 100n,
@@ -96,9 +96,9 @@ const hash = await sendCalls(client, {
 A flat `calls` array runs as one atomic phase. Pass a nested array to control phases explicitly (each phase is a separate `executeBatch`) — see [Calls & Batching](/eip8130/calls-and-batching) for the full phased model:
 
 ```ts
-import { sendCalls } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   calls: [
     { to: tokenA, data: approveData },
@@ -113,9 +113,9 @@ const hash = await sendCalls(client, {
 A `payer` account can co-sign the transaction and pay its gas — either a key you hold or a payer web service:
 
 ```ts
-import { sendCalls } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
 
-const hash = await sendCalls(client, {
+const hash = await sendTransaction(client, {
   account,
   calls: [{ to: recipient, data }],
   gas: 250_000n,
@@ -127,9 +127,9 @@ See [Sponsoring Transactions](/eip8130/sponsoring-transactions) for the co-signi
 
 ## Lower-level control
 
-`sendCalls` composes two primitives you can use directly:
+`sendTransaction` composes two primitives you can use directly:
 
-- `prepareTransaction(client, params)` — fills chain id, nonce sequence, and EIP-1559 fees into a `TransactionSerializable8130`.
+- `prepareTransactionRequest(client, params)` — fills chain id, nonce sequence, and EIP-1559 fees into a `TransactionSerializable8130`.
 - `account.signTransaction(tx, { payer })` — produces the `sender_auth`/`payer_auth` blobs and returns the serialized envelope, which you can submit with `sendRawTransaction`.
 
 ## Next

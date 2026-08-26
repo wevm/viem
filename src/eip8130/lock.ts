@@ -32,7 +32,7 @@ import type { AaLock, AaUnlock } from './types/transaction.js'
  *   signAccountChanges,
  *   encodeApplySignedAccountChangesData,
  *   getConfigSequence,
- *   sendCalls,
+ *   sendTransaction,
  * } from 'viem/eip8130'
  *
  * const { local } = await getConfigSequence(client, { account })
@@ -45,7 +45,7 @@ import type { AaLock, AaUnlock } from './types/transaction.js'
  *   changes: [lockChange({ unlockDelay: 3600 })],
  * })
  * const data = encodeApplySignedAccountChangesData({ account, ...entry })
- * await sendCalls(client, { account, calls: [{ to: keystoreAddress, data }], gas })
+ * await sendTransaction(client, { account, calls: [{ to: keystoreAddress, data }], gas })
  * ```
  */
 
