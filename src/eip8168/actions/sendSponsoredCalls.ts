@@ -20,8 +20,8 @@ import type { PayerClient } from '../client.js'
 import type {
   GetTermsReturnType,
   PayerRejectedData,
-  SendTransactionReturnType,
-  SignTransactionReturnType,
+  PayerSendTransactionReturnType,
+  PayerSignTransactionReturnType,
 } from '../types.js'
 import {
   buildSponsoredCalls,
@@ -143,8 +143,8 @@ export type SendSponsoredCallsParameters = {
 }
 
 export type SendSponsoredCallsReturnType =
-  | SendTransactionReturnType
-  | SignTransactionReturnType
+  | PayerSendTransactionReturnType
+  | PayerSignTransactionReturnType
 
 /**
  * End-to-end ERC-8168 sponsored-transaction flow:

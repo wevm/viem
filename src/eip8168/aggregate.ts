@@ -8,11 +8,11 @@ import type {
   GetTermsParameters,
   GetTermsReturnType,
   PayerBalance,
+  PayerSendTransactionParameters,
+  PayerSendTransactionReturnType,
+  PayerSignTransactionParameters,
+  PayerSignTransactionReturnType,
   PaymentOption,
-  SendTransactionParameters,
-  SendTransactionReturnType,
-  SignTransactionParameters,
-  SignTransactionReturnType,
 } from './types.js'
 import { isSelectableOffer } from './utils/buildSponsoredCalls.js'
 
@@ -146,14 +146,14 @@ export function createAggregatePayerClient(
     },
 
     async sendTransaction(
-      params: SendTransactionParameters,
-    ): Promise<SendTransactionReturnType> {
+      params: PayerSendTransactionParameters,
+    ): Promise<PayerSendTransactionReturnType> {
       return route(params.signedTransaction).sendTransaction(params)
     },
 
     async signTransaction(
-      params: SignTransactionParameters,
-    ): Promise<SignTransactionReturnType> {
+      params: PayerSignTransactionParameters,
+    ): Promise<PayerSignTransactionReturnType> {
       return route(params.signedTransaction).signTransaction(params)
     },
 

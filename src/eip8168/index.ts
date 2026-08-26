@@ -6,6 +6,17 @@ export {
   sendSponsoredCalls,
 } from './actions/sendSponsoredCalls.js'
 export {
+  type PaymasterServiceCapability,
+  type PrepareTransactionCapabilities,
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+  type SendTransactionCapabilities,
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
+} from './actions/sendTransaction.js'
+export {
   type CreateAggregatePayerClientParameters,
   createAggregatePayerClient,
 } from './aggregate.js'
@@ -43,12 +54,12 @@ export type {
   PayerRejectedData,
   PayerRequote,
   PayerRpcCall,
+  PayerSendTransactionParameters,
+  PayerSendTransactionReturnType,
+  PayerSignTransactionParameters,
+  PayerSignTransactionReturnType,
   PaymentOption,
   RefundPolicy,
-  SendTransactionParameters,
-  SendTransactionReturnType,
-  SignTransactionParameters,
-  SignTransactionReturnType,
   SponsoredOffer,
   SponsoredOfferDeclined,
   SponsoredOfferSelectable,

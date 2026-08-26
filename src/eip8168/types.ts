@@ -277,22 +277,26 @@ export type TokenCharged = {
   estimatedRefund?: Hex | undefined
 }
 
-export type SendTransactionParameters = {
+/** Params for the `payer_sendTransaction` RPC method (payer co-signs + submits). */
+export type PayerSendTransactionParameters = {
   signedTransaction: Hex
   context?: Record<string, unknown> | undefined
 }
 
-export type SendTransactionReturnType = {
+/** Return of the `payer_sendTransaction` RPC method. */
+export type PayerSendTransactionReturnType = {
   transactionHash: Hex
   tokenCharged?: TokenCharged | undefined
 }
 
-export type SignTransactionParameters = {
+/** Params for the `payer_signTransaction` RPC method (payer co-signs only). */
+export type PayerSignTransactionParameters = {
   signedTransaction: Hex
   context?: Record<string, unknown> | undefined
 }
 
-export type SignTransactionReturnType = {
+/** Return of the `payer_signTransaction` RPC method. */
+export type PayerSignTransactionReturnType = {
   signedTransaction: Hex
   tokenCharged?: TokenCharged | undefined
 }

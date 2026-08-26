@@ -9,10 +9,10 @@ import type {
   GetSponsorshipBalanceReturnType,
   GetTermsParameters,
   GetTermsReturnType,
-  SendTransactionParameters,
-  SendTransactionReturnType,
-  SignTransactionParameters,
-  SignTransactionReturnType,
+  PayerSendTransactionParameters,
+  PayerSendTransactionReturnType,
+  PayerSignTransactionParameters,
+  PayerSignTransactionReturnType,
 } from './types.js'
 
 /** JSON-RPC schema for the ERC-8168 `payer_*` methods. */
@@ -24,13 +24,13 @@ export type PayerRpcSchema = [
   },
   {
     Method: 'payer_sendTransaction'
-    Parameters: [SendTransactionParameters]
-    ReturnType: SendTransactionReturnType
+    Parameters: [PayerSendTransactionParameters]
+    ReturnType: PayerSendTransactionReturnType
   },
   {
     Method: 'payer_signTransaction'
-    Parameters: [SignTransactionParameters]
-    ReturnType: SignTransactionReturnType
+    Parameters: [PayerSignTransactionParameters]
+    ReturnType: PayerSignTransactionReturnType
   },
   {
     Method: 'payer_getSponsorshipBalance'
@@ -60,16 +60,16 @@ export type PayerClient = {
    * hash). REQUIRED on every payer.
    */
   sendTransaction(
-    parameters: SendTransactionParameters,
-  ): Promise<SendTransactionReturnType>
+    parameters: PayerSendTransactionParameters,
+  ): Promise<PayerSendTransactionReturnType>
   /**
    * Co-sign a sender-signed EIP-8130 transaction and return the bytes without
    * submitting. OPTIONAL — only call when the picked offer advertises it via
    * `methods`. Returns JSON-RPC `-32601` when unimplemented.
    */
   signTransaction(
-    parameters: SignTransactionParameters,
-  ): Promise<SignTransactionReturnType>
+    parameters: PayerSignTransactionParameters,
+  ): Promise<PayerSignTransactionReturnType>
   /**
    * Standing, intent-free balances (sponsorship allowance / prepaid credit).
    * OPTIONAL.
@@ -102,13 +102,13 @@ function payerClientFromRequest(request: PayerRequestFn): PayerClient {
       return request({
         method: 'payer_sendTransaction',
         params: [params],
-      }) as Promise<SendTransactionReturnType>
+      }) as Promise<PayerSendTransactionReturnType>
     },
     signTransaction(params) {
       return request({
         method: 'payer_signTransaction',
         params: [params],
-      }) as Promise<SignTransactionReturnType>
+      }) as Promise<PayerSignTransactionReturnType>
     },
     getSponsorshipBalance(params) {
       return request({
