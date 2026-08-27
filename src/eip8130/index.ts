@@ -110,6 +110,7 @@ export {
   supportedSignerTypes,
   supportedSubAccountKeyTypes,
 } from './capabilities.js'
+export { eip8130ChainConfig } from './chainConfig.js'
 export {
   eip8130ChainIds,
   type Is8130EnabledParameters,
