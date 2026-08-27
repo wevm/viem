@@ -1,0 +1,170 @@
+---
+description: Initialize a native multisig and send transactions with independent owner approvals.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send Multisig Transactions
+
+## Overview
+
+This guide creates a 2-of-2 multisig, prepares one request, and collects each owner approval
+independently. The same flow works for the first and every subsequent transaction.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) and funded the derived multisig
+address with a fee token.
+
+### Create the Account
+
+Use owner addresses when each owner signs in a separate wallet, device, or service.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+const account = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+```
+
+### Prepare, Sign, and Send
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import {
+  prepareTransactionRequest,
+  sendTransaction,
+  signTransaction,
+} from 'viem/actions'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const account = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+
+// Prepare once with the multisig account as the sender.
+const request = await prepareTransactionRequest(client, {
+  account,
+  calls: [
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
+  ],
+})
+
+// Each owner signs the same prepared request independently.
+const signatures = await Promise.all(
+  [owner_1, owner_2].map((owner) =>
+    signTransaction(client, { ...request, account: owner })
+  )
+)
+
+// The prepared request already carries the multisig account.
+const hash = await sendTransaction(client, {
+  ...request,
+  signatures,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The first transaction includes the initial config automatically. On subsequent requests, Viem
+reads the current config version during preparation. You do not need to provide an initialization
+flag, version, or signature count.
+
+### Aggregate Local Owners
+
+For scripts and test environments that hold every owner locally, pass the owner accounts directly.
+The multisig account can then collect their approvals during `signTransaction`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import {
+  prepareTransactionRequest,
+  sendRawTransaction,
+  signTransaction,
+} from 'viem/actions'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const account = Account.fromMultisig({
+  owners: [owner_1, owner_2],
+  threshold: 2,
+})
+
+const request = await prepareTransactionRequest(client, {
+  account,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  value: 1n,
+})
+const serializedTransaction = await signTransaction(client, request)
+const hash = await sendRawTransaction(client, { serializedTransaction })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Sign Independently Across Trust Boundaries
+
+Use independent owner signing when private keys live in separate wallets, devices, or services.
+Only aggregate local owners when one trusted environment intentionally holds every signer.
+
+### Do Not Modify a Signed Request
+
+Every owner must sign the same prepared request. If any transaction field changes, prepare a new
+request and collect every approval again.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:scale"
+    title="Weighted Owners"
+    description="Configure M-of-N approvals or assign different weights to owners."
+    to="/tempo/guides/multisig/weighted-owners"
+  />
+  <Card
+    icon="lucide:hand-coins"
+    title="Sponsor Fees"
+    description="Pay multisig transaction fees with a separate account."
+    to="/tempo/guides/multisig/sponsor-fees"
+  />
+  <Card
+    icon="lucide:wallet-cards"
+    title="Account.fromMultisig"
+    description="Create a native multisig account from its initial configuration."
+    to="/tempo/accounts/account.fromMultisig"
+  />
+</Cards>

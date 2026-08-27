@@ -10,6 +10,7 @@ import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
+import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
 import * as receivePolicyActions from './actions/receivePolicy.js'
@@ -1763,14 +1764,14 @@ type DecoratorBase<
     createStackSync: (
       parameters: earnActions.createStackSync.Parameters<chain, account>,
     ) => Promise<earnActions.createStackSync.ReturnValue>
-    /** Binds an ERC-4626 engine to its EarnVault. */
-    bindErc4626Engine: (
-      parameters: earnActions.bindErc4626Engine.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626Engine.ReturnValue>
-    /** Binds an ERC-4626 engine and waits for confirmation. */
-    bindErc4626EngineSync: (
-      parameters: earnActions.bindErc4626EngineSync.Parameters<chain, account>,
-    ) => Promise<earnActions.bindErc4626EngineSync.ReturnValue>
+    /** Binds an engine to its EarnVault. */
+    bindEngine: (
+      parameters: earnActions.bindEngine.Parameters<chain, account>,
+    ) => Promise<earnActions.bindEngine.ReturnValue>
+    /** Binds an engine and waits for confirmation. */
+    bindEngineSync: (
+      parameters: earnActions.bindEngineSync.Parameters<chain, account>,
+    ) => Promise<earnActions.bindEngineSync.ReturnValue>
     /** Deploys and binds a complete, resumable ERC-4626 Earn stack. */
     deployErc4626StackSync: (
       parameters: earnActions.deployErc4626StackSync.Parameters<chain, account>,
@@ -1926,8 +1927,8 @@ type DecoratorBase<
      *   assetToken: '0x...',
      *   gateway: '0x...',
      *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
      *   shareAmountMin: 99_500_000n,
+     *   tempoRefundRecipient: '0x...',
      *   vault: '0x...',
      *   vaultAssetAmountMin: 99_000_000n,
      *   zoneId: 7,
@@ -2157,9 +2158,9 @@ type DecoratorBase<
      * const prepared = await parentClient.earn.privateRedeem.prepare({
      *   gateway: '0x...',
      *   recipient: '0x...',
-     *   recoveryRecipient: '0x...',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
+     *   tempoRefundRecipient: '0x...',
      *   vault: '0x...',
      *   zoneId: 7,
      * })
@@ -2362,6 +2363,44 @@ type DecoratorBase<
     fundSync: (
       parameters: faucetActions.fundSync.Parameters,
     ) => Promise<faucetActions.fundSync.ReturnValue>
+  }
+  multisig: {
+    /**
+     * Gets the current configuration for an initialized multisig account.
+     *
+     * @param parameters - Parameters.
+     * @returns The current version, threshold, and owners.
+     */
+    getConfig: (
+      parameters: multisigActions.getConfig.Parameters,
+    ) => Promise<multisigActions.getConfig.ReturnValue>
+    /**
+     * Checks whether an address is an initialized native multisig account.
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the account is initialized.
+     */
+    isInitialized: (
+      parameters: multisigActions.isInitialized.Parameters,
+    ) => Promise<multisigActions.isInitialized.ReturnValue>
+    /**
+     * Replaces the current configuration for a native multisig account.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The transaction hash.
+     */
+    updateConfig: (
+      parameters: multisigActions.updateConfig.Parameters<chain, account>,
+    ) => Promise<multisigActions.updateConfig.ReturnValue>
+    /**
+     * Replaces a native multisig configuration and waits for confirmation.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The update event and transaction receipt.
+     */
+    updateConfigSync: (
+      parameters: multisigActions.updateConfigSync.Parameters<chain, account>,
+    ) => Promise<multisigActions.updateConfigSync.ReturnValue>
   }
   nonce: {
     /**
@@ -5473,16 +5512,31 @@ type DecoratorBase<
       parameters: zoneActions.getEncryptionKey.Parameters,
     ) => Promise<zoneActions.getEncryptionKey.ReturnValue>
     /**
+     * Gets metadata and configuration for a zone portal.
+     *
+     * @example
+     * ```ts
+     * const info = await client.zone.getPortalInfo({
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The portal metadata and configuration.
+     */
+    getPortalInfo: (
+      parameters: zoneActions.getPortalInfo.Parameters,
+    ) => Promise<zoneActions.getPortalInfo.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5498,11 +5552,10 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5521,11 +5574,10 @@ type DecoratorBase<
      * @example
      * ```ts
      * import { createClient } from 'viem'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5552,12 +5604,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5596,12 +5647,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5666,12 +5716,11 @@ type DecoratorBase<
      * ```ts
      * import { createClient } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
-     * import { http, zoneModerato } from 'viem/tempo/zones'
-     * import { tempoActions } from 'viem/tempo'
+     * import { http, tempoActions, Zone } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: zoneModerato(7),
+     *   chain: Zone.a,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -5783,6 +5832,10 @@ export type Decorator<
     DecoratorBase<chain, account>['faucet'],
     typeof faucetActions
   >
+  multisig: DecorateNamespace<
+    DecoratorBase<chain, account>['multisig'],
+    typeof multisigActions
+  >
   nonce: DecorateNamespace<
     DecoratorBase<chain, account>['nonce'],
     typeof nonceActions
@@ -5854,6 +5907,7 @@ export function decorator() {
         'getRemainingLimit',
         'isAdmin',
         'isWitnessBurned',
+        'prepareAuthorization',
         'revoke',
         'revokeSync',
         'signAuthorization',
@@ -5922,8 +5976,8 @@ export function decorator() {
         'watchOrderPlaced',
       ]),
       earn: bindActions(client, earnActions, [
-        'bindErc4626Engine',
-        'bindErc4626EngineSync',
+        'bindEngine',
+        'bindEngineSync',
         'configureExitSafePolicy',
         'createErc4626Engine',
         'createErc4626EngineSync',
@@ -5952,6 +6006,12 @@ export function decorator() {
         'withdrawExactSync',
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
+      multisig: bindActions(client, multisigActions, [
+        'getConfig',
+        'isInitialized',
+        'updateConfig',
+        'updateConfigSync',
+      ]),
       nonce: bindActions(client, nonceActions, [
         'getNonce',
         'watchNonceIncremented',
@@ -6094,6 +6154,7 @@ export function decorator() {
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
         'getEncryptionKey',
+        'getPortalInfo',
         'getWithdrawalFee',
         'getZoneInfo',
         'requestWithdrawal',

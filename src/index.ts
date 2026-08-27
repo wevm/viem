@@ -1036,6 +1036,8 @@ export {
 export {
   FeeConflictError,
   type FeeConflictErrorType,
+  FeePayerNonceMismatchError,
+  type FeePayerNonceMismatchErrorType,
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
   InvalidSerializableTransactionError,

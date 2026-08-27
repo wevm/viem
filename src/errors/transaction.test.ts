@@ -7,6 +7,7 @@ import { polygon } from '../chains/index.js'
 import { BaseError } from './base.js'
 import {
   FeeConflictError,
+  FeePayerNonceMismatchError,
   InvalidLegacyVError,
   InvalidSerializableTransactionError,
   InvalidSerializedTransactionError,
@@ -98,6 +99,22 @@ test('FeeConflictError', () => {
   expect(new FeeConflictError()).toMatchInlineSnapshot(`
     [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
     Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('FeePayerNonceMismatchError', () => {
+  expect(
+    new FeePayerNonceMismatchError({
+      filledNonce: 2,
+      requestedNonce: 1,
+    }),
+  ).toMatchInlineSnapshot(`
+    [FeePayerNonceMismatchError: The filled transaction nonce does not match the requested nonce.
+
+    Requested Nonce: 1
+    Filled Nonce: 2
 
     Version: viem@x.y.z]
   `)

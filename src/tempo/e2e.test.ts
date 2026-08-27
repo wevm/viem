@@ -41,17 +41,17 @@ function feeTokenLimits(limit: bigint, period?: number) {
 describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
   test('default', async () => {
     const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
-      token: addresses.pathUsd,
       amount: 1n,
-      bouncebackRecipient: accounts[0].address,
+      memo: Hex.fromNumber(1n, { size: 32 }),
       recipient: accounts[0].address,
       sender: accounts[0].address,
-      memo: Hex.fromNumber(1n, { size: 32 }),
-      zoneId: 7,
+      tempoRefundRecipient: accounts[0].address,
+      token: addresses.pathUsd,
+      zoneId: 3,
     })
 
     expect(prepared.amount).toBe(1n)
-    expect(prepared.bouncebackRecipient).toBe(accounts[0].address)
+    expect(prepared.tempoRefundRecipient).toBe(accounts[0].address)
     expect(prepared.chainId).toBe(chain.id)
     expect(prepared.encrypted.ciphertext).toBeDefined()
     expect(prepared.encrypted.ephemeralPubkeyX).toBeDefined()
@@ -60,7 +60,7 @@ describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
     expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(prepared.portalAddress).toBeDefined()
     expect(prepared.token).toBe(addresses.pathUsd)
-    expect(prepared.zoneId).toBe(7)
+    expect(prepared.zoneId).toBe(3)
   })
 })
 

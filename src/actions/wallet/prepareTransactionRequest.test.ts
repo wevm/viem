@@ -10,8 +10,10 @@ import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFe
 import {
   BaseError,
   createClient,
+  FeePayerNonceMismatchError,
   http,
   MethodNotFoundRpcError,
+  TransactionExecutionError,
   toBlobs,
 } from '../../index.js'
 import { defineChain, nonceManager } from '../../utils/index.js'
@@ -2232,6 +2234,30 @@ describe('behavior: attemptFill', () => {
 
     expect(fillTransactionSpy).toHaveBeenCalledOnce()
     expect((request as any).feePayerSignature).toBeDefined()
+  })
+
+  test('error: rejects fee-payer-signed nonce mismatch', async () => {
+    vi.spyOn(fillTransaction, 'fillTransaction').mockRejectedValueOnce(
+      new TransactionExecutionError(
+        new FeePayerNonceMismatchError({
+          filledNonce: 2,
+          requestedNonce: 1,
+        }),
+        { account: null } as never,
+      ),
+    )
+
+    await expect(
+      prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        feePayer: true,
+        nonce: 1,
+        parameters: ['nonce'],
+        to: targetAccount.address,
+      } as never),
+    ).rejects.toThrow(
+      'The filled transaction nonce does not match the requested nonce.',
+    )
   })
 
   test('behavior: do not attempt fill when all parameters are already provided', async () => {

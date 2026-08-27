@@ -36,6 +36,7 @@ minimumReleaseAgeExclude:
   - '@hono/node-server@2.0.10'
 
 autoInstallPeers: false
+blockExoticSubdeps: false
 enablePrePostScripts: true
 provenance: true
 strictPeerDependencies: false
@@ -49,6 +50,7 @@ auditConfig:
     - GHSA-jmr9-qjv8-65gv
 
 overrides:
+  ox: 0.14.34
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -87,7 +89,7 @@ overrides:
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
   micromatch@<4.0.8: ^4.0.8
   minimatch: '>=10.2.3'
-  nanoid@>=3.0.0 <3.3.17: 3.3.17
+  nanoid@>=3.0.0 <3.3.18: 3.3.18
   nanoid@>=4.0.0 <5.1.16: 5.1.16
   next@>=15.6.0-canary.0 <16.1.5: '>=16.1.5'
   next@>=16.0.0-beta.0 <16.1.5: '>=16.1.5'

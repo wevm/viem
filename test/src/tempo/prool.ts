@@ -17,8 +17,7 @@ import { createCustomTempo } from './prool.tmp.js'
 export const port = 9545
 
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyHardfork =
-  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const legacyHardfork = hardfork === 'T9'
 
 /** Dev key used to provision and administer local Zones. */
 export const zoneAdminKey = legacyHardfork
@@ -112,8 +111,6 @@ export type Zone = {
   chainId: number
   /** ZoneFactory address on the parent (L1) chain. */
   factoryAddress: `0x${string}`
-  /** Portal address on the parent (L1) chain. */
-  portalAddress: `0x${string}`
   /** Private (authenticated) zone RPC URL. */
   privateRpcUrl: string
   /** Public zone RPC URL. */
@@ -204,10 +201,7 @@ async function startZone(
     dev: {
       // Native T10 genesis assigns the factory to Anvil #0. Pre-T10 provisioning uses Anvil #1.
       key: zoneAdminKey,
-      ...(import.meta.env.VITE_TEMPO_HARDFORK !== 'T7' &&
-      import.meta.env.VITE_TEMPO_HARDFORK !== 'T8'
-        ? { token: pathUsd }
-        : {}),
+      token: pathUsd,
     },
     image,
     l1: {
@@ -231,10 +225,7 @@ async function startZone(
   const factoryAddress = logs.match(
     /ZoneFactory:\s+(0x[0-9a-fA-F]{40})/,
   )?.[1] as `0x${string}` | undefined
-  const portalAddress = logs.match(/Portal:\s+(0x[0-9a-fA-F]{40})/)?.[1] as
-    | `0x${string}`
-    | undefined
-  if (!zoneId || !chainId || !factoryAddress || !portalAddress) {
+  if (!zoneId || !chainId || !factoryAddress) {
     await instance.stop().catch(() => {})
     throw new Error(`Failed to parse zone provisioning output:\n\n${logs}`)
   }
@@ -250,7 +241,6 @@ async function startZone(
   return {
     chainId,
     factoryAddress,
-    portalAddress,
     privateRpcUrl: `http://${privateRpc.host}:${privateRpc.port}`,
     rpcUrl: `http://${instance.host}:${instance.port}`,
     stop: () => instance.stop(),

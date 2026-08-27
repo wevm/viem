@@ -1,0 +1,175 @@
+---
+description: Authorize and use an access key from a native multisig account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Authorize an Access Key
+
+## Overview
+
+A multisig quorum can authorize an access key. The access key then signs later transactions for
+the multisig account, subject to the authorization's expiry, scopes, and spending limits.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Authorize and Use the Key
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const account = Account.fromMultisig({
+  owners: [owner_1, owner_2],
+  threshold: 2,
+})
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await client.accessKey.signAuthorization({
+  account,
+  accessKey,
+})
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  amount: 100n,
+  keyAuthorization,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+If the multisig is uninitialized, the authorization carries its initial config and this first
+access-key transaction initializes the account. If the multisig is already initialized,
+[`signAuthorization`](/tempo/actions/accessKey.signAuthorization) resolves its current version
+before the owners sign.
+
+### Collect Owner Approvals Separately
+
+When owners sign on separate devices or services, instantiate the multisig with owner addresses.
+Prepare the authorization once, collect signatures over its `signPayload`, and pass the serialized
+approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const account = Account.fromMultisig({
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const authorization = await client.accessKey.prepareAuthorization({
+  account,
+  accessKey,
+})
+const signatures = await Promise.all(
+  [owner_1, owner_2].map((owner) =>
+    owner.sign({ hash: authorization.signPayload })
+  )
+)
+const keyAuthorization = await client.accessKey.signAuthorization({
+  ...authorization,
+  signatures,
+})
+
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  amount: 100n,
+  keyAuthorization,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Use the Authorized Key Again
+
+After the authorization is registered, prepare future requests under the access key without
+passing `keyAuthorization` again.
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare const account: Account.MultisigAccount
+
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  amount: 100n,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+## Best Practices
+
+### Keep Owner Signers Separate
+
+Use the separate-approval recipe when owners do not share a trust boundary. Each owner should
+validate the multisig account, access key, chain, expiry, scopes, and spending limits before
+signing `signPayload`.
+
+### Restrict the Access Key
+
+Set an expiry, call scopes, and spending limits that match the key's purpose. Revoke the key when
+it is no longer needed.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Access Keys"
+    description="Configure limits, scopes, admin keys, and revocation."
+    to="/tempo/guides/access-keys"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="accessKey.signAuthorization"
+    description="Sign a key authorization without submitting a transaction."
+    to="/tempo/actions/accessKey.signAuthorization"
+  />
+  <Card
+    icon="lucide:coins"
+    title="token.transfer"
+    description="Transfer TIP-20 tokens with the authorized access key."
+    to="/tempo/actions/token.transfer"
+  />
+</Cards>

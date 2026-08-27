@@ -28,7 +28,7 @@
 | [`channel.topUp`](/tempo/actions/channel.topUp) | Adds deposit to a TIP-20 channel |
 | [`channel.withdraw`](/tempo/actions/channel.withdraw) | Withdraws payer funds after the close grace period |
 | **Earn Actions** | |
-| [`earn.bindErc4626Engine`](/tempo/actions/earn.bindErc4626Engine) | Permanently binds an ERC-4626 engine to its EarnVault |
+| [`earn.bindEngine`](/tempo/actions/earn.bindEngine) | Permanently binds an engine to its EarnVault |
 | [`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) | Configures an admission-only policy for an Earn share token |
 | [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine) | Deploys a deterministic ERC-4626 engine |
 | [`earn.createStack`](/tempo/actions/earn.createStack) | Deploys EarnShare, EarnVault, and EarnFees contracts |
@@ -54,6 +54,11 @@
 | [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets the user's default fee token preference |
 | [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the user's default fee token preference |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
+| **Multisig Actions** | |
+| [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets an initialized multisig account's current configuration |
+| [`multisig.isInitialized`](/tempo/actions/multisig.isInitialized) | Checks whether a multisig account is initialized |
+| [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) | Replaces a multisig account's current configuration |
+| [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync) | Replaces a multisig account's current configuration and waits for confirmation |
 | **Nonce Actions** | |
 | [`nonce.getNonce`](/tempo/actions/nonce.getNonce) | Gets the nonce for an account and nonce key |
 | [`nonce.watchNonceIncremented`](/tempo/actions/nonce.watchNonceIncremented) | Watches for nonce incremented events |
@@ -155,6 +160,7 @@
 | [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone with encrypted recipient and memo |
 | [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Gets the authenticated account and expiry from the current authorization token |
 | [`zone.getEncryptionKey`](/tempo/actions/zone.getEncryptionKey) | Gets the active sequencer encryption key and index |
+| [`zone.getPortalInfo`](/tempo/actions/zone.getPortalInfo) | Gets metadata and configuration for a zone portal |
 | [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) | Gets the withdrawal fee for a given gas limit |
 | [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Gets metadata about the current zone |
 | [`zone.requestVerifiableWithdrawal`](/tempo/actions/zone.requestVerifiableWithdrawal) | Requests a verifiable withdrawal from a zone to the parent Tempo chain |

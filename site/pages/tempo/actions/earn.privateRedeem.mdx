@@ -20,9 +20,9 @@ import { client as zoneClient } from './zones.config'
 const prepared = await parentClient.earn.privateRedeem.prepare({
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
   slippageBps: 50,
+  tempoRefundRecipient: parentClient.account.address,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
 })
@@ -58,8 +58,8 @@ const prepared = await parentClient.earn.privateRedeem.prepare({
   assetAmountMin: 99_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
   shareAmount: 100_000_000n,
+  tempoRefundRecipient: parentClient.account.address,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
 })
@@ -140,7 +140,7 @@ Gas reserved for the parent-chain gateway callback.
 ### fallbackRecipient (optional)
 
 - **Type:** `Address`
-- **Default:** `recoveryRecipient`
+- **Default:** `tempoRefundRecipient`
 
 Public recipient if the parent-chain gateway callback fails.
 
@@ -163,12 +163,6 @@ Source Zone portal on the parent chain.
 
 Encrypted Zone recipient for the returned assets.
 
-### recoveryRecipient
-
-- **Type:** `Address`
-
-Public Tempo recipient if the encrypted return deposit fails.
-
 ### returnMemo (optional)
 
 - **Type:** `Hex`
@@ -186,6 +180,12 @@ Earn shares withdrawn from the Zone, in base units.
 - **Type:** `number`
 
 Slippage tolerance below the provided or live quote, in basis points. For example, `50` means 0.5%.
+
+### tempoRefundRecipient
+
+- **Type:** `Address`
+
+Public Tempo recipient if the encrypted return deposit fails.
 
 ### vault
 

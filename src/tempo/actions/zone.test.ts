@@ -22,7 +22,7 @@ import {
   writeContract,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
-import { Abis, Actions } from 'viem/tempo'
+import { Abis, Actions, Addresses } from 'viem/tempo'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
@@ -32,7 +32,6 @@ import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
   factoryAddress,
   getClient as getZoneClient,
-  portalAddress,
   unredactedRpcUrl,
   http as zoneHttp,
   zoneId,
@@ -40,14 +39,13 @@ import {
 import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
-import * as ZoneAbis from '../zones/Abis.js'
-import { getPortalAddress } from '../zones/zone.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const portalAdmin = privateKeyToAccount(zoneAdminKey)
-const recoveryRecipient = accounts[2].address
+const tempoRefundRecipient = accounts[2].address
+const portalAddress = Addresses.zonePortal(zoneId)
 const mainnetClient = createClient({
   account,
   chain,
@@ -66,8 +64,7 @@ const unredactedZoneClient = getZoneClient({
   transport: zoneHttp(unredactedRpcUrl),
 })
 const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyZoneCallback =
-  hardfork === 'T7' || hardfork === 'T8' || hardfork === 'T9'
+const legacyZoneCallback = hardfork === 'T9'
 const parentToken = '0x20c0000000000000000000000000000000000000'
 const depositParameters = {
   amount: parseUnits('1', 6),
@@ -77,7 +74,6 @@ const depositParameters = {
 } as const
 const preparedEncryptedDeposit = {
   amount: parseUnits('1', 6),
-  bouncebackRecipient: account.address,
   chainId: chain.id,
   encrypted: {
     ciphertext: '0x1234',
@@ -90,14 +86,15 @@ const preparedEncryptedDeposit = {
   keyIndex: 0n,
   portalAddress,
   sender: account.address,
+  tempoRefundRecipient: account.address,
   token: '0x20c0000000000000000000000000000000000000',
   zoneId,
 } satisfies zoneActions.PreparedEncryptedDeposit
 const prepareEncryptedDepositParameters = {
   amount: parseUnits('1', 6),
-  bouncebackRecipient: account.address,
   recipient: account.address,
   sender: account.address,
+  tempoRefundRecipient: account.address,
   token: parentToken,
   zoneId: 7,
 } as const
@@ -144,7 +141,7 @@ async function createUnconfiguredZone() {
       ? await writeContract(portalAdminClient, {
           account: portalAdmin,
           address: factoryAddress,
-          abi: ZoneAbis.zoneFactory,
+          abi: Abis.zoneFactory,
           functionName: 'createZone',
           args: [
             {
@@ -159,12 +156,12 @@ async function createUnconfiguredZone() {
               rpcUrl: 'http://127.0.0.1:0',
             },
           ],
-          gas: 20_000_000n,
+          gas: 30_000_000n,
         })
       : await (async () => {
           const verifier = await readContract(mainnetClient, {
             address: factoryAddress,
-            abi: ZoneAbis.zoneFactory,
+            abi: Abis.zoneFactory,
             functionName: 'verifier',
           })
           const genesisTempoBlockNumber = BigInt(
@@ -173,7 +170,7 @@ async function createUnconfiguredZone() {
           return writeContract(mainnetClient, {
             account,
             address: factoryAddress,
-            abi: ZoneAbis.zoneFactory,
+            abi: Abis.zoneFactory,
             functionName: 'createZone',
             args: [
               {
@@ -189,12 +186,12 @@ async function createUnconfiguredZone() {
                 rpcUrl: 'http://127.0.0.1:0',
               },
             ],
-            gas: 20_000_000n,
+            gas: 30_000_000n,
           })
         })()
   const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
   const [event] = parseEventLogs({
-    abi: ZoneAbis.zoneFactory,
+    abi: Abis.zoneFactory,
     eventName: 'ZoneCreated',
     logs: receipt.logs,
     strict: true,
@@ -211,7 +208,7 @@ async function getPortalCall(hash: Hash) {
   const transaction = await getTransaction(mainnetClient, { hash })
   const call = transaction.calls?.[1]
   if (!call?.data) throw new Error('Portal call is unavailable.')
-  return decodeFunctionData({ abi: ZoneAbis.zonePortal, data: call.data })
+  return decodeFunctionData({ abi: Abis.zonePortal, data: call.data })
 }
 
 describe('zone instance', () => {
@@ -231,7 +228,7 @@ describe('zone instance', () => {
         expect(sameZone).toBe(zone_)
         expect(zone_.zoneId).not.toBe(zoneId)
         expect(zone_.chainId).not.toBe(zoneClient.chain.id)
-        expect(zone_.portalAddress).not.toBe(portalAddress)
+        expect(Addresses.zonePortal(zone_.zoneId)).not.toBe(portalAddress)
 
         const response = await fetch(zone_.rpcUrl, {
           body: JSON.stringify({
@@ -376,6 +373,29 @@ describe('getZoneInfo', () => {
   })
 })
 
+describe('getPortalInfo', () => {
+  test.runIf(!hardfork || hardfork === 'Tnext')('default', async () => {
+    const info = await zoneActions.getPortalInfo(mainnetClient, {
+      portalAddress,
+      zoneId,
+    })
+
+    expect(isAddressEqual(info.admin, portalAdmin.address)).toBe(true)
+    expect(
+      info.enabledTokens.some((token) => isAddressEqual(token, parentToken)),
+    ).toBe(true)
+    expect(info.messenger).toBeDefined()
+    expect(info.pauseExpiry).toBeGreaterThanOrEqual(0n)
+    expect(typeof info.paused).toBe('boolean')
+    expect(info.pendingAdmin).toBeDefined()
+    expect(info.sequencers).toHaveLength(1)
+    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
+    expect(info.sequencerSetVersion).toBe(0n)
+    expect(info.sequencerThreshold).toBe(1)
+    expect(info.verifier).toBeDefined()
+  })
+})
+
 describe('getTokenMetadata', () => {
   test('behavior: supports disabled client multicall', async () => {
     const client = getZoneClient({
@@ -451,14 +471,6 @@ describe('getEncryptionKey', () => {
     expect(result.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(result.publicKey.x).toMatch(/^0x[\da-f]{64}$/)
     expect([2, 3]).toContain(result.publicKey.prefix)
-  })
-
-  test('error: no chain', async () => {
-    const client = createClient({ transport: http() })
-
-    await expect(
-      zoneActions.getEncryptionKey(client, { zoneId: 7 }),
-    ).rejects.toThrow('`chain` is required.')
   })
 
   test.runIf(nodeEnv === 'localnet')(
@@ -558,7 +570,7 @@ describe('encryptedDeposit', () => {
       recipient: account.address,
       zoneId: 7,
     })
-    expect(registryCalls[1].address).toBe(getPortalAddress(tempoModerato.id, 7))
+    expect(registryCalls[1].address).toBe(Addresses.zonePortal(7))
 
     await expect(
       zoneActions.encryptedDeposit(mainnetClient, {
@@ -614,7 +626,7 @@ describe('encryptedDeposit', () => {
     ).rejects.toThrow('`chain` is required.')
   })
 
-  test('behavior: defaults bounceback recipient to account', async () => {
+  test('behavior: defaults Tempo refund recipient to account', async () => {
     const hash = await zoneActions.encryptedDeposit(
       mainnetClient,
       depositParameters,
@@ -683,13 +695,12 @@ describe('encryptedDepositSync', () => {
 })
 
 describe('deposit', () => {
-  test('behavior: encodes bounceback recipient', () => {
+  test('behavior: encodes Tempo refund recipient', () => {
     const parameters = {
       amount: 1n,
-      bouncebackRecipient: account.address,
-      chainId: chain.id,
       portalAddress,
       recipient: account.address,
+      tempoRefundRecipient: account.address,
       token: '0x20c0000000000000000000000000000000000000',
       zoneId,
     } satisfies zoneActions.deposit.Args
@@ -704,14 +715,13 @@ describe('deposit', () => {
     const { portalAddress: _, ...registryParameters } = parameters
     const registryCalls = zoneActions.deposit.calls({
       ...registryParameters,
-      chainId: tempoModerato.id,
       zoneId: 7,
     })
-    expect(registryCalls[1].address).toBe(getPortalAddress(tempoModerato.id, 7))
+    expect(registryCalls[1].address).toBe(Addresses.zonePortal(7))
   })
 
   test.runIf(legacyZoneCallback)(
-    'behavior: defaults bounceback recipient to account',
+    'behavior: defaults Tempo refund recipient to account',
     async () => {
       const client = createClient({
         chain,
@@ -763,37 +773,9 @@ describe('deposit', () => {
       }),
     ).rejects.toThrow('`account` is required.')
   })
-
-  test('error: no chain', async () => {
-    const noChainClient = createClient({
-      account,
-      transport: http(),
-    })
-
-    await expect(
-      zoneActions.deposit(noChainClient, {
-        ...depositParameters,
-        chain: null,
-      }),
-    ).rejects.toThrow('`chain` is required.')
-  })
 })
 
 describe('depositSync', () => {
-  test('error: no chain', async () => {
-    const noChainClient = createClient({
-      account,
-      transport: http(),
-    })
-
-    await expect(
-      zoneActions.depositSync(noChainClient, {
-        ...depositParameters,
-        chain: null,
-      }),
-    ).rejects.toThrow('`chain` is required.')
-  })
-
   test('error: no account', async () => {
     const noAccountClient = createClient({
       chain,
@@ -879,7 +861,7 @@ describe('requestWithdrawal', () => {
     if (!withdrawalCall?.data)
       throw new Error('Prepared withdrawal call is unavailable.')
     const decoded = decodeFunctionData({
-      abi: ZoneAbis.zoneOutbox,
+      abi: Abis.zoneOutbox,
       data: withdrawalCall.data,
     })
     expect(decoded.functionName).toBe('requestWithdrawal')
@@ -938,7 +920,7 @@ describe('requestWithdrawal', () => {
     expect(clientAccountResult.receipt).toEqual(clientAccountReceipt)
     expect(clientAccountResult.receipt.status).toBe('success')
     const [clientAccountEvent] = parseEventLogs({
-      abi: ZoneAbis.zoneOutbox,
+      abi: Abis.zoneOutbox,
       logs: clientAccountResult.receipt.logs,
       eventName: 'WithdrawalRequested',
       strict: true,
@@ -978,7 +960,7 @@ describe('requestWithdrawal', () => {
     expect(explicitAccountResult.receipt).toEqual(explicitAccountReceipt)
     expect(explicitAccountResult.receipt.status).toBe('success')
     const [explicitAccountEvent] = parseEventLogs({
-      abi: ZoneAbis.zoneOutbox,
+      abi: Abis.zoneOutbox,
       logs: explicitAccountResult.receipt.logs,
       eventName: 'WithdrawalRequested',
       strict: true,
@@ -1203,8 +1185,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmountMin: 2n,
+          tempoRefundRecipient,
         },
       )
       const [swappedDepositCallback] = decodeAbiParameters(
@@ -1225,8 +1207,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmountMin: 4n,
+          tempoRefundRecipient,
           vaultAssetAmountMin: 3n,
         },
       )
@@ -1250,9 +1232,9 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           returnMemo: keccak256('0x02'),
           shareAmountMin: 1n,
+          tempoRefundRecipient,
           vaultAssetAmountMin: 2n,
           withdrawalMemo: keccak256('0x03'),
         },
@@ -1279,7 +1261,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           depositCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       await expect(
@@ -1326,8 +1308,8 @@ describe('earn', () => {
           assetToken: addresses.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           shareAmount: 1n,
+          tempoRefundRecipient,
         },
       )
       const [swappedRedeemCallback] = decodeAbiParameters(
@@ -1349,10 +1331,10 @@ describe('earn', () => {
           fallbackRecipient: accounts[2].address,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
           returnMemo: keccak256('0x05'),
           shareAmount: shareBalance.amount,
           slippageBps: 0,
+          tempoRefundRecipient,
           withdrawalMemo: keccak256('0x06'),
         },
       )
@@ -1378,7 +1360,7 @@ describe('earn', () => {
       expect(
         isAddressEqual(
           redeemCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(

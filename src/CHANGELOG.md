@@ -1,5 +1,96 @@
 # viem
 
+## 2.56.0
+
+### Minor Changes
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Renamed `Abis.abis` to `Abis.all` and expanded the aggregate with Earn and Zone ABIs.
+
+  ```diff
+  -const abis = Abis.abis
+  +const abis = Abis.all
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Moved Zone exports from `viem/tempo/zones` into `viem/tempo`.
+
+  ```diff
+  -import { Abis, Addresses, http, zoneModerato } from 'viem/tempo/zones'
+  +import { Abis, Addresses, http, Zone } from 'viem/tempo'
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced curried Zone network factories with built-in Zone definitions and `Zone.from` for custom chains.
+
+  ```diff
+  -const zone = zoneModerato(6)
+  +const zone = Zone.a
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Replaced chain-specific Zone portal registries with deterministic `Addresses.zonePortal(id)` resolution for Zone IDs and chain IDs.
+
+  ```diff
+  -import { getPortalAddress } from 'viem/tempo/zones'
+  +import { Addresses, Zone } from 'viem/tempo'
+
+  -const portal = getPortalAddress(42_431, 7)
+  +const portal = Addresses.zonePortal(Zone.b.id)
+  ```
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added selector maps for Zone portal, outbox, messenger, and verifier ABIs.
+
+  ```ts
+  import { Selectors } from "viem/tempo";
+
+  const selector = Selectors.zonePortal.admin;
+  ```
+
+### Patch Changes
+
+- [#5039](https://github.com/wevm/viem/pull/5039) [`e802c6b16e03c83d61c144d0b6388a21a8391a22`](https://github.com/wevm/viem/commit/e802c6b16e03c83d61c144d0b6388a21a8391a22) Thanks [@struong](https://github.com/struong)! - Replaced `tempo.earn.bindErc4626Engine` with the engine-agnostic `tempo.earn.bindEngine` action and added optional final ownership transfer.
+
+- [#5034](https://github.com/wevm/viem/pull/5034) [`b8707d998ab8c7d4ee95c9a70989cd6fbd145356`](https://github.com/wevm/viem/commit/b8707d998ab8c7d4ee95c9a70989cd6fbd145356) Thanks [@jxom](https://github.com/jxom)! - Added `zone.getPortalInfo` to read Zone Portal administration, sequencer, and token metadata.
+
+- [#5030](https://github.com/wevm/viem/pull/5030) [`901bf2f09b057e03f34067fdee6c3f6a2dae7bd3`](https://github.com/wevm/viem/commit/901bf2f09b057e03f34067fdee6c3f6a2dae7bd3) Thanks [@decofe](https://github.com/decofe)! - Added Zone protocol addresses, ZoneFactory registry reads, and ZonePortal administration operations to Tempo exports.
+
+- [#5028](https://github.com/wevm/viem/pull/5028) [`ffbf342ba3f5b312433ec927332f817b754fdafb`](https://github.com/wevm/viem/commit/ffbf342ba3f5b312433ec927332f817b754fdafb) Thanks [@codingwithmanny](https://github.com/codingwithmanny)! - Updated the Berachain Bepolia block explorer.
+
+- [#5040](https://github.com/wevm/viem/pull/5040) [`c73282bfa7309a5017f684b8001ec5c13fda4194`](https://github.com/wevm/viem/commit/c73282bfa7309a5017f684b8001ec5c13fda4194) Thanks [@jxom](https://github.com/jxom)! - Added `Abis.core`, `Abis.earn`, and `Abis.zone` contract groups.
+
+- [#5044](https://github.com/wevm/viem/pull/5044) [`56a54cc3c80c5c774963be4f02d68c4b43e261d4`](https://github.com/wevm/viem/commit/56a54cc3c80c5c774963be4f02d68c4b43e261d4) Thanks [@decofe](https://github.com/decofe)! - Added the derived public key address to the `sequencerEncryptionKey` Zone Portal ABI output while preserving T10 encryption key reads.
+
+## 2.55.19
+
+### Patch Changes
+
+- [#5018](https://github.com/wevm/viem/pull/5018) [`abf0d746952176eadbe5c72d9d708863d9bbb97e`](https://github.com/wevm/viem/commit/abf0d746952176eadbe5c72d9d708863d9bbb97e) Thanks [@david9104online](https://github.com/david9104online)! - Added Morph Tachyon mainnet and testnet chains.
+
+- [#5022](https://github.com/wevm/viem/pull/5022) [`edfb7e7adf1398b26fb94ba47fe55331cb1f16a0`](https://github.com/wevm/viem/commit/edfb7e7adf1398b26fb94ba47fe55331cb1f16a0) Thanks [@jxom](https://github.com/jxom)! - Updated multisig implementation.
+
+- [#5017](https://github.com/wevm/viem/pull/5017) [`7aac99a43eddea3af4d511e5d6cfccb5a9caabc0`](https://github.com/wevm/viem/commit/7aac99a43eddea3af4d511e5d6cfccb5a9caabc0) Thanks [@JiahaoAlbus](https://github.com/JiahaoAlbus)! - Added YNX Testnet chain.
+
+## 2.55.18
+
+### Patch Changes
+
+- [#5016](https://github.com/wevm/viem/pull/5016) [`9244e27940675fa32b227d4ba845a0f574447e8a`](https://github.com/wevm/viem/commit/9244e27940675fa32b227d4ba845a0f574447e8a) Thanks [@struong](https://github.com/struong)! - **Breaking(viem/tempo)**: Renamed the Tempo Earn private entry recovery parameter from `recoveryRecipient` to `tempoRefundRecipient`.
+
+## 2.55.17
+
+### Patch Changes
+
+- [#5013](https://github.com/wevm/viem/pull/5013) [`70e7145dcc9c0442a68344cc9f115c63ecde2495`](https://github.com/wevm/viem/commit/70e7145dcc9c0442a68344cc9f115c63ecde2495) Thanks [@CheyneWeb3](https://github.com/CheyneWeb3)! - Added Haus Chain Testnet chain.
+
+- [#5012](https://github.com/wevm/viem/pull/5012) [`5e436053872805cd5db7c0ca504abb9296497025`](https://github.com/wevm/viem/commit/5e436053872805cd5db7c0ca504abb9296497025) Thanks [@struong](https://github.com/struong)! - Preserved filled transaction fields covered by a Tempo fee payer signature.
+
+- [#4290](https://github.com/wevm/viem/pull/4290) [`20dcc0675d26cf673ef473eeaafa424ba353e771`](https://github.com/wevm/viem/commit/20dcc0675d26cf673ef473eeaafa424ba353e771) Thanks [@Kemperino](https://github.com/Kemperino)! - Fixed Operator Fee estimation for Isthmus upgrade by using the `getOperatorFee` function from the Gas Price Oracle instead of manually computing from L1Block parameters.
+
+## 2.55.16
+
+### Patch Changes
+
+- [#4997](https://github.com/wevm/viem/pull/4997) [`0c4f19a354255ec5e7e159228df36f9c8714ce0a`](https://github.com/wevm/viem/commit/0c4f19a354255ec5e7e159228df36f9c8714ce0a) Thanks [@Ghadi8](https://github.com/Ghadi8)! - Fixed `simulateCalls` asset discovery across reverting, state-dependent, malformed, and newly deployed tokens while pinning stable block tags and isolating balance probes.
+
+- [#4990](https://github.com/wevm/viem/pull/4990) [`cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4`](https://github.com/wevm/viem/commit/cd1d2d51849f78e20f09e4a26f4c0a20afa84bb4) Thanks [@SashaMIT](https://github.com/SashaMIT)! - Required EIP-4361 / RFC 3339 date-time strings and rejected invalid `time`.
+
 ## 2.55.15
 
 ### Patch Changes

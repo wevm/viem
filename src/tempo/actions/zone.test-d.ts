@@ -7,7 +7,7 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decorator } from '../Decorator.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import { zoneModerato } from '../zones/index.js'
+import * as Zone from '../Zone.js'
 import * as zoneActions from './zone.js'
 
 const transport = custom({
@@ -26,17 +26,17 @@ const publicClient = createClient({
 })
 const zoneClient = createClient({
   account: '0x0000000000000000000000000000000000000001',
-  chain: zoneModerato(7),
+  chain: Zone.internalTestnet,
   transport,
 })
 const decoratedZoneClient = zoneClient.extend(decorator())
 
 test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', async () => {
   const prepared = await zoneActions.encryptedDeposit.prepare(client, {
-    token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
-    bouncebackRecipient: '0x0000000000000000000000000000000000000001',
     recipient: '0x0000000000000000000000000000000000000001',
+    tempoRefundRecipient: '0x0000000000000000000000000000000000000001',
+    token: '0x20c0000000000000000000000000000000000000',
     zoneId: 7,
   })
 
@@ -153,7 +153,7 @@ test('requestWithdrawalSync returns a receipt and sender tag', async () => {
   expectTypeOf(result.senderTag).toEqualTypeOf<Hash>()
 
   const explicitAccountClient = createClient({
-    chain: zoneModerato(7),
+    chain: Zone.internalTestnet,
     transport,
   })
   const explicitResult = await zoneActions.requestWithdrawalSync(
@@ -205,6 +205,16 @@ test('getEncryptionKey returns the active key and index', async () => {
   zoneActions.getEncryptionKey.calls({
     portalAddress: '0x0000000000000000000000000000000000000001',
   })
+})
+
+test('getPortalInfo returns portal metadata and configuration', async () => {
+  const result = await zoneActions.getPortalInfo(client, { zoneId: 7 })
+
+  expectTypeOf(result).toEqualTypeOf<zoneActions.getPortalInfo.ReturnValue>()
+  expectTypeOf(result.admin).toEqualTypeOf<Address>()
+  expectTypeOf(result.enabledTokens).toEqualTypeOf<readonly Address[]>()
+  expectTypeOf(result.sequencers).toEqualTypeOf<readonly Address[]>()
+  expectTypeOf(result.sequencerThreshold).toEqualTypeOf<number>()
 })
 
 test('getZoneInfo returns sequencers and the imported Tempo block number', async () => {

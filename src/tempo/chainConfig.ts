@@ -15,9 +15,14 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
+import * as multisig from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import {
+  createMultisigStateResolver,
+  getMultisigOwnerStates,
+} from './internal/multisig.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -60,7 +65,10 @@ export const chainConfig = {
           | undefined
         feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
-        multisig?: MultisigConfig.Config | undefined
+        keyData?: Hex.Hex | undefined
+        keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+        multisig?: Address | MultisigConfig.Config | undefined
+        multisigOwnerStates?: Transaction.TransactionRequestTempo['multisigOwnerStates']
         signatures?: readonly unknown[] | undefined
       }
 
@@ -82,36 +90,88 @@ export const chainConfig = {
         return request as unknown as typeof r
       }
 
-      // Native multisig (TIP-1061). The transaction sender is the derived
-      // multisig account, not a signing account (owner accounts only contribute
-      // approvals later via `signTransaction`). Derive the sender from the
-      // config; core fills nonce/gas/fees for it via `request.from`, and the
-      // serializer auto-detects bootstrap (`init`) from `nonce == 0`.
+      // Native multisig (TIP-1061). The transaction sender is the stable
+      // multisig address, not a signing account. Initial configs support
+      // bootstrap; initialized accounts can be reconstructed from their
+      // address and resolved through the multisig precompile.
       //
       // The config is taken from an explicit `multisig` field, or inferred from
       // a multisig account (so callers can just pass `account` to
       // `prepareTransactionRequest` without also passing `multisig`).
-      const multisig =
+      const multisigIdentity =
         request.multisig ??
         (request.account?.source === 'multisig'
-          ? (request.account as MultisigAccount).config
+          ? ((request.account as MultisigAccount).config ??
+            request.account.address)
           : undefined)
-      if (multisig) {
-        const config = MultisigConfig.from(multisig)
-        request.multisig = config
-        request.from = MultisigConfig.getAddress(config)
-        request.multisigInit = {
-          salt: config.salt ?? MultisigConfig.zeroSalt,
-          threshold: Number(config.threshold),
-          owners: config.owners.map((owner) => ({
-            owner: owner.owner,
-            weight: Number(owner.weight),
-          })),
+      if (multisigIdentity) {
+        const initialConfig =
+          typeof multisigIdentity === 'string'
+            ? undefined
+            : MultisigConfig.from(multisigIdentity)
+        const multisigAddress =
+          typeof multisigIdentity === 'string'
+            ? multisigIdentity
+            : MultisigConfig.getAddress(initialConfig!)
+        request.multisig = initialConfig ?? multisigIdentity
+        request.from = multisigAddress
+        // Key types are not part of the config, so conservatively model every
+        // approval as a maximum-size WebAuthn signature.
+        if (typeof request.keyType === 'undefined') {
+          request.keyType = 'webAuthn'
+          if (typeof request.keyData === 'undefined') request.keyData = '0x0578'
         }
-        request.multisigSignatureCount ??= inferMultisigSignatureCount(config)
+        const getState = createMultisigStateResolver((account) =>
+          getAction(client, multisig.getConfig, 'getConfig')({ account }),
+        )
+        const ownerStates =
+          request.account?.source === 'multisig'
+            ? getMultisigOwnerStates(
+                request.account as MultisigAccount,
+                getState,
+              )
+            : undefined
+        const state = ownerStates
+          ? (await ownerStates)[0]!
+          : await getState(multisigAddress)
+        if (!initialConfig && !state.initialized)
+          throw new Error(
+            'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
+          )
+        if (typeof request.multisigVersion === 'undefined')
+          request.multisigVersion = state.version
+        const authorizationSignature = request.keyAuthorization?.signature
+        if (
+          authorizationSignature?.type === 'multisig' &&
+          typeof authorizationSignature.init !== 'undefined'
+        )
+          request.keyAuthorization = {
+            ...request.keyAuthorization!,
+            signature: SignatureEnvelope.from({
+              initialConfig: authorizationSignature.init,
+              signatures: authorizationSignature.signatures,
+            }),
+          }
+        const keyAuthorizationSignature = request.keyAuthorization?.signature
+        const keyAuthorizationInitializes =
+          keyAuthorizationSignature?.type === 'multisig' &&
+          typeof keyAuthorizationSignature.init !== 'undefined'
+        if (initialConfig && !keyAuthorizationInitializes)
+          request.multisigInit = {
+            salt: initialConfig.salt ?? MultisigConfig.zeroSalt,
+            threshold: Number(initialConfig.threshold),
+            owners: initialConfig.owners.map((owner) => ({
+              owner: owner.owner,
+              weight: Number(owner.weight),
+            })),
+          }
+        if (ownerStates) {
+          const states = await ownerStates
+          if (states.length > 0) request.multisigOwnerStates = states
+        }
         // A non-multisig `account` (e.g. the client's default) isn't the sender,
         // so drop it: core then fills nonce/gas/fees for the multisig sender via
-        // `request.from`. A multisig account *is* the sender — keep it so the
+        // `request.from`. A multisig account *is* the sender, so keep it so the
         // prepared request can be sent without re-passing `account`.
         if (request.account?.source !== 'multisig') delete request.account
       }
@@ -121,7 +181,7 @@ export const chainConfig = {
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
-        if (multisig) return false
+        if (multisigIdentity) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as
@@ -286,16 +346,3 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
-
-function inferMultisigSignatureCount(config: MultisigConfig.Config) {
-  const threshold = Number(config.threshold)
-  const weights = config.owners
-    .map((owner) => Number(owner.weight))
-    .sort((a, b) => b - a)
-  let total = 0
-  for (const [index, weight] of weights.entries()) {
-    total += weight
-    if (total >= threshold) return index + 1
-  }
-  return weights.length
-}

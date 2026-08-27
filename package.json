@@ -23,8 +23,7 @@
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
-    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts",
-    "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && biome check --write --unsafe src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts test/src/tempo/earnContracts.ts",
     "gen:tokenlist": "bun scripts/generateTokenlist.ts && biome check --write --unsafe src/tokens && pnpm gen:token-lookup",
     "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
@@ -72,7 +71,7 @@
     "fast-check": "^4.9.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.33",
+    "ox": "0.14.34",
     "permissionless": "^0.2.57",
     "prool": "~0.2.14",
     "publint": "^0.2.12",
@@ -125,7 +124,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,eip8130,eip8168,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,tokens,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,eip8130,eip8168,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tokens,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -144,13 +143,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "85 kB",
+      "limit": "86 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "105 kB"
+      "limit": "106 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -197,7 +196,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "111 kB",
+      "limit": "113 kB",
       "import": "*"
     },
     {
@@ -209,7 +208,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "68 kB",
+      "limit": "70 kB",
       "import": "{ tempoTestnet }"
     },
     {

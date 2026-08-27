@@ -7,11 +7,18 @@ import { TokenId, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import {
+  type GetContractReturnType,
+  getContract,
+} from '../../actions/getContract.js'
+import {
   type MulticallErrorType,
   type MulticallParameters,
   multicall,
 } from '../../actions/public/multicall.js'
-import { readContract } from '../../actions/public/readContract.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import {
   type PrepareTransactionRequestErrorType,
   type PrepareTransactionRequestRequest,
@@ -24,6 +31,7 @@ import {
 } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
+import type { PublicClient } from '../../clients/createPublicClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -60,10 +68,23 @@ import {
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import * as ZoneAbis from '../zones/Abis.js'
-import { getPortalAddress } from '../zones/zone.js'
 
 const defaultWithdrawalGas = 10_000_000n
+
+// TODO: Remove this compatibility ABI when T10 support is retired.
+// Later Zone deployments append the derived address to these two values.
+const sequencerEncryptionKeyAbi = [
+  {
+    name: 'sequencerEncryptionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      { type: 'bytes32', name: 'x' },
+      { type: 'uint8', name: 'yParity' },
+    ],
+  },
+] as const
 
 export type EncryptedPayload = {
   ciphertext: Hex.Hex
@@ -76,8 +97,6 @@ export type EncryptedPayload = {
 export type PreparedEncryptedDeposit = {
   /** Amount of tokens to deposit. */
   amount: bigint
-  /** Refund recipient on the parent chain if the deposit bounces. */
-  bouncebackRecipient: Address
   /** Parent chain ID (e.g. `42431` for moderato). */
   chainId: number
   /** Encrypted deposit payload. */
@@ -88,6 +107,8 @@ export type PreparedEncryptedDeposit = {
   portalAddress: Address
   /** Address that will call the Zone portal. */
   sender: Address
+  /** Refund recipient on the parent chain if the deposit bounces. */
+  tempoRefundRecipient: Address
   /** Token address or ID to deposit. */
   token: TokenId.TokenIdOrAddress
   /** Zone ID (e.g. `7`). */
@@ -144,21 +165,18 @@ export async function deposit<
   client: Client<Transport, chain, account>,
   parameters: deposit.Parameters<chain, account>,
 ): Promise<deposit.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const { account = client.account, ...rest } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account_) throw new Error('`account` is required.')
 
   const recipient = parameters.recipient ?? account_.address
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    bouncebackRecipient,
-    chainId,
     recipient,
+    tempoRefundRecipient,
   }
   return sendTransaction(client, {
     ...rest,
@@ -172,26 +190,24 @@ export namespace deposit {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
-    Omit<Args, 'bouncebackRecipient' | 'chainId' | 'recipient'> & {
-      /** Refund recipient on the parent chain. @default `account.address` */
-      bouncebackRecipient?: Address | undefined
+    Omit<Args, 'recipient' | 'tempoRefundRecipient'> & {
       /** Recipient address in the zone. @default `account.address` */
       recipient?: Address | undefined
+      /** Refund recipient on the parent chain. @default `account.address` */
+      tempoRefundRecipient?: Address | undefined
     }
 
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
-    /** Refund recipient on the parent chain if the deposit bounces. */
-    bouncebackRecipient: Address
-    /** Parent chain ID (e.g. `42431` for moderato). */
-    chainId: number
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    tempoRefundRecipient: Address
     /** Token address or ID to deposit. */
     token: TokenId.TokenIdOrAddress
     /** Zone ID (e.g. `7`). */
@@ -212,15 +228,13 @@ export namespace deposit {
   export function calls(args: Args) {
     const {
       amount,
-      bouncebackRecipient,
-      chainId,
       memo = zeroHash,
       recipient,
+      tempoRefundRecipient,
       token,
       zoneId,
     } = args
-    const portalAddress =
-      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
     const tokenAddress = TokenId.toAddress(token)
     const approveCall = defineCall({
       address: tokenAddress,
@@ -230,9 +244,9 @@ export namespace deposit {
     })
     const depositCall = defineCall({
       address: portalAddress,
-      abi: ZoneAbis.zonePortal,
+      abi: Abis.zonePortal,
       functionName: 'deposit',
-      args: [tokenAddress, recipient, amount, memo, bouncebackRecipient],
+      args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
     })
     return [approveCall, depositCall]
   }
@@ -273,9 +287,6 @@ export async function depositSync<
   client: Client<Transport, chain, account>,
   parameters: depositSync.Parameters<chain, account>,
 ): Promise<depositSync.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const {
     account = client.account,
     throwOnReceiptRevert = true,
@@ -286,12 +297,12 @@ export async function depositSync<
   if (!account_) throw new Error('`account` is required.')
 
   const recipient = parameters.recipient ?? account_.address
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
   const args = {
     ...parameters,
-    bouncebackRecipient,
-    chainId,
     recipient,
+    tempoRefundRecipient,
   }
   const receipt = await sendTransactionSync(client, {
     ...rest,
@@ -346,11 +357,8 @@ export async function getEncryptionKey<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getEncryptionKey.Parameters,
 ): Promise<getEncryptionKey.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
   const { account, portalAddress: portalAddress_, zoneId, ...rest } = parameters
-  const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+  const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
   const [keyCountResult, publicKeyResult] = await multicall(client, {
     ...rest,
     account: account ? parseAccount(account).address : undefined,
@@ -390,7 +398,7 @@ export namespace getEncryptionKey {
     }
 
   export type Args = {
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Zone ID (e.g. `7`). */
     zoneId: number
@@ -422,16 +430,138 @@ export namespace getEncryptionKey {
     return [
       defineCall({
         address: args.portalAddress,
-        abi: ZoneAbis.zonePortal,
+        abi: Abis.zonePortal,
         functionName: 'encryptionKeyCount',
       }),
       defineCall({
         address: args.portalAddress,
-        abi: ZoneAbis.zonePortal,
+        abi: sequencerEncryptionKeyAbi,
         functionName: 'sequencerEncryptionKey',
       }),
     ] as const
   }
+}
+
+/**
+ * Gets metadata and configuration for a zone portal.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const info = await Actions.zone.getPortalInfo(client, {
+ *   zoneId: 7,
+ * })
+ * ```
+ *
+ * @param client - Public client connected to the parent Tempo chain.
+ * @param parameters - Zone portal parameters.
+ * @returns The portal metadata and configuration.
+ */
+export async function getPortalInfo<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPortalInfo.Parameters,
+): Promise<getPortalInfo.ReturnValue> {
+  const { portalAddress: portalAddress_, zoneId, ...rest } = parameters
+  const portal = getContract({
+    abi: Abis.zonePortal,
+    address: portalAddress_ ?? Addresses.zonePortal(zoneId),
+    client,
+  }) as unknown as GetContractReturnType<
+    typeof Abis.zonePortal,
+    PublicClient<Transport, Chain>
+  >
+  const [
+    admin,
+    enabledTokenCount,
+    messenger,
+    pauseExpiry,
+    paused,
+    pendingAdmin,
+    sequencerCount,
+    sequencerSetVersion,
+    sequencerThreshold,
+    verifier,
+  ] = await Promise.all([
+    portal.read.admin(rest),
+    portal.read.enabledTokenCount(rest),
+    portal.read.messenger(rest),
+    portal.read.pauseExpiry(rest),
+    portal.read.paused(rest),
+    portal.read.pendingAdmin(rest),
+    portal.read.sequencerCount(rest),
+    portal.read.sequencerSetVersion(rest),
+    portal.read.sequencerThreshold(rest),
+    portal.read.verifier(rest),
+  ])
+  const [sequencers, enabledTokens] = await Promise.all([
+    Promise.all(
+      Array.from({ length: Number(sequencerCount) }, (_, index) =>
+        portal.read.sequencerAt([BigInt(index)], rest),
+      ),
+    ),
+    Promise.all(
+      Array.from({ length: Number(enabledTokenCount) }, (_, index) =>
+        portal.read.enabledTokenAt([BigInt(index)], rest),
+      ),
+    ),
+  ])
+
+  return {
+    admin,
+    enabledTokens,
+    messenger,
+    pauseExpiry,
+    paused,
+    pendingAdmin,
+    sequencers,
+    sequencerSetVersion,
+    sequencerThreshold,
+    verifier,
+  }
+}
+
+export namespace getPortalInfo {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Zone portal address. @default derived from `zoneId`. */
+    portalAddress?: Address | undefined
+    /** Zone ID (e.g. `7`). */
+    zoneId: number
+  }
+
+  export type ReturnValue = Compute<{
+    /** Portal governance admin. */
+    admin: Address
+    /** Tokens enabled for deposits into the zone. */
+    enabledTokens: readonly Address[]
+    /** Zone messenger assigned to the portal. */
+    messenger: Address
+    /** Timestamp when the current emergency pause expires. */
+    pauseExpiry: bigint
+    /** Whether the portal is paused. */
+    paused: boolean
+    /** Pending governance admin. */
+    pendingAdmin: Address
+    /** Active sequencer addresses. */
+    sequencers: readonly Address[]
+    /** Version of the active sequencer set. */
+    sequencerSetVersion: bigint
+    /** Number of sequencers required to attest to a settlement. */
+    sequencerThreshold: number
+    /** Settlement verifier assigned to the portal. */
+    verifier: Address
+  }>
+
+  export type ErrorType = ReadContractErrorType | BaseErrorType
 }
 
 /**
@@ -478,7 +608,8 @@ export async function encryptedDeposit<
   const account_ = account ? parseAccount(account) : undefined
   if (!account_) throw new Error('`account` is required.')
 
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -490,7 +621,7 @@ export async function encryptedDeposit<
       ...pickWriteParameters(parameters as never),
       calls: encryptedDeposit.calls({
         ...parameters,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       }),
     } as never) as never
   }
@@ -499,11 +630,11 @@ export async function encryptedDeposit<
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
-    bouncebackRecipient,
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
     sender: account_.address,
+    tempoRefundRecipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
@@ -522,16 +653,16 @@ export namespace encryptedDeposit {
     (
       | (Omit<
           Args,
-          | 'bouncebackRecipient'
           | 'chainId'
           | 'encrypted'
           | 'keyIndex'
           | 'recipient'
+          | 'tempoRefundRecipient'
         > & {
-          /** Refund recipient on the parent chain. @default `account.address` */
-          bouncebackRecipient?: Address | undefined
           /** Recipient address in the zone. @default `account.address` */
           recipient?: Address | undefined
+          /** Refund recipient on the parent chain. @default `account.address` */
+          tempoRefundRecipient?: Address | undefined
         })
       | PreparedEncryptedDeposit
     )
@@ -539,8 +670,6 @@ export namespace encryptedDeposit {
   export type Args = {
     /** Amount of tokens to deposit. */
     amount: bigint
-    /** Refund recipient on the parent chain if the deposit bounces. */
-    bouncebackRecipient: Address
     /** Parent chain ID (e.g. `42431` for moderato). */
     chainId: number
     /** Encrypted deposit payload. */
@@ -549,10 +678,12 @@ export namespace encryptedDeposit {
     keyIndex: bigint
     /** Optional deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
-    /** Zone portal address. @default resolved via the portal registry. */
+    /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
     /** Recipient address in the zone. */
     recipient: Address
+    /** Refund recipient on the parent chain if the deposit bounces. */
+    tempoRefundRecipient: Address
     /** Token address or ID to deposit. */
     token: TokenId.TokenIdOrAddress
     /** Zone ID (e.g. `7`). */
@@ -581,9 +712,9 @@ export namespace encryptedDeposit {
    * const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
    *   token: '0x20c0...0001',
    *   amount: 1_000_000n,
-   *   bouncebackRecipient: '0x...',
    *   recipient: '0x...',
    *   sender: '0x...',
+   *   tempoRefundRecipient: '0x...',
    *   zoneId: 7,
    * })
    * ```
@@ -604,18 +735,18 @@ export namespace encryptedDeposit {
 
     const {
       amount,
-      bouncebackRecipient,
       memo,
       portalAddress: portalAddress_,
       recipient,
       sender: sender_ = client.account?.address,
+      tempoRefundRecipient,
       token,
       zoneId,
       ...rest
     } = parameters
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
 
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
@@ -634,12 +765,12 @@ export namespace encryptedDeposit {
 
     return {
       amount,
-      bouncebackRecipient,
       chainId,
       encrypted,
       keyIndex,
       portalAddress,
       sender,
+      tempoRefundRecipient,
       token,
       zoneId,
     }
@@ -661,16 +792,16 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Amount of tokens to deposit. */
       amount: bigint
-      /** Refund recipient on the parent chain if the deposit bounces. */
-      bouncebackRecipient: Address
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
-      /** Zone portal address. @default resolved via the portal registry. */
+      /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
       /** Address that will call the Zone portal. */
       sender: Address
+      /** Refund recipient on the parent chain if the deposit bounces. */
+      tempoRefundRecipient: Address
       /** Token address or ID to deposit. */
       token: TokenId.TokenIdOrAddress
       /** Zone ID (e.g. `7`). */
@@ -731,7 +862,7 @@ export namespace encryptedDeposit {
     } = parameters
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
       portalAddress,
@@ -772,7 +903,7 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Optional deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
-      /** Zone portal address. @default resolved via the portal registry. */
+      /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
       /** Recipient address in the zone. */
       recipient: Address
@@ -794,17 +925,9 @@ export namespace encryptedDeposit {
    * @returns The calls.
    */
   export function calls(args: Args | PreparedEncryptedDeposit) {
-    const {
-      amount,
-      bouncebackRecipient,
-      chainId,
-      encrypted,
-      keyIndex,
-      token,
-      zoneId,
-    } = args
-    const portalAddress =
-      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const { amount, encrypted, keyIndex, tempoRefundRecipient, token, zoneId } =
+      args
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
     const tokenAddress = TokenId.toAddress(token)
     const encryptedPayload = {
       ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
@@ -821,14 +944,14 @@ export namespace encryptedDeposit {
     })
     const depositCall = defineCall({
       address: portalAddress,
-      abi: ZoneAbis.zonePortal,
+      abi: Abis.zonePortal,
       functionName: 'depositEncrypted',
       args: [
         tokenAddress,
         amount,
         keyIndex,
         encryptedPayload,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       ],
     })
     return [approveCall, depositCall]
@@ -882,7 +1005,8 @@ export async function encryptedDepositSync<
   const account_ = account ? parseAccount(account) : undefined
   if (!account_) throw new Error('`account` is required.')
 
-  const bouncebackRecipient = parameters.bouncebackRecipient ?? account_.address
+  const tempoRefundRecipient =
+    parameters.tempoRefundRecipient ?? account_.address
 
   if ('encrypted' in parameters) {
     if (parameters.chainId !== chainId) {
@@ -896,7 +1020,7 @@ export async function encryptedDepositSync<
       throwOnReceiptRevert,
       calls: encryptedDeposit.calls({
         ...parameters,
-        bouncebackRecipient,
+        tempoRefundRecipient,
       }),
     } as never)
     return { receipt }
@@ -906,11 +1030,11 @@ export async function encryptedDepositSync<
 
   const prepared = await encryptedDeposit.prepare(client, {
     amount: parameters.amount,
-    bouncebackRecipient,
     memo: parameters.memo,
     portalAddress: parameters.portalAddress,
     recipient,
     sender: account_.address,
+    tempoRefundRecipient,
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
@@ -947,11 +1071,10 @@ export namespace encryptedDepositSync {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1005,11 +1128,10 @@ export namespace getAuthorizationTokenInfo {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1031,7 +1153,7 @@ export async function getWithdrawalFee<
   return readContract(client, {
     ...rest,
     address: Addresses.zoneOutbox,
-    abi: ZoneAbis.zoneOutbox,
+    abi: Abis.zoneOutbox,
     functionName: 'calculateWithdrawalFee',
     args: [callbackGas],
   })
@@ -1054,11 +1176,10 @@ export namespace getWithdrawalFee {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1145,11 +1266,10 @@ export namespace getZoneInfo {
  * @example
  * ```ts
  * import { createClient } from 'viem'
- * import { Actions } from 'viem/tempo'
- * import { http, zoneModerato } from 'viem/tempo/zones'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1249,12 +1369,11 @@ export namespace waitForTempoBlock {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1348,7 +1467,7 @@ export namespace requestWithdrawal {
       }),
       defineCall({
         address: Addresses.zoneOutbox,
-        abi: ZoneAbis.zoneOutbox,
+        abi: Abis.zoneOutbox,
         functionName: 'requestWithdrawal',
         args: [
           TokenId.toAddress(token),
@@ -1373,11 +1492,10 @@ export namespace requestWithdrawal {
    * @example
    * ```ts
    * import { createClient } from 'viem'
-   * import { http, zoneModerato } from 'viem/tempo/zones'
-   * import { Actions } from 'viem/tempo'
+   * import { Actions, http, Zone } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: zoneModerato(7),
+   *   chain: Zone.a,
    *   transport: http(),
    * })
    *
@@ -1533,17 +1651,11 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  * import { createClient, createPublicClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- * import {
- *   Abis,
- *   getPortalAddress,
- *   http as zoneHttp,
- *   zoneModerato,
- * } from 'viem/tempo/zones'
+ * import { Abis, Actions, Addresses, http as zoneHttp, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: zoneHttp(),
  * })
  *
@@ -1560,7 +1672,7 @@ type WithdrawalCalls = ReturnType<typeof requestWithdrawal.calls>
  *   transport: http(),
  * })
  * const [withdrawal] = await tempoClient.getContractEvents({
- *   address: getPortalAddress(tempoModerato.id, 7),
+ *   address: Addresses.zonePortal(Zone.a.id),
  *   abi: Abis.zonePortal,
  *   eventName: 'WithdrawalProcessed',
  *   args: { senderTag },
@@ -1596,7 +1708,7 @@ export async function requestWithdrawalSync<
     throwOnReceiptRevert,
   } as never)
   const [event] = parseEventLogs({
-    abi: ZoneAbis.zoneOutbox,
+    abi: Abis.zoneOutbox,
     logs: receipt.logs,
     eventName: 'WithdrawalRequested',
     strict: true,
@@ -1641,12 +1753,11 @@ export namespace requestWithdrawalSync {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1730,7 +1841,7 @@ export namespace requestVerifiableWithdrawal {
       }),
       defineCall({
         address: Addresses.zoneOutbox,
-        abi: ZoneAbis.zoneOutbox,
+        abi: Abis.zoneOutbox,
         functionName: 'requestWithdrawal',
         args: [
           TokenId.toAddress(token),
@@ -1755,12 +1866,11 @@ export namespace requestVerifiableWithdrawal {
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *
@@ -1822,19 +1932,17 @@ export namespace requestVerifiableWithdrawalSync {
 /**
  * Signs a zone authorization token and stores it for the zone HTTP transport.
  *
- * Zone chains should define `contracts.zonePortal` with the portal address.
  * The `zoneId` is derived from `ZoneId.fromChainId(chain.id)` and can be overridden.
  *
  * @example
  * ```ts
  * import { createClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zoneModerato } from 'viem/tempo/zones'
- * import { Actions } from 'viem/tempo'
+ * import { Actions, http, Zone } from 'viem/tempo'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zoneModerato(7),
+ *   chain: Zone.a,
  *   transport: http(),
  * })
  *

@@ -1,3 +1,4 @@
+import { KeyAuthorization, MultisigConfig, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
@@ -81,6 +82,56 @@ describe('formatTransactionRequest', () => {
     )
     expect(rpc.maxFeePerGas).toBeUndefined()
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
+  })
+
+  test('behavior: multisigVersion is client-side only', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      multisigVersion: 2n,
+    } as never)
+
+    expect((rpc as Record<string, unknown>).multisigVersion).toBeUndefined()
+  })
+
+  test('behavior: multisig key authorization', () => {
+    const initialConfig = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+    })
+    const account = MultisigConfig.getAddress(initialConfig)
+    const signature = SignatureEnvelope.from({
+      initialConfig,
+      signatures: [
+        SignatureEnvelope.from({
+          r: 1n,
+          s: 1n,
+          yParity: 0,
+        }),
+      ],
+    })
+    const keyAuthorization = KeyAuthorization.from(
+      {
+        account,
+        address: accounts[2].address,
+        chainId: 1n,
+        isAdmin: false,
+        type: 'secp256k1',
+      },
+      { signature },
+    )
+
+    const rpc = Formatters.formatTransactionRequest({
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      keyAuthorization,
+    } as never)
+
+    expect(rpc.keyAuthorization?.account).toBe(account)
+    expect(rpc.keyAuthorization?.signature).toMatchObject({
+      account,
+      signatures: [{ type: 'secp256k1' }],
+    })
   })
 
   test('behavior: unknown account source returns no keyType', () => {
