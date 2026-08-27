@@ -8,7 +8,7 @@ An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendTransaction` 
 
 ## Estimate gas
 
-Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas` prices authentication gas from the *shape* of the auth blob — never a real signature — so you can estimate before signing. Pass a `senderAuthVerifier` hint matching your signer so the node prices the right authenticator:
+Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas` prices authentication gas from the *shape* of the auth blob — never a real signature — so you can estimate before signing. Pass a `senderAuthAuthenticator` hint matching your signer so the node prices the right authenticator:
 
 ```ts
 import { parseEther } from 'viem'
@@ -20,7 +20,7 @@ const gas = await estimateGas(client, {
   accountChanges: [account.createChange],
   // Phased calls: each inner array is one atomic `executeBatch` phase.
   calls: [[{ to: recipient, value: parseEther('0.001') }]],
-  senderAuthVerifier: canonicalAuthenticators.k1, // .p256 / .passkey for other signers
+  senderAuthAuthenticator: canonicalAuthenticators.k1, // .p256 / .passkey for other signers
 })
 ```
 
@@ -28,7 +28,7 @@ Pick the authenticator from the signer kind:
 
 ```ts
 import { canonicalAuthenticators } from 'viem/eip8130'
-const senderAuthVerifier =
+const senderAuthAuthenticator =
   kind === 'p256' ? canonicalAuthenticators.p256
   : kind === 'passkey' ? canonicalAuthenticators.passkey
   : canonicalAuthenticators.k1
@@ -57,7 +57,7 @@ const gas = await estimateGas(client, {
   sender: account.address,
   accountChanges: [account.createChange],
   calls: [calls],
-  senderAuthVerifier: canonicalAuthenticators.k1,
+  senderAuthAuthenticator: canonicalAuthenticators.k1,
 })
 
 const hash = await sendTransaction(client, {

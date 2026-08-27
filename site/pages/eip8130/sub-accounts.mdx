@@ -83,7 +83,7 @@ const hash = await sendTransaction(client, {
 ```
 
 :::note
-The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthVerifier: canonicalAuthenticators.delegate` to [`estimateGas`](/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
+The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthAuthenticator: canonicalAuthenticators.delegate` to [`estimateGas`](/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
 :::
 
 ## Revoking a link
