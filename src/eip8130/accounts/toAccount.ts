@@ -116,6 +116,16 @@ export type ToAccountReturnType = {
    * set explicitly for non-K1 authenticators.
    */
   readonly actorId?: Hex | undefined
+  /** viem account kind (`'local'`), so core `sendTransaction` takes the local-account path. */
+  readonly type: 'local'
+  /** viem account source marker used by `eip8130ChainConfig` to detect AA sends. */
+  readonly source: 'eip8130'
+  /** SEC1 hex public key of a K1 signer, or `'0x'` for non-K1 signers. */
+  readonly publicKey: Hex
+  /** Not supported for EIP-8130 accounts. */
+  signMessage(): never
+  /** Not supported for EIP-8130 accounts. */
+  signTypedData(): never
   /**
    * Builds the `create` account-change entry (include in the first tx for
    * smart accounts). Throws if the account was constructed with a known `address`
@@ -207,12 +217,34 @@ export function toAccount(
     parameters.actorId ??
     (isK1Authenticator ? key.k1(signer.address).actorId : undefined)
 
+  const signerPublicKey = (signer as { publicKey?: unknown }).publicKey
+  const publicKey: Hex =
+    typeof signerPublicKey === 'string' ? (signerPublicKey as Hex) : '0x'
+
   return {
     address,
     signer,
     initialActors,
     scope,
     actorId,
+
+    // viem `LocalAccount` conformance, so the account can drive core
+    // `client.sendTransaction` on a chain that spreads `eip8130ChainConfig`.
+    // The `beforeFillTransaction` hook resolves the AA body; `signTransaction`
+    // (below) serializes + signs it, ignoring the core-supplied `serializer`.
+    type: 'local',
+    source: 'eip8130',
+    publicKey,
+    signMessage(): never {
+      throw new BaseError(
+        '`signMessage` is not supported for EIP-8130 accounts.',
+      )
+    },
+    signTypedData(): never {
+      throw new BaseError(
+        '`signTypedData` is not supported for EIP-8130 accounts.',
+      )
+    },
 
     create() {
       if (isAddressOnly)
