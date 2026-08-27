@@ -68,6 +68,7 @@ test('binds a default payerClient and exposes client.payer.*', async () => {
     account,
     calls: userCalls,
     capabilities: { paymasterService: {} },
+    gasEstimator: 'payer',
     nonceSequence: 0n,
   })
   expect(capabilities.paymentOptions[0].kind).toBe('sponsored')

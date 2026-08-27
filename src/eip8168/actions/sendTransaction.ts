@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ToAccountReturnType } from '../../eip8130/accounts/toAccount.js'
+import { estimateGas } from '../../eip8130/actions/estimateGas.js'
 import { prepareTransactionRequest as prepareEip8130Request } from '../../eip8130/actions/sendTransaction.js'
 import {
   type WaitForTransactionReceiptReturnType,
@@ -77,10 +78,27 @@ export type PrepareTransactionRequestParameters = {
     | { paymasterService?: PaymasterServiceCapability | undefined }
     | undefined
   /**
-   * Gas budget. Falls back to the terms' top-level `gasEstimate.gasLimit`. The
-   * fill throws if neither is available.
+   * Explicit gas budget. Overrides {@link gasEstimator}.
    */
   gas?: bigint | undefined
+  /**
+   * Where to source the gas limit when `gas` is not given:
+   *
+   * - `'self'` (default): our own node estimate via the EIP-8130
+   *   `eth_estimateGas` extension, consistent with the native self-pay path.
+   *   When the payer also returns a quote, the fill uses `max(ours, payer)` —
+   *   a payer only *adds* work (e.g. a token-payment phase), so its quote is
+   *   never below ours and the max gives natural headroom without under-sizing.
+   * - `'payer'`: trust the payer service's `payer_getTerms` quote
+   *   (`gasEstimate.gasLimit`) outright as the gas oracle (like trusting the
+   *   node).
+   *
+   * Fees: `'payer'` adopts the terms' fee quote; `'self'` lets the node
+   * estimate EIP-1559 fees.
+   *
+   * @default 'self'
+   */
+  gasEstimator?: 'self' | 'payer' | undefined
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
 }
@@ -150,12 +168,33 @@ export async function prepareTransactionRequest(
     ...(paymasterService?.context ? { context: paymasterService.context } : {}),
   })
 
-  const gas =
-    parameters.gas ??
-    (terms.gasEstimate ? hexToBigInt(terms.gasEstimate.gasLimit) : undefined)
+  // Default to our own node estimate; trust the payer's quote only when asked.
+  const usePayerGas = (parameters.gasEstimator ?? 'self') === 'payer'
+  const payerGas = terms.gasEstimate
+    ? hexToBigInt(terms.gasEstimate.gasLimit)
+    : undefined
+  let gas = parameters.gas
+  if (gas === undefined) {
+    if (usePayerGas) gas = payerGas
+    else {
+      const ownGas = await estimateGas(client, {
+        sender: account.address,
+        accountChanges,
+        calls: [calls],
+        nonceKey: parameters.nonceKey,
+        senderActorId: account.actorId,
+      })
+      // Take the larger of our estimate and the payer's quote. A payer only
+      // *adds* work (e.g. a token-payment phase), so its quote should never be
+      // below ours; the max gives natural headroom without ever under-sizing.
+      gas = payerGas !== undefined && payerGas > ownGas ? payerGas : ownGas
+    }
+  }
   if (gas === undefined)
     throw new BaseError(
-      'Unable to determine `gas`: the payer returned no top-level `gasEstimate.gasLimit` and no `gas` override was provided.',
+      'Unable to determine `gas`: with `gasEstimator: "payer"` the payer ' +
+        'returned no top-level `gasEstimate.gasLimit`, and no `gas` override ' +
+        'was provided. Use `gasEstimator: "self"` for a node estimate.',
     )
 
   const request = await prepareEip8130Request(client, {
@@ -163,7 +202,9 @@ export async function prepareTransactionRequest(
     calls: [calls],
     accountChanges,
     gas,
-    ...(terms.gasEstimate
+    // Fees follow the gas source: adopt the payer's quote only for `'payer'`;
+    // otherwise let our node estimate EIP-1559 fees.
+    ...(usePayerGas && terms.gasEstimate
       ? {
           maxFeePerGas: hexToBigInt(terms.gasEstimate.maxFeePerGas),
           maxPriorityFeePerGas: hexToBigInt(

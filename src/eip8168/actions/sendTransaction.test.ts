@@ -118,6 +118,8 @@ describe('prepareTransactionRequest', () => {
         payerClient: payer,
         calls: userCalls,
         capabilities: { paymasterService: {} },
+        // Trust the payer's quote as the gas oracle for this assertion.
+        gasEstimator: 'payer',
         nonceSequence: 0n,
       },
     )
@@ -157,10 +159,62 @@ describe('prepareTransactionRequest', () => {
           context: { policyId: 'x' },
         },
       },
+      gasEstimator: 'payer',
       nonceSequence: 0n,
     })
     expect(seen[0].params[0].preferredTokens).toEqual([USDC])
     expect(seen[0].params[0].context).toEqual({ policyId: 'x' })
+  })
+
+  test('defaults to our own node gas estimate (gasEstimator: "self")', async () => {
+    // Real timers: 'self' also estimates EIP-1559 fees via the node.
+    vi.useRealTimers()
+    let estimated = false
+    const client = createClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }: { method: string }) {
+          if (method === 'eth_chainId') return '0x1'
+          if (method === 'eth_call') return `0x${'0'.repeat(192)}`
+          if (method === 'eth_getTransactionCount') return '0x0'
+          if (method === 'eth_estimateGas') {
+            estimated = true
+            return '0x30d40' // 200_000
+          }
+          if (method === 'eth_getBlockByNumber')
+            return {
+              baseFeePerGas: '0x3b9aca00',
+              number: '0x1',
+              hash: `0x${'00'.repeat(32)}`,
+              transactions: [],
+            }
+          if (method === 'eth_maxPriorityFeePerGas') return '0xf4240'
+          throw new Error(`unexpected chain RPC: ${method}`)
+        },
+      }),
+    })
+    const payer = createPayerClient({
+      transport: custom({
+        async request({ method }: { method: string }) {
+          if (method === 'payer_getTerms') return sponsoredTerms
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+    })
+
+    const { request } = await prepareTransactionRequest(client, {
+      account,
+      payerClient: payer,
+      calls: userCalls,
+      capabilities: { paymasterService: {} },
+      nonceSequence: 0n,
+    })
+
+    expect(estimated).toBe(true)
+    // Sized from our node estimate, not the payer's 0xC350 quote.
+    expect(request.gas).toBe(200_000n)
+    // Fees came from the node, not the payer's 0x59682F00 quote.
+    expect(request.maxPriorityFeePerGas).toBe(1_000_000n)
   })
 })
 
