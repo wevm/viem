@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, describe, expect, test, vi } from 'vitest'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { mainnet } from '../chains/index.js'
 import { createClient } from '../clients/createClient.js'
@@ -7,7 +7,7 @@ import type { Hex } from '../types/misc.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { toAccount } from './accounts/toAccount.js'
 import { sendTransaction } from './actions/sendTransaction.js'
-import { nonceKeyMax } from './constants.js'
+import { nonceFreeMaxExpiryWindow, nonceKeyMax } from './constants.js'
 import { key } from './keys.js'
 import { nonce } from './nonce.js'
 import { parseTransaction } from './utils/parseTransaction.js'
@@ -128,6 +128,54 @@ describe('sendTransaction nonce integration', () => {
       data: '0x' as const,
     },
   ]
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  test('nonce-free: validBefore defaults to Date.now() + window, overridable via now/expiryWindow', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(1_700_000_000_000)
+
+    // Default: local wall clock + the 20s window.
+    const a = makeClient()
+    await sendTransaction(a.client, {
+      account,
+      calls,
+      ...fees,
+      nonceKey: nonceKeyMax, // opt into nonce-free without an explicit validBefore
+    })
+    expect(parseTransaction(a.sent!).validBefore).toBe(
+      1_700_000_000_000n + nonceFreeMaxExpiryWindow,
+    )
+
+    // `now` anchors the deadline to a supplied (e.g. block) timestamp, immune
+    // to client/chain clock skew.
+    const b = makeClient()
+    await sendTransaction(b.client, {
+      account,
+      calls,
+      ...fees,
+      nonceKey: nonceKeyMax,
+      now: 1_700_000_060_000n, // chain head 60s "ahead" of the local clock
+    })
+    expect(parseTransaction(b.sent!).validBefore).toBe(
+      1_700_000_060_000n + nonceFreeMaxExpiryWindow,
+    )
+
+    // `expiryWindow` widens/narrows the window off the same "now".
+    const c = makeClient()
+    await sendTransaction(c.client, {
+      account,
+      calls,
+      ...fees,
+      nonceKey: nonceKeyMax,
+      expiryWindow: 5_000n,
+    })
+    expect(parseTransaction(c.sent!).validBefore).toBe(
+      1_700_000_000_000n + 5_000n,
+    )
+  })
 
   test('nonceless: no nonce read, tx carries NONCE_KEY_MAX + validBefore', async () => {
     const ctx = makeClient()

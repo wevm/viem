@@ -29,6 +29,20 @@ It polls `eth_getTransactionReceipt` until the transaction is mined (default eve
 
 Any transaction with a non-zero `validBefore` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `validBefore` (unix **milliseconds**) you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
 
+For a nonce-free send, `sendTransaction` auto-computes `validBefore` as `Date.now()` plus a 20s window when you don't pass one. Because the node enforces the deadline against **block time**, a client clock that runs behind the chain can make a send arrive already-expired. Pass `now` (e.g. the chain's latest block timestamp in ms) to anchor the deadline to block time, or `expiryWindow` to widen it:
+
+```ts
+const { timestamp } = await client.getBlock() // seconds
+const hash = await sendTransaction(client, {
+  account,
+  calls,
+  gas,
+  nonceKey: nonceKeyMax,     // nonce-free (expiring) mode
+  now: timestamp * 1000n,    // anchor to block time, immune to skew
+  expiryWindow: 60_000n,     // optional: widen the 20s default
+})
+```
+
 Thread the resolved `validBefore` out of `sendTransaction` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
 
 ```ts

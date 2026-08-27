@@ -51,6 +51,20 @@ export type PrepareTransactionRequestParameters = FeeOverrides & {
   /** Upper validity bound (unix ms; required non-zero in nonce-free mode). */
   validBefore?: bigint | undefined
   /**
+   * "Now" (unix ms) used to auto-compute `validBefore` for a nonce-free
+   * (expiring) send. Defaults to the client's wall clock (`Date.now()`). Pass
+   * the chain's latest block timestamp (ms) to anchor the deadline to block
+   * time when the client and chain clocks may differ. Ignored when
+   * `validBefore` is set.
+   */
+  now?: bigint | undefined
+  /**
+   * Window (ms) added to `now` for the auto-computed `validBefore` on a
+   * nonce-free send. Defaults to `nonceFreeMaxExpiryWindow` (20s). Ignored when
+   * `validBefore` is set.
+   */
+  expiryWindow?: bigint | undefined
+  /**
    * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
    * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
    */
@@ -146,7 +160,9 @@ export async function prepareTransactionRequest(
     // caller did not supply one — whether nonce-free was auto-selected
     // (restricted actor) or explicitly chosen (admin / `SCOPE_NONCE` opting in).
     if (!validBefore || validBefore === 0n)
-      validBefore = BigInt(Date.now()) + nonceFreeMaxExpiryWindow
+      validBefore =
+        (parameters.now ?? BigInt(Date.now())) +
+        (parameters.expiryWindow ?? nonceFreeMaxExpiryWindow)
     nonceSequence ??= 0n
   } else if (nonceSequence === undefined) {
     // Read the next sequence via `eth_getTransactionCount` (with the 2D
@@ -194,6 +210,20 @@ type SendTransactionBaseParameters = FeeOverrides & {
   validAfter?: bigint | undefined
   /** Upper validity bound (unix ms; required non-zero in nonce-free mode). */
   validBefore?: bigint | undefined
+  /**
+   * "Now" (unix ms) used to auto-compute `validBefore` for a nonce-free
+   * (expiring) send. Defaults to the client's wall clock (`Date.now()`). Pass
+   * the chain's latest block timestamp (ms) to anchor the deadline to block
+   * time when the client and chain clocks may differ. Ignored when
+   * `validBefore` is set.
+   */
+  now?: bigint | undefined
+  /**
+   * Window (ms) added to `now` for the auto-computed `validBefore` on a
+   * nonce-free send. Defaults to `nonceFreeMaxExpiryWindow` (20s). Ignored when
+   * `validBefore` is set.
+   */
+  expiryWindow?: bigint | undefined
   /**
    * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
    * (not appended to call calldata). Takes precedence over `client.dataSuffix`.
