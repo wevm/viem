@@ -12,11 +12,6 @@ and returns the emitted configuration with the receipt.
 The transaction must be authorized by the current owner quorum. Use
 [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) when you do not want to wait.
 
-:::warning
-The multisig account must already be initialized. The protocol does not allow initialization and
-a configuration update in the same transaction.
-:::
-
 ## Usage
 
 :::code-group
@@ -42,7 +37,6 @@ const account = Account.fromMultisig({
 
 const result = await client.multisig.updateConfigSync({
   account,
-  currentConfig: account.config,
   nextConfig: {
     owners: [{ owner: newOwner.address, weight: 1 }],
     threshold: 1,
@@ -70,9 +64,10 @@ type ReturnType = {
 
 ### currentConfig
 
-- **Type:** `MultisigConfig.Config`
+- **Type:** `MultisigConfig.Config | undefined`
 
-The account's complete current configuration witness.
+The account's complete current config. When omitted, the action uses the config on the
+multisig account, then asks the configured multisig coordinator by account address.
 
 ### nextConfig
 

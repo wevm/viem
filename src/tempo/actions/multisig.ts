@@ -20,45 +20,56 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { MultisigAccount } from '../Account.js'
+import { fromMultisig, type MultisigAccount } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
 
 /**
- * Gets a coordinated multisig operation by its hash.
+ * Gets the current cached config for a multisig account.
+ *
+ * The coordinator reads the account's current onchain commitment and returns
+ * the matching config from its store. It returns `null` when the config is not
+ * cached.
+ *
+ * @example
+ * ```ts
+ * const config = await client.multisig.getConfig({
+ *   address: '0x...',
+ * })
+ * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The operation, or `null` when it is unknown.
+ * @returns The config, or `null` when it is unknown.
  */
-export async function getOperation(
+export async function getConfig(
   client: Client,
-  parameters: getOperation.Parameters,
-): Promise<getOperation.ReturnValue> {
-  type multisig_getOperation = Extract<
-    RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
-    { Method: 'multisig_getOperation' }
-  >
-  const operation = await client.request<multisig_getOperation>({
-    method: 'multisig_getOperation',
-    params: [parameters.hash],
+  parameters: getConfig.Parameters,
+): Promise<getConfig.ReturnValue> {
+  const config = await client.request<{
+    Method: 'multisig_getConfig'
+    Parameters: [{ address: Address }]
+    ReturnType: MultisigConfig.Rpc | null
+  }>({
+    method: 'multisig_getConfig',
+    params: [{ address: parameters.address }],
   })
-  return operation ? MultisigOperation.fromRpc(operation) : null
+  return config ? MultisigConfig.fromRpc(config) : null
 }
 
-export declare namespace getOperation {
-  /** Parameters for {@link getOperation}. */
+export declare namespace getConfig {
+  /** Parameters for {@link getConfig}. */
   export type Parameters = {
-    /** Multisig operation hash. */
-    hash: Hex.Hex
+    /** Multisig account address. */
+    address: Address
   }
 
-  /** Return value for {@link getOperation}. */
-  export type ReturnValue = MultisigOperation.Operation | null
+  /** Return value for {@link getConfig}. */
+  export type ReturnValue = MultisigConfig.Config | null
 
-  /** Error type for {@link getOperation}. */
+  /** Error type for {@link getConfig}. */
   export type ErrorType = BaseErrorType
 }
 
@@ -133,6 +144,42 @@ export namespace getConfigCommitment {
 }
 
 /**
+ * Gets a coordinated multisig operation by its hash.
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The operation, or `null` when it is unknown.
+ */
+export async function getOperation(
+  client: Client,
+  parameters: getOperation.Parameters,
+): Promise<getOperation.ReturnValue> {
+  type multisig_getOperation = Extract<
+    RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
+    { Method: 'multisig_getOperation' }
+  >
+  const operation = await client.request<multisig_getOperation>({
+    method: 'multisig_getOperation',
+    params: [parameters.hash],
+  })
+  return operation ? MultisigOperation.fromRpc(operation) : null
+}
+
+export declare namespace getOperation {
+  /** Parameters for {@link getOperation}. */
+  export type Parameters = {
+    /** Multisig operation hash. */
+    hash: Hex.Hex
+  }
+
+  /** Return value for {@link getOperation}. */
+  export type ReturnValue = MultisigOperation.Operation | null
+
+  /** Error type for {@link getOperation}. */
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Replaces the current configuration for a native multisig account.
  *
  * The transaction must be authorized directly by the account's current owner
@@ -165,7 +212,6 @@ export namespace getConfigCommitment {
  *
  * const hash = await Actions.multisig.updateConfig(client, {
  *   account,
- *   currentConfig: account.config,
  *   nextConfig: {
  *     owners: [{ owner: owner.address, weight: 1 }],
  *     threshold: 1,
@@ -191,10 +237,15 @@ export namespace updateConfig {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> & {
+    /** Complete current config. Inferred from the account or coordinator when omitted. */
+    currentConfig?: MultisigConfig.Config | undefined
+    /** Replacement owners and threshold. */
+    nextConfig: Pick<MultisigConfig.Config, 'owners' | 'threshold'>
+  }
 
   export type Args = {
-    /** Complete current configuration witness. */
+    /** Complete current config. */
     currentConfig: MultisigConfig.Config
     /** Replacement owners and threshold. */
     nextConfig: Pick<MultisigConfig.Config, 'owners' | 'threshold'>
@@ -216,7 +267,6 @@ export namespace updateConfig {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { currentConfig: currentConfig_, nextConfig, ...rest } = parameters
-    const currentConfig = MultisigConfig.from(currentConfig_)
     const account = (() => {
       const account = parameters.account ?? client.account
       if (typeof account === 'object' && account.source === 'multisig')
@@ -233,10 +283,47 @@ export namespace updateConfig {
         return multisig as MultisigAccount
       return undefined
     })()
+    const config = (() => {
+      if (currentConfig_) return currentConfig_
+      if (account?.config) return account.config
+      if (multisig?.config) return multisig.config
+      const multisig_ = parameters.multisig
+      if (typeof multisig_ === 'object' && !('source' in multisig_))
+        return MultisigConfig.from(multisig_)
+      return undefined
+    })()
+    const address = (() => {
+      if (account) return account.address
+      if (multisig) return multisig.address
+      if (typeof parameters.multisig === 'string') return parameters.multisig
+      return undefined
+    })()
+    const currentConfig = await (async () => {
+      if (config) return MultisigConfig.from(config)
+      if (!address)
+        throw new Error(
+          'A multisig account address or current config is required.',
+        )
+      const cachedConfig = await getConfig(client, { address })
+      if (!cachedConfig)
+        throw new Error(
+          `No current multisig config is cached for account ${address}. Provide the current config.`,
+        )
+      return cachedConfig
+    })()
+    const resolvedMultisig = (() => {
+      if (multisig) return { ...multisig, config: currentConfig }
+      if (typeof parameters.multisig === 'string')
+        return fromMultisig({
+          address: parameters.multisig,
+          ...currentConfig,
+        })
+      return undefined
+    })()
     return (await action(client, {
       ...rest,
       ...(account ? { account: { ...account, config: currentConfig } } : {}),
-      ...(multisig ? { multisig: { ...multisig, config: currentConfig } } : {}),
+      ...(resolvedMultisig ? { multisig: resolvedMultisig } : {}),
       ...updateConfig.call({ currentConfig, nextConfig }),
     } as never)) as never
   }

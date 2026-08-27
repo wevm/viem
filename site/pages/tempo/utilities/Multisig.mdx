@@ -14,7 +14,8 @@ import { Card, Cards } from 'vocs'
 
 The `Multisig` module coordinates owner approvals for native multisig transactions. A request
 handler validates each approval, stores the operation, selects a canonical quorum, and broadcasts
-the final transaction after the configured threshold is reached.
+the final transaction after the configured threshold is reached. The handler also caches validated
+configs, which lets later requests identify an account by address alone.
 
 Use normal [`sendTransaction`](/docs/actions/wallet/sendTransaction) and
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) for the standard client flow.
@@ -38,6 +39,10 @@ const client = createClient({
 Every client or RPC process that coordinates the same approvals must use the same shared store.
 The store must implement atomic `compareAndSet` to prevent concurrent approvals from overwriting
 each other.
+
+The store also caches configs. Chain state selects the cached config that is current for an account.
+A public coordinator exposes the owner addresses and weights in every config that
+[`multisig.getConfig`](/tempo/actions/multisig.getConfig) returns.
 
 ## See More
 

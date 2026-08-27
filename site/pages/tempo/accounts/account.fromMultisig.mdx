@@ -1,5 +1,5 @@
 ---
-description: Instantiates a native multisig account from an initial or current config witness.
+description: Instantiates a native multisig account from an initial or current config.
 ---
 
 # `Account.fromMultisig`
@@ -49,9 +49,9 @@ console.log('Address:', account.address)
 `Account.fromMultisig` normalizes the config with `MultisigConfig.from`, including canonical
 owner ordering. The initial config always uses version `0`.
 
-### Current Config Witness
+### Current Config
 
-After a config update, reconstruct the account from its stable address and current config witness.
+After a config update, reconstruct the account from its stable address and current config.
 The address does not change when the config changes.
 
 ```ts twoslash
@@ -69,7 +69,7 @@ const account = Account.fromMultisig({
 })
 ```
 
-Tempo stores the config commitment, not the config fields. Retain each current config witness or
+Tempo stores the config commitment, not the config fields. Retain each current config or
 recover it from the account's `MultisigConfigUpdated` events.
 
 ### Address Only
@@ -84,13 +84,13 @@ const account = Account.fromMultisig(
 )
 ```
 
-An address-only account cannot prepare or sign a transaction because Tempo cannot reconstruct the
-current config from its commitment. Provide the current witness through `{ address, ...config }`
+An address-only account contains no config or local owner keys. A coordinated client can load the
+current config from its store. Otherwise, provide the config through `{ address, ...config }`
 before sending.
 
 :::tip
 Keep using `address: 'initial'` while the account remains at version `0`. After a config update,
-use the stable address with the new config witness.
+use the stable address with the new config.
 :::
 
 ### External Owners
@@ -137,7 +137,7 @@ const account = Account.fromMultisig({
 type ReturnType = MultisigAccount
 
 type MultisigAccount = LocalAccount<'multisig'> & {
-  /** Normalized config witness, when supplied. */
+  /** Normalized config, when supplied. */
   config: MultisigConfig.Config | undefined
   /** @internal Local owner accounts retained for signing. */
   owners: readonly LocalAccount[]
@@ -155,14 +155,14 @@ supported.
 - **Type:** `Account.fromMultisig.Parameters`
 
 An initial config, a stable address with its current config, or an address without a retained
-config witness.
+config.
 
 #### value.address
 
 - **Type:** `'initial' | Address`
 
 Set this field to `initial` to derive an account from a version-zero config. For a current config,
-pass the account's stable address. Pass an `Address` as `value` when no config witness is needed.
+pass the account's stable address. Pass an `Address` as `value` when no config is needed.
 
 #### value.owners
 
@@ -177,7 +177,7 @@ Passing an address keeps that owner's approval external.
 - **Default:** `0x0000000000000000000000000000000000000000000000000000000000000000`
 
 The 32-byte config salt. This field is optional for an initial config and required for a current
-config witness.
+config.
 
 #### value.threshold
 
@@ -185,7 +185,7 @@ config witness.
 - **Default:** `1`
 
 The total owner weight required to authorize an operation. This field is optional for an initial
-config and required for a current config witness.
+config and required for a current config.
 
 #### value.version
 

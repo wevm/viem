@@ -11,8 +11,8 @@ import { Card, Cards } from 'vocs'
 The initial configuration permanently derives the multisig address. Updating the current
 configuration changes which owners can approve future transactions without changing that address.
 
-These examples assume that the account is using config version `1` and that you retained its
-current config witness.
+For local signing, retain the complete current config. For coordinated signing, an address-only
+account can use a config that the relay has already validated and cached.
 
 ## Recipes
 
@@ -22,7 +22,7 @@ Use the current owner to add a passkey as an alternative signer. The initial con
 the source of the stable account address; the update changes only the active configuration.
 
 ```ts twoslash
-import { Account, Actions, WebAuthnP256 } from 'viem/tempo'
+import { Account, WebAuthnP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
 // 1. Restore the current owner and create the new passkey owner.
@@ -32,7 +32,7 @@ const owner = Account.fromSecp256k1(
 const credential = await WebAuthnP256.createCredential({ name: 'Example' })
 const passkeyOwner = Account.fromWebAuthnP256(credential)
 
-// 2. Recreate the account from its stable address and current config witness.
+// 2. Recreate the account from its stable address and current config.
 const multisig = Account.fromMultisig({
   address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
   owners: [owner],
@@ -42,33 +42,28 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
-const receipt = await client.sendTransactionSync({
+const { receipt } = await client.multisig.updateConfigSync({
   account: owner,
-  calls: [
-    Actions.multisig.updateConfig.call({
-      currentConfig: multisig.config,
-      nextConfig: {
-        owners: [
-          { owner: owner.address, weight: 1 },
-          { owner: passkeyOwner.address, weight: 1 },
-        ],
-        threshold: 1,
-      },
-    }),
-  ],
   multisig,
+  nextConfig: {
+    owners: [
+      { owner: owner.address, weight: 1 },
+      { owner: passkeyOwner.address, weight: 1 },
+    ],
+    threshold: 1,
+  },
 })
 ```
 
 ### Approve the New Configuration
 
-Put [`multisig.updateConfig.call`](/tempo/actions/multisig.updateConfig) in the first approval. Each
-later owner then passes the returned operation hash.
+Pass the replacement config to [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync)
+for the first approval. Each later owner then passes the returned operation hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, Actions } from 'viem/tempo'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 // 1. Load the current and replacement owners.
@@ -85,31 +80,22 @@ const newOwner_2 = Account.fromSecp256k1(
   '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
 )
 
-// 2. Recreate the multisig from its stable address and current config witness.
-const multisig = Account.fromMultisig({
-  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
-  owners: [owner_1, owner_2],
-  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  threshold: 2,
-  version: 1,
-})
+// 2. Recreate the multisig from its stable address.
+const multisig = Account.fromMultisig(
+  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
+)
 
 // 3. Store the first current owner's approval for the update.
-const pending = await client.sendTransactionSync({
+const { receipt: pending } = await client.multisig.updateConfigSync({
   account: owner_1,
-  calls: [
-    Actions.multisig.updateConfig.call({
-      currentConfig: multisig.config,
-      nextConfig: {
-        owners: [
-          { owner: newOwner_1.address, weight: 1 },
-          { owner: newOwner_2.address, weight: 1 },
-        ],
-        threshold: 2,
-      },
-    }),
-  ],
   multisig,
+  nextConfig: {
+    owners: [
+      { owner: newOwner_1.address, weight: 1 },
+      { owner: newOwner_2.address, weight: 1 },
+    ],
+    threshold: 2,
+  },
 })
 
 // 4. Reach quorum with the second current owner.
@@ -127,8 +113,8 @@ const receipt = await client.sendTransactionSync({
 
 ### Approve with the New Owners
 
-Keep using the original account address with the updated config witness so the new owners can
-coordinate the next request.
+Keep using the original account address. The relay selects the updated config after chain state
+switches to its commitment.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
@@ -142,14 +128,10 @@ const newOwner_2 = Account.fromSecp256k1(
   '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
 )
 
-// 2. Keep using the original address with the updated config witness.
-const multisig = Account.fromMultisig({
-  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
-  owners: [newOwner_1, newOwner_2],
-  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-  threshold: 2,
-  version: 2,
-})
+// 2. Keep using the original address.
+const multisig = Account.fromMultisig(
+  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
+)
 
 // 3. Store the first new owner's approval.
 const pending = await client.sendTransactionSync({
@@ -170,13 +152,14 @@ const receipt = await client.sendTransactionSync({
 ### Keep the Stable Account Address
 
 Do not derive another account from the rotated configuration. That configuration produces a
-different address. Store the original address and reconstruct it with
-`Account.fromMultisig({ address, ...config })`.
+different address. Store the original address and use `Account.fromMultisig(address)` with a
+coordinated client. Stateless clients must pair the original address with the complete config.
 
 ### Retain the Current Configuration
 
-Tempo stores only a commitment to the current config. Retain each complete config witness, or
-recover updated witnesses from `MultisigConfigUpdated` events.
+Tempo stores only a commitment to the current config. A relay can cache configs that it validates
+during coordination. Stateless clients must retain each complete config or recover updates from
+`MultisigConfigUpdated` events.
 
 ## See More
 

@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Address_ from 'ox/Address'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
@@ -13,7 +14,12 @@ import { getBlockNumber } from '../actions/public/getBlockNumber.js'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
+import { isAddressEqual } from '../utils/address/isAddressEqual.js'
+import * as Abis from './Abis.js'
+import * as Addresses from './Addresses.js'
 import { getConfigCommitment } from './actions/multisig.js'
+import * as ConfigStore from './multisig/Config.js'
 import * as OperationStore from './multisig/Operation.js'
 import type * as Store from './Store.js'
 import * as Transaction from './Transaction.js'
@@ -45,6 +51,33 @@ export function handleRequest(
   })
 
   return async (request, requestOptions) => {
+    if (request.method === 'multisig_getConfig') {
+      const value = request.params?.[0]
+      const address =
+        value && typeof value === 'object' && 'address' in value
+          ? value.address
+          : undefined
+      if (
+        typeof address !== 'string' ||
+        !Address_.validate(address) ||
+        Hex.toBigInt(address) === 0n
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Expected a multisig account address.',
+        })
+      const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+      const commitment = await getConfigCommitment(client, {
+        account: address,
+        blockNumber,
+      })
+      const config = await ConfigStore.read(parameters.store, {
+        address,
+        commitment,
+      })
+      if (!config) return null
+      return MultisigConfig.toRpc(config)
+    }
+
     if (request.method === 'multisig_getOperation') {
       const hash = request.params?.[0]
       if (typeof hash !== 'string' || !Hash.validate(hash))
@@ -94,12 +127,13 @@ export function handleRequest(
         }
       }
       if (operation.status === 'pending')
-        return await toTransaction(client, operation)
+        return await toTransaction(client, operation, parameters.store)
       const transactionHash = await getSubmittedTransactionHash(
         parameters.store,
         operation,
       )
-      if (!transactionHash) return await toTransaction(client, operation)
+      if (!transactionHash)
+        return await toTransaction(client, operation, parameters.store)
       const transaction = await next(
         {
           ...request,
@@ -108,7 +142,7 @@ export function handleRequest(
         requestOptions,
       )
       if (!transaction || typeof transaction !== 'object')
-        return await toTransaction(client, operation)
+        return await toTransaction(client, operation, parameters.store)
       const success =
         operation.status === 'submitting'
           ? await completeSubmission(
@@ -177,6 +211,7 @@ export declare namespace handleRequest {
 
   /** Error type for {@link handleRequest}. */
   export type ErrorType =
+    | ConfigStore.InvalidStoreValueError
     | OperationStore.InvalidStoreValueError
     | OperationStore.StoreConflictError
     | RpcResponse.InvalidParamsError
@@ -217,7 +252,7 @@ async function submit(options: submit.Options) {
   )
   const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
   const config = MultisigConfig.from(signature.config)
-  await assertConfig({
+  const configCommitment = await validateConfig({
     account: signature.account,
     blockNumber,
     client: options.client,
@@ -255,6 +290,7 @@ async function submit(options: submit.Options) {
             hash: operationHash,
             approvals: existing.approvals,
             blockNumber,
+            store: options.store,
           })
         : undefined
       const approvals = await selectApprovals({
@@ -264,6 +300,7 @@ async function submit(options: submit.Options) {
         hash: operationHash,
         approvals: [...(existingApprovals?.approvals ?? []), ...incoming],
         blockNumber,
+        store: options.store,
       })
       return MultisigOperation.from({
         account: signature.account,
@@ -284,6 +321,18 @@ async function submit(options: submit.Options) {
       })
     },
   )
+
+  await ConfigStore.write(options.store, {
+    address: signature.account,
+    commitment: configCommitment,
+    config,
+  })
+  await cacheNextConfigs({
+    account: signature.account,
+    config,
+    store: options.store,
+    transaction,
+  })
 
   if (operation.type !== 'transaction')
     throw new OperationStore.InvalidStoreValueError()
@@ -339,7 +388,7 @@ async function submit(options: submit.Options) {
         const blockNumber = await getBlockNumber(options.client, {
           cacheTime: 0,
         })
-        await assertConfig({
+        await validateConfig({
           account: claim.account,
           blockNumber,
           client: options.client,
@@ -352,6 +401,7 @@ async function submit(options: submit.Options) {
           config: claim.config,
           hash: claim.hash,
           approvals: claim.approvals,
+          store: options.store,
         })
         const final = MultisigOperation.serializeTransaction(claim, {
           approvals: finalApprovals.selectedApprovals,
@@ -472,7 +522,7 @@ async function submit(options: submit.Options) {
 declare namespace submit {
   /** Options for {@link submit}. */
   export type Options = {
-    /** Client used to validate configuration witnesses. */
+    /** Client used to validate configs. */
     client: ReturnType<typeof createClient>
     /** RPC submission method. */
     method:
@@ -506,14 +556,13 @@ function deserialize(serialized: Hex.Hex) {
   }
 }
 
-/** Validates a config witness against the account and chain commitment. */
-async function assertConfig(options: {
+/** Validates a config against an observed chain commitment. */
+function assertConfig(options: {
   account: `0x${string}`
-  blockNumber: bigint
-  client: ReturnType<typeof createClient>
+  commitment: Hex.Hex
   config: MultisigConfig.Config
 }) {
-  const { account, blockNumber, client, config } = options
+  const { account, commitment, config } = options
   if (
     config.version === 0n &&
     MultisigConfig.getAddress(config).toLowerCase() !== account.toLowerCase()
@@ -521,24 +570,105 @@ async function assertConfig(options: {
     throw new RpcResponse.InvalidParamsError({
       message: 'Initial multisig config does not match the multisig account.',
     })
-  const commitment = await getConfigCommitment(client, {
-    account,
-    blockNumber,
-  })
   const expected = (() => {
     if (config.version === 0n) return Hex.fromNumber(0, { size: 32 })
     return MultisigConfig.getCommitment(config)
   })()
   if (commitment.toLowerCase() !== expected.toLowerCase())
     throw new RpcResponse.InvalidParamsError({
-      message: `Multisig config witness does not match account ${account}.`,
+      message: `Multisig config does not match account ${account}.`,
     })
 }
 
-/** Selects approvals after validating every nested configuration witness. */
+/** Reads and validates a config commitment at one block. */
+async function validateConfig(options: {
+  account: `0x${string}`
+  blockNumber: bigint
+  client: ReturnType<typeof createClient>
+  config: MultisigConfig.Config
+}) {
+  const { account, blockNumber, client, config } = options
+  const commitment = await getConfigCommitment(client, {
+    account,
+    blockNumber,
+  })
+  assertConfig({ account, commitment, config })
+  return commitment
+}
+
+/** Caches candidate configs from valid native update calls. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function cacheNextConfigs(options: cacheNextConfigs.Options) {
+  let currentConfig = options.config
+  for (const call of options.transaction.calls) {
+    if (
+      !call.to ||
+      !isAddressEqual(call.to, Addresses.nativeMultisig) ||
+      !call.data
+    )
+      continue
+    const decoded = (() => {
+      try {
+        return decodeFunctionData({ abi: Abis.nativeMultisig, data: call.data })
+      } catch {
+        return undefined
+      }
+    })()
+    if (decoded?.functionName !== 'updateConfig') continue
+    const [current, threshold, owners] = decoded.args
+    const suppliedConfig = (() => {
+      try {
+        return MultisigConfig.from(current)
+      } catch {
+        return undefined
+      }
+    })()
+    if (
+      !suppliedConfig ||
+      MultisigConfig.getCommitment(suppliedConfig).toLowerCase() !==
+        MultisigConfig.getCommitment(currentConfig).toLowerCase()
+    )
+      continue
+    const config = (() => {
+      try {
+        return MultisigConfig.from({
+          owners,
+          salt: suppliedConfig.salt,
+          threshold,
+          version: suppliedConfig.version + 1n,
+        })
+      } catch {
+        return undefined
+      }
+    })()
+    if (!config) continue
+    await ConfigStore.write(options.store, {
+      address: options.account,
+      commitment: MultisigConfig.getCommitment(config),
+      config,
+    })
+    currentConfig = config
+  }
+}
+
+declare namespace cacheNextConfigs {
+  /** Parameters for {@link cacheNextConfigs}. */
+  export type Options = {
+    /** Root multisig account. */
+    account: Address
+    /** Root config used to authorize the transaction. */
+    config: MultisigConfig.Config
+    /** Shared multisig store. */
+    store: Store.Store
+    /** Submitted transaction containing potential config updates. */
+    transaction: Transaction.TransactionSerializableTempo
+  }
+}
+
+/** Selects approvals after validating every nested config. */
 // biome-ignore lint/correctness/noUnusedVariables: _
 async function selectApprovals(options: selectApprovals.Options) {
-  const validation = new Map<string, Promise<void>>()
+  const validation = new Map<string, Promise<Hex.Hex>>()
   let validationCount = 0
   const select = async (approvals: readonly SignatureEnvelope.Serialized[]) => {
     const result = await MultisigOperation.selectApprovals({
@@ -571,7 +701,7 @@ async function selectApprovals(options: selectApprovals.Options) {
           throw new RpcResponse.InvalidParamsError({
             message: 'Multisig approval validation exceeds the owner limit.',
           })
-        const pending = assertConfig({
+        const pending = validateConfig({
           account,
           blockNumber: options.blockNumber,
           client: options.client,
@@ -580,7 +710,12 @@ async function selectApprovals(options: selectApprovals.Options) {
         validation.set(key, pending)
         return pending
       })()
-      await pending
+      const commitment = await pending
+      await ConfigStore.write(options.store, {
+        address: account,
+        commitment,
+        config,
+      })
     }
     return result
   }
@@ -616,12 +751,14 @@ async function selectApprovals(options: selectApprovals.Options) {
 declare namespace selectApprovals {
   /** Options for {@link selectApprovals}. */
   export type Options = MultisigOperation.selectApprovals.Options & {
-    /** Block used to validate every config witness. */
+    /** Block used to validate every config. */
     blockNumber: bigint
     /** Client used to validate nested multisig configurations. */
     client: ReturnType<typeof createClient>
     /** Discards stored nested approvals invalidated by a child configuration change. */
     discardInvalidNested?: boolean | undefined
+    /** Shared multisig store. */
+    store: Store.Store
   }
 }
 
@@ -810,6 +947,7 @@ function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
 async function toTransaction(
   client: ReturnType<typeof createClient>,
   operation: MultisigOperation.TransactionOperation,
+  store: Store.Store,
 ) {
   const approvals = await (async () => {
     if (operation.status !== 'pending')
@@ -820,7 +958,7 @@ async function toTransaction(
         hash: operation.hash,
       })
     const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
-    await assertConfig({
+    await validateConfig({
       account: operation.account,
       blockNumber,
       client,
@@ -834,6 +972,7 @@ async function toTransaction(
       config: operation.config,
       discardInvalidNested: true,
       hash: operation.hash,
+      store,
     })
   })()
   const current =

@@ -13,11 +13,6 @@ the account retains enough local owners to sign. For distributed signing, includ
 `multisig.updateConfig.call` in a prepared request and collect approvals as shown in
 [Rotate Multisig Owners](/tempo/guides/multisig/rotate-owners).
 
-:::warning
-The multisig account must already be initialized. The protocol does not allow initialization and
-a configuration update in the same transaction.
-:::
-
 ## Usage
 
 :::code-group
@@ -43,7 +38,6 @@ const account = Account.fromMultisig({
 
 const hash = await client.multisig.updateConfig({
   account,
-  currentConfig: account.config,
   nextConfig: {
     owners: [{ owner: newOwner.address, weight: 1 }],
     threshold: 1,
@@ -69,9 +63,12 @@ The transaction hash.
 
 ### currentConfig
 
-- **Type:** `MultisigConfig.Config`
+- **Type:** `MultisigConfig.Config | undefined`
 
-The account's complete current configuration witness.
+The account's complete current config. When omitted, the action uses the config on the
+multisig account, then asks the configured multisig coordinator by account address.
+
+`Actions.multisig.updateConfig.call` has no client and continues to require `currentConfig`.
 
 ### nextConfig
 

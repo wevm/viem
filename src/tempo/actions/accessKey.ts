@@ -1056,7 +1056,7 @@ export async function prepareAuthorization<
     const account = parsed as MultisigAccount
     if (!account.config)
       throw new Error(
-        'A multisig config witness is required to prepare a key authorization.',
+        'A multisig config is required to prepare a key authorization.',
       )
     return { config: account.config }
   })()

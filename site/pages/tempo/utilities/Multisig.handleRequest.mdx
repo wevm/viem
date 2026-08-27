@@ -38,6 +38,12 @@ The authoritative atomic store shared by requests that coordinate the same multi
 
 ## RPC Methods
 
+### `multisig_getConfig`
+
+Reads the account's current config commitment and returns the matching validated config from the
+shared store. It returns `null` when the relay has not seen that config. The response includes the
+owner addresses and weights, so public handlers expose cached owner lists.
+
 ### `eth_sendRawTransaction`
 
 A partial multisig transaction returns its operation hash. Once quorum is reached, the handler

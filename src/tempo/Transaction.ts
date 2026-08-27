@@ -384,14 +384,14 @@ async function serializeTempo(
     )
     if (typeof transaction.multisig === 'string')
       throw new Error(
-        'A multisig config witness is required to serialize owner approvals.',
+        'A multisig config is required to serialize owner approvals.',
       )
     const config = MultisigConfig.from(transaction.multisig)
     const account = (() => {
       if (transaction.from) return transaction.from
       if (config.version === 0n) return MultisigConfig.getAddress(config)
       throw new Error(
-        'A multisig account address is required for a current config witness.',
+        'A multisig account address is required with a current config.',
       )
     })()
     const sorted = SignatureEnvelope.sortMultisigApprovals({

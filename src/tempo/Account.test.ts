@@ -125,7 +125,7 @@ describe('fromMultisig', () => {
         version: 0,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: A current multisig config witness must have a version.]`,
+      `[Error: A current multisig config must have a version.]`,
     )
   })
 
@@ -548,7 +548,7 @@ describe('signTransaction', () => {
         },
       } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: A multisig account address is required for a current config witness.]`,
+      `[Error: A multisig account address is required with a current config.]`,
     )
   })
 })

@@ -2366,6 +2366,19 @@ type DecoratorBase<
   }
   multisig: {
     /**
+     * Gets the current cached config for a multisig account.
+     *
+     * @param parameters - Parameters.
+     * @returns The config, or `null` when it is unknown.
+     */
+    getConfig: (
+      parameters: multisigActions.getConfig.Parameters,
+    ) => Promise<multisigActions.getConfig.ReturnValue>
+    /** Gets the current configuration commitment for a multisig account. */
+    getConfigCommitment: (
+      parameters: multisigActions.getConfigCommitment.Parameters,
+    ) => Promise<multisigActions.getConfigCommitment.ReturnValue>
+    /**
      * Gets a coordinated multisig operation by its hash.
      *
      * @param parameters - Parameters.
@@ -2374,10 +2387,6 @@ type DecoratorBase<
     getOperation: (
       parameters: multisigActions.getOperation.Parameters,
     ) => Promise<multisigActions.getOperation.ReturnValue>
-    /** Gets the current configuration commitment for a multisig account. */
-    getConfigCommitment: (
-      parameters: multisigActions.getConfigCommitment.Parameters,
-    ) => Promise<multisigActions.getConfigCommitment.ReturnValue>
     /**
      * Replaces the current configuration for a native multisig account.
      *
@@ -6002,6 +6011,7 @@ export function decorator() {
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
+        'getConfig',
         'getConfigCommitment',
         'getOperation',
         'updateConfig',

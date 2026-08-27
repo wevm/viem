@@ -24,7 +24,9 @@ export const client = createClient({
 
 `withMultisig` intercepts multisig transaction submissions and lookups. It validates each owner
 approval, merges the approval into the shared store, and forwards the finalized transaction to the
-wrapped transport when the account reaches quorum. All unrelated RPC requests pass through unchanged.
+wrapped transport when the account reaches quorum. It also caches validated configs so an
+address-only account can resolve the config selected by current chain state. All unrelated RPC
+requests pass through unchanged.
 
 ## Return Value
 

@@ -2814,11 +2814,6 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'isInitialized',
-                  link: '/tempo/actions/multisig.isInitialized',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'updateConfig',
                   link: '/tempo/actions/multisig.updateConfig',
                 },

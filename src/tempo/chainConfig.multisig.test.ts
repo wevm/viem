@@ -92,7 +92,7 @@ describe('prepareTransactionRequest', () => {
     `)
   })
 
-  test('behavior: preserves a current config witness', async () => {
+  test('behavior: preserves a current config', async () => {
     const initial = MultisigConfig.from({
       owners: [{ owner: accounts[1].address, weight: 1 }],
       threshold: 1,

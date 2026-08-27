@@ -1,6 +1,7 @@
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
+  Actions,
   createClient,
   type MultisigConfig,
   type MultisigOperation,
@@ -27,6 +28,7 @@ test('wallet actions expose multisig operations', async () => {
     hash,
   })
   const transaction = await client.getTransaction({ hash })
+  const config = await client.multisig.getConfig({ address: account.address })
   const operation = await client.multisig.getOperation({ hash })
 
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
@@ -36,13 +38,13 @@ test('wallet actions expose multisig operations', async () => {
   expectTypeOf(transaction.multisig).toEqualTypeOf<
     MultisigOperation.TransactionOperation | undefined
   >()
+  expectTypeOf(config).toEqualTypeOf<MultisigConfig.Config | null>()
   expectTypeOf(operation).toEqualTypeOf<MultisigOperation.Operation | null>()
 })
 
-test('updateConfig accepts current and replacement configs', async () => {
+test('updateConfig infers the current config', async () => {
   const parameters = {
     account,
-    currentConfig: account.config,
     nextConfig: {
       owners: account.config.owners,
       threshold: account.config.threshold,
@@ -50,8 +52,33 @@ test('updateConfig accepts current and replacement configs', async () => {
   } as const
 
   const hash = await client.multisig.updateConfig(parameters)
+  const explicitHash = await client.multisig.updateConfig({
+    ...parameters,
+    account: owner,
+    currentConfig: account.config,
+    multisig: account.address,
+  })
   const result = await client.multisig.updateConfigSync(parameters)
 
+  expectTypeOf(explicitHash).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(result.config).toEqualTypeOf<MultisigConfig.Config>()
+})
+
+test('updateConfig.call requires the current config', () => {
+  Actions.multisig.updateConfig.call({
+    currentConfig: account.config,
+    nextConfig: {
+      owners: account.config.owners,
+      threshold: account.config.threshold,
+    },
+  })
+
+  // @ts-expect-error `call` cannot resolve a current config from a client.
+  Actions.multisig.updateConfig.call({
+    nextConfig: {
+      owners: account.config.owners,
+      threshold: account.config.threshold,
+    },
+  })
 })

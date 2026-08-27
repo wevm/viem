@@ -278,8 +278,8 @@ export declare namespace fromSecp256k1 {
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
  * The returned account does not hold a key itself. Set `address` to `initial`
- * to derive an account address from its initial config. For a current config
- * witness, set `address` to the stable account address. Pass the address
+ * to derive an account address from its initial config. For a current config,
+ * set `address` to the stable account address. Pass the address
  * directly for an address-only account.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
@@ -307,7 +307,7 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
- * @param value Initial config, current config witness, or multisig address.
+ * @param value Initial config, current config, or multisig address.
  * @returns Multisig account.
  */
 export function fromMultisig(
@@ -346,7 +346,7 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     if (value.address === 'initial' && config!.version !== 0n)
       throw new Error('An initial multisig config must have version zero.')
     if (value.address !== 'initial' && config!.version === 0n)
-      throw new Error('A current multisig config witness must have a version.')
+      throw new Error('A current multisig config must have a version.')
   }
   const address = Address.checksum(
     (() => {
@@ -409,14 +409,12 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       })()
       if (!requestAccount)
         throw new Error(
-          'A multisig account address is required for a current config witness.',
+          'A multisig account address is required with a current config.',
         )
 
       if (!Address.isEqual(requestAccount, address)) {
         if (!requestMultisig || typeof requestMultisig === 'string')
-          throw new Error(
-            'A multisig config witness is required for local signing.',
-          )
+          throw new Error('A multisig config is required for local signing.')
         const parentConfig = MultisigConfig.from(requestMultisig)
         const parentDigest = MultisigConfig.getSignPayload({
           account: requestAccount,
@@ -454,7 +452,7 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
 }
 
 export declare namespace fromMultisig {
-  /** Stable multisig account address and its current config witness. */
+  /** Stable multisig account address and its current config. */
   export type CurrentConfig = {
     /** Stable multisig account address. */
     address: Address.Address
@@ -499,7 +497,7 @@ export type MultisigAccount<
     | MultisigConfig.Config
     | undefined,
 > = LocalAccount<'multisig'> & {
-  /** Normalized config witness, or `undefined` for an address-only account. */
+  /** Normalized config, or `undefined` for an address-only account. */
   config: config
   /** @internal Local owner accounts available for signing. */
   owners: readonly LocalAccount[]
@@ -520,9 +518,7 @@ async function signMultisig(
   const { config, payload, signatures: providedSignatures = [] } = parameters
   const currentConfig = config ?? account.config
   if (!currentConfig)
-    throw new Error(
-      'A current multisig config witness is required for local signing.',
-    )
+    throw new Error('A current multisig config is required for local signing.')
   const digest = MultisigConfig.getSignPayload({
     account: account.address,
     config: currentConfig,
@@ -980,9 +976,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       }
       if (multisig) {
         if (typeof multisig === 'string')
-          throw new Error(
-            'A multisig config witness is required for owner signing.',
-          )
+          throw new Error('A multisig config is required for owner signing.')
         const config = MultisigConfig.from(multisig)
         const account = (() => {
           const from = (transaction as { from?: Address.Address | undefined })
@@ -990,7 +984,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
           if (from) return from
           if (config.version === 0n) return MultisigConfig.getAddress(config)
           throw new Error(
-            'A multisig account address is required for a current config witness.',
+            'A multisig account address is required with a current config.',
           )
         })()
         const digest = MultisigConfig.getSignPayload({

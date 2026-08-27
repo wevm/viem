@@ -34,7 +34,7 @@ test('fromMultisig preserves config availability', () => {
 
 test('fromMultisig distinguishes initial and current configs', () => {
   Account.fromMultisig({ address: 'initial', owners: [owner] })
-  // @ts-expect-error Current config witnesses require `salt`.
+  // @ts-expect-error Current configs require `salt`.
   Account.fromMultisig({
     address: owner.address,
     owners: [owner],

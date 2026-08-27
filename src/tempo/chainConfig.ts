@@ -22,6 +22,7 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
+import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
@@ -172,15 +173,32 @@ export const chainConfig = {
         throw new Error(
           'A Tempo owner account is required to approve a multisig transaction.',
         )
+      const coordinatedMultisig =
+        !!multisigIdentity &&
+        (client.transport as { multisig?: boolean }).multisig === true
       if (multisigIdentity) {
-        const { account, config, local } = multisigIdentity
+        const { account, local } = multisigIdentity
         if (!account)
           throw new Error(
-            'A multisig account address is required for a current config witness.',
+            'A multisig account address is required with a current config.',
           )
+        const config = await (async () => {
+          if (multisigIdentity.config) return multisigIdentity.config
+          if (!coordinatedMultisig) return undefined
+          const cachedConfig = await getAction(
+            client,
+            getConfig,
+            'getConfig',
+          )({ address: account })
+          if (!cachedConfig)
+            throw new Error(
+              `No current multisig config is cached for account ${account}. Provide the current config.`,
+            )
+          return cachedConfig
+        })()
         if (!config)
           throw new Error(
-            'A multisig config witness is required to prepare a transaction.',
+            'A multisig config is required to prepare a transaction.',
           )
         request.from = account
         request.multisig = config
@@ -197,10 +215,6 @@ export const chainConfig = {
         )
           delete request.account
       }
-
-      const coordinatedMultisig =
-        !!multisigIdentity &&
-        (client.transport as { multisig?: boolean }).multisig === true
 
       // Register concurrency before account preparation performs storage or
       // network I/O so overlapping requests cannot miss each other.
@@ -414,7 +428,7 @@ function getMultisigWitness(options: {
         const nested = localOwner as MultisigAccount
         if (!nested.config)
           throw new Error(
-            'A nested multisig config witness is required for gas estimation.',
+            'A nested multisig config is required for gas estimation.',
           )
         return {
           type: 'multisig',

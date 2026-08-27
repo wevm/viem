@@ -31,7 +31,7 @@ describe('stateless', () => {
 
   const to = '0x0000000000000000000000000000000000000001'
 
-  test('example: repeatable initial witness', async () => {
+  test('example: repeatable initial config', async () => {
     const owner_1 = accounts[1]
     const owner_2 = accounts[2]
     const config = MultisigConfig.from({
@@ -366,7 +366,7 @@ describe('stateless', () => {
     )
   })
 
-  test('example: initial witness and immediate access key use', async () => {
+  test('example: initial config and immediate access key use', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
     const account = Account.fromMultisig({
@@ -419,7 +419,7 @@ describe('stateless', () => {
     ).toMatchObject({ version: 0n })
   })
 
-  test('example: independent transaction and access key witnesses', async () => {
+  test('example: independent transaction and access key signatures', async () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]
     const account = Account.fromMultisig({
@@ -884,7 +884,7 @@ describe('stateless', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('behavior: address requires a config witness', async () => {
+  test('behavior: address requires a config', async () => {
     const account = Account.fromMultisig(accounts[0].address)
 
     await expect(
@@ -894,9 +894,7 @@ describe('stateless', () => {
         feeToken,
         multisig: account,
       }),
-    ).rejects.toThrow(
-      'A multisig config witness is required to prepare a transaction.',
-    )
+    ).rejects.toThrow('A multisig config is required to prepare a transaction.')
   })
 
   test('behavior: external owners authorize an access key', async () => {
@@ -957,7 +955,67 @@ describe('stateful', () => {
     transport: tempo.http(),
   })
 
-  test('example: repeatable initial witness', async () => {
+  test('behavior: rejects unknown and invalid config lookups', async () => {
+    const address = tempo.accounts[20].address
+    await expect(
+      client.multisig.getConfig({ address }),
+    ).resolves.toMatchInlineSnapshot(`null`)
+
+    await expect(
+      sendTransactionSync(client, {
+        account: tempo.accounts[1],
+        calls: [{ data: '0xdeadbeef', to: tempo.accounts[19].address }],
+        multisig: Account.fromMultisig(address),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: An error occurred.
+
+      Request Arguments:
+        from:  0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650
+
+      Details: No current multisig config is cached for account 0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C. Provide the current config.
+      Version: viem@2.56.0]
+    `,
+    )
+
+    await expect(
+      client.request({
+        method: 'multisig_getConfig',
+        params: [{ address: '0x01' }],
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Expected a multisig account address.]`,
+    )
+  })
+
+  test('behavior: rejects a malformed cached config', async () => {
+    const address = tempo.accounts[19].address
+    const store = Store.memory()
+    await store.setItem(
+      `multisig:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
+      'invalid json',
+    )
+    const client = createClient({
+      chain: tempoLocalnet,
+      experimental_multisig: { store },
+      tokens: tempo.tokens,
+      transport: tempo.http(),
+    })
+
+    await expect(
+      client.multisig.getConfig({ address }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [Multisig.Config.InvalidStoreValueError: Stored multisig config is malformed or mismatched.
+
+      Details: Unexpected token 'i', "invalid json" is not valid JSON
+      Version: viem@2.56.0]
+    `,
+    )
+  })
+
+  test('example: repeatable initial config', async () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
     const account = Account.fromMultisig({
@@ -1411,7 +1469,7 @@ describe('stateful', () => {
     expect(receipt.feePayer).toBe(tempo.accounts[0].address.toLowerCase())
   })
 
-  test('example: initial witness and immediate access key use', async () => {
+  test('example: initial config and immediate access key use', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
     const account = Account.fromMultisig({
@@ -1458,7 +1516,7 @@ describe('stateful', () => {
     })
   })
 
-  test('example: independent transaction and access key witnesses', async () => {
+  test('example: independent transaction and access key signatures', async () => {
     const owner_1 = tempo.accounts[19]
     const owner_2 = tempo.accounts[20]
     const account = Account.fromMultisig({
@@ -1529,7 +1587,6 @@ describe('stateful', () => {
       salt: toHex(0x10612e, { size: 32 }),
       threshold: 2,
     })
-    const initialConfig = account.config
 
     await Actions.token.transferSync(client, {
       account: tempo.accounts[0],
@@ -1545,6 +1602,25 @@ describe('stateful', () => {
     })
     expect(initialPending.multisig?.config.version).toBe(0n)
     expect(initialPending.status).toBe('pending')
+    await expect(
+      client.multisig.getConfig({ address: account.address }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "owners": [
+          {
+            "owner": "0x59fc84c01c2317ccdda6be40ce1cff233215c84e",
+            "weight": 1,
+          },
+          {
+            "owner": "0x8e4d1a7b8c4f7f4204eb0643c85aa7656880e18b",
+            "weight": 1,
+          },
+        ],
+        "salt": "0x000000000000000000000000000000000000000000000000000000000010612e",
+        "threshold": 2,
+        "version": 0n,
+      }
+    `)
     const initialSuccess = await sendTransactionSync(client, {
       hash: initialPending.transactionHash,
       account: owner_2,
@@ -1560,7 +1636,6 @@ describe('stateful', () => {
       client,
       {
         account: owner_1,
-        currentConfig: initialConfig,
         multisig: account,
         nextConfig: {
           owners: [
@@ -1574,6 +1649,9 @@ describe('stateful', () => {
     expect(updatePending.multisig?.account).toBe(account.address.toLowerCase())
     expect(updatePending.multisig?.config.version).toBe(0n)
     expect(updatePending.status).toBe('pending')
+    expect(
+      (await client.multisig.getConfig({ address: account.address }))?.version,
+    ).toMatchInlineSnapshot(`0n`)
     const updateSuccess = await sendTransactionSync(client, {
       hash: updatePending.transactionHash,
       account: owner_2,
@@ -1590,13 +1668,26 @@ describe('stateful', () => {
       ]),
     })
 
-    const currentAccount = Account.fromMultisig({
-      address: account.address,
-      owners: [owner_3, owner_4],
-      salt: initialConfig.salt,
-      threshold: 2,
-      version: 1,
-    })
+    await expect(
+      client.multisig.getConfig({ address: account.address }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "owners": [
+          {
+            "owner": "0x2d6776fd5eA3C530b990268078Ac39aC2AE1E6A8",
+            "weight": 1,
+          },
+          {
+            "owner": "0x52FECfF3490ad3DAe2F9B2C0A600f53E7bcB86de",
+            "weight": 1,
+          },
+        ],
+        "salt": "0x000000000000000000000000000000000000000000000000000000000010612e",
+        "threshold": 2,
+        "version": 1n,
+      }
+    `)
+    const currentAccount = Account.fromMultisig(account.address)
 
     const pending = await sendTransactionSync(client, {
       account: owner_3,
@@ -1620,6 +1711,44 @@ describe('stateful', () => {
 
     const receipt = await getReceipt(success)
     expect(receipt.from).toBe(currentAccount.address.toLowerCase())
+
+    const { receipt: secondUpdatePending } =
+      await Actions.multisig.updateConfigSync(client, {
+        account: owner_3,
+        multisig: currentAccount,
+        nextConfig: {
+          owners: [
+            { owner: owner_1.address, weight: 1 },
+            { owner: owner_2.address, weight: 1 },
+          ],
+          threshold: 2,
+        },
+      })
+    expect(secondUpdatePending.status).toMatchInlineSnapshot(`"pending"`)
+    const secondUpdateSuccess = await sendTransactionSync(client, {
+      account: owner_4,
+      hash: secondUpdatePending.transactionHash,
+    })
+    await getReceipt(secondUpdateSuccess)
+    await expect(
+      client.multisig.getConfig({ address: account.address }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "owners": [
+          {
+            "owner": "0x59Fc84C01c2317cCDdA6Be40ce1cFf233215c84e",
+            "weight": 1,
+          },
+          {
+            "owner": "0x8e4D1a7b8c4f7F4204EB0643C85AA7656880E18b",
+            "weight": 1,
+          },
+        ],
+        "salt": "0x000000000000000000000000000000000000000000000000000000000010612e",
+        "threshold": 2,
+        "version": 2n,
+      }
+    `)
   })
 
   test('behavior: rejects a JSON-RPC owner account', async () => {
@@ -2020,7 +2149,7 @@ describe('stateful', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('behavior: address requires a config witness', async () => {
+  test('behavior: address requires a cached config', async () => {
     const account = Account.fromMultisig(tempo.accounts[0].address)
 
     await expect(
@@ -2029,8 +2158,16 @@ describe('stateful', () => {
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         multisig: account,
       }),
-    ).rejects.toThrow(
-      'A multisig config witness is required to prepare a transaction.',
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: An error occurred.
+
+      Request Arguments:
+        from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      Details: No current multisig config is cached for account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266. Provide the current config.
+      Version: viem@2.56.0]
+    `,
     )
   })
 
