@@ -245,7 +245,7 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_MULTISIG: 'true'
-          VITE_TEMPO_TAG: sha-7825976
+          VITE_TEMPO_TAG: sha-896b990
 
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
