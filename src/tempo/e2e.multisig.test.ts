@@ -1,4 +1,4 @@
-import { TxEnvelopeTempo } from 'ox/tempo'
+import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { maxUint256, parseSignature, type Transport, toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
@@ -2176,7 +2176,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[19]
     const account = Account.fromMultisig({
       address: 'initial',
-      owners: [owner_1.address, owner_2.address],
+      owners: [owner_1, owner_2],
       salt: toHex(0x10612c, { size: 32 }),
       threshold: 2,
     })
@@ -2256,6 +2256,23 @@ describe('stateful', () => {
       client.multisig.getOperation({ hash: pending.hash }),
     ).resolves.toStrictEqual(pending.multisig)
 
+    const duplicate = await client.accessKey.signAuthorization({
+      account: owner_1,
+      hash: pending.hash,
+    })
+    expect(duplicate.multisig).toStrictEqual(pending.multisig)
+
+    const { receipt: unrelatedReceipt } = await Actions.token.transferSync(
+      client,
+      {
+        account,
+        amount: 1n,
+        to: tempo.accounts[20].address,
+        token: tempo.feeToken,
+      },
+    )
+    expect(unrelatedReceipt.status).toMatchInlineSnapshot(`"success"`)
+
     const success = await client.accessKey.signAuthorization({
       account: owner_2,
       hash: pending.hash,
@@ -2317,6 +2334,12 @@ describe('stateful', () => {
       }
     `,
     )
+    await expect(
+      client.multisig.getOperation({ hash: success.hash }),
+    ).resolves.toStrictEqual(success.multisig)
+    await expect(
+      client.multisig.getOperation({ hash: `0x${'ff'.repeat(32)}` }),
+    ).resolves.toMatchInlineSnapshot(`null`)
     const { receipt } = await Actions.token.transferSync(client, {
       account: accessKey,
       amount: 1n,
@@ -2327,6 +2350,481 @@ describe('stateful', () => {
 
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
+  test('behavior: coordinates current-config access key authorization approvals', async () => {
+    const owner_1 = tempo.accounts[4]
+    const owner_2 = tempo.accounts[5]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106140, { size: 32 }),
+      threshold: 2,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const { receipt: updatePending } = await Actions.multisig.updateConfigSync(
+      client,
+      {
+        account: owner_1,
+        multisig: account,
+        nextConfig: {
+          owners: account.config.owners,
+          threshold: account.config.threshold,
+        },
+      },
+    )
+    expect(updatePending.status).toMatchInlineSnapshot(`"pending"`)
+    const updateSuccess = await sendTransactionSync(client, {
+      account: owner_2,
+      hash: updatePending.transactionHash,
+    })
+    assertSuccess(updateSuccess)
+
+    const config = await client.multisig.getConfig({ address: account.address })
+    if (!config) throw new Error('Expected current multisig config.')
+    expect(config.version).toMatchInlineSnapshot(`1n`)
+    const currentAccount = Account.fromMultisig({
+      address: account.address,
+      ...config,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: currentAccount,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: owner_1,
+      multisig: currentAccount,
+    })
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    expect(pending.multisig.config.version).toMatchInlineSnapshot(`1n`)
+
+    const success = await client.accessKey.signAuthorization({
+      account: owner_2,
+      hash: pending.hash,
+    })
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+    expect(success.multisig.config.version).toMatchInlineSnapshot(`1n`)
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization: success,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt.from).toBe(account.address.toLowerCase())
+
+    await expect(
+      sendTransactionSync(client, {
+        account: accessKey,
+        calls: [
+          Actions.multisig.updateConfig.call({
+            currentConfig: config,
+            nextConfig: {
+              owners: config.owners,
+              threshold: config.threshold,
+            },
+          }),
+        ],
+      }),
+    ).rejects.toThrowError(/UnauthorizedMultisigCaller/)
+  })
+
+  test('behavior: coordinates weighted access key authorization approvals', async () => {
+    const [heavy, light_1, light_2] = [
+      tempo.accounts[6],
+      tempo.accounts[7],
+      tempo.accounts[8],
+    ].sort((a, b) => a.address.localeCompare(b.address))
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [
+        { owner: heavy, weight: 2 },
+        { owner: light_1, weight: 1 },
+        { owner: light_2, weight: 1 },
+      ],
+      salt: toHex(0x106141, { size: 32 }),
+      threshold: 3,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: heavy,
+      multisig: account,
+    })
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    expect(pending.multisig.weight).toMatchInlineSnapshot(`2`)
+
+    const success = await client.accessKey.signAuthorization({
+      account: light_1,
+      hash: pending.hash,
+    })
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+    expect(success.multisig.signatureCount).toMatchInlineSnapshot(`2`)
+    expect(success.multisig.weight).toMatchInlineSnapshot(`3`)
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization: success,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: coordinates nested access key authorization approvals', async () => {
+    const childOwner = tempo.accounts[9]
+    const parentOwner = tempo.accounts[10]
+    const child = Account.fromMultisig({
+      address: 'initial',
+      owners: [childOwner],
+      salt: toHex(0x106142, { size: 32 }),
+    })
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [child, parentOwner.address],
+      salt: toHex(0x106143, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: child,
+      multisig: account,
+    })
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    expect(pending.multisig.weight).toMatchInlineSnapshot(`1`)
+
+    const success = await client.accessKey.signAuthorization({
+      account: parentOwner,
+      hash: pending.hash,
+    })
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+    expect(success.signature.type).toMatchInlineSnapshot(`"multisig"`)
+    if (success.signature.type !== 'multisig') throw new Error('unreachable')
+    expect(
+      success.signature.signatures.map((signature) => signature.type).sort(),
+    ).toMatchInlineSnapshot(`
+      [
+        "multisig",
+        "secp256k1",
+      ]
+    `)
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization: success,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: coordinates mixed-key access key authorization approvals', async () => {
+    const owners = [
+      Account.fromSecp256k1(generatePrivateKey()),
+      Account.fromP256(P256.randomPrivateKey()),
+      Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+        origin: 'https://example.com',
+        rpId: 'example.com',
+      }),
+    ]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners,
+      salt: toHex(0x106144, { size: 32 }),
+      threshold: owners.length,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: owners[0],
+      multisig: account,
+    })
+    const pending_2 = await client.accessKey.signAuthorization({
+      account: owners[1],
+      hash: pending.hash,
+    })
+    expect(pending_2.status).toMatchInlineSnapshot(`"pending"`)
+    const success = await client.accessKey.signAuthorization({
+      account: owners[2],
+      hash: pending.hash,
+    })
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+    if (success.signature.type !== 'multisig') throw new Error('unreachable')
+    expect(
+      success.signature.signatures.map((signature) => signature.type).sort(),
+    ).toMatchInlineSnapshot(`
+      [
+        "p256",
+        "secp256k1",
+        "webAuthn",
+      ]
+    `)
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization: success,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: accepts multiple access key approvals in one request', async () => {
+    const owner_1 = tempo.accounts[11]
+    const owner_2 = tempo.accounts[12]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106145, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const authorization = await Actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account,
+    })
+    const operation = MultisigOperation.fromRpc(
+      (await client.request({
+        method: 'multisig_approveKeyAuthorization',
+        params: [{ keyAuthorization: KeyAuthorization.toRpc(authorization) }],
+      } as never)) as MultisigOperation.KeyAuthorizationRpc,
+    )
+    expect(operation.status).toMatchInlineSnapshot(`"success"`)
+    expect(operation.signatureCount).toMatchInlineSnapshot(`2`)
+    const keyAuthorization_ = KeyAuthorization.deserialize(
+      operation.keyAuthorization,
+    )
+    if (!keyAuthorization_.signature)
+      throw new Error('Expected signed key authorization.')
+    const keyAuthorization = keyAuthorization_ as KeyAuthorization.Signed
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: invalidates a version-0 authorization after a config update', async () => {
+    const owner_1 = tempo.accounts[13]
+    const owner_2 = tempo.accounts[14]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106146, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const authorization = await client.accessKey.signAuthorization({
+      accessKey,
+      account: owner_1,
+      multisig: account,
+    })
+    expect(authorization.status).toMatchInlineSnapshot(`"pending"`)
+
+    const { receipt: updatePending } = await Actions.multisig.updateConfigSync(
+      client,
+      {
+        account: owner_1,
+        multisig: account,
+        nextConfig: {
+          owners: account.config.owners,
+          threshold: account.config.threshold,
+        },
+      },
+    )
+    const updateSuccess = await sendTransactionSync(client, {
+      account: owner_2,
+      hash: updatePending.transactionHash,
+    })
+    assertSuccess(updateSuccess)
+
+    await expect(
+      client.accessKey.signAuthorization({
+        account: owner_2,
+        hash: authorization.hash,
+      }),
+    ).rejects.toThrowError(/Multisig config does not match account/)
+    expect(
+      (await client.multisig.getOperation({ hash: authorization.hash }))
+        ?.status,
+    ).toMatchInlineSnapshot(`"pending"`)
+  })
+
+  test('behavior: coordinates concurrent authorization quorum approvals', async () => {
+    const owner_1 = tempo.accounts[15]
+    const owner_2 = tempo.accounts[16]
+    const owner_3 = tempo.accounts[17]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1, owner_2, owner_3],
+      salt: toHex(0x106147, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: owner_1,
+      multisig: account,
+    })
+    const [success_1, success_2] = await Promise.all([
+      client.accessKey.signAuthorization({
+        account: owner_2,
+        hash: pending.hash,
+      }),
+      client.accessKey.signAuthorization({
+        account: owner_3,
+        hash: pending.hash,
+      }),
+    ])
+    expect(success_1.multisig).toStrictEqual(success_2.multisig)
+    expect(success_1.status).toMatchInlineSnapshot(`"success"`)
+    expect(success_1.multisig.signatureCount).toMatchInlineSnapshot(`2`)
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      keyAuthorization: success_1,
+      to: tempo.accounts[20].address,
+      token: tempo.feeToken,
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: rejects invalid authorization approvals', async () => {
+    const owner_1 = tempo.accounts[18]
+    const owner_2 = tempo.accounts[19]
+    const outsider = tempo.accounts[20]
+    const account = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106148, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+
+    const pending = await client.accessKey.signAuthorization({
+      accessKey,
+      account: owner_1,
+      multisig: account,
+    })
+    await expect(
+      client.accessKey.signAuthorization({
+        account: outsider,
+        hash: pending.hash,
+      }),
+    ).rejects.toThrowError(/signature is from non-owner/)
+
+    const signature = SignatureEnvelope.serialize(
+      SignatureEnvelope.from(
+        await owner_2.sign({ hash: toHex(1, { size: 32 }) }),
+      ),
+    )
+    await expect(
+      client.request({
+        method: 'multisig_approveKeyAuthorization',
+        params: [{ hash: pending.hash, signature }],
+      } as never),
+    ).rejects.toThrowError(/signature is from non-owner/)
+
+    const authorization = await Actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account,
+    })
+    await expect(
+      client.request({
+        method: 'multisig_approveKeyAuthorization',
+        params: [
+          {
+            keyAuthorization: {
+              ...KeyAuthorization.toRpc(authorization),
+              account: outsider.address,
+            },
+          },
+        ],
+      } as never),
+    ).rejects.toThrowError(
+      /Multisig key authorization account does not match its signature/,
+    )
   })
 
   test('behavior: upgrades a 1-of-1 account to a passkey-compatible 1-of-2 account', async () => {
