@@ -104,6 +104,24 @@ const keyAuthorizationOperation = MultisigOperation.from({
   status: 'pending',
   type: 'keyAuthorization',
 })
+const keyAuthorizationSuccess = MultisigOperation.from({
+  ...keyAuthorizationOperation,
+  approvals: owners.map((owner) => owner.signature),
+  keyAuthorization: KeyAuthorization.serialize(
+    KeyAuthorization.from(KeyAuthorization.deserialize(keyAuthorization), {
+      signature: SignatureEnvelope.from({
+        account,
+        config,
+        signatures: owners.map((owner) =>
+          SignatureEnvelope.deserialize(owner.signature),
+        ),
+      }),
+    }),
+  ),
+  signatureCount: 2,
+  status: 'success',
+  weight: 2,
+})
 
 describe('read', () => {
   test('default', async () => {
@@ -211,6 +229,57 @@ describe('read', () => {
         "type": "keyAuthorization",
         "updatedAt": 2,
         "weight": 1,
+      }
+    `,
+    )
+  })
+
+  test('behavior: successful key authorization operation', async () => {
+    const store = Store.memory()
+    await Operation.update(
+      store,
+      keyAuthorizationSuccess.hash,
+      () => keyAuthorizationSuccess,
+    )
+
+    expect(
+      await Operation.read(store, keyAuthorizationSuccess.hash),
+    ).toMatchInlineSnapshot(
+      {
+        approvals: [expect.any(String), expect.any(String)],
+        keyAuthorization: expect.any(String),
+      },
+      `
+      {
+        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
+        "approvals": [
+          Any<String>,
+          Any<String>,
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0x288f0cd85005f34168f731a468aef268c2f9456f",
+              "weight": 1,
+            },
+            {
+              "owner": "0xd3a9f047ad43d7e2e4e7e491f1fe2e657a2651b6",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 2,
+          "version": 1n,
+        },
+        "createdAt": 1,
+        "hash": "0x14570ae04d1d0ef96c67a67effbc75dc769f4658c675aac6a3e18cebcfdb2b6c",
+        "keyAuthorization": Any<String>,
+        "signatureCount": 2,
+        "status": "success",
+        "threshold": 2,
+        "type": "keyAuthorization",
+        "updatedAt": 2,
+        "weight": 2,
       }
     `,
     )

@@ -307,6 +307,33 @@ type DecoratorBase<
       parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.revokeSync.ReturnValue>
     /**
+     * Signs a key authorization or adds one coordinated multisig approval.
+     *
+     * @example
+     * ```ts
+     * const pending = await client.accessKey.signAuthorization({
+     *   accessKey,
+     *   account: owner_1,
+     *   multisig,
+     * })
+     * const success = await client.accessKey.signAuthorization({
+     *   account: owner_2,
+     *   hash: pending.hash,
+     * })
+     * ```
+     *
+     * @param parameters - Authorization fields, or a stored operation hash.
+     * @returns A signed key authorization with multisig operation metadata when coordinated.
+     */
+    signAuthorization: {
+      (
+        parameters: accessKeyActions.signAuthorization.CoordinatedParameters<account>,
+      ): Promise<accessKeyActions.signAuthorization.CoordinatedReturnValue>
+      (
+        parameters: accessKeyActions.signAuthorization.LocalParameters<account>,
+      ): Promise<accessKeyActions.signAuthorization.ReturnValue>
+    }
+    /**
      * Updates the spending limit for a specific token on an authorized access key.
      *
      * @example

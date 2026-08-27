@@ -2171,7 +2171,7 @@ describe('stateful', () => {
     )
   })
 
-  test('behavior: external owners authorize an access key', async () => {
+  test('behavior: coordinates access key authorization approvals', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
     const account = Account.fromMultisig({
@@ -2191,23 +2191,136 @@ describe('stateful', () => {
       token: tempo.feeToken,
     })
 
-    const authorization = await Actions.accessKey.prepareAuthorization(client, {
-      account,
+    const pending = await Actions.accessKey.signAuthorization(client, {
       accessKey,
+      account: owner_1,
+      multisig: account,
     })
-    const signatures = await Promise.all(
-      [owner_1, owner_2].map((owner) =>
-        owner.sign({ hash: authorization.signPayload }),
-      ),
+    expect(pending).toMatchInlineSnapshot(
+      {
+        address: expect.any(String),
+        hash: expect.any(String),
+        multisig: {
+          approvals: [expect.any(String)],
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "isAdmin": false,
+        "multisig": {
+          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "approvals": [
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "weight": 1,
+              },
+              {
+                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 1,
+          "status": "pending",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 1,
+        },
+        "signature": Anything,
+        "status": "pending",
+        "type": "secp256k1",
+      }
+    `,
     )
-    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
-      ...authorization,
-      signatures,
+    await expect(
+      client.multisig.getOperation({ hash: pending.hash }),
+    ).resolves.toStrictEqual(pending.multisig)
+
+    const success = await client.accessKey.signAuthorization({
+      account: owner_2,
+      hash: pending.hash,
     })
+    expect(success).toMatchInlineSnapshot(
+      {
+        address: expect.any(String),
+        hash: expect.any(String),
+        multisig: {
+          approvals: [expect.any(String), expect.any(String)],
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "isAdmin": false,
+        "multisig": {
+          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "approvals": [
+            Any<String>,
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "weight": 1,
+              },
+              {
+                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 2,
+          "status": "success",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 2,
+        },
+        "signature": Anything,
+        "status": "success",
+        "type": "secp256k1",
+      }
+    `,
+    )
     const { receipt } = await Actions.token.transferSync(client, {
       account: accessKey,
       amount: 1n,
-      keyAuthorization,
+      keyAuthorization: success,
       to: tempo.accounts[20].address,
       token: tempo.feeToken,
     })

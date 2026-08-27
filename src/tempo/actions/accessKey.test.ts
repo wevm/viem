@@ -2,8 +2,10 @@ import { setTimeout } from 'node:timers/promises'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
+import { toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account, Scopes } from 'viem/tempo'
+import { tempoLocalnet } from 'viem/chains'
+import { Account, createClient, custom, Scopes } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
@@ -236,6 +238,166 @@ describe('signAuthorization', () => {
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.limits).toHaveLength(1)
+  })
+
+  test('behavior: coordinates multisig approvals', async () => {
+    const owner_1 = accounts[18]
+    const owner_2 = accounts[19]
+    const multisig = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x10612c, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: multisig,
+    })
+    const client = getMultisigClient()
+
+    const pending = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account: owner_1,
+      multisig,
+    })
+    expect(pending).toMatchInlineSnapshot(
+      {
+        address: expect.any(String),
+        hash: expect.any(String),
+        multisig: {
+          approvals: [expect.any(String)],
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "isAdmin": false,
+        "multisig": {
+          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "approvals": [
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "weight": 1,
+              },
+              {
+                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 1,
+          "status": "pending",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 1,
+        },
+        "signature": Anything,
+        "status": "pending",
+        "type": "secp256k1",
+      }
+    `,
+    )
+
+    const success = await client.accessKey.signAuthorization({
+      account: owner_2,
+      hash: pending.hash,
+    })
+    expect(success).toMatchInlineSnapshot(
+      {
+        address: expect.any(String),
+        hash: expect.any(String),
+        multisig: {
+          approvals: [expect.any(String), expect.any(String)],
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "isAdmin": false,
+        "multisig": {
+          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "approvals": [
+            Any<String>,
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "weight": 1,
+              },
+              {
+                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 2,
+          "status": "success",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 2,
+        },
+        "signature": Anything,
+        "status": "success",
+        "type": "secp256k1",
+      }
+    `,
+    )
+  })
+
+  test('behavior: requires a local owner for multisig approval', async () => {
+    const owner = accounts[18]
+    const multisig = Account.fromMultisig({
+      address: 'initial',
+      owners: [owner.address],
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: multisig,
+    })
+
+    await expect(
+      actions.accessKey.signAuthorization(getMultisigClient(), {
+        accessKey,
+        account: owner.address,
+        multisig,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a multisig key authorization.]`,
+    )
   })
 
   test('behavior: with periodic limits', async () => {
@@ -837,3 +999,18 @@ describe('verifyHash', () => {
     expect(valid).toBe(false)
   })
 })
+
+function getMultisigClient() {
+  return createClient({
+    chain: tempoLocalnet,
+    experimental_multisig: true,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_blockNumber') return '0x1'
+        if (method === 'eth_call')
+          return '0x0000000000000000000000000000000000000000000000000000000000000000'
+        throw new Error(`Unexpected request: ${method}`)
+      },
+    }),
+  })
+}

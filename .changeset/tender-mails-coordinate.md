@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-Added coordinated native Tempo multisig transactions, explicit configs, and relay-backed address-only config resolution for the updated TIP-1061 protocol.
+Added coordinated Tempo multisig transactions and key authorizations, explicit configs, and relay-backed address-only config resolution for the updated TIP-1061 protocol.
 
 ```ts
 import { Account } from 'viem/tempo'

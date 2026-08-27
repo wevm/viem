@@ -4,6 +4,7 @@ import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
+  KeyAuthorization,
   MultisigConfig,
   MultisigOperation,
   Transaction as ox_Transaction,
@@ -87,6 +88,13 @@ export function handleRequest(
       const operation = await OperationStore.read(parameters.store, hash)
       return operation ? MultisigOperation.toRpc(operation) : null
     }
+
+    if (request.method === 'multisig_approveKeyAuthorization')
+      return await approveKeyAuthorization({
+        client,
+        request,
+        store: parameters.store,
+      })
 
     if (
       request.method === 'eth_getTransactionByHash' ||
@@ -538,6 +546,206 @@ declare namespace submit {
     requestOptions?: EIP1193RequestOptions | undefined
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
+    /** Shared multisig store. */
+    store: Store.Atomic
+  }
+}
+
+/** Collects approvals for a multisig key authorization. @internal */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function approveKeyAuthorization(
+  options: approveKeyAuthorization.Options,
+) {
+  const value = options.request.params?.[0]
+  if (!value || typeof value !== 'object')
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a multisig key authorization approval.',
+    })
+
+  const approval = await (async () => {
+    if ('keyAuthorization' in value) {
+      const authorization = (() => {
+        try {
+          return KeyAuthorization.fromRpc(
+            value.keyAuthorization as KeyAuthorization.Rpc,
+          )
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Invalid multisig key authorization.',
+          })
+        }
+      })()
+      const signature = authorization.signature
+      if (signature?.type !== 'multisig')
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Expected a multisig key authorization signature.',
+        })
+      if (
+        !authorization.account ||
+        !isAddressEqual(authorization.account, signature.account)
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Multisig key authorization account does not match its signature.',
+        })
+      const { signature: _, ...unsigned } = authorization
+      const keyAuthorization = KeyAuthorization.serialize(
+        KeyAuthorization.from(unsigned),
+      )
+      const config = MultisigConfig.from(signature.config)
+      const hash = MultisigOperation.getHash({
+        account: signature.account,
+        config,
+        keyAuthorization,
+        type: 'keyAuthorization',
+      })
+      return {
+        account: signature.account,
+        approvals: signature.signatures.map((signature) =>
+          SignatureEnvelope.serialize(signature),
+        ),
+        config,
+        hash,
+        keyAuthorization,
+      }
+    }
+
+    if ('hash' in value && 'signature' in value) {
+      if (typeof value.hash !== 'string' || !Hash.validate(value.hash))
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Expected a multisig operation hash.',
+        })
+      const operation = await OperationStore.read(options.store, value.hash)
+      if (!operation || operation.type !== 'keyAuthorization')
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Multisig key authorization operation was not found.',
+        })
+      if (operation.status === 'success') return { operation }
+      const signature = (() => {
+        try {
+          return SignatureEnvelope.serialize(
+            SignatureEnvelope.from(value.signature as Hex.Hex),
+          )
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Invalid multisig owner signature.',
+          })
+        }
+      })()
+      return {
+        account: operation.account,
+        approvals: [signature],
+        config: operation.config,
+        hash: operation.hash,
+        keyAuthorization: operation.keyAuthorization,
+      }
+    }
+
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a multisig key authorization approval.',
+    })
+  })()
+  if ('operation' in approval)
+    return MultisigOperation.toRpc(approval.operation)
+  if (approval.approvals.length === 0)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'A multisig approval envelope must include a signature.',
+    })
+
+  const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
+  const commitment = await validateConfig({
+    account: approval.account,
+    blockNumber,
+    client: options.client,
+    config: approval.config,
+  })
+  const now = Date.now()
+  const operation = await OperationStore.update(
+    options.store,
+    approval.hash,
+    async (existing) => {
+      if (existing && existing.type !== 'keyAuthorization')
+        throw new OperationStore.InvalidStoreValueError()
+      if (
+        existing &&
+        (existing.account.toLowerCase() !== approval.account.toLowerCase() ||
+          MultisigConfig.getCommitment(existing.config).toLowerCase() !==
+            MultisigConfig.getCommitment(approval.config).toLowerCase() ||
+          existing.keyAuthorization.toLowerCase() !==
+            approval.keyAuthorization.toLowerCase())
+      )
+        throw new OperationStore.InvalidStoreValueError()
+      if (existing?.status === 'success') return existing
+      const existingApprovals = existing
+        ? await selectApprovals({
+            account: approval.account,
+            approvals: existing.approvals,
+            blockNumber,
+            client: options.client,
+            config: approval.config,
+            discardInvalidNested: true,
+            hash: approval.hash,
+            store: options.store,
+          })
+        : undefined
+      const approvals = await selectApprovals({
+        account: approval.account,
+        approvals: [
+          ...(existingApprovals?.approvals ?? []),
+          ...approval.approvals,
+        ],
+        blockNumber,
+        client: options.client,
+        config: approval.config,
+        hash: approval.hash,
+        store: options.store,
+      })
+      const pending = {
+        account: approval.account,
+        approvals: approvals.approvals,
+        config: approval.config,
+        createdAt: existing?.createdAt ?? now,
+        hash: approval.hash,
+        keyAuthorization: approval.keyAuthorization,
+        signatureCount: approvals.signatureCount,
+        threshold: approvals.threshold,
+        type: 'keyAuthorization',
+        updatedAt: now,
+        weight: approvals.weight,
+      } as const
+      if (approvals.weight < approvals.threshold)
+        return MultisigOperation.from({ ...pending, status: 'pending' })
+      return MultisigOperation.from({
+        ...pending,
+        keyAuthorization: MultisigOperation.serializeKeyAuthorization(
+          approval.keyAuthorization,
+          {
+            account: approval.account,
+            approvals: approvals.selectedApprovals,
+            config: approval.config,
+          },
+        ),
+        status: 'success',
+      })
+    },
+  )
+  await ConfigStore.write(options.store, {
+    address: approval.account,
+    commitment,
+    config: approval.config,
+  })
+  if (operation.type !== 'keyAuthorization')
+    throw new OperationStore.InvalidStoreValueError()
+  return MultisigOperation.toRpc(operation)
+}
+
+declare namespace approveKeyAuthorization {
+  /** Options for {@link approveKeyAuthorization}. */
+  export type Options = {
+    /** Client used to validate configs. */
+    client: ReturnType<typeof createClient>
+    /** Original RPC request. */
+    request: handleRequest.Request
     /** Shared multisig store. */
     store: Store.Atomic
   }

@@ -1,8 +1,11 @@
 import type { Address } from 'abitype'
+import type * as RpcSchema from 'ox/RpcSchema'
 import {
-  type KeyAuthorization,
+  KeyAuthorization,
   MultisigConfig,
-  type SignatureEnvelope,
+  MultisigOperation,
+  type RpcSchemaTempo,
+  SignatureEnvelope,
 } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -22,16 +25,15 @@ import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
+import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
-import type {
-  AccessKeyAccount,
-  MultisigAccount,
-  resolveAccessKey,
-} from '../Account.js'
+import type { AccessKeyAccount, MultisigAccount } from '../Account.js'
 import {
+  fromMultisig,
   getKeyAuthorizationSignPayload,
+  resolveAccessKey,
   signKeyAuthorization,
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
@@ -43,6 +45,7 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import { getConfig } from './multisig.js'
 
 /** @internal */
 const signatureTypes = {
@@ -1138,24 +1141,182 @@ export namespace prepareAuthorization {
 /**
  * Signs a key authorization for an access key.
  *
+ * Pass `multisig` to store one owner approval for a coordinated multisig
+ * authorization. Later owners pass the returned operation hash.
+ *
  * Use {@link prepareAuthorization} before this action when signing requires
  * transient user activation.
  *
+ * @example
+ * ```ts
+ * const pending = await client.accessKey.signAuthorization({
+ *   accessKey,
+ *   account: owner_1,
+ *   multisig,
+ * })
+ * const success = await client.accessKey.signAuthorization({
+ *   account: owner_2,
+ *   hash: pending.hash,
+ * })
+ * ```
+ *
  * @param client - Client.
- * @param parameters - Parameters or the prepared result.
- * @returns The signed key authorization.
+ * @param parameters - Authorization fields, or a stored operation hash.
+ * @returns A signed key authorization with multisig operation metadata when coordinated.
  */
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.CoordinatedParameters<account>,
+): Promise<signAuthorization.CoordinatedReturnValue>
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.LocalParameters<account>,
+): Promise<signAuthorization.ReturnValue>
 export async function signAuthorization<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: signAuthorization.Parameters<account>,
-): Promise<signAuthorization.ReturnValue> {
+): Promise<
+  signAuthorization.CoordinatedReturnValue | signAuthorization.ReturnValue
+> {
+  const multisig = 'multisig' in parameters ? parameters.multisig : undefined
+  const coordinated =
+    ('hash' in parameters && parameters.hash) ||
+    typeof multisig === 'string' ||
+    (multisig &&
+      typeof multisig === 'object' &&
+      'source' in multisig &&
+      multisig.source === 'multisig')
+
+  if (coordinated) {
+    const parameters_ =
+      parameters as signAuthorization.CoordinatedParameters<account>
+    const account_ = parameters_.account ?? client.account
+    if (!account_ || typeof account_ === 'string')
+      throw new Error(
+        'A local owner account is required to approve a multisig key authorization.',
+      )
+    const owner = parseAccount(account_)
+    const sign = owner.sign
+    if (!sign)
+      throw new Error(
+        'A local owner account is required to approve a multisig key authorization.',
+      )
+
+    const request = await (async () => {
+      if ('hash' in parameters_ && parameters_.hash) {
+        const signature = SignatureEnvelope.serialize(
+          SignatureEnvelope.from(await sign({ hash: parameters_.hash })),
+        )
+        return { hash: parameters_.hash, signature }
+      }
+
+      const {
+        account: _,
+        multisig: multisig_,
+        ...authorization
+      } = parameters_ as signAuthorization.CoordinatedInitialParameters<account>
+      if (!multisig_) throw new Error('A multisig account is required.')
+      const address =
+        typeof multisig_ === 'string' ? multisig_ : multisig_.address
+      const config = await (async () => {
+        if (typeof multisig_ !== 'string' && multisig_.config)
+          return multisig_.config
+        const config = await getConfig(client, { address })
+        if (config) return config
+        throw new Error(
+          `No current multisig config is cached for account ${address}. Provide the current config.`,
+        )
+      })()
+      const account = (() => {
+        if (config.version !== 0n) return fromMultisig({ address, ...config })
+        const { version: _, ...initialConfig } = config
+        return fromMultisig({ address: 'initial', ...initialConfig })
+      })()
+      if (!isAddressEqual(account.address, address))
+        throw new Error('Initial multisig config does not match the account.')
+      const prepared = await prepareAuthorization(client, {
+        ...authorization,
+        account,
+      } as never)
+      const signature = SignatureEnvelope.serialize(
+        SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
+      )
+      const { accessKey, admin, chainId, expiry, limits, scopes, witness } =
+        prepared
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
+      const keyAuthorization = KeyAuthorization.from({
+        account: account.address,
+        address: accessKeyAddress,
+        chainId: BigInt(chainId),
+        signature: SignatureEnvelope.from({
+          account: account.address,
+          config,
+          signatures: [SignatureEnvelope.from(signature)],
+        }),
+        type,
+        ...(witness ? { witness } : {}),
+        ...(admin ? { isAdmin: true } : { expiry, limits, scopes }),
+      } as never)
+      return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
+    })()
+
+    type multisig_approveKeyAuthorization = Extract<
+      RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
+      { Method: 'multisig_approveKeyAuthorization' }
+    >
+    const operation = await client.request<multisig_approveKeyAuthorization>({
+      method: 'multisig_approveKeyAuthorization',
+      params: [request],
+    })
+    const multisig = MultisigOperation.fromRpc(operation)
+    const keyAuthorization = KeyAuthorization.deserialize(
+      await (async () => {
+        if (multisig.status === 'success') return multisig.keyAuthorization
+        const approvals = await MultisigOperation.selectApprovals({
+          account: multisig.account,
+          approvals: multisig.approvals,
+          config: multisig.config,
+          hash: multisig.hash,
+        })
+        return MultisigOperation.serializeKeyAuthorization(
+          multisig.keyAuthorization,
+          {
+            account: multisig.account,
+            approvals:
+              approvals.selectedApprovals.length > 0
+                ? approvals.selectedApprovals
+                : approvals.approvals.slice(0, 1),
+            config: multisig.config,
+          },
+        )
+      })(),
+    )
+    if (!keyAuthorization.signature)
+      throw new Error('Expected a signed multisig key authorization.')
+    return {
+      ...keyAuthorization,
+      hash: multisig.hash,
+      multisig,
+      status: multisig.status,
+    } as never
+  }
+
   const prepared = (
-    'multisig' in parameters
+    'signPayload' in parameters
       ? parameters
-      : await prepareAuthorization(client, parameters)
+      : await prepareAuthorization(
+          client,
+          parameters as signAuthorization.LocalParameters<account>,
+        )
   ) as prepareAuthorization.ReturnValue
   const {
     accessKey,
@@ -1170,18 +1331,60 @@ export async function signAuthorization<
     key: accessKey,
     multisig: multisigState,
     ...rest,
-  })
+  }) as never
 }
 
 export namespace signAuthorization {
-  export type Parameters<
+  /** Initial coordinated key authorization parameters. */
+  export type CoordinatedInitialParameters<
+    account extends Account | undefined = Account | undefined,
+  > = GetAccountParameter<account> &
+    Omit<prepareAuthorization.Parameters<Account>, 'account' | 'multisig'> & {
+      /** Multisig account being authorized. */
+      multisig: Address | MultisigAccount
+    }
+
+  /** Coordinated key authorization parameters. */
+  export type CoordinatedParameters<
+    account extends Account | undefined = Account | undefined,
+  > = OneOf<
+    | CoordinatedInitialParameters<account>
+    | (GetAccountParameter<account> & {
+        /** Stored multisig operation hash. */
+        hash: Hex
+      })
+  >
+
+  /** Locally signed key authorization parameters. */
+  export type LocalParameters<
     account extends Account | undefined = Account | undefined,
   > = prepareAuthorization.Parameters<account> & {
     /** Serialized approvals from external multisig owners. */
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
+  /** Parameters for {@link signAuthorization}. */
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = CoordinatedParameters<account> | LocalParameters<account>
+
+  /** Local return value for {@link signAuthorization}. */
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
+
+  /** Coordinated return value for {@link signAuthorization}. */
+  export type CoordinatedReturnValue = Compute<
+    ReturnValue & {
+      /** Deterministic multisig operation hash. */
+      hash: Hex
+      /** Current multisig operation. */
+      multisig: MultisigOperation.KeyAuthorizationOperation
+      /** Current multisig operation status. */
+      status: MultisigOperation.KeyAuthorizationOperation['status']
+    }
+  >
+
+  /** Error type for {@link signAuthorization}. */
+  export type ErrorType = BaseErrorType
 }
 
 /**
