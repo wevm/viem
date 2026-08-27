@@ -4,7 +4,7 @@ import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import { encodeAbiParameters } from '../utils/abi/encodeAbiParameters.js'
 import { encodeFunctionResult } from '../utils/abi/encodeFunctionResult.js'
-import { accountConfigurationAbi } from './abis.js'
+import { keystoreAbi } from './abis.js'
 import { getLockStatus } from './actions/getLockStatus.js'
 import { isLocked } from './actions/isLocked.js'
 import { changeType } from './constants.js'
@@ -52,10 +52,10 @@ function lockClient(handlers: Record<string, `0x${string}`>) {
 }
 
 describe('getLockStatus', () => {
-  test('decodes the AccountConfiguration.getLockStatus tuple', async () => {
+  test('decodes the Keystore.getLockStatus tuple', async () => {
     const client = lockClient({
       eth_call: encodeFunctionResult({
-        abi: accountConfigurationAbi,
+        abi: keystoreAbi,
         functionName: 'getLockStatus',
         result: [true, true, 1_800_000_000, 3600],
       }),
@@ -71,10 +71,10 @@ describe('getLockStatus', () => {
 })
 
 describe('isLocked', () => {
-  test('decodes the AccountConfiguration.isLocked bool', async () => {
+  test('decodes the Keystore.isLocked bool', async () => {
     const client = lockClient({
       eth_call: encodeFunctionResult({
-        abi: accountConfigurationAbi,
+        abi: keystoreAbi,
         functionName: 'isLocked',
         result: true,
       }),

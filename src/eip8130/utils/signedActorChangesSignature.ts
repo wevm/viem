@@ -72,7 +72,7 @@ export type EncodeSignedActorChangesSignatureErrorType =
  * `userOpHash` (may be produced by a key the changes just added/rotated to).
  *
  * Use the result as a UserOperation's `signature`. During `validateUserOp` the
- * account first applies each set in order via `AccountConfiguration.applySignedActorChanges`,
+ * account first applies each set in order via `Keystore.applySignedActorChanges`,
  * then authenticates the op via `opAuth`. Sets are applied in array order, so a
  * later set may rely on an actor authorized by an earlier one (e.g. owner → key B,
  * then key B → key C).

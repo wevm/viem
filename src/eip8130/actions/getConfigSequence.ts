@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { keystoreAddress, unsequencedLocalHalf } from '../constants.js'
 
 export type GetConfigSequenceParameters = {
@@ -32,7 +32,7 @@ export type GetConfigSequenceReturnType = {
 
 /**
  * Reads the current config-change sequences for an EIP-8130 account from the
- * `AccountConfiguration` system contract. Use the returned `local` value as
+ * `Keystore` system contract. Use the returned `local` value as
  * the `sequence` parameter when building an `AccountChange` — it is the NEXT
  * expected sequence, not the last one used.
  *
@@ -57,7 +57,7 @@ export async function getConfigSequence<
 
   const result = await readContract(client, {
     address: keystoreAddress,
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'getChangeSequences',
     args: [account],
   })

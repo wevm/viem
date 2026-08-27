@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import type { Hex } from '../../types/misc.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import {
   eip8130ChainIds,
   is8130Enabled,
@@ -10,12 +10,12 @@ import {
 } from '../chains.js'
 import { keystoreAddress } from '../constants.js'
 import type { AaActor, AaChange } from '../types/transaction.js'
+import { computeAddress } from './computeAddress.js'
 import {
   encodeApplySignedAccountChangesData,
   encodeCreateAccountData,
   toFactoryArgs,
-} from './accountConfigCalls.js'
-import { computeAddress } from './computeAddress.js'
+} from './keystoreCalls.js'
 
 const actor: AaActor = {
   actorId: '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -54,7 +54,7 @@ describe('toFactoryArgs (ERC-4337 factory)', () => {
     expect(factoryData).toBe(encodeCreateAccountData(params))
 
     const { functionName, args } = decodeFunctionData({
-      abi: accountConfigurationAbi,
+      abi: keystoreAbi,
       data: factoryData,
     })
     expect(functionName).toBe('createAccount')
@@ -101,7 +101,7 @@ describe('encodeApplySignedAccountChangesData (portable path)', () => {
       signature: '0xfeed',
     })
     const decoded = decodeFunctionData({
-      abi: accountConfigurationAbi,
+      abi: keystoreAbi,
       data,
     })
     expect(decoded.functionName).toBe('applySignedAccountChanges')

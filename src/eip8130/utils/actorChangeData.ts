@@ -54,7 +54,7 @@ export type EncodeChangePayloadErrorType =
  * @remarks
  * The `payload` is ABI-encoded (not RLP) so the same blob is decoded
  * identically by the native protocol and by
- * `AccountConfiguration.applySignedAccountChanges`. It is also the value hashed
+ * `Keystore.applySignedAccountChanges`. It is also the value hashed
  * (`keccak256(payload)`) into the batch signature digest (see
  * {@link hashAccountChanges}). Policy presence is the `SCOPE_POLICY` bit in
  * `scope`; `policyData` is empty unless that bit is set (then `manager (20) ||

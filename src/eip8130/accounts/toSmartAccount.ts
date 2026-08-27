@@ -22,8 +22,8 @@ import { getAction } from '../../utils/getAction.js'
 import { erc4337AccountAbi } from '../abis.js'
 import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
-import { toFactoryArgs } from '../utils/accountConfigCalls.js'
 import { computeAddress } from '../utils/computeAddress.js'
+import { toFactoryArgs } from '../utils/keystoreCalls.js'
 import { erc1167Bytecode } from '../utils/proxy.js'
 
 export type ToSmartAccountParameters<
@@ -104,9 +104,9 @@ export type ToSmartAccountReturnType<
  * account can be used on non-8130 chains through a `bundlerClient`.
  *
  * Execution goes through `executeBatch(Call[])` on the canonical
- * `BackwardCompatibleERC4337Account` wallet; deployment uses the Account
- * Configuration contract as the ERC-4337 factory (`createAccount`); and
- * signature validation is delegated to the Account Configuration system via the
+ * `BackwardCompatibleERC4337Account` wallet; deployment uses the Keystore
+ * contract as the ERC-4337 factory (`createAccount`); and
+ * signature validation is delegated to the Keystore system via the
  * `authenticator || data` auth format.
  *
  * @example

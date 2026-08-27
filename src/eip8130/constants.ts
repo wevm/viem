@@ -98,7 +98,7 @@ export const changeType = {
 export const unsequencedLocalHalf = 0xffff_ffffn
 
 /**
- * Actor scope permission bitmask values (base/eip-8130 `AccountConfiguration`).
+ * Actor scope permission bitmask values (base/eip-8130 `Keystore`).
  *
  * `0x00` (unrestricted) is admin: an actor is admin iff `scope == 0`. There is
  * no `SCOPE_SIGNATURE` / `SCOPE_CONFIG` bit — ERC-1271 signing and config rights
@@ -122,7 +122,7 @@ export const actorScope = {
 export const scopeUnrestricted = 0x00
 
 /**
- * `AccountState.flags` bits (base/eip-8130 `AccountConfiguration`).
+ * `AccountState.flags` bits (base/eip-8130 `Keystore`).
  *
  * The lock state is derived from these flags plus the `lockUnion` field: while
  * `unlockInitiated` is clear, `lockUnion` holds the configured unlock delay
@@ -245,9 +245,8 @@ export const txContextAddress =
   '0x813000000000000000000000000000000000aa02' satisfies Hex
 
 /**
- * The EIP-8130 keystore (`AccountConfiguration`) system contract address
- * (`ACCOUNT_CONFIG_ADDRESS`), also used as the CREATE2 deployer for account
- * address derivation.
+ * The EIP-8130 Keystore system contract address, also used as the CREATE2
+ * deployer for account address derivation.
  *
  * @remarks
  * There is a single keystore: it is **enshrined** in the execution client and is

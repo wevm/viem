@@ -72,7 +72,7 @@ export type ComputeAddressErrorType =
  * actors_commitment = keccak256(leaf_0 || leaf_1 || ... || leaf_{n-1})
  * effective_salt    = keccak256(user_salt || actors_commitment)
  * deployment_code   = DEPLOYMENT_HEADER(len(code)) || code
- * address           = keccak256(0xff || ACCOUNT_CONFIG_ADDRESS || effective_salt || keccak256(deployment_code))[12:]
+ * address           = keccak256(0xff || KEYSTORE_ADDRESS || effective_salt || keccak256(deployment_code))[12:]
  * ```
  *
  * The commitment is a "hash-the-leaves-then-hash-the-list" scheme (EIP-8130

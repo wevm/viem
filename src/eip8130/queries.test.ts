@@ -5,7 +5,7 @@ import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
 import { encodeFunctionResult } from '../utils/abi/encodeFunctionResult.js'
-import { accountConfigurationAbi } from './abis.js'
+import { keystoreAbi } from './abis.js'
 import { getActorConfig } from './actions/getActorConfig.js'
 import { getPolicy } from './actions/getPolicy.js'
 import { getSessionSpend } from './actions/getSessionSpend.js'
@@ -79,7 +79,7 @@ describe('getSessionSpend', () => {
 
 describe('getActorConfig', () => {
   test('decodes the ActorConfig struct', async () => {
-    const client = readClient(accountConfigurationAbi, {
+    const client = readClient(keystoreAbi, {
       getActorConfig: {
         authenticator: canonicalAuthenticators.p256,
         scope: 2,
@@ -100,7 +100,7 @@ describe('isActor', () => {
   // The finalized Keystore has no `isActor` view; liveness is derived from
   // `getActorConfig` (a non-zero authenticator ⇒ bound).
   test('derives liveness from a non-zero authenticator', async () => {
-    const client = readClient(accountConfigurationAbi, {
+    const client = readClient(keystoreAbi, {
       getActorConfig: {
         authenticator: canonicalAuthenticators.p256,
         scope: 2,
@@ -111,7 +111,7 @@ describe('isActor', () => {
   })
 
   test('returns false for an all-zero (unbound) config', async () => {
-    const client = readClient(accountConfigurationAbi, {
+    const client = readClient(keystoreAbi, {
       getActorConfig: {
         authenticator: '0x0000000000000000000000000000000000000000',
         scope: 0,
@@ -127,7 +127,7 @@ describe('getPolicy', () => {
   // returning (config, policyManager, policyCommitment).
   test('decodes (manager, commitment) from the combined getActor read', async () => {
     const manager = '0x00000000000000000000000000000000000000dd'
-    const client = readClient(accountConfigurationAbi, {
+    const client = readClient(keystoreAbi, {
       getActor: [
         {
           authenticator: canonicalAuthenticators.p256,

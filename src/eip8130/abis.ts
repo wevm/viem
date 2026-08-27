@@ -1,10 +1,9 @@
 import { parseAbi } from 'abitype'
 
 /**
- * ABI for the EIP-8130 Account Configuration system contract
- * (`IAccountConfiguration`) at `ACCOUNT_CONFIG_ADDRESS`.
+ * ABI for the EIP-8130 Keystore system contract at `keystoreAddress`.
  */
-export const accountConfigurationAbi = parseAbi([
+export const keystoreAbi = parseAbi([
   'struct InitialActor { bytes32 actorId; address authenticator; uint16 scope; bytes policyData; }',
   'struct ActorConfig { address authenticator; uint48 expiry; uint16 scope; }',
   'struct Actor { bytes32 actorId; ActorConfig config; bytes policyData; }',
@@ -43,7 +42,7 @@ export const accountConfigurationAbi = parseAbi([
  * ABI for the canonical EIP-8130 wallet implementation
  * (`BackwardCompatibleERC4337Account`) — the account behind the ERC-1167 proxy.
  * Used for ERC-4337 execution on non-8130 chains. Validation is delegated to the
- * Account Configuration contract via `authenticateActor`.
+ * Keystore contract via `authenticateActor`.
  */
 export const erc4337AccountAbi = parseAbi([
   'struct Call { address target; uint256 value; bytes data; }',

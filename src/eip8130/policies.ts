@@ -52,7 +52,7 @@ import type { AaCall } from './types/transaction.js'
  * ABI for the example `PolicyManager` reference contract (base/eip-8130#43).
  *
  * There is no `install` step: the account's signed actor change (which stores
- * `policy_manager` + `policy_commitment` in AccountConfiguration) *is* the
+ * `policy_manager` + `policy_commitment` in Keystore) *is* the
  * authorization. Every execute path takes the full {@link PolicyBinding}; the
  * manager recomputes its commitment and compares it to the live signed
  * commitment, authenticating config, validity window, and owning account in one

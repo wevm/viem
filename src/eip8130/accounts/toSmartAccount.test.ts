@@ -6,7 +6,7 @@ import { custom } from '../../clients/transports/custom.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { slice } from '../../utils/data/slice.js'
 import { recoverMessageAddress } from '../../utils/signature/recoverMessageAddress.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 import { computeAddress } from '../utils/computeAddress.js'
@@ -59,12 +59,12 @@ describe('toSmartAccount', () => {
     )
   })
 
-  test('getFactoryArgs -> AccountConfiguration.createAccount', async () => {
+  test('getFactoryArgs -> Keystore.createAccount', async () => {
     const account = await toSmartAccount(base)
     const { factory, factoryData } = await account.getFactoryArgs()
     expect(factory).toMatch(/^0x[0-9a-fA-F]{40}$/)
     const decoded = decodeFunctionData({
-      abi: accountConfigurationAbi,
+      abi: keystoreAbi,
       data: factoryData!,
     })
     expect(decoded.functionName).toBe('createAccount')

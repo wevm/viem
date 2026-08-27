@@ -5,7 +5,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { keystoreAddress } from '../constants.js'
 
 export type GetLockStatusParameters = {
@@ -26,7 +26,7 @@ export type GetLockStatusReturnType = {
 
 /**
  * Reads the full lock status of an EIP-8130 account from the
- * `AccountConfiguration` system contract (`getLockStatus`).
+ * `Keystore` system contract (`getLockStatus`).
  *
  * @example
  * ```ts
@@ -52,7 +52,7 @@ export async function getLockStatus<
   const [locked, hasInitiatedUnlock, unlocksAt, unlockDelay] =
     await readContract(client, {
       address: keystoreAddress,
-      abi: accountConfigurationAbi,
+      abi: keystoreAbi,
       functionName: 'getLockStatus',
       args: [account],
     })

@@ -37,7 +37,7 @@ export type Transaction = {
   gas: bigint
   /** Ordered list of call phases. */
   calls: AaCalls
-  /** Account-configuration changes bundled in this transaction. */
+  /** Account changes bundled in this transaction. */
   accountChanges: readonly AaAccountChange[]
   /** Opaque tx metadata (echoed in the receipt). */
   metadata: Hex

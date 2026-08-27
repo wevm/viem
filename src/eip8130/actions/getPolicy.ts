@@ -6,7 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { keystoreAddress } from '../constants.js'
 
 export type GetPolicyParameters = {
@@ -59,7 +59,7 @@ export async function getPolicy<
   // `policyCommitment` are zero for a non-live / ungated actor.
   const [, policyManager, policyCommitment] = await readContract(client, {
     address: keystoreAddress,
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'getActor',
     args: [account, actorId],
   })

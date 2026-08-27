@@ -5,7 +5,7 @@
  * @remarks
  * EIP-8130 is enabled per-chain. Accounts are portable: on an 8130-enabled chain
  * use the `AA_TX_TYPE` flow; on other chains the same account operates through an
- * alternative AA mechanism (e.g. ERC-4337) with the `AccountConfiguration`
+ * alternative AA mechanism (e.g. ERC-4337) with the `Keystore`
  * contract as its factory.
  *
  * This set is empty by default (no networks have shipped 8130 yet). Populate it

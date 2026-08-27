@@ -1,8 +1,8 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint
 export {
-  accountConfigurationAbi,
   authenticatorAbi,
   erc4337AccountAbi,
+  keystoreAbi,
   nonceManagerAbi,
   transactionContextAbi,
 } from './abis.js'
@@ -259,18 +259,6 @@ export type {
   TransactionSerialized8130,
 } from './types/transaction.js'
 export {
-  type EncodeApplySignedAccountChangesDataErrorType,
-  type EncodeApplySignedAccountChangesDataParameters,
-  type EncodeCreateAccountDataErrorType,
-  type EncodeCreateAccountDataParameters,
-  encodeApplySignedAccountChangesData,
-  encodeCreateAccountData,
-  type ToFactoryArgsErrorType,
-  type ToFactoryArgsParameters,
-  type ToFactoryArgsReturnType,
-  toFactoryArgs,
-} from './utils/accountConfigCalls.js'
-export {
   type DecodeAuthorizeActorPayloadErrorType,
   type DecodedAuthorizeActorPayload,
   decodeAuthorizeActorPayload,
@@ -314,6 +302,18 @@ export {
   getPayerSignatureHash,
   getSenderSignatureHash,
 } from './utils/hashTransaction.js'
+export {
+  type EncodeApplySignedAccountChangesDataErrorType,
+  type EncodeApplySignedAccountChangesDataParameters,
+  type EncodeCreateAccountDataErrorType,
+  type EncodeCreateAccountDataParameters,
+  encodeApplySignedAccountChangesData,
+  encodeCreateAccountData,
+  type ToFactoryArgsErrorType,
+  type ToFactoryArgsParameters,
+  type ToFactoryArgsReturnType,
+  toFactoryArgs,
+} from './utils/keystoreCalls.js'
 export {
   type ParseTransactionErrorType,
   parseTransaction,

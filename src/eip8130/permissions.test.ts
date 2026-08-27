@@ -7,7 +7,7 @@ import { zeroAddress } from '../constants/address.js'
 import type { Permission } from '../experimental/erc7715/types/permission.js'
 import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
 import { encodeFunctionResult } from '../utils/abi/encodeFunctionResult.js'
-import { accountConfigurationAbi } from './abis.js'
+import { keystoreAbi } from './abis.js'
 import {
   actorScope,
   ecrecoverAuthenticator,
@@ -41,11 +41,11 @@ function actorConfigClient(authenticator: string) {
         if (method === 'eth_chainId') return '0x1'
         if (method === 'eth_call') {
           const { functionName } = decodeFunctionData({
-            abi: accountConfigurationAbi as Abi,
+            abi: keystoreAbi as Abi,
             data: params[0].data,
           })
           return encodeFunctionResult({
-            abi: accountConfigurationAbi as Abi,
+            abi: keystoreAbi as Abi,
             functionName,
             result: { authenticator, expiry: 0, scope: 0 } as never,
           })

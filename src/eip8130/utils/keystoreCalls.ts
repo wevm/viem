@@ -5,7 +5,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { keystoreAddress } from '../constants.js'
 import type {
   AaActor,
@@ -44,7 +44,7 @@ export type EncodeCreateAccountDataErrorType =
   | ErrorType
 
 /**
- * Encodes calldata for `AccountConfiguration.createAccount` — the ERC-4337
+ * Encodes calldata for `Keystore.createAccount` — the ERC-4337
  * factory call that deploys an EIP-8130 account on a non-8130 chain (and is the
  * `factoryData` returned by {@link toFactoryArgs}).
  */
@@ -53,7 +53,7 @@ export function encodeCreateAccountData(
 ): Hex {
   const { userSalt, code, initialActors } = parameters
   return encodeFunctionData({
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'createAccount',
     args: [userSalt, code, toInitialActors(initialActors)],
   })
@@ -103,7 +103,7 @@ export type EncodeApplySignedAccountChangesDataErrorType =
   | ErrorType
 
 /**
- * Encodes calldata for `AccountConfiguration.applySignedAccountChanges` — the
+ * Encodes calldata for `Keystore.applySignedAccountChanges` — the
  * portable (any-chain) path to apply a signed batch via plain EVM execution.
  * Pair with {@link signAccountChanges} to produce the `signature`.
  */
@@ -112,7 +112,7 @@ export function encodeApplySignedAccountChangesData(
 ): Hex {
   const { account, channel, sequence, changes, signature } = parameters
   return encodeFunctionData({
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'applySignedAccountChanges',
     args: [
       account,

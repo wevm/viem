@@ -5,7 +5,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { keystoreAddress } from '../constants.js'
 
 export type IsLockedParameters = {
@@ -17,7 +17,7 @@ export type IsLockedReturnType = boolean
 
 /**
  * Reads whether an EIP-8130 account is currently locked, from the
- * `AccountConfiguration` system contract (`isLocked`). For the full status
+ * `Keystore` system contract (`isLocked`). For the full status
  * (unlock timing, delay), use {@link getLockStatus}.
  *
  * @example
@@ -42,7 +42,7 @@ export async function isLocked<
 
   return readContract(client, {
     address: keystoreAddress,
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'isLocked',
     args: [account],
   })

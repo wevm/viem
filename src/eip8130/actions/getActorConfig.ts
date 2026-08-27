@@ -6,7 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import { accountConfigurationAbi } from '../abis.js'
+import { keystoreAbi } from '../abis.js'
 import { actorScope, keystoreAddress } from '../constants.js'
 
 export type GetActorConfigParameters = {
@@ -29,7 +29,7 @@ export type GetActorConfigReturnType = {
 
 /**
  * Reads an actor's configuration (authenticator, scope, expiry, policy type)
- * from the `AccountConfiguration` system contract (`getActorConfig`). Use it to
+ * from the `Keystore` system contract (`getActorConfig`). Use it to
  * inspect owners / session keys, e.g. to enrich a "sign with" picker.
  *
  * @example
@@ -57,7 +57,7 @@ export async function getActorConfig<
 
   const config = await readContract(client, {
     address: keystoreAddress,
-    abi: accountConfigurationAbi,
+    abi: keystoreAbi,
     functionName: 'getActorConfig',
     args: [account, actorId],
   })
