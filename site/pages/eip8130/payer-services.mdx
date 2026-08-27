@@ -31,6 +31,68 @@ import { createPayerClient } from 'viem/eip8168'
 const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
 ```
 
+## Fill, Then Choose Terms
+
+The recommended flow treats payment as a **capability of filling a transaction**, mirroring the native fill then send pattern. Extend a client with [`eip8168Actions`](/eip8130#2-namespaced-client-decorators) to get `client.payer.*`:
+
+1. `prepareTransactionRequest` fills the transaction and returns the payer's offers on `capabilities.paymentOptions` (a component of the fill).
+2. Pick one and thread it into `sendTransaction` via `capabilities.paymentOption`.
+
+```ts
+import { createClient, http } from 'viem'
+import { createPayerClient, eip8168Actions } from 'viem/eip8168'
+import { vibenet } from './viem.config'
+
+const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
+const client = createClient({ chain: vibenet, transport: http() })
+  .extend(eip8168Actions({ payerClient }))
+
+// 1. Fill; offers come back as a component of the fill.
+const { capabilities } = await client.payer.prepareTransactionRequest({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymasterService: { preferredTokens: [usdc] } },
+})
+
+// 2. Choose an offer and send.
+const { transactionHash, tokenCharged } = await client.payer.sendTransaction({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: {
+    paymentOption: capabilities.paymentOptions[0],
+    gasEstimate: capabilities.gasEstimate,
+  },
+})
+```
+
+These are also importable standalone from `viem/eip8168` (`prepareTransactionRequest`, `sendTransaction`), taking the `client` as the first argument and `payerClient` in the parameters.
+
+### Who Estimates Gas
+
+By default the fill estimates gas with **our own node** (`gasEstimator: 'self'`), and when the payer also quotes it uses `max(ours, payer)`, so a payer that adds a token-payment phase never under-sizes the transaction. Pass `gasEstimator: 'payer'` to trust the service's quote outright, or pin `gas` to skip estimation entirely.
+
+```ts
+const { capabilities } = await client.payer.prepareTransactionRequest({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymasterService: {} },
+  gasEstimator: 'payer', // trust the service (default is 'self')
+})
+```
+
+### Awaiting the Receipt
+
+`sendTransactionSync` submits through the payer and then awaits the EIP-8130 receipt (threading the signed `validBefore` for fast expiry detection):
+
+```ts
+const { transactionHash, receipt } = await client.payer.sendTransactionSync({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymentOption: capabilities.paymentOptions[0], gasEstimate: capabilities.gasEstimate },
+})
+receipt.eip8130.phaseStatuses // ['0x1']
+```
+
 ## Discovering payers
 
 A wallet often has more than one place to get sponsorship: the chain's node RPC may serve `payer_*` itself, a **block builder** integrated with the sequencer (e.g. flashblocks) may expose it, the app may run its own payer, and the wallet may inject one. `createAggregatePayerClient` queries them all **in parallel** and presents the result as a single `PayerClient`, so it drops straight into `sendSponsoredCalls`.
@@ -77,7 +139,7 @@ The merged `gasEstimate` is the worst-case (largest `gasLimit`) across sources; 
 
 ## End-to-end: `sendSponsoredCalls`
 
-`sendSponsoredCalls` runs the whole flow: fetch terms, select an offer, build the phases (including any phase-0 token transfer), sign `sender_auth` with the payer named and `payer_auth` empty, then hand off to the payer to co-sign and submit.
+`sendSponsoredCalls` is the engine underneath `client.payer.sendTransaction`: it runs the whole flow in one call, fetching terms itself rather than taking a pre-selected offer. Reach for it when you want the library to fetch and select in a single step; use the capability API above when you want to surface offers to the user between fill and send. It fetches terms, selects an offer, builds the phases (including any phase-0 token transfer), signs `sender_auth` with the payer named and `payer_auth` empty, then hands off to the payer to co-sign and submit.
 
 ```ts
 import { sendSponsoredCalls } from 'viem/eip8168'

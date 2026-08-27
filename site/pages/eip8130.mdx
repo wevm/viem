@@ -63,13 +63,18 @@ import {
 
 ## Setup
 
-EIP-8130 actions are standalone — they take a Viem `Client` as their first argument (there is no `.extend()` client decorator). Configure a client for your 8130-enabled chain and register the chain id so `is8130Enabled` can route correctly:
+There are three ways to use EIP-8130, from most native to most explicit. They interoperate: pick per call site.
+
+### 1. Native Core Actions (`eip8130ChainConfig`)
+
+Spread [`eip8130ChainConfig`](/eip8130/sending-a-transaction#native-core-actions) into your chain and EIP-8130 flows through the standard viem actions you already know. Core `client.sendTransaction` submits a native `AA_TX_TYPE` for an EIP-8130 account (gas is estimated for you), and core `client.getTransactionReceipt` / `client.waitForTransactionReceipt` return the `eip8130` receipt fields.
 
 ```ts
 import { createClient, http, defineChain } from 'viem'
-import { register8130Chains } from 'viem/eip8130'
+import { eip8130ChainConfig, register8130Chains } from 'viem/eip8130'
 
 export const vibenet = defineChain({
+  ...eip8130ChainConfig,
   id: 84_538_453,
   name: 'Vibenet Devnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
@@ -80,6 +85,38 @@ export const client = createClient({ chain: vibenet, transport: http() })
 
 // Mark the chain as EIP-8130 enabled (empty by default).
 register8130Chains(vibenet.id)
+```
+
+### 2. Namespaced Client Decorators
+
+`.extend(eip8130Actions())` adds the full read/write suite under `client.eip8130.*`, and `.extend(eip8168Actions())` adds the [payer service](/eip8130/payer-services) flow under `client.payer.*`. These are namespaced (rather than folded into core) because viem's protected actions like `sendTransaction` require core-conforming signatures.
+
+```ts
+import { createClient, http } from 'viem'
+import { eip8130Actions } from 'viem/eip8130'
+import { eip8168Actions, createPayerClient } from 'viem/eip8168'
+import { vibenet } from './viem.config'
+
+const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
+
+export const client = createClient({ chain: vibenet, transport: http() })
+  .extend(eip8130Actions())            // client.eip8130.*
+  .extend(eip8168Actions({ payerClient })) // client.payer.*
+
+const hash = await client.eip8130.sendTransaction({ account, calls, gas: 200_000n })
+```
+
+### 3. Standalone Actions
+
+Every action is also importable directly and takes a `Client` as its first argument. Handy when you don't want to extend the client.
+
+```ts
+import { createClient, http } from 'viem'
+import { sendTransaction } from 'viem/eip8130'
+import { vibenet } from './viem.config'
+
+const client = createClient({ chain: vibenet, transport: http() })
+const hash = await sendTransaction(client, { account, calls, gas: 200_000n })
 ```
 
 ## Deployment addresses

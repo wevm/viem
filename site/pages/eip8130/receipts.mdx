@@ -6,6 +6,10 @@ description: Read EIP-8130 receipt fields — per-phase statuses, payer, and met
 
 An `AA_TX_TYPE` (`0x79`) receipt carries extra fields beyond a standard receipt: the resolved gas **payer**, the **per-phase execution statuses**, and the echoed **metadata**. `getTransactionReceipt` and `waitForTransactionReceipt` surface these under a parsed `eip8130` property while still returning the raw receipt.
 
+:::tip
+If your chain is defined with [`eip8130ChainConfig`](/eip8130#1-native-core-actions-eip8130chainconfig), core `client.getTransactionReceipt` and `client.waitForTransactionReceipt` return the same `eip8130` fields natively, so you don't need the `viem/eip8130` variants shown below.
+:::
+
 ## Wait for a receipt
 
 ```ts

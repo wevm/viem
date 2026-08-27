@@ -34,9 +34,13 @@ const hash = await sendTransaction(client, {
 })
 ```
 
+:::info
+This is also available as `client.eip8130.sendTransaction` via the [`eip8130Actions`](/eip8130#2-namespaced-client-decorators) decorator. Sponsored sends deliberately do not ride core `client.sendTransaction` (which throws on `payer`), since the payer co-signs off the raw-submit path.
+:::
+
 ## Estimating a sponsored transaction
 
-Pass the `payer` address (and, if the payer uses a non-K1 key, `payerAuthVerifier`) so the node prices the payer authentication too:
+Pass the `payer` address (and, if the payer uses a non-K1 key, `payerAuthAuthenticator`) so the node prices the payer authentication too:
 
 ```ts
 import { canonicalAuthenticators, estimateGas } from 'viem/eip8130'
@@ -45,7 +49,7 @@ const gas = await estimateGas(client, {
   sender: account.address,
   calls: [[{ to: recipient, data }]],
   payer: sponsor.address,
-  payerAuthVerifier: canonicalAuthenticators.k1,
+  payerAuthAuthenticator: canonicalAuthenticators.k1,
 })
 ```
 
