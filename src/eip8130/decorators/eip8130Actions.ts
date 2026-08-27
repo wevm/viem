@@ -10,7 +10,6 @@ import { getPolicy } from '../actions/getPolicy.js'
 import { getSessionSpend } from '../actions/getSessionSpend.js'
 import { getTransaction } from '../actions/getTransaction.js'
 import { getTransactionCount } from '../actions/getTransactionCount.js'
-import { getTransactionReceipt } from '../actions/getTransactionReceipt.js'
 import { isActor } from '../actions/isActor.js'
 import { isLocked } from '../actions/isLocked.js'
 import {
@@ -44,10 +43,8 @@ export type Eip8130Actions = {
     estimateGas: Bound<typeof estimateGas>
     /** Await an EIP-8130 receipt (with `eip8130` fields). */
     waitForTransactionReceipt: Bound<typeof waitForTransactionReceipt>
-    /** Read a pending/mined EIP-8130 transaction. */
+    /** Read a pending/mined EIP-8130 transaction (non-standard nested body). */
     getTransaction: Bound<typeof getTransaction>
-    /** Read an EIP-8130 receipt (with `eip8130` fields). */
-    getTransactionReceipt: Bound<typeof getTransactionReceipt>
     /** Read the next 2D channel-nonce sequence. */
     getTransactionCount: Bound<typeof getTransactionCount>
     /** Read an account's local/multichain config sequences. */
@@ -69,6 +66,10 @@ export type Eip8130Actions = {
 
 /**
  * A suite of EIP-8130 actions, added to a client under `client.eip8130`.
+ *
+ * Transaction receipts are not included here: spread {@link eip8130ChainConfig}
+ * into your chain and core `client.getTransactionReceipt` /
+ * `client.waitForTransactionReceipt` return the EIP-8130 fields natively.
  *
  * @example
  * import { createClient, http } from 'viem'
@@ -104,8 +105,6 @@ export function eip8130Actions() {
       waitForTransactionReceipt: (parameters) =>
         waitForTransactionReceipt(client, parameters),
       getTransaction: (parameters) => getTransaction(client, parameters),
-      getTransactionReceipt: (parameters) =>
-        getTransactionReceipt(client, parameters),
       getTransactionCount: (parameters) =>
         getTransactionCount(client, parameters),
       getConfigSequence: (parameters) => getConfigSequence(client, parameters),
