@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
@@ -540,58 +541,48 @@ async function selectApprovals(options: selectApprovals.Options) {
   const validation = new Map<string, Promise<void>>()
   let validationCount = 0
   const select = async (approvals: readonly SignatureEnvelope.Serialized[]) => {
-    const configs = new Map<string, MultisigConfig.Config>()
-    const visit = (signature: SignatureEnvelope.SignatureEnvelope) => {
-      if (signature.type !== 'multisig') return
-      const config = MultisigConfig.from(signature.config)
-      const account = signature.account.toLowerCase()
-      const existing = configs.get(account)
-      if (
-        existing &&
-        MultisigConfig.getCommitment(existing) !==
-          MultisigConfig.getCommitment(config)
-      )
-        throw new RpcResponse.InvalidParamsError({
-          message: `Conflicting config witnesses for multisig owner ${signature.account}.`,
-        })
-      configs.set(account, config)
-      for (const approval of signature.signatures) visit(approval)
-    }
-    for (const approval of approvals) visit(SignatureEnvelope.from(approval))
-
-    return await MultisigOperation.selectApprovals({
+    const result = await MultisigOperation.selectApprovals({
       account: options.account,
       approvals,
       config: options.config,
       hash: options.hash,
-      resolveConfig: async ({ account }) => {
-        const config = configs.get(account.toLowerCase())
-        if (!config)
-          throw new MultisigOperation.InvalidApprovalError({
-            reason: `nested multisig owner ${account} is missing a config witness`,
-          })
-        const key = `${account.toLowerCase()}:${MultisigConfig.getCommitment(config)}`
-        const pending = (() => {
-          const existing = validation.get(key)
-          if (existing) return existing
-          validationCount++
-          if (validationCount > MultisigConfig.maxOwners)
-            throw new RpcResponse.InvalidParamsError({
-              message: 'Multisig approval validation exceeds the owner limit.',
-            })
-          const pending = assertConfig({
-            account,
-            blockNumber: options.blockNumber,
-            client: options.client,
-            config,
-          })
-          validation.set(key, pending)
-          return pending
-        })()
-        await pending
-        return { config, version: config.version }
-      },
     })
+    const configs = new Map<
+      string,
+      { account: Address; config: MultisigConfig.Config }
+    >()
+    const visit = (signature: SignatureEnvelope.SignatureEnvelope) => {
+      if (signature.type !== 'multisig') return
+      const config = MultisigConfig.from(signature.config)
+      const key = signature.account.toLowerCase()
+      configs.set(key, { account: signature.account, config })
+      for (const approval of signature.signatures) visit(approval)
+    }
+    for (const approval of result.approvals)
+      visit(SignatureEnvelope.from(approval))
+
+    for (const { account, config } of configs.values()) {
+      const key = `${account.toLowerCase()}:${MultisigConfig.getCommitment(config)}`
+      const pending = (() => {
+        const existing = validation.get(key)
+        if (existing) return existing
+        validationCount++
+        if (validationCount > MultisigConfig.maxOwners)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Multisig approval validation exceeds the owner limit.',
+          })
+        const pending = assertConfig({
+          account,
+          blockNumber: options.blockNumber,
+          client: options.client,
+          config,
+        })
+        validation.set(key, pending)
+        return pending
+      })()
+      await pending
+    }
+    return result
   }
   try {
     if (!options.discardInvalidNested) return await select(options.approvals)

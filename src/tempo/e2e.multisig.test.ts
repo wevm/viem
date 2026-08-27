@@ -1644,12 +1644,12 @@ describe('stateful', () => {
         from:  0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650
 
       Details: A local owner account is required to approve a multisig transaction.
-      Version: viem@2.55.19]
+      Version: viem@2.56.0]
     `,
     )
   })
 
-  test('behavior: rejects keychain owner approvals', async () => {
+  test('behavior: rejects an access key owner account', async () => {
     const owner_1 = tempo.accounts[3]
     const owner_2 = tempo.accounts[4]
     const account = Account.fromMultisig({
@@ -1679,7 +1679,15 @@ describe('stateful', () => {
         account: accessKey,
         hash: pending.transactionHash,
       }),
-    ).rejects.toThrow('keychain signatures cannot approve a multisig operation')
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: An error occurred.
+
+      Request Arguments:
+        from:  0xEFDd9Ca0e063Bd6974D8fa944A747620fe7032E3
+
+      Details: A Tempo owner account is required to approve a stored multisig transaction.
+      Version: viem@2.56.0]
+    `)
 
     const receipt = await sendTransactionSync(client, {
       account: owner_2,
@@ -2610,7 +2618,7 @@ describe('stateful', () => {
         from:  0x9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64a
 
       Details: Submission failed.
-      Version: viem@2.55.19]
+      Version: viem@2.56.0]
     `,
     )
     const failedOperation = (

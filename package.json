@@ -71,7 +71,7 @@
     "fast-check": "^4.9.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.40",
+    "ox": "0.14.41",
     "permissionless": "^0.2.57",
     "prool": "~0.2.14",
     "publint": "^0.2.12",

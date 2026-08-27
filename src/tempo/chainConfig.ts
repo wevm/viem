@@ -76,6 +76,13 @@ export const chainConfig = {
           throw new Error(
             'A local owner account is required to approve a stored multisig transaction.',
           )
+        if (
+          request.account.source !== 'root' &&
+          request.account.source !== 'multisig'
+        )
+          throw new Error(
+            'A Tempo owner account is required to approve a stored multisig transaction.',
+          )
         const transaction = await getAction(
           client,
           getTransaction,
