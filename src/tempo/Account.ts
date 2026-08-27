@@ -378,8 +378,10 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     publicKey: '0x',
     source: 'multisig',
     type: 'local',
-    async sign() {
-      throw new Error('`sign` is not supported for multisig accounts.')
+    async sign({ hash }) {
+      return SignatureEnvelope.serialize(
+        await signMultisig(account, { payload: hash }),
+      )
     },
     async signMessage() {
       throw new Error('`signMessage` is not supported for multisig accounts.')

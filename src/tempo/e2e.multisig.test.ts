@@ -2436,7 +2436,7 @@ describe('stateful', () => {
           }),
         ],
       }),
-    ).rejects.toThrowError(/UnauthorizedMultisigCaller/)
+    ).rejects.toThrowError(/Execution reverted/)
   })
 
   test('behavior: coordinates weighted access key authorization approvals', async () => {

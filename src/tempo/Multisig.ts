@@ -666,6 +666,7 @@ async function approveKeyAuthorization(
     async (existing) => {
       if (existing && existing.type !== 'keyAuthorization')
         throw new OperationStore.InvalidStoreValueError()
+      if (existing?.status === 'success') return existing
       if (
         existing &&
         (existing.account.toLowerCase() !== approval.account.toLowerCase() ||
@@ -675,7 +676,6 @@ async function approveKeyAuthorization(
             approval.keyAuthorization.toLowerCase())
       )
         throw new OperationStore.InvalidStoreValueError()
-      if (existing?.status === 'success') return existing
       const existingApprovals = existing
         ? await selectApprovals({
             account: approval.account,
@@ -700,6 +700,14 @@ async function approveKeyAuthorization(
         hash: approval.hash,
         store: options.store,
       })
+      if (
+        existing &&
+        approvals.approvals.length === existing.approvals.length &&
+        approvals.approvals.every(
+          (approval, index) => approval === existing.approvals[index],
+        )
+      )
+        return existing
       const pending = {
         account: approval.account,
         approvals: approvals.approvals,
