@@ -14,20 +14,13 @@ import {
   type ReceiptFields,
 } from './actions/getTransactionReceipt.js'
 import { prepareTransactionRequest as fillEip8130Body } from './actions/sendTransaction.js'
-import type { AaCall, AaCalls } from './types/transaction.js'
 import { encodeWalletCalls } from './utils/encodeWalletCalls.js'
+import { toPhases } from './utils/toPhases.js'
 
 type RawReceipt8130 = ExactPartial<RpcTransactionReceipt> & {
   payer?: ReceiptFields['payer']
   phaseStatuses?: ReceiptFields['phaseStatuses']
   metadata?: ReceiptFields['metadata']
-}
-
-/** Normalizes a flat call list into a single phase (nested lists pass through). */
-function toPhases(calls: readonly AaCall[] | AaCalls): AaCalls {
-  if (calls.length === 0) return []
-  if (Array.isArray(calls[0])) return calls as AaCalls
-  return [calls as readonly AaCall[]]
 }
 
 /**

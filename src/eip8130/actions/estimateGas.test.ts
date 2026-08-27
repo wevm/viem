@@ -163,4 +163,58 @@ describe('estimateGas — dataSuffix → metadata', () => {
 
     expect(rec.request.metadata).toBe('0x')
   })
+
+  test('accepts a flat calls list and normalizes it into a single phase', async () => {
+    const rec = recordingClient()
+    const account = toAccount({
+      signer: owner,
+      userSalt,
+      code,
+      initialActors: [key.k1(owner.address)],
+    })
+
+    // Flat `AaCall[]` — matches the shape `sendTransaction` accepts.
+    await estimateGas(rec.client, {
+      sender: account.address,
+      calls: [
+        { to: owner.address, value: 1n },
+        { to: owner.address, data: '0x1234' },
+      ],
+      senderAuthAuthenticator: canonicalAuthenticators.k1,
+    })
+
+    // Serialized as a single phase (one inner array) with both calls.
+    expect(rec.request.calls).toHaveLength(1)
+    expect(rec.request.calls[0]).toHaveLength(2)
+    expect(rec.request.calls[0][0]).toMatchObject({
+      to: owner.address,
+      value: numberToHex(1n),
+      data: '0x',
+    })
+    expect(rec.request.calls[0][1]).toMatchObject({
+      to: owner.address,
+      value: numberToHex(0n),
+      data: '0x1234',
+    })
+  })
+
+  test('nested phased calls pass through unchanged', async () => {
+    const rec = recordingClient()
+    const account = toAccount({
+      signer: owner,
+      userSalt,
+      code,
+      initialActors: [key.k1(owner.address)],
+    })
+
+    await estimateGas(rec.client, {
+      sender: account.address,
+      calls: [[{ to: owner.address }], [{ to: owner.address, data: '0xab' }]],
+      senderAuthAuthenticator: canonicalAuthenticators.k1,
+    })
+
+    expect(rec.request.calls).toHaveLength(2)
+    expect(rec.request.calls[0]).toHaveLength(1)
+    expect(rec.request.calls[1][0]).toMatchObject({ data: '0xab' })
+  })
 })

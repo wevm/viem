@@ -15,8 +15,9 @@ import {
   canonicalAuthDataLength,
   changeType,
 } from '../constants.js'
-import type { AaAccountChange, AaCalls } from '../types/transaction.js'
+import type { AaAccountChange, AaCall, AaCalls } from '../types/transaction.js'
 import { encodeChangePayload } from '../utils/actorChangeData.js'
+import { toPhases } from '../utils/toPhases.js'
 
 export type EstimateGasParameters = {
   /**
@@ -57,10 +58,11 @@ export type EstimateGasParameters = {
    */
   accountChanges?: readonly AaAccountChange[] | undefined
   /**
-   * Phased calls array (each inner array is one phase / `executeBatch` call).
-   * Typically a single phase: `[[{ to, value, data }]]`.
+   * Calls to price. A flat list (`[{ to, value, data }]`) is treated as a
+   * single atomic phase; pass a nested array (`[[…], […]]`) to price explicit
+   * phases. Matches the `calls` shape accepted by `sendTransaction`.
    */
-  calls?: AaCalls | undefined
+  calls?: readonly AaCall[] | AaCalls | undefined
   /**
    * 2-D nonce key. Defaults to `0n`. Only relevant when the account has
    * multiple open channels; leave as default for single-channel accounts.
@@ -255,13 +257,15 @@ export async function estimateGas<
       // Large gas cap so the simulation isn't capped below real execution.
       gasLimit: 30_000_000,
       accountChanges: (accountChanges ?? []).map(serializeAccountChange),
-      calls: (calls ?? [[{ to: account_, value: 0n, data: '0x' as Hex }]]).map(
-        (phase) =>
-          phase.map((c) => ({
-            to: c.to,
-            value: numberToHex(c.value ?? 0n),
-            data: c.data ?? '0x',
-          })),
+      calls: (calls !== undefined
+        ? toPhases(calls)
+        : [[{ to: account_, value: 0n, data: '0x' as Hex }]]
+      ).map((phase) =>
+        phase.map((c) => ({
+          to: c.to,
+          value: numberToHex(c.value ?? 0n),
+          data: c.data ?? '0x',
+        })),
       ),
       metadata: dataSuffix ?? '0x',
       payer: payer ?? null,

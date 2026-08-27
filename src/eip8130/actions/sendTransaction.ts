@@ -23,6 +23,7 @@ import {
   encodeWalletCalls,
 } from '../utils/encodeWalletCalls.js'
 import type { Signer } from '../utils/signTransaction.js'
+import { toPhases } from '../utils/toPhases.js'
 import { getActorConfig } from './getActorConfig.js'
 import { getTransactionCount } from './getTransactionCount.js'
 import {
@@ -248,13 +249,6 @@ type SendTransactionBaseParameters = FeeOverrides & {
 export type SendTransactionParameters = SendTransactionBaseParameters
 
 export type SendTransactionReturnType = Hex
-
-function toPhases(calls: SendTransactionBaseParameters['calls']): AaCalls {
-  if (calls.length === 0) return []
-  // Already phased (array of arrays)?
-  if (Array.isArray(calls[0])) return calls as AaCalls
-  return [calls as readonly AaCall[]]
-}
 
 /**
  * Prepares, signs, and serializes an EIP-8130 (`AA_TX_TYPE`) transaction.
