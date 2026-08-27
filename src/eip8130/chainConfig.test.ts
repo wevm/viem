@@ -75,6 +75,7 @@ test('core sendTransaction submits a native AA_TX_TYPE (0x79) transaction', asyn
   })
 
   let submitted: `0x${string}` | undefined
+  let estimated = false
   const client = createClient({
     chain,
     transport: custom({
@@ -83,6 +84,11 @@ test('core sendTransaction submits a native AA_TX_TYPE (0x79) transaction', asyn
         if (method === 'eth_call') return `0x${'0'.repeat(192)}`
         // 2D channel-nonce read
         if (method === 'eth_getTransactionCount') return '0x0'
+        // AA gas estimation (no `gas` was pinned)
+        if (method === 'eth_estimateGas') {
+          estimated = true
+          return '0x30d40' // 200_000
+        }
         if (method === 'eth_sendRawTransaction') {
           submitted = params[0]
           return `0x${'11'.repeat(32)}`
@@ -96,11 +102,39 @@ test('core sendTransaction submits a native AA_TX_TYPE (0x79) transaction', asyn
     account,
     calls: [{ to: account.address, data: '0x' }],
     accountChanges: [account.create()],
-    gas: 200_000n,
     maxFeePerGas: 1_000_000_000n,
     maxPriorityFeePerGas: 1_000_000n,
   } as never)
 
+  expect(estimated).toBe(true)
   expect(hash).toBe(`0x${'11'.repeat(32)}`)
   expect(submitted?.startsWith(aaTransactionType)).toBe(true)
+})
+
+test('core sendTransaction rejects sponsored (payer) sends with a redirect', async () => {
+  const owner = privateKeyToAccount(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  )
+  const account = toAccount({
+    signer: owner,
+    userSalt: `0x${'01'.padStart(64, '0')}`,
+    code: erc1167Bytecode('0x00000000000000000000000000000000000000Ec'),
+    initialActors: [key.k1(owner.address)],
+  })
+  const client = createClient({
+    chain,
+    transport: custom({
+      async request() {
+        throw new Error('no RPC expected')
+      },
+    }),
+  })
+
+  await expect(
+    sendTransaction(client, {
+      account,
+      calls: [{ to: account.address, data: '0x' }],
+      payer: { account: owner },
+    } as never),
+  ).rejects.toThrow('Sponsored EIP-8130 transactions are not supported')
 })
