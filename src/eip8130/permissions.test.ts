@@ -325,7 +325,7 @@ describe('fulfillGrantPermissions', () => {
     expect(call.to).toBe(session.manager)
     const decoded = decodeFunctionData({
       abi: policyManagerAbi,
-      data: call.data,
+      data: call.data!,
     })
     expect(decoded.functionName).toBe('executeFor')
   })
@@ -380,8 +380,10 @@ describe('routePermissionedCalls', () => {
     expect(routed.calls).toHaveLength(1)
     expect(routed.calls[0]!.to).toBe(session.manager)
     expect(
-      decodeFunctionData({ abi: policyManagerAbi, data: routed.calls[0]!.data })
-        .functionName,
+      decodeFunctionData({
+        abi: policyManagerAbi,
+        data: routed.calls[0]!.data!,
+      }).functionName,
     ).toBe('execute')
   })
 
@@ -400,8 +402,10 @@ describe('routePermissionedCalls', () => {
     })
     expect(routed.role).toBe('pull')
     expect(
-      decodeFunctionData({ abi: policyManagerAbi, data: routed.calls[0]!.data })
-        .functionName,
+      decodeFunctionData({
+        abi: policyManagerAbi,
+        data: routed.calls[0]!.data!,
+      }).functionName,
     ).toBe('executeFor')
   })
 })
