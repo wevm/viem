@@ -3393,7 +3393,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0x9ac4fDC8e5D72AaADE30F9Ff52D392D60c68A64a
+        from:  0x7B9DD255e34938AE664E1B6fE281c50a33D85Dcd
 
       Details: Submission failed.
       Version: viem@2.56.0]
