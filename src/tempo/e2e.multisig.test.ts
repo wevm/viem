@@ -1825,7 +1825,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0xEFDd9Ca0e063Bd6974D8fa944A747620fe7032E3
+        from:  0xc37B1C9A5fDBCd6b0be8E8797Fa3E6221fD08ef0
 
       Details: A Tempo owner account is required to approve a stored multisig transaction.
       Version: viem@2.56.0]
