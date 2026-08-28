@@ -98,15 +98,15 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
 
 // 2. Store the first owner's approval.
 const pending = await client.accessKey.signAuthorization({
-  account: owner_1,
   accessKey,
-  multisig,
+  account: multisig,
+  owner: owner_1,
 })
 
 // 3. Complete the quorum using the operation hash.
 const keyAuthorization = await client.accessKey.signAuthorization({
-  account: owner_2,
   hash: pending.hash,
+  owner: owner_2,
 })
 if (keyAuthorization.status !== 'success') throw new Error('Expected quorum.')
 

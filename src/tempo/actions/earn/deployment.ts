@@ -184,7 +184,7 @@ export namespace createErc4626Engine {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
       owner?: Account | Address | undefined
@@ -451,7 +451,7 @@ export namespace createStack {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
       owner?: Account | Address | undefined
@@ -962,6 +962,7 @@ export async function deployErc4626StackSync<
     gas: _,
     keyAuthorization: __,
     nonce: ___,
+    owner: ____,
     ...sharedWriteParameters
   } = pickWriteParameters(parameters as never)
   const writeParameters = {
@@ -1191,7 +1192,7 @@ export namespace deployErc4626StackSync {
     account extends Account | undefined = Account | undefined,
   > = Omit<
     WriteParameters<chain, account>,
-    'gas' | 'keyAuthorization' | 'nonce' | 'throwOnReceiptRevert'
+    'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
     WriteSyncParameters<chain, account> & {
       /** Account used only for the final owner binding. */

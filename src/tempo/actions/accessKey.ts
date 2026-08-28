@@ -1141,8 +1141,8 @@ export namespace prepareAuthorization {
 /**
  * Signs a key authorization for an access key.
  *
- * Pass `multisig` to store one owner approval for a coordinated multisig
- * authorization. Later owners pass the returned operation hash.
+ * Pass a multisig `account` and local `owner` to store one coordinated
+ * approval. Later owners pass the returned operation hash.
  *
  * Use {@link prepareAuthorization} before this action when signing requires
  * transient user activation.
@@ -1151,12 +1151,12 @@ export namespace prepareAuthorization {
  * ```ts
  * const pending = await client.accessKey.signAuthorization({
  *   accessKey,
- *   account: owner_1,
- *   multisig,
+ *   account: multisig,
+ *   owner: owner_1,
  * })
  * const success = await client.accessKey.signAuthorization({
- *   account: owner_2,
  *   hash: pending.hash,
+ *   owner: owner_2,
  * })
  * ```
  *
@@ -1169,7 +1169,7 @@ export function signAuthorization<
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: signAuthorization.CoordinatedParameters<account>,
+  parameters: signAuthorization.CoordinatedParameters,
 ): Promise<signAuthorization.CoordinatedReturnValue>
 export function signAuthorization<
   chain extends Chain | undefined,
@@ -1187,24 +1187,18 @@ export async function signAuthorization<
 ): Promise<
   signAuthorization.CoordinatedReturnValue | signAuthorization.ReturnValue
 > {
-  const multisig = 'multisig' in parameters ? parameters.multisig : undefined
   const coordinated =
     ('hash' in parameters && parameters.hash) ||
-    typeof multisig === 'string' ||
-    (multisig &&
-      typeof multisig === 'object' &&
-      'source' in multisig &&
-      multisig.source === 'multisig')
+    ('owner' in parameters && parameters.owner)
 
   if (coordinated) {
-    const parameters_ =
-      parameters as signAuthorization.CoordinatedParameters<account>
-    const account_ = parameters_.account ?? client.account
-    if (!account_ || typeof account_ === 'string')
+    const parameters_ = parameters as signAuthorization.CoordinatedParameters
+    const owner_ = parameters_.owner
+    if (!owner_ || typeof owner_ === 'string')
       throw new Error(
         'A local owner account is required to approve a multisig key authorization.',
       )
-    const owner = parseAccount(account_)
+    const owner = parseAccount(owner_)
     const sign = owner.sign
     if (!sign)
       throw new Error(
@@ -1220,16 +1214,14 @@ export async function signAuthorization<
       }
 
       const {
-        account: _,
-        multisig: multisig_,
+        account: account_,
+        owner: _,
         ...authorization
-      } = parameters_ as signAuthorization.CoordinatedInitialParameters<account>
-      if (!multisig_) throw new Error('A multisig account is required.')
-      const address =
-        typeof multisig_ === 'string' ? multisig_ : multisig_.address
+      } = parameters_ as signAuthorization.CoordinatedInitialParameters
+      const address = typeof account_ === 'string' ? account_ : account_.address
       const config = await (async () => {
-        if (typeof multisig_ !== 'string' && multisig_.config)
-          return multisig_.config
+        if (typeof account_ !== 'string' && account_.config)
+          return account_.config
         const config = await getConfig(client, { address })
         if (config) return config
         throw new Error(
@@ -1336,23 +1328,25 @@ export async function signAuthorization<
 
 export namespace signAuthorization {
   /** Initial coordinated key authorization parameters. */
-  export type CoordinatedInitialParameters<
-    account extends Account | undefined = Account | undefined,
-  > = GetAccountParameter<account> &
-    Omit<prepareAuthorization.Parameters<Account>, 'account' | 'multisig'> & {
-      /** Multisig account being authorized. */
-      multisig: Address | MultisigAccount
-    }
+  export type CoordinatedInitialParameters = Omit<
+    prepareAuthorization.Parameters<Account>,
+    'account' | 'multisig'
+  > & {
+    /** Multisig account being authorized. */
+    account: Address | MultisigAccount
+    /** Local owner that approves the authorization. */
+    owner: Account | MultisigAccount | Address
+  }
 
   /** Coordinated key authorization parameters. */
-  export type CoordinatedParameters<
-    account extends Account | undefined = Account | undefined,
-  > = OneOf<
-    | CoordinatedInitialParameters<account>
-    | (GetAccountParameter<account> & {
+  export type CoordinatedParameters = OneOf<
+    | CoordinatedInitialParameters
+    | {
         /** Stored multisig operation hash. */
         hash: Hex
-      })
+        /** Local owner that approves the authorization. */
+        owner: Account | MultisigAccount | Address
+      }
   >
 
   /** Locally signed key authorization parameters. */
@@ -1366,7 +1360,7 @@ export namespace signAuthorization {
   /** Parameters for {@link signAuthorization}. */
   export type Parameters<
     account extends Account | undefined = Account | undefined,
-  > = CoordinatedParameters<account> | LocalParameters<account>
+  > = CoordinatedParameters | LocalParameters<account>
 
   /** Local return value for {@link signAuthorization}. */
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>

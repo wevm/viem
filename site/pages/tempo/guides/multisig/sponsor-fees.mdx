@@ -46,16 +46,17 @@ const multisig = Account.fromMultisig({
 
 // 2. Store the first owner approval with a relay fee payer.
 const pending = await client.sendTransactionSync({
-  account: owner_1,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer: true,
-  multisig,
+  owner: owner_1,
 })
 
 // 3. Reach quorum and let the relay sponsor the final transaction.
 const receipt = await client.sendTransactionSync({
-  account: owner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_2,
 })
 ```
 
@@ -102,16 +103,17 @@ const multisig = Account.fromMultisig({
 
 // 2. Store the first approval with the local fee payer.
 const pending = await client.sendTransactionSync({
-  account: owner_1,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer,
-  multisig,
+  owner: owner_1,
 })
 
 // 3. Approve the fee-paid operation with the second owner.
 const receipt = await client.sendTransactionSync({
-  account: owner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_2,
 })
 ```
 
@@ -126,8 +128,8 @@ const receipt = await client.sendTransactionSync({
 ### Keep the Operation Immutable
 
 Owner and fee-payer signatures cover the prepared transaction fields. Do not change gas, fees,
-nonce, validity window, calls, or fee payer after either party signs. Later owners should pass only
-the operation hash and their account.
+nonce, validity window, calls, or fee payer after either party signs. Later owners should pass the
+same multisig account, the operation hash, and their owner signer.
 
 ## See More
 

@@ -67,19 +67,27 @@ export const chainConfig = {
         hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-        multisig?: Address | MultisigAccount | MultisigConfig.Config | undefined
         multisigWitness?: MultisigWitness.MultisigWitness | undefined
+        owner?: Account | MultisigAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
       }
 
       if (request.hash) {
-        if (!request.account || typeof request.account === 'string')
+        if (
+          !request.account ||
+          typeof request.account === 'string' ||
+          request.account.source !== 'multisig'
+        )
+          throw new Error(
+            'A local multisig account is required to approve a stored multisig transaction.',
+          )
+        if (!request.owner || typeof request.owner === 'string')
           throw new Error(
             'A local owner account is required to approve a stored multisig transaction.',
           )
         if (
-          request.account.source !== 'root' &&
-          request.account.source !== 'multisig'
+          request.owner.source !== 'root' &&
+          request.owner.source !== 'multisig'
         )
           throw new Error(
             'A Tempo owner account is required to approve a stored multisig transaction.',
@@ -97,6 +105,10 @@ export const chainConfig = {
             : undefined
         if (!operation)
           throw new Error('Expected a multisig operation transaction.')
+        if (!isAddressEqual(operation.account, request.account.address))
+          throw new Error(
+            'Multisig operation account does not match the requested account.',
+          )
         const storedTransaction = Transaction.deserialize(
           operation.transaction as Transaction.TransactionSerializedTempo,
         )
@@ -110,8 +122,14 @@ export const chainConfig = {
           throw new Error('Multisig operation hash does not match transaction.')
         return {
           ...storedTransaction,
+          account: request.account,
           from: operation.account,
-          multisig: operation.config,
+          multisigWitness: getMultisigWitness({
+            account: operation.account,
+            config: operation.config,
+            local: request.account,
+          }),
+          owner: request.owner,
         } as unknown as typeof r
       }
 
@@ -134,24 +152,6 @@ export const chainConfig = {
       }
 
       const multisigIdentity = (() => {
-        const multisig = request.multisig
-        if (typeof multisig === 'string')
-          return { account: multisig, config: undefined, local: undefined }
-        if (multisig && 'source' in multisig)
-          return {
-            account: multisig.address,
-            config: multisig.config,
-            local: multisig,
-          }
-        if (multisig) {
-          const config = MultisigConfig.from(multisig)
-          const account = (() => {
-            if (request.from) return request.from
-            if (config.version === 0n) return MultisigConfig.getAddress(config)
-            return undefined
-          })()
-          return { account, config, local: undefined }
-        }
         if (request.account?.source === 'multisig')
           return {
             account: request.account.address,
@@ -160,21 +160,25 @@ export const chainConfig = {
           }
         return undefined
       })()
-      if (multisigIdentity && typeof request.account === 'string')
+      if (request.owner && !multisigIdentity)
+        throw new Error(
+          'A multisig account is required when an owner is provided.',
+        )
+      if (request.owner && typeof request.owner === 'string')
         throw new Error(
           'A local owner account is required to approve a multisig transaction.',
         )
       if (
-        multisigIdentity &&
-        request.account &&
-        request.account.source !== 'root' &&
-        request.account.source !== 'multisig'
+        request.owner &&
+        request.owner.source !== 'root' &&
+        request.owner.source !== 'multisig'
       )
         throw new Error(
           'A Tempo owner account is required to approve a multisig transaction.',
         )
       const coordinatedMultisig =
         !!multisigIdentity &&
+        !!request.owner &&
         (client.transport as { multisig?: boolean }).multisig === true
       if (multisigIdentity) {
         const { account, local } = multisigIdentity
@@ -201,19 +205,11 @@ export const chainConfig = {
             'A multisig config is required to prepare a transaction.',
           )
         request.from = account
-        request.multisig = config
         request.multisigWitness = getMultisigWitness({
           account,
           config,
           local,
         })
-        // A signing account that differs from the root multisig is not the
-        // sender. Drop it so core fills the root account's nonce and fees.
-        if (
-          request.account?.source !== 'multisig' ||
-          !isAddressEqual(request.account.address, account)
-        )
-          delete request.account
       }
 
       // Register concurrency before account preparation performs storage or
@@ -303,7 +299,7 @@ export const chainConfig = {
     transaction: serializeTransaction,
     async transactionEnvelope({ serializedTransaction, transaction }) {
       const request = transaction as Transaction.TransactionSerializableTempo
-      if (!request.multisig) return serializedTransaction
+      if (!request.multisigWitness) return serializedTransaction
       try {
         SignatureEnvelope.deserialize(serializedTransaction)
       } catch {

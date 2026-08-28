@@ -73,8 +73,8 @@ export type WriteParameters<
     | 'feePayer'
     | 'feeToken'
     | 'keyAuthorization'
-    | 'multisig'
     | 'nonceKey'
+    | 'owner'
     | 'validAfter'
     | 'validBefore'
   >

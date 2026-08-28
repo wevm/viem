@@ -43,21 +43,23 @@ const multisig = Account.fromMultisig({
 
 // 3. Store the secp256k1 owner's approval.
 const pending = await client.sendTransactionSync({
-  account: secp256k1Owner,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig,
+  owner: secp256k1Owner,
 })
 
 // 4. Approve the stored transaction with the P256 owner.
 const pending2 = await client.sendTransactionSync({
-  account: p256Owner,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: p256Owner,
 })
 
 // 5. Reach quorum with the WebCrypto P256 owner.
 const receipt = await client.sendTransactionSync({
-  account: webCryptoOwner,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: webCryptoOwner,
 })
 ```
 

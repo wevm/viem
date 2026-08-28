@@ -1,9 +1,9 @@
 import { MultisigConfig } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
-import * as Account from './Account.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -21,13 +21,13 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      multisig: config,
+      account: Account.fromMultisig({ address: 'initial', ...config }),
       parameters: ['chainId'],
     })
 
     expect(request.multisigWitness).toMatchInlineSnapshot(`
       {
-        "account": "0x75dc015f090b457fc7615fa37859937d1906e1c9",
+        "account": "0x75DC015f090B457FC7615FA37859937D1906e1C9",
         "approvals": [
           {
             "keyData": "0x0578",
@@ -76,7 +76,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      multisig: config,
+      account: Account.fromMultisig({ address: 'initial', ...config }),
       parameters: ['chainId'],
     })
 
@@ -104,7 +104,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      multisig: account,
+      account,
       parameters: ['chainId'],
     })
 
@@ -143,8 +143,8 @@ describe('prepareTransactionRequest', () => {
 
     await expect(
       prepareTransactionRequest(client, {
-        account: owner,
-        multisig: config,
+        account: Account.fromMultisig({ address: 'initial', ...config }),
+        owner,
         parameters: ['chainId'],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(

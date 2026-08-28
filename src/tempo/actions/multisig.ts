@@ -266,36 +266,29 @@ export namespace updateConfig {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { currentConfig: currentConfig_, nextConfig, ...rest } = parameters
+    const {
+      account: account_,
+      currentConfig: currentConfig_,
+      nextConfig,
+      ...rest
+    } = parameters
+    const accountValue = account_ ?? client.account
     const account = (() => {
-      const account = parameters.account ?? client.account
-      if (typeof account === 'object' && account.source === 'multisig')
-        return account as MultisigAccount
-      return undefined
-    })()
-    const multisig = (() => {
-      const multisig = parameters.multisig
       if (
-        typeof multisig === 'object' &&
-        'source' in multisig &&
-        multisig.source === 'multisig'
+        typeof accountValue === 'object' &&
+        accountValue.source === 'multisig'
       )
-        return multisig as MultisigAccount
+        return accountValue as MultisigAccount
       return undefined
     })()
     const config = (() => {
       if (currentConfig_) return currentConfig_
       if (account?.config) return account.config
-      if (multisig?.config) return multisig.config
-      const multisig_ = parameters.multisig
-      if (typeof multisig_ === 'object' && !('source' in multisig_))
-        return MultisigConfig.from(multisig_)
       return undefined
     })()
     const address = (() => {
       if (account) return account.address
-      if (multisig) return multisig.address
-      if (typeof parameters.multisig === 'string') return parameters.multisig
+      if (typeof accountValue === 'string') return accountValue as Address
       return undefined
     })()
     const currentConfig = await (async () => {
@@ -311,19 +304,14 @@ export namespace updateConfig {
         )
       return cachedConfig
     })()
-    const resolvedMultisig = (() => {
-      if (multisig) return { ...multisig, config: currentConfig }
-      if (typeof parameters.multisig === 'string')
-        return fromMultisig({
-          address: parameters.multisig,
-          ...currentConfig,
-        })
+    const resolvedAccount = (() => {
+      if (account) return { ...account, config: currentConfig }
+      if (address) return fromMultisig({ address, ...currentConfig })
       return undefined
     })()
     return (await action(client, {
       ...rest,
-      ...(account ? { account: { ...account, config: currentConfig } } : {}),
-      ...(resolvedMultisig ? { multisig: resolvedMultisig } : {}),
+      ...(resolvedAccount ? { account: resolvedAccount } : {}),
       ...updateConfig.call({ currentConfig, nextConfig }),
     } as never)) as never
   }

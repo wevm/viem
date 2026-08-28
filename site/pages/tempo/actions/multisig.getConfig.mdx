@@ -44,14 +44,13 @@ const multisig = Account.fromMultisig(
 )
 
 const pending = await client.sendTransactionSync({
-  account: owner,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig,
+  owner,
 })
 ```
 
-An address-only account contains no local owner keys. Pass the owner that signs the approval through
-`account`.
+An address-only account contains no local owner keys. Pass the local signer through `owner`.
 
 :::info
 Configs contain owner addresses and weights. A public coordinator that exposes this action treats

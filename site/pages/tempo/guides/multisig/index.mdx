@@ -55,8 +55,8 @@ request between every owner.
 
 When owners sign independently, enable `experimental_multisig` on the client and use
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The first owner passes the
-transaction fields and multisig account. Every later owner passes the operation hash from the
-pending receipt.
+transaction fields with the multisig `account` and local `owner`. Every later owner passes the
+same account, the operation hash from the pending receipt, and their signer.
 
 The shared store retains valid approvals, reports pending quorum state, and broadcasts a canonical
 transaction after the approval weight reaches the threshold.
@@ -87,21 +87,23 @@ const multisig = Account.fromMultisig({
 
 // 3. Store the first owner's approval and receive a pending receipt.
 const pending = await client.sendTransactionSync({
-  account: owner_1,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig,
+  owner: owner_1,
 })
 
 // 4. Add the second owner's approval by operation hash.
 const pending2 = await client.sendTransactionSync({
-  account: owner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_2,
 })
 
 // 5. Reach quorum with the third owner's approval.
 const receipt = await client.sendTransactionSync({
-  account: owner_3,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_3,
 })
 ```
 

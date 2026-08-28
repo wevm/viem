@@ -1,4 +1,5 @@
 import { MultisigConfig, type MultisigWitness } from 'ox/tempo'
+import { Account } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
 import { tempoLocalnet } from '../chains/index.js'
@@ -32,7 +33,7 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     transport: http(),
   })
 
-  // No explicit `type`: tempo-exclusive fields (`calls`/`feeToken`/`multisig`)
+  // No explicit `type`: tempo-exclusive fields (`calls`/`feeToken`/`owner`)
   // narrow the inferred type to `'tempo'`.
   const request_calls = await prepareTransactionRequest(client, { calls: [] })
   expectTypeOf(request_calls.type).toEqualTypeOf<'tempo'>()
@@ -49,7 +50,10 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     ],
   })
   const request_multisig = await prepareTransactionRequest(client, {
-    multisig: config,
+    account: Account.fromMultisig({ address: 'initial', ...config }),
+    owner: Account.fromSecp256k1(
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ),
   })
   expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
   expectTypeOf(request_multisig.multisigWitness).toEqualTypeOf<

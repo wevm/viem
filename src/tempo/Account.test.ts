@@ -3,13 +3,15 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
 import * as Scopes from './Scopes.js'
+import * as Transaction from './Transaction.js'
 
 const client = tempo.getClient()
 
@@ -532,24 +534,37 @@ describe('signTransaction', () => {
     )
   })
 
-  test('error: current multisig config without account address', async () => {
-    const account = Account.fromSecp256k1(privateKey_secp256k1)
-
-    await expect(
-      account.signTransaction({
-        calls: [],
-        chainId: 1,
-        maxFeePerGas: parseGwei('10'),
-        multisig: {
-          owners: [{ owner: account.address, weight: 1 }],
-          salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-          threshold: 1,
-          version: 1n,
-        },
-      } as never),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: A multisig account address is required with a current config.]`,
+  test('behavior: current multisig witness', async () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const initialConfig = MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const config = MultisigConfig.from({ ...initialConfig, version: 1 })
+    const request = {
+      calls: [],
+      chainId: 1,
+      maxFeePerGas: parseGwei('10'),
+      multisigWitness: {
+        account: MultisigConfig.getAddress(initialConfig),
+        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        config,
+      },
+    } as const
+    const signature = SignatureEnvelope.from(
+      await owner.signTransaction(request),
     )
+    const { multisigWitness: _, ...unsigned } = request
+    const payload = keccak256(await Transaction.serialize(unsigned))
+    const digest = MultisigConfig.getSignPayload({
+      account: request.multisigWitness.account,
+      config,
+      payload,
+    })
+
+    expect(
+      SignatureEnvelope.extractAddress({ payload: digest, signature }),
+    ).toMatchInlineSnapshot(`"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`)
   })
 })
 

@@ -19,13 +19,14 @@ const client = createClient({
 
 test('wallet actions expose multisig operations', async () => {
   const hash = await client.sendTransaction({
-    account: owner,
+    account,
     calls: [],
-    multisig: account,
+    owner,
   })
   const receipt = await client.sendTransactionSync({
-    account: owner,
+    account,
     hash,
+    owner,
   })
   const transaction = await client.getTransaction({ hash })
   const config = await client.multisig.getConfig({ address: account.address })
@@ -54,9 +55,9 @@ test('updateConfig infers the current config', async () => {
   const hash = await client.multisig.updateConfig(parameters)
   const explicitHash = await client.multisig.updateConfig({
     ...parameters,
-    account: owner,
+    account: account.address,
     currentConfig: account.config,
-    multisig: account.address,
+    owner,
   })
   const result = await client.multisig.updateConfigSync(parameters)
 

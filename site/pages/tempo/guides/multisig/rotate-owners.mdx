@@ -43,8 +43,7 @@ const multisig = Account.fromMultisig({
 
 // 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
 const { receipt } = await client.multisig.updateConfigSync({
-  account: owner,
-  multisig,
+  account: multisig,
   nextConfig: {
     owners: [
       { owner: owner.address, weight: 1 },
@@ -52,6 +51,7 @@ const { receipt } = await client.multisig.updateConfigSync({
     ],
     threshold: 1,
   },
+  owner,
 })
 ```
 
@@ -87,8 +87,7 @@ const multisig = Account.fromMultisig(
 
 // 3. Store the first current owner's approval for the update.
 const { receipt: pending } = await client.multisig.updateConfigSync({
-  account: owner_1,
-  multisig,
+  account: multisig,
   nextConfig: {
     owners: [
       { owner: newOwner_1.address, weight: 1 },
@@ -96,12 +95,14 @@ const { receipt: pending } = await client.multisig.updateConfigSync({
     ],
     threshold: 2,
   },
+  owner: owner_1,
 })
 
 // 4. Reach quorum with the second current owner.
 const receipt = await client.sendTransactionSync({
-  account: owner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_2,
 })
 ```
 
@@ -135,15 +136,16 @@ const multisig = Account.fromMultisig(
 
 // 3. Store the first new owner's approval.
 const pending = await client.sendTransactionSync({
-  account: newOwner_1,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig,
+  owner: newOwner_1,
 })
 
 // 4. Reach quorum with the second new owner.
 const receipt = await client.sendTransactionSync({
-  account: newOwner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: newOwner_2,
 })
 ```
 

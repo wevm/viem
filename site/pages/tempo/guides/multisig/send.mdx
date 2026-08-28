@@ -119,8 +119,8 @@ const multisig = Account.fromMultisig({
 
 #### Send the Transaction
 
-The first owner passes the transaction fields and multisig account. Each later owner passes only
-the operation hash and their account:
+The first owner passes the transaction fields, multisig account, and owner signer. Each later
+owner passes the same multisig account, the operation hash, and their signer:
 
 ```ts
 import { Account } from 'viem/tempo'
@@ -142,21 +142,23 @@ const multisig = Account.fromMultisig({
 })
 
 const pending = await client.sendTransactionSync({
-  account: owner_1,
+  account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig,
+  owner: owner_1,
 })
 // @log: { status: 'pending', transactionHash: '0x...', multisig: { status: 'pending', weight: 1, threshold: 3 } }
 
 const pending2 = await client.sendTransactionSync({
-  account: owner_2,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_2,
 })
 // @log: { status: 'pending', transactionHash: '0x...', multisig: { status: 'pending', weight: 2, threshold: 3 } }
 
 const receipt = await client.sendTransactionSync({
-  account: owner_3,
+  account: multisig,
   hash: pending.transactionHash,
+  owner: owner_3,
 })
 // @log: { status: 'success', transactionHash: '0x...', multisig: { status: 'success', weight: 3, threshold: 3 } }
 ```

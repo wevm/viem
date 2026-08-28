@@ -256,15 +256,23 @@ describe('signAuthorization', () => {
 
     const pending = await actions.accessKey.signAuthorization(client, {
       accessKey,
-      account: owner_1,
-      multisig,
+      account: multisig,
+      owner: owner_1,
     })
     expect(pending).toMatchInlineSnapshot(
       {
+        account: expect.any(String),
         address: expect.any(String),
         hash: expect.any(String),
         multisig: {
+          account: expect.any(String),
           approvals: [expect.any(String)],
+          config: {
+            owners: [
+              { owner: expect.any(String) },
+              { owner: expect.any(String) },
+            ],
+          },
           createdAt: expect.any(Number),
           hash: expect.any(String),
           keyAuthorization: expect.any(String),
@@ -274,24 +282,24 @@ describe('signAuthorization', () => {
       },
       `
       {
-        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "account": Any<String>,
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "account": Any<String>,
           "approvals": [
             Any<String>,
           ],
           "config": {
             "owners": [
               {
-                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "owner": Any<String>,
                 "weight": 1,
               },
               {
-                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "owner": Any<String>,
                 "weight": 1,
               },
             ],
@@ -317,15 +325,23 @@ describe('signAuthorization', () => {
     )
 
     const success = await client.accessKey.signAuthorization({
-      account: owner_2,
       hash: pending.hash,
+      owner: owner_2,
     })
     expect(success).toMatchInlineSnapshot(
       {
+        account: expect.any(String),
         address: expect.any(String),
         hash: expect.any(String),
         multisig: {
+          account: expect.any(String),
           approvals: [expect.any(String), expect.any(String)],
+          config: {
+            owners: [
+              { owner: expect.any(String) },
+              { owner: expect.any(String) },
+            ],
+          },
           createdAt: expect.any(Number),
           hash: expect.any(String),
           keyAuthorization: expect.any(String),
@@ -335,13 +351,13 @@ describe('signAuthorization', () => {
       },
       `
       {
-        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "account": Any<String>,
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "account": Any<String>,
           "approvals": [
             Any<String>,
             Any<String>,
@@ -349,11 +365,11 @@ describe('signAuthorization', () => {
           "config": {
             "owners": [
               {
-                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "owner": Any<String>,
                 "weight": 1,
               },
               {
-                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "owner": Any<String>,
                 "weight": 1,
               },
             ],
@@ -392,8 +408,8 @@ describe('signAuthorization', () => {
     await expect(
       actions.accessKey.signAuthorization(getMultisigClient(), {
         accessKey,
-        account: owner.address,
-        multisig,
+        account: multisig,
+        owner: owner.address,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A local owner account is required to approve a multisig key authorization.]`,

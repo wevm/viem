@@ -2,7 +2,8 @@
 
 - **Type:** `Account | Address`
 
-Account that will be used to send the transaction.
+Account that sends the transaction. For a coordinated multisig transaction, pass the multisig
+account.
 
 ### feeToken (optional)
 
@@ -49,6 +50,12 @@ Nonce for the transaction.
 - **Type:** `'expiring' | bigint`
 
 Nonce key for the transaction. Use `'expiring'` to use [expiring nonces (TIP-1009)](https://docs.tempo.xyz/protocol/tips/tip-1009), which enables concurrent transaction submission without nonce ordering.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+
+Local owner that signs one coordinated multisig approval.
 
 ### validBefore (optional)
 

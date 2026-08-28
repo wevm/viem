@@ -322,10 +322,18 @@ describe('serialize', () => {
       threshold: 2,
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
     })
+    const multisigAccount = MultisigConfig.getAddress(multisig)
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
-      multisig,
+      multisigWitness: {
+        account: multisigAccount,
+        approvals: owners.map((owner) => ({
+          owner: owner.address,
+          type: 'primitive' as const,
+        })),
+        config: multisig,
+      },
       nonce: 0,
       nonceKey: 1n,
     } as const
@@ -340,8 +348,12 @@ describe('serialize', () => {
     const { signature } = Transaction.deserialize(serialized as `0x76${string}`)
     expect(signature?.type).toBe('multisig')
     if (signature?.type !== 'multisig') throw new Error('unreachable')
-    const { account, signatures: approvals, ...rest } = signature
-    expect(account).toBeDefined()
+    const {
+      account: signatureAccount,
+      signatures: approvals,
+      ...rest
+    } = signature
+    expect(signatureAccount).toBeDefined()
     expect(approvals).toHaveLength(2)
     expect(rest).toMatchInlineSnapshot(`
       {
@@ -380,7 +392,11 @@ describe('serialize', () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
       from: account,
-      multisig,
+      multisigWitness: {
+        account,
+        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        config: multisig,
+      },
       nonce: 1,
     } as const
 

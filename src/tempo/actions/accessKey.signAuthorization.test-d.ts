@@ -36,12 +36,12 @@ test('behavior: infers a local key authorization', async () => {
 test('behavior: infers coordinated key authorizations', async () => {
   const pending = await Actions.accessKey.signAuthorization(client, {
     accessKey,
-    account: owner,
-    multisig,
+    account: multisig,
+    owner,
   })
   const success = await client.accessKey.signAuthorization({
-    account: owner,
     hash: pending.hash,
+    owner,
   })
 
   expectTypeOf(pending).toMatchTypeOf<KeyAuthorization.Signed>()
@@ -61,8 +61,9 @@ test('behavior: infers coordinated key authorizations', async () => {
 test('behavior: rejects mixed initial and continuation parameters', async () => {
   await Actions.accessKey.signAuthorization(client, {
     accessKey,
-    account: owner,
+    account: multisig,
     // @ts-expect-error `accessKey` and `hash` belong to different modes.
     hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    owner,
   })
 })

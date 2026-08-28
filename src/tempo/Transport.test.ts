@@ -548,8 +548,8 @@ describe('withRelay', () => {
         const account = Account.fromMultisig({ address: 'initial', ...config })
 
         const request = await prepareTransactionRequest(client, {
+          account,
           feePayer: true,
-          multisig: config,
           to: account.address,
           value: 0n,
         })
@@ -562,7 +562,6 @@ describe('withRelay', () => {
           ...request,
           account,
           feePayer: true,
-          multisig: config,
           signatures,
         })
 
@@ -598,16 +597,17 @@ describe('withRelay', () => {
         })
 
         const pending = await sendTransactionSync(coordinated, {
-          account: owner_1,
+          account,
           calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
           feePayer: true,
-          multisig: account,
+          owner: owner_1,
         })
         expect(pending.status).toMatchInlineSnapshot(`"pending"`)
 
         const receipt = await sendTransactionSync(coordinated, {
-          account: owner_2,
+          account,
           hash: pending.transactionHash,
+          owner: owner_2,
         })
         expect(receipt.status).toMatchInlineSnapshot(`"success"`)
         expect(receipt.from).toBe(account.address.toLowerCase())

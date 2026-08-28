@@ -71,14 +71,14 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
 })
 
 const pending = await client.accessKey.signAuthorization({
-  account: owner_1,
   accessKey,
-  multisig,
+  account: multisig,
+  owner: owner_1,
 })
 
 const success = await client.accessKey.signAuthorization({
-  account: owner_2,
   hash: pending.hash,
+  owner: owner_2,
 })
 ```
 
@@ -259,8 +259,7 @@ result can be passed directly to any write action as its `keyAuthorization`.
 
 - **Type:** `RootAccount | MultisigAccount`
 
-For local signing, the account authorizing the access key. For coordinated signing, the owner
-adding an approval.
+The account authorizing the access key. For coordinated signing, pass the multisig account here.
 
 ### accessKey
 
@@ -293,12 +292,12 @@ authorization fields when adding another owner approval.
 
 Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic. It resets after each period.
 
-### multisig
+### owner
 
-- **Type:** `Address | MultisigAccount`
+- **Type:** `RootAccount | MultisigAccount`
 
-The multisig account authorizing the access key. Passing this parameter starts a coordinated
-operation. The client resolves the current config when the account does not include it.
+The local owner adding a coordinated approval. Passing `owner` with a multisig `account` starts a
+coordinated operation. Later owners pass `owner` with the operation `hash`.
 
 ### scopes (optional)
 

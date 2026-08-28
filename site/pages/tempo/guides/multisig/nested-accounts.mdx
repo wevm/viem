@@ -72,9 +72,9 @@ const parent = Account.fromMultisig({ address: 'initial', owners: [child] })
 
 // 3. Approve the parent request with the child's complete quorum.
 const receipt = await client.sendTransactionSync({
-  account: child,
+  account: parent,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  multisig: parent,
+  owner: child,
 })
 ```
 

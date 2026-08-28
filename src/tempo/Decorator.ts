@@ -313,12 +313,12 @@ type DecoratorBase<
      * ```ts
      * const pending = await client.accessKey.signAuthorization({
      *   accessKey,
-     *   account: owner_1,
-     *   multisig,
+     *   account: multisig,
+     *   owner: owner_1,
      * })
      * const success = await client.accessKey.signAuthorization({
-     *   account: owner_2,
      *   hash: pending.hash,
+     *   owner: owner_2,
      * })
      * ```
      *
@@ -327,7 +327,7 @@ type DecoratorBase<
      */
     signAuthorization: {
       (
-        parameters: accessKeyActions.signAuthorization.CoordinatedParameters<account>,
+        parameters: accessKeyActions.signAuthorization.CoordinatedParameters,
       ): Promise<accessKeyActions.signAuthorization.CoordinatedReturnValue>
       (
         parameters: accessKeyActions.signAuthorization.LocalParameters<account>,

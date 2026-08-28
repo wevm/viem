@@ -389,6 +389,19 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
       const request = transaction as Transaction.TransactionSerializableTempo
+      if (request.owner) {
+        const owner = parseAccount(request.owner)
+        if (owner.type !== 'local')
+          throw new Error(
+            'A local owner account is required to approve a multisig transaction.',
+          )
+        if (owner.source !== 'root' && owner.source !== 'multisig')
+          throw new Error(
+            'A Tempo owner account is required to approve a multisig transaction.',
+          )
+        const { owner: _, ...ownerRequest } = request
+        return await owner.signTransaction(ownerRequest as never, options)
+      }
       if (owners.length === 0)
         return (await serializer(transaction as never)) as Hex.Hex
 
@@ -400,24 +413,13 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
           : { feePayerSignature: null }),
       }
       const payload = keccak256(await serializer(presign as never))
-      const requestMultisig = request.multisig
-      const requestAccount = (() => {
-        if (!requestMultisig) return address
-        if (typeof requestMultisig === 'string') return requestMultisig
-        if (request.from) return request.from
-        if (requestMultisig.version === 0n)
-          return MultisigConfig.getAddress(requestMultisig)
-        return undefined
-      })()
-      if (!requestAccount)
-        throw new Error(
-          'A multisig account address is required with a current config.',
-        )
+      const witness = request.multisigWitness
+      const requestAccount = witness?.account ?? address
 
       if (!Address.isEqual(requestAccount, address)) {
-        if (!requestMultisig || typeof requestMultisig === 'string')
+        if (!witness)
           throw new Error('A multisig config is required for local signing.')
-        const parentConfig = MultisigConfig.from(requestMultisig)
+        const parentConfig = MultisigConfig.from(witness.config)
         const parentDigest = MultisigConfig.getSignPayload({
           account: requestAccount,
           config: parentConfig,
@@ -430,12 +432,8 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
         )
       }
 
-      const requestConfig = (() => {
-        if (!requestMultisig || typeof requestMultisig === 'string') return
-        return MultisigConfig.from(requestMultisig)
-      })()
       const signature = await signMultisig(account, {
-        config: requestConfig,
+        config: witness?.config,
         payload,
         signatures: request.signatures?.map((signature) =>
           SignatureEnvelope.from(signature),
@@ -973,24 +971,16 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       // primitive signature over the multisig owner approval digest, instead of
       // a full serialized transaction. Approvals are combined later in
       // `sendTransaction({ signatures })`.
-      const { multisig } = transaction as {
-        multisig?: Address.Address | MultisigConfig.Config | undefined
+      const { multisigWitness } = transaction as {
+        multisigWitness?: {
+          account: Address.Address
+          config: MultisigConfig.Config
+        }
       }
-      if (multisig) {
-        if (typeof multisig === 'string')
-          throw new Error('A multisig config is required for owner signing.')
-        const config = MultisigConfig.from(multisig)
-        const account = (() => {
-          const from = (transaction as { from?: Address.Address | undefined })
-            .from
-          if (from) return from
-          if (config.version === 0n) return MultisigConfig.getAddress(config)
-          throw new Error(
-            'A multisig account address is required with a current config.',
-          )
-        })()
+      if (multisigWitness) {
+        const config = MultisigConfig.from(multisigWitness.config)
         const digest = MultisigConfig.getSignPayload({
-          account,
+          account: multisigWitness.account,
           config,
           payload,
         })
