@@ -971,7 +971,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650
+        from:  0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C
 
       Details: No current multisig config is cached for account 0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C. Provide the current config.
       Version: viem@2.56.0]
