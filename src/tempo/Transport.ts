@@ -80,7 +80,7 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
-export type Relay = Transport<typeof withRelay.type>
+export type Relay = Transport<typeof withRelay.type, { multisig: true }>
 
 /**
  * Wraps a transport with native multisig request handling.
@@ -145,6 +145,8 @@ export declare namespace withMultisig {
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
+ * Multisig approvals, configs, operations, and operation-aware transaction
+ * lookups are also sent to the relay so it can coordinate approvals in its store.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
@@ -166,11 +168,22 @@ export function withRelay(
     const transport_default = defaultTransport(config)
     const transport_relay = relayTransport(config)
 
-    return createTransport({
+    const transport = createTransport({
       key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction')
+          return transport_relay.request({ method, params }, options) as never
+
+        if (
+          method === 'eth_getTransactionByHash' ||
+          method === 'eth_getTransactionReceipt' ||
+          method === 'multisig_approveKeyAuthorization' ||
+          method === 'multisig_approveRawTransaction' ||
+          method === 'multisig_approveRawTransactionSync' ||
+          method === 'multisig_getConfig' ||
+          method === 'multisig_getOperation'
+        )
           return transport_relay.request({ method, params }, options) as never
 
         if (
@@ -179,6 +192,9 @@ export function withRelay(
         ) {
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
+
+          if (transaction.signature?.type === 'multisig')
+            return transport_relay.request({ method, params }, options) as never
 
           // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
           // signature until the relay co-signs the transaction.
@@ -217,6 +233,7 @@ export function withRelay(
       },
       type: withRelay.type,
     })
+    return { ...transport, value: { multisig: true } }
   }
 }
 

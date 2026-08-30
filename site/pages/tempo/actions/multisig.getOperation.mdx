@@ -8,7 +8,8 @@ Gets the current state of a coordinated multisig transaction or key authorizatio
 returns `null` when the operation hash is unknown.
 
 Configure the client with [`experimental_multisig`](/tempo) or
-[`withMultisig`](/tempo/transports/withMultisig) before reading locally coordinated operations.
+[`withMultisig`](/tempo/transports/withMultisig) for local coordination. Use
+[`withRelay`](/tempo/transports/withRelay) to read operations coordinated by a relay.
 
 ## Usage
 

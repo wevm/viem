@@ -22,6 +22,9 @@ import {
   getClient,
   http,
 } from '~test/tempo/config.js'
+import { custom } from '../clients/transports/custom.js'
+import * as Account_ from './Account.js'
+import * as Transaction_ from './Transaction.js'
 import {
   walletNamespaceCompat,
   withFeePayer,
@@ -78,6 +81,83 @@ describe('withRelay', () => {
     method: string
     params: readonly unknown[] | undefined
   }> = []
+
+  test('behavior: routes multisig coordination to the relay', async () => {
+    const owner = Account_.fromSecp256k1(generatePrivateKey())
+    const config = MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const transaction = {
+      calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
+      chainId: chain.id,
+      multisigWitness: {
+        account: MultisigConfig.getAddress(config),
+        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        config,
+      },
+    } as const
+    const signature = await owner.signTransaction(transaction)
+    const serialized = await Transaction_.serialize({
+      ...transaction,
+      signatures: [signature],
+    })
+    const defaultMethods: string[] = []
+    const relayMethods: string[] = []
+    const transport = withRelay(
+      custom({
+        async request({ method }) {
+          defaultMethods.push(method)
+          return method
+        },
+      }),
+      custom({
+        async request({ method }) {
+          relayMethods.push(method)
+          return method
+        },
+      }),
+    )({ chain })
+    const hash = `0x${'01'.repeat(32)}`
+
+    const results = await Promise.all(
+      [
+        { method: 'eth_getTransactionByHash', params: [hash] },
+        { method: 'eth_getTransactionReceipt', params: [hash] },
+        { method: 'eth_sendRawTransaction', params: [serialized] },
+        { method: 'eth_sendRawTransactionSync', params: [serialized] },
+        {
+          method: 'multisig_approveKeyAuthorization',
+          params: [{ hash, signature }],
+        },
+        { method: 'multisig_approveRawTransaction', params: [serialized] },
+        { method: 'multisig_approveRawTransactionSync', params: [serialized] },
+        { method: 'multisig_getConfig', params: [{ address: owner.address }] },
+        { method: 'multisig_getOperation', params: [hash] },
+      ].map((request) => transport.request(request as never)),
+    )
+
+    expect(transport.value).toMatchInlineSnapshot(`
+      {
+        "multisig": true,
+      }
+    `)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "eth_getTransactionByHash",
+        "eth_getTransactionReceipt",
+        "eth_sendRawTransaction",
+        "eth_sendRawTransactionSync",
+        "multisig_approveKeyAuthorization",
+        "multisig_approveRawTransaction",
+        "multisig_approveRawTransactionSync",
+        "multisig_getConfig",
+        "multisig_getOperation",
+      ]
+    `)
+    expect(defaultMethods).toMatchInlineSnapshot(`[]`)
+    expect(relayMethods).toStrictEqual(results)
+  })
 
   beforeAll(async () => {
     server = Http.createServer(
@@ -150,6 +230,23 @@ describe('withRelay', () => {
               id: request.id,
               jsonrpc: request.jsonrpc,
               result: request.params?.[0],
+            }),
+          )
+        }
+
+        if (
+          request.method === 'eth_getTransactionByHash' ||
+          request.method === 'eth_getTransactionReceipt'
+        ) {
+          const result = await feePayerClient.request({
+            method: request.method,
+            params: request.params,
+          } as never)
+          return Response.json(
+            RpcResponse.from({
+              id: request.id,
+              jsonrpc: request.jsonrpc,
+              result,
             }),
           )
         }
@@ -293,6 +390,7 @@ describe('withRelay', () => {
       expect(transaction).toMatchObject(sponsorFillFields!)
       expect(relayRequests.map(({ method }) => method)).toEqual([
         'eth_fillTransaction',
+        'eth_getTransactionByHash',
       ])
     })
 

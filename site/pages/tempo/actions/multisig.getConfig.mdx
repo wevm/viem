@@ -9,8 +9,8 @@ Gets the multisig config that matches an account's current onchain commitment.
 The coordinator caches configs after validating transaction approvals. It returns `null` when the
 current config is not cached. Chain state remains authoritative.
 
-Configure [`experimental_multisig`](/tempo/utilities/Multisig#client-setup) on the client so the
-request reaches a multisig coordinator.
+Configure [`experimental_multisig`](/tempo/utilities/Multisig#client-setup) for local coordination,
+or use [`withRelay`](/tempo/transports/withRelay) to read from a relay coordinator.
 
 ## Usage
 

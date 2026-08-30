@@ -5,11 +5,18 @@ Creates a transport that routes Tempo relay traffic between a default transport 
 - [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
 - [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
 
-`withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's `feePayer` value so the relay can decide whether to sponsor the transaction.
+`withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's
+`feePayer` value so the relay can decide whether to sponsor the transaction. It also forwards
+multisig approvals, config and operation reads, and operation-aware transaction lookups. The relay
+can therefore own the shared multisig store instead of each client.
 
 - `feePayer: true` asks the relay to sponsor the transaction.
 - If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
 - An explicit `feePayer` address is preserved.
+
+The relay must handle the `multisig_*` methods and proxy ordinary transaction and receipt lookups
+to its upstream RPC. Viem sends `eth_getTransactionByHash` and `eth_getTransactionReceipt` through
+the relay because a pending operation hash exists only in the relay's store.
 
 ## Usage
 
@@ -101,7 +108,7 @@ server.listen(3000)
 ## Return Type
 
 ```ts
-type ReturnType = Transport<'relay'>
+type ReturnType = Transport<'relay', { multisig: true }>
 ```
 
 ## Parameters
@@ -116,4 +123,4 @@ The default transport to use for regular relay traffic and for broadcasting tran
 
 - **Type:** `Transport`
 
-The relay transport to use for `eth_fillTransaction` and sponsored transaction handling.
+The relay transport to use for fee sponsorship and multisig coordination.
