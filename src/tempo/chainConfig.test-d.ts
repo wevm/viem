@@ -50,7 +50,7 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     ],
   })
   const request_multisig = await prepareTransactionRequest(client, {
-    account: Account.fromMultisig({ address: 'initial', ...config }),
+    account: Account.fromMultisig({ address: 'infer', ...config }),
     owner: Account.fromSecp256k1(
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     ),

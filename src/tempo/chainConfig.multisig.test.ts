@@ -21,7 +21,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'initial', ...config }),
+      account: Account.fromMultisig({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
@@ -76,7 +76,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'initial', ...config }),
+      account: Account.fromMultisig({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
@@ -143,7 +143,7 @@ describe('prepareTransactionRequest', () => {
 
     await expect(
       prepareTransactionRequest(client, {
-        account: Account.fromMultisig({ address: 'initial', ...config }),
+        account: Account.fromMultisig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],
       }),

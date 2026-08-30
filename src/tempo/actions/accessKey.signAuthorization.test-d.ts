@@ -12,7 +12,7 @@ const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
 const multisig = Account.fromMultisig({
-  address: 'initial',
+  address: 'infer',
   owners: [owner],
 })
 const accessKey = Account.fromSecp256k1(

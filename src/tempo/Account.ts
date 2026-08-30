@@ -277,7 +277,7 @@ export declare namespace fromSecp256k1 {
 /**
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * The returned account does not hold a key itself. Set `address` to `initial`
+ * The returned account does not hold a key itself. Set `address` to `infer`
  * to derive an account address from its initial config. For a current config,
  * set `address` to the stable account address. Pass the address
  * directly for an address-only account.
@@ -296,7 +296,7 @@ export declare namespace fromSecp256k1 {
  * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromMultisig({
- *   address: 'initial',
+ *   address: 'infer',
  *   owners: [owner_1, owner_2],
  *   threshold: 2,
  * })
@@ -343,15 +343,15 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     })
   })()
   if (typeof value !== 'string') {
-    if (value.address === 'initial' && config!.version !== 0n)
+    if (value.address === 'infer' && config!.version !== 0n)
       throw new Error('An initial multisig config must have version zero.')
-    if (value.address !== 'initial' && config!.version === 0n)
+    if (value.address !== 'infer' && config!.version === 0n)
       throw new Error('A current multisig config must have a version.')
   }
   const address = Address.checksum(
     (() => {
       if (typeof value === 'string') return value
-      if (value.address === 'initial') return MultisigConfig.getAddress(config!)
+      if (value.address === 'infer') return MultisigConfig.getAddress(config!)
       return value.address
     })(),
   )
@@ -469,7 +469,7 @@ export declare namespace fromMultisig {
   /** Initial version-zero multisig config. */
   export type InitialConfig = {
     /** Derives the stable account address from this initial config. */
-    address: 'initial'
+    address: 'infer'
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */

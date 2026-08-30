@@ -91,7 +91,7 @@ describe('formatTransactionRequest', () => {
     })
     expect(() =>
       Formatters.formatTransactionRequest({
-        account: Account.fromMultisig({ address: 'initial', ...config }),
+        account: Account.fromMultisig({ address: 'infer', ...config }),
         calls: [{ data: '0xdeadbeef', to: accounts[2].address }],
         chainId: 1,
         owner: accounts[1].address,

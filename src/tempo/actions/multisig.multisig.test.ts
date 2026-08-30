@@ -8,7 +8,7 @@ import * as actions from './index.js'
 
 const client = getClient()
 const account = Account.fromMultisig({
-  address: 'initial',
+  address: 'infer',
   owners: [accounts[17], accounts[18]],
   salt: toHex(0x502200, { size: 32 }),
   threshold: 2,
@@ -68,7 +68,7 @@ describe('updateConfig', () => {
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [accounts[17], accounts[18]],
       salt: toHex(0x502201, { size: 32 }),
       threshold: 2,

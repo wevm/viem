@@ -41,7 +41,7 @@ describe('stateless', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig({ address: 'initial', ...config })
+    const account = Account.fromMultisig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -116,7 +116,7 @@ describe('stateless', () => {
   test('example: nested ownership', async () => {
     const childOwner = accounts[17]
     const child = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [childOwner],
       salt: toHex(0x106101, { size: 32 }),
     })
@@ -138,7 +138,7 @@ describe('stateless', () => {
     assertSuccess(childSuccess)
 
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [child],
       salt: toHex(0x106102, { size: 32 }),
     })
@@ -218,7 +218,7 @@ describe('stateless', () => {
         { owner: light_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig({ address: 'initial', ...config })
+    const account = Account.fromMultisig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -284,7 +284,7 @@ describe('stateless', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig({ address: 'initial', ...config })
+    const account = Account.fromMultisig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -369,7 +369,7 @@ describe('stateless', () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106103, { size: 32 }),
       threshold: 2,
@@ -422,7 +422,7 @@ describe('stateless', () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106104, { size: 32 }),
       threshold: 2,
@@ -488,7 +488,7 @@ describe('stateless', () => {
     const owner_3 = accounts[16]
     const owner_4 = accounts[17]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106105, { size: 32 }),
       threshold: 2,
@@ -592,7 +592,7 @@ describe('stateless', () => {
     { name: '2-of-4', ownerCount: 4, salt: 0x106133, threshold: 2 },
   ])('behavior: $name: sends with local quorum', async (options) => {
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: accounts.slice(1, options.ownerCount + 1),
       salt: toHex(options.salt, { size: 32 }),
       threshold: options.threshold,
@@ -635,7 +635,7 @@ describe('stateless', () => {
         { owner: owner_3.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig({ address: 'initial', ...config })
+    const account = Account.fromMultisig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -682,7 +682,7 @@ describe('stateless', () => {
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
       threshold: owners.length,
     })
-    const account = Account.fromMultisig({ address: 'initial', ...config })
+    const account = Account.fromMultisig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -766,7 +766,7 @@ describe('stateless', () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [localOwner, externalOwner.address],
       threshold: 2,
     })
@@ -812,7 +812,7 @@ describe('stateless', () => {
     const owner_1 = accounts[8]
     const owner_2 = accounts[9]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       threshold: 2,
     })
@@ -844,7 +844,7 @@ describe('stateless', () => {
     const owner_1 = accounts[10]
     const owner_2 = accounts[11]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [
         { owner: owner_1.address, weight: 1 },
         { owner: owner_2.address, weight: 1 },
@@ -900,7 +900,7 @@ describe('stateless', () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x106106, { size: 32 }),
       threshold: 2,
@@ -1018,7 +1018,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x106120, { size: 32 }),
       threshold: 2,
@@ -1275,7 +1275,7 @@ describe('stateful', () => {
   test('example: nested ownership', async () => {
     const childOwner = tempo.accounts[17]
     const child = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [childOwner],
       salt: toHex(0x106127, { size: 32 }),
     })
@@ -1297,7 +1297,7 @@ describe('stateful', () => {
     assertSuccess(childSuccess)
 
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [child],
       salt: toHex(0x106128, { size: 32 }),
     })
@@ -1367,7 +1367,7 @@ describe('stateful', () => {
       tempo.accounts[8],
     ].sort((a, b) => a.address.localeCompare(b.address))
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [
         { owner: heavy.address, weight: 2 },
         { owner: light_1.address, weight: 1 },
@@ -1445,7 +1445,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10612a, { size: 32 }),
       threshold: 2,
@@ -1481,7 +1481,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612b, { size: 32 }),
       threshold: 2,
@@ -1528,7 +1528,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[19]
     const owner_2 = tempo.accounts[20]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612d, { size: 32 }),
       threshold: 2,
@@ -1590,7 +1590,7 @@ describe('stateful', () => {
     const owner_3 = tempo.accounts[16]
     const owner_4 = tempo.accounts[17]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612e, { size: 32 }),
       threshold: 2,
@@ -1766,7 +1766,7 @@ describe('stateful', () => {
   test('behavior: rejects a JSON-RPC owner account', async () => {
     const owner = tempo.accounts[1]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner.address],
       salt: toHex(0x106139, { size: 32 }),
     })
@@ -1794,7 +1794,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[3]
     const owner_2 = tempo.accounts[4]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613c, { size: 32 }),
       threshold: 2,
@@ -1844,7 +1844,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[4]
     const owner_3 = tempo.accounts[5]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address, owner_3.address],
       salt: toHex(0x106122, { size: 32 }),
       threshold: 2,
@@ -1884,7 +1884,7 @@ describe('stateful', () => {
       Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
     ]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners,
       salt: toHex(0x106123, { size: 32 }),
       threshold: owners.length,
@@ -1945,7 +1945,7 @@ describe('stateful', () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [localOwner, externalOwner.address],
       salt: toHex(0x106124, { size: 32 }),
       threshold: 2,
@@ -1990,12 +1990,12 @@ describe('stateful', () => {
     const childOwner = tempo.accounts[14]
     const parentOwner = tempo.accounts[15]
     const child = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [childOwner],
       salt: toHex(0x106136, { size: 32 }),
     })
     const parent = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [child, parentOwner.address],
       salt: toHex(0x106137, { size: 32 }),
       threshold: 2,
@@ -2074,7 +2074,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106138, { size: 32 }),
       threshold: 2,
@@ -2149,7 +2149,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[8]
     const owner_2 = tempo.accounts[9]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106125, { size: 32 }),
       threshold: 2,
@@ -2197,7 +2197,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612c, { size: 32 }),
       threshold: 2,
@@ -2378,7 +2378,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[4]
     const owner_2 = tempo.accounts[5]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106140, { size: 32 }),
       threshold: 2,
@@ -2469,7 +2469,7 @@ describe('stateful', () => {
       tempo.accounts[8],
     ].sort((a, b) => a.address.localeCompare(b.address))
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [
         { owner: heavy, weight: 2 },
         { owner: light_1, weight: 1 },
@@ -2519,12 +2519,12 @@ describe('stateful', () => {
     const childOwner = tempo.accounts[9]
     const parentOwner = tempo.accounts[10]
     const child = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [childOwner],
       salt: toHex(0x106142, { size: 32 }),
     })
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [child, parentOwner.address],
       salt: toHex(0x106143, { size: 32 }),
       threshold: 2,
@@ -2584,7 +2584,7 @@ describe('stateful', () => {
       }),
     ]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners,
       salt: toHex(0x106144, { size: 32 }),
       threshold: owners.length,
@@ -2640,7 +2640,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[11]
     const owner_2 = tempo.accounts[12]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106145, { size: 32 }),
       threshold: 2,
@@ -2689,7 +2689,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[13]
     const owner_2 = tempo.accounts[14]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106146, { size: 32 }),
       threshold: 2,
@@ -2747,7 +2747,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[16]
     const owner_3 = tempo.accounts[17]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2, owner_3],
       salt: toHex(0x106147, { size: 32 }),
       threshold: 2,
@@ -2797,7 +2797,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[19]
     const outsider = tempo.accounts[20]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106148, { size: 32 }),
       threshold: 2,
@@ -2855,7 +2855,7 @@ describe('stateful', () => {
     const owner = tempo.accounts[18]
     const passkeyOwner = Account.fromP256(P256.randomPrivateKey())
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner],
       salt: toHex(0x106135, { size: 32 }),
     })
@@ -2906,7 +2906,7 @@ describe('stateful', () => {
 
   test('behavior: broadcasts multiple approvals from one submission', async () => {
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [tempo.accounts[3], tempo.accounts[4]],
       salt: toHex(0x106121, { size: 32 }),
       threshold: 2,
@@ -2974,7 +2974,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[6]
     const owner_3 = tempo.accounts[7]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2, owner_3],
       salt: toHex(0x10612f, { size: 32 }),
       threshold: 2,
@@ -3062,7 +3062,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[5]
     const owner_2 = tempo.accounts[6]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106134, { size: 32 }),
       threshold: 2,
@@ -3128,7 +3128,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[10]
     const owner_2 = tempo.accounts[11]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613b, { size: 32 }),
       threshold: 2,
@@ -3214,7 +3214,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613c, { size: 32 }),
       threshold: 2,
@@ -3329,7 +3329,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[8]
     const owner_2 = tempo.accounts[9]
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106130, { size: 32 }),
       threshold: 2,

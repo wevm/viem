@@ -244,7 +244,7 @@ describe('signAuthorization', () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
     const multisig = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10612c, { size: 32 }),
       threshold: 2,
@@ -398,7 +398,7 @@ describe('signAuthorization', () => {
   test('behavior: requires a local owner for multisig approval', async () => {
     const owner = accounts[18]
     const multisig = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner.address],
     })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {

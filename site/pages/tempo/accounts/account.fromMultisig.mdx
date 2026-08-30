@@ -4,8 +4,8 @@ description: Instantiates a native multisig account from an initial or current c
 
 # `Account.fromMultisig`
 
-Instantiates an Account for a [native multisig](https://tips.sh/1061). Set `address` to `initial`
-to derive the stable account address. After the config changes, replace `initial` with the stable
+Instantiates an Account for a [native multisig](https://tips.sh/1061). Set `address` to `infer`
+to derive the stable account address. After the config changes, replace `infer` with the stable
 address and pass the current config fields.
 
 :::warning
@@ -38,7 +38,7 @@ const owner_2 = Account.fromSecp256k1(
 )
 
 const account = Account.fromMultisig({
-  address: 'initial',
+  address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })
@@ -89,7 +89,7 @@ current config from its store. Otherwise, provide the config through `{ address,
 before sending.
 
 :::tip
-Keep using `address: 'initial'` while the account remains at version `0`. After a config update,
+Keep using `address: 'infer'` while the account remains at version `0`. After a config update,
 use the stable address with the new config.
 :::
 
@@ -101,7 +101,7 @@ Pass addresses when owner approvals are collected outside the current process.
 import { Account } from 'viem/tempo'
 
 const account = Account.fromMultisig({
-  address: 'initial',
+  address: 'infer',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
     '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
@@ -122,7 +122,7 @@ const owner = Account.fromSecp256k1(
 )
 
 const account = Account.fromMultisig({
-  address: 'initial',
+  address: 'infer',
   owners: [
     { owner, weight: 2 },
     { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
@@ -159,9 +159,9 @@ config.
 
 #### value.address
 
-- **Type:** `'initial' | Address`
+- **Type:** `'infer' | Address`
 
-Set this field to `initial` to derive an account from a version-zero config. For a current config,
+Set this field to `infer` to derive an account from a version-zero config. For a current config,
 pass the account's stable address. Pass an `Address` as `value` when no config is needed.
 
 #### value.owners

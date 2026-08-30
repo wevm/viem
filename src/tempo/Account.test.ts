@@ -24,7 +24,7 @@ describe('fromMultisig', () => {
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromMultisig({
-      address: 'initial',
+      address: 'infer',
       owners: [owner],
     })
 
@@ -134,7 +134,7 @@ describe('fromMultisig', () => {
   test('error: nonzero initial config version', () => {
     expect(() =>
       Account.fromMultisig({
-        address: 'initial',
+        address: 'infer',
         owners: [tempo.accounts[0]],
         version: 1,
       } as never),

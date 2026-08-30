@@ -1231,7 +1231,7 @@ export async function signAuthorization<
       const account = (() => {
         if (config.version !== 0n) return fromMultisig({ address, ...config })
         const { version: _, ...initialConfig } = config
-        return fromMultisig({ address: 'initial', ...initialConfig })
+        return fromMultisig({ address: 'infer', ...initialConfig })
       })()
       if (!isAddressEqual(account.address, address))
         throw new Error('Initial multisig config does not match the account.')
