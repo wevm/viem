@@ -17,6 +17,10 @@ import {
   type HttpTransportConfig,
   http as http_,
 } from '../clients/transports/http.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Multisig from './Multisig.js'
@@ -192,9 +196,15 @@ export function withRelay(
                 { method: 'multisig_getOperation', params },
                 options,
               )
-            } catch {
-              // Relays created before multisig coordination do not expose this method.
-              return null
+            } catch (error) {
+              if (
+                error instanceof MethodNotFoundRpcError ||
+                error instanceof MethodNotSupportedRpcError
+              ) {
+                // Relays created before multisig coordination do not expose this method.
+                return null
+              }
+              throw error
             }
           })()
           if (

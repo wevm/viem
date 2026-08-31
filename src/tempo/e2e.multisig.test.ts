@@ -974,7 +974,7 @@ describe('stateful', () => {
         from:  0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C
 
       Details: No current multisig config is cached for account 0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C. Provide the current config.
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `,
     )
 
@@ -1009,7 +1009,7 @@ describe('stateful', () => {
       [Multisig.Config.InvalidStoreValueError: Stored multisig config is malformed or mismatched.
 
       Details: Unexpected token 'i', "invalid json" is not valid JSON
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `,
     )
   })
@@ -1785,7 +1785,7 @@ describe('stateful', () => {
         from:  0x5e46Aa4E8A333372040c7C159f75C1cDEa78Be2C
 
       Details: A local owner account is required to approve a multisig transaction.
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `,
     )
   })
@@ -1828,7 +1828,7 @@ describe('stateful', () => {
         from:  0xc37B1C9A5fDBCd6b0be8E8797Fa3E6221fD08ef0
 
       Details: A Tempo owner account is required to approve a stored multisig transaction.
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `)
 
     const receipt = await sendTransactionSync(client, {
@@ -2188,7 +2188,7 @@ describe('stateful', () => {
         from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Details: No current multisig config is cached for account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266. Provide the current config.
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `,
     )
   })
@@ -3396,7 +3396,7 @@ describe('stateful', () => {
         from:  0x7B9DD255e34938AE664E1B6fE281c50a33D85Dcd
 
       Details: Submission failed.
-      Version: viem@2.56.0]
+      Version: viem@2.56.1]
     `,
     )
     const failedOperation = (

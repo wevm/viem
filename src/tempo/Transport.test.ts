@@ -159,6 +159,7 @@ describe('withRelay', () => {
     const transactionHash = `0x${'01'.repeat(32)}`
     const operationHash = `0x${'02'.repeat(32)}`
     const unknownHash = `0x${'03'.repeat(32)}`
+    const unsupportedHash = `0x${'04'.repeat(32)}`
     const defaultRequests: string[] = []
     const relayRequests: string[] = []
     const transport = withRelay(
@@ -177,6 +178,8 @@ describe('withRelay', () => {
           relayRequests.push(`${method}:${hash}`)
           if (method === 'multisig_getOperation') {
             if (hash === operationHash) return { type: 'transaction' }
+            if (hash === unsupportedHash)
+              throw new RpcResponse.MethodNotSupportedError()
             throw new RpcResponse.MethodNotFoundError()
           }
           return { hash: operationHash, source: 'relay' }
@@ -205,6 +208,10 @@ describe('withRelay', () => {
         method: 'eth_getTransactionReceipt',
         params: [unknownHash],
       }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [unsupportedHash],
+      }),
     ]
 
     expect(results).toMatchInlineSnapshot(`
@@ -226,6 +233,7 @@ describe('withRelay', () => {
           "source": "relay",
         },
         null,
+        null,
       ]
     `)
     expect(defaultRequests).toMatchInlineSnapshot(`
@@ -235,6 +243,7 @@ describe('withRelay', () => {
         "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
         "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
         "eth_getTransactionReceipt:0x0303030303030303030303030303030303030303030303030303030303030303",
+        "eth_getTransactionReceipt:0x0404040404040404040404040404040404040404040404040404040404040404",
       ]
     `)
     expect(relayRequests).toMatchInlineSnapshot(`
@@ -244,8 +253,32 @@ describe('withRelay', () => {
         "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
         "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
         "multisig_getOperation:0x0303030303030303030303030303030303030303030303030303030303030303",
+        "multisig_getOperation:0x0404040404040404040404040404040404040404040404040404040404040404",
       ]
     `)
+  })
+
+  test('behavior: propagates relay transaction lookup failures', async () => {
+    const transport = withRelay(
+      custom({ request: async () => null }),
+      custom({
+        async request() {
+          throw new RpcResponse.InternalError({
+            message: 'Relay lookup failed.',
+          })
+        },
+      }),
+    )({ chain })
+
+    await expect(
+      transport.request(
+        {
+          method: 'eth_getTransactionByHash',
+          params: [`0x${'05'.repeat(32)}`],
+        },
+        { retryCount: 0 },
+      ),
+    ).rejects.toThrow('Relay lookup failed.')
   })
 
   beforeAll(async () => {
