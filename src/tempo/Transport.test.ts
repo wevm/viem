@@ -122,8 +122,6 @@ describe('withRelay', () => {
 
     const results = await Promise.all(
       [
-        { method: 'eth_getTransactionByHash', params: [hash] },
-        { method: 'eth_getTransactionReceipt', params: [hash] },
         { method: 'eth_sendRawTransaction', params: [serialized] },
         { method: 'eth_sendRawTransactionSync', params: [serialized] },
         {
@@ -144,8 +142,6 @@ describe('withRelay', () => {
     `)
     expect(results).toMatchInlineSnapshot(`
       [
-        "eth_getTransactionByHash",
-        "eth_getTransactionReceipt",
         "eth_sendRawTransaction",
         "eth_sendRawTransactionSync",
         "multisig_approveKeyAuthorization",
@@ -157,6 +153,99 @@ describe('withRelay', () => {
     `)
     expect(defaultMethods).toMatchInlineSnapshot(`[]`)
     expect(relayMethods).toStrictEqual(results)
+  })
+
+  test('behavior: routes transaction lookups to their source', async () => {
+    const transactionHash = `0x${'01'.repeat(32)}`
+    const operationHash = `0x${'02'.repeat(32)}`
+    const unknownHash = `0x${'03'.repeat(32)}`
+    const defaultRequests: string[] = []
+    const relayRequests: string[] = []
+    const transport = withRelay(
+      custom({
+        async request({ method, params }) {
+          const hash = (params as readonly unknown[] | undefined)?.[0]
+          defaultRequests.push(`${method}:${hash}`)
+          if (hash === transactionHash)
+            return { hash: transactionHash, source: 'default' }
+          return null
+        },
+      }),
+      custom({
+        async request({ method, params }) {
+          const hash = (params as readonly unknown[] | undefined)?.[0]
+          relayRequests.push(`${method}:${hash}`)
+          if (method === 'multisig_getOperation') {
+            if (hash === operationHash) return { type: 'transaction' }
+            throw new RpcResponse.MethodNotFoundError()
+          }
+          return { hash: operationHash, source: 'relay' }
+        },
+      }),
+    )({ chain })
+
+    const results = [
+      await transport.request({
+        method: 'eth_getTransactionByHash',
+        params: [transactionHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [transactionHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionByHash',
+        params: [operationHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [operationHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [unknownHash],
+      }),
+    ]
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "hash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "source": "default",
+        },
+        {
+          "hash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "source": "default",
+        },
+        {
+          "hash": "0x0202020202020202020202020202020202020202020202020202020202020202",
+          "source": "relay",
+        },
+        {
+          "hash": "0x0202020202020202020202020202020202020202020202020202020202020202",
+          "source": "relay",
+        },
+        null,
+      ]
+    `)
+    expect(defaultRequests).toMatchInlineSnapshot(`
+      [
+        "eth_getTransactionByHash:0x0101010101010101010101010101010101010101010101010101010101010101",
+        "eth_getTransactionReceipt:0x0101010101010101010101010101010101010101010101010101010101010101",
+        "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0303030303030303030303030303030303030303030303030303030303030303",
+      ]
+    `)
+    expect(relayRequests).toMatchInlineSnapshot(`
+      [
+        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "multisig_getOperation:0x0303030303030303030303030303030303030303030303030303030303030303",
+      ]
+    `)
   })
 
   beforeAll(async () => {
@@ -390,7 +479,6 @@ describe('withRelay', () => {
       expect(transaction).toMatchObject(sponsorFillFields!)
       expect(relayRequests.map(({ method }) => method)).toEqual([
         'eth_fillTransaction',
-        'eth_getTransactionByHash',
       ])
     })
 

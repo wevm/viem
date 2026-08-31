@@ -496,7 +496,7 @@ export type MultisigAccount<
   config extends MultisigConfig.Config | undefined =
     | MultisigConfig.Config
     | undefined,
-> = LocalAccount<'multisig'> & {
+> = RequiredBy<LocalAccount<'multisig'>, 'sign'> & {
   /** Normalized config, or `undefined` for an address-only account. */
   config: config
   /** @internal Local owner accounts available for signing. */

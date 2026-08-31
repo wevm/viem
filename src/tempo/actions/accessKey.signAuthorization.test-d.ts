@@ -67,3 +67,12 @@ test('behavior: rejects mixed initial and continuation parameters', async () => 
     owner,
   })
 })
+
+test('behavior: rejects address owners', async () => {
+  await Actions.accessKey.signAuthorization(client, {
+    accessKey,
+    account: multisig,
+    // @ts-expect-error Coordinated approvals require a local signing account.
+    owner: owner.address,
+  })
+})

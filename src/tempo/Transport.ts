@@ -177,7 +177,37 @@ export function withRelay(
 
         if (
           method === 'eth_getTransactionByHash' ||
-          method === 'eth_getTransactionReceipt' ||
+          method === 'eth_getTransactionReceipt'
+        ) {
+          const result = await transport_default.request(
+            { method, params },
+            options,
+          )
+          if (result !== null && typeof result !== 'undefined')
+            return result as never
+
+          const operation = await (async () => {
+            try {
+              return await transport_relay.request(
+                { method: 'multisig_getOperation', params },
+                options,
+              )
+            } catch {
+              // Relays created before multisig coordination do not expose this method.
+              return null
+            }
+          })()
+          if (
+            !operation ||
+            typeof operation !== 'object' ||
+            !('type' in operation) ||
+            operation.type !== 'transaction'
+          )
+            return result as never
+          return transport_relay.request({ method, params }, options) as never
+        }
+
+        if (
           method === 'multisig_approveKeyAuthorization' ||
           method === 'multisig_approveRawTransaction' ||
           method === 'multisig_approveRawTransactionSync' ||

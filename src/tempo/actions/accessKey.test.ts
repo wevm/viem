@@ -410,7 +410,7 @@ describe('signAuthorization', () => {
         accessKey,
         account: multisig,
         owner: owner.address,
-      }),
+      } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A local owner account is required to approve a multisig key authorization.]`,
     )

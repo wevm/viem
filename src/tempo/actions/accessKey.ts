@@ -29,7 +29,11 @@ import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
-import type { AccessKeyAccount, MultisigAccount } from '../Account.js'
+import type {
+  AccessKeyAccount,
+  MultisigAccount,
+  RootAccount,
+} from '../Account.js'
 import {
   fromMultisig,
   getKeyAuthorizationSignPayload,
@@ -1335,7 +1339,7 @@ export namespace signAuthorization {
     /** Multisig account being authorized. */
     account: Address | MultisigAccount
     /** Local owner that approves the authorization. */
-    owner: Account | MultisigAccount | Address
+    owner: RootAccount | MultisigAccount
   }
 
   /** Coordinated key authorization parameters. */
@@ -1345,7 +1349,7 @@ export namespace signAuthorization {
         /** Stored multisig operation hash. */
         hash: Hex
         /** Local owner that approves the authorization. */
-        owner: Account | MultisigAccount | Address
+        owner: RootAccount | MultisigAccount
       }
   >
 
