@@ -24,6 +24,10 @@ export {
   VirtualAddress,
   VirtualMaster,
 } from 'ox/tempo'
+export type {
+  /** @deprecated */
+  Owner as z_MultisigConfigOwner,
+} from 'ox/tempo/MultisigConfig'
 export {
   type CustomTransport,
   type CustomTransportConfig,

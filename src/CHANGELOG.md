@@ -1,5 +1,11 @@
 # viem
 
+## 2.56.1
+
+### Patch Changes
+
+- [#5052](https://github.com/wevm/viem/pull/5052) [`e336a1d93a39063fb1883ba0a84b5d37f313a35a`](https://github.com/wevm/viem/commit/e336a1d93a39063fb1883ba0a84b5d37f313a35a) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed declaration emit for inferred Tempo chains.
+
 ## 2.56.0
 
 ### Minor Changes
