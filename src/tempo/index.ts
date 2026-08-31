@@ -23,6 +23,11 @@ export {
   VirtualAddress,
   VirtualMaster,
 } from 'ox/tempo'
+// TODO: remove
+export type {
+  /** @deprecated */
+  Owner as z_MultisigConfigOwner,
+} from 'ox/tempo/MultisigConfig'
 export {
   type CustomTransport,
   type CustomTransportConfig,
@@ -76,6 +81,8 @@ export * as Storage from './Storage.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {
+  /** @deprecated */
+  MultisigOwnerState as z_MultisigOwnerState,
   /** @deprecated */
   Transaction as z_Transaction,
   /** @deprecated */
