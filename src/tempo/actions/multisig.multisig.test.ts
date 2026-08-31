@@ -1,8 +1,8 @@
 import { MultisigConfig } from 'ox/tempo'
-import { toHex } from 'viem'
+import { custom, toHex } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { accounts, chain, feeToken, getClient } from '~test/tempo/config.js'
 import * as Account from '../Account.js'
 import * as actions from './index.js'
 
@@ -36,6 +36,57 @@ describe('getConfigCommitment', () => {
 })
 
 describe('updateConfig', () => {
+  test('behavior: preserves a JSON-RPC account override', async () => {
+    const hash = `0x${'01'.repeat(32)}` as const
+    const requests: unknown[] = []
+    const client = getClient({
+      account: accounts[0].address,
+      transport: custom({
+        async request(request) {
+          requests.push(request)
+          if (request.method === 'eth_chainId') return toHex(chain.id)
+          if (request.method === 'eth_sendTransaction') return hash
+          throw new Error(`Unexpected request: ${request.method}`)
+        },
+      }),
+    })
+
+    const result = await actions.multisig.updateConfig(client, {
+      account: { address: account.address, type: 'json-rpc' },
+      currentConfig: account.config,
+      nextConfig: {
+        owners: account.config.owners,
+        threshold: account.config.threshold,
+      },
+    })
+
+    expect({ requests, result }).toMatchInlineSnapshot(
+      {
+        requests: [{}, { params: [{ data: expect.any(String) }] }],
+      },
+      `
+      {
+        "requests": [
+          {
+            "method": "eth_chainId",
+          },
+          {
+            "method": "eth_sendTransaction",
+            "params": [
+              {
+                "data": Any<String>,
+                "from": "0xadfe0ffc2c3A967497B346B543DEae889033f3a0",
+                "to": "0xAACC000000000000000000000000000000000000",
+              },
+            ],
+          },
+        ],
+        "result": "0x0101010101010101010101010101010101010101010101010101010101010101",
+      }
+    `,
+    )
+  })
+
   test('behavior: commits the first current config', async () => {
     const hash = await actions.multisig.updateConfig(client, {
       account,

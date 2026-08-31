@@ -289,6 +289,7 @@ export namespace updateConfig {
     const address = (() => {
       if (account) return account.address
       if (typeof accountValue === 'string') return accountValue as Address
+      if (accountValue) return accountValue.address
       return undefined
     })()
     const currentConfig = await (async () => {
@@ -306,6 +307,7 @@ export namespace updateConfig {
     })()
     const resolvedAccount = (() => {
       if (account) return { ...account, config: currentConfig }
+      if (typeof accountValue === 'object') return accountValue
       if (address) return fromMultisig({ address, ...currentConfig })
       return undefined
     })()
