@@ -1145,24 +1145,8 @@ export namespace prepareAuthorization {
 /**
  * Signs a key authorization for an access key.
  *
- * Pass a multisig `account` and local `owner` to store one coordinated
- * approval. Later owners pass the returned operation hash.
- *
  * Use {@link prepareAuthorization} before this action when signing requires
  * transient user activation.
- *
- * @example
- * ```ts
- * const pending = await client.accessKey.signAuthorization({
- *   accessKey,
- *   account: multisig,
- *   owner: owner_1,
- * })
- * const success = await client.accessKey.signAuthorization({
- *   hash: pending.hash,
- *   owner: owner_2,
- * })
- * ```
  *
  * @param client - Client.
  * @param parameters - Authorization fields, or a stored operation hash.

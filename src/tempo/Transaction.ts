@@ -131,13 +131,10 @@ export type TransactionRequestTempo<
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
-    /** Multisig operation hash whose stored transaction should be approved. */
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    /** Complete multisig spec used for RPC simulation. */
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
-    /** Local owner that approves a coordinated multisig transaction. */
     owner?: Account | MultisigAccount | Address | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
