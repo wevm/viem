@@ -1,4 +1,4 @@
-import { MultisigConfig, type MultisigWitness } from 'ox/tempo'
+import { MultisigConfig, type MultisigSimulation } from 'ox/tempo'
 import { Account } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
@@ -56,8 +56,8 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     ),
   })
   expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
-  expectTypeOf(request_multisig.multisigWitness).toEqualTypeOf<
-    MultisigWitness.MultisigWitness<bigint> | undefined
+  expectTypeOf(request_multisig.multisigSimulation).toEqualTypeOf<
+    MultisigSimulation.Spec | undefined
   >()
 })
 

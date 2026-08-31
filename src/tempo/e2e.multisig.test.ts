@@ -697,7 +697,7 @@ describe('stateless', () => {
         calls: [{ to, value: 0n }],
         feeToken,
       })
-      expect(request.multisigWitness?.approvals).toMatchInlineSnapshot(
+      expect(request.multisigSimulation?.approvals).toMatchInlineSnapshot(
         [
           { owner: expect.any(String) },
           { owner: expect.any(String) },
@@ -2239,18 +2239,18 @@ describe('stateful', () => {
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
           "approvals": [
             Any<String>,
           ],
           "config": {
             "owners": [
               {
-                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "owner": "0x1e2a9422ebcf2bb0f435d624910ee5086e523248",
                 "weight": 1,
               },
               {
-                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "owner": "0x8d610d35f9c616b6accba492eae3e83724b300a4",
                 "weight": 1,
               },
             ],
@@ -2320,7 +2320,7 @@ describe('stateful', () => {
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71D2054A4D120be08E20C5090CfC677138Fea442",
+          "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
           "approvals": [
             Any<String>,
             Any<String>,
@@ -2328,11 +2328,11 @@ describe('stateful', () => {
           "config": {
             "owners": [
               {
-                "owner": "0x1e2A9422ebCF2Bb0F435d624910eE5086E523248",
+                "owner": "0x1e2a9422ebcf2bb0f435d624910ee5086e523248",
                 "weight": 1,
               },
               {
-                "owner": "0x8d610d35F9C616B6ACCBA492eaE3e83724b300a4",
+                "owner": "0x8d610d35f9c616b6accba492eae3e83724b300a4",
                 "weight": 1,
               },
             ],

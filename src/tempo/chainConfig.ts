@@ -3,7 +3,7 @@ import * as Hex from 'ox/Hex'
 import {
   MultisigConfig,
   MultisigOperation,
-  type MultisigWitness,
+  type MultisigSimulation,
   SignatureEnvelope,
   type TokenId,
 } from 'ox/tempo'
@@ -67,7 +67,7 @@ export const chainConfig = {
         hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-        multisigWitness?: MultisigWitness.MultisigWitness | undefined
+        multisigSimulation?: MultisigSimulation.Spec | undefined
         owner?: Account | MultisigAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
       }
@@ -124,7 +124,7 @@ export const chainConfig = {
           ...storedTransaction,
           account: request.account,
           from: operation.account,
-          multisigWitness: getMultisigWitness({
+          multisigSimulation: getMultisigSimulation({
             account: operation.account,
             config: operation.config,
             local: request.account,
@@ -205,7 +205,7 @@ export const chainConfig = {
             'A multisig config is required to prepare a transaction.',
           )
         request.from = account
-        request.multisigWitness = getMultisigWitness({
+        request.multisigSimulation = getMultisigSimulation({
           account,
           config,
           local,
@@ -299,7 +299,7 @@ export const chainConfig = {
     transaction: serializeTransaction,
     async transactionEnvelope({ serializedTransaction, transaction }) {
       const request = transaction as Transaction.TransactionSerializableTempo
-      if (!request.multisigWitness) return serializedTransaction
+      if (!request.multisigSimulation) return serializedTransaction
       try {
         SignatureEnvelope.deserialize(serializedTransaction)
       } catch {
@@ -407,12 +407,12 @@ export const chainConfig = {
 
 export type ChainConfig = typeof chainConfig
 
-/** Builds the bounded owner witness used for multisig gas simulation. */
-function getMultisigWitness(options: {
+/** Builds a bounded multisig spec for gas simulation. */
+function getMultisigSimulation(options: {
   account: Address
   config: MultisigConfig.Config
   local?: MultisigAccount | undefined
-}): MultisigWitness.MultisigWitness {
+}): MultisigSimulation.Spec {
   const { account, config, local } = options
   return {
     account,
@@ -428,16 +428,18 @@ function getMultisigWitness(options: {
           )
         return {
           type: 'multisig',
-          witness: {
+          spec: {
             account: nested.address,
             approvals: selectOwners(nested.config).map((owner) => {
               const nestedOwner = nested.owners.find((account) =>
                 isAddressEqual(account.address, owner.owner),
               )
               if (nestedOwner?.source === 'multisig')
-                throw new Error('Multisig witness nesting exceeds depth two.')
+                throw new Error(
+                  'Multisig simulation nesting exceeds depth two.',
+                )
               return {
-                ...getWitnessKey(nestedOwner),
+                ...getSimulationKey(nestedOwner),
                 owner: owner.owner,
               }
             }),
@@ -446,7 +448,7 @@ function getMultisigWitness(options: {
         }
       }
       return {
-        ...getWitnessKey(localOwner),
+        ...getSimulationKey(localOwner),
         owner: owner.owner,
         type: 'primitive',
       }
@@ -456,7 +458,7 @@ function getMultisigWitness(options: {
 }
 
 /** Returns signature metadata for conservative gas estimation. */
-function getWitnessKey(
+function getSimulationKey(
   account: unknown,
 ):
   | { keyData: Hex.Hex; keyType: 'webAuthn' }

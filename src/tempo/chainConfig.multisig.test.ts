@@ -10,7 +10,7 @@ const client = getClient({
 })
 
 describe('prepareTransactionRequest', () => {
-  test('behavior: derives a multisig witness', async () => {
+  test('behavior: derives a multisig simulation', async () => {
     const config = MultisigConfig.from({
       owners: [
         { owner: accounts[1].address, weight: 1 },
@@ -25,7 +25,7 @@ describe('prepareTransactionRequest', () => {
       parameters: ['chainId'],
     })
 
-    expect(request.multisigWitness).toMatchInlineSnapshot(`
+    expect(request.multisigSimulation).toMatchInlineSnapshot(`
       {
         "account": "0x75DC015f090B457FC7615FA37859937D1906e1C9",
         "approvals": [
@@ -80,7 +80,7 @@ describe('prepareTransactionRequest', () => {
       parameters: ['chainId'],
     })
 
-    expect(request.multisigWitness?.approvals).toMatchInlineSnapshot(`
+    expect(request.multisigSimulation?.approvals).toMatchInlineSnapshot(`
       [
         {
           "keyData": "0x0578",
@@ -108,7 +108,7 @@ describe('prepareTransactionRequest', () => {
       parameters: ['chainId'],
     })
 
-    expect(request.multisigWitness).toMatchInlineSnapshot(`
+    expect(request.multisigSimulation).toMatchInlineSnapshot(`
       {
         "account": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
         "approvals": [
@@ -129,6 +129,70 @@ describe('prepareTransactionRequest', () => {
           "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
           "threshold": 1,
           "version": 2n,
+        },
+      }
+    `)
+  })
+
+  test('behavior: derives a nested multisig simulation', async () => {
+    const initial = MultisigConfig.from({
+      owners: [{ owner: accounts[1].address, weight: 1 }],
+      threshold: 1,
+    })
+    const child = Account.fromMultisig({
+      address: MultisigConfig.getAddress(initial),
+      ...initial,
+      version: 1,
+    })
+    const account = Account.fromMultisig({
+      address: 'infer',
+      owners: [child],
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account,
+      parameters: ['chainId'],
+    })
+
+    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+      {
+        "account": "0x06Bf7e1622585b4789234093F2fCA112f20b139a",
+        "approvals": [
+          {
+            "spec": {
+              "account": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
+              "approvals": [
+                {
+                  "keyData": "0x0578",
+                  "keyType": "webAuthn",
+                  "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+                },
+              ],
+              "config": {
+                "owners": [
+                  {
+                    "owner": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+                    "weight": 1,
+                  },
+                ],
+                "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                "threshold": 1,
+                "version": 1n,
+              },
+            },
+            "type": "multisig",
+          },
+        ],
+        "config": {
+          "owners": [
+            {
+              "owner": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 0n,
         },
       }
     `)

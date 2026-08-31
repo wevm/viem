@@ -8,7 +8,7 @@ import {
   type KeyAuthorization,
   MultisigConfig,
   type MultisigOperation,
-  type MultisigWitness,
+  type MultisigSimulation,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -134,8 +134,8 @@ export type TransactionRequestTempo<
     /** Multisig operation hash whose stored transaction should be approved. */
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    /** Complete multisig witness used for RPC simulation. */
-    multisigWitness?: MultisigWitness.MultisigWitness<quantity> | undefined
+    /** Complete multisig spec used for RPC simulation. */
+    multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
     /** Local owner that approves a coordinated multisig transaction. */
     owner?: Account | MultisigAccount | Address | undefined
@@ -160,7 +160,7 @@ export type TransactionSerializableTempo<
     feePayerSignature?: viem_Signature | null | undefined
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisigWitness?: MultisigWitness.MultisigWitness<quantity> | undefined
+    multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: quantity | undefined
     owner?: Account | MultisigAccount | Address | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
@@ -194,7 +194,7 @@ export function getType(
     typeof transaction.feePayerSignature !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
-    typeof transaction.multisigWitness !== 'undefined' ||
+    typeof transaction.multisigSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.owner !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
@@ -317,7 +317,7 @@ async function serializeTempo(
   const {
     chainId,
     feePayer,
-    multisigWitness,
+    multisigSimulation,
     nonce,
     owner: _owner,
     ...rest
@@ -339,7 +339,7 @@ async function serializeTempo(
     transaction.feePayerSignature !== null
   const hasSenderSignature =
     typeof signature_provided !== 'undefined' ||
-    Boolean(multisigWitness && transaction.signatures)
+    Boolean(multisigSimulation && transaction.signatures)
   // Sponsorship sender signatures omit `feeToken`.
   const shouldStripFeeTokenForSponsorship =
     // Relay fills a partial sender envelope first.
@@ -380,14 +380,14 @@ async function serializeTempo(
   // Combine owner approvals before fee-payer handling.
   const signature = (() => {
     if (signature_provided) return signature_provided
-    if (!multisigWitness || !transaction.signatures) return undefined
+    if (!multisigSimulation || !transaction.signatures) return undefined
 
     const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
       SignatureEnvelope.from(approval),
     )
-    const config = MultisigConfig.from(multisigWitness.config)
-    const account = multisigWitness.account
+    const config = MultisigConfig.from(multisigSimulation.config)
+    const account = multisigSimulation.account
     const sorted = SignatureEnvelope.sortMultisigApprovals({
       account,
       config,

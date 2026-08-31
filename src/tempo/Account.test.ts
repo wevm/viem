@@ -534,7 +534,7 @@ describe('signTransaction', () => {
     )
   })
 
-  test('behavior: current multisig witness', async () => {
+  test('behavior: current multisig simulation', async () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const initialConfig = MultisigConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
@@ -545,7 +545,7 @@ describe('signTransaction', () => {
       calls: [],
       chainId: 1,
       maxFeePerGas: parseGwei('10'),
-      multisigWitness: {
+      multisigSimulation: {
         account: MultisigConfig.getAddress(initialConfig),
         approvals: [{ owner: owner.address, type: 'primitive' as const }],
         config,
@@ -554,10 +554,10 @@ describe('signTransaction', () => {
     const signature = SignatureEnvelope.from(
       await owner.signTransaction(request),
     )
-    const { multisigWitness: _, ...unsigned } = request
+    const { multisigSimulation: _, ...unsigned } = request
     const payload = keccak256(await Transaction.serialize(unsigned))
     const digest = MultisigConfig.getSignPayload({
-      account: request.multisigWitness.account,
+      account: request.multisigSimulation.account,
       config,
       payload,
     })

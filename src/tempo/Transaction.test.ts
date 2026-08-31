@@ -25,8 +25,8 @@ describe('getType', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
   })
 
-  test('behavior: multisigWitness', () => {
-    expect(Transaction.getType({ multisigWitness: {} })).toBe('tempo')
+  test('behavior: multisigSimulation', () => {
+    expect(Transaction.getType({ multisigSimulation: {} })).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -326,7 +326,7 @@ describe('serialize', () => {
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
-      multisigWitness: {
+      multisigSimulation: {
         account: multisigAccount,
         approvals: owners.map((owner) => ({
           owner: owner.address,
@@ -392,7 +392,7 @@ describe('serialize', () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
       from: account,
-      multisigWitness: {
+      multisigSimulation: {
         account,
         approvals: [{ owner: owner.address, type: 'primitive' as const }],
         config: multisig,

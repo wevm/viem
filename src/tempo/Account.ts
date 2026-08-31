@@ -413,13 +413,13 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
           : { feePayerSignature: null }),
       }
       const payload = keccak256(await serializer(presign as never))
-      const witness = request.multisigWitness
-      const requestAccount = witness?.account ?? address
+      const simulation = request.multisigSimulation
+      const requestAccount = simulation?.account ?? address
 
       if (!Address.isEqual(requestAccount, address)) {
-        if (!witness)
+        if (!simulation)
           throw new Error('A multisig config is required for local signing.')
-        const parentConfig = MultisigConfig.from(witness.config)
+        const parentConfig = MultisigConfig.from(simulation.config)
         const parentDigest = MultisigConfig.getSignPayload({
           account: requestAccount,
           config: parentConfig,
@@ -433,7 +433,7 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       }
 
       const signature = await signMultisig(account, {
-        config: witness?.config,
+        config: simulation?.config,
         payload,
         signatures: request.signatures?.map((signature) =>
           SignatureEnvelope.from(signature),
@@ -971,16 +971,16 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       // primitive signature over the multisig owner approval digest, instead of
       // a full serialized transaction. Approvals are combined later in
       // `sendTransaction({ signatures })`.
-      const { multisigWitness } = transaction as {
-        multisigWitness?: {
+      const { multisigSimulation } = transaction as {
+        multisigSimulation?: {
           account: Address.Address
           config: MultisigConfig.Config
         }
       }
-      if (multisigWitness) {
-        const config = MultisigConfig.from(multisigWitness.config)
+      if (multisigSimulation) {
+        const config = MultisigConfig.from(multisigSimulation.config)
         const digest = MultisigConfig.getSignPayload({
-          account: multisigWitness.account,
+          account: multisigSimulation.account,
           config,
           payload,
         })

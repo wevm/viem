@@ -91,7 +91,7 @@ describe('withRelay', () => {
     const transaction = {
       calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
       chainId: chain.id,
-      multisigWitness: {
+      multisigSimulation: {
         account: MultisigConfig.getAddress(config),
         approvals: [{ owner: owner.address, type: 'primitive' as const }],
         config,

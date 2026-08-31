@@ -14,6 +14,91 @@ const client = getClient({
 })
 
 describe('formatTransaction', () => {
+  test('behavior: multisig RPC signatures', () => {
+    const transaction = Formatters.formatTransaction({
+      accessList: [],
+      blockHash:
+        '0xc350d807505fb835650f0013632c5515592987ba169bbc6626d9fc54d91f0f0b',
+      blockNumber: '0x12f296f',
+      calls: [],
+      chainId: '0x1',
+      feeToken: '0x20c0000000000000000000000000000000000000',
+      from: '0x9dba7f426b711d4893c11611eacf7cc334e7146b',
+      gas: '0x43f5d',
+      hash: '0x353fdfc38a2f26115daadee9f5b8392ce62b84f410957967e2ed56b35338cdd0',
+      keyAuthorization: {
+        chainId: '0x1',
+        expiry: null,
+        keyId: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+        keyType: 'secp256k1',
+        signature:
+          '0xf89794be95c3f554e9fc85ec51be69a3d807a0d55bcf2cf83ba000000000000000000000000000000000000000000000000000000000000000000101d7d694f39fd6e51aad88f6f4ce6ab8827279cfffb9226601f843b841fa78c5905fb0b9d6066ef531f962a62bc6ef0d5eb59ecb134056d206f75aaed7780926ff2601a935c2c79707d9e1799948c9f19dcdde1e090e903b19a07923d01c',
+      },
+      maxFeePerGas: '0x2',
+      maxPriorityFeePerGas: '0x1',
+      nonce: '0x357',
+      signature:
+        '0xf897949dba7f426b711d4893c11611eacf7cc334e7146bf83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6947e5f4552091a69125d5dfcb7b8c2659029395bdf01f843b841869437e01f64bebeb78a8a6b30bfd3a993819c8cad82c807515d9b9e9b36f98535dfaa5eebc597715d05f6ce4927747f14fa4cd2acc717fdcd3877146437f8f41b',
+      transactionIndex: '0x2',
+      type: '0x76',
+    } as never)
+
+    expect(transaction.signature).toMatchInlineSnapshot(`
+      {
+        "account": "0x9dba7f426b711d4893c11611eacf7cc334e7146b",
+        "config": {
+          "owners": [
+            {
+              "owner": "0x7e5f4552091a69125d5dfcb7b8c2659029395bdf",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 0n,
+        },
+        "signatures": [
+          {
+            "signature": {
+              "r": 60871800714128149016591846789173983752390955456021923556141688418770269698437n,
+              "s": 24367763726302312398084372528434045669788111037623467391175388828437596076276n,
+              "yParity": 0,
+            },
+            "type": "secp256k1",
+          },
+        ],
+        "type": "multisig",
+      }
+    `)
+    expect(transaction.keyAuthorization?.signature).toMatchInlineSnapshot(`
+      {
+        "account": "0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "signatures": [
+          {
+            "signature": {
+              "r": 113291597329930009559670063131885256927775966057121513567941051428123344285399n,
+              "s": 54293712598725100598138577281441749550405991478212695085505730636505228583888n,
+              "yParity": 1,
+            },
+            "type": "secp256k1",
+          },
+        ],
+        "type": "multisig",
+      }
+    `)
+  })
+
   test('behavior: non-tempo transaction', async () => {
     const receipt = await sendTransactionSync(client, {
       to: '0x0000000000000000000000000000000000000000',
@@ -40,6 +125,87 @@ describe('formatTransaction', () => {
 })
 
 describe('formatTransactionRequest', () => {
+  test('behavior: multisig simulation', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      multisigSimulation: {
+        account: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+        approvals: [
+          {
+            keyType: 'secp256k1',
+            owner: '0x1111111111111111111111111111111111111111',
+            type: 'primitive',
+          },
+          {
+            spec: {
+              account: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+              approvals: [
+                {
+                  keyData: '0x0578',
+                  keyType: 'webAuthn',
+                  owner: '0x2222222222222222222222222222222222222222',
+                },
+              ],
+              config: MultisigConfig.from({
+                owners: [
+                  {
+                    owner: '0x2222222222222222222222222222222222222222',
+                    weight: 1,
+                  },
+                ],
+                salt: `0x${'22'.repeat(32)}`,
+                threshold: 1,
+                version: 1,
+              }),
+            },
+            type: 'multisig',
+          },
+        ],
+        config: MultisigConfig.from({
+          owners: [
+            {
+              owner: '0x1111111111111111111111111111111111111111',
+              weight: 1,
+            },
+            {
+              owner: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+              weight: 1,
+            },
+          ],
+          salt: `0x${'11'.repeat(32)}`,
+          threshold: 2,
+        }),
+      },
+    } as never)
+
+    expect(rpc.multisigSimulation).toMatchInlineSnapshot(`
+      {
+        "account": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "approvals": [
+          {
+            "keyType": "secp256k1",
+            "owner": "0x1111111111111111111111111111111111111111",
+            "type": "primitive",
+          },
+          {
+            "spec": {
+              "account": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "approvals": [
+                {
+                  "keyData": "0x0578",
+                  "keyType": "webAuthn",
+                  "owner": "0x2222222222222222222222222222222222222222",
+                },
+              ],
+              "config": "0xf83ba022222222222222222222222222222222222222222222222222222222222222220101d7d694222222222222222222222222222222222222222201",
+            },
+            "type": "multisig",
+          },
+        ],
+        "config": "0xf852a011111111111111111111111111111111111111111111111111111111111111118002eed694111111111111111111111111111111111111111101d694bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01",
+      }
+    `)
+  })
+
   test('behavior: webAuthn account populates keyType and keyData', async () => {
     const webAuthnAccount = Account.fromHeadlessWebAuthn(
       '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28',
@@ -136,10 +302,9 @@ describe('formatTransactionRequest', () => {
     } as never)
 
     expect(rpc.keyAuthorization?.account).toBe(account)
-    expect(rpc.keyAuthorization?.signature).toMatchObject({
-      account,
-      signatures: [{ type: 'secp256k1' }],
-    })
+    expect(rpc.keyAuthorization?.signature).toMatchInlineSnapshot(
+      `"0xf89794c3e0021dfce214618c347c68f665df085c4295f8f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
+    )
   })
 
   test('behavior: unknown account source returns no keyType', () => {
