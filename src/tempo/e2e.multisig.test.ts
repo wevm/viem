@@ -1782,7 +1782,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0x5e46Aa4E8A333372040c7C159f75C1cDEa78Be2C
+        from:  0x0d4a6cd08FBFB8b8B1bCdee4621F07Db96085cC9
 
       Details: A local owner account is required to approve a multisig transaction.
       Version: viem@2.56.1]
