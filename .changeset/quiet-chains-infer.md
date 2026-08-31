@@ -2,4 +2,4 @@
 'viem': patch
 ---
 
-Fixed declaration emit for inferred Tempo chains.
+`viem/tempo`: Fixed declaration emit for inferred Tempo chains.
