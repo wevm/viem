@@ -32,7 +32,7 @@ describe('fromMultisig', () => {
       { owners: expect.any(Array) },
       `
       {
-        "address": "0x45766456BE05868B349E87CD5cBE042dDbefA00F",
+        "address": "0x9ED4C45a39768317A8C89fBab795385A6E6d97B1",
         "config": {
           "owners": [
             {
@@ -55,6 +55,15 @@ describe('fromMultisig', () => {
       }
     `,
     )
+  })
+
+  test('behavior: Tempo CREATE2 vector', () => {
+    const account = Account.fromMultisig({
+      address: 'infer',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toBe('0xf4B916C5AEa0fb199bD942389Be00db0690c961F')
   })
 
   test('behavior: current config', () => {

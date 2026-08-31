@@ -27,7 +27,7 @@ describe('prepareTransactionRequest', () => {
 
     expect(request.multisigSimulation).toMatchInlineSnapshot(`
       {
-        "account": "0x75DC015f090B457FC7615FA37859937D1906e1C9",
+        "account": "0xfE8359a006AF94a7C2D44463536C90D09eD563a8",
         "approvals": [
           {
             "keyData": "0x0578",
@@ -110,7 +110,7 @@ describe('prepareTransactionRequest', () => {
 
     expect(request.multisigSimulation).toMatchInlineSnapshot(`
       {
-        "account": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
+        "account": "0x13D0eA1C219b3CA583082664961b9e8CD2D8B678",
         "approvals": [
           {
             "keyData": "0x0578",
@@ -156,11 +156,11 @@ describe('prepareTransactionRequest', () => {
 
     expect(request.multisigSimulation).toMatchInlineSnapshot(`
       {
-        "account": "0x06Bf7e1622585b4789234093F2fCA112f20b139a",
+        "account": "0xE6727027C4B41cf41a8D87B033B2020035B92F25",
         "approvals": [
           {
             "spec": {
-              "account": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
+              "account": "0x13D0eA1C219b3CA583082664961b9e8CD2D8B678",
               "approvals": [
                 {
                   "keyData": "0x0578",
@@ -186,7 +186,7 @@ describe('prepareTransactionRequest', () => {
         "config": {
           "owners": [
             {
-              "owner": "0xC3E0021dFCe214618C347C68f665dF085C4295F8",
+              "owner": "0x13D0eA1C219b3CA583082664961b9e8CD2D8B678",
               "weight": 1,
             },
           ],

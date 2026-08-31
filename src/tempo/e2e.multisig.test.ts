@@ -1055,7 +1055,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x717a5616be548146187031a15fa458b78f2ef75f",
+        "account": "0x11039e2a0f4814c7c71870d21490ba92de707b37",
         "approvals": [
           Any<String>,
         ],
@@ -1118,7 +1118,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x717a5616be548146187031a15fa458b78f2ef75f",
+        "account": "0x11039e2a0f4814c7c71870d21490ba92de707b37",
         "approvals": [
           Any<String>,
           Any<String>,
@@ -1170,7 +1170,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x717a5616be548146187031a15fa458b78f2ef75f",
+        "account": "0x11039e2a0f4814c7c71870d21490ba92de707b37",
         "config": {
           "owners": [
             {
@@ -1220,7 +1220,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x717a5616be548146187031a15fa458b78f2ef75f",
+        "account": "0x11039e2a0f4814c7c71870d21490ba92de707b37",
         "approvals": [
           Any<String>,
         ],
@@ -2233,13 +2233,13 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "account": "0x82a9ed018731c9ef3f688f7a650eb4089b324996",
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+          "account": "0x82a9ed018731c9ef3f688f7a650eb4089b324996",
           "approvals": [
             Any<String>,
           ],
@@ -2314,13 +2314,13 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+        "account": "0x82a9ed018731c9ef3f688f7a650eb4089b324996",
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "isAdmin": false,
         "multisig": {
-          "account": "0x71d2054a4d120be08e20c5090cfc677138fea442",
+          "account": "0x82a9ed018731c9ef3f688f7a650eb4089b324996",
           "approvals": [
             Any<String>,
             Any<String>,
@@ -2946,7 +2946,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0xd6122b3b15e50339ea1035b7afbb2fa676017bdb",
+        "account": "0x2011a76f7366d2caf28d774bdb87a1166ba2e4c9",
         "config": {
           "owners": [
             {

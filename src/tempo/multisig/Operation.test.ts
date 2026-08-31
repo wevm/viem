@@ -135,7 +135,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
+        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
         "approvals": [
           Any<String>,
         ],
@@ -155,7 +155,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0xbd127c104f2fa25a517f87e18b0ab95fba2ad308c8c404c5a0cc91ca14b0b2b0",
+        "hash": "0x837807510029fcb64338b96f2ec398978d75cdee4989e40adc58d30c3b46d717",
         "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
@@ -201,7 +201,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
+        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
         "approvals": [
           Any<String>,
         ],
@@ -221,7 +221,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0x14570ae04d1d0ef96c67a67effbc75dc769f4658c675aac6a3e18cebcfdb2b6c",
+        "hash": "0xb22d88f1fbdb78b42a9d6289d2ebda1cb52dcd18581b3bb5a0de3a48a2fc1e55",
         "keyAuthorization": Any<String>,
         "signatureCount": 1,
         "status": "pending",
@@ -251,7 +251,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xe2d2c3c2fc4b17af341cc5c1a459af9606167e8a",
+        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
         "approvals": [
           Any<String>,
           Any<String>,
@@ -272,7 +272,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0x14570ae04d1d0ef96c67a67effbc75dc769f4658c675aac6a3e18cebcfdb2b6c",
+        "hash": "0xb22d88f1fbdb78b42a9d6289d2ebda1cb52dcd18581b3bb5a0de3a48a2fc1e55",
         "keyAuthorization": Any<String>,
         "signatureCount": 2,
         "status": "success",
@@ -375,7 +375,7 @@ describe('submission', () => {
     expect(
       await Operation.readSubmission(store, operation, submissionId),
     ).toMatchInlineSnapshot(
-      `"0x6cacd29f7c164f40028765b9bb7c3923a295e97ccb8ddb1178f2c3732dfdc0a0"`,
+      `"0x328b36e6ff34123fe429b6b3df55edebdb4998616f64b5a40c6c2be969ccf2f3"`,
     )
   })
 

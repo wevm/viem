@@ -5,8 +5,8 @@ description: Instantiates a native multisig account from an initial or current c
 # `Account.fromMultisig`
 
 Instantiates an Account for a [native multisig](https://tips.sh/1061). Set `address` to `infer`
-to derive the stable account address. After the config changes, replace `infer` with the stable
-address and pass the current config fields.
+to derive the canonical CREATE2 account address. After the config changes, replace `infer` with
+the stable address and pass the current config fields.
 
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
