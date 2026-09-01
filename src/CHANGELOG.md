@@ -1,5 +1,15 @@
 # viem
 
+## 2.56.2
+
+### Patch Changes
+
+- [#5042](https://github.com/wevm/viem/pull/5042) [`5df98198c47cb898ba35a1afcd2abd5d0cbcc371`](https://github.com/wevm/viem/commit/5df98198c47cb898ba35a1afcd2abd5d0cbcc371) Thanks [@Wagalidoom](https://github.com/Wagalidoom)! - Fixed `isHash` returning `true` for odd-length hex strings. `size` rounds odd-length hex up to the next whole byte, so a 63-character hex string reported a size of 32 and passed the check. `isHash` now validates the length directly.
+
+- [#4913](https://github.com/wevm/viem/pull/4913) [`ef4be8eb45abc773587abb1df7fd8791acf30413`](https://github.com/wevm/viem/commit/ef4be8eb45abc773587abb1df7fd8791acf30413) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed signed `hexToBigInt` and `hexToNumber` calls with odd-length hex values.
+
+- [#5029](https://github.com/wevm/viem/pull/5029) [`dd7d792dd84f57d1784af56058fe88d3149a44fb`](https://github.com/wevm/viem/commit/dd7d792dd84f57d1784af56058fe88d3149a44fb) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added Multisig accounts.
+
 ## 2.56.1
 
 ### Patch Changes
