@@ -46,6 +46,10 @@ describe('converts hex to number', () => {
     expect(hexToNumber('0x00027760a62ec2ac', { signed: true })).toBe(
       694206942069420,
     )
+
+    // odd-length hex
+    expect(hexToNumber('0x0', { signed: true })).toBe(0)
+    expect(hexToNumber('0x1a4', { signed: true })).toBe(420)
   })
 
   test('args: size', () => {
@@ -129,6 +133,11 @@ describe('converts hex to bigint', () => {
         { signed: true },
       ),
     ).toBe(-12312312312312312412n)
+
+    // odd-length hex
+    expect(hexToBigInt('0x0', { signed: true })).toBe(0n)
+    expect(hexToBigInt('0xf', { signed: true })).toBe(15n)
+    expect(hexToBigInt('0x1a4', { signed: true })).toBe(420n)
   })
 
   test('args: size', () => {
