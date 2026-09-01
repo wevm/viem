@@ -152,6 +152,8 @@ export async function configureExitSafePolicy<
     chain: client.chain,
     type: 'whitelist',
   } as never)
+  if ((eligibility.receipt as TransactionReceipt).status === 'pending')
+    return { receipt: eligibility.receipt } as never
   const compoundPolicy = await writeContractSync(client, {
     account,
     abi: Abis.tip403Registry,
@@ -161,6 +163,8 @@ export async function configureExitSafePolicy<
     functionName: 'createCompoundPolicy',
     throwOnReceiptRevert: true,
   } as never)
+  if ((compoundPolicy as TransactionReceipt).status === 'pending')
+    return { receipt: compoundPolicy } as never
   const [compoundEvent] = parseEventLogs({
     abi: Abis.tip403Registry,
     eventName: 'CompoundPolicyCreated',
@@ -176,6 +180,8 @@ export async function configureExitSafePolicy<
     policyId: compoundEvent.args.policyId,
     token: parameters.shareToken,
   } as never)
+  if ((tokenPolicy.receipt as TransactionReceipt).status === 'pending')
+    return { receipt: tokenPolicy.receipt } as never
   const policyAdmin = isAddressEqual(
     parameters.accessAdministrator,
     account.address,
@@ -187,6 +193,11 @@ export async function configureExitSafePolicy<
         chain: client.chain,
         policyId: eligibility.policyId,
       } as never)
+  if (
+    policyAdmin &&
+    (policyAdmin.receipt as TransactionReceipt).status === 'pending'
+  )
+    return { receipt: policyAdmin.receipt } as never
 
   return {
     policy: {
@@ -617,6 +628,8 @@ export async function depositSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = deposit.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -920,6 +933,8 @@ export async function depositSharesSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = depositShares.extractEvent(receipt.logs, { vault })
   return {
     caller: args.caller,
@@ -2308,6 +2323,8 @@ export async function redeemSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = redeem.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2972,6 +2989,8 @@ export async function withdrawExactSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = withdrawExact.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,

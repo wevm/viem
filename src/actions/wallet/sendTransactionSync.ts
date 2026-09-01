@@ -401,12 +401,20 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
+      const signedTransaction = (await account.signTransaction(
         request as never,
         {
           serializer,
         },
       )) as Hash
+      const transactionEnvelope = (chain ?? client.chain)?.serializers
+        ?.transactionEnvelope
+      const serializedTransaction = transactionEnvelope
+        ? await transactionEnvelope({
+            serializedTransaction: signedTransaction,
+            transaction: request as never,
+          })
+        : signedTransaction
       return (await getAction(
         client,
         sendRawTransactionSync,

@@ -387,6 +387,8 @@ export async function cancelSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = cancel.extractEvent(receipt.logs)
   return {
     ...args,
@@ -588,6 +590,8 @@ export async function cancelStaleSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = cancelStale.extractEvent(receipt.logs)
   return {
     ...args,
@@ -783,6 +787,8 @@ export async function createPairSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createPair.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1567,6 +1573,8 @@ export async function placeFlipSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = placeFlip.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1637,6 +1645,8 @@ export async function placeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = place.extractEvent(receipt.logs)
   return {
     ...args,

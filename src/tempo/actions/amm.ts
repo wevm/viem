@@ -23,6 +23,7 @@ import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
 
 /**
  * Gets the reserves for a liquidity pool.
@@ -405,6 +406,8 @@ export async function rebalanceSwapSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = rebalanceSwap.extractEvent(receipt.logs)
   return {
     ...args,
@@ -636,6 +639,8 @@ export async function mintSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -851,6 +856,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,

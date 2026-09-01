@@ -1,0 +1,59 @@
+---
+description: Gets a coordinated multisig operation by its operation hash.
+---
+
+# `multisig.getOperation`
+
+Gets the current state of a coordinated multisig transaction or key authorization. The action
+returns `null` when the operation hash is unknown.
+
+Configure the client with [`experimental_multisig`](/tempo) or
+[`withMultisig`](/tempo/transports/withMultisig) for local coordination. Use
+[`withRelay`](/tempo/transports/withRelay) to read operations coordinated by a relay.
+
+## Usage
+
+:::code-group
+
+```ts [example.ts]
+import { client } from './viem.config'
+
+const operation = await client.multisig.getOperation({
+  hash: '0x23a9cbceb2775b93cd60d3ca7c98435c700aa0d7254850efdce71468d326ddf6',
+})
+```
+
+```ts [viem.config.ts] filename="viem.config.ts"
+import { createClient } from 'viem/tempo'
+import { store } from './store.db'
+
+export const client = createClient({
+  experimental_multisig: { store },
+})
+```
+
+:::
+
+Use the operation hash returned by `sendTransaction`, or the `transactionHash` from a pending
+`sendTransactionSync` receipt.
+
+## Return Type
+
+```ts
+type ReturnType = MultisigOperation.Operation | null
+```
+
+Every operation includes its retained `approvals`, `signatureCount`, `threshold`, and current
+`weight`. Use `type` to distinguish transaction and key-authorization operations:
+
+- Transaction operations have `type: 'transaction'` and a `pending`, `submitting`, or `success`
+  status.
+- Key-authorization operations have `type: 'keyAuthorization'` and a `pending` or `success` status.
+
+## Parameters
+
+### hash
+
+- **Type:** `Hex`
+
+The deterministic multisig operation hash.

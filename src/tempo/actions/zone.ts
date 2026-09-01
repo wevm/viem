@@ -66,7 +66,7 @@ import {
   pickWriteSyncParameters,
 } from '../internal/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 const defaultWithdrawalGas = 10_000_000n
@@ -1707,6 +1707,8 @@ export async function requestWithdrawalSync<
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const [event] = parseEventLogs({
     abi: Abis.zoneOutbox,
     logs: receipt.logs,
@@ -1950,7 +1952,7 @@ export namespace requestVerifiableWithdrawalSync {
  * ```
  *
  * @param client - Zone wallet client.
- * @param parameters - Options including optional storage override.
+ * @param parameters - Options including optional store override.
  * @returns The authentication object and serialized token.
  */
 export async function signAuthorizationToken<
@@ -1968,7 +1970,7 @@ export async function signAuthorizationToken<
     account = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
     expiresAt = issuedAt + 86_400,
-    storage = Storage.defaultStorage(),
+    store = Store.defaultStore(),
   } = parameters
 
   const chain = parameters.chain ?? client.chain
@@ -1980,7 +1982,7 @@ export async function signAuthorizationToken<
   if (!account_ || !account_.sign)
     throw new Error('`account` with `sign` is required.')
 
-  const storageKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
+  const storeKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
 
   const authentication = ZoneRpcAuthentication.from({
     chainId: chain.id,
@@ -1996,8 +1998,8 @@ export async function signAuthorizationToken<
     signature,
   })
 
-  await storage.setItem(storageKey, token)
-  await storage.setItem(`auth:token:${chain.id}`, token)
+  await store.setItem(storeKey, token)
+  await store.setItem(`auth:token:${chain.id}`, token)
 
   return { authentication, token }
 }
@@ -2016,8 +2018,8 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
-    /** Storage to persist the token. @default sessionStorage (web) or memory (server). */
-    storage?: Storage.Storage | undefined
+    /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
+    store?: Store.Store | undefined
     /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
     zoneId?: number | undefined
   }

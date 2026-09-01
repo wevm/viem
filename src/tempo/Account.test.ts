@@ -3,13 +3,15 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
 import * as Scopes from './Scopes.js'
+import * as Transaction from './Transaction.js'
 
 const client = tempo.getClient()
 
@@ -19,18 +21,134 @@ const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
 describe('fromMultisig', () => {
-  test('initialized account address', () => {
+  test('behavior: initial config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromMultisig({
+      owners: [owner],
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x9ED4C45a39768317A8C89fBab795385A6E6d97B1",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 0n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "multisig",
+        "type": "local",
+      }
+    `,
+    )
+  })
+
+  test('behavior: Tempo CREATE2 vector', () => {
+    const account = Account.fromMultisig({
+      address: 'infer',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toBe('0xf4B916C5AEa0fb199bD942389Be00db0690c961F')
+  })
+
+  test('behavior: current config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromMultisig({
+      address: '0x0000000000000000000000000000000000000001',
+      owners: [owner],
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+      threshold: 1,
+      version: 1,
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x0000000000000000000000000000000000000001",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "multisig",
+        "type": "local",
+      }
+    `,
+    )
+  })
+
+  test('behavior: address-only account', () => {
     const account = Account.fromMultisig(
       '0x0000000000000000000000000000000000000001',
     )
 
-    expect(account).toMatchObject({
-      address: '0x0000000000000000000000000000000000000001',
-      config: undefined,
-      owners: [],
-      source: 'multisig',
-      type: 'local',
-    })
+    expect(account).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000001",
+        "config": undefined,
+        "owners": [],
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "multisig",
+        "type": "local",
+      }
+    `)
+  })
+
+  test('error: zero current config version', () => {
+    expect(() =>
+      Account.fromMultisig({
+        address: '0x0000000000000000000000000000000000000001',
+        owners: [tempo.accounts[0]],
+        salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        threshold: 1,
+        version: 0,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: A current multisig config must have a version.]`,
+    )
+  })
+
+  test('error: nonzero initial config version', () => {
+    expect(() =>
+      Account.fromMultisig({
+        address: 'infer',
+        owners: [tempo.accounts[0]],
+        version: 1,
+      } as never),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: An initial multisig config must have version zero.]`,
+    )
   })
 })
 
@@ -422,6 +540,39 @@ describe('signTransaction', () => {
     expect(serialized).toMatchInlineSnapshot(
       `"0x76f9015401808502540be40080d8d79400000000000000000000000000000000000000018080c0808080808080c0b901270249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2247394b526f3462364a4336446d4e596241477847514e42373962356a6d41425f486a6e364e562d7a5f3851222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d8825fcab1b36bd74f6171f6a02698f8a3f7c4494005ed58c10526fe292e7583f2421e978ad3f70421e98a22e5c0b940d483793eeb1ba0e0556a1650ebced6ae520fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
+  })
+
+  test('behavior: current multisig simulation', async () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const initialConfig = MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const config = MultisigConfig.from({ ...initialConfig, version: 1 })
+    const request = {
+      calls: [],
+      chainId: 1,
+      maxFeePerGas: parseGwei('10'),
+      multisigSimulation: {
+        account: MultisigConfig.getAddress(initialConfig),
+        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        config,
+      },
+    } as const
+    const signature = SignatureEnvelope.from(
+      await owner.signTransaction(request),
+    )
+    const { multisigSimulation: _, ...unsigned } = request
+    const payload = keccak256(await Transaction.serialize(unsigned))
+    const digest = MultisigConfig.getSignPayload({
+      account: request.multisigSimulation.account,
+      config,
+      payload,
+    })
+
+    expect(
+      SignatureEnvelope.extractAddress({ payload: digest, signature }),
+    ).toMatchInlineSnapshot(`"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`)
   })
 })
 

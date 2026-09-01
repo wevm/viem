@@ -11,148 +11,161 @@ import { Card, Cards } from 'vocs'
 The initial configuration permanently derives the multisig address. Updating the current
 configuration changes which owners can approve future transactions without changing that address.
 
-This example assumes that `account` has already been initialized.
+For local signing, retain the complete current config. For coordinated signing, an address-only
+account can use a config that the relay has already validated and cached.
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo).
+### Add a Passkey to a 1-of-1 Account
 
-### Submit the New Config
+Use the current owner to add a passkey as an alternative signer. The initial configuration remains
+the source of the stable account address; the update changes only the active configuration.
 
-Prepare the update under the original multisig account with
-[`multisig.updateConfig.call`](/tempo/actions/multisig.updateConfig). The current owners approve
-the update.
+```ts twoslash
+import { Account, WebAuthnP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Restore the current owner and create the new passkey owner.
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+const passkeyOwner = Account.fromWebAuthnP256(credential)
+
+// 2. Recreate the account from its stable address and current config.
+const multisig = Account.fromMultisig({
+  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+  owners: [owner],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 1,
+  version: 1,
+})
+
+// 3. Replace the active 1-of-1 configuration with a 1-of-2 configuration.
+const { receipt } = await client.multisig.updateConfigSync({
+  account: multisig,
+  nextConfig: {
+    owners: [
+      { owner: owner.address, weight: 1 },
+      { owner: passkeyOwner.address, weight: 1 },
+    ],
+    threshold: 1,
+  },
+  owner,
+})
+```
+
+### Approve the New Configuration
+
+Pass the replacement config to [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync)
+for the first approval. Each later owner then passes the returned operation hash.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, Actions } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransaction,
-  signTransaction,
-} from 'viem/actions'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
+// 1. Load the current and replacement owners.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const owner_3 = Account.fromSecp256k1(
+const newOwner_1 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
-const owner_4 = Account.fromSecp256k1(
+const newOwner_2 = Account.fromSecp256k1(
   '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
 )
-const account = Account.fromMultisig(
+
+// 2. Recreate the multisig from its stable address.
+const multisig = Account.fromMultisig(
   '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
 )
 
-const update = await prepareTransactionRequest(client, {
-  account,
-  calls: [
-    Actions.multisig.updateConfig.call({
-      owners: [
-        { owner: owner_3.address, weight: 1 },
-        { owner: owner_4.address, weight: 1 },
-      ],
-      threshold: 2,
-    }),
-  ],
+// 3. Store the first current owner's approval for the update.
+const { receipt: pending } = await client.multisig.updateConfigSync({
+  account: multisig,
+  nextConfig: {
+    owners: [
+      { owner: newOwner_1.address, weight: 1 },
+      { owner: newOwner_2.address, weight: 1 },
+    ],
+    threshold: 2,
+  },
+  owner: owner_1,
 })
-const updateSignatures = await Promise.all(
-  [owner_1, owner_2].map((owner) =>
-    signTransaction(client, { ...update, account: owner })
-  )
-)
-await sendTransaction(client, {
-  ...update,
-  signatures: updateSignatures,
+
+// 4. Reach quorum with the second current owner.
+const receipt = await client.sendTransactionSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: owner_2,
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
 
-### Sign with the New Owners
+### Approve with the New Owners
 
-Keep using the original `account`. Preparation resolves its latest configuration and version,
-and the new owners approve the request.
+Keep using the original account address. The relay selects the updated config after chain state
+switches to its commitment.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransaction,
-  signTransaction,
-} from 'viem/actions'
 import { client } from './viem.config'
 
-declare const owner_3: Account.RootAccount
-declare const owner_4: Account.RootAccount
+// 1. Create the replacement owner signers.
+const newOwner_1 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const newOwner_2 = Account.fromSecp256k1(
+  '0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6'
+)
 
-const account = Account.fromMultisig(
+// 2. Keep using the original address.
+const multisig = Account.fromMultisig(
   '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
 )
-const request = await prepareTransactionRequest(client, {
-  account,
-  calls: [
-    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
-  ],
+
+// 3. Store the first new owner's approval.
+const pending = await client.sendTransactionSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner: newOwner_1,
 })
-const signatures = await Promise.all(
-  [owner_3, owner_4].map((owner) =>
-    signTransaction(client, { ...request, account: owner })
-  )
-)
-const hash = await sendTransaction(client, { ...request, signatures })
+
+// 4. Reach quorum with the second new owner.
+const receipt = await client.sendTransactionSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: newOwner_2,
+})
 ```
 
 ## Best Practices
 
 ### Keep the Stable Account Address
 
-:::warning
-Do not derive another account from the rotated config. The rotated config would produce a
-different address. Store the original account address and reconstruct it with
-`Account.fromMultisig(address)`.
-:::
+Do not derive another account from the rotated configuration. That configuration produces a
+different address. Store the original address and use `Account.fromMultisig(address)` with a
+coordinated client. Stateless clients must pair the original address with the complete config.
 
-:::tip
-If you retain the original initial config, you can continue using
-`Account.fromMultisig(initialConfig)`. Both forms identify the same stable account address.
-:::
+### Retain the Current Configuration
 
-### Read the Current Configuration
-
-Use [`multisig.getConfig`](/tempo/actions/multisig.getConfig) when an application needs to display
-the active owners, threshold, or version. Transaction preparation resolves these values before
-signing.
+Tempo stores only a commitment to the current config. A relay can cache configs that it validates
+during coordination. Stateless clients must retain each complete config or recover updates from
+`MultisigConfigUpdated` events.
 
 ## See More
 
 <Cards>
-  <Card
-    icon="lucide:square-function"
-    title="multisig.updateConfig"
-    description="Replace a multisig account's current configuration."
-    to="/tempo/actions/multisig.updateConfig"
-  />
-  <Card
-    icon="lucide:settings"
-    title="multisig.getConfig"
-    description="Read the active owners, threshold, and version."
-    to="/tempo/actions/multisig.getConfig"
-  />
-  <Card
-    icon="lucide:send"
-    title="Send Transactions"
-    description="Collect approvals from the account's current owners."
-    to="/tempo/guides/multisig/send"
-  />
+  <Card icon="lucide:square-function" title="multisig.updateConfig" description="Replace a multisig account's current configuration." to="/tempo/actions/multisig.updateConfig" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate approvals from the account's current owners." to="/tempo/guides/multisig/send" />
 </Cards>

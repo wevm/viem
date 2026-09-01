@@ -21,6 +21,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import type { TransactionReceipt } from '../Transaction.js'
 
 /**
  * Claims accumulated rewards for a recipient.
@@ -305,6 +306,8 @@ export async function distributeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = distribute.extractEvent(receipt.logs)
   return {
     ...args,
@@ -725,6 +728,8 @@ export async function setRecipientSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setRecipient.extractEvent(receipt.logs)
   return {
     ...args,

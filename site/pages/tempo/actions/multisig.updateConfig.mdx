@@ -13,11 +13,6 @@ the account retains enough local owners to sign. For distributed signing, includ
 `multisig.updateConfig.call` in a prepared request and collect approvals as shown in
 [Rotate Multisig Owners](/tempo/guides/multisig/rotate-owners).
 
-:::warning
-The multisig account must already be initialized. The protocol does not allow initialization and
-a configuration update in the same transaction.
-:::
-
 ## Usage
 
 :::code-group
@@ -36,14 +31,17 @@ const newOwner = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 const account = Account.fromMultisig({
+  address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })
 
 const hash = await client.multisig.updateConfig({
   account,
-  owners: [{ owner: newOwner.address, weight: 1 }],
-  threshold: 1,
+  nextConfig: {
+    owners: [{ owner: newOwner.address, weight: 1 }],
+    threshold: 1,
+  },
 })
 ```
 
@@ -63,13 +61,28 @@ The transaction hash.
 
 ## Parameters
 
-### owners
+### currentConfig
+
+- **Type:** `MultisigConfig.Config | undefined`
+
+The account's complete current config. When omitted, the action uses the config on the
+multisig account, then asks the configured multisig coordinator by account address.
+
+`Actions.multisig.updateConfig.call` has no client and continues to require `currentConfig`.
+
+### nextConfig
+
+- **Type:** `{ owners: readonly MultisigConfig.Owner[]; threshold: number }`
+
+The replacement owners and approval threshold. Owners are normalized into canonical address order.
+
+#### nextConfig.owners
 
 - **Type:** `readonly { owner: Address; weight: number }[]`
 
-The complete replacement owner set. Owners are normalized into canonical address order.
+The complete replacement owner set.
 
-### threshold
+#### nextConfig.threshold
 
 - **Type:** `number`
 

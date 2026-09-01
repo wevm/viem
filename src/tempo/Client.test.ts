@@ -3,6 +3,7 @@ import { tempoLocalnet } from 'viem/chains'
 import { createClient } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
+import { createTransport } from '../clients/transports/createTransport.js'
 
 import { tempo, tempoTestnet } from './Chain.js'
 
@@ -72,5 +73,37 @@ describe('createClient', () => {
     expect((client.chain as { feeToken?: string }).feeToken).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
+  })
+
+  test('behavior: multisig coordination preserves the transport', () => {
+    const client = createClient({
+      experimental_multisig: true,
+      transport: http('http://localhost'),
+    })
+
+    expect(client.transport.type).toBe('http')
+  })
+
+  test('behavior: multisig coordination forwards request options', async () => {
+    const client = createClient({
+      experimental_multisig: true,
+      transport: () =>
+        createTransport({
+          key: 'recording',
+          name: 'Recording',
+          request: async () => 'tempo' as never,
+          type: 'recording',
+        }),
+    })
+
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      client.request(
+        { method: 'web3_clientVersion' },
+        { retryCount: 0, signal: controller.signal },
+      ),
+    ).rejects.toThrow()
   })
 })

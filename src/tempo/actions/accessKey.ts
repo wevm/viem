@@ -1,8 +1,11 @@
 import type { Address } from 'abitype'
+import type * as RpcSchema from 'ox/RpcSchema'
 import {
-  type KeyAuthorization,
+  KeyAuthorization,
   MultisigConfig,
-  type SignatureEnvelope,
+  MultisigOperation,
+  type RpcSchemaTempo,
+  SignatureEnvelope,
 } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -22,24 +25,23 @@ import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
+import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import type {
   AccessKeyAccount,
   MultisigAccount,
-  resolveAccessKey,
+  RootAccount,
 } from '../Account.js'
 import {
+  fromMultisig,
   getKeyAuthorizationSignPayload,
+  resolveAccessKey,
   signKeyAuthorization,
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
-import {
-  createMultisigStateResolver,
-  getMultisigOwnerStates,
-} from '../internal/multisig.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -47,7 +49,7 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import * as multisig from './multisig.js'
+import { getConfig } from './multisig.js'
 
 /** @internal */
 const signatureTypes = {
@@ -242,6 +244,8 @@ export async function authorizeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = authorize.extractEvent(receipt.logs)
   return {
     ...args,
@@ -436,6 +440,8 @@ export async function burnWitnessSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burnWitness.extractEvent(receipt.logs)
   return {
     ...args,
@@ -989,6 +995,8 @@ export async function revokeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = revoke.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1053,12 +1061,11 @@ export async function prepareAuthorization<
     if ('multisig' in parameters) return parameters.multisig
     if (parsed.source !== 'multisig') return undefined
     const account = parsed as MultisigAccount
-    const getState = createMultisigStateResolver((account) =>
-      multisig.getConfig(client, { account }),
-    )
-    const states = await getMultisigOwnerStates(account, getState)
-    const state = states[0]!
-    return { init: !state.initialized, states, version: state.version }
+    if (!account.config)
+      throw new Error(
+        'A multisig config is required to prepare a key authorization.',
+      )
+    return { config: account.config }
   })()
   const authorizationSignPayload = getKeyAuthorizationSignPayload(
     parsed as never,
@@ -1072,8 +1079,8 @@ export async function prepareAuthorization<
     parsed.source === 'multisig' && multisigState
       ? MultisigConfig.getSignPayload({
           account: parsed.address,
+          config: multisigState.config,
           payload: authorizationSignPayload,
-          version: multisigState.version,
         })
       : authorizationSignPayload
   return {
@@ -1142,20 +1149,154 @@ export namespace prepareAuthorization {
  * transient user activation.
  *
  * @param client - Client.
- * @param parameters - Parameters or the prepared result.
- * @returns The signed key authorization.
+ * @param parameters - Authorization fields, or a stored operation hash.
+ * @returns A signed key authorization with multisig operation metadata when coordinated.
  */
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.CoordinatedParameters,
+): Promise<signAuthorization.CoordinatedReturnValue>
+export function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.LocalParameters<account>,
+): Promise<signAuthorization.ReturnValue>
 export async function signAuthorization<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: signAuthorization.Parameters<account>,
-): Promise<signAuthorization.ReturnValue> {
+): Promise<
+  signAuthorization.CoordinatedReturnValue | signAuthorization.ReturnValue
+> {
+  const coordinated =
+    ('hash' in parameters && parameters.hash) ||
+    ('owner' in parameters && parameters.owner)
+
+  if (coordinated) {
+    const parameters_ = parameters as signAuthorization.CoordinatedParameters
+    const owner_ = parameters_.owner
+    if (!owner_ || typeof owner_ === 'string')
+      throw new Error(
+        'A local owner account is required to approve a multisig key authorization.',
+      )
+    const owner = parseAccount(owner_)
+    const sign = owner.sign
+    if (!sign)
+      throw new Error(
+        'A local owner account is required to approve a multisig key authorization.',
+      )
+
+    const request = await (async () => {
+      if ('hash' in parameters_ && parameters_.hash) {
+        const signature = SignatureEnvelope.serialize(
+          SignatureEnvelope.from(await sign({ hash: parameters_.hash })),
+        )
+        return { hash: parameters_.hash, signature }
+      }
+
+      const {
+        account: account_,
+        owner: _,
+        ...authorization
+      } = parameters_ as signAuthorization.CoordinatedInitialParameters
+      const address = typeof account_ === 'string' ? account_ : account_.address
+      const config = await (async () => {
+        if (typeof account_ !== 'string' && account_.config)
+          return account_.config
+        const config = await getConfig(client, { address })
+        if (config) return config
+        throw new Error(
+          `No current multisig config is cached for account ${address}. Provide the current config.`,
+        )
+      })()
+      const account = (() => {
+        if (config.version !== 0n) return fromMultisig({ address, ...config })
+        const { version: _, ...initialConfig } = config
+        return fromMultisig({ address: 'infer', ...initialConfig })
+      })()
+      if (!isAddressEqual(account.address, address))
+        throw new Error('Initial multisig config does not match the account.')
+      const prepared = await prepareAuthorization(client, {
+        ...authorization,
+        account,
+      } as never)
+      const signature = SignatureEnvelope.serialize(
+        SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
+      )
+      const { accessKey, admin, chainId, expiry, limits, scopes, witness } =
+        prepared
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
+      const keyAuthorization = KeyAuthorization.from({
+        account: account.address,
+        address: accessKeyAddress,
+        chainId: BigInt(chainId),
+        signature: SignatureEnvelope.from({
+          account: account.address,
+          config,
+          signatures: [SignatureEnvelope.from(signature)],
+        }),
+        type,
+        ...(witness ? { witness } : {}),
+        ...(admin ? { isAdmin: true } : { expiry, limits, scopes }),
+      } as never)
+      return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
+    })()
+
+    type multisig_approveKeyAuthorization = Extract<
+      RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
+      { Method: 'multisig_approveKeyAuthorization' }
+    >
+    const operation = await client.request<multisig_approveKeyAuthorization>({
+      method: 'multisig_approveKeyAuthorization',
+      params: [request],
+    })
+    const multisig = MultisigOperation.fromRpc(operation)
+    const keyAuthorization = KeyAuthorization.deserialize(
+      await (async () => {
+        if (multisig.status === 'success') return multisig.keyAuthorization
+        const approvals = await MultisigOperation.selectApprovals({
+          account: multisig.account,
+          approvals: multisig.approvals,
+          config: multisig.config,
+          hash: multisig.hash,
+        })
+        return MultisigOperation.serializeKeyAuthorization(
+          multisig.keyAuthorization,
+          {
+            account: multisig.account,
+            approvals:
+              approvals.selectedApprovals.length > 0
+                ? approvals.selectedApprovals
+                : approvals.approvals.slice(0, 1),
+            config: multisig.config,
+          },
+        )
+      })(),
+    )
+    if (!keyAuthorization.signature)
+      throw new Error('Expected a signed multisig key authorization.')
+    return {
+      ...keyAuthorization,
+      hash: multisig.hash,
+      multisig,
+      status: multisig.status,
+    } as never
+  }
+
   const prepared = (
-    'multisig' in parameters
+    'signPayload' in parameters
       ? parameters
-      : await prepareAuthorization(client, parameters)
+      : await prepareAuthorization(
+          client,
+          parameters as signAuthorization.LocalParameters<account>,
+        )
   ) as prepareAuthorization.ReturnValue
   const {
     accessKey,
@@ -1170,18 +1311,62 @@ export async function signAuthorization<
     key: accessKey,
     multisig: multisigState,
     ...rest,
-  })
+  }) as never
 }
 
 export namespace signAuthorization {
-  export type Parameters<
+  /** Initial coordinated key authorization parameters. */
+  export type CoordinatedInitialParameters = Omit<
+    prepareAuthorization.Parameters<Account>,
+    'account' | 'multisig'
+  > & {
+    /** Multisig account being authorized. */
+    account: Address | MultisigAccount
+    /** Local owner that approves the authorization. */
+    owner: RootAccount | MultisigAccount
+  }
+
+  /** Coordinated key authorization parameters. */
+  export type CoordinatedParameters = OneOf<
+    | CoordinatedInitialParameters
+    | {
+        /** Stored multisig operation hash. */
+        hash: Hex
+        /** Local owner that approves the authorization. */
+        owner: RootAccount | MultisigAccount
+      }
+  >
+
+  /** Locally signed key authorization parameters. */
+  export type LocalParameters<
     account extends Account | undefined = Account | undefined,
   > = prepareAuthorization.Parameters<account> & {
     /** Serialized approvals from external multisig owners. */
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
+  /** Parameters for {@link signAuthorization}. */
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = CoordinatedParameters | LocalParameters<account>
+
+  /** Local return value for {@link signAuthorization}. */
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
+
+  /** Coordinated return value for {@link signAuthorization}. */
+  export type CoordinatedReturnValue = Compute<
+    ReturnValue & {
+      /** Deterministic multisig operation hash. */
+      hash: Hex
+      /** Current multisig operation. */
+      multisig: MultisigOperation.KeyAuthorizationOperation
+      /** Current multisig operation status. */
+      status: MultisigOperation.KeyAuthorizationOperation['status']
+    }
+  >
+
+  /** Error type for {@link signAuthorization}. */
+  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -1353,6 +1538,8 @@ export async function updateLimitSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateLimit.extractEvent(receipt.logs)
   return {
     account: args.account,

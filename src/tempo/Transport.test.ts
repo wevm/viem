@@ -13,7 +13,7 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, Transaction } from 'viem/tempo'
+import { Account, Actions, Store, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -22,7 +22,48 @@ import {
   getClient,
   http,
 } from '~test/tempo/config.js'
-import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
+import { custom } from '../clients/transports/custom.js'
+import * as Account_ from './Account.js'
+import * as Transaction_ from './Transaction.js'
+import {
+  walletNamespaceCompat,
+  withFeePayer,
+  withMultisig,
+  withRelay,
+} from './Transport.js'
+
+describe('withMultisig', () => {
+  test('default', async () => {
+    const client = getClient({
+      transport: withMultisig(http(), { store: Store.memory() }),
+    })
+
+    expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
+    expect(client.transport.type).toMatchInlineSnapshot(`"http"`)
+    await expect(
+      client.request({
+        method: 'multisig_getOperation',
+        params: [`0x${'ff'.repeat(32)}`],
+      } as never),
+    ).resolves.toMatchInlineSnapshot(`null`)
+  })
+
+  test('error: non-atomic store', () => {
+    const store = Store.from({
+      getItem: async () => null,
+      removeItem() {},
+      setItem() {},
+    })
+
+    expect(() =>
+      getClient({
+        transport: withMultisig(http(), { store } as never),
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [RpcResponse.InvalidParamsError: Multisig coordination requires a store with atomic \`compareAndSet\`.]
+    `)
+  })
+})
 
 describe('withRelay', () => {
   let server: Http.Server
@@ -40,6 +81,205 @@ describe('withRelay', () => {
     method: string
     params: readonly unknown[] | undefined
   }> = []
+
+  test('behavior: routes multisig coordination to the relay', async () => {
+    const owner = Account_.fromSecp256k1(generatePrivateKey())
+    const config = MultisigConfig.from({
+      owners: [{ owner: owner.address, weight: 1 }],
+      threshold: 1,
+    })
+    const transaction = {
+      calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
+      chainId: chain.id,
+      multisigSimulation: {
+        account: MultisigConfig.getAddress(config),
+        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        config,
+      },
+    } as const
+    const signature = await owner.signTransaction(transaction)
+    const serialized = await Transaction_.serialize({
+      ...transaction,
+      signatures: [signature],
+    })
+    const defaultMethods: string[] = []
+    const relayMethods: string[] = []
+    const transport = withRelay(
+      custom({
+        async request({ method }) {
+          defaultMethods.push(method)
+          return method
+        },
+      }),
+      custom({
+        async request({ method }) {
+          relayMethods.push(method)
+          return method
+        },
+      }),
+    )({ chain })
+    const hash = `0x${'01'.repeat(32)}`
+
+    const results = await Promise.all(
+      [
+        { method: 'eth_sendRawTransaction', params: [serialized] },
+        { method: 'eth_sendRawTransactionSync', params: [serialized] },
+        {
+          method: 'multisig_approveKeyAuthorization',
+          params: [{ hash, signature }],
+        },
+        { method: 'multisig_approveRawTransaction', params: [serialized] },
+        { method: 'multisig_approveRawTransactionSync', params: [serialized] },
+        { method: 'multisig_getConfig', params: [{ address: owner.address }] },
+        { method: 'multisig_getOperation', params: [hash] },
+      ].map((request) => transport.request(request as never)),
+    )
+
+    expect(transport.value).toMatchInlineSnapshot(`
+      {
+        "multisig": true,
+      }
+    `)
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "eth_sendRawTransaction",
+        "eth_sendRawTransactionSync",
+        "multisig_approveKeyAuthorization",
+        "multisig_approveRawTransaction",
+        "multisig_approveRawTransactionSync",
+        "multisig_getConfig",
+        "multisig_getOperation",
+      ]
+    `)
+    expect(defaultMethods).toMatchInlineSnapshot(`[]`)
+    expect(relayMethods).toStrictEqual(results)
+  })
+
+  test('behavior: routes transaction lookups to their source', async () => {
+    const transactionHash = `0x${'01'.repeat(32)}`
+    const operationHash = `0x${'02'.repeat(32)}`
+    const unknownHash = `0x${'03'.repeat(32)}`
+    const unsupportedHash = `0x${'04'.repeat(32)}`
+    const defaultRequests: string[] = []
+    const relayRequests: string[] = []
+    const transport = withRelay(
+      custom({
+        async request({ method, params }) {
+          const hash = (params as readonly unknown[] | undefined)?.[0]
+          defaultRequests.push(`${method}:${hash}`)
+          if (hash === transactionHash)
+            return { hash: transactionHash, source: 'default' }
+          return null
+        },
+      }),
+      custom({
+        async request({ method, params }) {
+          const hash = (params as readonly unknown[] | undefined)?.[0]
+          relayRequests.push(`${method}:${hash}`)
+          if (method === 'multisig_getOperation') {
+            if (hash === operationHash) return { type: 'transaction' }
+            if (hash === unsupportedHash)
+              throw new RpcResponse.MethodNotSupportedError()
+            throw new RpcResponse.MethodNotFoundError()
+          }
+          return { hash: operationHash, source: 'relay' }
+        },
+      }),
+    )({ chain })
+
+    const results = [
+      await transport.request({
+        method: 'eth_getTransactionByHash',
+        params: [transactionHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [transactionHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionByHash',
+        params: [operationHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [operationHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [unknownHash],
+      }),
+      await transport.request({
+        method: 'eth_getTransactionReceipt',
+        params: [unsupportedHash],
+      }),
+    ]
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "hash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "source": "default",
+        },
+        {
+          "hash": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "source": "default",
+        },
+        {
+          "hash": "0x0202020202020202020202020202020202020202020202020202020202020202",
+          "source": "relay",
+        },
+        {
+          "hash": "0x0202020202020202020202020202020202020202020202020202020202020202",
+          "source": "relay",
+        },
+        null,
+        null,
+      ]
+    `)
+    expect(defaultRequests).toMatchInlineSnapshot(`
+      [
+        "eth_getTransactionByHash:0x0101010101010101010101010101010101010101010101010101010101010101",
+        "eth_getTransactionReceipt:0x0101010101010101010101010101010101010101010101010101010101010101",
+        "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0303030303030303030303030303030303030303030303030303030303030303",
+        "eth_getTransactionReceipt:0x0404040404040404040404040404040404040404040404040404040404040404",
+      ]
+    `)
+    expect(relayRequests).toMatchInlineSnapshot(`
+      [
+        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "multisig_getOperation:0x0303030303030303030303030303030303030303030303030303030303030303",
+        "multisig_getOperation:0x0404040404040404040404040404040404040404040404040404040404040404",
+      ]
+    `)
+  })
+
+  test('behavior: propagates relay transaction lookup failures', async () => {
+    const transport = withRelay(
+      custom({ request: async () => null }),
+      custom({
+        async request() {
+          throw new RpcResponse.InternalError({
+            message: 'Relay lookup failed.',
+          })
+        },
+      }),
+    )({ chain })
+
+    await expect(
+      transport.request(
+        {
+          method: 'eth_getTransactionByHash',
+          params: [`0x${'05'.repeat(32)}`],
+        },
+        { retryCount: 0 },
+      ),
+    ).rejects.toThrow('Relay lookup failed.')
+  })
 
   beforeAll(async () => {
     server = Http.createServer(
@@ -112,6 +352,23 @@ describe('withRelay', () => {
               id: request.id,
               jsonrpc: request.jsonrpc,
               result: request.params?.[0],
+            }),
+          )
+        }
+
+        if (
+          request.method === 'eth_getTransactionByHash' ||
+          request.method === 'eth_getTransactionReceipt'
+        ) {
+          const result = await feePayerClient.request({
+            method: request.method,
+            params: request.params,
+          } as never)
+          return Response.json(
+            RpcResponse.from({
+              id: request.id,
+              jsonrpc: request.jsonrpc,
+              result,
             }),
           )
         }
@@ -507,11 +764,11 @@ describe('withRelay', () => {
             { owner: owner_2.address, weight: 1 },
           ],
         })
-        const account = Account.fromMultisig(config)
+        const account = Account.fromMultisig({ address: 'infer', ...config })
 
         const request = await prepareTransactionRequest(client, {
+          account,
           feePayer: true,
-          multisig: config,
           to: account.address,
           value: 0n,
         })
@@ -524,7 +781,6 @@ describe('withRelay', () => {
           ...request,
           account,
           feePayer: true,
-          multisig: config,
           signatures,
         })
 
@@ -539,6 +795,49 @@ describe('withRelay', () => {
           method: 'eth_signRawTransaction',
           params: expect.any(Array),
         })
+      },
+    )
+
+    test.runIf(import.meta.env.VITE_TEMPO_MULTISIG)(
+      'behavior: coordinated multisig accepts the relay transaction hash',
+      async () => {
+        const owner_1 = Account.fromSecp256k1(generatePrivateKey())
+        const owner_2 = Account.fromSecp256k1(generatePrivateKey())
+        const account = Account.fromMultisig({
+          address: 'infer',
+          owners: [owner_1, owner_2],
+          threshold: 2,
+        })
+        const coordinated = getClient({
+          transport: withMultisig(
+            withRelay(http(), http('http://localhost:3051')),
+            { store: Store.memory() },
+          ),
+        })
+
+        const pending = await sendTransactionSync(coordinated, {
+          account,
+          calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
+          feePayer: true,
+          owner: owner_1,
+        })
+        expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+
+        const receipt = await sendTransactionSync(coordinated, {
+          account,
+          hash: pending.transactionHash,
+          owner: owner_2,
+        })
+        expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+        expect(receipt.from).toBe(account.address.toLowerCase())
+        expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+
+        const transaction = await getTransaction(coordinated, {
+          hash: pending.transactionHash,
+        })
+        expect(transaction.multisig?.transactionHash).toBe(
+          receipt.transactionHash,
+        )
       },
     )
 

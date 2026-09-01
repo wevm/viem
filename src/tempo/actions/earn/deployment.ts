@@ -184,7 +184,7 @@ export namespace createErc4626Engine {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
       owner?: Account | Address | undefined
@@ -366,6 +366,8 @@ export async function createErc4626EngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createErc4626Engine.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -449,7 +451,7 @@ export namespace createStack {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
+  > = Omit<WriteParameters<chain, account>, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
       owner?: Account | Address | undefined
@@ -632,6 +634,8 @@ export async function createStackSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createStack.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -832,6 +836,8 @@ export async function bindEngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = bindEngine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
@@ -956,6 +962,7 @@ export async function deployErc4626StackSync<
     gas: _,
     keyAuthorization: __,
     nonce: ___,
+    owner: ____,
     ...sharedWriteParameters
   } = pickWriteParameters(parameters as never)
   const writeParameters = {
@@ -1018,6 +1025,8 @@ export async function deployErc4626StackSync<
         } as never,
       )
       receipts.engine = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       createErc4626Engine.extractEvent(receipt.logs, {
         factory: parameters.factories.erc4626Engine,
       })
@@ -1072,6 +1081,8 @@ export async function deployErc4626StackSync<
         ...stackArgs,
       } as never)
       receipts.stack = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       const { args } = createStack.extractEvent(receipt.logs, {
         factory: parameters.factories.earn,
       })
@@ -1148,6 +1159,8 @@ export async function deployErc4626StackSync<
         bindingParameters as never,
       )
       receipts.binding = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       bindEngine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
@@ -1179,7 +1192,7 @@ export namespace deployErc4626StackSync {
     account extends Account | undefined = Account | undefined,
   > = Omit<
     WriteParameters<chain, account>,
-    'gas' | 'keyAuthorization' | 'nonce' | 'throwOnReceiptRevert'
+    'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
     WriteSyncParameters<chain, account> & {
       /** Account used only for the final owner binding. */

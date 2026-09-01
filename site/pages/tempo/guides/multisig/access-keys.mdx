@@ -9,13 +9,14 @@ import { Card, Cards } from 'vocs'
 ## Overview
 
 A multisig quorum can authorize an access key. The access key then signs later transactions for
-the multisig account, subject to the authorization's expiry, scopes, and spending limits.
+the multisig account, subject to the authorization's expiry, scopes, and spending limits. Owners
+can sign locally or coordinate approvals through a shared multisig store.
 
 ## Recipes
 
 These recipes assume you have [set up a Tempo client](/tempo).
 
-### Authorize and Use the Key
+### Local Signing
 
 :::code-group
 
@@ -23,24 +24,30 @@ These recipes assume you have [set up a Tempo client](/tempo).
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
+// 1. Create a multisig with enough local owners for quorum.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const account = Account.fromMultisig({
+const multisig = Account.fromMultisig({
+  address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })
+
+// 2. Create and authorize an access key for the multisig.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
+  access: multisig,
 })
 
 const keyAuthorization = await client.accessKey.signAuthorization({
-  account,
+  account: multisig,
   accessKey,
 })
+
+// 3. Submit the authorization with the access key's first transaction.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,
@@ -61,11 +68,11 @@ access-key transaction initializes the account. If the multisig is already initi
 [`signAuthorization`](/tempo/actions/accessKey.signAuthorization) resolves its current version
 before the owners sign.
 
-### Collect Owner Approvals Separately
+### Coordinated Signing
 
-When owners sign on separate devices or services, instantiate the multisig with owner addresses.
-Prepare the authorization once, collect signatures over its `signPayload`, and pass the serialized
-approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+Use coordinated signing when owners approve from separate clients or processes. The first owner
+defines the authorization and receives an operation hash. Later owners approve the stored
+authorization by that hash.
 
 :::code-group
 
@@ -73,34 +80,37 @@ approvals to [`signAuthorization`](/tempo/actions/accessKey.signAuthorization).
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
+// 1. Create the owners and multisig account.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const account = Account.fromMultisig({
+const multisig = Account.fromMultisig({
+  address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: account,
+  access: multisig,
 })
 
-const authorization = await client.accessKey.prepareAuthorization({
-  account,
+// 2. Store the first owner's approval.
+const pending = await client.accessKey.signAuthorization({
   accessKey,
-})
-const signatures = await Promise.all(
-  [owner_1, owner_2].map((owner) =>
-    owner.sign({ hash: authorization.signPayload })
-  )
-)
-const keyAuthorization = await client.accessKey.signAuthorization({
-  ...authorization,
-  signatures,
+  account: multisig,
+  owner: owner_1,
 })
 
+// 3. Complete the quorum using the operation hash.
+const keyAuthorization = await client.accessKey.signAuthorization({
+  hash: pending.hash,
+  owner: owner_2,
+})
+if (keyAuthorization.status !== 'success') throw new Error('Expected quorum.')
+
+// 4. Submit the authorization with the access key's first transaction.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,
@@ -111,7 +121,7 @@ const { receipt } = await client.token.transferSync({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
 ```
 
 :::
@@ -127,9 +137,12 @@ import { client } from './viem.config'
 
 declare const account: Account.MultisigAccount
 
+// 1. Recreate the access key for the authorized multisig.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
+
+// 2. Use it without resubmitting the registered authorization.
 const { receipt } = await client.token.transferSync({
   account: accessKey,
   amount: 100n,
@@ -138,13 +151,56 @@ const { receipt } = await client.token.transferSync({
 })
 ```
 
+### Stateless Approvals
+
+Without a shared store, prepare the authorization once, collect every owner signature over its
+`signPayload`, and pass the complete approval set to `signAuthorization`.
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: multisig,
+})
+
+// 1. Prepare the authorization once.
+const authorization = await client.accessKey.prepareAuthorization({
+  account: multisig,
+  accessKey,
+})
+
+// 2. Collect every owner signature over the same payload.
+const signatures = await Promise.all(
+  [owner_1, owner_2].map((owner) =>
+    owner.sign({ hash: authorization.signPayload })
+  )
+)
+
+// 3. Assemble the complete key authorization.
+const keyAuthorization = await client.accessKey.signAuthorization({
+  ...authorization,
+  signatures,
+})
+```
+
 ## Best Practices
 
 ### Keep Owner Signers Separate
 
-Use the separate-approval recipe when owners do not share a trust boundary. Each owner should
-validate the multisig account, access key, chain, expiry, scopes, and spending limits before
-signing `signPayload`.
+Each owner should validate the multisig account, access key, chain, expiry, scopes, and spending
+limits before approving an authorization.
 
 ### Restrict the Access Key
 

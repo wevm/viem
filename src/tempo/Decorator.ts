@@ -307,6 +307,33 @@ type DecoratorBase<
       parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.revokeSync.ReturnValue>
     /**
+     * Signs a key authorization or adds one coordinated multisig approval.
+     *
+     * @example
+     * ```ts
+     * const pending = await client.accessKey.signAuthorization({
+     *   accessKey,
+     *   account: multisig,
+     *   owner: owner_1,
+     * })
+     * const success = await client.accessKey.signAuthorization({
+     *   hash: pending.hash,
+     *   owner: owner_2,
+     * })
+     * ```
+     *
+     * @param parameters - Authorization fields, or a stored operation hash.
+     * @returns A signed key authorization with multisig operation metadata when coordinated.
+     */
+    signAuthorization: {
+      (
+        parameters: accessKeyActions.signAuthorization.CoordinatedParameters,
+      ): Promise<accessKeyActions.signAuthorization.CoordinatedReturnValue>
+      (
+        parameters: accessKeyActions.signAuthorization.LocalParameters<account>,
+      ): Promise<accessKeyActions.signAuthorization.ReturnValue>
+    }
+    /**
      * Updates the spending limit for a specific token on an authorized access key.
      *
      * @example
@@ -2366,23 +2393,27 @@ type DecoratorBase<
   }
   multisig: {
     /**
-     * Gets the current configuration for an initialized multisig account.
+     * Gets the current cached config for a multisig account.
      *
      * @param parameters - Parameters.
-     * @returns The current version, threshold, and owners.
+     * @returns The config, or `null` when it is unknown.
      */
     getConfig: (
       parameters: multisigActions.getConfig.Parameters,
     ) => Promise<multisigActions.getConfig.ReturnValue>
+    /** Gets the current configuration commitment for a multisig account. */
+    getConfigCommitment: (
+      parameters: multisigActions.getConfigCommitment.Parameters,
+    ) => Promise<multisigActions.getConfigCommitment.ReturnValue>
     /**
-     * Checks whether an address is an initialized native multisig account.
+     * Gets a coordinated multisig operation by its hash.
      *
      * @param parameters - Parameters.
-     * @returns Whether the account is initialized.
+     * @returns The operation, or `null` when it is unknown.
      */
-    isInitialized: (
-      parameters: multisigActions.isInitialized.Parameters,
-    ) => Promise<multisigActions.isInitialized.ReturnValue>
+    getOperation: (
+      parameters: multisigActions.getOperation.Parameters,
+    ) => Promise<multisigActions.getOperation.ReturnValue>
     /**
      * Replaces the current configuration for a native multisig account.
      *
@@ -6008,7 +6039,8 @@ export function decorator() {
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
       multisig: bindActions(client, multisigActions, [
         'getConfig',
-        'isInitialized',
+        'getConfigCommitment',
+        'getOperation',
         'updateConfig',
         'updateConfigSync',
       ]),

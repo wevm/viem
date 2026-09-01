@@ -250,7 +250,21 @@ export type ChainSerializers<
   transaction?:
     | SerializeTransactionFn<transaction, TransactionSerializedGeneric>
     | undefined
+  /** Modifies how signed Transactions are serialized into an envelope. */
+  transactionEnvelope?: ChainTransactionEnvelopeFn<transaction> | undefined
 }
+
+// Method extraction preserves assignability between generic Chain variants.
+type ChainTransactionEnvelopeFn<
+  transaction extends TransactionSerializableGeneric,
+> = {
+  fn(parameters: {
+    /** Serialized signed transaction. */
+    serializedTransaction: TransactionSerializedGeneric
+    /** Transaction before envelope serialization. */
+    transaction: transaction
+  }): TransactionSerializedGeneric | Promise<TransactionSerializedGeneric>
+}['fn']
 
 /////////////////////////////////////////////////////////////////////
 // Utils

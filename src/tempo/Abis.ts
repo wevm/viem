@@ -464,21 +464,22 @@ export const nativeMultisig = [
     outputs: [{ type: 'address', name: 'account' }],
   },
   {
-    name: 'isMultisigAccount',
+    name: 'getConfigCommitment',
     type: 'function',
     stateMutability: 'view',
     inputs: [{ type: 'address', name: 'account' }],
-    outputs: [{ type: 'bool' }],
+    outputs: [{ type: 'bytes32', name: 'commitment' }],
   },
   {
-    name: 'getConfig',
+    name: 'updateConfig',
     type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [
+    stateMutability: 'nonpayable',
+    inputs: [
       {
         type: 'tuple',
+        name: 'current',
         components: [
+          { type: 'bytes32', name: 'salt' },
           { type: 'uint64', name: 'version' },
           { type: 'uint8', name: 'threshold' },
           {
@@ -491,13 +492,6 @@ export const nativeMultisig = [
           },
         ],
       },
-    ],
-  },
-  {
-    name: 'updateConfig',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
       { type: 'uint8', name: 'threshold' },
       {
         type: 'tuple[]',
@@ -511,15 +505,12 @@ export const nativeMultisig = [
     outputs: [],
   },
   {
-    name: 'MultisigInitialized',
-    type: 'event',
-    inputs: [{ type: 'address', name: 'account', indexed: true }],
-  },
-  {
     name: 'MultisigConfigUpdated',
     type: 'event',
     inputs: [
       { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'salt' },
+      { type: 'uint64', name: 'version' },
       { type: 'uint8', name: 'threshold' },
       {
         type: 'tuple[]',
@@ -531,18 +522,15 @@ export const nativeMultisig = [
       },
     ],
   },
-  { name: 'NotMultisigAccount', type: 'error', inputs: [] },
   { name: 'InvalidAccount', type: 'error', inputs: [] },
   { name: 'InvalidConfig', type: 'error', inputs: [] },
   { name: 'InvalidThreshold', type: 'error', inputs: [] },
-  { name: 'InvalidOwner', type: 'error', inputs: [] },
+  { name: 'InvalidMultisigOwner', type: 'error', inputs: [] },
   { name: 'InvalidWeight', type: 'error', inputs: [] },
   { name: 'TooManyOwners', type: 'error', inputs: [] },
   { name: 'DuplicateOwner', type: 'error', inputs: [] },
   { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
-  { name: 'AccountAlreadyInitialized', type: 'error', inputs: [] },
-  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
-  { name: 'SameTransactionUpdateNotAllowed', type: 'error', inputs: [] },
+  { name: 'UnauthorizedMultisigCaller', type: 'error', inputs: [] },
 ] as const
 
 export const currentCommittee = [

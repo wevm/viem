@@ -1,7 +1,14 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
+import {
+  MultisigConfig,
+  MultisigOperation,
+  type MultisigSimulation,
+  SignatureEnvelope,
+  type TokenId,
+} from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
@@ -15,25 +22,17 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
-import * as multisig from './actions/multisig.js'
+import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
-import {
-  createMultisigStateResolver,
-  getMultisigOwnerStates,
-} from './internal/multisig.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
 
-/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
-function randomValidAfter(): number {
-  const now = BigInt(Math.floor(Date.now() / 1_000))
-  const latest = now - 60n
-  if (latest <= 0n) return 0
-  return Number(BigInt(Hex.random(8)) % latest)
-}
+// TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
+const serializeTransaction = ((transaction, signature) =>
+  Transaction.serialize(transaction, signature)) as SerializeTransactionFn
 
 export const chainConfig = {
   blockTime: 1_000,
@@ -65,11 +64,73 @@ export const chainConfig = {
           | undefined
         feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
         from?: Address | undefined
+        hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-        multisig?: Address | MultisigConfig.Config | undefined
-        multisigOwnerStates?: Transaction.TransactionRequestTempo['multisigOwnerStates']
+        multisigSimulation?: MultisigSimulation.Spec | undefined
+        owner?: Account | MultisigAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
+      }
+
+      if (request.hash) {
+        if (
+          !request.account ||
+          typeof request.account === 'string' ||
+          request.account.source !== 'multisig'
+        )
+          throw new Error(
+            'A local multisig account is required to approve a stored multisig transaction.',
+          )
+        if (!request.owner || typeof request.owner === 'string')
+          throw new Error(
+            'A local owner account is required to approve a stored multisig transaction.',
+          )
+        if (
+          request.owner.source !== 'root' &&
+          request.owner.source !== 'multisig'
+        )
+          throw new Error(
+            'A Tempo owner account is required to approve a stored multisig transaction.',
+          )
+        const transaction = await getAction(
+          client,
+          getTransaction,
+          'getTransaction',
+        )({ hash: request.hash })
+        const operation =
+          'multisig' in transaction
+            ? (transaction.multisig as
+                | MultisigOperation.TransactionOperation
+                | undefined)
+            : undefined
+        if (!operation)
+          throw new Error('Expected a multisig operation transaction.')
+        if (!isAddressEqual(operation.account, request.account.address))
+          throw new Error(
+            'Multisig operation account does not match the requested account.',
+          )
+        const storedTransaction = Transaction.deserialize(
+          operation.transaction as Transaction.TransactionSerializedTempo,
+        )
+        const hash = MultisigOperation.getHash({
+          account: operation.account,
+          config: operation.config,
+          transaction: operation.transaction,
+          type: 'transaction',
+        })
+        if (hash.toLowerCase() !== request.hash.toLowerCase())
+          throw new Error('Multisig operation hash does not match transaction.')
+        return {
+          ...storedTransaction,
+          account: request.account,
+          from: operation.account,
+          multisigSimulation: getMultisigSimulation({
+            account: operation.account,
+            config: operation.config,
+            local: request.account,
+          }),
+          owner: request.owner,
+        } as unknown as typeof r
       }
 
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
@@ -90,90 +151,65 @@ export const chainConfig = {
         return request as unknown as typeof r
       }
 
-      // Native multisig (TIP-1061). The transaction sender is the stable
-      // multisig address, not a signing account. Initial configs support
-      // bootstrap; initialized accounts can be reconstructed from their
-      // address and resolved through the multisig precompile.
-      //
-      // The config is taken from an explicit `multisig` field, or inferred from
-      // a multisig account (so callers can just pass `account` to
-      // `prepareTransactionRequest` without also passing `multisig`).
-      const multisigIdentity =
-        request.multisig ??
-        (request.account?.source === 'multisig'
-          ? ((request.account as MultisigAccount).config ??
-            request.account.address)
-          : undefined)
+      const multisigIdentity = (() => {
+        if (request.account?.source === 'multisig')
+          return {
+            account: request.account.address,
+            config: (request.account as MultisigAccount).config,
+            local: request.account as MultisigAccount,
+          }
+        return undefined
+      })()
+      if (request.owner && !multisigIdentity)
+        throw new Error(
+          'A multisig account is required when an owner is provided.',
+        )
+      if (request.owner && typeof request.owner === 'string')
+        throw new Error(
+          'A local owner account is required to approve a multisig transaction.',
+        )
+      if (
+        request.owner &&
+        request.owner.source !== 'root' &&
+        request.owner.source !== 'multisig'
+      )
+        throw new Error(
+          'A Tempo owner account is required to approve a multisig transaction.',
+        )
+      const coordinatedMultisig =
+        !!multisigIdentity &&
+        !!request.owner &&
+        (client.transport as { multisig?: boolean }).multisig === true
       if (multisigIdentity) {
-        const initialConfig =
-          typeof multisigIdentity === 'string'
-            ? undefined
-            : MultisigConfig.from(multisigIdentity)
-        const multisigAddress =
-          typeof multisigIdentity === 'string'
-            ? multisigIdentity
-            : MultisigConfig.getAddress(initialConfig!)
-        request.multisig = initialConfig ?? multisigIdentity
-        request.from = multisigAddress
-        // Key types are not part of the config, so conservatively model every
-        // approval as a maximum-size WebAuthn signature.
-        if (typeof request.keyType === 'undefined') {
-          request.keyType = 'webAuthn'
-          if (typeof request.keyData === 'undefined') request.keyData = '0x0578'
-        }
-        const getState = createMultisigStateResolver((account) =>
-          getAction(client, multisig.getConfig, 'getConfig')({ account }),
-        )
-        const ownerStates =
-          request.account?.source === 'multisig'
-            ? getMultisigOwnerStates(
-                request.account as MultisigAccount,
-                getState,
-              )
-            : undefined
-        const state = ownerStates
-          ? (await ownerStates)[0]!
-          : await getState(multisigAddress)
-        if (!initialConfig && !state.initialized)
+        const { account, local } = multisigIdentity
+        if (!account)
           throw new Error(
-            'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
+            'A multisig account address is required with a current config.',
           )
-        if (typeof request.multisigVersion === 'undefined')
-          request.multisigVersion = state.version
-        const authorizationSignature = request.keyAuthorization?.signature
-        if (
-          authorizationSignature?.type === 'multisig' &&
-          typeof authorizationSignature.init !== 'undefined'
-        )
-          request.keyAuthorization = {
-            ...request.keyAuthorization!,
-            signature: SignatureEnvelope.from({
-              initialConfig: authorizationSignature.init,
-              signatures: authorizationSignature.signatures,
-            }),
-          }
-        const keyAuthorizationSignature = request.keyAuthorization?.signature
-        const keyAuthorizationInitializes =
-          keyAuthorizationSignature?.type === 'multisig' &&
-          typeof keyAuthorizationSignature.init !== 'undefined'
-        if (initialConfig && !keyAuthorizationInitializes)
-          request.multisigInit = {
-            salt: initialConfig.salt ?? MultisigConfig.zeroSalt,
-            threshold: Number(initialConfig.threshold),
-            owners: initialConfig.owners.map((owner) => ({
-              owner: owner.owner,
-              weight: Number(owner.weight),
-            })),
-          }
-        if (ownerStates) {
-          const states = await ownerStates
-          if (states.length > 0) request.multisigOwnerStates = states
-        }
-        // A non-multisig `account` (e.g. the client's default) isn't the sender,
-        // so drop it: core then fills nonce/gas/fees for the multisig sender via
-        // `request.from`. A multisig account *is* the sender, so keep it so the
-        // prepared request can be sent without re-passing `account`.
-        if (request.account?.source !== 'multisig') delete request.account
+        const config = await (async () => {
+          if (multisigIdentity.config) return multisigIdentity.config
+          if (!coordinatedMultisig) return undefined
+          const cachedConfig = await getAction(
+            client,
+            getConfig,
+            'getConfig',
+          )({ address: account })
+          if (!cachedConfig)
+            throw new Error(
+              `No current multisig config is cached for account ${account}. Provide the current config.`,
+            )
+          return cachedConfig
+        })()
+        if (!config)
+          throw new Error(
+            'A multisig config is required to prepare a transaction.',
+          )
+        request.from = account
+        request.multisigSimulation = getMultisigSimulation({
+          account,
+          config,
+          local,
+        })
       }
 
       // Register concurrency before account preparation performs storage or
@@ -181,6 +217,7 @@ export const chainConfig = {
       const useExpiringNonce = await (async () => {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
+        if (typeof request.nonceKey !== 'undefined') return false
         if (multisigIdentity) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
@@ -195,7 +232,12 @@ export const chainConfig = {
         return false
       })()
 
-      if (useExpiringNonce) {
+      if (coordinatedMultisig && typeof request.nonceKey === 'undefined') {
+        // A random nonce lane lets a stored approval ceremony remain valid
+        // indefinitely without blocking other pending operations.
+        request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
+        request.nonce = 0
+      } else if (useExpiringNonce) {
         request.nonceKey = maxUint256
         request.nonce = 0
         if (typeof request.validAfter === 'undefined')
@@ -254,9 +296,27 @@ export const chainConfig = {
     { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
   ],
   serializers: {
-    // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
-    transaction: ((transaction, signature) =>
-      Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
+    transaction: serializeTransaction,
+    async transactionEnvelope({ serializedTransaction, transaction }) {
+      const request = transaction as Transaction.TransactionSerializableTempo
+      if (!request.multisigSimulation) return serializedTransaction
+      try {
+        SignatureEnvelope.deserialize(serializedTransaction)
+      } catch {
+        const transaction = Transaction.deserialize(
+          serializedTransaction as Transaction.TransactionSerializedTempo,
+        )
+        if (transaction.signature?.type === 'multisig')
+          return serializedTransaction
+        throw new Error(
+          'A Tempo owner account is required to approve a multisig transaction.',
+        )
+      }
+      return await serializeTransaction({
+        ...request,
+        signatures: [...(request.signatures ?? []), serializedTransaction],
+      } as never)
+    },
   },
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
@@ -346,3 +406,102 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+/** Builds a bounded multisig spec for gas simulation. */
+function getMultisigSimulation(options: {
+  account: Address
+  config: MultisigConfig.Config
+  local?: MultisigAccount | undefined
+}): MultisigSimulation.Spec {
+  const { account, config, local } = options
+  return {
+    account,
+    approvals: selectOwners(config).map((owner) => {
+      const localOwner = local?.owners.find((account) =>
+        isAddressEqual(account.address, owner.owner),
+      )
+      if (localOwner?.source === 'multisig') {
+        const nested = localOwner as MultisigAccount
+        if (!nested.config)
+          throw new Error(
+            'A nested multisig config is required for gas estimation.',
+          )
+        return {
+          type: 'multisig',
+          spec: {
+            account: nested.address,
+            approvals: selectOwners(nested.config).map((owner) => {
+              const nestedOwner = nested.owners.find((account) =>
+                isAddressEqual(account.address, owner.owner),
+              )
+              if (nestedOwner?.source === 'multisig')
+                throw new Error(
+                  'Multisig simulation nesting exceeds depth two.',
+                )
+              return {
+                ...getSimulationKey(nestedOwner),
+                owner: owner.owner,
+              }
+            }),
+            config: nested.config,
+          },
+        }
+      }
+      return {
+        ...getSimulationKey(localOwner),
+        owner: owner.owner,
+        type: 'primitive',
+      }
+    }),
+    config,
+  }
+}
+
+/** Returns signature metadata for conservative gas estimation. */
+function getSimulationKey(
+  account: unknown,
+):
+  | { keyData: Hex.Hex; keyType: 'webAuthn' }
+  | { keyType: 'p256' | 'secp256k1' } {
+  const keyType = (() => {
+    if (
+      account &&
+      typeof account === 'object' &&
+      'keyType' in account &&
+      typeof account.keyType === 'string'
+    )
+      return account.keyType
+    return undefined
+  })()
+  if (!keyType || keyType === 'webAuthn')
+    return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+  if (keyType === 'p256' || keyType === 'secp256k1') return { keyType }
+  return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+}
+
+/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
+function randomValidAfter(): number {
+  const now = BigInt(Math.floor(Date.now() / 1_000))
+  const latest = now - 60n
+  if (latest <= 0n) return 0
+  return Number(BigInt(Hex.random(8)) % latest)
+}
+
+/** Selects a deterministic minimum-cardinality owner quorum. */
+function selectOwners(config: MultisigConfig.Config) {
+  const owners = [...config.owners].sort(
+    (a, b) =>
+      Number(b.weight) - Number(a.weight) ||
+      a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+  const selected: typeof owners = []
+  let weight = 0
+  for (const owner of owners.slice(0, MultisigConfig.maxSignatures)) {
+    if (weight >= Number(config.threshold)) break
+    selected.push(owner)
+    weight += Number(owner.weight)
+  }
+  return selected.sort((a, b) =>
+    a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+}

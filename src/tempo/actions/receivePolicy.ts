@@ -239,6 +239,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -423,6 +425,8 @@ export async function claimSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = claim.extractEvent(receipt.logs)
   return {
     ...args,
@@ -805,6 +809,8 @@ export async function setSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { tokenFilterId, ...args } = set.extractEvent(receipt.logs).args
   return {
     ...args,

@@ -1,0 +1,56 @@
+# `withMultisig`
+
+Wraps a transport with native multisig approval coordination.
+
+:::warning
+This API is experimental and may change in future releases.
+:::
+
+Use `withMultisig` when composing a multisig-aware transport directly. The
+[`experimental_multisig`](/tempo) client option uses the same transport internally.
+
+## Usage
+
+```ts
+import { createClient, http, withMultisig } from 'viem/tempo'
+import { store } from './store.db'
+
+export const client = createClient({
+  transport: withMultisig(http(), { store }),
+})
+```
+
+## How it works
+
+`withMultisig` intercepts multisig transaction submissions and lookups. It validates each owner
+approval, merges the approval into the shared store, and forwards the finalized transaction to the
+wrapped transport when the account reaches quorum. It also caches validated configs so an
+address-only account can resolve the config selected by current chain state. All unrelated RPC
+requests pass through unchanged.
+
+## Return Value
+
+`Transport`
+
+The wrapped transport preserves the underlying transport type and adds multisig request handling.
+
+## Parameters
+
+### transport
+
+- **Type:** `Transport`
+
+Transport that sends non-multisig requests and final quorum-ready transactions.
+
+### parameters
+
+- **Type:** `withMultisig.Parameters`
+
+Multisig request handler configuration.
+
+#### parameters.store
+
+- **Type:** `Store.Atomic`
+
+Store shared by every coordinator for the same multisig accounts. It must implement atomic
+`compareAndSet` to prevent concurrent approvals from overwriting each other.

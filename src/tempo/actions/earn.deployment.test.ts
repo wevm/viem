@@ -278,6 +278,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(deployed.receipts.engine).toBeUndefined()
     expect(deployed.receipts.stack?.status).toBe('success')
     expect(deployed.receipts.binding?.status).toBe('success')
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const [boundVault, guardian, janitor, migrationMode] = await Promise.all([
       readContract(client, {
@@ -343,6 +345,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       owner,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const engineOwner = await readContract(client, {
       abi: Abis.erc4626Engine,
@@ -512,6 +516,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       factories,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     await expect(
       Actions.earn.deployErc4626StackSync(client, {
@@ -546,6 +552,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       engine: engine.engine,
       factory: factories.earn,
     })
+    if (stack.receipt.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
     await writeContractSync(client, {
       abi: Abis.erc4626Engine,
       address: engine.engine,

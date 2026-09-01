@@ -17,24 +17,29 @@ import {
   type HttpTransportConfig,
   http as http_,
 } from '../clients/transports/http.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
-import type { Storage } from './Storage.js'
-import * as Storage_ from './Storage.js'
+import * as Multisig from './Multisig.js'
+import type { Store } from './Store.js'
+import * as Store_ from './Store.js'
 import * as Transaction from './Transaction.js'
 
 export type HttpConfig = Omit<
   HttpTransportConfig,
   'batch' | 'raw' | 'rpcSchema'
 > & {
-  /** Storage for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
-  storage?: Storage | undefined
+  /** Store for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  store?: Store | undefined
 }
 
 /**
  * Creates an HTTP transport with support for Zone authentication tokens.
  *
- * Reads the authorization token from Storage and injects the
+ * Reads the authorization token from the store and injects the
  * `X-Authorization-Token` header on every request.
  *
  * @example
@@ -52,8 +57,8 @@ export function http(
   url?: string | undefined,
   config: HttpConfig = {},
 ): HttpTransport {
-  const { storage: storage_, onFetchRequest, ...rest } = config
-  const storage = storage_ ?? Storage_.defaultStorage()
+  const { store: store_, onFetchRequest, ...rest } = config
+  const store = store_ ?? Store_.defaultStore()
 
   return (config) =>
     http_(url, {
@@ -64,7 +69,7 @@ export function http(
 
         const chainId = config.chain?.id
         if (chainId) {
-          const token = (await storage.getItem(`auth:token:${chainId}`)) ?? null
+          const token = (await store.getItem(`auth:token:${chainId}`)) ?? null
           if (token) headers.set('X-Authorization-Token', token)
         }
 
@@ -79,7 +84,64 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
-export type Relay = Transport<typeof withRelay.type>
+export type Relay = Transport<typeof withRelay.type, { multisig: true }>
+
+/**
+ * Wraps a transport with native multisig request handling.
+ *
+ * @example
+ * ```ts
+ * import { http, Store, withMultisig } from 'viem/tempo'
+ *
+ * const transport = withMultisig(http(), {
+ *   store: Store.memory(),
+ * })
+ * ```
+ *
+ * @param transport - Transport to wrap.
+ * @param parameters - Multisig request handler parameters.
+ * @returns The wrapped transport.
+ * @experimental
+ */
+export function withMultisig<transport extends Transport>(
+  transport: transport,
+  parameters: withMultisig.Parameters,
+): withMultisig.ReturnValue<transport> {
+  return ((options: Parameters<Transport>[0]) => {
+    const value = transport(options)
+    return {
+      ...value,
+      request: Multisig.handleRequest(
+        (request, requestOptions) =>
+          value.request(request as never, requestOptions),
+        parameters,
+      ) as typeof value.request,
+      value: { ...value.value, multisig: true },
+    }
+  }) as withMultisig.ReturnValue<transport>
+}
+
+export declare namespace withMultisig {
+  /** Multisig transport parameters. */
+  export type Parameters = Multisig.handleRequest.Parameters
+
+  /** Multisig transport return type. */
+  export type ReturnValue<transport extends Transport = Transport> =
+    transport extends Transport<
+      infer type,
+      infer rpcAttributes,
+      infer eip1193RequestFn
+    >
+      ? Transport<
+          type,
+          rpcAttributes & {
+            /** Whether the transport coordinates native multisig approvals. */
+            multisig: true
+          },
+          eip1193RequestFn
+        >
+      : never
+}
 
 /**
  * Creates a relay transport that routes requests between
@@ -87,6 +149,8 @@ export type Relay = Transport<typeof withRelay.type>
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
+ * Multisig approvals, configs, operations, and operation-aware transaction
+ * lookups are also sent to the relay so it can coordinate approvals in its store.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
@@ -108,11 +172,58 @@ export function withRelay(
     const transport_default = defaultTransport(config)
     const transport_relay = relayTransport(config)
 
-    return createTransport({
+    const transport = createTransport({
       key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction')
+          return transport_relay.request({ method, params }, options) as never
+
+        if (
+          method === 'eth_getTransactionByHash' ||
+          method === 'eth_getTransactionReceipt'
+        ) {
+          const result = await transport_default.request(
+            { method, params },
+            options,
+          )
+          if (result !== null && typeof result !== 'undefined')
+            return result as never
+
+          const operation = await (async () => {
+            try {
+              return await transport_relay.request(
+                { method: 'multisig_getOperation', params },
+                options,
+              )
+            } catch (error) {
+              if (
+                error instanceof MethodNotFoundRpcError ||
+                error instanceof MethodNotSupportedRpcError
+              ) {
+                // Relays created before multisig coordination do not expose this method.
+                return null
+              }
+              throw error
+            }
+          })()
+          if (
+            !operation ||
+            typeof operation !== 'object' ||
+            !('type' in operation) ||
+            operation.type !== 'transaction'
+          )
+            return result as never
+          return transport_relay.request({ method, params }, options) as never
+        }
+
+        if (
+          method === 'multisig_approveKeyAuthorization' ||
+          method === 'multisig_approveRawTransaction' ||
+          method === 'multisig_approveRawTransactionSync' ||
+          method === 'multisig_getConfig' ||
+          method === 'multisig_getOperation'
+        )
           return transport_relay.request({ method, params }, options) as never
 
         if (
@@ -121,6 +232,9 @@ export function withRelay(
         ) {
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
+
+          if (transaction.signature?.type === 'multisig')
+            return transport_relay.request({ method, params }, options) as never
 
           // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
           // signature until the relay co-signs the transaction.
@@ -159,6 +273,7 @@ export function withRelay(
       },
       type: withRelay.type,
     })
+    return { ...transport, value: { multisig: true } }
   }
 }
 

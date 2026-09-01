@@ -301,6 +301,8 @@ export async function registerMasterSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = registerMaster.extractEvent(receipt.logs)
   return {
     ...args,

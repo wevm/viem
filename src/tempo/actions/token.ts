@@ -254,6 +254,8 @@ export async function approveSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = approve.extractEvent(receipt.logs)
   return {
     ...args,
@@ -469,6 +471,8 @@ export async function burnBlockedSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burnBlocked.extractEvent(receipt.logs)
   return {
     ...args,
@@ -686,6 +690,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -890,6 +896,8 @@ export async function changeTransferPolicySync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = changeTransferPolicy.extractEvent(receipt.logs)
   return {
     ...args,
@@ -1156,6 +1164,9 @@ export async function createSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
 
   const { args } = create.extractEvent(receipt.logs)
   const tokenId = TokenId.fromAddress(args.token)
@@ -2068,6 +2079,8 @@ export async function grantRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = grantRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -2286,6 +2299,8 @@ export async function mintSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -2485,6 +2500,8 @@ export async function pauseSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = pause.extractEvent(receipt.logs)
   return {
     ...args,
@@ -2694,6 +2711,8 @@ export async function renounceRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = renounceRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -2911,6 +2930,8 @@ export async function revokeRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = revokeRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -3112,6 +3133,8 @@ export async function setSupplyCapSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setSupplyCap.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3318,6 +3341,8 @@ export async function setRoleAdminSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setRoleAdmin.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3568,6 +3593,8 @@ export async function transferSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = transfer.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3769,6 +3796,8 @@ export async function unpauseSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = unpause.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3968,6 +3997,8 @@ export async function prepareUpdateQuoteTokenSync<
     client,
     parameters,
   )
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = prepareUpdateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -4167,6 +4198,8 @@ export async function updateQuoteTokenSync<
     client,
     parameters,
   )
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,

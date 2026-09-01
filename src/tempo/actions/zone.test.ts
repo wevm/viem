@@ -38,7 +38,7 @@ import {
 } from '~test/tempo/zones.js'
 import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
-import * as Storage from '../Storage.js'
+import * as Store from '../Store.js'
 import * as tokenActions from './token.js'
 import * as zoneActions from './zone.js'
 
@@ -270,22 +270,22 @@ describe('signAuthorizationToken', () => {
     expect(BigInt(blockNumber)).toBeGreaterThanOrEqual(0n)
   })
 
-  test('behavior: custom issuedAt/expiresAt/storage', async () => {
-    const storage = Storage.memory()
+  test('behavior: custom issuedAt/expiresAt/store', async () => {
+    const store = Store.memory()
     const issuedAt = Math.floor(Date.now() / 1000) - 100
     const expiresAt = issuedAt + 300
 
     const result = await zoneActions.signAuthorizationToken(zoneClient, {
       issuedAt,
       expiresAt,
-      storage,
+      store,
       zoneId,
     })
 
     expect(result.authentication).toBeDefined()
     expect(result.token).toBeDefined()
 
-    const stored = await storage.getItem(`auth:token:${zoneClient.chain.id}`)
+    const stored = await store.getItem(`auth:token:${zoneClient.chain.id}`)
     expect(stored).toBe(result.token)
   })
 
@@ -1173,6 +1173,8 @@ describe('earn', () => {
           zoneId,
         },
       )
+      if (assetDeposit.receipt.status === 'pending')
+        throw new Error('Expected submitted deposit receipt.')
       await Actions.zone.waitForTempoBlock(zoneClient, {
         pollingInterval: 100,
         tempoBlockNumber: assetDeposit.receipt.blockNumber,
