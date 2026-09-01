@@ -137,7 +137,7 @@ export function hexToBigInt(hex: Hex, opts: HexToBigIntOpts = {}): bigint {
   const value = BigInt(hex)
   if (!signed) return value
 
-  const size = (hex.length - 2) / 2
+  const size = Math.ceil((hex.length - 2) / 2)
   const max = (1n << (BigInt(size) * 8n - 1n)) - 1n
   if (value <= max) return value
 
