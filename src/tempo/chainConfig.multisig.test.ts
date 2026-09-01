@@ -210,7 +210,7 @@ describe('prepareTransactionRequest', () => {
         account: Account.fromMultisig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],
-      }),
+      } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: A Tempo owner account is required to approve a multisig transaction.]`,
     )

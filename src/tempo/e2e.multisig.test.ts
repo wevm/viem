@@ -1776,7 +1776,7 @@ describe('stateful', () => {
         account: account,
         calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
         owner: owner.address,
-      }),
+      } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
       [TransactionExecutionError: An error occurred.
@@ -1820,7 +1820,7 @@ describe('stateful', () => {
         account,
         hash: pending.transactionHash,
         owner: accessKey,
-      }),
+      } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionExecutionError: An error occurred.
 
@@ -3089,24 +3089,39 @@ describe('stateful', () => {
     const operation = await OperationStore.read(store, pending.transactionHash)
     if (operation?.type !== 'transaction' || operation.status !== 'pending')
       throw new Error('Expected pending transaction operation.')
+    const approvals = await MultisigOperation.selectApprovals({
+      account: operation.account,
+      approvals: [
+        ...operation.approvals,
+        SignatureEnvelope.serialize(
+          SignatureEnvelope.from(await owner_2.sign({ hash: operation.hash })),
+        ),
+      ],
+      config: operation.config,
+      hash: operation.hash,
+    })
+    const submitting = MultisigOperation.from({
+      ...operation,
+      approvals: approvals.approvals,
+      expiresAt: 0,
+      signatureCount: approvals.signatureCount,
+      status: 'submitting',
+      submissionId,
+      updatedAt: Date.now(),
+      weight: approvals.weight,
+    })
     await OperationStore.writeSubmission(
       store,
       operation.hash,
       submissionId,
-      MultisigOperation.serializeTransaction(operation, {
-        approvals: operation.approvals,
+      MultisigOperation.serializeTransaction(submitting, {
+        approvals: approvals.selectedApprovals,
       }),
     )
     await OperationStore.update(store, operation.hash, (current) => {
       if (current?.type !== 'transaction')
         throw new Error('Expected transaction operation.')
-      return MultisigOperation.from({
-        ...current,
-        expiresAt: 0,
-        status: 'submitting',
-        submissionId,
-        updatedAt: Date.now(),
-      })
+      return submitting
     })
     const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
     expect(await store.getItem(submissionKey)).toBeTypeOf('string')
