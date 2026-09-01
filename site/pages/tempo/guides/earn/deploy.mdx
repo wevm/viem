@@ -12,9 +12,9 @@ An ERC-4626 Earn deployment uses two factories. First, the engine factory deploy
 the Earn factory creates EarnShare, EarnVault, and EarnFees. Finally, the engine's owner binds it to
 the new vault.
 
-Earn deployment is experimental and has no canonical factory addresses. Use a reviewed factory pair
-from the same release. The recipe verifies contract code, Tempo's TIP-20 factory, and the deployed
-topology, but it cannot verify a release from an address alone.
+Viem publishes the canonical factory pair for Tempo mainnet and testnet. The recipe verifies
+contract code, Tempo's TIP-20 factory, and the deployed topology, but it cannot verify a release
+from an address alone.
 
 ## Recipes
 
@@ -35,8 +35,8 @@ const deploymentId = keccak256(toHex('acme-usd-v1'))
 const result = await client.earn.deployErc4626StackSync({
   deploymentId,
   factories: {
-    earn: '0x0000000000000000000000000000000000000001',
-    erc4626Engine: '0x0000000000000000000000000000000000000002',
+    earn: client.chain.contracts.earnFactory.address,
+    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
   },
   venue: '0x0000000000000000000000000000000000000003',
 })
@@ -71,8 +71,8 @@ const result = await client.earn.deployErc4626StackSync({
   bindingAccount: owner,
   deploymentId: keccak256(toHex('acme-usd-owner-v1')),
   factories: {
-    earn: '0x0000000000000000000000000000000000000001',
-    erc4626Engine: '0x0000000000000000000000000000000000000002',
+    earn: client.chain.contracts.earnFactory.address,
+    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
   },
   owner,
   venue: '0x0000000000000000000000000000000000000003',
@@ -104,8 +104,8 @@ import { client } from './viem.config'
 const parameters = {
   deploymentId: keccak256(toHex('acme-usd-v1')),
   factories: {
-    earn: '0x0000000000000000000000000000000000000001',
-    erc4626Engine: '0x0000000000000000000000000000000000000002',
+    earn: client.chain.contracts.earnFactory.address,
+    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
   },
   venue: '0x0000000000000000000000000000000000000003',
 } as const

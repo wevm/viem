@@ -14,8 +14,8 @@ import { client } from './viem.config'
 const result = await client.earn.deployErc4626StackSync({
   deploymentId: keccak256(toHex('acme-usd-v1')),
   factories: {
-    earn: '0x0000000000000000000000000000000000000001',
-    erc4626Engine: '0x0000000000000000000000000000000000000002',
+    earn: client.chain.contracts.earnFactory.address,
+    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
   },
   venue: '0x0000000000000000000000000000000000000003',
 })
@@ -32,8 +32,8 @@ The recipe simulates each missing write, verifies existing deployments, and skip
 Persist the returned addresses after every run. If a transaction fails, `DeployErc4626StackError`
 includes `stage`, `state`, and any receipts produced by the run. Pass `state` back through `resume`.
 
-No factory addresses are built in while Earn is experimental. Both addresses must come from the
-same reviewed Earn release.
+Canonical Tempo factory addresses are available from the chain's `contracts` metadata. Pass the
+pair explicitly so the deployment release remains visible at the call site.
 
 ## Return Value
 
@@ -66,7 +66,8 @@ A required, nonzero 32-byte identifier. The recipe does not generate random iden
 
 - **Type:** `EarnFactoryAddresses`
 
-Explicit reviewed engine and Earn factory addresses from one release.
+Explicit engine and Earn factory addresses from one release. Canonical Tempo addresses are
+available from `client.chain.contracts`.
 
 ### venue
 
