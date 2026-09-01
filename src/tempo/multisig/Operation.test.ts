@@ -540,7 +540,7 @@ describe('InvalidStoreValueError', () => {
     expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
       [Multisig.Operation.InvalidStoreValueError: Stored multisig operation is malformed or unsupported.
 
-      Version: viem@2.56.1]
+      Version: viem@x.y.z]
     `)
   })
 
