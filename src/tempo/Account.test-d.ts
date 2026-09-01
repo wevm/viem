@@ -6,10 +6,10 @@ const owner = Account.fromSecp256k1(
 )
 
 test('fromMultisig preserves config availability', () => {
-  const initial = Account.fromMultisig({
-    address: 'infer',
+  const config = {
     owners: [owner],
-  })
+  } satisfies Account.fromMultisig.Config
+  const initial = Account.fromMultisig(config)
   const normalizedInitial = Account.fromMultisig({
     address: 'infer',
     ...MultisigConfig.from({
@@ -33,6 +33,7 @@ test('fromMultisig preserves config availability', () => {
 })
 
 test('fromMultisig distinguishes initial and current configs', () => {
+  Account.fromMultisig({ owners: [owner] })
   Account.fromMultisig({ address: 'infer', owners: [owner] })
   // @ts-expect-error Current configs require `salt`.
   Account.fromMultisig({
@@ -41,8 +42,6 @@ test('fromMultisig distinguishes initial and current configs', () => {
     threshold: 1,
     version: 1,
   })
-  // @ts-expect-error Initial configs use the `infer` address sentinel.
-  Account.fromMultisig({ owners: [owner] })
   // @ts-expect-error Address-only accounts use the string overload.
   Account.fromMultisig({
     address: owner.address,

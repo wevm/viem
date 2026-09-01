@@ -1,7 +1,7 @@
 # `Store.memory`
 
-Creates an in-memory store backed by a `Map`. It supports atomic `compareAndSet` within the
-current process.
+Creates an in-memory store backed by a `Map`. It supports atomic `compareAndSet` and removes
+expired compare-and-set values when they are read within the current process.
 
 ## Usage
 

@@ -24,7 +24,6 @@ describe('fromMultisig', () => {
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromMultisig({
-      address: 'infer',
       owners: [owner],
     })
 

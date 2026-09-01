@@ -15,6 +15,7 @@ type CompareAndSet = (
   key: string,
   expected: string | null,
   value: string,
+  options?: { expiresAt?: number },
 ) => MaybePromise<boolean>
 
 type Store = {
@@ -34,6 +35,10 @@ type Atomic = Store & {
 Atomically replaces the current value when it equals `expected`. Multisig coordination uses this
 method to preserve approvals submitted concurrently. A store passed to multisig coordination must
 implement `compareAndSet` and satisfy `Store.Atomic`.
+
+Set `options.expiresAt` to a Unix timestamp in milliseconds to expire the replacement value.
+Omitting `expiresAt` stores the value until another write or removal. An atomic store must apply
+the comparison, replacement, and expiration in one operation.
 
 ## See Also
 

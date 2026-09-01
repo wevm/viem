@@ -2,13 +2,22 @@ import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
 describe('Store.memory', () => {
-  test('compareAndSet', async () => {
+  test('behavior: compareAndSet', async () => {
     const store = Store.memory()
 
     expect(await store.compareAndSet?.('key', null, 'one')).toBe(true)
     expect(await store.compareAndSet?.('key', null, 'two')).toBe(false)
     expect(await store.compareAndSet?.('key', 'one', 'two')).toBe(true)
     expect(await store.getItem('key')).toBe('two')
+  })
+
+  test('behavior: expires compare-and-set values', async () => {
+    const store = Store.memory()
+
+    expect(
+      await store.compareAndSet('key', null, 'value', { expiresAt: 0 }),
+    ).toBe(true)
+    expect(await store.getItem('key')).toBeNull()
   })
 
   test('getItem returns null for missing keys', async () => {
@@ -79,6 +88,16 @@ describe('Store.from', () => {
 
     expect(await store.compareAndSet?.('foo', null, 'bar')).toBe(true)
     expect(await base.getItem('tempo:foo')).toBe('bar')
+  })
+
+  test('behavior: forwards compare-and-set expiration', async () => {
+    const base = Store.memory()
+    const store = Store.from(base, { key: 'tempo' })
+
+    expect(
+      await store.compareAndSet?.('foo', null, 'bar', { expiresAt: 0 }),
+    ).toBe(true)
+    expect(await base.getItem('tempo:foo')).toBeNull()
   })
 
   test('prefixes keys', async () => {

@@ -21,6 +21,8 @@ const handleRequest = Multisig.handleRequest(
 ```
 
 Use a shared persistent store in production. The in-memory store is process-local.
+Incomplete operations expire after 30 days without an approval or submission update. Successful
+operations remain available until the store removes them.
 
 ## Parameters
 

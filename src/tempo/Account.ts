@@ -277,10 +277,10 @@ export declare namespace fromSecp256k1 {
 /**
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * The returned account does not hold a key itself. Set `address` to `infer`
- * to derive an account address from its initial config. For a current config,
- * set `address` to the stable account address. Pass the address
- * directly for an address-only account.
+ * The returned account does not hold a key itself. Omit `address` or set it to
+ * `infer` to derive an account address from its initial config. For a current
+ * config, set `address` to the stable account address. Pass the address directly
+ * for an address-only account.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
@@ -343,15 +343,23 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     })
   })()
   if (typeof value !== 'string') {
-    if (value.address === 'infer' && config!.version !== 0n)
+    if (
+      (value.address === undefined || value.address === 'infer') &&
+      config!.version !== 0n
+    )
       throw new Error('An initial multisig config must have version zero.')
-    if (value.address !== 'infer' && config!.version === 0n)
+    if (
+      value.address !== undefined &&
+      value.address !== 'infer' &&
+      config!.version === 0n
+    )
       throw new Error('A current multisig config must have a version.')
   }
   const address = Address.checksum(
     (() => {
       if (typeof value === 'string') return value
-      if (value.address === 'infer') return MultisigConfig.getAddress(config!)
+      if (value.address === undefined || value.address === 'infer')
+        return MultisigConfig.getAddress(config!)
       return value.address
     })(),
   )
@@ -452,6 +460,9 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
 }
 
 export declare namespace fromMultisig {
+  /** Initial version-zero multisig config. */
+  export type Config = InitialConfig
+
   /** Stable multisig account address and its current config. */
   export type CurrentConfig = {
     /** Stable multisig account address. */
@@ -469,7 +480,7 @@ export declare namespace fromMultisig {
   /** Initial version-zero multisig config. */
   export type InitialConfig = {
     /** Derives the stable account address from this initial config. */
-    address: 'infer'
+    address?: 'infer' | undefined
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */

@@ -291,12 +291,12 @@ describe('update', () => {
     const memory = Store.memory()
     let conflict = true
     const store = Store.from({
-      async compareAndSet(key, expected, value) {
+      async compareAndSet(key, expected, value, options) {
         if (conflict) {
           conflict = false
           return false
         }
-        return await memory.compareAndSet(key, expected, value)
+        return await memory.compareAndSet(key, expected, value, options)
       },
       getItem: (key) => memory.getItem(key),
       removeItem: (key) => memory.removeItem(key),
@@ -307,6 +307,38 @@ describe('update', () => {
       Operation.update(store, hash, () => operation),
     ).resolves.toStrictEqual(operation)
     await expect(Operation.read(store, hash)).resolves.toStrictEqual(operation)
+  })
+
+  test('behavior: expires incomplete operations', async () => {
+    const memory = Store.memory()
+    const expirations: (number | undefined)[] = []
+    const store = Store.from({
+      compareAndSet(key, expected, value, options) {
+        expirations.push(options?.expiresAt)
+        return memory.compareAndSet(key, expected, value, options)
+      },
+      getItem: (key) => memory.getItem(key),
+      removeItem: (key) => memory.removeItem(key),
+      setItem: (key, value) => memory.setItem(key, value),
+    })
+    const before = Date.now()
+
+    await Operation.update(store, hash, () => operation)
+    await Operation.update(store, hash, () =>
+      MultisigOperation.from({
+        ...operation,
+        approvals: owners.map((owner) => owner.signature),
+        signatureCount: 2,
+        status: 'success',
+        transactionHash: `0x${'aa'.repeat(32)}`,
+        weight: 2,
+      }),
+    )
+
+    expect(expirations[0]).toBeGreaterThanOrEqual(
+      before + 30 * 24 * 60 * 60 * 1_000,
+    )
+    expect(expirations[1]).toBeUndefined()
   })
 
   test('error: repeated compare-and-set conflicts', async () => {

@@ -280,6 +280,7 @@ async function submit(options: submit.Options) {
       message: 'A multisig approval envelope must include a signature.',
     })
   const now = Date.now()
+  const expiredSubmissionIds = new Set<Hex.Hex>()
   const operation = await OperationStore.update(
     options.store,
     operationHash,
@@ -289,6 +290,8 @@ async function submit(options: submit.Options) {
       if (existing?.status === 'success') return existing
       if (existing?.status === 'submitting' && existing.expiresAt! > now)
         return existing
+      if (existing?.status === 'submitting')
+        expiredSubmissionIds.add(existing.submissionId!)
       const existingApprovals = existing
         ? await selectApprovals({
             account: signature.account,
@@ -329,6 +332,15 @@ async function submit(options: submit.Options) {
       })
     },
   )
+
+  for (const submissionId of expiredSubmissionIds) {
+    if (
+      operation.status === 'submitting' &&
+      operation.submissionId?.toLowerCase() === submissionId.toLowerCase()
+    )
+      continue
+    await removeSettledSubmission(options.store, operationHash, submissionId)
+  }
 
   await ConfigStore.write(options.store, {
     address: signature.account,

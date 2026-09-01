@@ -16,11 +16,20 @@ export type CompareAndSet = (
   key: string,
   expected: string | null,
   value: string,
+  options?: CompareAndSet.Options | undefined,
 ) => MaybePromise<boolean>
+
+export declare namespace CompareAndSet {
+  /** Compare-and-set options. */
+  export type Options = {
+    /** Unix timestamp in milliseconds after which the value expires. */
+    expiresAt?: number | undefined
+  }
+}
 
 /** Store with atomic compare-and-set support. */
 export type Atomic = Store & {
-  /** Atomically replaces `expected` with `value`. */
+  /** Atomically replaces `expected` with `value` and applies its expiration. */
   compareAndSet: CompareAndSet
 }
 
@@ -47,10 +56,10 @@ export function from(store: Store, options: from.Options = {}): Store {
   return {
     ...(compareAndSet
       ? {
-          compareAndSet(k, expected, value) {
+          compareAndSet(k, expected, value, options) {
             const fullKey = `${prefix}${k}`
             inflight.delete(fullKey)
-            return compareAndSet(fullKey, expected, value)
+            return compareAndSet(fullKey, expected, value, options)
           },
         }
       : {}),
@@ -87,19 +96,30 @@ export declare namespace from {
 
 /** Creates an in-memory store backed by a `Map`. */
 export function memory(options: from.Options = {}): Atomic {
-  const store = new Map<string, string>()
+  const store = new Map<
+    string,
+    { expiresAt: number | undefined; value: string }
+  >()
+  const get = (key: string) => {
+    const entry = store.get(key)
+    if (!entry) return undefined
+    if (entry.expiresAt === undefined || entry.expiresAt > Date.now())
+      return entry
+    store.delete(key)
+    return undefined
+  }
   return from(
     {
-      compareAndSet(key, expected, value) {
-        if ((store.get(key) ?? null) !== expected) return false
-        store.set(key, value)
+      compareAndSet(key, expected, value, options) {
+        if ((get(key)?.value ?? null) !== expected) return false
+        store.set(key, { expiresAt: options?.expiresAt, value })
         return true
       },
       getItem(key) {
-        return store.get(key) ?? null
+        return get(key)?.value ?? null
       },
       setItem(key, value) {
-        store.set(key, value)
+        store.set(key, { expiresAt: undefined, value })
       },
       removeItem(key) {
         store.delete(key)

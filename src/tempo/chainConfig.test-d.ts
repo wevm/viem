@@ -1,6 +1,7 @@
 import { MultisigConfig, type MultisigSimulation } from 'ox/tempo'
-import { Account } from 'viem/tempo'
+import { Account, type Transaction } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
+import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
 import { tempoLocalnet } from '../chains/index.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
@@ -59,6 +60,37 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
   expectTypeOf(request_multisig.multisigSimulation).toEqualTypeOf<
     MultisigSimulation.Spec | undefined
   >()
+})
+
+test('behavior: prepareTransactionRequest rejects unsupported multisig owners', async () => {
+  const client = createWalletClient({
+    account: '0x',
+    chain: tempoLocalnet,
+    transport: http(),
+  })
+  const account = Account.fromMultisig({
+    owners: [Account.fromSecp256k1(`0x${'1'.repeat(64)}`)],
+  })
+
+  await prepareTransactionRequest(client, {
+    account,
+    // @ts-expect-error Multisig owners must be local Tempo owner accounts.
+    owner: account.address,
+  })
+  await prepareTransactionRequest(client, {
+    account,
+    // @ts-expect-error Ethereum accounts cannot approve Tempo multisig transactions.
+    owner: privateKeyToAccount(`0x${'2'.repeat(64)}`),
+  })
+})
+
+test('behavior: Tempo transaction owners are local Tempo accounts', () => {
+  expectTypeOf<Transaction.TransactionRequestTempo['owner']>().toEqualTypeOf<
+    Account.MultisigAccount | Account.RootAccount | undefined
+  >()
+  expectTypeOf<
+    Transaction.TransactionSerializableTempo['owner']
+  >().toEqualTypeOf<Account.MultisigAccount | Account.RootAccount | undefined>()
 })
 
 test('prepareTransactionRequest stays a union when ambiguous', async () => {

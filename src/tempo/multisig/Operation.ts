@@ -10,6 +10,9 @@ const maxStoredValueLength = 1_048_576
 /** Prevents sustained compare-and-set contention from retrying indefinitely. */
 const maxUpdateAttempts = 32
 
+/** Bounds abandoned operation state while allowing long-lived approval ceremonies. */
+const pendingOperationTtl = 30 * 24 * 60 * 60 * 1_000
+
 /** Reads a persisted multisig operation. */
 export async function read(
   store: Store.Store,
@@ -47,7 +50,11 @@ export async function update(
     if (next.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
     const serialized = serialize(next)
-    if (await store.compareAndSet(key, value, serialized)) return next
+    const options =
+      next.status === 'success'
+        ? undefined
+        : { expiresAt: Date.now() + pendingOperationTtl }
+    if (await store.compareAndSet(key, value, serialized, options)) return next
   }
   throw new StoreConflictError()
 }
@@ -92,7 +99,7 @@ export async function removeSubmission(
 
 /** Persists the final envelope before broadcast so recovery uses the exact transaction. */
 export async function writeSubmission(
-  store: Store.Store,
+  store: Store.Atomic,
   hash: Hex.Hex,
   submissionId: Hex.Hex,
   transaction: TxEnvelopeTempo.Serialized,
@@ -103,7 +110,13 @@ export async function writeSubmission(
     const envelope = TxEnvelopeTempo.deserialize(transaction)
     if (!envelope.signature) throw new InvalidStoreValueError()
     TxEnvelopeTempo.hash(envelope as TxEnvelopeTempo.Signed)
-    await store.setItem(submissionKey(hash, submissionId), transaction)
+    const written = await store.compareAndSet(
+      submissionKey(hash, submissionId),
+      null,
+      transaction,
+      { expiresAt: Date.now() + pendingOperationTtl },
+    )
+    if (!written) throw new InvalidStoreValueError()
   } catch (cause) {
     if (cause instanceof InvalidStoreValueError) throw cause
     throw new InvalidStoreValueError({ cause })

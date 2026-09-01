@@ -3058,6 +3058,71 @@ describe('stateful', () => {
     ).resolves.toMatchInlineSnapshot(`null`)
   })
 
+  test('behavior: removes an expired submission before retrying', async () => {
+    const owner_1 = tempo.accounts[14]
+    const owner_2 = tempo.accounts[15]
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x10613d, { size: 32 }),
+      threshold: 2,
+    })
+    const store = Store.memory()
+    const client = createClient({
+      chain: tempoLocalnet,
+      experimental_multisig: { store },
+      tokens: tempo.tokens,
+      transport: tempo.http(),
+    })
+    const submissionId = `0x${'cc'.repeat(32)}` as const
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const pending = await sendTransactionSync(client, {
+      account,
+      calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
+      owner: owner_1,
+    })
+    const operation = await OperationStore.read(store, pending.transactionHash)
+    if (operation?.type !== 'transaction' || operation.status !== 'pending')
+      throw new Error('Expected pending transaction operation.')
+    await OperationStore.writeSubmission(
+      store,
+      operation.hash,
+      submissionId,
+      MultisigOperation.serializeTransaction(operation, {
+        approvals: operation.approvals,
+      }),
+    )
+    await OperationStore.update(store, operation.hash, (current) => {
+      if (current?.type !== 'transaction')
+        throw new Error('Expected transaction operation.')
+      return MultisigOperation.from({
+        ...current,
+        expiresAt: 0,
+        status: 'submitting',
+        submissionId,
+        updatedAt: Date.now(),
+      })
+    })
+    const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
+    expect(await store.getItem(submissionKey)).toBeTypeOf('string')
+
+    const receipt = await sendTransactionSync(client, {
+      account,
+      hash: operation.hash,
+      owner: owner_2,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    await expect(store.getItem(submissionKey)).resolves.toMatchInlineSnapshot(
+      `null`,
+    )
+  })
+
   test('behavior: reconciles a successful broadcast after a transport error', async () => {
     const owner_1 = tempo.accounts[5]
     const owner_2 = tempo.accounts[6]
@@ -3135,8 +3200,8 @@ describe('stateful', () => {
     })
     const backing = Store.memory()
     const store: Store.Atomic = {
-      compareAndSet(key, expected, value) {
-        return backing.compareAndSet(key, expected, value)
+      compareAndSet(key, expected, value, options) {
+        return backing.compareAndSet(key, expected, value, options)
       },
       getItem(key) {
         return backing.getItem(key)

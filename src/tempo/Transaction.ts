@@ -42,7 +42,7 @@ import {
   parseTransaction as viem_parseTransaction,
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
-import type { MultisigAccount } from './Account.js'
+import type { MultisigAccount, RootAccount } from './Account.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -135,7 +135,7 @@ export type TransactionRequestTempo<
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
-    owner?: Account | MultisigAccount | Address | undefined
+    owner?: MultisigAccount | RootAccount | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -159,7 +159,7 @@ export type TransactionSerializableTempo<
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: quantity | undefined
-    owner?: Account | MultisigAccount | Address | undefined
+    owner?: MultisigAccount | RootAccount | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
