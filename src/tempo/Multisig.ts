@@ -44,14 +44,19 @@ export function handleRequest(
       message:
         'Multisig coordination requires a store with atomic `compareAndSet`.',
     })
-  const client = createClient({
-    transport: custom({
-      request: ({ method, params }, options) =>
-        next({ method, params }, options),
-    }),
-  })
+  return async (request, requestOptions_) => {
+    const requestOptions = await resolveRequestOptions({
+      request,
+      requestOptions: requestOptions_,
+      store: parameters.store,
+    })
+    const client = createClient({
+      transport: custom({
+        request: ({ method, params }, options) =>
+          next({ method, params }, { ...requestOptions, ...options }),
+      }),
+    })
 
-  return async (request, requestOptions) => {
     if (request.method === 'multisig_getConfig') {
       const value = request.params?.[0]
       const address =
@@ -200,7 +205,7 @@ export declare namespace handleRequest {
   /** RPC request handler. */
   export type Handler = (
     request: Request,
-    options?: EIP1193RequestOptions | undefined,
+    options?: RequestOptions | undefined,
   ) => Promise<unknown>
 
   /** RPC request passed to a handler. */
@@ -209,6 +214,12 @@ export declare namespace handleRequest {
     method: string
     /** RPC method parameters. */
     params?: readonly unknown[] | undefined
+  }
+
+  /** Options for one handled request. */
+  export type RequestOptions = EIP1193RequestOptions & {
+    /** Chain selected by the caller or inferred from the multisig request. */
+    chainId?: number | undefined
   }
 
   /** Parameters for {@link handleRequest}. */
@@ -555,7 +566,7 @@ declare namespace submit {
     /** Original RPC request. */
     request: handleRequest.Request
     /** Original request overrides. */
-    requestOptions?: EIP1193RequestOptions | undefined
+    requestOptions?: handleRequest.RequestOptions | undefined
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
     /** Shared multisig store. */
@@ -1338,6 +1349,136 @@ function getTransactionHash(result: unknown): Hex.Hex {
   )
     return result.transactionHash
   throw new Error('Expected transaction hash in multisig broadcast result.')
+}
+
+/** Resolves and validates the chain used by a handled request. */
+async function resolveRequestOptions(options: {
+  request: handleRequest.Request
+  requestOptions?: handleRequest.RequestOptions | undefined
+  store: Store.Store
+}): Promise<handleRequest.RequestOptions | undefined> {
+  const { request, requestOptions, store } = options
+  const chainId_explicit = requestOptions?.chainId
+  if (
+    chainId_explicit !== undefined &&
+    (!Number.isSafeInteger(chainId_explicit) || chainId_explicit <= 0)
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a valid chain ID.',
+    })
+  const chainId_request = await resolveRequestChainId(request, store)
+  if (
+    chainId_explicit !== undefined &&
+    chainId_request !== undefined &&
+    chainId_explicit !== chainId_request
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Conflicting chain ids.',
+    })
+  const chainId = chainId_explicit ?? chainId_request
+  if (chainId === undefined) return requestOptions
+  return { ...requestOptions, chainId }
+}
+
+/** Resolves a chain from request fields, envelopes, or stored operations. */
+async function resolveRequestChainId(
+  request: handleRequest.Request,
+  store: Store.Store,
+) {
+  const value = request.params?.[0]
+  const chainId_body =
+    value && typeof value === 'object' && 'chainId' in value
+      ? parseChainId(value.chainId)
+      : undefined
+  const chainId_multisig = await (async () => {
+    if (
+      request.method === 'eth_sendRawTransaction' ||
+      request.method === 'eth_sendRawTransactionSync' ||
+      request.method === 'multisig_approveRawTransaction' ||
+      request.method === 'multisig_approveRawTransactionSync'
+    ) {
+      if (!isSerializedTempoTransaction(value)) return undefined
+      try {
+        return parseChainId(Transaction.deserialize(value).chainId)
+      } catch {
+        return undefined
+      }
+    }
+
+    if (
+      request.method === 'multisig_approveKeyAuthorization' &&
+      value &&
+      typeof value === 'object' &&
+      'keyAuthorization' in value
+    ) {
+      try {
+        return parseChainId(
+          KeyAuthorization.fromRpc(
+            value.keyAuthorization as KeyAuthorization.Rpc,
+          ).chainId,
+        )
+      } catch {
+        return undefined
+      }
+    }
+
+    const hash = (() => {
+      if (
+        request.method === 'eth_getTransactionByHash' ||
+        request.method === 'eth_getTransactionReceipt'
+      )
+        return value
+      if (
+        request.method === 'multisig_approveKeyAuthorization' &&
+        value &&
+        typeof value === 'object' &&
+        'hash' in value
+      )
+        return value.hash
+      return undefined
+    })()
+    if (typeof hash !== 'string' || !Hash.validate(hash)) return undefined
+    const operation = await OperationStore.read(store, hash)
+    if (!operation) return undefined
+    if (operation.type === 'transaction')
+      return parseChainId(
+        Transaction.deserialize(
+          operation.transaction as Transaction.TransactionSerializedTempo,
+        ).chainId,
+      )
+    return parseChainId(
+      KeyAuthorization.deserialize(operation.keyAuthorization).chainId,
+    )
+  })()
+
+  if (
+    chainId_body !== undefined &&
+    chainId_multisig !== undefined &&
+    chainId_body !== chainId_multisig
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Conflicting chain ids.',
+    })
+  return chainId_body ?? chainId_multisig
+}
+
+/** Parses a supported chain ID representation. */
+function parseChainId(value: unknown) {
+  const chainId = (() => {
+    if (typeof value === 'number') return value
+    if (typeof value === 'bigint') return Number(value)
+    if (typeof value === 'string' && Hex.validate(value)) {
+      try {
+        return Hex.toNumber(value)
+      } catch {
+        return undefined
+      }
+    }
+    return undefined
+  })()
+  if (chainId === undefined || !Number.isSafeInteger(chainId) || chainId <= 0)
+    return undefined
+  return chainId
 }
 
 /** Checks whether a value is a serialized Tempo transaction. */

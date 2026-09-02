@@ -15,7 +15,7 @@ import { Multisig, Store } from 'viem/tempo'
 
 const store = Store.memory()
 const handleRequest = Multisig.handleRequest(
-  (request) => rpc.request(request),
+  (request, options) => getClient(options?.chainId).request(request),
   { store },
 )
 ```
@@ -24,13 +24,25 @@ Use a shared persistent store in production. The in-memory store is process-loca
 Incomplete operations expire after 30 days without an approval or submission update. Successful
 operations remain available until the store removes them.
 
+The handler resolves the chain from raw transactions, key authorizations, and stored operations.
+It passes the resolved `chainId` to the downstream handler through the request options. Pass an
+explicit `chainId` when the surrounding route selects a chain:
+
+```ts
+await handleRequest(request, { chainId: 4217 })
+```
+
+The handler rejects a request when the explicit chain conflicts with its signed payload or stored
+operation.
+
 ## Parameters
 
 ### next
 
-- **Type:** `(request) => Promise<unknown>`
+- **Type:** `(request, options) => Promise<unknown>`
 
 The downstream RPC request handler used for configuration reads and final transaction submission.
+`options.chainId` contains the selected chain when the request identifies one.
 
 ### store
 
