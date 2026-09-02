@@ -37,7 +37,8 @@ export type Eip8130Deployment = {
      * Optional unaudited BackwardsCompatible4337Account example implementation
      * (`DefaultAccount` + `validateUserOp`). Lets an account run on non-native
      * chains via a bundler + EntryPoint at the same address; the EntryPoint is
-     * registered as a trusted-executor actor (see {@link key.trustedExecutor}).
+     * registered as a k1 operational actor (see {@link key.k1} /
+     * {@link key.trustedExecutor}).
      * This is not deployed by base's canonical `Deploy.s.sol`.
      */
     erc4337?: Address | undefined

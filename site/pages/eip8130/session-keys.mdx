@@ -156,7 +156,7 @@ When a dApp asks a wallet for permissions via [ERC-7715](https://eips.ethereum.o
 - `role: 'session'` (default) — a **key on the account**. The protocol dispatches its calls as the account (`PolicyManager.execute`). Uses a secp256k1 (`k1`) actor.
 - `role: 'pull'` — an **external caller** (e.g. a subscription provider) that draws against the policy via `PolicyManager.executeFor` from its own address. Uses the `externalPolicyAuthenticator` sentinel actor, which can *only* act through the external-pull path.
 
-The single `expiry` drives **both** the actor authorization and the policy binding's `validUntil`, so they can't drift. The action also reads the account and, if the policy manager isn't yet a trusted-executor actor (required so its forwarded `executeBatch` can land), folds that one-time registration into `changes` — so a single `account.change(changes)` provisions the manager *and* authorizes the grantee:
+The single `expiry` drives **both** the actor authorization and the policy binding's `validUntil`, so they can't drift. The action also reads the account and, if the policy manager isn't yet a k1 operational actor (`key.k1(manager)`, required so its forwarded `executeBatch` can land), folds that one-time registration into `changes` — so a single `account.change(changes)` provisions the manager *and* authorizes the grantee:
 
 ```ts
 import { parseUnits } from 'viem'

@@ -136,7 +136,7 @@ const account = await toSmartAccount({
 })
 ```
 
-On a chain without native EIP-8130, the account must delegate to (or be deployed as) this ERC-4337 implementation, and its EntryPoint must be registered as a trusted-executor actor (`key.trustedExecutor(entryPoint)`) so it can drive `executeBatch`.
+On a chain without native EIP-8130, the account must delegate to (or be deployed as) this ERC-4337 implementation, and its EntryPoint must be registered as a k1 operational actor (`key.k1(entryPoint)` or `key.trustedExecutor(entryPoint)`, scope `actorScope.operator`) so it can drive `executeBatch`.
 
 ## Next
 

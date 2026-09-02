@@ -12,7 +12,7 @@ import { decodeAbiParameters } from '../utils/abi/decodeAbiParameters.js'
 import { encodeAbiParameters } from '../utils/abi/encodeAbiParameters.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
 import { getActorConfig } from './actions/getActorConfig.js'
-import { actorScope, trustedExecutorAuthenticator } from './constants.js'
+import { actorScope, ecrecoverAuthenticator } from './constants.js'
 import { authorizeActor, key } from './keys.js'
 import {
   type DefineSessionPolicyParameters,
@@ -296,8 +296,8 @@ export type FulfillGrantPermissionsParameters = Omit<
    */
   expiry?: number | bigint | undefined
   /**
-   * Skip the on-chain check for whether `manager` is registered as a
-   * trusted-executor actor on the account (assume it already is). When `false`
+   * Skip the on-chain check for whether `manager` is registered as a k1
+   * operational actor on the account (assume it already is). When `false`
    * (default), the account is read and a `managerChange` is included in `changes`
    * if the manager still needs registering. @default false
    */
@@ -314,10 +314,10 @@ export type FulfillGrantPermissionsReturnType = {
    */
   change: AaAuthorizeActor
   /**
-   * Present iff the `manager` was not yet registered as a trusted-executor actor
-   * on the account: the one-time `authorizeActor(key.trustedExecutor(manager),
-   * { scope: sender })` change the account needs so the manager's forwarded
-   * `executeBatch` can land. Already included in {@link changes}.
+   * Present iff the `manager` was not yet registered as a k1 operational actor
+   * on the account: the one-time `authorizeActor(key.k1(manager),
+   * { scope: actorScope.operator })` change the account needs so the manager's
+   * forwarded `executeBatch` can land. Already included in {@link changes}.
    */
   managerChange?: AaAuthorizeActor | undefined
   /**
@@ -355,11 +355,11 @@ export type FulfillGrantPermissionsErrorType = ToSessionPolicyConfigErrorType
  * ERC-7715 `expiry` drives both the binding `validUntil` and the actor `expiry`.
  *
  * For the manager's forwarded `executeBatch` to land, the account must register
- * the `manager` as a trusted-executor actor. This action reads the account and,
- * if that registration is missing, includes it as `managerChange` at the front
- * of `changes` — so a single `account.change(changes)` both provisions the
- * manager (once) and authorizes the grantee. Pass `assumeManagerRegistered:
- * true` to skip the read.
+ * the `manager` as a k1 operational actor (`key.k1(manager)` / `key.trustedExecutor`).
+ * This action reads the account and, if that registration is missing, includes
+ * it as `managerChange` at the front of `changes` — so a single
+ * `account.change(changes)` both provisions the manager (once) and authorizes
+ * the grantee. Pass `assumeManagerRegistered: true` to skip the read.
  *
  * @example
  * import { fulfillGrantPermissions } from 'viem/eip8130'
@@ -420,17 +420,17 @@ export async function fulfillGrantPermissions<
     expiry: expiryBig,
   })
 
-  // Ensure the manager is a trusted-executor actor so its forwarded
-  // `executeBatch` can drive the account; register it in the same batch if not.
+  // Ensure the manager is a live k1 operator so its forwarded `executeBatch`
+  // can drive the account (DefaultAccount after #101); register it if not.
   let managerChange: AaAuthorizeActor | undefined
   if (!assumeManagerRegistered) {
-    const managerActor = key.trustedExecutor(session.manager)
+    const managerActor = key.k1(session.manager)
     const { authenticator } = await getActorConfig(client, {
       account,
       actorId: managerActor.actorId,
     })
     const registered =
-      authenticator.toLowerCase() === trustedExecutorAuthenticator.toLowerCase()
+      authenticator.toLowerCase() === ecrecoverAuthenticator.toLowerCase()
     if (!registered)
       managerChange = authorizeActor(managerActor, {
         scope: actorScope.operator,

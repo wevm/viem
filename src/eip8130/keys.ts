@@ -10,7 +10,6 @@ import {
   ecrecoverAuthenticator,
   externalPolicyAuthenticator,
   scopeUnrestricted,
-  trustedExecutorAuthenticator,
 } from './constants.js'
 import type {
   AaActor,
@@ -74,17 +73,16 @@ export const key = {
     }
   },
   /**
-   * Trusted-executor ("external caller") actor for `caller` — an address (e.g. a
-   * PolicyManager or ERC-4337 EntryPoint) authorized to drive the account via
-   * `executeBatch` by matching `msg.sender`, not by producing a signature. Pair
-   * with `authorizeActor(..., { scope: actorScope.operator })` and no policy. A
-   * policy-gated session key needs its `manager` registered this way.
+   * Drive-only contract actor for `caller` (PolicyManager, ERC-4337 EntryPoint).
+   *
+   * After base/eip-8130 #101, `DefaultAccount` authorizes `executeBatch` for a
+   * live **k1** operational actor (`authenticator == address(1)`, scope admin
+   * or `OPERATOR`). This is therefore the same identity as {@link key.k1}:
+   * `actorId = pad(caller)`, authenticator = ecrecover. Pair with
+   * `authorizeActor(..., { scope: actorScope.operator })` and no policy.
    */
   trustedExecutor(caller: Address): AaActor {
-    return {
-      actorId: actorIdFromAddress(caller),
-      authenticator: trustedExecutorAuthenticator,
-    }
+    return key.k1(caller)
   },
   /**
    * External-pull ("subscription provider") actor for `caller` — an address the

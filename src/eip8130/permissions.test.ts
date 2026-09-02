@@ -12,7 +12,6 @@ import {
   actorScope,
   ecrecoverAuthenticator,
   externalPolicyAuthenticator,
-  trustedExecutorAuthenticator,
 } from './constants.js'
 import { encodePolicyData, key } from './keys.js'
 import {
@@ -248,7 +247,7 @@ describe('fulfillGrantPermissions', () => {
   const expiry = 1_800_000_000
 
   test('session role → POLICY-only k1 actor, one expiry drives both surfaces', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { actor, change, session } = await fulfillGrantPermissions(client, {
       account,
       grantee,
@@ -275,9 +274,9 @@ describe('fulfillGrantPermissions', () => {
     const { change, managerChange, changes, session } =
       await fulfillGrantPermissions(client, { account, grantee, permissions })
 
-    // A trusted-executor registration for the manager is included first.
+    // A k1-operator registration for the manager is included first.
     expect(managerChange).toBeDefined()
-    expect(managerChange?.authenticator).toBe(trustedExecutorAuthenticator)
+    expect(managerChange?.authenticator).toBe(ecrecoverAuthenticator)
     expect(managerChange?.actorId).toBe(actorIdFromAddress(session.manager))
     expect(managerChange?.scope).toBe(actorScope.operator)
     expect(managerChange?.policyData).toBeUndefined()
@@ -286,7 +285,7 @@ describe('fulfillGrantPermissions', () => {
   })
 
   test('manager already registered → no managerChange', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { change, managerChange, changes } = await fulfillGrantPermissions(
       client,
       { account, grantee, permissions },
@@ -305,7 +304,7 @@ describe('fulfillGrantPermissions', () => {
   })
 
   test('pull role → external-pull sentinel actor + executeFor call', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { actor, change, session } = await fulfillGrantPermissions(client, {
       account,
       grantee,
@@ -331,7 +330,7 @@ describe('fulfillGrantPermissions', () => {
   })
 
   test('returns a permissionsContext that round-trips', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { permissionsContext, session, actor } =
       await fulfillGrantPermissions(client, {
         account,
@@ -362,7 +361,7 @@ describe('routePermissionedCalls', () => {
   ]
 
   test('session context → calls routed through PolicyManager.execute', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { permissionsContext, session } = await fulfillGrantPermissions(
       client,
       {
@@ -388,7 +387,7 @@ describe('routePermissionedCalls', () => {
   })
 
   test('pull context → calls routed through PolicyManager.executeFor', async () => {
-    const client = actorConfigClient(trustedExecutorAuthenticator)
+    const client = actorConfigClient(ecrecoverAuthenticator)
     const { permissionsContext } = await fulfillGrantPermissions(client, {
       account,
       grantee: '0x00000000000000000000000000000000000acce5',
