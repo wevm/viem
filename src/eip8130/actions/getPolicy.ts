@@ -25,8 +25,8 @@ export type GetPolicyReturnType = {
 
 /**
  * Reads the policy binding for an actor (manager, commitment) from the finalized
- * Keystore system contract via its combined `getActor` read (one call returns
- * the actor config plus its policy manager and commitment). Use it to resolve a
+ * Keystore system contract via its combined `getActorWithPolicy` read (one call
+ * returns the actor config plus its policy manager and commitment). Use it to resolve a
  * session key's policy commitment for {@link getSessionSpend}. The manager and
  * commitment are non-zero only for a live, policy-gated actor.
  *
@@ -54,13 +54,13 @@ export async function getPolicy<
 ): Promise<GetPolicyReturnType> {
   const { account, actorId } = parameters
 
-  // The finalized Keystore exposes a single combined read that returns the actor
-  // config plus its policy manager and commitment; `policyManager` and
-  // `policyCommitment` are zero for a non-live / ungated actor.
+  // The finalized Keystore exposes a single combined read (`getActorWithPolicy`)
+  // that returns the actor config plus its policy manager and commitment;
+  // `policyManager` and `policyCommitment` are zero for a non-live / ungated actor.
   const [, policyManager, policyCommitment] = await readContract(client, {
     address: keystoreAddress,
     abi: keystoreAbi,
-    functionName: 'getActor',
+    functionName: 'getActorWithPolicy',
     args: [account, actorId],
   })
 

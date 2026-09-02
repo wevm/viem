@@ -1,6 +1,7 @@
-import type { Address } from 'abitype'
+import type { Address, TypedData } from 'abitype'
 import { BaseError } from '../../errors/base.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hex, SignableMessage } from '../../types/misc.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
 import { concatHex } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { bytesToHex } from '../../utils/encoding/toHex.js'
@@ -24,6 +25,10 @@ import type {
 import { computeAddress } from '../utils/computeAddress.js'
 import { erc1167Bytecode, upgradeableProxyBytecode } from '../utils/proxy.js'
 import { signAccountChanges } from '../utils/signActorChanges.js'
+import {
+  signMessageEnvelope,
+  signTypedDataEnvelope,
+} from '../utils/signMessage.js'
 import { type Signer, signTransaction } from '../utils/signTransaction.js'
 
 /**
@@ -122,10 +127,22 @@ export type ToAccountReturnType = {
   readonly source: 'eip8130'
   /** SEC1 hex public key of a K1 signer, or `'0x'` for non-K1 signers. */
   readonly publicKey: Hex
-  /** Not supported for EIP-8130 accounts. */
-  signMessage(): never
-  /** Not supported for EIP-8130 accounts. */
-  signTypedData(): never
+  /**
+   * Signs `message` (personal-sign) as an EIP-8130 ERC-1271 signature envelope
+   * (`sigType || authenticator || data`) using a **multichain** (`chainId = 0`)
+   * scope, so the signature verifies for this account on every chain via
+   * `isValidSignature` / core `client.verifyMessage`. For a chain-bound (`local`)
+   * signature use {@link signMessageEnvelope} with `sigType: 'local'` + `chainId`.
+   */
+  signMessage(parameters: { message: SignableMessage }): Promise<Hex>
+  /**
+   * Signs EIP-712 `typedData` as an EIP-8130 ERC-1271 signature envelope
+   * (multichain scope). See {@link signMessage}.
+   */
+  signTypedData<
+    const typedData extends TypedData | Record<string, unknown>,
+    primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+  >(parameters: TypedDataDefinition<typedData, primaryType>): Promise<Hex>
   /**
    * Builds the `create` account-change entry (include in the first tx for
    * smart accounts). Throws if the account was constructed with a known `address`
@@ -235,15 +252,21 @@ export function toAccount(
     type: 'local',
     source: 'eip8130',
     publicKey,
-    signMessage(): never {
-      throw new BaseError(
-        '`signMessage` is not supported for EIP-8130 accounts.',
-      )
+    async signMessage({ message }) {
+      return signMessageEnvelope({
+        signer,
+        account: address,
+        authenticator,
+        message,
+      })
     },
-    signTypedData(): never {
-      throw new BaseError(
-        '`signTypedData` is not supported for EIP-8130 accounts.',
-      )
+    async signTypedData(typedData) {
+      return signTypedDataEnvelope({
+        signer,
+        account: address,
+        authenticator,
+        ...(typedData as object),
+      } as never)
     },
 
     create() {
@@ -315,14 +338,13 @@ export type NewSmartAccountParameters = {
    * Per-account proxy placed at the account address.
    *
    * - `'upgradeable'` (default) — 93-byte ERC-1967 {@link upgradeableProxyBytecode}
-   *   delegating to a real UUPS `UpgradeableAccount`, so the account is genuinely
-   *   upgradeable (owner-signed, multichain-safe `upgradeBySignature`). Uses
-   *   `implementation` if given, else the enshrined `accounts.upgradeable`. It
-   *   never falls back to the non-UUPS `DefaultAccount`. **PENDING FINAL
-   *   IMPLEMENTATION**: no canonical UUPS impl is enshrined yet (expected:
-   *   Coinbase Smart Wallet v2), so until then this path needs an explicit
-   *   `implementation` (e.g. the `UpgradeableAccount` example from
-   *   [base/eip-8130-examples](https://github.com/base/eip-8130-examples)).
+   *   delegating to `CoinbaseSmartWalletV2` (a UUPS implementation), so the account
+   *   is genuinely upgradeable (admin-signed, multichain-safe `upgrade`). Uses
+   *   `implementation` if given, else the canonical `accounts.upgradeable`. It
+   *   never falls back to the non-UUPS `DefaultAccount`. **PENDING DEPLOYMENT**:
+   *   CBSW v2 is not yet deployed against the canonical Keystore, so until then
+   *   this path needs an explicit `implementation` (see
+   *   [base/smart-wallet-v2](https://github.com/base/smart-wallet-v2)).
    * - `'erc1167'` — immutable 45-byte {@link erc1167Bytecode} minimal proxy to the
    *   canonical `DefaultAccount`. No upgrade slot (smallest attack surface), but
    *   not multichain-upgrade-safe.
@@ -333,10 +355,10 @@ export type NewSmartAccountParameters = {
   /**
    * Implementation address the proxy delegates to. For `proxy: 'erc1167'`
    * defaults to the canonical `DefaultAccount`; for `proxy: 'upgradeable'`
-   * defaults to the enshrined `accounts.upgradeable` (a UUPS `UpgradeableAccount`
-   * — required explicitly until one is enshrined). Swap it to back the account
-   * with a different wallet implementation you deployed. Ignored if `code` is
-   * provided.
+   * defaults to the canonical `accounts.upgradeable` (`CoinbaseSmartWalletV2` — a
+   * UUPS impl, required explicitly until CBSW v2 is deployed). Swap it to back the
+   * account with a different wallet implementation you deployed. Ignored if `code`
+   * is provided.
    */
   implementation?: Address | undefined
   /**
@@ -395,16 +417,16 @@ export type NewSmartAccountReturnType = ToAccountReturnType & {
  * const account = newSmartAccount({ signer: privateKeyToAccount(pk), proxy: 'erc1167' })
  *
  * @example
- * // Upgradeable (default): supply a UUPS UpgradeableAccount you deployed —
- * // required until a canonical upgradeable impl is enshrined.
- * const account = newSmartAccount({ signer, implementation: upgradeableAccountImpl })
+ * // Upgradeable (default): supply a CoinbaseSmartWalletV2 implementation —
+ * // required until a canonical CBSW v2 is deployed against the Keystore.
+ * const account = newSmartAccount({ signer, implementation: coinbaseSmartWalletV2Impl })
  *
  * @example
  * // Multisig / co-owners + a session key at creation
  * const account = newSmartAccount({
  *   signer,
  *   admins: [key.p256(recoveryPubkey)],           // extra unrestricted owners
- *   extraActors: [authorizeActor(key.p256(sessionPubkey), { scope: actorScope.sender })],
+ *   extraActors: [authorizeActor(key.p256(sessionPubkey), { scope: actorScope.operator })],
  * })
  *
  * @example
@@ -476,14 +498,13 @@ export function newSmartAccount(
 
   // Proxy selection.
   // - 'erc1167'     — immutable minimal proxy → `implementation` ?? DefaultAccount.
-  // - 'upgradeable' — ERC-1967 proxy → a real UUPS `UpgradeableAccount`, so the
-  //   account is *actually* upgradeable (owner-signed `upgradeBySignature`,
-  //   multichain-safe). It must NOT silently fall back to the non-UUPS
-  //   DefaultAccount, so we require an explicit `implementation` or an enshrined
-  //   `accounts.upgradeable`.
+  // - 'upgradeable' — ERC-1967 proxy → `CoinbaseSmartWalletV2` (a UUPS impl), so
+  //   the account is *actually* upgradeable (admin-signed `upgrade`, multichain-
+  //   safe). It must NOT silently fall back to the non-UUPS DefaultAccount, so we
+  //   require an explicit `implementation` or a canonical `accounts.upgradeable`.
   //
-  // PENDING FINAL IMPLEMENTATION: `accounts.upgradeable` is not enshrined yet
-  // (expected long-term impl: Coinbase Smart Wallet v2). Until it is, the default
+  // PENDING DEPLOYMENT: `accounts.upgradeable` (CoinbaseSmartWalletV2) is not
+  // deployed against the canonical Keystore yet. Until it is, the default
   // `proxy: 'upgradeable'` path needs an explicit `implementation`.
   const code =
     parameters.code ??
@@ -496,10 +517,10 @@ export function newSmartAccount(
         implementation ?? canonicalEip8130Deployment.accounts.upgradeable
       if (!impl)
         throw new BaseError(
-          'No canonical `UpgradeableAccount` is enshrined yet (pending final ' +
-            'implementation), so `proxy: "upgradeable"` requires an explicit ' +
-            '`implementation` — a UUPS UpgradeableAccount you deployed (see ' +
-            'https://github.com/base/eip-8130-examples). Alternatively pass ' +
+          'No canonical `CoinbaseSmartWalletV2` is deployed against the Keystore ' +
+            'yet, so `proxy: "upgradeable"` requires an explicit `implementation` ' +
+            '— a CoinbaseSmartWalletV2 you deployed (see ' +
+            'https://github.com/base/smart-wallet-v2). Alternatively pass ' +
             '`proxy: "erc1167"` for an immutable DefaultAccount-backed account.',
         )
       return upgradeableProxyBytecode(impl)
@@ -564,7 +585,7 @@ export type ToEoaAccountReturnType = {
    * @example
    * // Atomically delegate + add a P256 key in the first tx:
    * const addP256 = await account.change([
-   *   authorizeActor(key.p256(p256.publicKey), { scope: actorScope.sender }),
+   *   authorizeActor(key.p256(p256.publicKey), { scope: actorScope.operator }),
    * ], { chainId, sequence: 0 })
    * await account.signTransaction({
    *   accountChanges: [account.delegate(impl), addP256],

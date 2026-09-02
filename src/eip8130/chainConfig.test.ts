@@ -9,6 +9,7 @@ import { toAccount } from './accounts/toAccount.js'
 import { eip8130ChainConfig } from './chainConfig.js'
 import { aaTransactionType } from './constants.js'
 import { key } from './keys.js'
+import { parseTransaction } from './utils/parseTransaction.js'
 import { erc1167Bytecode } from './utils/proxy.js'
 
 const rawReceipt = {
@@ -109,6 +110,65 @@ test('core sendTransaction submits a native AA_TX_TYPE (0x79) transaction', asyn
   expect(estimated).toBe(true)
   expect(hash).toBe(`0x${'11'.repeat(32)}`)
   expect(submitted?.startsWith(aaTransactionType)).toBe(true)
+})
+
+test('core sendTransaction wires dataSuffix (and client.dataSuffix) into metadata', async () => {
+  const owner = privateKeyToAccount(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+  )
+  const account = toAccount({
+    signer: owner,
+    userSalt: `0x${'01'.padStart(64, '0')}`,
+    code: erc1167Bytecode('0x00000000000000000000000000000000000000Ec'),
+    initialActors: [key.k1(owner.address)],
+  })
+
+  function makeClient(dataSuffix?: `0x${string}`) {
+    let submitted: `0x${string}` | undefined
+    const client = createClient({
+      chain,
+      // client-level attribution suffix (the common wallet pattern)
+      dataSuffix,
+      transport: custom({
+        async request({ method, params }: { method: string; params: any }) {
+          if (method === 'eth_call') return `0x${'0'.repeat(192)}`
+          if (method === 'eth_getTransactionCount') return '0x0'
+          if (method === 'eth_estimateGas') return '0x30d40'
+          if (method === 'eth_sendRawTransaction') {
+            submitted = params[0]
+            return `0x${'11'.repeat(32)}`
+          }
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+    })
+    return { client, getSubmitted: () => submitted }
+  }
+
+  // client-level dataSuffix → metadata
+  const a = makeClient('0xc0ffee')
+  await sendTransaction(a.client, {
+    account,
+    calls: [{ to: account.address, data: '0x' }],
+    accountChanges: [account.create()],
+    maxFeePerGas: 1_000_000_000n,
+    maxPriorityFeePerGas: 1_000_000n,
+  } as never)
+  expect(parseTransaction(a.getSubmitted()!).metadata).toBe('0xc0ffee')
+
+  // per-tx `metadata` (the 8130-native alias) overrides client-level dataSuffix.
+  // (Core consumes its own request-level `dataSuffix` param before this hook, so
+  // per-tx attribution on the native path uses `metadata`.)
+  const b = makeClient('0xc0ffee')
+  await sendTransaction(b.client, {
+    account,
+    calls: [{ to: account.address, data: '0x' }],
+    accountChanges: [account.create()],
+    maxFeePerGas: 1_000_000_000n,
+    maxPriorityFeePerGas: 1_000_000n,
+    metadata: '0xbeef',
+  } as never)
+  expect(parseTransaction(b.getSubmitted()!).metadata).toBe('0xbeef')
 })
 
 test('core sendTransaction rejects sponsored (payer) sends with a redirect', async () => {

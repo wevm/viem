@@ -8,16 +8,16 @@ description: Create an EIP-8130 smart account from a secp256k1, P-256, or WebAut
 
 There are two proxy shapes:
 
-- **`proxy: 'upgradeable'` (default)** — a 93-byte ERC-1967 `UpgradeableProxy` delegating to a real UUPS `UpgradeableAccount`, so the account is genuinely upgradeable via an owner-signed, multichain-safe `upgradeBySignature`. Pass the UUPS `implementation` you deployed.
+- **`proxy: 'upgradeable'` (default)** — a 93-byte ERC-1967 [`UpgradeableProxy`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/UpgradeableProxy.sol) delegating to [`CoinbaseSmartWalletV2`](https://github.com/base/smart-wallet-v2) (a UUPS implementation), so the account is genuinely upgradeable via an admin-signed, multichain-safe `upgrade`. Pass the CBSW v2 `implementation` you deployed. A 7702-delegated EOA uses the [`EIP7702ProxyForEIP8130`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/EIP7702ProxyForEIP8130.sol) singleton instead.
 - **`proxy: 'erc1167'`** — an immutable 45-byte minimal proxy to the canonical `DefaultAccount`. Smallest attack surface (no upgrade slot), but not multichain-upgrade-safe.
 
 ```ts
-newSmartAccount({ signer, implementation: upgradeableImpl }) // upgradeable (default)
-newSmartAccount({ signer, proxy: 'erc1167' })                // immutable → DefaultAccount
+newSmartAccount({ signer, implementation: coinbaseSmartWalletV2Impl }) // upgradeable (default)
+newSmartAccount({ signer, proxy: 'erc1167' })                          // immutable → DefaultAccount
 ```
 
 :::warning
-**Pending final implementation.** No canonical UUPS `UpgradeableAccount` is enshrined yet (the expected long-term implementation is Coinbase Smart Wallet v2). Until one is, the default `proxy: 'upgradeable'` **requires an explicit `implementation`** — a UUPS `UpgradeableAccount` you deployed (see [base/eip-8130-examples](https://github.com/base/eip-8130-examples)); it never silently falls back to the non-UUPS `DefaultAccount`. Once the address is enshrined the default goes live with no code change.
+**Pending deployment.** `CoinbaseSmartWalletV2` is not yet deployed against the canonical Keystore (its address depends on the Keystore, which was regenerated). Until it is, the default `proxy: 'upgradeable'` **requires an explicit `implementation`** — a `CoinbaseSmartWalletV2` you deployed (see [base/smart-wallet-v2](https://github.com/base/smart-wallet-v2)); it never silently falls back to the non-UUPS `DefaultAccount`. Once the address is set the default goes live with no code change.
 :::
 
 The signer type (K1 / P-256 / WebAuthn) is detected automatically.
@@ -95,7 +95,7 @@ const account = newSmartAccount({
   signer: owner,
   proxy: 'erc1167',
   admins: [key.p256(recovery.publicKey)],                                   // co-owner / recovery
-  extraActors: [authorizeActor(key.p256(session.publicKey), { scope: actorScope.sender })], // session key
+  extraActors: [authorizeActor(key.p256(session.publicKey), { scope: actorScope.operator })], // scoped operator key
 })
 ```
 

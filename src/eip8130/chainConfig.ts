@@ -109,6 +109,19 @@ export const eip8130ChainConfig = {
         encodeExecute: req.encodeExecute,
       })
 
+      // Attribution suffix → top-level (signed, authenticated) `metadata`, since
+      // EIP-8130 has no calldata to concatenate onto. Precedence mirrors core:
+      // a per-tx value wins over the client-wide `client.dataSuffix`. Core
+      // `sendTransaction` consumes its own `dataSuffix` param before this hook,
+      // so per-tx attribution on the native path uses the 8130 `metadata` field;
+      // `req.dataSuffix` is kept as a fallback for direct request builders.
+      const dataSuffix =
+        req.metadata ??
+        req.dataSuffix ??
+        (typeof client.dataSuffix === 'string'
+          ? client.dataSuffix
+          : client.dataSuffix?.value)
+
       // Price the AA transaction via the EIP-8130 `eth_estimateGas` extension
       // when the caller didn't pin `gas`. Thread the acting-actor hint so
       // policy-gated (session-key) sends resolve the right policy, and let the
@@ -122,7 +135,7 @@ export const eip8130ChainConfig = {
           nonceKey: req.nonceKey,
           senderActorId: req.senderActorId ?? account.actorId,
           senderAuthAuthenticator: req.senderAuthAuthenticator,
-          dataSuffix: req.metadata,
+          dataSuffix,
         }))
 
       const body = await fillEip8130Body(client, {
@@ -136,7 +149,7 @@ export const eip8130ChainConfig = {
         validBefore: req.validBefore,
         maxFeePerGas: req.maxFeePerGas,
         maxPriorityFeePerGas: req.maxPriorityFeePerGas,
-        dataSuffix: req.metadata,
+        dataSuffix,
       })
 
       return {

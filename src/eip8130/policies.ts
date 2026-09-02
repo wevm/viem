@@ -244,7 +244,7 @@ export type DefineSessionPolicyErrorType = CommitmentOfErrorType
  * // 1) authorize in one transaction (sent by the account). The signed actor
  * //    change stores the commitment — that IS the authorization (no install).
  * const change = await account.change([
- *   authorizeActor(key.p256(pub), { scope: actorScope.sender, policy: session.actorPolicy }),
+ *   authorizeActor(key.p256(pub), { scope: actorScope.policy, policy: session.actorPolicy }),
  * ])
  *
  * // 2) later, the session key spends within its limit

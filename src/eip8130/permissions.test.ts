@@ -279,7 +279,7 @@ describe('fulfillGrantPermissions', () => {
     expect(managerChange).toBeDefined()
     expect(managerChange?.authenticator).toBe(trustedExecutorAuthenticator)
     expect(managerChange?.actorId).toBe(actorIdFromAddress(session.manager))
-    expect(managerChange?.scope).toBe(actorScope.sender)
+    expect(managerChange?.scope).toBe(actorScope.operator)
     expect(managerChange?.policyData).toBeUndefined()
 
     expect(changes).toEqual([managerChange, change])

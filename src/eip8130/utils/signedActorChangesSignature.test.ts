@@ -59,7 +59,7 @@ describe('encodeSignedActorChangesSignature', () => {
 
   test('round-trips a single set through abi.decode', () => {
     const change = authorizeActor(key.p256(pubKey), {
-      scope: actorScope.sender,
+      scope: actorScope.operator,
     })
     const auth = '0xc0ffee'
     const opAuth = '0xdeadbeef'

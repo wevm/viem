@@ -5,6 +5,8 @@ import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import type { Hex } from '../types/misc.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
+import { hashMessage } from '../utils/signature/hashMessage.js'
+import { recoverAddress } from '../utils/signature/recoverAddress.js'
 import {
   delegateAuthSize,
   newSmartAccount,
@@ -28,6 +30,7 @@ import {
 import { actorIdFromAddress, actorIdFromPublicKey } from './utils/actorId.js'
 import { parseTransaction } from './utils/parseTransaction.js'
 import { erc1167Bytecode, upgradeableProxyBytecode } from './utils/proxy.js'
+import { parseSignatureEnvelope, replaySafeHash } from './utils/signMessage.js'
 
 const owner = privateKeyToAccount(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
@@ -42,11 +45,12 @@ const pubkey = {
 } as const
 
 describe('canonical smart-account deployment', () => {
-  test('default upgradeable proxy requires an implementation until enshrined', () => {
-    // PENDING FINAL IMPLEMENTATION: no canonical UUPS UpgradeableAccount is
-    // enshrined yet, so the default `proxy: 'upgradeable'` needs an explicit impl.
+  test('default upgradeable proxy requires an implementation until deployed', () => {
+    // PENDING DEPLOYMENT: CoinbaseSmartWalletV2 is not deployed against the
+    // canonical Keystore yet, so the default `proxy: 'upgradeable'` needs an
+    // explicit impl.
     expect(() => newSmartAccount({ signer: owner, salt: userSalt })).toThrow(
-      'No canonical `UpgradeableAccount` is enshrined yet',
+      'No canonical `CoinbaseSmartWalletV2` is deployed against the Keystore',
     )
   })
 
@@ -99,7 +103,7 @@ describe('canonical smart-account deployment', () => {
       proxy: 'erc1167',
       admins: [key.k1(co.address)],
       extraActors: [
-        authorizeActor(key.p256(pubkey), { scope: actorScope.sender }),
+        authorizeActor(key.p256(pubkey), { scope: actorScope.operator }),
       ],
     })
 
@@ -146,7 +150,7 @@ describe('key builders + actorId derivation', () => {
 
 describe('scope + policy helpers', () => {
   test('toScope combines flags', () => {
-    expect(toScope(actorScope.sender, actorScope.selfPayer)).toBe(0x09)
+    expect(toScope(actorScope.operator, actorScope.selfPayer)).toBe(0x03)
   })
 
   test('encodePolicyData = manager || commitment', () => {
@@ -171,12 +175,12 @@ describe('scope + policy helpers', () => {
     expect(() =>
       authorizeActor(key.p256(pubkey), { scope: 0, policy }),
     ).toThrow()
-    // sender-scoped policy actor: SCOPE_POLICY bit is set, policyData populated.
+    // policy-scoped actor: POLICY bit is set, policyData populated.
     const change = authorizeActor(key.p256(pubkey), {
-      scope: actorScope.sender,
+      scope: actorScope.policy,
       policy,
     })
-    expect(change.scope).toBe(actorScope.sender | actorScope.policy)
+    expect(change.scope).toBe(actorScope.policy)
     expect(change.policyData?.toLowerCase()).toBe(
       `${policy.manager.toLowerCase()}${commitment.slice(2)}`,
     )
@@ -203,7 +207,7 @@ describe('toAccount', () => {
   test('change() produces a signed config entry (add p256 session key)', async () => {
     const change = await account.change([
       authorizeActor(key.p256(pubkey), {
-        scope: actorScope.sender,
+        scope: actorScope.policy,
         policy: {
           type: 1,
           manager: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
@@ -216,6 +220,38 @@ describe('toAccount', () => {
     expect(change.changes).toHaveLength(2)
     // signature = ecrecover authenticator (20 bytes) || 65-byte sig = 85 bytes
     expect(change.signature.length).toBe(2 + 85 * 2)
+  })
+
+  test('signMessage() produces a multichain ERC-1271 envelope', async () => {
+    const signature = await account.signMessage({ message: 'gm' })
+    const {
+      sigType,
+      authenticator,
+      signature: data,
+    } = parseSignatureEnvelope(signature)
+    expect(sigType).toBe('multichain')
+    expect(authenticator).toBe(canonicalAuthenticators.k1)
+    // k1 data recovers to the owner over the account/chain-scoped digest.
+    const digest = replaySafeHash({
+      account: account.address,
+      chainId: 0n,
+      hash: hashMessage('gm'),
+    })
+    expect(
+      (await recoverAddress({ hash: digest, signature: data })).toLowerCase(),
+    ).toBe(owner.address.toLowerCase())
+  })
+
+  test('signTypedData() produces an ERC-1271 envelope', async () => {
+    const signature = await account.signTypedData({
+      domain: { name: 'App', version: '1' },
+      types: { Mail: [{ name: 'contents', type: 'string' }] },
+      primaryType: 'Mail',
+      message: { contents: 'gm' },
+    })
+    expect(parseSignatureEnvelope(signature).authenticator).toBe(
+      canonicalAuthenticators.k1,
+    )
   })
 
   test('delegate() entry', () => {

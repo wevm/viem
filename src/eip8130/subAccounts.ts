@@ -66,7 +66,7 @@ export type FulfillAddSubAccountParameters = {
   /**
    * Scope applied to the requested `keys`. Omitted or {@link scopeUnrestricted}
    * (`0`, default) registers them as unrestricted co-owners (admins). Set a
-   * restricted scope (e.g. `actorScope.sender`, or `actorScope.policy` with
+   * restricted scope (e.g. `actorScope.operator`, or `actorScope.policy` with
    * `keyPolicy`) to register them as scoped session-key actors — so the parent
    * remains the only unrestricted owner.
    */
@@ -192,10 +192,10 @@ export function fulfillAddSubAccount(
         implementation ?? canonicalEip8130Deployment.accounts.upgradeable
       if (!impl)
         throw new BaseError(
-          'No canonical `UpgradeableAccount` is enshrined yet (pending final ' +
-            'implementation), so `proxy: "upgradeable"` requires an explicit ' +
-            '`implementation`. Pass `proxy: "erc1167"` for an immutable ' +
-            'DefaultAccount-backed sub-account.',
+          'No canonical `CoinbaseSmartWalletV2` is deployed against the Keystore ' +
+            'yet, so `proxy: "upgradeable"` requires an explicit `implementation`. ' +
+            'Pass `proxy: "erc1167"` for an immutable DefaultAccount-backed ' +
+            'sub-account.',
         )
       return upgradeableProxyBytecode(impl)
     })()

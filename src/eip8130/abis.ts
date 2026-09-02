@@ -13,8 +13,10 @@ export const keystoreAbi = parseAbi([
 
   // `actorData` is tightly packed: authenticator(20) || expiry(6) || scope(2) ||
   // reserved(4 zero bytes) = 32 bytes, plus manager(20) || commitment(32) when
-  // scope & SCOPE_POLICY != 0 (84 bytes total). Policy presence is the
-  // SCOPE_POLICY bit — there is no `policyType` field.
+  // policy is attached (84 bytes total). Policy attachment is decided by payload
+  // length (empty vs 52 bytes), not by any scope bit — there is no `policyType`
+  // field; the co-located `ActorRecord` stores `config`, then `policyManager`,
+  // then `policyCommitment` in consecutive slots.
   'event ActorAuthorized(address indexed account, bytes32 indexed actorId, bytes actorData)',
   'event ActorRevoked(address indexed account, bytes32 indexed actorId)',
   'event AccountCreated(address indexed account, bytes32 userSalt, bytes32 codeHash)',
@@ -25,12 +27,20 @@ export const keystoreAbi = parseAbi([
 
   'function createAccount(bytes32 userSalt, bytes bytecode, InitialActor[] initialActors) returns (address)',
   'function computeAddress(bytes32 userSalt, bytes bytecode, InitialActor[] initialActors) view returns (address)',
-  'function importAccount(address account, uint256 chainId, InitialActor[] initialActors, bytes signature)',
+  // Import is authorized by the account's own code, not by a signature: the
+  // account itself must call this (`msg.sender`), and its code returns the actor
+  // set + `computeImportDigest` from `IKeystoreImport.confirmKeystoreImport()`.
+  'function importAccount()',
+  'function computeImportDigest(address account, InitialActor[] initialActors) pure returns (bytes32)',
   'function applySignedAccountChanges(address account, SignedAccountChanges s)',
-  'function verifySignature(address account, bytes32 hash, bytes signature) view returns (bool verified)',
+  // Canonical validation of a typed-envelope user signature (`sigType(1) ||
+  // authenticator(20) || data`) over an app `hash`. Reverts on failure; returns
+  // the verified actor + its scope. Supersedes ERC-1271 for 8130 accounts (an
+  // account's `isValidSignature` is built on this + `Scopes.isOperator`).
+  'function validateSignature(address account, bytes32 hash, bytes auth) view returns (bytes32 actorId, uint16 scope)',
   'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (bytes32 actorId, uint16 scope)',
   'function getActorConfig(address account, bytes32 actorId) view returns (ActorConfig)',
-  'function getActor(address account, bytes32 actorId) view returns (ActorConfig config, address policyManager, bytes32 policyCommitment)',
+  'function getActorWithPolicy(address account, bytes32 actorId) view returns (ActorConfig config, address policyManager, bytes32 policyCommitment)',
   'function getPolicyCommitment(address account, bytes32 actorId) view returns (bytes32)',
   'function getPolicyManager(address account, bytes32 actorId) view returns (address)',
   'function getChangeSequences(address account) view returns (ChangeSequences)',

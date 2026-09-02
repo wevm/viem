@@ -14,10 +14,12 @@ export type Eip8130Deployment = {
   /** Deployed wallet implementation contracts (the singletons account proxies delegate to). */
   accounts: {
     /**
-     * Optional unaudited UpgradeableAccount example implementation.
-     * Accounts are deployed behind an ERC-1967 `UpgradeableProxy` (see
-     * {@link upgradeableProxyBytecode}) so they can be upgraded via
-     * `upgradeBySignature`.
+     * `CoinbaseSmartWalletV2` implementation — the canonical upgradeable account
+     * (see [base/smart-wallet-v2](https://github.com/base/smart-wallet-v2)).
+     * CREATE2 accounts are deployed behind an ERC-1967 `UpgradeableProxy` (see
+     * {@link upgradeableProxyBytecode}); a 7702-delegated EOA uses the
+     * `EIP7702ProxyForEIP8130` singleton with CBSW v2 as its default. Upgrades go
+     * through CBSW v2's admin-gated (scope-0) `upgrade`.
      */
     upgradeable?: Address | undefined
     /**
@@ -85,17 +87,17 @@ export type Eip8130Deployment = {
  */
 export const canonicalEip8130Deployment = {
   accounts: {
-    // PENDING FINAL IMPLEMENTATION: the default `newSmartAccount` proxy is
-    // `'upgradeable'`, which must delegate to a real UUPS `UpgradeableAccount`
-    // (see base/eip-8130-examples) so accounts are genuinely upgradeable and
-    // multichain-safe. No such implementation is enshrined against the canonical
-    // Keystore yet — its address is keystore-dependent (constructor arg), and
-    // the expected long-term implementation is Coinbase Smart Wallet v2. Until an
-    // address is set here, `proxy: 'upgradeable'` requires an explicit
-    // `implementation`. Set `upgradeable` once deployed and the default goes live.
+    // PENDING DEPLOYMENT: the default `newSmartAccount` proxy is `'upgradeable'`,
+    // which delegates to `CoinbaseSmartWalletV2` (base/smart-wallet-v2) behind the
+    // ERC-1967 `UpgradeableProxy` so accounts are genuinely upgradeable and
+    // multichain-safe. CBSW v2 is not yet deployed against the canonical Keystore —
+    // its address is keystore-dependent (constructor arg), and the Keystore address
+    // itself was regenerated (see `keystoreAddress`). Until CBSW v2 is deployed and
+    // set here, `proxy: 'upgradeable'` requires an explicit `implementation`. Set
+    // `upgradeable` to the deployed CBSW v2 address and the default goes live.
     upgradeable: undefined,
-    default: '0x813035E3fc4a102CE2b4a73D78a25D1Ea5AFadEf',
-    defaultHighRate: '0x8130D6819734515f958965eFd2d212541d44FA57',
+    default: '0x81309c54D6Bc190FbBc0FA9f296ea4C6A539ADEf',
+    defaultHighRate: '0x813002fFdd25C81CeF79781702176D453AF0Fa57',
     // `erc4337` (BackwardsCompatible4337Account) is intentionally out of scope
     // for now — supply it explicitly if you choose the ERC-4337 portable path.
   },
@@ -103,12 +105,12 @@ export const canonicalEip8130Deployment = {
     k1: '0x0000000000000000000000000000000000000001',
     p256: '0x8130C89F65750431b564A4730397552a11CeA256',
     webAuthn: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
-    delegate: '0x8130015119757e0b1F9985F723091a851598Ade1',
+    delegate: '0x81301AA52202f8C6b79Cde660440E3c6A7c5ade1',
     alwaysValid: '0xA550545Da91720c23483c5B3493412A02D1cF9F9',
   },
   policies: {
-    manager: '0x8130fAA29D2675D05d01D387C576c6525F280ac1',
-    sessionPolicy: '0x81306283dfD94FcDe1a3aD4b7beDF1c5cD0f5e55',
+    manager: '0x8130E47Bc12CfDD6d2d2178B35Def9A51cae0aC1',
+    sessionPolicy: '0x8130A0D85473CeF9e888B4228F729b48F0c45E55',
   },
 } as const satisfies Eip8130Deployment
 

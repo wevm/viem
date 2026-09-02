@@ -139,7 +139,7 @@ deployment.accounts.defaultHighRate // CanonicalHighRatePayerAccount — immutab
 deployment.authenticators.p256      // P-256 (webAuthn, delegate, k1, alwaysValid alongside)
 ```
 
-The canonical set is **`DefaultAccount`** (the bare building block and the direct EIP-7702 delegation target for EOAs) and **`CanonicalHighRatePayerAccount`** (immutable, behind a 45-byte ERC-1167 proxy). **`UpgradeableAccount`** (ERC-1967 upgradeable proxy) and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains) are optional, unaudited example wallets — supply them explicitly if you choose those paths.
+The canonical set is **`DefaultAccount`** (the bare building block and the direct EIP-7702 delegation target for EOAs) and **`CanonicalHighRatePayerAccount`** (immutable, behind a 45-byte ERC-1167 proxy). **`CoinbaseSmartWalletV2`** (the upgradeable implementation, behind an ERC-1967 [`UpgradeableProxy`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/UpgradeableProxy.sol); 7702 EOAs delegate via [`EIP7702ProxyForEIP8130`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/EIP7702ProxyForEIP8130.sol)) and **`BackwardsCompatible4337Account`** (the ERC-4337 portable implementation for non-native chains) are supplied explicitly if you choose those paths.
 
 ### Policies are app-level, not protocol
 

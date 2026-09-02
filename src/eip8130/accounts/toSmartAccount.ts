@@ -9,8 +9,6 @@ import { entryPoint07Address } from '../../account-abstraction/constants/address
 import type { EntryPointVersion } from '../../account-abstraction/types/entryPointVersion.js'
 import { getUserOperationHash } from '../../account-abstraction/utils/userOperation/getUserOperationHash.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { signMessage as signMessage_ } from '../../actions/wallet/signMessage.js'
-import { signTypedData as signTypedData_ } from '../../actions/wallet/signTypedData.js'
 import { BaseError } from '../../errors/base.js'
 import type { Account } from '../../types/account.js'
 import type { Hex } from '../../types/misc.js'
@@ -18,13 +16,18 @@ import type { Prettify } from '../../types/utils.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { concatHex } from '../../utils/data/concat.js'
-import { getAction } from '../../utils/getAction.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
+import { hashTypedData } from '../../utils/signature/hashTypedData.js'
 import { erc4337AccountAbi } from '../abis.js'
 import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 import { computeAddress } from '../utils/computeAddress.js'
 import { toFactoryArgs } from '../utils/keystoreCalls.js'
 import { erc1167Bytecode } from '../utils/proxy.js'
+import {
+  getSignatureEnvelopeHash,
+  wrapSignatureEnvelope,
+} from '../utils/signMessage.js'
 
 export type ToSmartAccountParameters<
   entryPointAbi extends Abi = Abi,
@@ -229,22 +232,35 @@ export async function toSmartAccount<
       return concatHex([authenticator, stubData])
     },
 
+    // ERC-1271 message signatures use the EIP-8130 `SignedMessageEnvelope`
+    // (`sigType || authenticator || data` over `replaySafeHash`), which is what
+    // the account's `isValidSignature` -> `Keystore.validateSignature` expects.
+    // A multichain envelope (chainId 0) is used, matching the chain-agnostic
+    // account address; `sign` produces the authenticator `data` over the digest.
     async signMessage(parameters_) {
-      const signature = await getAction(
-        client,
-        signMessage_,
-        'signMessage',
-      )({ account: owner, message: parameters_.message })
-      return concatHex([authenticator, signature])
+      const address = await this.getAddress()
+      const digest = getSignatureEnvelopeHash({
+        account: address,
+        hash: hashMessage(parameters_.message),
+      })
+      return wrapSignatureEnvelope({
+        sigType: 'multichain',
+        authenticator,
+        signature: await sign(digest),
+      })
     },
 
     async signTypedData(parameters_) {
-      const signature = await getAction(
-        client,
-        signTypedData_,
-        'signTypedData',
-      )({ account: owner, ...(parameters_ as any) })
-      return concatHex([authenticator, signature])
+      const address = await this.getAddress()
+      const digest = getSignatureEnvelopeHash({
+        account: address,
+        hash: hashTypedData(parameters_ as never),
+      })
+      return wrapSignatureEnvelope({
+        sigType: 'multichain',
+        authenticator,
+        signature: await sign(digest),
+      })
     },
 
     async signUserOperation(parameters_) {

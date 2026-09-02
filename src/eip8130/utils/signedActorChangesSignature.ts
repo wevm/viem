@@ -84,7 +84,7 @@ export type EncodeSignedActorChangesSignatureErrorType =
  *   account: smartAccount,
  *   chainId: baseSepolia.id,
  *   sequence,
- *   changes: [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
+ *   changes: [authorizeActor(key.p256({ x, y }), { scope: actorScope.operator })],
  * })
  * // opAuth: authenticator-prefixed signature over the userOpHash by any authorized actor
  * const opAuth = concatHex([ecrecoverAuthenticator, await owner.sign({ hash: userOpHash })])

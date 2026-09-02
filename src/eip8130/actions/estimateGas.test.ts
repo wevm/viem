@@ -87,7 +87,7 @@ describe('estimateGas — create account-change serialization', () => {
         x: '0x1111111111111111111111111111111111111111111111111111111111111111',
         y: '0x2222222222222222222222222222222222222222222222222222222222222222',
       }),
-      { scope: actorScope.sender, policy },
+      { scope: actorScope.policy, policy },
     )
 
     const initialActors = [
@@ -116,7 +116,7 @@ describe('estimateGas — create account-change serialization', () => {
 
     const actors = rec.request.accountChanges[0].initialActors
     const gatedOut = actors.find((a: any) => a.actorId === gated.actorId)
-    expect(gatedOut.scope).toBe(actorScope.sender | actorScope.policy)
+    expect(gatedOut.scope).toBe(actorScope.policy)
     expect(typeof gatedOut.scope).toBe('number')
     expect(gatedOut.policyData?.toLowerCase()).toBe(
       encodePolicyData(policy).toLowerCase(),

@@ -1685,6 +1685,10 @@ export default defineConfig({
               link: '/eip8130/sub-accounts',
             },
             {
+              text: 'Signing Messages',
+              link: '/eip8130/signing-messages',
+            },
+            {
               text: 'Sponsoring Transactions',
               link: '/eip8130/sponsoring-transactions',
             },

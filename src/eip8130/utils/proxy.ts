@@ -19,17 +19,20 @@ export function erc1167Bytecode(implementation: Address): Hex {
 /**
  * Builds the 93-byte `UpgradeableProxy` runtime bytecode: an ERC-1967 proxy with
  * a hardcoded default `implementation`. This is the `code` deployed at an
- * **upgradeable** EIP-8130 account address (an `UpgradeableAccount`), and the
- * per-account counterpart to the singleton implementation it delegates to.
+ * **upgradeable** EIP-8130 account address (a {@link https://github.com/base/smart-wallet-v2/blob/master/src/CoinbaseSmartWalletV2.sol CoinbaseSmartWalletV2}
+ * account), and the per-account counterpart to the singleton implementation it
+ * delegates to.
  *
- * Proxy logic (see [base/eip-8130 `UpgradeableProxy`](https://github.com/base/eip-8130/blob/main/src/accounts/UpgradeableProxy.sol)):
+ * Proxy logic (see [base/smart-wallet-v2 `UpgradeableProxy`](https://github.com/base/smart-wallet-v2/blob/master/src/proxy/UpgradeableProxy.sol)):
  * 1. `SLOAD` the ERC-1967 implementation slot.
  * 2. If non-zero, `delegatecall` to that address (the upgraded path).
  * 3. If zero, `delegatecall` to the hardcoded default (a fresh account).
  *
- * Pass an `UpgradeableAccount` implementation — only a UUPS-capable
- * implementation can ever write the slot this proxy reads. Immutable accounts
- * use {@link erc1167Bytecode} instead.
+ * Pass a `CoinbaseSmartWalletV2` implementation — only a UUPS-capable
+ * implementation can ever write the slot this proxy reads (via CBSW v2's
+ * admin-gated `upgrade`). Immutable accounts use {@link erc1167Bytecode} instead.
+ * For a 7702-delegated EOA, the singleton {@link https://github.com/base/smart-wallet-v2/blob/master/src/proxy/EIP7702ProxyForEIP8130.sol EIP7702ProxyForEIP8130}
+ * is the delegation target (CBSW v2 as its default implementation).
  */
 export function upgradeableProxyBytecode(implementation: Address): Hex {
   return concatHex([

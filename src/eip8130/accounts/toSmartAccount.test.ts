@@ -5,12 +5,14 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { slice } from '../../utils/data/slice.js'
-import { recoverMessageAddress } from '../../utils/signature/recoverMessageAddress.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
+import { recoverAddress } from '../../utils/signature/recoverAddress.js'
 import { keystoreAbi } from '../abis.js'
 import { ecrecoverAuthenticator } from '../constants.js'
 import type { AaActor } from '../types/transaction.js'
 import { computeAddress } from '../utils/computeAddress.js'
 import { erc1167Bytecode } from '../utils/proxy.js'
+import { replaySafeHash } from '../utils/signMessage.js'
 import { toSmartAccount } from './toSmartAccount.js'
 
 // Offline stub transports. `client` reports the account as counterfactual
@@ -106,19 +108,30 @@ describe('toSmartAccount', () => {
     )
   })
 
-  test('signMessage = authenticator || recoverable ECDSA', async () => {
+  test('signMessage = SignedMessageEnvelope (sigType || authenticator || sig)', async () => {
     const account = await toSmartAccount({
       ...base,
       client: deployedClient,
     })
     const message = 'hello 8130'
     const sig = await account.signMessage({ message })
-    expect(slice(sig, 0, 20).toLowerCase()).toBe(
+
+    // multichain sigType byte, then the authenticator.
+    expect(slice(sig, 0, 1)).toBe('0x02')
+    expect(slice(sig, 1, 21).toLowerCase()).toBe(
       ecrecoverAuthenticator.toLowerCase(),
     )
-    const recovered = await recoverMessageAddress({
-      message,
-      signature: slice(sig, 20),
+
+    // The ECDSA `data` signs the account/chain-scoped replay-safe digest
+    // (multichain => chainId 0), not the raw message hash.
+    const digest = replaySafeHash({
+      account: await account.getAddress(),
+      chainId: 0n,
+      hash: hashMessage(message),
+    })
+    const recovered = await recoverAddress({
+      hash: digest,
+      signature: slice(sig, 21),
     })
     expect(recovered).toBe(owner.address)
   })

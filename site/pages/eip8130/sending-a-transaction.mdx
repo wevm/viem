@@ -25,6 +25,22 @@ receipt.eip8130.phaseStatuses    // ['0x1']
 
 For session-key or non-K1 sends, pass `senderActorId` / `senderAuthAuthenticator` to refine the auto-estimate. Sponsored (`payer`) sends do not ride core `sendTransaction`: use `client.eip8130.sendTransaction` (local payer) or `client.eip8168.sendTransaction` (payer service). See [Sponsoring Transactions](/eip8130/sponsoring-transactions).
 
+### Attribution and Metadata
+
+Unlike other transaction types, EIP-8130 carries an opaque `metadata` field at the **top level** of the signed transaction (it is authenticated with the body, not appended to calldata). Set it directly for attribution, a memo, or any application-defined bytes:
+
+```ts
+const hash = await client.sendTransaction({
+  account,
+  calls: [{ to: recipient, data }],
+  metadata: '0xc0ffee', // top-level, opaque, signed with the tx
+})
+```
+
+`metadata` takes precedence over a client-wide `dataSuffix`, so an app can set `client.dataSuffix` as a default attribution tag and override it per transaction with `metadata`. (Core `sendTransaction` consumes its own request-level `dataSuffix` param before the EIP-8130 hook runs, so use `metadata` for per-transaction attribution on this path; the standalone `viem/eip8130` and `client.eip8130.*` actions also accept `dataSuffix` directly.)
+
+The field is opaque bytes: pass whatever your indexer expects. (If you want a shared structure, [ERC-1883](https://github.com/ethereum/ERCs/pull/1883) proposes an optional CBOR encoding, but it is not required to use `metadata`.)
+
 The rest of this guide uses the standalone `viem/eip8130` actions, which are explicit about each step and require a `gas` budget. They are equivalent to the `client.eip8130.*` decorator methods.
 
 ## Estimate gas

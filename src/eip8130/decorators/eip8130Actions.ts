@@ -17,6 +17,7 @@ import {
   sendTransaction,
   sendTransactionSync,
 } from '../actions/sendTransaction.js'
+import { validateSignature } from '../actions/validateSignature.js'
 import { waitForTransactionReceipt } from '../actions/waitForTransactionReceipt.js'
 
 type Action = (client: any, parameters: any) => any
@@ -61,6 +62,8 @@ export type Eip8130Actions = {
     getLockStatus: Bound<typeof getLockStatus>
     /** Current spend against a session key. */
     getSessionSpend: Bound<typeof getSessionSpend>
+    /** Verify an EIP-8130 signature envelope; returns the resolved actor + scope. */
+    validateSignature: Bound<typeof validateSignature>
   }
 }
 
@@ -114,6 +117,7 @@ export function eip8130Actions() {
       isLocked: (parameters) => isLocked(client, parameters),
       getLockStatus: (parameters) => getLockStatus(client, parameters),
       getSessionSpend: (parameters) => getSessionSpend(client, parameters),
+      validateSignature: (parameters) => validateSignature(client, parameters),
     },
   })
 }

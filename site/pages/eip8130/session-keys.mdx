@@ -94,7 +94,7 @@ const sessionKey = key.p256({ x, y })
 const change = await account.change(
   [
     authorizeActor(sessionKey, {
-      scope: actorScope.sender,
+      scope: actorScope.policy, // POLICY-only; OPERATOR would override the gate
       policy: session.actorPolicy,
     }),
   ],

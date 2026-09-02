@@ -98,24 +98,30 @@ export const changeType = {
 export const unsequencedLocalHalf = 0xffff_ffffn
 
 /**
- * Actor scope permission bitmask values (base/eip-8130 `Keystore`).
+ * Actor scope permission bitmask values (base/eip-8130 `Scopes`, a `uint16`).
+ *
+ * Core grants occupy bits 0–2 (`OPERATOR`, `SELF_PAYER`, `SPONSOR_PAYER`); the
+ * optional `POLICY` and `NONCE` grants trail them. Bits `0x20`..`0x8000` are
+ * spare, reserved for future pure grants.
  *
  * `0x00` (unrestricted) is admin: an actor is admin iff `scope == 0`. There is
  * no `SCOPE_SIGNATURE` / `SCOPE_CONFIG` bit — ERC-1271 signing and config rights
- * ride on admin scope (or a SENDER actor without POLICY). Bits `0x20`, `0x40`,
- * `0x80` are spare.
+ * ride on operational authority (`isOperator`: `scope == 0 || OPERATOR set`).
+ * `OPERATOR` and `POLICY` do **not** combine: `OPERATOR` may originate to any
+ * `call.to` and overrides `POLICY`, whereas a `POLICY`-only actor is gated to its
+ * manager. A policy-gated session key must therefore be `POLICY`-only.
  */
 export const actorScope = {
-  /** `SCOPE_SENDER` — may originate transactions with the account as sender. */
-  sender: 0x01,
-  /** `SCOPE_POLICY` — actor is gated to its policy manager; a bit in the scope word (replaces the old `policyType` field). */
-  policy: 0x02,
-  /** `SCOPE_NONCE` — may use sequenced nonce keys; without it, restricted to nonce-free (`NONCE_KEY_MAX`). */
-  nonce: 0x04,
-  /** `SCOPE_SELF_PAYER` — may pay for its own transactions (`payer == sender`). */
-  selfPayer: 0x08,
-  /** `SCOPE_SPONSOR_PAYER` — may sponsor others (`payer != sender`). */
-  sponsorPayer: 0x10,
+  /** `OPERATOR` — ungated initiation: may originate transactions to any `call.to`. Formerly `SCOPE_SENDER`. */
+  operator: 0x01,
+  /** `SELF_PAYER` — may pay for its own transactions (`payer == sender`). */
+  selfPayer: 0x02,
+  /** `SPONSOR_PAYER` — may sponsor others (`payer != sender`). */
+  sponsorPayer: 0x04,
+  /** `POLICY` — gated initiation: actor is gated to its policy manager. Attachment is by payload length; this bit gates `sender_auth`. */
+  policy: 0x08,
+  /** `NONCE` — may use sequenced nonce keys; without it, restricted to nonce-free (`NONCE_KEY_MAX`). */
+  nonce: 0x10,
 } as const
 
 /** Unrestricted (admin) scope value (`SCOPE_UNRESTRICTED`). An actor is admin iff `scope == 0`. */
@@ -215,7 +221,7 @@ export const canonicalAuthenticators = {
   /** WebAuthn / FIDO2 passkey. Canonical base/eip-8130 deployment. */
   passkey: '0x813007b6b1b48E75D91dEc5927ab515d12a0F1d0',
   /** Signature delegation (1-hop). Canonical base/eip-8130 deployment. */
-  delegate: '0x8130015119757e0b1F9985F723091a851598Ade1',
+  delegate: '0x81301AA52202f8C6b79Cde660440E3c6A7c5ade1',
 } as const satisfies Record<string, Hex>
 
 /**
@@ -257,7 +263,7 @@ export const txContextAddress =
  * and the create transaction fails.
  */
 export const keystoreAddress =
-  '0x813011b7a5f25f8433Ac1E0993DE06CB2d1500Ac' satisfies Hex
+  '0x813012Bd8D971928475235BBac6F0488c4A100AC' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -268,7 +274,7 @@ export const keystoreAddress =
  * identical on every supported chain; see {@link keystoreAddress}.
  */
 export const defaultAccountAddress =
-  '0x813035E3fc4a102CE2b4a73D78a25D1Ea5AFadEf' satisfies Hex
+  '0x81309c54D6Bc190FbBc0FA9f296ea4C6A539ADEf' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

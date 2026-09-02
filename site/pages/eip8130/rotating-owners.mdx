@@ -27,8 +27,8 @@ key.delegate('0xotherAccount')   // signatures for another account act for this 
 import { actorScope, authorizeActor, key, toScope } from 'viem/eip8130'
 
 authorizeActor(key.p256({ x, y }), {
-  // What the actor may do: sign / act as sender / act as payer / change config.
-  scope: toScope(actorScope.sender, actorScope.signature),
+  // What the actor may do: originate transactions and pay its own gas.
+  scope: toScope(actorScope.operator, actorScope.selfPayer),
   // Optional expiry (unix seconds); 0/omitted = no expiry.
   expiry: BigInt(Math.floor(Date.now() / 1000) + 86_400),
 })
@@ -36,12 +36,13 @@ authorizeActor(key.p256({ x, y }), {
 
 | Flag | Grants |
 | --- | --- |
-| `actorScope.signature` | Producing signatures for the account (e.g. ERC-1271). |
-| `actorScope.sender` | Sending transactions (the `sender` auth path). |
-| `actorScope.payer` | Sponsoring transactions as the `payer`. |
-| `actorScope.config` | Changing the account's actor configuration. |
+| `actorScope.operator` | Ungated initiation: originate transactions to any target (also grants execution + ERC-1271 signing authority). |
+| `actorScope.selfPayer` | Pay for its own transactions (`payer == sender`). |
+| `actorScope.sponsorPayer` | Sponsor others (`payer != sender`). |
+| `actorScope.policy` | Gated initiation: originate only through the actor's policy manager. Does **not** combine with `operator`. |
+| `actorScope.nonce` | Use sequenced nonce keys (without it, restricted to nonce-free). |
 
-An unrestricted (full-owner) actor uses scope `0`.
+An unrestricted (full-owner) actor uses scope `0` and needs no flags: admin (`scope == 0`) already carries every authority.
 
 ## Read the config sequence
 
@@ -70,7 +71,7 @@ import {
 const change = await account.change(
   [
     authorizeActor(key.k1('0xnewOwner...'), {
-      scope: actorScope.sender, // full owner? use scope 0
+      scope: actorScope.operator, // full owner? use scope 0
     }),
   ],
   { chainId: client.chain.id, sequence }, // bigint, straight from getConfigSequence
@@ -98,7 +99,7 @@ import {
 
 const rotate = await account.change(
   [
-    authorizeActor(key.k1('0xnewOwner...'), { scope: actorScope.sender }),
+    authorizeActor(key.k1('0xnewOwner...'), { scope: actorScope.operator }),
     revokeActor(key.k1('0xoldOwner...')),
   ],
   { chainId: client.chain.id, sequence },
@@ -149,7 +150,7 @@ import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 const account = toEoaAccount(privateKeyToAccount(generatePrivateKey()))
 
 const addP256 = await account.change(
-  [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
+  [authorizeActor(key.p256({ x, y }), { scope: actorScope.operator })],
   { chainId: client.chain.id, sequence: 0 },
 )
 

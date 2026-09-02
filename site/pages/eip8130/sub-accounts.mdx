@@ -45,7 +45,7 @@ import {
 const link = await subAccount.change(
   [
     authorizeActor(key.delegate(main.address), {
-      scope: actorScope.sender,
+      scope: actorScope.operator,
     }),
   ],
   { chainId: client.chain.id, sequence: Number(sequence) },

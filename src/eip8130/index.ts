@@ -96,6 +96,11 @@ export {
   sendTransactionSync,
 } from './actions/sendTransaction.js'
 export {
+  type ValidateSignatureParameters,
+  type ValidateSignatureReturnType,
+  validateSignature,
+} from './actions/validateSignature.js'
+export {
   type WaitForTransactionReceiptParameters,
   type WaitForTransactionReceiptReturnType,
   waitForTransactionReceipt,
@@ -349,6 +354,29 @@ export {
   toWebAuthnSigner,
   type WebAuthnSignSource,
 } from './utils/signers.js'
+export {
+  type GetSignatureEnvelopeHashParameters,
+  getSignatureEnvelopeHash,
+  multichainId,
+  type ParsedSignatureEnvelope,
+  parseSignatureEnvelope,
+  type ReplaySafeHashErrorType,
+  type ReplaySafeHashParameters,
+  replaySafeHash,
+  type SignatureType,
+  type SignMessageEnvelopeErrorType,
+  type SignMessageEnvelopeParameters,
+  type SignTypedDataEnvelopeParameters,
+  signatureType,
+  signedMessageTypehash,
+  signMessageEnvelope,
+  signTypedDataEnvelope,
+  type WrapCounterfactualSignatureErrorType,
+  type WrapCounterfactualSignatureParameters,
+  type WrapSignatureEnvelopeParameters,
+  wrapCounterfactualSignature,
+  wrapSignatureEnvelope,
+} from './utils/signMessage.js'
 export {
   type Signer,
   type SignTransactionErrorType,

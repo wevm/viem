@@ -77,7 +77,7 @@ export const key = {
    * Trusted-executor ("external caller") actor for `caller` — an address (e.g. a
    * PolicyManager or ERC-4337 EntryPoint) authorized to drive the account via
    * `executeBatch` by matching `msg.sender`, not by producing a signature. Pair
-   * with `authorizeActor(..., { scope: actorScope.sender })` and no policy. A
+   * with `authorizeActor(..., { scope: actorScope.operator })` and no policy. A
    * policy-gated session key needs its `manager` registered this way.
    */
   trustedExecutor(caller: Address): AaActor {
@@ -170,12 +170,13 @@ export type AuthorizeActorOptions = {
  * `toAccount#authorize`.
  *
  * A policy-gated actor (session key) should be authorized as POLICY-only
- * (`scope: actorScope.policy`): `SCOPE_POLICY` grants "gated initiation", so the
+ * (`scope: actorScope.policy`): `POLICY` grants "gated initiation", so the
  * key can originate a transaction but every call is routed through — and
- * validated by — its manager. Per base/eip-8130, do NOT add `SCOPE_SENDER` (the
- * policy gate governs regardless). OR in `actorScope.selfPayer` for self-pay or
- * `actorScope.nonce` to allow sequenced nonces (without it the key is
- * nonce-free-only).
+ * validated by — its manager. Per base/eip-8130, do NOT add `OPERATOR`:
+ * `OPERATOR` and `POLICY` do not combine — `OPERATOR` overrides the gate and
+ * lets the key originate to any target, defeating the policy. OR in
+ * `actorScope.selfPayer` for self-pay or `actorScope.nonce` to allow sequenced
+ * nonces (without it the key is nonce-free-only).
  *
  * @example
  * authorizeActor(key.p256({ x, y }), {

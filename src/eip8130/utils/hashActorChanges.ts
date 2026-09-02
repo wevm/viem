@@ -20,11 +20,17 @@ export const accountChangeTypehash = keccak256(
 )
 
 /**
- * `keccak256("SignedAccountChanges(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)")`
+ * `keccak256("SignedAccountChangeBatch(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)")`
+ *
+ * Mirrors `Keystore.SIGNED_ACCOUNT_CHANGES_TYPEHASH`. The struct name is
+ * `SignedAccountChangeBatch` (the wire struct passed to
+ * `applySignedAccountChanges` is still named `SignedAccountChanges`, but the
+ * signing typehash uses the `Batch` name — they must match the contract byte
+ * for byte or the node rejects the signature).
  */
 export const signedAccountChangesTypehash = keccak256(
   stringToHex(
-    'SignedAccountChanges(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)',
+    'SignedAccountChangeBatch(address account,uint256 chainId,uint64 sequence,AccountChange[] changes)AccountChange(uint8 changeType,bytes payload)',
   ),
 )
 

@@ -241,7 +241,7 @@ export type ToSessionPolicyErrorType = ToSessionPolicyConfigErrorType
  * // authorize the session key (its signed commitment IS the grant)
  * await account.change([
  *   authorizeActor(key.p256(pub), {
- *     scope: actorScope.sender,
+ *     scope: actorScope.policy, // POLICY-only; OPERATOR would override the gate
  *     policy: session.actorPolicy,
  *   }),
  * ])
@@ -433,7 +433,7 @@ export async function fulfillGrantPermissions<
       authenticator.toLowerCase() === trustedExecutorAuthenticator.toLowerCase()
     if (!registered)
       managerChange = authorizeActor(managerActor, {
-        scope: actorScope.sender,
+        scope: actorScope.operator,
       })
   }
 

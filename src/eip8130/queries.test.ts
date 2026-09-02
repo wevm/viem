@@ -10,7 +10,7 @@ import { getActorConfig } from './actions/getActorConfig.js'
 import { getPolicy } from './actions/getPolicy.js'
 import { getSessionSpend } from './actions/getSessionSpend.js'
 import { isActor } from './actions/isActor.js'
-import { canonicalAuthenticators } from './constants.js'
+import { actorScope, canonicalAuthenticators } from './constants.js'
 import { sessionPolicyAbi } from './policies.js'
 
 const account = '0x0000000000000000000000000000000000000a11'
@@ -82,15 +82,15 @@ describe('getActorConfig', () => {
     const client = readClient(keystoreAbi, {
       getActorConfig: {
         authenticator: canonicalAuthenticators.p256,
-        scope: 2,
+        scope: actorScope.policy,
         expiry: 1_800_000_000,
       },
     })
     expect(await getActorConfig(client, { account, actorId })).toEqual({
       authenticator: canonicalAuthenticators.p256,
-      scope: 2,
+      scope: actorScope.policy,
       expiry: 1_800_000_000,
-      // SCOPE_POLICY (0x02) is set → hasPolicy.
+      // POLICY (0x08) bit is set → hasPolicy.
       hasPolicy: true,
     })
   })
@@ -123,12 +123,12 @@ describe('isActor', () => {
 })
 
 describe('getPolicy', () => {
-  // The finalized Keystore exposes a single combined `getActor` read
+  // The finalized Keystore exposes a single combined `getActorWithPolicy` read
   // returning (config, policyManager, policyCommitment).
-  test('decodes (manager, commitment) from the combined getActor read', async () => {
+  test('decodes (manager, commitment) from the combined getActorWithPolicy read', async () => {
     const manager = '0x00000000000000000000000000000000000000dd'
     const client = readClient(keystoreAbi, {
-      getActor: [
+      getActorWithPolicy: [
         {
           authenticator: canonicalAuthenticators.p256,
           scope: 2,

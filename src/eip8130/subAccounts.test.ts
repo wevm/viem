@@ -99,13 +99,13 @@ describe('fulfillAddSubAccount', () => {
       proxy: 'erc1167',
       salt,
       keys: [{ publicKey: dappKey, type: 'address' }],
-      keyScope: actorScope.sender,
+      keyScope: actorScope.operator,
     })
 
     const keyActor = sub.initialActors.find(
       (a) => a.actorId === key.k1(dappKey).actorId,
     )
-    expect(keyActor?.scope).toBe(actorScope.sender)
+    expect(keyActor?.scope).toBe(actorScope.operator)
 
     // The parent delegate remains an unrestricted admin.
     const parentActor = sub.initialActors.find(
@@ -137,13 +137,13 @@ describe('fulfillAddSubAccount', () => {
     expect(keyActor?.policyData).toBe(encodePolicyData(policy))
   })
 
-  test('upgradeable proxy without an implementation throws (pending enshrinement)', () => {
+  test('upgradeable proxy without an implementation throws (pending deployment)', () => {
     expect(() =>
       fulfillAddSubAccount({
         parent,
         signer: parentSigner,
         salt,
       }),
-    ).toThrow(/UpgradeableAccount/)
+    ).toThrow(/CoinbaseSmartWalletV2/)
   })
 })
