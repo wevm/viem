@@ -947,7 +947,20 @@ export async function deployErc4626StackSync<
   )
     throw new Error('`bindingAccount` must match `owner`.')
 
-  const factories = resolveFactoryAddresses(client, parameters.factories)
+  const factories = (() => {
+    if (parameters.factories) return parameters.factories
+    if (!client.chain) throw new ChainNotFoundError()
+    return {
+      earn: getChainContractAddress({
+        chain: client.chain,
+        contract: 'earnFactory',
+      }),
+      erc4626Engine: getChainContractAddress({
+        chain: client.chain,
+        contract: 'erc4626EngineFactory',
+      }),
+    }
+  })()
   validateDeploymentId(parameters.deploymentId)
   if (
     parameters.resume &&
@@ -1256,24 +1269,6 @@ export namespace deployErc4626StackSync {
 function validateDeploymentId(deploymentId: Hex.Hex) {
   if (Hex.size(deploymentId) !== 32 || BigInt(deploymentId) === 0n)
     throw new Error('`deploymentId` must be a nonzero 32-byte hex value.')
-}
-
-function resolveFactoryAddresses(
-  client: Client<Transport, Chain | undefined>,
-  factories: EarnFactoryAddresses | undefined,
-): EarnFactoryAddresses {
-  if (factories) return factories
-  if (!client.chain) throw new ChainNotFoundError()
-  return {
-    earn: getChainContractAddress({
-      chain: client.chain,
-      contract: 'earnFactory',
-    }),
-    erc4626Engine: getChainContractAddress({
-      chain: client.chain,
-      contract: 'erc4626EngineFactory',
-    }),
-  }
 }
 
 function toDeployParameters(args: createStack.Args) {
