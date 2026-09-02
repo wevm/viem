@@ -14,7 +14,7 @@ the new vault.
 
 Viem publishes the canonical factory pair for Tempo mainnet and testnet. The recipe verifies
 contract code, Tempo's TIP-20 factory, and the deployed topology, but it cannot verify a release
-from an address alone.
+from an address alone. Deployment actions infer the pair from the client chain.
 
 ## Recipes
 
@@ -34,10 +34,6 @@ import { client } from './viem.config'
 const deploymentId = keccak256(toHex('acme-usd-v1'))
 const result = await client.earn.deployErc4626StackSync({
   deploymentId,
-  factories: {
-    earn: client.chain.contracts.earnFactory.address,
-    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
-  },
   venue: '0x0000000000000000000000000000000000000003',
 })
 
@@ -70,10 +66,6 @@ const owner = privateKeyToAccount('0x...')
 const result = await client.earn.deployErc4626StackSync({
   bindingAccount: owner,
   deploymentId: keccak256(toHex('acme-usd-owner-v1')),
-  factories: {
-    earn: client.chain.contracts.earnFactory.address,
-    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
-  },
   owner,
   venue: '0x0000000000000000000000000000000000000003',
 })
@@ -103,10 +95,6 @@ import { client } from './viem.config'
 
 const parameters = {
   deploymentId: keccak256(toHex('acme-usd-v1')),
-  factories: {
-    earn: client.chain.contracts.earnFactory.address,
-    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
-  },
   venue: '0x0000000000000000000000000000000000000003',
 } as const
 

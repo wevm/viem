@@ -13,10 +13,6 @@ import { client } from './viem.config'
 
 const result = await client.earn.deployErc4626StackSync({
   deploymentId: keccak256(toHex('acme-usd-v1')),
-  factories: {
-    earn: client.chain.contracts.earnFactory.address,
-    erc4626Engine: client.chain.contracts.erc4626EngineFactory.address,
-  },
   venue: '0x0000000000000000000000000000000000000003',
 })
 // @log: { engine: '0x...', vault: '0x...', earnShare: '0x...', fees: '0x...', receipts: { ... } }
@@ -32,8 +28,8 @@ The recipe simulates each missing write, verifies existing deployments, and skip
 Persist the returned addresses after every run. If a transaction fails, `DeployErc4626StackError`
 includes `stage`, `state`, and any receipts produced by the run. Pass `state` back through `resume`.
 
-Canonical Tempo factory addresses are available from the chain's `contracts` metadata. Pass the
-pair explicitly so the deployment release remains visible at the call site.
+The recipe infers canonical Tempo factory addresses from the chain's `contracts` metadata. Pass
+`factories` explicitly to use a custom chain or a different reviewed Earn release.
 
 ## Return Value
 
@@ -62,12 +58,13 @@ Receipts are present only for transactions submitted by the current run.
 
 A required, nonzero 32-byte identifier. The recipe does not generate random identifiers.
 
-### factories
+### factories (optional)
 
 - **Type:** `EarnFactoryAddresses`
+- **Default:** `client.chain.contracts`
 
-Explicit engine and Earn factory addresses from one release. Canonical Tempo addresses are
-available from `client.chain.contracts`.
+Engine and Earn factory addresses from one release. Use this to override the canonical addresses
+configured on the client chain.
 
 ### venue
 

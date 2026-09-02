@@ -255,6 +255,16 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
 
   test('deploys, resumes, binds, and reruns idempotently', async () => {
     const { factories, venue } = await setup()
+    const inferredClient = getClient({
+      account,
+      chain: {
+        ...client.chain,
+        contracts: {
+          earnFactory: { address: factories.earn },
+          erc4626EngineFactory: { address: factories.erc4626Engine },
+        },
+      },
+    })
     const deploymentId = Hex.fromNumber(2, { size: 32 })
     const predicted = await Actions.earn.createErc4626Engine.predict(client, {
       deploymentId,
@@ -269,9 +279,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     })
     expect(isAddressEqual(engine.engine, predicted)).toBe(true)
 
-    const deployed = await Actions.earn.deployErc4626StackSync(client, {
+    const deployed = await Actions.earn.deployErc4626StackSync(inferredClient, {
       deploymentId,
-      factories,
       resume: { deploymentId, engine: predicted },
       venue,
     })
@@ -312,9 +321,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     })
     expect(feeState.feesActive).toBe(false)
 
-    const rerun = await Actions.earn.deployErc4626StackSync(client, {
+    const rerun = await Actions.earn.deployErc4626StackSync(inferredClient, {
       deploymentId,
-      factories,
       fromBlock: deployed.receipts.stack
         ? deployed.receipts.stack.blockNumber + 1n
         : undefined,
@@ -328,6 +336,21 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       fees: deployed.fees,
       vault: deployed.vault,
     })
+  })
+
+  test('requires explicit factories when chain metadata is unavailable', async () => {
+    const { venue } = await setup()
+    const clientWithoutFactories = getClient({
+      account,
+      chain: { ...client.chain, contracts: {} },
+    })
+
+    await expect(
+      Actions.earn.deployErc4626StackSync(clientWithoutFactories, {
+        deploymentId: Hex.fromNumber(13, { size: 32 }),
+        venue,
+      }),
+    ).rejects.toThrow('does not support contract "earnFactory"')
   })
 
   test('uses a separate final owner for binding', async () => {
