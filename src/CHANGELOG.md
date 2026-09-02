@@ -1,5 +1,13 @@
 # viem
 
+## 2.56.3
+
+### Patch Changes
+
+- [#5059](https://github.com/wevm/viem/pull/5059) [`e3de334a73bd06ee16ba6a1e30e1bb2cf94ea708`](https://github.com/wevm/viem/commit/e3de334a73bd06ee16ba6a1e30e1bb2cf94ea708) Thanks [@jxom](https://github.com/jxom)! - Made Tempo Zone return types portable across declaration-emitting projects.
+
+- [#5061](https://github.com/wevm/viem/pull/5061) [`1ba6aa3860bcbe2c1c51257b1a2c386d182507e7`](https://github.com/wevm/viem/commit/1ba6aa3860bcbe2c1c51257b1a2c386d182507e7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added chain inference to `Multisig.handleRequest` downstream request options.
+
 ## 2.56.2
 
 ### Patch Changes
