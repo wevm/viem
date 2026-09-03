@@ -4,8 +4,8 @@ export const xgrTestnet = /*#__PURE__*/ defineChain({
   id: 1879,
   name: 'XGR Testnet',
   nativeCurrency: {
-    name: 'XGR Testnet',
-    symbol: 'XGRt',
+    name: 'XGR',
+    symbol: 'XGR',
     decimals: 18,
   },
   rpcUrls: {
