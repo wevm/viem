@@ -16,5 +16,11 @@ export const hyveChain = /*#__PURE__*/ defineChain({
       url: 'https://explorer.hyvechain.com',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 4090846,
+    },
+  },
   testnet: false,
 })
