@@ -1,9 +1,9 @@
 import { AbiEvent, Address, Hex, P256, Secp256k1, Value } from 'ox'
 import { Channel, VirtualAddress } from 'ox/tempo'
-import * as tempo from '~test/tempo.js'
 import { Actions as CoreActions } from 'viem'
-import { Account, Abis, Actions, Client, http } from 'viem/tempo'
+import { Abis, Account, Actions, Client, http } from 'viem/tempo'
 import { expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
 const account = Account.fromSecp256k1(tempo.accounts[0]!.privateKey)
 const account2 = Account.fromSecp256k1(tempo.accounts[1]!.privateKey)
@@ -79,8 +79,8 @@ test('binds earn actions and helpers', () => {
 
   expect(Object.keys(offlineClient.earn).sort()).toMatchInlineSnapshot(`
     [
-      "bindErc4626Engine",
-      "bindErc4626EngineSync",
+      "bindEngine",
+      "bindEngineSync",
       "configureExitSafePolicy",
       "createErc4626Engine",
       "createErc4626EngineSync",
@@ -110,7 +110,7 @@ test('binds earn actions and helpers', () => {
     ]
   `)
   expect({
-    bindErc4626Engine: Object.keys(offlineClient.earn.bindErc4626Engine).sort(),
+    bindEngine: Object.keys(offlineClient.earn.bindEngine).sort(),
     createErc4626Engine: Object.keys(
       offlineClient.earn.createErc4626Engine,
     ).sort(),
@@ -126,7 +126,7 @@ test('binds earn actions and helpers', () => {
     withdrawExact: Object.keys(offlineClient.earn.withdrawExact).sort(),
   }).toMatchInlineSnapshot(`
     {
-      "bindErc4626Engine": [
+      "bindEngine": [
         "call",
         "extractEvent",
       ],

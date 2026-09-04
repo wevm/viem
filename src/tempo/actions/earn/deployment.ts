@@ -1,5 +1,6 @@
-import { AbiEvent, Address, Hex } from 'ox'
 import type { Errors } from 'ox'
+import { AbiEvent, Address, Hex } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -24,12 +25,37 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
-import type { TransactionReceipt } from '../../chainConfig.js'
 
 const maxUint64 = 2n ** 64n - 1n
 const maxUint256 = 2n ** 256n - 1n
 const zeroAddress =
   '0x0000000000000000000000000000000000000000' as const satisfies Address.Address
+
+const engineBindingAbi = [
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [
+      { name: 'earnVault_', type: 'address' },
+      { name: 'finalOwner_', type: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [{ name: 'earnVault_', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
+    anonymous: false,
+  },
+] as const
 
 /** @experimental Factory addresses for one reviewed Tempo Earn release. */
 export type EarnFactoryAddresses = {
@@ -147,7 +173,7 @@ export namespace createErc4626Engine {
     venue: Address.Address
   }
 
-  export type Parameters = WriteParameters &
+  export type Parameters = Omit<WriteParameters, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
       owner?: Account.Account | Address.Address | undefined
@@ -333,6 +359,8 @@ export async function createErc4626EngineSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createErc4626Engine.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -406,7 +434,7 @@ export namespace createStack {
     transferPolicyId?: bigint | undefined
   }
 
-  export type Parameters = WriteParameters &
+  export type Parameters = Omit<WriteParameters, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
       owner?: Account.Account | Address.Address | undefined
@@ -593,6 +621,8 @@ export async function createStackSync<
     ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = createStack.extractEvent(receipt.logs, { factory })
   return { ...args, receipt }
 }
@@ -610,7 +640,7 @@ export namespace createStackSync {
 }
 
 /**
- * Permanently binds an ERC-4626 engine to its EarnVault.
+ * Permanently binds an engine to its EarnVault.
  *
  * @experimental
  *
@@ -625,8 +655,9 @@ export namespace createStackSync {
  *   chain: tempoModerato,
  *   transport: http(),
  * })
- * const hash = await Actions.earn.bindErc4626Engine(client, {
+ * const hash = await Actions.earn.bindEngine(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -635,20 +666,22 @@ export namespace createStackSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function bindErc4626Engine<
+export async function bindEngine<
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,
 >(
   client: Client.Client<chain, account>,
-  parameters: bindErc4626Engine.Parameters,
-): Promise<bindErc4626Engine.ReturnValue> {
-  return bindErc4626Engine.inner(write, client, parameters)
+  parameters: bindEngine.Parameters,
+): Promise<bindEngine.ReturnValue> {
+  return bindEngine.inner(write, client, parameters)
 }
 
-export namespace bindErc4626Engine {
+export namespace bindEngine {
   export type Args = {
     /** ERC-4626 engine address. */
     engine: Address.Address
+    /** Address that will own the initialized engine. Omit to retain its current owner. */
+    finalOwner?: Address.Address | undefined
     /** Factory-created EarnVault address. */
     vault: Address.Address
   }
@@ -667,10 +700,10 @@ export namespace bindErc4626Engine {
     client: Client.Client<chain, account>,
     parameters: Parameters,
   ): Promise<ReturnType<action>> {
-    const { engine, vault, ...rest } = parameters
+    const { engine, finalOwner, vault, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...bindErc4626Engine.call({ engine, vault }),
+      ...bindEngine.call({ engine, finalOwner, vault }),
     } as never)) as never
   }
 
@@ -690,7 +723,7 @@ export namespace bindErc4626Engine {
    *
    * const client = Client.create({ chain: tempoModerato, transport: http() })
    * await client.transaction.send({
-   *   calls: [Actions.earn.bindErc4626Engine.call({
+   *   calls: [Actions.earn.bindEngine.call({
    *     engine: '0x...',
    *     vault: '0x...',
    *   })],
@@ -701,11 +734,19 @@ export namespace bindErc4626Engine {
    * @returns The call.
    */
   export function call(args: Args) {
+    const { engine, finalOwner, vault } = args
+    if (finalOwner)
+      return defineCall({
+        address: engine,
+        abi: engineBindingAbi,
+        functionName: 'initializeEarnVault',
+        args: [vault, finalOwner],
+      })
     return defineCall({
-      address: args.engine,
-      abi: Abis.erc4626Engine,
+      address: engine,
+      abi: engineBindingAbi,
       functionName: 'initializeEarnVault',
-      args: [args.vault],
+      args: [vault],
     })
   }
 
@@ -722,7 +763,7 @@ export namespace bindErc4626Engine {
     })[],
   >(logs: logs, parameters: { engine: Address.Address }) {
     const [log] = AbiEvent.extractLogs(
-      Abis.erc4626Engine,
+      engineBindingAbi,
       logs.filter((log): log is logs[number] =>
         Address.isEqual(log.address, parameters.engine),
       ),
@@ -737,7 +778,7 @@ export namespace bindErc4626Engine {
 }
 
 /**
- * Binds an ERC-4626 engine and waits for confirmation.
+ * Binds an engine and waits for confirmation.
  *
  * @experimental
  *
@@ -752,8 +793,9 @@ export namespace bindErc4626Engine {
  *   chain: tempoModerato,
  *   transport: http(),
  * })
- * const result = await Actions.earn.bindErc4626EngineSync(client, {
+ * const result = await Actions.earn.bindEngineSync(client, {
  *   engine: '0x...',
+ *   finalOwner: '0x...',
  *   vault: '0x...',
  * })
  * ```
@@ -762,25 +804,28 @@ export namespace bindErc4626Engine {
  * @param parameters - Parameters.
  * @returns The receipt and bound addresses.
  */
-export async function bindErc4626EngineSync<
+export async function bindEngineSync<
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,
 >(
   client: Client.Client<chain, account>,
-  parameters: bindErc4626EngineSync.Parameters,
-): Promise<bindErc4626EngineSync.ReturnValue> {
+  parameters: bindEngineSync.Parameters,
+): Promise<bindEngineSync.ReturnValue> {
   const { engine, throwOnReceiptRevert = true } = parameters
-  const receipt = await bindErc4626Engine.inner(writeSync, client, {
+  const receipt = await bindEngine.inner(writeSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
-  const { args } = bindErc4626Engine.extractEvent(receipt.logs, { engine })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as bindEngineSync.ReturnValue
+
+  const { args } = bindEngine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
 
-export namespace bindErc4626EngineSync {
-  export type Args = bindErc4626Engine.Args
-  export type Parameters = bindErc4626Engine.Parameters & WriteSyncParameters
+export namespace bindEngineSync {
+  export type Args = bindEngine.Args
+  export type Parameters = bindEngine.Parameters & WriteSyncParameters
   export type ReturnValue = {
     /** ERC-4626 engine address. */
     engine: Address.Address
@@ -893,6 +938,7 @@ export async function deployErc4626StackSync<
     gas: _,
     keyAuthorization: __,
     nonce: ___,
+    owner: ____,
     ...sharedWriteParameters
   } = pickWriteParameters(parameters as never)
   const writeParameters = {
@@ -1005,6 +1051,8 @@ export async function deployErc4626StackSync<
         ...stackArgs,
       } as never)
       receipts.stack = receipt
+      if ((receipt as TransactionReceipt).status === 'pending')
+        return { receipt } as never
       const { args } = createStack.extractEvent(receipt.logs, {
         factory: parameters.factories.earn,
       })
@@ -1063,20 +1111,25 @@ export async function deployErc4626StackSync<
         ...writeParameters,
         account: bindingAccount,
         engine: predictedEngine,
+        finalOwner: owner,
         vault,
       }
       await simulate(client, {
         ...sharedWriteParameters,
         account: bindingAccount,
-        ...bindErc4626Engine.call({ engine: predictedEngine, vault }),
+        ...bindEngine.call({
+          engine: predictedEngine,
+          finalOwner: owner,
+          vault,
+        }),
       } as never)
-      const receipt = await bindErc4626Engine.inner(
+      const receipt = await bindEngine.inner(
         writeSync,
         client,
         bindingParameters as never,
       )
       receipts.binding = receipt
-      bindErc4626Engine.extractEvent(receipt.logs, { engine: predictedEngine })
+      bindEngine.extractEvent(receipt.logs, { engine: predictedEngine })
     } else if (!Address.isEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
     }
@@ -1104,7 +1157,7 @@ export async function deployErc4626StackSync<
 export namespace deployErc4626StackSync {
   export type Parameters = Omit<
     WriteParameters,
-    'gas' | 'keyAuthorization' | 'nonce' | 'throwOnReceiptRevert'
+    'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
     WriteSyncParameters & {
       /** Account used only for the final owner binding. */

@@ -1,0 +1,283 @@
+---
+description: Initialize a native multisig and coordinate independent owner approvals.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send Multisig Transactions
+
+## Overview
+
+Choose the flow based on how the account reaches quorum:
+
+- **[Local signing](#local-signing):** Use [`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) when the
+  multisig account can meet quorum locally. This includes a 1-of-1 account, one owner whose weight
+  meets the threshold, or an account that contains enough local owner signers.
+- **[Coordinated signing](#coordinated-signing):** Use coordinated signing when approvals come from
+  separate wallets, devices, services, or processes. Viem uses a shared store by default, or your
+  application can pass one prepared request and its signatures for stateless coordination.
+
+## Recipes
+
+These recipes assume that you have [set up a Tempo client](/tempo). Coordinated signing also
+requires a store that every coordinating process can access.
+
+### Local Signing
+
+When one trusted process holds enough owner accounts, put those accounts in the multisig and use
+`transaction.sendSync`. The multisig account signs a complete quorum locally.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create enough local owners to meet quorum.
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1, owner_2],
+  threshold: 2,
+})
+
+// 2. Send with all owner approvals created locally.
+const receipt = await client.transaction.sendSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+})
+// @log: { status: 'success', transactionHash: '0x...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Normal `transaction.send` also works when a prepared request already contains enough valid
+`signatures`. When coordination is disabled, Viem submits that complete multisig transaction
+directly.
+
+### Coordinated Signing
+
+Use coordinated signing when owners approve from separate wallets, devices, services, or
+processes. The first owner creates the stored transaction. Later owners approve the same transaction
+by its operation hash.
+
+::::steps
+
+#### Configure the Client
+
+Enable multisig coordination with a store that every coordinating process can access:
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, type Store } from 'viem/tempo'
+
+// Supply an atomic store shared by every coordinating process.
+declare const store: Store.Atomic
+
+export const client = Client.create({
+  experimental_multisig: { store },
+})
+```
+
+:::info
+Every process coordinating the same multisig must use the same persistent store. A
+[`Store.memory`](/tempo/utilities/Store.memory) store is process-local and is not suitable for
+coordination across processes.
+:::
+
+The store must implement atomic `compareAndSet` so concurrent approvals cannot overwrite each
+other.
+
+#### Set Up the Owners and Account
+
+Create each independent owner and a 3-of-3 multisig account from their addresses:
+
+```ts
+import { Account } from 'viem/tempo'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_3 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
+})
+```
+
+#### Send the Transaction
+
+The first owner passes the transaction fields, multisig account, and owner signer. Each later
+owner passes the same multisig account, the operation hash, and their signer:
+
+```ts
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_3 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 3,
+})
+
+const pending = await client.transaction.sendSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner: owner_1,
+})
+// @log: { status: 'pending', transactionHash: '0x...', multisig: { status: 'pending', weight: 1, threshold: 3 } }
+
+const pending2 = await client.transaction.sendSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: owner_2,
+})
+// @log: { status: 'pending', transactionHash: '0x...', multisig: { status: 'pending', weight: 2, threshold: 3 } }
+
+const receipt = await client.transaction.sendSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: owner_3,
+})
+// @log: { status: 'success', transactionHash: '0x...', multisig: { status: 'success', weight: 3, threshold: 3 } }
+```
+
+The operation hash identifies the exact stored transaction, including its resolved nonce, fees,
+gas, multisig version, and every field covered by the approval. The first transaction carries the
+initial multisig configuration. Later transactions resolve the current onchain configuration.
+
+[`transaction.send`](/docs/actions/wallet/transaction/send) always returns the operation hash.
+[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) returns a pending receipt below
+quorum and the submitted receipt when an approval reaches quorum. A pending receipt is synthetic:
+its `status` is `pending`, its `transactionHash` is the operation hash, and its block, gas, and log
+fields are empty or `null` because no transaction has been broadcast yet.
+
+#### Inspect the Transaction
+
+Read the transaction by its operation hash to inspect the current quorum state:
+
+```ts
+import { Actions as CoreActions } from 'viem'
+import { client } from './viem.config'
+
+const transaction = await CoreActions.transaction.get(client, {
+  hash: '0x0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+})
+const operation = transaction.multisig
+
+console.log(operation)
+// @log: { status: 'pending', signatures: 2, weight: 2, threshold: 3, ... }
+```
+
+While quorum is pending, `transaction.get` returns a synthetic transaction. Its `hash` is the
+operation hash, its block fields are `null`, and its `multisig` property contains the pending
+operation. After submission, the same hash resolves to the submitted transaction with the
+successful operation attached.
+
+::::
+
+### Stateless Approvals
+
+Use stateless approvals when your application already coordinates owners and does not need Viem to
+persist partial approvals. Prepare the transaction once so that every owner signs exactly the same
+fields, then submit the request with the collected signatures.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { Actions as CoreActions } from 'viem'
+import { client } from './viem.config'
+
+// 1. Create independent owners and a multisig from their addresses.
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1.address, owner_2.address],
+  threshold: 2,
+})
+
+// 2. Prepare the request once for every owner.
+const { request } = await CoreActions.transaction.prepare(client, {
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+})
+
+// 3. Collect every approval over the same request.
+const signatures = await Promise.all(
+  [owner_1, owner_2].map((account) =>
+    CoreActions.transaction.sign(client, { ...request, account })
+  )
+)
+
+// 4. Submit the complete multisig transaction.
+const receipt = await CoreActions.transaction.sendSync(client, {
+  ...request,
+  signatures,
+})
+// @log: { status: 'success', transactionHash: '0x...' }
+```
+
+Stateless coordination does not store partial approvals. If the process stops before collecting a
+complete quorum, retain the prepared request and collected signatures in your own system.
+
+## Best Practices
+
+### Share One Store Across Coordinators
+
+Every process that receives approvals for the same operation must use the same authoritative
+store. Do not use `Store.memory()` across processes or in a production service.
+
+### Keep Owner Signers Separate
+
+Use owner addresses when private keys live in separate trust boundaries. Put owner accounts in the
+multisig only when one environment intentionally holds those signers.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:scale"
+    title="Weighted Owners"
+    description="Configure M-of-N approvals or assign different weights to owners."
+    to="/tempo/guides/multisig/weighted-owners"
+  />
+  <Card
+    icon="lucide:database"
+    title="Store"
+    description="Provide a shared store for coordinated approvals."
+    to="/tempo/utilities/Store"
+  />
+  <Card
+    icon="lucide:wallet-cards"
+    title="Account.fromMultisig"
+    description="Create a native multisig account from its initial configuration."
+    to="/tempo/accounts/account.fromMultisig"
+  />
+</Cards>

@@ -12,8 +12,8 @@ import {
 } from 'vocs/config'
 
 import pkg from '../package.json' with { type: 'json' }
-import * as sidebar from './sidebar.generated'
 import { shikiDark, shikiLight } from './shiki-themes'
+import * as sidebar from './sidebar.generated'
 
 // Load `site/.env` (e.g. `CLOUDFLARE_*` for AI search). No-op if absent.
 try {
@@ -433,6 +433,11 @@ export default defineConfig({
     },
 
     // Tempo Zones page moved into the Guides section.
+    {
+      source: '/tempo/guides/multisig-transactions',
+      destination: '/tempo/guides/multisig',
+      status: 308,
+    },
     {
       source: '/tempo/zones',
       destination: '/tempo/guides/zones/connect',
@@ -2381,11 +2386,6 @@ export default defineConfig({
                 link: '/tempo/guides/pay-fees',
               },
               { text: 'Sponsor User Fees', link: '/tempo/guides/sponsor-fees' },
-              {
-                badge: { text: 'EXP', variant: 'warning' },
-                text: 'Multisig Transactions',
-                link: '/tempo/guides/multisig-transactions',
-              },
             ],
           },
           {
@@ -2571,6 +2571,42 @@ export default defineConfig({
               {
                 text: 'Withdraw from a Zone',
                 link: '/tempo/guides/zones/withdraw',
+              },
+            ],
+          },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Multisig',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/multisig' },
+              {
+                text: 'Send Transactions',
+                link: '/tempo/guides/multisig/send',
+              },
+              {
+                text: 'Weighted Owners',
+                link: '/tempo/guides/multisig/weighted-owners',
+              },
+              {
+                text: 'Passkeys & Other Keys',
+                link: '/tempo/guides/multisig/key-types',
+              },
+              {
+                text: 'Nested Accounts',
+                link: '/tempo/guides/multisig/nested-accounts',
+              },
+              {
+                text: 'Authorize Access Keys',
+                link: '/tempo/guides/multisig/access-keys',
+              },
+              {
+                text: 'Sponsor Fees',
+                link: '/tempo/guides/multisig/sponsor-fees',
+              },
+              {
+                text: 'Rotate Owners',
+                link: '/tempo/guides/multisig/rotate-owners',
               },
             ],
           },
@@ -2920,8 +2956,8 @@ export default defineConfig({
               },
               {
                 badge: badge('wallet'),
-                text: 'Bind ERC-4626 Engine',
-                link: '/tempo/actions/earn.bindErc4626Engine',
+                text: 'Bind Engine',
+                link: '/tempo/actions/earn.bindEngine',
               },
               {
                 badge: badge('wallet'),
@@ -3014,6 +3050,32 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Set Validator Fee Token',
                 link: '/tempo/actions/fee.setValidatorToken',
+              },
+            ],
+          },
+          {
+            text: 'Multisig',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Config',
+                link: '/tempo/actions/multisig.getConfig',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Operation',
+                link: '/tempo/actions/multisig.getOperation',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Config',
+                link: '/tempo/actions/multisig.updateConfig',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Config Sync',
+                link: '/tempo/actions/multisig.updateConfigSync',
               },
             ],
           },
@@ -3420,6 +3482,11 @@ export default defineConfig({
               },
               {
                 badge: badge('public'),
+                text: 'Get Portal Info',
+                link: '/tempo/actions/zone.getPortalInfo',
+              },
+              {
+                badge: badge('public'),
                 text: 'Get Info',
                 link: '/tempo/actions/zone.getZoneInfo',
               },
@@ -3464,7 +3531,10 @@ export default defineConfig({
       },
       {
         text: 'Transports',
-        items: [{ text: 'withRelay', link: '/tempo/transports/withRelay' }],
+        items: [
+          { text: 'withMultisig', link: '/tempo/transports/withMultisig' },
+          { text: 'withRelay', link: '/tempo/transports/withRelay' },
+        ],
       },
       {
         text: 'Utilities',
@@ -3480,16 +3550,29 @@ export default defineConfig({
             link: '/tempo/utilities/Selectors',
           },
           {
-            text: 'Storage',
+            badge: { text: 'EXP', variant: 'warning' },
+            text: 'Multisig',
             collapsed: true,
             items: [
+              { text: 'Overview', link: '/tempo/utilities/Multisig' },
               {
-                text: 'defaultStorage',
-                link: '/tempo/utilities/Storage.defaultStorage',
+                text: 'handleRequest',
+                link: '/tempo/utilities/Multisig.handleRequest',
               },
-              { text: 'from', link: '/tempo/utilities/Storage.from' },
-              { text: 'memory', link: '/tempo/utilities/Storage.memory' },
-              { text: 'session', link: '/tempo/utilities/Storage.session' },
+            ],
+          },
+          {
+            text: 'Store',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/utilities/Store' },
+              {
+                text: 'defaultStore',
+                link: '/tempo/utilities/Store.defaultStore',
+              },
+              { text: 'from', link: '/tempo/utilities/Store.from' },
+              { text: 'memory', link: '/tempo/utilities/Store.memory' },
+              { text: 'session', link: '/tempo/utilities/Store.session' },
             ],
           },
         ],

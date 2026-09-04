@@ -11,14 +11,14 @@ import type {
   UnionOmit,
 } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
+import * as ZoneAbis from '../../Abis.js'
+import * as Addresses from '../../Addresses.js'
 import {
   defineCall,
   dispatchSend,
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
-import * as ZoneAbis from '../../zones/Abis.js'
-import { getPortalAddress } from '../../zones/zone.js'
 import { getEncryptionKey } from './getEncryptionKey.js'
 import {
   encryptDepositPayload,
@@ -73,7 +73,7 @@ export namespace encryptedDeposit {
     /** Amount of tokens to deposit. */
     amount: bigint
     /** Refund recipient on the parent chain if the deposit bounces. */
-    bouncebackRecipient: Address.Address
+    tempoRefundRecipient: Address.Address
     /** Parent chain ID. */
     chainId: number
     /** Encrypted deposit payload. */
@@ -98,7 +98,7 @@ export namespace encryptedDeposit {
   > = ZoneWriteParameters<account> &
     Omit<
       Args,
-      | 'bouncebackRecipient'
+      | 'tempoRefundRecipient'
       | 'chainId'
       | 'encrypted'
       | 'keyIndex'
@@ -106,7 +106,7 @@ export namespace encryptedDeposit {
       | 'sender'
     > & {
       /** Refund recipient on the parent chain. Defaults to `account.address`. */
-      bouncebackRecipient?: Address.Address | undefined
+      tempoRefundRecipient?: Address.Address | undefined
       /** Recipient address in the zone. Defaults to `account.address`. */
       recipient?: Address.Address | undefined
     }
@@ -130,8 +130,8 @@ export namespace encryptedDeposit {
   ): Promise<dispatchSend.ReturnType<action>> {
     const chain = getChain(client, options)
     const account = getAccount(options.account ?? client.account)
-    const bouncebackRecipient =
-      options.bouncebackRecipient ?? getAddress(account)
+    const tempoRefundRecipient =
+      options.tempoRefundRecipient ?? getAddress(account)
     if ('encrypted' in options) {
       if (options.chainId !== chain.id)
         throw new Error(
@@ -141,14 +141,14 @@ export namespace encryptedDeposit {
         ...pickWriteParameters(options),
         ...(action === sendSync ? pickWriteSyncParameters(options) : {}),
         account,
-        calls: encryptedDeposit.calls({ ...options, bouncebackRecipient }),
+        calls: encryptedDeposit.calls({ ...options, tempoRefundRecipient }),
       })
     }
 
     const recipient = options.recipient ?? getAddress(account)
     const prepared = await encryptedDeposit.prepare(client, {
       amount: options.amount,
-      bouncebackRecipient,
+      tempoRefundRecipient,
       memo: options.memo,
       portalAddress: options.portalAddress,
       recipient,
@@ -176,7 +176,7 @@ export namespace encryptedDeposit {
     if (!chain) throw new Error('`chain` is required.')
     const {
       amount,
-      bouncebackRecipient,
+      tempoRefundRecipient,
       memo,
       portalAddress: portalAddress_,
       recipient,
@@ -187,7 +187,7 @@ export namespace encryptedDeposit {
     } = options
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
       portalAddress,
@@ -195,7 +195,7 @@ export namespace encryptedDeposit {
     })
     return {
       amount,
-      bouncebackRecipient,
+      tempoRefundRecipient,
       chainId: chain.id,
       encrypted: await encryptDepositPayload(
         publicKey,
@@ -218,7 +218,7 @@ export namespace encryptedDeposit {
       /** Amount of tokens to deposit. */
       amount: bigint
       /** Refund recipient on the parent chain if the deposit bounces. */
-      bouncebackRecipient: Address.Address
+      tempoRefundRecipient: Address.Address
       /** Optional deposit memo. */
       memo?: Hex.Hex | undefined
       /** Zone portal address. Defaults to the configured portal registry. */
@@ -267,7 +267,7 @@ export namespace encryptedDeposit {
     } = options
     if (!sender_) throw new Error('`sender` is required.')
     const sender = sender_
-    const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const { keyIndex, publicKey } = await getEncryptionKey(client, {
       ...rest,
       portalAddress,
@@ -324,17 +324,9 @@ export namespace encryptedDeposit {
 
   /** Defines the calls to approve and deposit encrypted tokens into a zone. */
   export function calls(args: Args | PreparedEncryptedDeposit) {
-    const {
-      amount,
-      bouncebackRecipient,
-      chainId,
-      encrypted,
-      keyIndex,
-      token,
-      zoneId,
-    } = args
-    const portalAddress =
-      args.portalAddress ?? getPortalAddress(chainId, zoneId)
+    const { amount, tempoRefundRecipient, encrypted, keyIndex, token, zoneId } =
+      args
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
     return [
       defineCall({
         address: token,
@@ -357,7 +349,7 @@ export namespace encryptedDeposit {
             nonce: encrypted.nonce,
             tag: encrypted.tag,
           },
-          bouncebackRecipient,
+          tempoRefundRecipient,
         ],
       }),
     ] as const

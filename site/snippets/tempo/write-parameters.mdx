@@ -2,7 +2,7 @@
 
 - **Type:** `Account | Address`
 
-Account that will be used to send the transaction.
+Account that sends the transaction. For a coordinated multisig transaction, pass the multisig account.
 
 ### feePayer (optional)
 
@@ -76,3 +76,9 @@ Unix timestamp after which the transaction can be included.
 - **Type:** `number`
 
 Unix timestamp before which the transaction must be included.
+
+### Owner (Optional)
+
+- **Type:** `Account`
+
+Local owner that signs one coordinated multisig approval.

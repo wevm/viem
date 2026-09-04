@@ -1,4 +1,5 @@
 import type { Errors } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -42,6 +43,9 @@ export async function renounceRolesSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as renounceRolesSync.ReturnType
+
   const events = renounceRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return { receipt, value }

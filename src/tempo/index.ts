@@ -6,6 +6,8 @@ export {
   EarnShares,
   KeyAuthorization,
   MultisigConfig,
+  MultisigOperation,
+  MultisigSimulation,
   Period,
   ReceivePolicyReceipt,
   SignatureEnvelope,
@@ -24,7 +26,7 @@ export { custom } from '../core/transports/custom.js'
 export { fallback } from '../core/transports/fallback.js'
 
 /** Creates an HTTP JSON-RPC transport. */
-export { http } from '../core/transports/http.js'
+export { http } from './Transport.js'
 
 /** Creates a WebSocket JSON-RPC transport. */
 export { webSocket } from '../core/transports/webSocket.js'
@@ -51,7 +53,7 @@ export * as Chain from './Chain.js'
 export * as Client from './Client.js'
 
 /** Tempo action decorator for a Client's `.extend`. */
-export { type Decorator as TempoActions, tempoActions } from './Decorator.js'
+export { tempoActions, type Decorator as TempoActions } from './Decorator.js'
 
 /** Tempo errors. */
 export * from './errors.js'
@@ -75,10 +77,10 @@ export * as Scopes from './Scopes.js'
 export * as Selectors from './Selectors.js'
 
 /** Minimal async key-value storages (memory, session). */
-export * as Storage from './Storage.js'
+export * as Store from './Store.js'
 
 /** Relay transport: routes fee sponsorship traffic to a fee payer service. */
-export { type Relay, withRelay } from './Transport.js'
+export { withMultisig, withRelay, type Relay } from './Transport.js'
 
 /** WebAuthn P256 credential creation & signing. */
 export * as WebAuthnP256 from './WebAuthnP256.js'
@@ -90,3 +92,9 @@ export * as WebCryptoP256 from './WebCryptoP256.js'
 // export tables of modules the consumer imports, and a consumer importing only
 // `viem/tempo` never imports `viem`. See `internal/inference.ts`.
 export type * from '../internal/inference.js'
+
+/** Coordinates native multisig approvals over JSON-RPC. */
+export * as Multisig from './Multisig.js'
+
+/** Tempo Zone chains. */
+export * as Zone from './Zone.js'

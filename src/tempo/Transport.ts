@@ -1,10 +1,14 @@
 import type { Hex } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
 
+import { RpcResponse } from 'ox'
 import * as Transport from '../core/Transport.js'
+import { http as http_ } from '../core/transports/http.js'
+import * as Multisig from './Multisig.js'
+import * as Store from './Store.js'
 
 /** A relay {@link Transport.Transport}: routes fee sponsorship traffic to a relay (fee payer service). */
-export type Relay = Transport.Transport<'relay'>
+export type Relay = Transport.Transport<'relay', { multisig: true }>
 
 /**
  * Creates a {@link Transport.Transport} that routes requests between a
@@ -22,7 +26,9 @@ export type Relay = Transport.Transport<'relay'>
  * - `'sign-and-broadcast'`: the submission is forwarded to the relay, which
  *   co-signs and broadcasts it itself.
  *
- * All other requests are forwarded to the default transport.
+ * Multisig approvals and submissions are sent to the relay. Transaction and
+ * receipt lookups fall back to the relay for pending multisig operations.
+ * Other requests are forwarded to the default transport.
  *
  * @example
  * ```ts
@@ -57,6 +63,7 @@ export function withRelay(
       const relay = relayTransport.setup({ chain, retryCount: 0, timeout })
 
       return {
+        multisig: true as const,
         methods: options.methods,
         retryCount: options.retryCount ?? retryCount,
         retryDelay: options.retryDelay,
@@ -67,11 +74,76 @@ export function withRelay(
           if (method === 'eth_fillTransaction') return relay.request(args, opts)
 
           if (
+            method === 'eth_getTransactionByHash' ||
+            method === 'eth_getTransactionReceipt'
+          ) {
+            const result = await transport.request(
+              { method, params: params as [Hex.Hex] },
+              opts,
+            )
+            if (result !== null && typeof result !== 'undefined') return result
+
+            const operation = await (async () => {
+              try {
+                return await relay.request(
+                  { method: 'multisig_getOperation', params },
+                  opts,
+                )
+              } catch (error) {
+                if (
+                  error instanceof RpcResponse.MethodNotFoundError ||
+                  error instanceof RpcResponse.MethodNotSupportedError
+                ) {
+                  // Relays created before multisig coordination do not expose this method.
+                  return null
+                }
+                throw error
+              }
+            })()
+            if (
+              !operation ||
+              typeof operation !== 'object' ||
+              !('type' in operation) ||
+              operation.type !== 'transaction'
+            )
+              return result
+            return relay.request({ method, params: params as [Hex.Hex] }, opts)
+          }
+
+          if (
+            method === 'multisig_approveKeyAuthorization' ||
+            method === 'multisig_approveRawTransaction' ||
+            method === 'multisig_approveRawTransactionSync' ||
+            method === 'multisig_getConfig' ||
+            method === 'multisig_getOperation'
+          )
+            return relay.request({ method, params: params as [Hex.Hex] }, opts)
+
+          if (
             method === 'eth_sendRawTransaction' ||
             method === 'eth_sendRawTransactionSync'
           ) {
             const serialized = (params as readonly unknown[])?.[0]
             // A pending fee payer signature marks the envelope as awaiting relay co-signature.
+            if (
+              typeof serialized === 'string' &&
+              serialized.startsWith(TxEnvelopeTempo.serializedType)
+            ) {
+              const envelope = (() => {
+                try {
+                  return TxEnvelopeTempo.deserialize(
+                    serialized as TxEnvelopeTempo.Serialized,
+                  )
+                } catch {
+                  return undefined
+                }
+              })()
+              if (envelope?.signature?.type === 'multisig')
+                return relay.request(
+                  { method, params: [serialized as Hex.Hex] },
+                  opts,
+                )
+            }
             const sponsored = toFeePayerFormat(serialized)
             if (sponsored) {
               if (policy === 'sign-and-broadcast')
@@ -134,4 +206,99 @@ function toFeePayerFormat(serialized: unknown): Hex.Hex | undefined {
     // Malformed payloads fall through to the node for the authoritative error.
     return undefined
   }
+}
+
+/**
+ * Creates an HTTP JSON-RPC transport with support for Zone authorization
+ * tokens.
+ *
+ * Reads the authorization token for the client's chain from {@link Store}
+ * and injects the `X-Authorization-Token` header on every request. Batching
+ * is not supported because zone tokens are account-scoped.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, Zone } from 'viem/tempo'
+ *
+ * const client = Client.create({
+ *   chain: Zone.a,
+ *   transport: http(),
+ * })
+ * ```
+ *
+ * @param url - RPC URL. Defaults to the chain's default RPC URL.
+ * @param options - Options.
+ * @returns An HTTP transport.
+ */
+export function http(
+  url?: string | undefined,
+  options: http.Options = {},
+): Transport.Http {
+  const { onFetchRequest, store = Store.defaultStore(), ...rest } = options
+  return {
+    key: rest.key ?? 'http',
+    name: rest.name ?? 'HTTP JSON-RPC',
+    type: 'http',
+    setup(setupOptions = {}) {
+      const chainId = setupOptions.chain?.id
+      return http_(url, {
+        ...rest,
+        async onFetchRequest(request, init) {
+          const next = (await onFetchRequest?.(request, init)) ?? init
+          const headers = new Headers(next.headers)
+
+          if (chainId) {
+            const token = await store.getItem(`auth:token:${chainId}`)
+            if (token) headers.set('X-Authorization-Token', token)
+          }
+
+          return { ...next, headers }
+        },
+      }).setup(setupOptions)
+    },
+  }
+}
+
+export declare namespace http {
+  type Options = Omit<http_.Options, 'batch' | 'raw'> & {
+    /** Store for reading zone authorization tokens. Defaults to session storage (web) or memory (server). */
+    store?: Store.Store | undefined
+  }
+}
+
+/** Wraps a transport with native multisig approval coordination. */
+export function withMultisig<transport extends Transport.Transport>(
+  transport: transport,
+  options: Multisig.handleRequest.Parameters,
+): withMultisig.ReturnValue<transport> {
+  return {
+    ...transport,
+    setup(parameters = {}) {
+      const value = transport.setup(parameters)
+      return {
+        ...value,
+        multisig: true,
+        request: Multisig.handleRequest(
+          (request, options) => value.request(request, options),
+          options,
+        ),
+      }
+    },
+  } as unknown as withMultisig.ReturnValue<transport>
+}
+
+export declare namespace withMultisig {
+  /** Parameters for multisig coordination. */
+  type Options = Multisig.handleRequest.Parameters
+  /** Wrapped transport with multisig coordination metadata. */
+  type ReturnValue<
+    transport extends Transport.Transport = Transport.Transport,
+  > =
+    transport extends Transport.Transport<
+      infer type,
+      infer properties,
+      infer request
+    >
+      ? Transport.Transport<type, properties & { multisig: true }, request>
+      : never
 }

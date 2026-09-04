@@ -1,6 +1,7 @@
 name: Pull request
 on:
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
 
 concurrency:
   group: ${{ github.workflow }}-branch-${{ github.event.pull_request.head.repo.full_name }}-${{ github.head_ref }}
@@ -10,6 +11,8 @@ jobs:
   verify:
     name: Verify
     uses: ./.github/workflows/verify.yml
+    with:
+      full: ${{ !github.event.pull_request.draft }}
     secrets: inherit
     permissions:
       contents: read
@@ -17,6 +20,7 @@ jobs:
 
   publish:
     name: Publish Prerelease
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -37,6 +41,7 @@ jobs:
 
   size:
     name: Size
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

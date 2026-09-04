@@ -73,3 +73,7 @@ export type { TransactionReceipt as z_TransactionReceipt } from 'ox/TransactionR
 export type { Type as z_TransactionReceiptType } from 'ox/TransactionReceipt'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { Withdrawal as z_Withdrawal } from 'ox/Withdrawal'
+/** @deprecated Compiler support for declaration emit, not Viem API. */
+export type { Scope as z_KeyAuthorizationScope } from 'ox/tempo/KeyAuthorization'
+/** @deprecated Compiler support for declaration emit, not Viem API. */
+export type { Owner as z_MultisigConfigOwner } from 'ox/tempo/MultisigConfig'

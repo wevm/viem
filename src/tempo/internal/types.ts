@@ -1,8 +1,8 @@
 import type { Address } from 'ox'
 
 import type { writeSync } from '../../core/actions/contract/writeSync.js'
-import type { TransactionRequest } from '../chainConfig.js'
 import type { UnionPick } from '../../core/internal/types.js'
+import type { TransactionRequest } from '../chainConfig.js'
 
 export type {
   ReadParameters,
@@ -41,6 +41,7 @@ export type WriteParameters = UnionPick<
     | 'feeToken'
     | 'keyAuthorization'
     | 'nonceKey'
+    | 'owner'
     | 'validAfter'
     | 'validBefore'
   >

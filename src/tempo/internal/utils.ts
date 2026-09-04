@@ -121,6 +121,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     maxPriorityFeePerGas,
     nonce,
     nonceKey,
+    owner,
     validAfter,
     validBefore,
   } = parameters
@@ -135,6 +136,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     maxPriorityFeePerGas,
     nonce,
     nonceKey,
+    owner,
     validAfter,
     validBefore,
   }

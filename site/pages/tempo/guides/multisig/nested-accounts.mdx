@@ -1,0 +1,109 @@
+---
+description: Use an initialized native multisig as an owner of another multisig account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Nested Multisig Accounts
+
+## Overview
+
+A multisig account can own another multisig. Initialize every nested owner before using it to
+approve a parent transaction.
+
+A nested owner contributes its configured weight to the parent only after the nested owner's own
+approvals reach quorum. The store can retain a partial nested approval tree, but its parent weight
+remains zero until that child quorum is complete.
+
+## Recipes
+
+### Create and Initialize the Child
+
+This child has one local owner, so it can initialize through the normal local-quorum flow.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create the child multisig and its local owner.
+const childOwner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const child = Account.fromMultisig({ address: 'infer', owners: [childOwner] })
+
+// 2. Submit the child's first transaction with its complete local quorum.
+const receipt = await client.transaction.sendSync({
+  account: child,
+  calls: [{ data: '0xdeadbeef', to: child.address }],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
+```
+
+:::
+
+### Approve as the Nested Owner
+
+Pass the initialized child account as a parent owner. The child signs a complete nested quorum,
+which the coordinator verifies before counting the child toward the parent threshold.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create and initialize the child.
+const childOwner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const child = Account.fromMultisig({ address: 'infer', owners: [childOwner] })
+const childReceipt = await client.transaction.sendSync({
+  account: child,
+  calls: [{ data: '0xdeadbeef', to: child.address }],
+})
+
+// 2. Make the initialized child the parent owner.
+const parent = Account.fromMultisig({ address: 'infer', owners: [child] })
+
+// 3. Approve the parent request with the child's complete quorum.
+const receipt = await client.transaction.sendSync({
+  account: parent,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner: child,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
+```
+
+:::
+
+For a child whose owners approve separately, each child approval is merged into the nested branch
+for the same parent request. The parent operation remains pending until both the child quorum and
+the parent threshold are satisfied.
+
+## Best Practices
+
+### Initialize Every Child First
+
+The child address must have enough fee token to initialize itself. A parent approval fails when a
+nested multisig owner has not been initialized.
+
+### Reuse the Parent Operation Hash
+
+Every primitive and nested owner must approve the transaction identified by the same parent
+operation hash. Configuration reads and signature payloads are tied to that transaction.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals through a shared store." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:scale" title="Weighted Owners" description="Combine nested ownership with weighted approval thresholds." to="/tempo/guides/multisig/weighted-owners" />
+  <Card icon="lucide:settings" title="multisig.getConfig" description="Read a multisig account's current configuration and version." to="/tempo/actions/multisig.getConfig" />
+</Cards>

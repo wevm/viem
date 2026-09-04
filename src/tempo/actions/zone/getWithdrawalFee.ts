@@ -4,9 +4,9 @@ import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { read } from '../../../core/actions/contract/read.js'
+import * as ZoneAbis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { ReadParameters } from '../../internal/types.js'
-import * as ZoneAbis from '../../zones/Abis.js'
 
 /**
  * Returns the fee required for a withdrawal from a zone, given a callback gas limit.

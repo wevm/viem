@@ -1,4 +1,5 @@
 import type { Address, Errors, Hex } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -20,6 +21,9 @@ export async function openSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as openSync.ReturnType
+
   const { args } = open.extractEvent(receipt.logs)
   return { ...args, receipt }
 }

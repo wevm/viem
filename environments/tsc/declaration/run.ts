@@ -149,6 +149,10 @@ function setup(): void {
     // is exactly why types reaching those packages are unnameable downstream.
     dependencies: { viem: `file:${join(packDir, tarball)}` },
   })
+  writeFileSync(
+    join(consumer, 'pnpm-workspace.yaml'),
+    'blockExoticSubdeps: false\n',
+  )
   execFileSync('pnpm', ['install', '--ignore-scripts', '--no-lockfile'], {
     cwd: consumer,
     stdio: 'pipe',

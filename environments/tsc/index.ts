@@ -1,3 +1,7 @@
+import { Zone } from 'viem/tempo'
+
+export const zone = Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 })
+
 import { Client, http, publicActions, Token, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 

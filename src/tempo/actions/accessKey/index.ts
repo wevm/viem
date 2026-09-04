@@ -16,3 +16,5 @@ export { verifyHash } from './verifyHash.js'
 export { watchAdminAuthorized } from './watchAdminAuthorized.js'
 export { watchWitness } from './watchWitness.js'
 export { watchWitnessBurned } from './watchWitnessBurned.js'
+
+export { prepareAuthorization } from './prepareAuthorization.js'

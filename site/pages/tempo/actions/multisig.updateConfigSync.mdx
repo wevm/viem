@@ -1,0 +1,90 @@
+---
+description: Replaces a native multisig configuration and waits for transaction confirmation.
+---
+
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `multisig.updateConfigSync`
+
+Replaces the current owners and threshold for a native multisig account, waits for confirmation,
+and returns the emitted configuration with the receipt.
+
+The transaction must be authorized by the current owner quorum. Use
+[`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) when you do not want to wait.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const newOwner = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1, owner_2],
+  threshold: 2,
+})
+
+const result = await client.multisig.updateConfigSync({
+  account,
+  nextConfig: {
+    owners: [{ owner: newOwner.address, weight: 1 }],
+    threshold: 1,
+  },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  account: Address
+  config: MultisigConfig.Config
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### currentConfig
+
+- **Type:** `MultisigConfig.Config | undefined`
+
+The account's complete current config. When omitted, the action uses the config on the
+multisig account, then asks the configured multisig coordinator by account address.
+
+### nextConfig
+
+- **Type:** `{ owners: readonly MultisigConfig.Owner[]; threshold: number }`
+
+The replacement owners and approval threshold. Owners are normalized into canonical address order.
+
+#### nextConfig.owners
+
+- **Type:** `readonly { owner: Address; weight: number }[]`
+
+The complete replacement owner set.
+
+#### nextConfig.threshold
+
+- **Type:** `number`
+
+The replacement approval weight required to authorize the account.
+
+<WriteParameters />

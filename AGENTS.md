@@ -207,6 +207,8 @@ This document contains general guidelines for AI agents working on the Viem code
   - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
   - Exercise real behavior against the configured test chain or real ephemeral servers.
   - If a test seems to need a mock, rework the code or test.
+- **Finish package builds before starting tests**; `exports:update` rewrites `package.json`, so concurrent test startup can read incomplete JSON.
+- **Estimate Zone factory fixture gas**; fixed limits can become insufficient as the local `latest` node changes. Assert the creation receipt succeeds before extracting events.
 - **Target the relevant project**; prefer narrow test commands while iterating.
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.

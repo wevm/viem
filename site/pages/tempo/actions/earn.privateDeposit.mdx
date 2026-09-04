@@ -22,8 +22,8 @@ const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
+  tempoRefundRecipient: parentClient.account.address,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
 })
@@ -60,8 +60,8 @@ const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
   shareAmountMin: 99_500_000n,
+  tempoRefundRecipient: parentClient.account.address,
   vault: '0x0000000000000000000000000000000000000002',
   zoneId: 7,
 })
@@ -85,8 +85,8 @@ const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
-  recoveryRecipient: parentClient.account.address,
   shareAmountMin: 98_500_000n,
+  tempoRefundRecipient: parentClient.account.address,
   vault: '0x0000000000000000000000000000000000000003',
   vaultAssetAmountMin: 99_000_000n,
   zoneId: 7,
@@ -163,7 +163,7 @@ Gas reserved for the parent-chain gateway callback.
 ### fallbackRecipient (optional)
 
 - **Type:** `Address`
-- **Default:** `recoveryRecipient`
+- **Default:** `tempoRefundRecipient`
 
 Public recipient if the parent-chain gateway callback fails.
 
@@ -185,12 +185,6 @@ Source Zone portal on the parent chain.
 - **Type:** `Address`
 
 Encrypted Zone recipient for the returned Earn shares.
-
-### recoveryRecipient
-
-- **Type:** `Address`
-
-Public Tempo recipient if the encrypted return deposit fails.
 
 ### returnMemo (optional)
 
@@ -215,6 +209,12 @@ Minimum Earn shares returned to the Zone.
 - **Type:** `number`
 
 Slippage tolerance below `shareAmount`, in basis points. For example, `50` means 0.5%.
+
+### tempoRefundRecipient
+
+- **Type:** `Address`
+
+Public Tempo recipient if the encrypted return deposit fails.
 
 ### vault
 

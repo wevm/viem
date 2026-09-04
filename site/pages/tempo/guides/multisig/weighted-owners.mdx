@@ -1,0 +1,124 @@
+---
+description: Configure M-of-N and weighted approval thresholds for a native multisig account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Weighted Owners
+
+## Overview
+
+Each multisig owner has a weight. A transaction is authorized when the selected owners' combined
+weight reaches the account threshold.
+
+## Recipes
+
+### Coordinate M-of-N Approvals
+
+When every owner has weight `1`, the threshold defines how many owners must approve. This 2-of-3
+account can reach quorum with any two owners.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create three independent owners.
+const owner_1 = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_3 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+
+// 2. Require any two owners for quorum.
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1.address, owner_2.address, owner_3.address],
+  threshold: 2,
+})
+
+// 3. Store the first owner's approval.
+const pending = await client.transaction.sendSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner: owner_1,
+})
+
+// 4. Reach quorum with any other owner using the operation hash.
+const receipt = await client.transaction.sendSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: owner_3,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
+```
+
+:::
+
+### Assign Different Weights
+
+Weighted entries let some owners contribute more toward the threshold. In this configuration,
+Alice plus either Bob or Carol satisfies the threshold of `3`.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+// 1. Create the owners.
+const alice = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const bob = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const carol = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+
+// 2. Assign weights and choose the required total.
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [
+    { owner: alice.address, weight: 2 },
+    { owner: bob.address, weight: 1 },
+    { owner: carol.address, weight: 1 },
+  ],
+  threshold: 3,
+})
+```
+
+## Quorum Selection
+
+The store retains valid approvals while an operation is pending. If more approvals are available
+than the final envelope needs, the coordinator selects a deterministic minimal quorum. It prefers
+higher-weight owners, uses owner addresses to break equal-weight ties, and serializes the selected
+approvals in canonical owner order.
+
+For Alice (`2`), Bob (`1`), Carol (`1`), and threshold `3`:
+
+- Alice and Bob reach quorum.
+- Alice and Carol reach quorum.
+- Bob and Carol remain pending at weight `2`.
+- If all three approvals are stored before submission, the final envelope includes Alice and the
+  deterministically selected light owner. The other valid approval can remain in operation state.
+
+## Best Practices
+
+### Keep Recovery Possible
+
+Choose weights and a threshold that permit recovery when an expected signer is unavailable. Test
+every intended owner combination before funding the account.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals through a shared store." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds without changing the account address." to="/tempo/guides/multisig/rotate-owners" />
+</Cards>

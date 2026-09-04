@@ -1,4 +1,5 @@
 import type { Address, Errors } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -20,6 +21,9 @@ export async function setAdminSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as setAdminSync.ReturnType
+
   const { args } = setAdmin.extractEvent(receipt.logs)
   return { ...args, receipt }
 }

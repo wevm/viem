@@ -6,6 +6,7 @@ import type * as Client from '../../../core/Client.js'
 import { send } from '../../../core/actions/transaction/send.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import * as Abis from '../../Abis.js'
+import * as ZoneAbis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import {
   defineCall,
@@ -13,7 +14,6 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
-import * as ZoneAbis from '../../zones/Abis.js'
 import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
 import type { requestWithdrawal } from './requestWithdrawal.js'
 

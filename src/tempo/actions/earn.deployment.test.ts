@@ -1,6 +1,6 @@
 import { AbiConstructor, Address, Hex } from 'ox'
 import { Actions as CoreActions } from 'viem'
-import { Account as TempoAccount, Abis, Actions } from 'viem/tempo'
+import { Abis, Actions, Account as TempoAccount } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo.js'
 import { deployEarnFactories } from '~test/tempo/earn.js'
@@ -33,6 +33,24 @@ function setup() {
   fixturePromise ??= deployEarnFactories(client)
   return fixturePromise
 }
+
+describe('bindEngine.call', () => {
+  test('encodes optional final ownership transfer', () => {
+    expect(
+      Actions.earn.bindEngine.call({
+        engine: account.address,
+        vault: accounts[1].address,
+      }).args,
+    ).toEqual([accounts[1].address])
+    expect(
+      Actions.earn.bindEngine.call({
+        engine: account.address,
+        finalOwner: accounts[2].address,
+        vault: accounts[1].address,
+      }).args,
+    ).toEqual([accounts[1].address, accounts[2].address])
+  })
+})
 
 describe('createStack.call', () => {
   test('defaults to a fee-free stack with no privileged control seats', () => {
@@ -232,11 +250,22 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(isAddressEqual(engineEvent.args.engine, engine)).toBe(true)
     expect(isAddressEqual(stackEvent.args.engine, engine)).toBe(true)
 
-    const binding = await Actions.earn.bindErc4626EngineSync(client, {
+    const binding = await Actions.earn.bindEngineSync(client, {
       engine,
+      finalOwner: accounts[1].address,
       vault: stackEvent.args.earnVault,
     })
     expect(binding.receipt.status).toBe('success')
+    expect(
+      isAddressEqual(
+        await readContract(client, {
+          abi: Abis.erc4626Engine,
+          address: engine,
+          functionName: 'owner',
+        }),
+        accounts[1].address,
+      ),
+    ).toBe(true)
   })
 
   test('deploys, resumes, binds, and reruns idempotently', async () => {
@@ -264,6 +293,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     expect(deployed.receipts.engine).toBeUndefined()
     expect(deployed.receipts.stack?.status).toBe('success')
     expect(deployed.receipts.binding?.status).toBe('success')
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const [boundVault, guardian, janitor, migrationMode] = await Promise.all([
       readContract(client, {
@@ -329,6 +360,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       owner,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     const engineOwner = await readContract(client, {
       abi: Abis.erc4626Engine,
@@ -497,6 +530,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       factories,
       venue,
     })
+    if (deployed.receipts.stack?.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
 
     await expect(
       Actions.earn.deployErc4626StackSync(client, {
@@ -531,6 +566,8 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       engine: engine.engine,
       factory: factories.earn,
     })
+    if (stack.receipt.status === 'pending')
+      throw new Error('Expected submitted stack receipt.')
     await writeContractSync(client, {
       abi: Abis.erc4626Engine,
       address: engine.engine,

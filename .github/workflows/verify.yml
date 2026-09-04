@@ -1,7 +1,17 @@
 name: Verify
 on:
   workflow_call:
+    inputs:
+      full:
+        description: Run the full verification suite
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the full verification suite
+        type: boolean
+        default: true
 
 concurrency:
   group: verify-${{ github.workflow }}-${{ github.ref }}
@@ -38,6 +48,7 @@ jobs:
   build:
     name: Build
     needs: check
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -69,6 +80,7 @@ jobs:
   types:
     name: Types
     needs: check
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -106,6 +118,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
 
   test:
+    if: ${{ inputs.full }}
     name: 'Test Core Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -160,6 +173,7 @@ jobs:
 
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -188,6 +202,7 @@ jobs:
 
   test-tempo-multisig:
     name: Test Local Tempo Multisig
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -213,9 +228,10 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_MULTISIG: 'true'
-          VITE_TEMPO_TAG: sha-6d831c2
+          VITE_TEMPO_TAG: sha-2bd9fa3
 
   test-tempo-fuzz:
+    if: ${{ inputs.full }}
     name: Test Tempo Fuzz
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -237,6 +253,7 @@ jobs:
           VITE_TEMPO_TAG: sha256:480dcf46f8805a13f9ec03371f8f1aa378942be77ec07e3e2f15a01a85b3dca4
 
   test-tempo:
+    if: ${{ inputs.full }}
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -247,21 +264,17 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T8, T9, T10]
+        hardfork: [T10, Tnext]
         shard: [1, 2, 3]
         total-shards: [3]
         include:
-          - hardfork: T8
-            tempo-tag: sha-e828ab7
-            zone-tag: sha-aae82c4
-          - hardfork: T9
-            # Tempo 1.12.0 (d791f43f) with pre-T10 Zones.
-            tempo-tag: sha256:23150c7bae007afd2eeaa596c4b9f3d6950ecd0dec3e05ad44ebdbb8a6add863
-            zone-tag: sha-aae82c4
           - hardfork: T10
             # Tempo de760926 and sender-bound Zones 196f47b7.
             tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
             zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
+          - hardfork: Tnext
+            tempo-tag: latest
+            zone-tag: sha256:2c6e58767e75f5b9dc012361daa89cb8baaad7d70f8c4151aa8a506b3d92f44b
 
     steps:
       - name: Clone repository
@@ -299,6 +312,7 @@ jobs:
 
   test-envs:
     name: Test Environments
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

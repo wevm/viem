@@ -20,3 +20,5 @@ export type {
   PreparedEncryptedDepositRecipient,
 } from './types.js'
 export { waitForTempoBlock } from './waitForTempoBlock.js'
+
+export { getPortalInfo } from './getPortalInfo.js'

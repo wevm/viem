@@ -14,3 +14,6 @@ export * as validator from './validator/index.js'
 export * as virtualAddress from './virtualAddress/index.js'
 export * as wallet from './wallet/index.js'
 export * as zone from './zone/index.js'
+
+/** Native multisig configuration and approval actions. */
+export * as multisig from './multisig/index.js'

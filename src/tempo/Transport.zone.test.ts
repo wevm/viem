@@ -1,10 +1,10 @@
 import { Secp256k1 } from 'ox'
-import { Account, Client, Storage } from 'viem/tempo'
-import { http, zoneModerato } from 'viem/tempo/zones'
+import { Account, Client, http, Store } from 'viem/tempo'
+import { zoneModerato } from 'viem/tempo/zones'
 import { expect, test } from 'vitest'
 import { createServer } from '~test/http.js'
 
-import { signAuthorizationToken } from '../actions/zone/signAuthorizationToken.js'
+import { signAuthorizationToken } from './actions/zone/signAuthorizationToken.js'
 
 const zone = zoneModerato(6)
 
@@ -49,15 +49,15 @@ async function createRpcServer() {
   return { ...server, headers }
 }
 
-test('injects X-Authorization-Token header from storage', async () => {
-  const storage = Storage.memory()
-  await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+test('injects X-Authorization-Token header from store', async () => {
+  const store = Store.memory()
+  await store.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
   const server = await createRpcServer()
   try {
     const client = Client.create({
       chain: zone,
-      transport: http(server.url, { storage }),
+      transport: http(server.url, { store }),
     })
 
     await client.request({ method: 'eth_blockNumber' })
@@ -70,12 +70,12 @@ test('injects X-Authorization-Token header from storage', async () => {
   }
 })
 
-test('proceeds without header when no token in storage', async () => {
+test('proceeds without header when no token in store', async () => {
   const server = await createRpcServer()
   try {
     const client = Client.create({
       chain: zone,
-      transport: http(server.url, { storage: Storage.memory() }),
+      transport: http(server.url, { store: Store.memory() }),
     })
 
     await client.request({ method: 'eth_blockNumber' })
@@ -91,7 +91,7 @@ test('proceeds without header when no chain is configured', async () => {
   try {
     const client = Client.create({
       chain: undefined,
-      transport: http(server.url, { storage: Storage.memory() }),
+      transport: http(server.url, { store: Store.memory() }),
     })
 
     await client.request({ method: 'eth_blockNumber' })
@@ -103,7 +103,7 @@ test('proceeds without header when no chain is configured', async () => {
 })
 
 test('behavior: signed token is injected into subsequent requests', async () => {
-  const storage = Storage.memory()
+  const store = Store.memory()
   const account = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
 
   const server = await createRpcServer()
@@ -111,10 +111,10 @@ test('behavior: signed token is injected into subsequent requests', async () => 
     const client = Client.create({
       account,
       chain: zone,
-      transport: http(server.url, { storage }),
+      transport: http(server.url, { store }),
     })
 
-    const { token } = await signAuthorizationToken(client, { storage })
+    const { token } = await signAuthorizationToken(client, { store })
     await client.request({ method: 'eth_blockNumber' })
 
     expect(server.headers).toEqual([{ custom: undefined, token }])
@@ -124,8 +124,8 @@ test('behavior: signed token is injected into subsequent requests', async () => 
 })
 
 test('behavior: user `onFetchRequest` is preserved', async () => {
-  const storage = Storage.memory()
-  await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
+  const store = Store.memory()
+  await store.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
   const server = await createRpcServer()
   try {
@@ -137,7 +137,7 @@ test('behavior: user `onFetchRequest` is preserved', async () => {
           headers.set('X-Custom', 'hello')
           return { ...init, headers }
         },
-        storage,
+        store,
       }),
     })
 

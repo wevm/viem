@@ -21,8 +21,8 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import * as tempo from '~test/tempo.js'
 import { afterAll, describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
 import { Actions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
@@ -646,12 +646,17 @@ describe('signTransaction', () => {
 
     const approval = await owner.signTransaction({
       ...envelope,
-      multisig: config,
+      multisigSimulation: {
+        account: MultisigConfig.getAddress(config),
+        config,
+        approvals: [],
+      },
     } as never)
 
     const payload = TxEnvelopeTempo.getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
-      genesisConfig: config,
+      account: MultisigConfig.getAddress(config),
+      config,
       payload,
     })
     const signature = SignatureEnvelope.from(approval)
@@ -678,10 +683,12 @@ describe('fromMultisig', () => {
 
     expect(account.source).toBe('multisig')
     expect(account.type).toBe('local')
-    expect(account.address).toBe(Account.fromMultisig(account.config).address)
+    expect(account.address).toBe(
+      Account.fromMultisig({ ...account.config, version: 0n }).address,
+    )
   })
 
-  test('sign functions are unsupported', async () => {
+  test('sign requires local owners; message signing is unsupported', async () => {
     const account = Account.fromMultisig({
       owners: [{ owner: owner_1.address, weight: 1 }],
       threshold: 1,
@@ -690,7 +697,7 @@ describe('fromMultisig', () => {
     await expect(
       account.sign({ hash }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`sign\` is not supported for multisig accounts.]`,
+      `[Error: Local multisig owners do not meet the threshold.]`,
     )
     await expect(
       account.signMessage({ message: 'hello' }),
@@ -706,7 +713,7 @@ describe('fromMultisig', () => {
 
   test('signTransaction serializes the envelope', async () => {
     const account = Account.fromMultisig({
-      owners: [{ owner: owner_1.address, weight: 1 }],
+      owners: [{ owner: owner_1, weight: 1 }],
       threshold: 1,
     })
 
@@ -727,14 +734,22 @@ describe('fromMultisig', () => {
     const feePayer = Account.fromSecp256k1(feePayerKey)
     const approval = await owner_1.signTransaction({
       ...envelope,
-      multisig: account.config,
+      multisigSimulation: {
+        account: account.address,
+        config: account.config,
+        approvals: [],
+      },
     } as never)
 
     const serialized = await account.signTransaction(
       {
         ...envelope,
         feePayer,
-        multisig: account.config,
+        multisigSimulation: {
+          account: account.address,
+          config: account.config,
+          approvals: [],
+        },
         signatures: [approval],
       } as never,
       { chain: tempoLocalnet },

@@ -1,0 +1,92 @@
+---
+description: Combine different owner signature schemes in one native multisig account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Passkeys & Other Keys
+
+## Overview
+
+A native multisig can combine secp256k1, P256, WebAuthn, and WebCrypto P256 owners. Each owner
+approves through its own account implementation, and the shared store combines those approvals.
+
+## Recipes
+
+### Approve from Different Key Types
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, P256, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Create owners that use different signature schemes.
+const secp256k1Owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const p256Owner = Account.fromP256(P256.randomPrivateKey())
+const webCryptoOwner = Account.fromWebCryptoP256(
+  await WebCryptoP256.createKeyPair()
+)
+
+// 2. Create a multisig from their addresses.
+const multisig = Account.fromMultisig({
+  address: 'infer',
+  owners: [
+    secp256k1Owner.address,
+    p256Owner.address,
+    webCryptoOwner.address,
+  ],
+  threshold: 3,
+})
+
+// 3. Store the secp256k1 owner's approval.
+const pending = await client.transaction.sendSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner: secp256k1Owner,
+})
+
+// 4. Approve the stored transaction with the P256 owner.
+const pending2 = await client.transaction.sendSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: p256Owner,
+})
+
+// 5. Reach quorum with the WebCrypto P256 owner.
+const receipt = await client.transaction.sendSync({
+  account: multisig,
+  hash: pending.transactionHash,
+  owner: webCryptoOwner,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
+```
+
+:::
+
+WebAuthn owners use the same sequence with
+[`Account.fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256). Each call can happen in a
+different process as long as every coordinator uses the same store and operation hash.
+
+## Best Practices
+
+### Expect Passkey Prompts
+
+A WebAuthn owner prompts for approval when its `transaction.sendSync` call signs the request.
+
+### Let Viem Estimate Approval Gas
+
+During preparation, Viem conservatively estimates the request for maximum-size WebAuthn approvals
+because key types are not stored in the multisig config.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:fingerprint" title="Sign In with a Passkey" description="Create, restore, and use a WebAuthn passkey account." to="/tempo/guides/accounts/passkeys" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent approvals from multisig owners." to="/tempo/guides/multisig/send" />
+</Cards>

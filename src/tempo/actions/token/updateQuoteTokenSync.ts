@@ -1,4 +1,5 @@
 import type { Errors } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -40,6 +41,9 @@ export async function updateQuoteTokenSync<
   options: updateQuoteTokenSync.Options,
 ): Promise<updateQuoteTokenSync.ReturnType> {
   const receipt = await updateQuoteToken.inner(writeSync, client, options)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as updateQuoteTokenSync.ReturnType
+
   const { args } = updateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,

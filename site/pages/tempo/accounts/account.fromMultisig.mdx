@@ -1,23 +1,28 @@
+---
+description: Instantiates a native multisig account from an initial or current config.
+---
+
 # `Account.fromMultisig`
 
-Instantiates an Account from a [native multisig](https://docs.tempo.xyz/protocol/transactions)
-(`MultisigConfig`) configuration.
+Instantiates an Account for a [native multisig](https://tips.sh/1061). Omit `address` or set it to
+`infer` to derive the canonical CREATE2 account address. After the config changes, use the stable
+address and pass the current config fields.
 
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
 It is not yet available on Tempo mainnet or testnet.
 :::
 
-The returned account represents the **multisig sender**: its address is derived from the
-config. It does not hold a key and cannot sign primitives directly (`sign`, `signMessage`,
-`signTypedData` throw). Instead, it is used purely to **broadcast** a multisig transaction:
-it drives the standard [`send`](/docs/actions/wallet/transaction/send) flow,
-passing the prepared request (carrying the collected owner `signatures`) through to the
-chain serializer, which combines the approvals into the multisig signature envelope.
+Owners can be local accounts, addresses, or weighted owner entries. Direct owners have a
+weight of `1`, and `threshold` defaults to `1`.
+
+Local owner accounts are retained so the returned account can aggregate their approvals when
+you call `transaction.sign`. Address-only owners support distributed signing, where each owner
+signs the same prepared request and the sender supplies the resulting `signatures`.
 
 :::tip
-For the full transaction flow (preparing a request, collecting owner approvals, and
-broadcasting), see the [Multisig Transactions](/tempo/guides/multisig-transactions) guide.
+See the [Multisig guides](/tempo/guides/multisig) for complete transaction, nesting, access key,
+fee sponsorship, and owner rotation workflows.
 :::
 
 ## Usage
@@ -32,72 +37,159 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-// Instantiate the multisig account (2-of-2) from its owners and threshold.
 const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1, owner_2],
   threshold: 2,
-  owners: [
-    { owner: owner_1.address, weight: 1 },
-    { owner: owner_2.address, weight: 1 },
-  ],
 })
 
 console.log('Address:', account.address)
 ```
 
-`Account.fromMultisig` accepts a raw config and normalizes it internally (via
-`MultisigConfig.from`), so you don't need to call `MultisigConfig.from` yourself. You can
-still pass a pre-built `MultisigConfig.Config` if you have one.
+`Account.fromMultisig` normalizes the config with `MultisigConfig.from`, including canonical
+owner ordering. The initial config always uses version `0`.
 
-## Return Value
+### Current Config
 
-The return type is backwards compatible with Viem's `Account` type, with the multisig
-`config` attached.
+After a config update, reconstruct the account from its stable address and current config.
+The address does not change when the config changes.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromMultisig({
+  address: '0x0000000000000000000000000000000000000001',
+  owners: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  threshold: 2,
+  version: 1,
+})
+```
+
+Tempo stores the config commitment, not the config fields. Retain each current config or
+recover it from the account's `MultisigConfigUpdated` events.
+
+### Address Only
+
+Use an address-only account when only the stable account identity is needed.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromMultisig(
+  '0x0000000000000000000000000000000000000001'
+)
+```
+
+An address-only account contains no config or local owner keys. A coordinated client can load the
+current config from its store. Otherwise, provide the config through `{ address, ...config }`
+before sending.
+
+:::tip
+Keep using `address: 'infer'` while the account remains at version `0`. After a config update,
+use the stable address with the new config.
+:::
+
+### External Owners
+
+Pass addresses when owner approvals are collected outside the current process.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  ],
+  threshold: 2,
+})
+```
+
+### Weighted Owners
+
+Pass `{ owner, weight }` entries to give owners different approval weights.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+
+const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [
+    { owner, weight: 2 },
+    { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
+  ],
+  threshold: 2,
+})
+```
+
+## Return Type
 
 ```ts
 type ReturnType = MultisigAccount
 
-type MultisigAccount = Account & {
-  /** Account address, derived from the multisig config. */
-  address: Address
-  /** Multisig config (normalized via `MultisigConfig.from`). */
-  config: MultisigConfig.Config
-  /** Account source. */
-  source: 'multisig'
-  /** Account type. */
-  type: 'local'
+type MultisigAccount = LocalAccount<'multisig'> & {
+  /** Normalized config, when supplied. */
+  config: MultisigConfig.Config | undefined
+  /** @internal Local owner accounts retained for signing. */
+  owners: readonly LocalAccount[]
 }
 ```
 
-:::warning
-`Account.fromMultisig` is for **broadcasting / sender identity** only. Calling `sign`,
-`signMessage`, or `signTypedData` on the returned account throws: owner approvals are
-produced separately by signing a prepared request with an owner account (see
-[Multisig Transactions](/tempo/guides/multisig-transactions)).
-:::
+The account's `transaction.sign` method combines retained local owner approvals with any approvals
+provided through the request's `signatures`. `sign`, `signMessage`, and `signTypedData` are not
+supported.
 
 ## Parameters
 
-### config
+### value
 
-- **Type:** `MultisigConfig.Config`
+- **Type:** `Account.fromMultisig.Parameters`
 
-The multisig configuration, created with `MultisigConfig.from`. The config is normalized
-(owners sorted into canonical ascending order) before the address is derived.
+An initial config, a stable address with its current config, or an address without a retained
+config.
 
-#### config.owners
+#### value.address
 
-- **Type:** `readonly { owner: Address; weight: number }[]`
+- **Type:** `'infer' | Address | undefined`
 
-The list of owners and their voting weights.
+Omit this field or set it to `infer` to derive an account from a version-zero config. For a current
+config, pass the account's stable address. Pass an `Address` as `value` when no config is needed.
 
-#### config.salt
+#### value.owners
+
+- **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
+
+The config owners. Passing a local account makes that account available for local aggregation.
+Passing an address keeps that owner's approval external.
+
+#### value.salt
 
 - **Type:** `Hex`
+- **Default:** `0x0000000000000000000000000000000000000000000000000000000000000000`
 
-Optional salt used to derive a distinct multisig address for the same owner set.
+The 32-byte config salt. This field is optional for an initial config and required for a current
+config.
 
-#### config.threshold
+#### value.threshold
 
 - **Type:** `number`
+- **Default:** `1`
 
-The total owner weight required to authorize a transaction.
+The total owner weight required to authorize an operation. This field is optional for an initial
+config and required for a current config.
+
+#### value.version
+
+- **Type:** `bigint | number`
+
+The nonzero current config version. For an initial config, omit this field or pass `0` when
+spreading a normalized `MultisigConfig.Config` value.

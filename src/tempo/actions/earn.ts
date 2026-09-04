@@ -1,6 +1,7 @@
-import { AbiEvent, AbiParameters, Address, Hex } from 'ox'
 import type { Errors } from 'ox'
+import { AbiEvent, AbiParameters, Address, Hex } from 'ox'
 import { EarnShares } from 'ox/tempo'
+import type { TransactionReceipt } from '../chainConfig.js'
 
 import * as Account from '../../core/Account.js'
 import type * as Chain from '../../core/Chain.js'
@@ -17,8 +18,8 @@ import { sendSync } from '../../core/actions/transaction/sendSync.js'
 import { type ObserveErrorType, observe } from '../../core/internal/observe.js'
 import { type PollErrorType, poll } from '../../core/internal/poll.js'
 import { withResolvers } from '../../core/internal/promise.js'
-import type { Compute, OneOf } from '../../core/internal/types.js'
 import { stringify } from '../../core/internal/stringify.js'
+import type { Compute, OneOf } from '../../core/internal/types.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import {
@@ -43,7 +44,6 @@ import {
   resolveTokenWithDecimals,
   simulateWrite,
 } from '../internal/utils.js'
-import { getPortalAddress } from '../zones/zone.js'
 import * as policyActions from './policy/index.js'
 import * as tokenActions from './token/index.js'
 import * as zoneActions from './zone/index.js'
@@ -595,6 +595,9 @@ export async function depositSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as depositSync.ReturnType
+
   const { args } = deposit.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -891,6 +894,9 @@ export async function depositSharesSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as depositSharesSync.ReturnType
+
   const { args } = depositShares.extractEvent(receipt.logs, { vault })
   return {
     caller: args.caller,
@@ -934,7 +940,7 @@ export namespace depositSharesSync {
  *   assetToken: '0x…',
  *   gateway: '0x…',
  *   recipient: '0x…',
- *   recoveryRecipient: '0x…',
+ *   tempoRefundRecipient: '0x…',
  *   shareAmountMin: 99_500_000n,
  *   vault: '0x...',
  *   vaultAssetAmountMin: 99_000_000n,
@@ -984,17 +990,17 @@ export namespace privateDeposit {
       actionId = Hex.random(32),
       assetAmount,
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = options.recoveryRecipient,
+      fallbackRecipient = options.tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
+      tempoRefundRecipient,
       returnMemo,
       vault,
       withdrawalMemo,
       zoneId,
     } = options
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const readParameters = pickReadParameters(options)
     const [fromBlock, config] = await Promise.all([
       getNumber(client, { cacheTime: 0 }),
@@ -1027,7 +1033,11 @@ export namespace privateDeposit {
         minEarnShares: shareAmountMin,
         minOutputAmount: 0n,
         minVaultAssets: options.vaultAssetAmountMin ?? assetAmount,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: tempoRefundRecipient,
+        },
       },
     ])
     return {
@@ -2254,6 +2264,9 @@ export async function redeemSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as redeemSync.ReturnType
+
   const { args } = redeem.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2292,7 +2305,7 @@ export namespace redeemSync {
  * const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
  *   gateway: '0x…',
  *   recipient: '0x…',
- *   recoveryRecipient: '0x…',
+ *   tempoRefundRecipient: '0x…',
  *   shareAmount: 100_000_000n,
  *   slippageBps: 50,
  *   vault: '0x...',
@@ -2341,18 +2354,18 @@ export namespace privateRedeem {
     const {
       actionId = Hex.random(32),
       callbackGas = zoneGatewayCallbackGas,
-      fallbackRecipient = options.recoveryRecipient,
+      fallbackRecipient = options.tempoRefundRecipient,
       gateway,
       portalAddress: portalAddress_,
       recipient,
-      recoveryRecipient,
+      tempoRefundRecipient,
       returnMemo,
       shareAmount,
       vault,
       withdrawalMemo,
       zoneId,
     } = options
-    const portalAddress = portalAddress_ ?? getPortalAddress(chainId, zoneId)
+    const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
     const readParameters = pickReadParameters(options)
     const [fromBlock, config] = await Promise.all([
       getNumber(client, { cacheTime: 0 }),
@@ -2401,7 +2414,11 @@ export namespace privateRedeem {
         minEarnShares: 0n,
         minOutputAmount: assetAmountMin,
         minVaultAssets: assetAmountMin,
-        zoneReturn: { encrypted, keyIndex, refundRecipient: recoveryRecipient },
+        zoneReturn: {
+          encrypted,
+          keyIndex,
+          refundRecipient: tempoRefundRecipient,
+        },
       },
     ])
     return {
@@ -2899,6 +2916,9 @@ export async function withdrawExactSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as withdrawExactSync.ReturnType
+
   const { args } = withdrawExact.extractEvent(receipt.logs, { vault })
   return {
     assetAmount: args.assets,
@@ -2946,7 +2966,7 @@ type PrivatePreparationParameters = {
   actionId?: Hex.Hex | undefined
   /** Gas reserved for the parent-chain callback. @default `10_000_000n` */
   callbackGas?: bigint | undefined
-  /** Public recipient if the parent-chain callback fails. @default `recoveryRecipient` */
+  /** Public recipient if the parent-chain callback fails. @default `tempoRefundRecipient` */
   fallbackRecipient?: Address.Address | undefined
   /** Zone gateway address. */
   gateway: Address.Address
@@ -2955,7 +2975,7 @@ type PrivatePreparationParameters = {
   /** Encrypted recipient for the returned tokens. */
   recipient: Address.Address
   /** Public recipient if the encrypted return fails. */
-  recoveryRecipient: Address.Address
+  tempoRefundRecipient: Address.Address
   /** Optional memo encrypted with the returned Zone deposit. */
   returnMemo?: Hex.Hex | undefined
   /** Vault address. */

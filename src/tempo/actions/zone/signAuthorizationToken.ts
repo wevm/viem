@@ -4,7 +4,7 @@ import { ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
-import * as Storage from '../../Storage.js'
+import * as Store from '../../Store.js'
 
 /**
  * Signs a zone authorization token and stores it for the zone HTTP transport.
@@ -35,7 +35,7 @@ export async function signAuthorizationToken<
   const {
     account: account_ = client.account,
     issuedAt = Math.floor(Date.now() / 1000),
-    storage = Storage.defaultStorage(),
+    store = Store.defaultStore(),
   } = options
   const expiresAt = options.expiresAt ?? issuedAt + 86_400
   const chain = options.chain ?? client.chain
@@ -46,7 +46,7 @@ export async function signAuthorizationToken<
   if (!account || account.type !== 'local')
     throw new Error('`account` with `sign` is required.')
 
-  const storageKey = `auth:${account.address.toLowerCase()}:${chain.id}`
+  const storeKey = `auth:${account.address.toLowerCase()}:${chain.id}`
   const authentication = ZoneRpcAuthentication.from({
     chainId: chain.id,
     expiresAt,
@@ -57,8 +57,8 @@ export async function signAuthorizationToken<
   const signature = await account.sign({ hash: payload })
   const token = ZoneRpcAuthentication.serialize(authentication, { signature })
 
-  await storage.setItem(storageKey, token)
-  await storage.setItem(`auth:token:${chain.id}`, token)
+  await store.setItem(storeKey, token)
+  await store.setItem(`auth:token:${chain.id}`, token)
 
   return { authentication, token }
 }
@@ -75,8 +75,8 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp. */
     issuedAt?: number | undefined
-    /** Storage to persist the token. */
-    storage?: Storage.Storage | undefined
+    /** Store to persist the token. */
+    store?: Store.Store | undefined
     /** Zone ID to scope the token to. Defaults to the zone derived from `chain.id`. */
     zoneId?: number | undefined
   }

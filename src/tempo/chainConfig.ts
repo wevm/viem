@@ -1,11 +1,18 @@
-import { Hash, Hex, TransactionRequest as ox_TransactionRequest } from 'ox'
-import type { Address, TransactionEnvelope as ox_TxEnvelope } from 'ox'
+import type { TransactionEnvelope as ox_TxEnvelope } from 'ox'
+import {
+  Address,
+  Hash,
+  Hex,
+  TransactionRequest as ox_TransactionRequest,
+} from 'ox'
 import {
   MultisigConfig,
+  MultisigOperation,
+  type MultisigSimulation,
   SignatureEnvelope,
-  Transaction as TransactionTempo,
   TransactionReceipt as TransactionReceiptTempo,
   TransactionRequest as TransactionRequestTempo,
+  Transaction as TransactionTempo,
   TxEnvelopeTempo,
 } from 'ox/tempo'
 
@@ -13,13 +20,16 @@ import type * as viem_Account from '../core/Account.js'
 import * as Chain from '../core/Chain.js'
 import { getCode } from '../core/actions/address/getCode.js'
 import { read } from '../core/actions/contract/read.js'
+import { get as getTransaction } from '../core/actions/transaction/get.js'
 import { verifyDefault, type verifyHash } from '../core/actions/verifyHash.js'
 import * as Contracts from '../core/internal/contracts.js'
 import * as Abis from './Abis.js'
+import type { MultisigAccount, RootAccount } from './Account.js'
 import * as Addresses from './Addresses.js'
 import type * as Capabilities from './Capabilities.js'
 import type { Hardfork } from './Hardfork.js'
 import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
+import { getConfig } from './actions/multisig/getConfig.js'
 import * as Concurrent from './internal/concurrent.js'
 
 const maxExpirySecs = 25
@@ -52,8 +62,12 @@ export type TransactionRequest = Omit<
    * co-sign the transaction as the fee payer.
    */
   feePayer?: viem_Account.Account | boolean | undefined
-  /** Native multisig config (TIP-1061); derives the transaction sender. */
-  multisig?: MultisigConfig.Config | undefined
+  /** Stored multisig operation to approve. */
+  hash?: Hex.Hex | undefined
+  /** Owner signing a multisig approval. */
+  owner?: MultisigAccount | RootAccount | undefined
+  /** Multisig account, config, and modeled approvals for gas estimation. */
+  multisigSimulation?: MultisigSimulation.Spec | undefined
   /**
    * Nonce key for the 2D nonce system (TIP-1009). `'expiring'` selects an
    * expiring nonce (resolved while the request is prepared); `'random'`
@@ -76,8 +90,10 @@ export type TransactionRequestRpc = TransactionRequestTempo.Rpc
 export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
   /** Fee payer of the transaction (TIP-1 gas sponsorship). */
   feePayer?: viem_Account.Account | boolean | undefined
-  /** Native multisig config (TIP-1061). */
-  multisig?: MultisigConfig.Config | undefined
+  /** Owner signing a multisig approval. */
+  owner?: MultisigAccount | RootAccount | undefined
+  /** Multisig account, config, and modeled approvals for gas estimation. */
+  multisigSimulation?: MultisigSimulation.Spec | undefined
   /** Owner approvals to combine into a multisig signature (TIP-1061). */
   signatures?: readonly SignatureEnvelope.Serialized[] | undefined
 }
@@ -135,6 +151,7 @@ type PrepareAccount = {
   address: Address.Address
   accessKeyAddress?: Address.Address | undefined
   config?: MultisigConfig.Config | undefined
+  owners?: MultisigAccount['owners'] | undefined
   keyAuthorizationManager?:
     | KeyAuthorizationManager.KeyAuthorizationManager
     | undefined
@@ -153,7 +170,10 @@ type PrepareRequest = TransactionRequest & {
  * decoded via the chain codecs by then). @internal
  */
 type ToEnvelopeRequest = TransactionRequestTempo.TransactionRequest &
-  Pick<TransactionRequest, 'feePayer' | 'multisig' | 'signatures'>
+  Pick<
+    TransactionRequest,
+    'feePayer' | 'multisigSimulation' | 'owner' | 'signatures'
+  >
 
 /**
  * Shared Tempo chain configuration: RPC converters, transaction hooks
@@ -167,8 +187,41 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   codecs: {
-    transaction: { fromRpc: TransactionTempo.fromRpc },
-    transactionReceipt: { fromRpc: TransactionReceiptTempo.fromRpc },
+    transaction: {
+      fromRpc(rpc: TransactionRpc): Transaction {
+        const transaction = TransactionTempo.fromRpc(rpc)
+        return {
+          ...transaction,
+          ...(rpc.multisig
+            ? {
+                multisig: MultisigOperation.fromRpc(
+                  rpc.multisig,
+                ) as MultisigOperation.TransactionOperation,
+              }
+            : {}),
+        }
+      },
+    },
+    transactionReceipt: {
+      fromRpc(rpc: TransactionReceiptRpc): TransactionReceipt {
+        const receipt = TransactionReceiptTempo.fromRpc(
+          rpc as TransactionReceiptTempo.Rpc,
+        )
+        return {
+          ...receipt,
+          ...(rpc.status === 'pending'
+            ? { status: 'pending' as const, type: 'tempo' as const }
+            : {}),
+          ...(rpc.multisig
+            ? {
+                multisig: MultisigOperation.fromRpc(
+                  rpc.multisig,
+                ) as MultisigOperation.TransactionOperation,
+              }
+            : {}),
+        }
+      },
+    },
     transactionRequest: {
       fromRpc: decodeRequest,
       toRpc: encodeRequest,
@@ -191,6 +244,69 @@ export const chainConfig = {
         const request = r as PrepareRequest
         const account_ = request.account
         const account = typeof account_ === 'string' ? undefined : account_
+
+        if (request.hash) {
+          if (
+            !request.account ||
+            typeof request.account === 'string' ||
+            request.account.source !== 'multisig'
+          )
+            throw new Error(
+              'A local multisig account is required to approve a stored multisig transaction.',
+            )
+          if (!request.owner || typeof request.owner === 'string')
+            throw new Error(
+              'A local owner account is required to approve a stored multisig transaction.',
+            )
+          if (
+            request.owner.source !== 'root' &&
+            request.owner.source !== 'multisig'
+          )
+            throw new Error(
+              'A Tempo owner account is required to approve a stored multisig transaction.',
+            )
+          const transaction = await getTransaction(client, {
+            hash: request.hash,
+          })
+          const operation =
+            'multisig' in transaction
+              ? (transaction.multisig as
+                  | MultisigOperation.TransactionOperation
+                  | undefined)
+              : undefined
+          if (!operation)
+            throw new Error('Expected a multisig operation transaction.')
+          if (!Address.isEqual(operation.account, request.account.address))
+            throw new Error(
+              'Multisig operation account does not match the requested account.',
+            )
+          const storedTransaction = TxEnvelopeTempo.deserialize(
+            operation.transaction as TxEnvelopeTempo.Serialized,
+          )
+          const hash = MultisigOperation.getHash({
+            account: operation.account,
+            config: operation.config,
+            transaction: operation.transaction as TxEnvelopeTempo.Serialized,
+            type: 'transaction',
+          })
+          if (hash.toLowerCase() !== request.hash.toLowerCase())
+            throw new Error(
+              'Multisig operation hash does not match transaction.',
+            )
+          Object.assign(request, {
+            ...storedTransaction,
+            nonce: Number(storedTransaction.nonce ?? 0n),
+            account: request.account,
+            from: operation.account,
+            multisigSimulation: getMultisigSimulation({
+              account: operation.account,
+              config: operation.config,
+              local: request.account as MultisigAccount,
+            }),
+            owner: request.owner,
+          })
+          return request as Record<string, unknown>
+        }
 
         if (phase === 'afterFillParameters') {
           if (
@@ -229,8 +345,9 @@ export const chainConfig = {
         // The node's gas estimator prices the (larger) envelope signature
         // from `keyType`/`keyData`/`keyId` hints; derive them from the
         // signing account.
-        if (account) {
-          const type = account.keyType ?? account.source
+        const signer = request.owner ?? account
+        if (signer && typeof signer !== 'string') {
+          const type = signer.keyType ?? signer.source
           if (type === 'webAuthn') {
             request.keyType = 'webAuthn'
             // A 2-byte big-endian length hint (1400 = 0x0578) instead of a
@@ -240,41 +357,65 @@ export const chainConfig = {
             request.keyType = type
             request.keyData = undefined
           }
-          if (account.accessKeyAddress) request.keyId = account.accessKeyAddress
+          if ('accessKeyAddress' in signer && signer.accessKeyAddress)
+            request.keyId = signer.accessKeyAddress
         }
 
-        // Native multisig (TIP-1061). The transaction sender is the derived
-        // multisig account, not a signing account (owner accounts only
-        // contribute approvals later via `signTransaction`). Derive the
-        // sender from the config; core fills nonce/gas/fees for it via
-        // `request.from`, and the serializer auto-detects bootstrap (`init`)
-        // from nonce 0 on the default nonce key.
-        //
-        // The config is taken from an explicit `multisig` field, or inferred
-        // from a multisig account (so callers can just pass `account`
-        // without also passing `multisig`).
-        const multisig =
-          request.multisig ??
-          (account?.source === 'multisig' ? account.config : undefined)
-        if (multisig) {
-          const config = MultisigConfig.from(multisig)
-          request.multisig = config
-          request.from = MultisigConfig.getAddress(config)
-          request.multisigInit = {
-            salt: config.salt ?? MultisigConfig.zeroSalt,
-            threshold: Number(config.threshold),
-            owners: config.owners.map((owner) => ({
-              owner: owner.owner,
-              weight: Number(owner.weight),
-            })),
-          }
-          request.multisigSignatureCount ??= inferMultisigSignatureCount(config)
-          // A non-multisig `account` (e.g. the client's default) isn't the
-          // sender, so drop it: core then fills nonce/gas/fees for the
-          // multisig sender via `request.from`. A multisig account *is* the
-          // sender — keep it so the prepared request can be sent without
-          // re-passing `account`.
-          if (account?.source !== 'multisig') delete request.account
+        const multisigIdentity = (() => {
+          if (account?.source === 'multisig')
+            return {
+              account: account.address,
+              config: (account as MultisigAccount).config,
+              local: account as MultisigAccount,
+            }
+          return undefined
+        })()
+        if (request.owner && !multisigIdentity)
+          throw new Error(
+            'A multisig account is required when an owner is provided.',
+          )
+        if (request.owner && typeof request.owner === 'string')
+          throw new Error(
+            'A local owner account is required to approve a multisig transaction.',
+          )
+        if (
+          request.owner &&
+          request.owner.source !== 'root' &&
+          request.owner.source !== 'multisig'
+        )
+          throw new Error(
+            'A Tempo owner account is required to approve a multisig transaction.',
+          )
+        const coordinatedMultisig =
+          !!multisigIdentity &&
+          !!request.owner &&
+          (client.transport as { multisig?: boolean }).multisig === true
+        if (multisigIdentity) {
+          const { account, local } = multisigIdentity
+          if (!account)
+            throw new Error(
+              'A multisig account address is required with a current config.',
+            )
+          const config = await (async () => {
+            if (multisigIdentity.config) return multisigIdentity.config
+            if (!coordinatedMultisig) return undefined
+            const cachedConfig = await getConfig(client, { address: account })
+            if (!cachedConfig)
+              throw new Error(
+                `No current multisig config is cached for account ${account}. Provide the current config.`,
+              )
+            return cachedConfig
+          })()
+          if (!config)
+            throw new Error(
+              'A multisig config is required to prepare a transaction.',
+            )
+          request.from = account
+          request.multisigSimulation = getMultisigSimulation({
+            account,
+            config,
+            local,
+          })
         }
 
         // Use expiring nonces for concurrent transactions (TIP-1009).
@@ -286,7 +427,7 @@ export const chainConfig = {
             request.nonceKey === maxUint256
           )
             return true
-          if (multisig) return false
+          if (multisigIdentity) return false
           if (request.feePayer && typeof request.nonceKey === 'undefined')
             return true
           const address =
@@ -298,7 +439,10 @@ export const chainConfig = {
           return false
         })()
 
-        if (useExpiringNonce) {
+        if (coordinatedMultisig && typeof request.nonceKey === 'undefined') {
+          request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
+          request.nonce = 0
+        } else if (useExpiringNonce) {
           request.nonceKey = maxUint256
           request.nonce = 0
           if (typeof request.validAfter === 'undefined')
@@ -382,12 +526,11 @@ export const chainConfig = {
         return SignatureEnvelope.from(signature)
       })()
 
-      // Combine owner approvals into the multisig signature envelope
-      // (TIP-1061) before fee-payer handling. Bootstrap (`init`) is detected
-      // from the true first transaction: nonce 0 on the default nonce key.
+      // Combine owner approvals before fee-payer handling.
       const signature = (() => {
         if (signature_provided) return signature_provided
-        if (!envelope.multisig || !envelope.signatures) return undefined
+        if (!envelope.multisigSimulation || !envelope.signatures)
+          return undefined
 
         const payload = TxEnvelopeTempo.getSignPayload(
           TxEnvelopeTempo.from(envelope),
@@ -398,12 +541,13 @@ export const chainConfig = {
         const sorted = SignatureEnvelope.sortMultisigApprovals({
           payload,
           signatures,
-          genesisConfig: envelope.multisig,
+          account: envelope.multisigSimulation.account,
+          config: MultisigConfig.from(envelope.multisigSimulation.config),
         })
         return SignatureEnvelope.from({
-          genesisConfig: envelope.multisig,
+          account: envelope.multisigSimulation.account,
+          config: MultisigConfig.from(envelope.multisigSimulation.config),
           signatures: sorted,
-          ...(envelope.nonce || envelope.nonceKey ? {} : { init: true }),
         })
       })()
 
@@ -441,7 +585,7 @@ export const chainConfig = {
       // Non-tempo requests delegate to the generic default.
       if (!isTempoRequest(request)) return undefined
 
-      const { feePayer, multisig, signatures, ...rest } =
+      const { feePayer, multisigSimulation, owner, signatures, ...rest } =
         request as ToEnvelopeRequest
 
       const envelope = TransactionRequestTempo.toEnvelope({
@@ -454,7 +598,8 @@ export const chainConfig = {
       return {
         ...envelope,
         ...(typeof feePayer !== 'undefined' ? { feePayer } : {}),
-        ...(multisig ? { multisig } : {}),
+        ...(multisigSimulation ? { multisigSimulation } : {}),
+        ...(owner ? { owner } : {}),
         ...(signatures ? { signatures } : {}),
       } as Envelope
     },
@@ -577,9 +722,8 @@ function isTempoRequest(request: Record<string, unknown>): boolean {
     typeof request.keyData !== 'undefined' ||
     typeof request.keyId !== 'undefined' ||
     typeof request.keyType !== 'undefined' ||
-    typeof request.multisig !== 'undefined' ||
-    typeof request.multisigInit !== 'undefined' ||
-    typeof request.multisigSignatureCount !== 'undefined' ||
+    typeof request.multisigSimulation !== 'undefined' ||
+    typeof request.owner !== 'undefined' ||
     typeof request.nonceKey !== 'undefined' ||
     typeof request.signature !== 'undefined' ||
     typeof request.signatures !== 'undefined' ||
@@ -607,7 +751,7 @@ function encodeRequest(
   // reaches the wire.
   const {
     feePayer,
-    multisig: _multisig,
+    owner: _owner,
     nonceKey,
     signatures: _signatures,
     ...rest
@@ -631,28 +775,118 @@ function encodeRequest(
   return rpc
 }
 
-/**
- * Infers the minimum number of owner approvals that reach the multisig
- * threshold (heaviest owners first). @internal
- */
-function inferMultisigSignatureCount(config: MultisigConfig.Config): number {
-  const threshold = Number(config.threshold)
-  const weights = config.owners
-    .map((owner) => Number(owner.weight))
-    .sort((a, b) => b - a)
-  let total = 0
-  for (const [index, weight] of weights.entries()) {
-    total += weight
-    if (total >= threshold) return index + 1
+/** Builds a bounded multisig spec for gas simulation. */
+function getMultisigSimulation(options: {
+  account: Address.Address
+  config: MultisigConfig.Config
+  local?: MultisigAccount | undefined
+}): MultisigSimulation.Spec {
+  const { account, config, local } = options
+  return {
+    account,
+    approvals: selectOwners(config).map((owner) => {
+      const localOwner = local?.owners.find((account) =>
+        Address.isEqual(account.address, owner.owner),
+      )
+      if (localOwner?.source === 'multisig') {
+        const nested = localOwner as MultisigAccount
+        if (!nested.config)
+          throw new Error(
+            'A nested multisig config is required for gas estimation.',
+          )
+        return {
+          type: 'multisig',
+          spec: {
+            account: nested.address,
+            approvals: selectOwners(nested.config).map((owner) => {
+              const nestedOwner = nested.owners.find((account) =>
+                Address.isEqual(account.address, owner.owner),
+              )
+              if (nestedOwner?.source === 'multisig')
+                throw new Error(
+                  'Multisig simulation nesting exceeds depth two.',
+                )
+              return {
+                ...getSimulationKey(nestedOwner),
+                owner: owner.owner,
+              }
+            }),
+            config: nested.config,
+          },
+        }
+      }
+      return {
+        ...getSimulationKey(localOwner),
+        owner: owner.owner,
+        type: 'primitive',
+      }
+    }),
+    config,
   }
-  return weights.length
+}
+
+/** Returns signature metadata for conservative gas estimation. */
+function getSimulationKey(
+  account: unknown,
+):
+  | { keyData: Hex.Hex; keyType: 'webAuthn' }
+  | { keyType: 'p256' | 'secp256k1' } {
+  const keyType = (() => {
+    if (
+      account &&
+      typeof account === 'object' &&
+      'keyType' in account &&
+      typeof account.keyType === 'string'
+    )
+      return account.keyType
+    return undefined
+  })()
+  if (!keyType || keyType === 'webAuthn')
+    return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+  if (keyType === 'p256' || keyType === 'secp256k1') return { keyType }
+  return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+}
+
+/** Selects a deterministic minimum-cardinality owner quorum. */
+function selectOwners(config: MultisigConfig.Config) {
+  const owners = [...config.owners].sort(
+    (a, b) =>
+      Number(b.weight) - Number(a.weight) ||
+      a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+  const selected: typeof owners = []
+  let weight = 0
+  for (const owner of owners.slice(0, MultisigConfig.maxSignatures)) {
+    if (weight >= Number(config.threshold)) break
+    selected.push(owner)
+    weight += Number(owner.weight)
+  }
+  return selected.sort((a, b) =>
+    a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
 }
 
 // Exported so consumer declaration emit can name them. See `internal/inference.ts`.
-export type Transaction = TransactionTempo.Transaction
-export type TransactionRpc = TransactionTempo.Rpc
-export type TransactionReceipt = TransactionReceiptTempo.TransactionReceipt
-export type TransactionReceiptRpc = TransactionReceiptTempo.Rpc
+export type Transaction = TransactionTempo.Transaction & {
+  multisig?: MultisigOperation.TransactionOperation | undefined
+}
+export type TransactionRpc = TransactionTempo.Rpc & {
+  multisig?: MultisigOperation.TransactionRpc | undefined
+}
+export type TransactionReceipt = Omit<
+  TransactionReceiptTempo.TransactionReceipt,
+  'status'
+> & {
+  status: 'success' | 'reverted' | 'pending'
+  multisig?: MultisigOperation.TransactionOperation | undefined
+}
+export type TransactionReceiptRpc = Omit<
+  TransactionReceiptTempo.Rpc,
+  'status'
+> & {
+  status: '0x0' | '0x1' | 'pending'
+  multisig?: MultisigOperation.TransactionRpc | undefined
+}
 export type TxEnvelope = ox_TxEnvelope.TxEnvelope
 export type SerializeOptions = TxEnvelopeTempo.serialize.Options
 

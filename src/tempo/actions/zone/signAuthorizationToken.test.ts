@@ -1,8 +1,8 @@
-import * as tempo from '~test/tempo.js'
 import { expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
 import { Client as CoreClient, http as coreHttp } from 'viem'
-import { Account, Client, http, Storage } from 'viem/tempo'
+import { Account, Client, http, Store } from 'viem/tempo'
 
 import { zoneModerato } from '../../zones/zone.js'
 import { signAuthorizationToken } from './signAuthorizationToken.js'
@@ -18,9 +18,9 @@ const client = Client.create({
 })
 
 test('default', async () => {
-  const storage = Storage.memory()
+  const store = Store.memory()
   const { authentication, token } = await signAuthorizationToken(client, {
-    storage,
+    store,
   })
 
   expect(authentication.chainId).toBe(client.chain.id)
@@ -30,15 +30,15 @@ test('default', async () => {
   expect(token.length).toBeGreaterThan(0)
 })
 
-test('behavior: custom issuedAt/expiresAt/storage', async () => {
-  const storage = Storage.memory()
+test('behavior: custom issuedAt/expiresAt/store', async () => {
+  const store = Store.memory()
   const issuedAt = Math.floor(Date.now() / 1000) - 100
   const expiresAt = issuedAt + 300
 
   const { authentication, token } = await signAuthorizationToken(client, {
     expiresAt,
     issuedAt,
-    storage,
+    store,
     zoneId: 0,
   })
 
@@ -46,7 +46,7 @@ test('behavior: custom issuedAt/expiresAt/storage', async () => {
   expect(authentication.expiresAt).toBe(expiresAt)
   expect(authentication.zoneId).toBe(0)
 
-  const stored = await storage.getItem(`auth:token:${client.chain.id}`)
+  const stored = await store.getItem(`auth:token:${client.chain.id}`)
   expect(stored).toBe(token)
 })
 
@@ -57,7 +57,7 @@ test('error: no chain', async () => {
   })
 
   await expect(
-    signAuthorizationToken(client, { storage: Storage.memory() }),
+    signAuthorizationToken(client, { store: Store.memory() }),
   ).rejects.toThrow('`signAuthorizationToken` requires a chain.')
 })
 
@@ -68,6 +68,6 @@ test('error: no account', async () => {
   })
 
   await expect(
-    signAuthorizationToken(client, { storage: Storage.memory() }),
+    signAuthorizationToken(client, { store: Store.memory() }),
   ).rejects.toThrow('`account` with `sign` is required.')
 })

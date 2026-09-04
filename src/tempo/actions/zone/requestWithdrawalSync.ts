@@ -1,5 +1,6 @@
 import type { Errors, Hex } from 'ox'
 import { WithdrawalSenderTag } from 'ox/tempo'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -43,6 +44,9 @@ export async function requestWithdrawalSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as requestWithdrawalSync.ReturnType
+
   const { args } = requestWithdrawal.extractEvent(receipt.logs)
   return {
     receipt,

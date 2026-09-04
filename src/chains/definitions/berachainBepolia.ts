@@ -20,7 +20,7 @@ export const berachainBepolia = /*#__PURE__*/ Chain.from({
   rpcUrls: { http: 'https://bepolia.rpc.berachain.com' },
   blockExplorers: {
     name: 'Berascan',
-    url: 'https://bepolia.beratrail.io',
+    url: 'https://testnet.berascan.com',
   },
   testnet: true,
 })

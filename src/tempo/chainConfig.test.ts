@@ -8,14 +8,18 @@ import {
   WebCryptoP256,
 } from 'ox'
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import * as tempo from '~test/tempo.js'
 import { afterAll, describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
 import { Client, http } from 'viem'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
 import { Account, Actions, KeyAuthorizationManager } from 'viem/tempo'
 
-import { chainConfig, type Envelope } from './chainConfig.js'
+import {
+  chainConfig,
+  type Envelope,
+  type TransactionRequest,
+} from './chainConfig.js'
 
 const privateKey =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -143,22 +147,28 @@ describe('codecs.transactionRequest', () => {
       keyData: '0x0578',
       keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
       keyType: 'webAuthn',
-      multisigInit: {
-        salt: MultisigConfig.zeroSalt,
-        threshold: 2,
-        owners: [
-          { owner: sender, weight: 1 },
-          { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
-        ],
+      multisigSimulation: {
+        account: sender,
+        approvals: [{ type: 'primitive', owner: sender, keyType: 'secp256k1' }],
+        config: MultisigConfig.from({
+          version: 0n,
+          salt: MultisigConfig.zeroSalt,
+          threshold: 2,
+          owners: [
+            { owner: sender, weight: 1 },
+            { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
+          ],
+        }),
       },
-      multisigSignatureCount: 2,
     }) as Record<string, unknown>
     expect(rpc.capabilities).toEqual({ balanceDiffs: true })
     expect(rpc.keyData).toBe('0x0578')
     expect(rpc.keyId).toBe('0xcccccccccccccccccccccccccccccccccccccccc')
     expect(rpc.keyType).toBe('webAuthn')
-    expect(rpc.multisigInit).toMatchObject({ threshold: 2 })
-    expect(rpc.multisigSignatureCount).toBe(2)
+    expect(rpc.multisigSimulation).toMatchObject({
+      account: sender,
+      approvals: [{ owner: sender, keyType: 'secp256k1', type: 'primitive' }],
+    })
   })
 
   test('shims key data longer than 4 bytes into a length hint', () => {
@@ -212,13 +222,10 @@ describe('codecs.transactionRequest', () => {
   test('strips client-side multisig fields', () => {
     const rpc = toRpc({
       ...baseRequest,
-      multisig: {
-        threshold: 1,
-        owners: [{ owner: sender, weight: 1 }],
-      },
+      owner: Account.fromSecp256k1(privateKey),
       signatures: ['0xdeadbeef'],
     }) as Record<string, unknown>
-    expect(rpc.multisig).toBeUndefined()
+    expect(rpc.owner).toBeUndefined()
     expect(rpc.signatures).toBeUndefined()
   })
 
@@ -324,30 +331,29 @@ describe('transaction.toEnvelope', () => {
   })
 
   test('threads structural metadata and strips wire hints', () => {
-    const multisig = {
+    const config = MultisigConfig.from({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
-    }
+    })
+    const multisigSimulation = { account: sender, config, approvals: [] }
+    const owner = Account.fromSecp256k1(privateKey)
     const envelope = toEnvelope({
       ...baseRequest,
       feePayer: true,
       keyData: '0x0578',
       keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
       keyType: 'webAuthn',
-      multisig,
-      multisigInit: { salt: MultisigConfig.zeroSalt, threshold: 1, owners: [] },
-      multisigSignatureCount: 1,
+      multisigSimulation,
+      owner,
       signatures: ['0xdeadbeef'],
     } as never) as Envelope & Record<string, unknown>
     expect(envelope.feePayer).toBe(true)
-    expect(envelope.multisig).toEqual(multisig)
+    expect(envelope.multisigSimulation).toEqual(multisigSimulation)
+    expect(envelope.owner).toBe(owner)
     expect(envelope.signatures).toEqual(['0xdeadbeef'])
     expect(envelope.keyData).toBeUndefined()
     expect(envelope.keyId).toBeUndefined()
     expect(envelope.keyType).toBeUndefined()
-    expect(envelope.multisigInit).toBeUndefined()
-    expect(envelope.multisigSignatureCount).toBeUndefined()
-    // Sponsorship pre-sign marker.
     expect(envelope.feePayerSignature).toBeNull()
   })
 
@@ -567,14 +573,19 @@ describe('transaction.serialize', () => {
     const envelope = toEnvelope({
       ...baseRequest,
       from: MultisigConfig.getAddress(config),
-      multisig: config,
+      multisigSimulation: {
+        account: MultisigConfig.getAddress(config),
+        config,
+        approvals: [],
+      },
       nonce: 0,
     } as never)
 
     const payload = getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
       payload,
-      genesisConfig: config,
+      account: MultisigConfig.getAddress(config),
+      config,
     })
     const signatures = ownerKeys.map((privateKey) =>
       Signature.toHex(Secp256k1.sign({ payload: digest, privateKey })),
@@ -585,25 +596,28 @@ describe('transaction.serialize', () => {
       serialized as `0x76${string}`,
     )
     expect(deserialized.signature?.type).toBe('multisig')
-    // Bootstrap deployment (`init`, carrying the genesis config) is detected
-    // from nonce 0 on the default nonce key.
-    expect(
-      (deserialized.signature as { init?: MultisigConfig.Config }).init,
-    ).toMatchObject({ threshold: 2 })
+    if (deserialized.signature?.type !== 'multisig')
+      throw new Error('unreachable')
+    expect(deserialized.signature.config).toMatchObject({
+      threshold: 2,
+      version: 0n,
+    })
   })
 
-  test('multisig: omits `init` for an explicit nonce key', () => {
+  test('multisig: carries the config with an explicit nonce key', () => {
     const config = MultisigConfig.from({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
     })
 
-    // Nonce 0 on a fresh 2D nonce key is not a bootstrap: the multisig is
-    // already deployed.
     const envelope = toEnvelope({
       ...baseRequest,
       from: MultisigConfig.getAddress(config),
-      multisig: config,
+      multisigSimulation: {
+        account: MultisigConfig.getAddress(config),
+        config,
+        approvals: [],
+      },
       nonce: 0,
       nonceKey: 1n,
     } as never)
@@ -611,7 +625,8 @@ describe('transaction.serialize', () => {
     const payload = getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
       payload,
-      genesisConfig: config,
+      account: MultisigConfig.getAddress(config),
+      config,
     })
     const signatures = [
       Signature.toHex(Secp256k1.sign({ payload: digest, privateKey })),
@@ -622,9 +637,9 @@ describe('transaction.serialize', () => {
       serialized as `0x76${string}`,
     )
     expect(deserialized.signature?.type).toBe('multisig')
-    expect(
-      (deserialized.signature as { init?: MultisigConfig.Config }).init,
-    ).toBeUndefined()
+    if (deserialized.signature?.type !== 'multisig')
+      throw new Error('unreachable')
+    expect(deserialized.signature.config).toEqual(config)
   })
 
   test('2D nonces: explicit nonceKey round-trips through serialization', () => {
@@ -681,7 +696,7 @@ describe('transaction.prepare', () => {
   test('resolves the tempo type from the signing account', async () => {
     for (const account of [
       { address: sender, source: 'accessKey', keyType: 'secp256k1' },
-      { address: sender, source: 'multisig', keyType: 'multisig' },
+      Account.fromMultisig({ owners: [sender] }),
       { address: sender, keyType: 'p256' },
       { address: sender, keyType: 'webAuthn' },
     ]) {
@@ -726,7 +741,7 @@ describe('transaction.prepare', () => {
     // Unknown account kinds leave explicit request hints alone.
     const explicit = await prepare(
       {
-        account: { address: sender, keyType: 'multisig', source: 'multisig' },
+        account: { address: sender, keyType: 'custom', source: 'custom' },
         keyType: 'p256',
         to: sender,
       },
@@ -735,53 +750,49 @@ describe('transaction.prepare', () => {
     expect(explicit.keyType).toBe('p256')
   })
 
-  test('multisig: derives the sender and gas-model hints', async () => {
-    const config: MultisigConfig.Config = {
+  test('multisig: derives the sender and weighted gas-model hints', async () => {
+    const account = Account.fromMultisig({
       threshold: 2,
       owners: [
         { owner: sender, weight: 2 },
         { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
         { owner: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc', weight: 1 },
       ],
-    }
-    const request = await prepare(
-      {
-        account: { address: sender, keyType: 'secp256k1' },
-        multisig: config,
-        to: sender,
-      },
-      { client, phase: 'beforeFillTransaction' },
-    )
-    expect(request.from).toBe(
-      MultisigConfig.getAddress(MultisigConfig.from(config)),
-    )
-    expect(request.multisigInit).toMatchObject({ threshold: 2 })
-    // A single weight-2 owner meets the threshold.
-    expect(request.multisigSignatureCount).toBe(1)
-    // The non-multisig signing account is dropped so core fills for `from`.
-    expect(request.account).toBeUndefined()
-  })
-
-  test('multisig: inferred from a multisig account (which is kept)', async () => {
-    const config: MultisigConfig.Config = {
-      threshold: 2,
-      owners: [
-        { owner: sender, weight: 1 },
-        { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
-      ],
-    }
-    const account = {
-      address: MultisigConfig.getAddress(MultisigConfig.from(config)),
-      config,
-      keyType: 'multisig',
-      source: 'multisig',
-    }
+    })
     const request = await prepare(
       { account, to: sender },
       { client, phase: 'beforeFillTransaction' },
     )
     expect(request.from).toBe(account.address)
-    expect(request.multisigSignatureCount).toBe(2)
+    expect(request.multisigSimulation).toMatchObject({
+      account: account.address,
+      config: { threshold: 2 },
+    })
+    expect(
+      (request as TransactionRequest).multisigSimulation?.approvals,
+    ).toHaveLength(1)
+    expect(
+      (request as TransactionRequest).multisigSimulation?.approvals[0],
+    ).toMatchObject({ owner: sender })
+    expect(request.account).toBe(account)
+  })
+
+  test('multisig: inferred from a multisig account (which is kept)', async () => {
+    const account = Account.fromMultisig({
+      threshold: 2,
+      owners: [
+        { owner: sender, weight: 1 },
+        { owner: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', weight: 1 },
+      ],
+    })
+    const request = await prepare(
+      { account, to: sender },
+      { client, phase: 'beforeFillTransaction' },
+    )
+    expect(request.from).toBe(account.address)
+    expect(
+      (request as TransactionRequest).multisigSimulation?.approvals,
+    ).toHaveLength(2)
     expect(request.account).toBe(account)
   })
 
@@ -856,23 +867,26 @@ describe('transaction.prepare', () => {
     expect(request.nonce).toBe(0)
   })
 
-  test('multisig: explicit multisigSignatureCount is preserved', async () => {
+  test('multisig: explicit simulation is preserved without a multisig account', async () => {
+    const config = MultisigConfig.from({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
+    const multisigSimulation = { account: sender, config, approvals: [] }
     const request = await prepare(
-      {
-        multisig: { threshold: 1, owners: [{ owner: sender, weight: 1 }] },
-        multisigSignatureCount: 3,
-      },
+      { multisigSimulation },
       { client, phase: 'beforeFillTransaction' },
     )
-    expect(request.multisigSignatureCount).toBe(3)
+    expect(request.multisigSimulation).toBe(multisigSimulation)
   })
 
-  test('expiring nonce: never for multisig senders', async () => {
+  test('expiring nonce: never inferred for multisig senders', async () => {
+    const account = Account.fromMultisig({
+      threshold: 1,
+      owners: [{ owner: sender, weight: 1 }],
+    })
     const request = await prepare(
-      {
-        feePayer: true,
-        multisig: { threshold: 1, owners: [{ owner: sender, weight: 1 }] },
-      },
+      { feePayer: true, account },
       { client, phase: 'beforeFillTransaction' },
     )
     expect(request.nonceKey).toBeUndefined()

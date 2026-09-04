@@ -1,10 +1,10 @@
 // [!region setup]
-import { Account, Client } from 'viem/tempo'
-import { http, zoneModerato } from 'viem/tempo/zones'
+import { Account } from 'viem'
+import { Client, http, Zone } from 'viem/tempo'
 
 export const client = Client.create({
-  account: Account.fromSecp256k1('0x...'),
-  chain: zoneModerato(7),
+  account: Account.fromPrivateKey('0x...'),
+  chain: Zone.a,
   transport: http(),
 })
 // [!endregion setup]

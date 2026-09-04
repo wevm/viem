@@ -1,5 +1,5 @@
 import type { Address, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
-import type { MultisigConfig } from 'ox/tempo'
+import type { MultisigSimulation } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 import type { Account, Chain } from 'viem'
@@ -23,8 +23,8 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
   expectTypeOf<Request['nonceKey']>().toEqualTypeOf<
     'expiring' | 'random' | bigint | undefined
   >()
-  expectTypeOf<Request['multisig']>().toEqualTypeOf<
-    MultisigConfig.Config | undefined
+  expectTypeOf<Request['multisigSimulation']>().toEqualTypeOf<
+    MultisigSimulation.Spec | undefined
   >()
   // Numberish quantities (matching `TransactionRequest.toRpc.Input`).
   expectTypeOf<Request['gas']>().toEqualTypeOf<
@@ -79,8 +79,8 @@ test('extension record: feeToken and hardfork typed on the chain root', () => {
   >().toEqualTypeOf<Address.Address | undefined>()
 })
 
-test('MultisigInit shape', () => {
+test('MultisigSimulation config', () => {
   expectTypeOf<
-    NonNullable<TransactionRequest['multisigInit']>['owners']
+    NonNullable<TransactionRequest['multisigSimulation']>['config']['owners']
   >().toEqualTypeOf<readonly { owner: Address.Address; weight: number }[]>()
 })

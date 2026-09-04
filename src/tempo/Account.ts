@@ -1,3 +1,4 @@
+import type { Bytes } from 'ox'
 import {
   Address,
   Authorization,
@@ -13,7 +14,6 @@ import {
   WebAuthnP256,
   WebCryptoP256,
 } from 'ox'
-import type { Bytes } from 'ox'
 import {
   Channel,
   KeyAuthorization,
@@ -22,8 +22,13 @@ import {
   TxEnvelopeTempo,
 } from 'ox/tempo'
 
-import type * as viem_Account from '../core/Account.js'
+import * as viem_Account from '../core/Account.js'
 import type { OneOf, RequiredBy } from '../core/internal/types.js'
+import {
+  chainConfig,
+  type Envelope,
+  type SerializeOptions,
+} from './chainConfig.js'
 import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 
 /** Base shape shared by Tempo accounts. */
@@ -73,14 +78,6 @@ export type AccessKeyAccount = Base<'accessKey'> & {
 
 /** A Tempo account. */
 export type Account = OneOf<RootAccount | AccessKeyAccount | MultisigAccount>
-
-/** A synthetic account for a native multisig (TIP-1061) config. */
-export type MultisigAccount = viem_Account.Local<'multisig'> & {
-  /** Multisig config (from `MultisigConfig.from`). */
-  config: MultisigConfig.Config
-  /** Account source. */
-  source: 'multisig'
-}
 
 /**
  * Instantiates an Account from a sign function and public key.
@@ -274,81 +271,349 @@ export declare namespace fromSecp256k1 {
 }
 
 /**
- * Instantiates a synthetic Account for a native multisig (TIP-1061) config.
+ * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * The returned account does not hold a key. It is used purely to drive the
- * standard transaction flow: it derives the multisig address from the config
- * and passes the prepared envelope (carrying the collected owner
- * `signatures`) through to the chain serializer, which combines the approvals
- * into the multisig signature envelope.
+ * The returned account does not hold a key itself. Omit `address` or set it to
+ * `infer` to derive an account address from its initial config. For a current
+ * config, set `address` to the stable account address. Pass the address directly
+ * for an address-only account.
  *
- * Owner approvals are produced separately by signing with `multisig` request
- * metadata (see `signTransaction`), and provided via `signatures`.
+ * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
+ * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
+ * Local owner accounts are retained for signing, including nested multisigs.
+ * Configs containing only owner addresses require external approvals through
+ * `signatures`.
  *
- * Accepts a raw config and normalizes it internally (via
- * `MultisigConfig.from`), so callers don't need to call `MultisigConfig.from`
- * themselves.
+ * Normalizes supplied config fields with `MultisigConfig.from`, so callers do
+ * not need to normalize owner ordering themselves.
  *
  * @example
  * ```ts
  * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromMultisig({
+ *   address: 'infer',
+ *   owners: [owner_1, owner_2],
  *   threshold: 2,
- *   owners: [
- *     { owner: owner_1.address, weight: 1 },
- *     { owner: owner_2.address, weight: 1 },
- *   ],
  * })
+ *
+ * // The multisig config is inferred from the account.
+ * const { request } = await client.transaction.prepare({ account, ...rest })
+ *
+ * const transaction = await client.transaction.sign(request)
  * ```
  *
- * @param config Multisig config (raw or from `MultisigConfig.from`).
+ * @param value Initial config, current config, or multisig address.
  * @returns Multisig account.
  */
-export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
-  const normalized = MultisigConfig.from(config)
-  const address = Address.checksum(MultisigConfig.getAddress(normalized))
-  return {
+export function fromMultisig(
+  value: fromMultisig.InitialConfig,
+): MultisigAccount<MultisigConfig.Config>
+export function fromMultisig(
+  value: fromMultisig.CurrentConfig,
+): MultisigAccount<MultisigConfig.Config>
+export function fromMultisig(
+  address: Address.Address,
+): MultisigAccount<undefined>
+export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount
+export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
+  const configInput = (() => {
+    if (typeof value === 'string') return undefined
+    const { address: _, ...config } = value
+    return config
+  })()
+  const config = (() => {
+    if (!configInput) return undefined
+    const ownerEntries = configInput.owners.map((value) =>
+      typeof value === 'string' || 'address' in value
+        ? { owner: value, weight: 1 }
+        : value,
+    )
+    return MultisigConfig.from({
+      ...configInput,
+      owners: ownerEntries.map(({ owner, weight }) => ({
+        owner: typeof owner === 'string' ? owner : owner.address,
+        weight,
+      })),
+      threshold: configInput.threshold ?? 1,
+    })
+  })()
+  if (typeof value !== 'string') {
+    if (
+      (value.address === undefined || value.address === 'infer') &&
+      config!.version !== 0n
+    )
+      throw new Error('An initial multisig config must have version zero.')
+    if (
+      value.address !== undefined &&
+      value.address !== 'infer' &&
+      config!.version === 0n
+    )
+      throw new Error('A current multisig config must have a version.')
+  }
+  const address = Address.checksum(
+    (() => {
+      if (typeof value === 'string') return value
+      if (value.address === undefined || value.address === 'infer')
+        return MultisigConfig.getAddress(config!)
+      return value.address
+    })(),
+  )
+  const ownerAccounts = (() => {
+    if (!configInput) return []
+    return configInput.owners.flatMap((value) => {
+      const owner =
+        typeof value === 'string' || 'address' in value ? value : value.owner
+      return typeof owner === 'string' ? [] : [viem_Account.from(owner)]
+    })
+  })()
+  const owners =
+    config?.owners.flatMap(({ owner }) => {
+      const account = ownerAccounts.find((account) =>
+        Address.isEqual(account.address, owner),
+      )
+      return account ? [account] : []
+    }) ?? []
+
+  const account: MultisigAccount = {
     address,
-    config: normalized,
-    keyType: 'multisig',
+    config,
+    owners,
     publicKey: '0x',
     source: 'multisig',
+    keyType: 'multisig',
     type: 'local',
-    async sign() {
-      throw new Error('`sign` is not supported for multisig accounts.')
+    async sign({ hash }) {
+      return SignatureEnvelope.serialize(
+        await signMultisig(account, { payload: hash }),
+      )
     },
     async signMessage() {
       throw new Error('`signMessage` is not supported for multisig accounts.')
     },
     async signTransaction(envelope_, options) {
-      const envelope =
-        envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
-          feePayer?: viem_Account.Account | boolean | undefined
-        }
+      const request = envelope_ as unknown as Envelope
       const serialize = options?.chain?.transaction?.serialize as
-        | ((envelope: unknown) => Hex.Hex | undefined)
+        | ((
+            envelope: Envelope,
+            options?: SerializeOptions,
+          ) => Hex.Hex | undefined)
         | undefined
-      const serialized =
-        serialize?.(envelope) ??
-        TxEnvelopeTempo.serialize(
-          envelope as unknown as TxEnvelopeTempo.TxEnvelopeTempo,
+      const serializeTransaction = async (
+        envelope: Envelope,
+        options?: SerializeOptions,
+      ) => {
+        const serialized =
+          serialize?.(envelope, options) ??
+          chainConfig.transaction.serialize(envelope, options)!
+        if (
+          typeof envelope.feePayer === 'object' &&
+          serialized.startsWith(TxEnvelopeTempo.feePayerMagic)
         )
-      if (
-        typeof envelope.feePayer === 'object' &&
-        serialized.startsWith(TxEnvelopeTempo.feePayerMagic)
-      )
-        return await signFeePayer(
-          serialized,
-          envelope.feePayer,
-          envelope.from ?? address,
+          return signFeePayer(
+            serialized,
+            envelope.feePayer,
+            envelope.from ?? address,
+          )
+        return serialized
+      }
+      if (request.owner) {
+        const owner = request.owner
+        if (owner.type !== 'local')
+          throw new Error(
+            'A local owner account is required to approve a multisig transaction.',
+          )
+        if (owner.source !== 'root' && owner.source !== 'multisig')
+          throw new Error(
+            'A Tempo owner account is required to approve a multisig transaction.',
+          )
+        const { owner: _, ...ownerRequest } = request
+        const approval = await owner.signTransaction(
+          ownerRequest as unknown as TxEnvelope.TxEnvelope<false>,
+          options,
         )
-      return serialized
+        return serializeTransaction({
+          ...request,
+          signatures: [
+            ...(request.signatures ?? []),
+            approval as SignatureEnvelope.Serialized,
+          ],
+        })
+      }
+      if (owners.length === 0) return serializeTransaction(request)
+      const payload = TxEnvelopeTempo.getSignPayload(request)
+      const simulation = request.multisigSimulation
+      const requestAccount = simulation?.account ?? address
+      if (!Address.isEqual(requestAccount, address)) {
+        if (!simulation)
+          throw new Error('A multisig config is required for local signing.')
+        const parentDigest = MultisigConfig.getSignPayload({
+          account: requestAccount,
+          config: MultisigConfig.from(simulation.config),
+          payload,
+        })
+        return SignatureEnvelope.serialize(
+          await signMultisig(account, { payload: parentDigest }),
+        )
+      }
+      const signature = await signMultisig(account, {
+        config: simulation?.config,
+        payload,
+        signatures: request.signatures?.map((signature) =>
+          SignatureEnvelope.from(signature),
+        ),
+      })
+      return serializeTransaction(request, { signature })
     },
     async signTypedData() {
       throw new Error('`signTypedData` is not supported for multisig accounts.')
     },
   }
+  return account
+}
+
+export declare namespace fromMultisig {
+  /** Initial version-zero multisig config. */
+  export type Config = InitialConfig
+
+  /** Stable multisig account address and its current config. */
+  export type CurrentConfig = {
+    /** Stable multisig account address. */
+    address: Address.Address
+    /** Weighted owners. */
+    owners: readonly Owner[]
+    /** Caller-chosen 32-byte salt. */
+    salt: MultisigConfig.Config['salt']
+    /** Minimum total owner weight required for authorization. */
+    threshold: MultisigConfig.Config['threshold']
+    /** Current configuration version. */
+    version: MultisigConfig.Config<bigint | number>['version']
+  }
+
+  /** Initial version-zero multisig config. */
+  export type InitialConfig = {
+    /** Derives the stable account address from this initial config. */
+    address?: 'infer' | undefined
+    /** Weighted owners. */
+    owners: readonly Owner[]
+    /** Caller-chosen 32-byte salt. */
+    salt?: MultisigConfig.Input['salt'] | undefined
+    /** Minimum owner weight required for authorization. */
+    threshold?: number | undefined
+    /** Initial configuration version. */
+    version?: 0 | 0n | undefined
+  }
+
+  /** Multisig owner account or address, optionally with an explicit weight. */
+  export type Owner =
+    | Address.Address
+    | viem_Account.Local
+    | (Omit<MultisigConfig.Owner, 'owner'> & {
+        owner: Address.Address | viem_Account.Local
+      })
+
+  /** Parameters for {@link fromMultisig}. */
+  export type Parameters = Address.Address | CurrentConfig | InitialConfig
+}
+
+export type MultisigAccount<
+  config extends MultisigConfig.Config | undefined =
+    | MultisigConfig.Config
+    | undefined,
+> = viem_Account.Local<'multisig'> & {
+  /** Account source. */
+  source: 'multisig'
+  /** Normalized config, or `undefined` for an address-only account. */
+  config: config
+  /** @internal Local owner accounts available for signing. */
+  owners: readonly (viem_Account.Local & { source?: string | undefined })[]
+}
+
+function isMultisigAccount(
+  account: viem_Account.Local,
+): account is MultisigAccount {
+  return 'source' in account && account.source === 'multisig'
+}
+
+async function signMultisig(
+  account: MultisigAccount,
+  parameters: {
+    config?: MultisigConfig.Config | undefined
+    payload: Hex.Hex
+    signatures?: readonly SignatureEnvelope.SignatureEnvelope[] | undefined
+  },
+): Promise<SignatureEnvelope.Multisig> {
+  const { config, payload, signatures: providedSignatures = [] } = parameters
+  const currentConfig = config ?? account.config
+  if (!currentConfig)
+    throw new Error('A current multisig config is required for local signing.')
+  const digest = MultisigConfig.getSignPayload({
+    account: account.address,
+    config: currentConfig,
+    payload,
+  })
+  const signatures = [...providedSignatures]
+  const signedOwners = new Set<Address.Address>()
+  let weight = 0
+
+  for (const signature of providedSignatures) {
+    const address = SignatureEnvelope.extractAddress({
+      payload: digest,
+      signature,
+    }).toLowerCase() as Address.Address
+    const owner = currentConfig.owners.find((owner) =>
+      Address.isEqual(owner.owner, address),
+    )
+    if (!owner || signedOwners.has(address)) continue
+    signedOwners.add(address)
+    weight += Number(owner.weight)
+  }
+
+  const owners = [...currentConfig.owners].sort(
+    (a, b) =>
+      Number(b.weight) - Number(a.weight) ||
+      a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+  for (const owner of owners) {
+    const address = owner.owner.toLowerCase() as Address.Address
+    if (signedOwners.has(address)) continue
+    const ownerAccount = account.owners.find((account) =>
+      Address.isEqual(account.address, owner.owner),
+    )
+    if (!ownerAccount) continue
+
+    if (isMultisigAccount(ownerAccount)) {
+      signatures.push(
+        await signMultisig(ownerAccount, {
+          payload: digest,
+        }),
+      )
+    } else {
+      if (!ownerAccount.sign)
+        throw new Error('Multisig owner account cannot sign.')
+      signatures.push(
+        SignatureEnvelope.from(await ownerAccount.sign({ hash: digest })),
+      )
+    }
+
+    signedOwners.add(address)
+    weight += Number(owner.weight)
+    if (weight >= Number(currentConfig.threshold)) break
+  }
+
+  if (weight < Number(currentConfig.threshold))
+    throw new Error('Local multisig owners do not meet the threshold.')
+
+  return SignatureEnvelope.from({
+    account: account.address,
+    config: currentConfig,
+    signatures: SignatureEnvelope.sortMultisigApprovals({
+      account: account.address,
+      config: currentConfig,
+      payload,
+      signatures,
+    }),
+  }) as SignatureEnvelope.Multisig
 }
 
 /**
@@ -551,25 +816,18 @@ type KeyAuthorizationInput = {
  * })
  * ```
  */
-export async function signKeyAuthorization(
+export function getKeyAuthorizationSignPayload(
   account: viem_Account.Local,
   parameters: signKeyAuthorization.Parameters,
-): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
+): Hex.Hex {
+  const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
-
-  // When the signer is an admin access key, the authorization must be
-  // signed directly by that key and bound to the parent account it acts
-  // on behalf of, so the signed payload cannot be replayed against another
-  // account. [TIP-1049]
-  const isAccessKey = isAccessKeyAccount(account)
-  const boundFields = isAccessKey ? { account: account.address } : {}
-
-  // Admin key authorizations are unrestricted and must not carry expiry,
-  // limits, or call scopes (the protocol rejects them). [TIP-1049]
+  const boundFields =
+    isAccessKeyAccount(account) || isMultisigAccount(account)
+      ? { account: account.address }
+      : {}
   const restrictions = admin ? {} : { expiry, limits, scopes }
-
-  const authorization: KeyAuthorizationInput = {
+  return KeyAuthorization.getSignPayload({
     address: accessKeyAddress,
     chainId,
     type,
@@ -577,15 +835,60 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  }
-  const hash = KeyAuthorization.getSignPayload(
-    // The wire accepts `account`/`isAdmin` alone (see KeyAuthorizationInput).
-    authorization as KeyAuthorization.KeyAuthorization,
-  )
-  const signature = isAccessKey
-    ? await account.sign({ hash, raw: true })
-    : await account.sign({ hash })
-  const signed: KeyAuthorizationInput = {
+  } as KeyAuthorization.KeyAuthorization)
+}
+
+export async function signKeyAuthorization(
+  account: viem_Account.Local,
+  parameters: signKeyAuthorization.Parameters,
+): Promise<signKeyAuthorization.ReturnValue> {
+  const {
+    admin,
+    chainId,
+    expiry,
+    key,
+    limits,
+    multisig: multisigState,
+    scopes,
+    signatures,
+    witness,
+  } = parameters
+  const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+
+  // When the signer is an admin access key, the authorization must be
+  // signed directly by that key and bound to the parent account it acts
+  // on behalf of, so the signed payload cannot be replayed against another
+  // account. [TIP-1049]
+  const isAccessKey = isAccessKeyAccount(account)
+  const isMultisig = isMultisigAccount(account)
+  const boundFields =
+    isAccessKey || isMultisig ? { account: account.address } : {}
+
+  // Admin key authorizations are unrestricted and must not carry expiry,
+  // limits, or call scopes (the protocol rejects them). [TIP-1049]
+  const restrictions = admin ? {} : { expiry, limits, scopes }
+
+  const hash = getKeyAuthorizationSignPayload(account, parameters)
+  const signature = await (async () => {
+    if (isAccessKey) return account.sign({ hash, raw: true })
+    if (isMultisig) {
+      if (!multisigState)
+        throw new Error(
+          'Multisig state is required to sign a key authorization.',
+        )
+      return SignatureEnvelope.serialize(
+        await signMultisig(account, {
+          config: multisigState.config,
+          payload: hash,
+          signatures: signatures?.map((signature) =>
+            SignatureEnvelope.from(signature),
+          ),
+        }),
+      )
+    }
+    return account.sign!({ hash })
+  })()
+  return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
     signature: SignatureEnvelope.from(signature),
@@ -594,8 +897,7 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  }
-  return KeyAuthorization.from(signed as KeyAuthorization.Signed)
+  } as KeyAuthorization.Signed)
 }
 
 export declare namespace signKeyAuthorization {
@@ -603,10 +905,6 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
-    /** Chain ID for replay protection. */
-    chainId: number | bigint
-    /** Access key to authorize. */
-    key: resolveAccessKey.Parameters
     /**
      * Whether to authorize the key as an admin key. Admin keys are
      * unrestricted and can manage the account's other access keys; `expiry`,
@@ -614,7 +912,17 @@ export declare namespace signKeyAuthorization {
      *
      * [TIP-1049](https://tips.sh/1049)
      */
+    chainId: number | bigint
     admin?: boolean | undefined
+    key: resolveAccessKey.Parameters
+    /** @internal Current state used when a multisig account signs the authorization. */
+    multisig?:
+      | {
+          config: MultisigConfig.Config
+        }
+      | undefined
+    /** Serialized approvals from external multisig owners. */
+    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -723,12 +1031,12 @@ function fromBase(parameters: fromBase.Parameters): Base {
     async signTransaction(envelope_, options) {
       const chain = options?.chain
       // The envelope originates from the tempo chain's `toEnvelope` (or is a
-      // Tempo envelope directly); `feePayer` and `multisig` ride it as
+      // Tempo envelope directly); `feePayer` and `multisigSimulation` ride it as
       // request metadata.
       const envelope =
         envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
           feePayer?: viem_Account.Account | boolean | undefined
-          multisig?: MultisigConfig.Config | undefined
+          multisigSimulation?: Envelope['multisigSimulation'] | undefined
         }
 
       // Non-tempo envelopes take the generic path (secp256k1 signatures
@@ -762,10 +1070,11 @@ function fromBase(parameters: fromBase.Parameters): Base {
       // primitive signature over the multisig owner approval digest — instead
       // of a full serialized transaction. Approvals are combined later via
       // `signatures`.
-      if (envelope.multisig) {
+      if (envelope.multisigSimulation) {
         const digest = MultisigConfig.getSignPayload({
           payload,
-          genesisConfig: envelope.multisig,
+          account: envelope.multisigSimulation.account,
+          config: MultisigConfig.from(envelope.multisigSimulation.config),
         })
         return await sign({ hash: digest, raw: true })
       }

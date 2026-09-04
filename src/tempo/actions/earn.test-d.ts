@@ -656,9 +656,9 @@ test('zone deposit bounds and recipients are required', async () => {
     fallbackRecipient: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
     returnMemo: hash,
     shareAmountMin: 1n,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
     withdrawalMemo: hash,
   })
@@ -667,9 +667,9 @@ test('zone deposit bounds and recipients are required', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
   })
   // @ts-expect-error bare slippage cannot quote a Zone deposit
@@ -677,17 +677,17 @@ test('zone deposit bounds and recipients are required', async () => {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     slippageBps: 50,
   })
   // @ts-expect-error `recipient` is required
   await Actions.earn.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmountMin: 1n,
   })
-  // @ts-expect-error `recoveryRecipient` is required
+  // @ts-expect-error `tempoRefundRecipient` is required
   await Actions.earn.privateDeposit.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
@@ -704,21 +704,21 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetAmountMin: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
   })
   await Actions.earn.privateRedeem.prepare(client, {
     assetAmount: 1n,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
   await Actions.earn.privateRedeem.prepare(client, {
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -727,7 +727,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
   })
   await Actions.earn.privateRedeem.prepare(client, {
@@ -735,7 +735,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -743,7 +743,7 @@ test('zone redeem supports live and explicit output bounds', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -782,8 +782,8 @@ test('decorated zone earn actions preserve helpers and results', async () => {
     assetToken: address,
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
     shareAmountMin: 1n,
+    tempoRefundRecipient: address,
     vaultAssetAmountMin: 1n,
   })
   expectTypeOf(
@@ -810,7 +810,7 @@ test('decorated zone earn actions preserve helpers and results', async () => {
   const redeem = await clientWithAccount.earn.privateRedeem.prepare({
     ...privatePreparation,
     recipient: address,
-    recoveryRecipient: address,
+    tempoRefundRecipient: address,
     shareAmount: 1n,
     slippageBps: 50,
   })
@@ -855,7 +855,7 @@ test('deployment extractEvent helpers accept EIP-5792 call receipt logs', () => 
   const stack = Actions.earn.createStack.extractEvent(logs, {
     factory: address,
   })
-  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+  const binding = Actions.earn.bindEngine.extractEvent(logs, {
     engine: address,
   })
 
@@ -875,7 +875,7 @@ test('deployment extractEvent helpers preserve metadata for full logs', () => {
   const stack = Actions.earn.createStack.extractEvent(logs, {
     factory: address,
   })
-  const binding = Actions.earn.bindErc4626Engine.extractEvent(logs, {
+  const binding = Actions.earn.bindEngine.extractEvent(logs, {
     engine: address,
   })
 

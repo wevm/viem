@@ -1,0 +1,89 @@
+---
+description: Creates an RPC request handler that coordinates native multisig approvals.
+---
+
+# `Multisig.handleRequest`
+
+Creates an RPC request handler that coordinates multisig transactions through standard Ethereum
+JSON-RPC methods. Non-multisig transactions and unrelated requests pass to the downstream handler
+unchanged.
+
+## Usage
+
+```ts
+import { Multisig, Store } from 'viem/tempo'
+
+const store = Store.memory()
+const handleRequest = Multisig.handleRequest(
+  (request, options) => getClient(options?.chainId).request(request),
+  { store },
+)
+```
+
+Use a shared persistent store in production. The in-memory store is process-local.
+Incomplete operations expire after 30 days without an approval or submission update. Successful
+operations remain available until the store removes them.
+
+The handler resolves the chain from raw transactions, key authorizations, and stored operations.
+It passes the resolved `chainId` to the downstream handler through the request options. Pass an
+explicit `chainId` when the surrounding route selects a chain:
+
+```ts
+await handleRequest(request, { chainId: 4217 })
+```
+
+The handler rejects a request when the explicit chain conflicts with its signed payload or stored
+operation.
+
+## Parameters
+
+### next
+
+- **Type:** `(request, options) => Promise<unknown>`
+
+The downstream RPC request handler used for configuration reads and final transaction submission.
+`options.chainId` contains the selected chain when the request identifies one.
+
+### store
+
+- **Type:** `Store.Atomic`
+
+The authoritative atomic store shared by requests that coordinate the same multisig operations.
+
+## RPC Methods
+
+### `multisig_getConfig`
+
+Reads the account's current config commitment and returns the matching validated config from the
+shared store. It returns `null` when the relay has not seen that config. The response includes the
+owner addresses and weights, so public handlers expose cached owner lists.
+
+### `eth_sendRawTransaction`
+
+A partial multisig transaction returns its operation hash. Once quorum is reached, the handler
+broadcasts the canonical transaction and continues to return the operation hash.
+
+### `eth_sendRawTransactionSync`
+
+Below quorum, this method returns a pending receipt whose `transactionHash` is the operation hash
+and whose `multisig` property contains the current operation. At quorum, it returns the submitted
+transaction receipt with the successful operation attached.
+
+The pending receipt uses `null` for block, index, gas, and bloom fields because no transaction has
+been submitted to the node yet.
+
+### `eth_getTransactionByHash`
+
+Passing an operation hash returns the pending transaction or aliases the lookup to the submitted
+transaction. Before quorum, the handler constructs the pending transaction from the stored unsigned
+Tempo transaction and selected approvals. Its block fields are `null`, its `hash` is the operation
+hash, and its `multisig` property contains the pending operation.
+
+### `eth_getTransactionReceipt`
+
+Passing a pending operation hash returns `null`. After submission, the handler aliases the lookup
+to the final transaction receipt and attaches `multisig`.
+
+## See Also
+
+- [`Store`](/tempo/utilities/Store)

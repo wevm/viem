@@ -1,13 +1,28 @@
-import { PublicKey } from 'ox'
 import type { Address, Block, Errors, Hex, StateOverrides } from 'ox'
+import { PublicKey } from 'ox'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { multicall } from '../../../core/actions/multicall.js'
+import * as ZoneAbis from '../../Abis.js'
+import * as Addresses from '../../Addresses.js'
 import { defineCall } from '../../internal/utils.js'
-import * as ZoneAbis from '../../zones/Abis.js'
-import { getPortalAddress } from '../../zones/zone.js'
+
+// TODO: Remove this compatibility ABI when T10 support is retired.
+// Later Zone deployments append the derived address to these two values.
+const sequencerEncryptionKeyAbi = [
+  {
+    name: 'sequencerEncryptionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      { type: 'bytes32', name: 'x' },
+      { type: 'uint8', name: 'yParity' },
+    ],
+  },
+] as const
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 
@@ -33,11 +48,8 @@ export async function getEncryptionKey<chain extends Chain.Chain | undefined>(
   client: Client.Client<chain>,
   options: getEncryptionKey.Options,
 ): Promise<getEncryptionKey.ReturnType> {
-  const chain = client.chain
-  if (!chain) throw new Error('`chain` is required.')
-
   const { portalAddress: portalAddress_, zoneId, ...rest } = options
-  const portalAddress = portalAddress_ ?? getPortalAddress(chain.id, zoneId)
+  const portalAddress = portalAddress_ ?? Addresses.zonePortal(zoneId)
   const { results } = await multicall(client, {
     ...rest,
     allowFailure: true,
@@ -119,7 +131,7 @@ export namespace getEncryptionKey {
       }),
       defineCall({
         address: args.portalAddress,
-        abi: ZoneAbis.zonePortal,
+        abi: sequencerEncryptionKeyAbi,
         functionName: 'sequencerEncryptionKey',
       }),
     ] as const

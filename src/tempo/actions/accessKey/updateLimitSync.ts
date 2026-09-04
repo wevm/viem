@@ -1,4 +1,5 @@
 import type { Address, Errors } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -43,6 +44,9 @@ export async function updateLimitSync<
     ...options,
     throwOnReceiptRevert,
   })
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as updateLimitSync.ReturnType
+
   const { args } = updateLimit.extractEvent(receipt.logs)
   return {
     account: args.account,

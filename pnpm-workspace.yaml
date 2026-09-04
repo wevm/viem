@@ -29,9 +29,12 @@ auditConfig:
 
 autoInstallPeers: false
 
+blockExoticSubdeps: false
+
 enablePrePostScripts: true
 
 overrides:
+  'browserslist@<=4.28.6': '4.28.7'
   '@arethetypeswrong/core>typescript': '^5.9.3'
   '@babel/core': '>=7.29.6 <8'
   '@opentelemetry/api@^1.8.0': '~1.7.0'

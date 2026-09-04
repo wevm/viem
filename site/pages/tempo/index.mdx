@@ -49,12 +49,14 @@ In the snippet below, we create a Client with `Client.create`. It defaults to th
 ```
 
 :::tip
-`Client.create` also accepts `testnet` to target the Tempo testnet, and `feeToken` to set a default fee token for every transaction sent with the Client.
+`Client.create` also accepts `testnet` to target the Tempo testnet, and `feeToken` to set a default fee token for every transaction sent with the Client. Set `experimental_multisig` to coordinate approvals with a shared [atomic store](/tempo/utilities/Store).
 
 ```ts
 import { Client } from 'viem/tempo'
+import { store } from './store.db'
 
 export const client = Client.create({
+  experimental_multisig: { store }, // [!code hl]
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
   testnet: true, // [!code hl]
 })

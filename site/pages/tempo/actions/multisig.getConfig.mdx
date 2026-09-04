@@ -1,0 +1,74 @@
+---
+description: Gets the cached config selected by current chain state.
+---
+
+# `multisig.getConfig`
+
+Gets the multisig config that matches an account's current onchain commitment.
+
+The coordinator caches configs after validating transaction approvals. It returns `null` when the
+current config is not cached. Chain state remains authoritative.
+
+Configure [`experimental_multisig`](/tempo/utilities/Multisig#client-setup) for local coordination,
+or use [`withRelay`](/tempo/transports/withRelay) to read from a relay coordinator.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const config = await client.multisig.getConfig({
+  address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/multisig.config.ts:setup]
+```
+
+:::
+
+The client uses the same lookup when a coordinated request passes an address-only account:
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const multisig = Account.fromMultisig(
+  '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
+)
+
+const pending = await client.transaction.sendSync({
+  account: multisig,
+  calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+  owner,
+})
+```
+
+An address-only account contains no local owner keys. Pass the local signer through `owner`.
+
+:::info
+Configs contain owner addresses and weights. A public coordinator that exposes this action treats
+every cached config as public.
+:::
+
+## Return Type
+
+```ts
+type ReturnType = MultisigConfig.Config | null
+```
+
+The complete current config, or `null` when the coordinator has not cached it.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The stable multisig account address.

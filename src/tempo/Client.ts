@@ -7,10 +7,11 @@ import type * as Token from '../core/Token.js'
 import type * as Transport from '../core/Transport.js'
 import { publicActions } from '../core/actions/decorators/public.js'
 import { walletActions } from '../core/actions/decorators/wallet.js'
-import { http } from '../core/transports/http.js'
 import { tokens as tokenSets } from '../tokens/sets.js'
 import { tempo, tempoModerato } from './Chain.js'
 import { type Decorator, tempoActions } from './Decorator.js'
+import * as Store from './Store.js'
+import { http, withMultisig } from './Transport.js'
 
 /** A Tempo {@link viem_Client.Client}: the base Client decorated with public, wallet, and Tempo actions. */
 export type Client<
@@ -95,7 +96,15 @@ export function create<
 >
 
 export function create(options: create.Options = {}): viem_Client.Client {
-  const { chain, feeToken, testnet, tokens, transport, ...rest } = options
+  const {
+    chain,
+    experimental_multisig,
+    feeToken,
+    testnet,
+    tokens,
+    transport,
+    ...rest
+  } = options
   const baseChain = (chain ?? (testnet ? tempoModerato : tempo)) as
     | (Chain.Chain & {
         extend?: (extended: { feeToken: unknown }) => Chain.Chain
@@ -105,12 +114,21 @@ export function create(options: create.Options = {}): viem_Client.Client {
     feeToken && typeof baseChain?.extend === 'function'
       ? baseChain.extend({ feeToken })
       : baseChain
+  const transport_ = transport ?? http()
+  const resolvedTransport = experimental_multisig
+    ? withMultisig(
+        transport_,
+        experimental_multisig === true
+          ? { store: Store.memory() }
+          : experimental_multisig,
+      )
+    : transport_
   return viem_Client
     .create({
       ...rest,
       chain: resolvedChain,
       tokens: tokens ?? tokenSets.tempo,
-      transport: transport ?? http(),
+      transport: resolvedTransport,
     } as viem_Client.create.Options)
     .extend(publicActions())
     .extend(walletActions())
@@ -145,6 +163,8 @@ export declare namespace create {
      * @default tempo (or `tempoModerato` when `testnet` is truthy)
      */
     chain?: chain | Chain.Chain | undefined
+    /** Enables native multisig approval coordination with a local or shared store. */
+    experimental_multisig?: true | { store: Store.Atomic } | undefined
     /**
      * Default fee token for the Client. Extended onto the chain so it applies
      * to every transaction sent with the Client.

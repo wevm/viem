@@ -1,0 +1,47 @@
+---
+description: Store Tempo client data in memory, session storage, or a custom store.
+---
+
+# Store
+
+The `Store` utility provides a string-backed key-value contract for Tempo features. Use
+[`Store.memory`](/tempo/utilities/Store.memory) for process-local data or
+[`Store.from`](/tempo/utilities/Store.from) to wrap another store.
+
+## Contract
+
+```ts
+type CompareAndSet = (
+  key: string,
+  expected: string | null,
+  value: string,
+  options?: { expiresAt?: number },
+) => MaybePromise<boolean>
+
+type Store = {
+  compareAndSet?: CompareAndSet | undefined
+  getItem(key: string): MaybePromise<string | null | undefined>
+  removeItem(key: string): MaybePromise<void>
+  setItem(key: string, value: string): MaybePromise<void>
+}
+
+type Atomic = Store & {
+  compareAndSet: CompareAndSet
+}
+```
+
+### `compareAndSet`
+
+Atomically replaces the current value when it equals `expected`. Multisig coordination uses this
+method to preserve approvals submitted concurrently. A store passed to multisig coordination must
+implement `compareAndSet` and satisfy `Store.Atomic`.
+
+Set `options.expiresAt` to a Unix timestamp in milliseconds to expire the replacement value.
+Omitting `expiresAt` stores the value until another write or removal. An atomic store must apply
+the comparison, replacement, and expiration in one operation.
+
+## See Also
+
+- [`Store.from`](/tempo/utilities/Store.from)
+- [`Store.memory`](/tempo/utilities/Store.memory)
+- [`Store.session`](/tempo/utilities/Store.session)

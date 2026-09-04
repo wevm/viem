@@ -1,10 +1,10 @@
 import type { StateOverrides } from 'ox'
-import * as tempo from '~test/tempo.js'
 import { expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
 
 import { Client as CoreClient } from 'viem'
-import { Client, http } from 'viem/tempo'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
+import { Client, http } from 'viem/tempo'
 
 import { encryptedDeposit } from './encryptedDeposit.js'
 import { encryptedDepositSync } from './encryptedDepositSync.js'
@@ -15,7 +15,7 @@ const encryptionKeyCode =
 
 const prepared = {
   amount: 1_000_000n,
-  bouncebackRecipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  tempoRefundRecipient: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
   chainId: tempoModerato.id,
   encrypted: {
     ciphertext: '0x1234',
@@ -40,14 +40,14 @@ test('behavior: prepared encrypted deposit payload', async () => {
   expect(calls[1].functionName).toBe('depositEncrypted')
   expect(calls[1].args[2]).toBe(prepared.keyIndex)
   expect(calls[1].args[3]).toEqual(prepared.encrypted)
-  expect(calls[1].args[4]).toBe(prepared.bouncebackRecipient)
+  expect(calls[1].args[4]).toBe(prepared.tempoRefundRecipient)
   expect(calls[1].data.slice(0, 10)).toMatchInlineSnapshot('"0xb01f22e4"')
 
   expect(
     encryptedDeposit.calls({
       ...prepared,
       portalAddress: undefined,
-      recipient: prepared.bouncebackRecipient,
+      recipient: prepared.tempoRefundRecipient,
     })[1].address,
   ).toBe(prepared.portalAddress)
 
@@ -71,7 +71,7 @@ test('behavior: prepare encrypted payloads', async () => {
     [prepared.portalAddress]: { code: encryptionKeyCode },
   } satisfies StateOverrides.StateOverrides
   const options = {
-    recipient: prepared.bouncebackRecipient,
+    recipient: prepared.tempoRefundRecipient,
     sender: prepared.sender,
     stateOverride,
     zoneId: prepared.zoneId,
@@ -82,14 +82,14 @@ test('behavior: prepare encrypted payloads', async () => {
       encryptedDeposit.prepare(client, {
         ...options,
         amount: prepared.amount,
-        bouncebackRecipient: prepared.bouncebackRecipient,
+        tempoRefundRecipient: prepared.tempoRefundRecipient,
         portalAddress: prepared.portalAddress,
         token: prepared.token,
       }),
       encryptedDeposit.prepare(client, {
         ...options,
         amount: prepared.amount,
-        bouncebackRecipient: prepared.bouncebackRecipient,
+        tempoRefundRecipient: prepared.tempoRefundRecipient,
         token: prepared.token,
       }),
       encryptedDeposit.prepareRecipient(client, {
@@ -138,8 +138,8 @@ test('error: unavailable encryption key', async () => {
   await expect(
     encryptedDepositSync(client, {
       ...options,
-      bouncebackRecipient: prepared.bouncebackRecipient,
-      recipient: prepared.bouncebackRecipient,
+      tempoRefundRecipient: prepared.tempoRefundRecipient,
+      recipient: prepared.tempoRefundRecipient,
       throwOnReceiptRevert: false,
     }),
   ).rejects.toThrow()
@@ -153,9 +153,9 @@ test('error: no configured encryption key', async () => {
   await expect(
     encryptedDeposit.prepare(client, {
       amount: prepared.amount,
-      bouncebackRecipient: prepared.bouncebackRecipient,
+      tempoRefundRecipient: prepared.tempoRefundRecipient,
       portalAddress: prepared.portalAddress,
-      recipient: prepared.bouncebackRecipient,
+      recipient: prepared.tempoRefundRecipient,
       sender: prepared.sender,
       stateOverride: {
         [prepared.portalAddress]: { code: '0x600060005260206000f3' },
@@ -187,9 +187,9 @@ test('error: prepare without chain', async () => {
   await expect(
     encryptedDeposit.prepare(client, {
       amount: prepared.amount,
-      bouncebackRecipient: prepared.bouncebackRecipient,
+      tempoRefundRecipient: prepared.tempoRefundRecipient,
       portalAddress: prepared.portalAddress,
-      recipient: prepared.bouncebackRecipient,
+      recipient: prepared.tempoRefundRecipient,
       sender: prepared.sender,
       token: prepared.token,
       zoneId: prepared.zoneId,
@@ -198,7 +198,7 @@ test('error: prepare without chain', async () => {
   await expect(
     encryptedDeposit.prepareRecipient(client, {
       portalAddress: prepared.portalAddress,
-      recipient: prepared.bouncebackRecipient,
+      recipient: prepared.tempoRefundRecipient,
       sender: prepared.sender,
       zoneId: prepared.zoneId,
     }),

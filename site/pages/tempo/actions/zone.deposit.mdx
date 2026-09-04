@@ -75,7 +75,7 @@ const { receipt } = await client.zone.depositSync({
 
 ### Route Bounced Deposits to a Treasury Wallet
 
-Pass `bouncebackRecipient` when depositing from an operational hot wallet, so a deposit the zone cannot credit refunds to your treasury instead of the sender.
+Pass `tempoRefundRecipient` when depositing from an operational hot wallet, so a deposit the zone cannot credit refunds to your treasury instead of the sender.
 
 :::code-group
 
@@ -84,7 +84,7 @@ import { client } from './viem.config'
 
 const { receipt } = await client.zone.depositSync({
   amount: 100_000_000n,
-  bouncebackRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  tempoRefundRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
   token: '0x20c0000000000000000000000000000000000001',
   zoneId: 7,
 })

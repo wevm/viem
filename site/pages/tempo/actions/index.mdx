@@ -10,7 +10,7 @@
 | [`accessKey.isAdmin`](/tempo/actions/accessKey.isAdmin) | Checks whether an access key is an admin key for an account |
 | [`accessKey.isWitnessBurned`](/tempo/actions/accessKey.isWitnessBurned) | Checks whether a key-authorization witness has been burned for an account |
 | [`accessKey.revoke`](/tempo/actions/accessKey.revoke) | Revokes an authorized access key |
-| [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs a key authorization for an access key |
+| [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs or coordinates a key authorization for an access key |
 | [`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit) | Updates the spending limit for a specific token on an authorized access key |
 | [`accessKey.verifyHash`](/tempo/actions/accessKey.verifyHash) | Verifies that a keychain signature was produced by an active access key for the expected account |
 | [`accessKey.watchAdminAuthorized`](/tempo/actions/accessKey.watchAdminAuthorized) | Watches `AdminKeyAuthorized` events on the account keychain |
@@ -54,7 +54,7 @@
 | [`dex.watchOrderPlaced`](/tempo/actions/dex.watchOrderPlaced) | Watches `OrderPlaced` events on the DEX |
 | [`dex.withdraw`](/tempo/actions/dex.withdraw) | Withdraws tokens from the DEX to the caller's wallet |
 | **Earn Actions** | |
-| [`earn.bindErc4626Engine`](/tempo/actions/earn.bindErc4626Engine) | Permanently binds an ERC-4626 engine to its EarnVault |
+| [`earn.bindEngine`](/tempo/actions/earn.bindEngine) | Permanently binds an engine to its EarnVault |
 | [`earn.configureExitSafePolicy`](/tempo/actions/earn.configureExitSafePolicy) | Configures an admission-only policy for an Earn share token |
 | [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine) | Deploys a deterministic ERC-4626 engine |
 | [`earn.createStack`](/tempo/actions/earn.createStack) | Deploys EarnShare, EarnVault, and EarnFees contracts |
@@ -83,6 +83,11 @@
 | [`fee.validateToken`](/tempo/actions/fee.validateToken) | Validates that a token can be used as a Tempo fee token |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches `UserTokenSet` events on the fee manager |
 | [`fee.watchSetValidatorToken`](/tempo/actions/fee.watchSetValidatorToken) | Watches `ValidatorTokenSet` events on the fee manager |
+| **Multisig Actions** | |
+| [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
+| [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |
+| [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) | Replaces a multisig account's current configuration |
+| [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync) | Replaces a multisig account's current configuration and waits for confirmation |
 | **Nonce Actions** | |
 | [`nonce.get`](/tempo/actions/nonce.get) | Gets the nonce for an account and nonce key |
 | [`nonce.watchIncremented`](/tempo/actions/nonce.watchIncremented) | Watches `NonceIncremented` events on the nonce manager |
@@ -164,6 +169,7 @@
 | [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer |
 | [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Returns the authenticated account address and token expiry from the current authorization token |
 | [`zone.getEncryptionKey`](/tempo/actions/zone.getEncryptionKey) | Returns the active sequencer encryption key for a zone |
+| [`zone.getPortalInfo`](/tempo/actions/zone.getPortalInfo) | Returns a zone portal's configuration |
 | [`zone.getWithdrawalFee`](/tempo/actions/zone.getWithdrawalFee) | Returns the fee required for a withdrawal from a zone, given a callback gas limit |
 | [`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) | Returns zone metadata, including active sequencers and the latest imported Tempo block |
 | [`zone.requestVerifiableWithdrawal`](/tempo/actions/zone.requestVerifiableWithdrawal) | Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key |

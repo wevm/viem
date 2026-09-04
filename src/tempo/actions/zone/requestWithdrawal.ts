@@ -8,6 +8,7 @@ import { send } from '../../../core/actions/transaction/send.js'
 import { sendSync } from '../../../core/actions/transaction/sendSync.js'
 import type { Compute, UnionOmit } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
+import * as ZoneAbis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type { TransactionRequest } from '../../chainConfig.js'
 import {
@@ -16,7 +17,6 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
-import * as ZoneAbis from '../../zones/Abis.js'
 import { getAccount, getAddress, type ZoneWriteParameters } from './internal.js'
 
 const zeroHash =

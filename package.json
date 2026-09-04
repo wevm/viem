@@ -17,15 +17,13 @@
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:internal-types": "bun scripts/exports:internal-types.ts",
     "exports:update": "bun scripts/exports:update.ts",
-    "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
-    "gen:tempo-earn-abis": "bun scripts/generateTempoEarnAbis.ts && vp fmt src/tempo/Abis.ts test/src/tempo/earnContracts.ts",
+    "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts && vp fmt src/tempo/Abis.ts src/tempo/Selectors.ts test/src/tempo/earnContracts.ts",
     "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
     "postinstall": "pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "size": "size-limit",
-    "sync:tempo-abis": "bun scripts/gen:tempo-abis.ts --sync",
     "test": "vp test",
     "test:build": "publint --strict . && attw --pack . --profile esm-only",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
@@ -287,7 +285,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.6.2"
+    "ox": "https://pkg.pr.new/ox@a6dbc1f0d982d0d7a96c5f6f3b3f170e2d540009"
   },
   "exports": {
     ".": {

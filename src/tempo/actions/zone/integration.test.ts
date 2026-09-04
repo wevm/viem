@@ -1,6 +1,3 @@
-import * as tempo from '~test/tempo.js'
-import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
-import * as tempoZone from '~test/tempoZone.js'
 import {
   AbiEvent,
   AbiFunction,
@@ -13,9 +10,12 @@ import {
 } from 'ox'
 import { WithdrawalSenderTag } from 'ox/tempo'
 import { Actions as CoreActions } from 'viem'
-import { Account, Abis, Actions } from 'viem/tempo'
+import { Abis, Account, Actions } from 'viem/tempo'
 import { Abis as ZoneAbis } from 'viem/tempo/zones'
 import { describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo.js'
+import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
+import * as tempoZone from '~test/tempoZone.js'
 
 const parentClient = tempo.getClient()
 const account = parentClient.account
@@ -33,6 +33,29 @@ const zeroHash =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
+  test.runIf(!hardfork || hardfork === 'Tnext')(
+    'reads portal configuration',
+    async () => {
+      const info = await Actions.zone.getPortalInfo(parentClient, {
+        portalAddress: tempoZone.portalAddress,
+        zoneId: tempoZone.zoneId,
+      })
+      expect(Address.isEqual(info.admin, zoneAdmin.address)).toBe(true)
+      expect(
+        info.enabledTokens.some((token) =>
+          Address.isEqual(token, tempo.pathUsd),
+        ),
+      ).toBe(true)
+      expect(info.pauseExpiry).toBeGreaterThanOrEqual(0n)
+      expect(typeof info.paused).toBe('boolean')
+      expect(info.sequencers).toHaveLength(1)
+      expect(Address.isEqual(info.sequencers[0]!, zoneAdmin.address)).toBe(true)
+      expect(info.sequencerSetVersion).toBe(0n)
+      expect(info.sequencerThreshold).toBe(1)
+      expect(info.verifier).toBeDefined()
+    },
+  )
+
   test(
     'supports deposits, status reads, and withdrawals',
     { retry: 0, timeout: 150_000 },
@@ -110,7 +133,6 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
                 },
               ],
               functionName: 'createZone',
-              gas: 20_000_000n,
             })
           : await (async () => {
               const verifier = await CoreActions.contract.read(parentClient, {
@@ -139,9 +161,9 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
                   },
                 ],
                 functionName: 'createZone',
-                gas: 20_000_000n,
               })
             })()
+      expect(unconfiguredZoneReceipt.status).toBe('success')
       const [zoneCreated] = AbiEvent.extractLogs(
         ZoneAbis.zoneFactory,
         unconfiguredZoneReceipt.logs,
@@ -315,7 +337,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         throw new Error('Zone portal address is unavailable.')
 
       const portalAddress = tempoZone.portalAddress
-      const recoveryRecipient = tempo.accounts[2].address
+      const tempoRefundRecipient = tempo.accounts[2].address
       await Actions.zone.signAuthorizationToken(zoneClient, {
         zoneId: tempoZone.zoneId,
       })
@@ -370,7 +392,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           assetToken: tempo.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          tempoRefundRecipient,
           shareAmountMin: 2n,
         },
       )
@@ -392,7 +414,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           assetToken: tempo.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          tempoRefundRecipient,
           shareAmountMin: 4n,
           vaultAssetAmountMin: 3n,
         },
@@ -417,10 +439,10 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           actionId: depositActionId,
           assetAmount,
           callbackGas: callbackGasOverride,
-          fallbackRecipient: recoveryRecipient,
+          fallbackRecipient: tempoRefundRecipient,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          tempoRefundRecipient,
           returnMemo: depositReturnMemo,
           shareAmountMin: 1n,
           vaultAssetAmountMin: 2n,
@@ -431,7 +453,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         actionId: depositActionId,
         callbackGas: callbackGasOverride,
         chainId: parentClient.chain.id,
-        fallbackRecipient: recoveryRecipient,
+        fallbackRecipient: tempoRefundRecipient,
         memo: depositWithdrawalMemo,
         zoneId: tempoZone.zoneId,
       })
@@ -449,7 +471,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       expect(
         Address.isEqual(
           depositCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       await expect(
@@ -496,7 +518,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
           assetToken: tempo.alphaUsd,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          tempoRefundRecipient,
           shareAmount: 1n,
         },
       )
@@ -519,10 +541,10 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         {
           actionId: redeemActionId,
           callbackGas: callbackGasOverride,
-          fallbackRecipient: recoveryRecipient,
+          fallbackRecipient: tempoRefundRecipient,
           ...privatePreparation,
           recipient: account.address,
-          recoveryRecipient,
+          tempoRefundRecipient,
           returnMemo: redeemReturnMemo,
           shareAmount: shareBalance.amount,
           slippageBps: 0,
@@ -533,7 +555,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         actionId: redeemActionId,
         callbackGas: callbackGasOverride,
         chainId: parentClient.chain.id,
-        fallbackRecipient: recoveryRecipient,
+        fallbackRecipient: tempoRefundRecipient,
         memo: redeemWithdrawalMemo,
         zoneId: tempoZone.zoneId,
       })
@@ -551,7 +573,7 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
       expect(
         Address.isEqual(
           redeemCallback.zoneReturn.refundRecipient,
-          recoveryRecipient,
+          tempoRefundRecipient,
         ),
       ).toBe(true)
       const acceptedRedeem = await Actions.earn.privateRedeemSync(

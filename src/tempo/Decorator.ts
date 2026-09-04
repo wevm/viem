@@ -9,6 +9,7 @@ import * as dex from './actions/dex/index.js'
 import * as earn from './actions/earn.js'
 import * as faucet from './actions/faucet/index.js'
 import * as fee from './actions/fee/index.js'
+import * as multisig from './actions/multisig/index.js'
 import * as nonce from './actions/nonce/index.js'
 import * as policy from './actions/policy/index.js'
 import * as receivePolicy from './actions/receivePolicy/index.js'
@@ -53,8 +54,13 @@ export function tempoActions() {
       isWitnessBurned: (options) => accessKey.isWitnessBurned(client, options),
       revoke: (options) => accessKey.revoke(client, options),
       revokeSync: (options) => accessKey.revokeSync(client, options),
-      signAuthorization: (options) =>
-        accessKey.signAuthorization(client, options),
+      signAuthorization: ((options: accessKey.signAuthorization.Options) =>
+        accessKey.signAuthorization(
+          client,
+          options as accessKey.signAuthorization.CoordinatedOptions,
+        )) as Decorator<chain, account>['accessKey']['signAuthorization'],
+      prepareAuthorization: (options) =>
+        accessKey.prepareAuthorization(client, options),
       updateLimit: (options) => accessKey.updateLimit(client, options),
       updateLimitSync: (options) => accessKey.updateLimitSync(client, options),
       verifyHash: (options) => accessKey.verifyHash(client, options),
@@ -125,16 +131,15 @@ export function tempoActions() {
       withdrawSync: (options) => dex.withdrawSync(client, options),
     },
     earn: {
-      bindErc4626Engine: Object.assign(
-        (options: earn.bindErc4626Engine.Parameters) =>
-          earn.bindErc4626Engine(client, options),
+      bindEngine: Object.assign(
+        (options: earn.bindEngine.Parameters) =>
+          earn.bindEngine(client, options),
         {
-          call: earn.bindErc4626Engine.call,
-          extractEvent: earn.bindErc4626Engine.extractEvent,
+          call: earn.bindEngine.call,
+          extractEvent: earn.bindEngine.extractEvent,
         },
       ),
-      bindErc4626EngineSync: (options) =>
-        earn.bindErc4626EngineSync(client, options),
+      bindEngineSync: (options) => earn.bindEngineSync(client, options),
       configureExitSafePolicy: (options) =>
         earn.configureExitSafePolicy(client, options),
       createErc4626Engine: Object.assign(
@@ -283,6 +288,14 @@ export function tempoActions() {
       get: (options) => nonce.get(client, options),
       watchIncremented: (options) => nonce.watchIncremented(client, options),
     },
+    multisig: {
+      getConfig: (options) => multisig.getConfig(client, options),
+      getConfigCommitment: (options) =>
+        multisig.getConfigCommitment(client, options),
+      getOperation: (options) => multisig.getOperation(client, options),
+      updateConfig: (options) => multisig.updateConfig(client, options),
+      updateConfigSync: (options) => multisig.updateConfigSync(client, options),
+    },
     policy: {
       create: (options) => policy.create(client, options),
       createSync: (options) => policy.createSync(client, options),
@@ -417,6 +430,7 @@ export function tempoActions() {
         zone.encryptedDepositSync(client, options),
       getAuthorizationTokenInfo: (options) =>
         zone.getAuthorizationTokenInfo(client, options),
+      getPortalInfo: (options) => zone.getPortalInfo(client, options),
       getEncryptionKey: (options) => zone.getEncryptionKey(client, options),
       getWithdrawalFee: (options) => zone.getWithdrawalFee(client, options),
       getZoneInfo: (options) => zone.getZoneInfo(client, options),
@@ -728,9 +742,18 @@ export type Decorator<
      * @param options - Options.
      * @returns The signed key authorization.
      */
-    signAuthorization: (
-      options: accessKey.signAuthorization.Options,
-    ) => Promise<accessKey.signAuthorization.ReturnType>
+    signAuthorization: {
+      (
+        options: accessKey.signAuthorization.CoordinatedOptions,
+      ): Promise<accessKey.signAuthorization.CoordinatedReturnType>
+      (
+        options: accessKey.signAuthorization.LocalOptions<account>,
+      ): Promise<accessKey.signAuthorization.ReturnType>
+    }
+    /** Prepares a key authorization for local or multisig signing. */
+    prepareAuthorization: (
+      options: accessKey.prepareAuthorization.Options<account>,
+    ) => Promise<accessKey.prepareAuthorization.ReturnType>
     /**
      * Updates the spending limit for a specific token on an authorized access
      * key.
@@ -2061,16 +2084,16 @@ export type Decorator<
       options: earn.createStackSync.Parameters,
     ) => Promise<earn.createStackSync.ReturnValue>
     /** Binds an ERC-4626 engine to an Earn vault. */
-    bindErc4626Engine: ((
-      options: earn.bindErc4626Engine.Parameters,
-    ) => Promise<earn.bindErc4626Engine.ReturnValue>) & {
-      call: typeof earn.bindErc4626Engine.call
-      extractEvent: typeof earn.bindErc4626Engine.extractEvent
+    bindEngine: ((
+      options: earn.bindEngine.Parameters,
+    ) => Promise<earn.bindEngine.ReturnValue>) & {
+      call: typeof earn.bindEngine.call
+      extractEvent: typeof earn.bindEngine.extractEvent
     }
     /** Binds an ERC-4626 engine and waits for confirmation. */
-    bindErc4626EngineSync: (
-      options: earn.bindErc4626EngineSync.Parameters,
-    ) => Promise<earn.bindErc4626EngineSync.ReturnValue>
+    bindEngineSync: (
+      options: earn.bindEngineSync.Parameters,
+    ) => Promise<earn.bindEngineSync.ReturnValue>
     /** Deploys and binds a complete ERC-4626 Earn stack. */
     deployErc4626StackSync: (
       options: earn.deployErc4626StackSync.Parameters,
@@ -2350,7 +2373,7 @@ export type Decorator<
      *   assetAmount: 100_000_000n,
      *   gateway: '0x…',
      *   recipient: '0x…',
-     *   recoveryRecipient: '0x…',
+     *   tempoRefundRecipient: '0x…',
      *   shareAmountMin: 99_500_000n,
      *   vault: '0x…',
      *   vaultAssetAmountMin: 99_000_000n,
@@ -2394,7 +2417,7 @@ export type Decorator<
      * const prepared = await parentClient.earn.privateRedeem.prepare({
      *   gateway: '0x…',
      *   recipient: '0x…',
-     *   recoveryRecipient: '0x…',
+     *   tempoRefundRecipient: '0x…',
      *   shareAmount: 100_000_000n,
      *   slippageBps: 50,
      *   vault: '0x…',
@@ -2908,6 +2931,25 @@ export type Decorator<
       options?: nonce.watchIncremented.Options,
     ) => nonce.watchIncremented.ReturnType
   }
+  /** Native multisig configuration and coordinated operations. */
+  multisig: {
+    getConfig: (
+      options: multisig.getConfig.Options,
+    ) => Promise<multisig.getConfig.ReturnType>
+    getConfigCommitment: (
+      options: multisig.getConfigCommitment.Options,
+    ) => Promise<multisig.getConfigCommitment.ReturnType>
+    getOperation: (
+      options: multisig.getOperation.Options,
+    ) => Promise<multisig.getOperation.ReturnType>
+    updateConfig: (
+      options: multisig.updateConfig.Options,
+    ) => Promise<multisig.updateConfig.ReturnType>
+    updateConfigSync: (
+      options: multisig.updateConfigSync.Options,
+    ) => Promise<multisig.updateConfigSync.ReturnType>
+  }
+
   policy: {
     /**
      * Creates a TIP-403 transfer policy.
@@ -5236,6 +5278,10 @@ export type Decorator<
      * @param options - Options.
      * @returns The active encryption key and its zero-based index.
      */
+    /** Gets a Zone portal's configuration and metadata. */
+    getPortalInfo: (
+      options: zone.getPortalInfo.Options,
+    ) => Promise<zone.getPortalInfo.ReturnType>
     getEncryptionKey: (
       options: zone.getEncryptionKey.Options,
     ) => Promise<zone.getEncryptionKey.ReturnType>
