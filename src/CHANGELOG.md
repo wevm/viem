@@ -1,5 +1,13 @@
 # viem
 
+## 2.56.4
+
+### Patch Changes
+
+- [#5058](https://github.com/wevm/viem/pull/5058) [`307961495ce402adbbd31c793277850726308f82`](https://github.com/wevm/viem/commit/307961495ce402adbbd31c793277850726308f82) Thanks [@riba2534](https://github.com/riba2534)! - Fixed `getUserOperation` throwing `Cannot convert null to a BigInt` for pending User Operations, and made `blockHash`, `blockNumber`, and `transactionHash` nullable on its return value (as well as on `GetUserOperationByHashReturnType`) to reflect what Bundlers return while a User Operation is in the mempool.
+
+- [#5062](https://github.com/wevm/viem/pull/5062) [`200fbe123d897208d315242d5f6ceabdce503a08`](https://github.com/wevm/viem/commit/200fbe123d897208d315242d5f6ceabdce503a08) Thanks [@oliverboehm-xgr](https://github.com/oliverboehm-xgr)! - Added XGR Testnet chain.
+
 ## 2.56.3
 
 ### Patch Changes
