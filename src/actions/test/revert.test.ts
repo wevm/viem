@@ -40,3 +40,22 @@ test('reverts', async () => {
     }),
   ).toBe(balance)
 })
+
+test('throws on an invalid snapshot id', async () => {
+  await expect(
+    revert(client, { id: '0xffffffffffffffff' }),
+  ).rejects.toMatchInlineSnapshot(`
+    [SnapshotRevertError: Failed to revert to snapshot "0xffffffffffffffff".
+
+    Docs: https://viem.sh/docs/actions/test/revert
+    Version: viem@x.y.z]
+  `)
+})
+
+test('throws when the snapshot has already been consumed', async () => {
+  const id = await snapshot(client)
+  await revert(client, { id })
+  await expect(revert(client, { id })).rejects.toThrowError(
+    `Failed to revert to snapshot "${id}"`,
+  )
+})

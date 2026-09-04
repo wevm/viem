@@ -3,6 +3,7 @@ import type {
   TestClientMode,
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
@@ -14,7 +15,22 @@ export type RevertParameters = {
   id: Quantity
 }
 
-export type RevertErrorType = RequestErrorType | ErrorType
+export type SnapshotRevertErrorType = SnapshotRevertError & {
+  name: 'SnapshotRevertError'
+}
+export class SnapshotRevertError extends BaseError {
+  constructor({ id }: { id: Quantity }) {
+    super(`Failed to revert to snapshot "${id}".`, {
+      name: 'SnapshotRevertError',
+      docsPath: '/docs/actions/test/revert',
+    })
+  }
+}
+
+export type RevertErrorType =
+  | SnapshotRevertErrorType
+  | RequestErrorType
+  | ErrorType
 
 /**
  * Revert the state of the blockchain at the current block.
@@ -43,8 +59,9 @@ export async function revert<
   client: TestClient<TestClientMode, Transport, chain, account, false>,
   { id }: RevertParameters,
 ) {
-  await client.request({
+  const reverted = await client.request({
     method: 'evm_revert',
     params: [id],
   })
+  if (reverted === false) throw new SnapshotRevertError({ id })
 }
