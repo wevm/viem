@@ -14,10 +14,11 @@ client.
 :::code-group
 
 ```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateRedeem.prepare({
+const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
   shareAmount: 100_000_000n,
@@ -51,10 +52,11 @@ redemption. `senderTag` identifies the corresponding parent-chain `WithdrawalPro
 Use `earn.privateRedeem` to return the Zone transaction hash immediately.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateRedeem.prepare({
+const prepared = await Actions.earn.privateRedeem.prepare(parentClient, {
   assetAmountMin: 99_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,

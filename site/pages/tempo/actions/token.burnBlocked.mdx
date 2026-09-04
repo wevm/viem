@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.burnBlocked`
+# Burn Blocked Tokens [token.burnBlocked]
 
 Burns TIP-20 tokens from a blocked address. Requires the `BURN_BLOCKED` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
 
@@ -14,7 +14,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.burnBlockedSync({
   amount: { formatted: '10.5' },
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -27,9 +27,9 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-### By Token Address
+### Undeclared Tokens
 
-When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+Formatted amounts resolve `decimals` from the Client's declared `tokens` (the pathUSD address above is declared on the default token set). For a token not declared on the Client, include `amount.decimals` so the formatted amount can be parsed.
 
 :::code-group
 
@@ -39,7 +39,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.burnBlockedSync({
   amount: { decimals: 6, formatted: '10.5' },
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -61,7 +61,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.burnBlockedSync({
   amount: 10500000n,
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 ```
 
@@ -84,23 +84,86 @@ import { client } from './viem.config'
 const hash = await client.token.burnBlocked({
   amount: { formatted: '10.5' },
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
-const { args } 
-  = Actions.token.burnBlocked.extractEvent(receipt.logs)
+const { args } = Actions.token.burnBlocked.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Recipes
+
+### Confirm an Address Is Blocked Before Burning
+
+Check the address against your transfer policy with [`policy.isAuthorized`](/tempo/actions/policy.isAuthorized) first: the burn is irreversible, so only proceed when the policy still blocks the holder.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const from = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const isAuthorized = await client.policy.isAuthorized({ // [!code focus]
+  policyId: 1n, // [!code focus]
+  user: from, // [!code focus]
+}) // [!code focus]
+if (isAuthorized) throw new Error('address is not blocked by the policy') // [!code focus]
+
+const { receipt } = await client.token.burnBlockedSync({
+  amount: { formatted: '10.5' },
+  from,
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Burn a Blocked Account's Entire Balance
+
+Combine [`token.getBalance`](/tempo/actions/token.getBalance) with `token.burnBlockedSync` to clear a sanctioned account completely, for example when executing a documented seizure order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const from = '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { amount } = await client.token.getBalance({ account: from, token }) // [!code focus]
+
+const { receipt } = await client.token.burnBlockedSync({
+  amount, // [!code focus]
+  from,
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
-  /** Amount of tokens burned */
-  amount: bigint
-  /** Address tokens were burned from */
+  /** Address tokens were burned from. */
   from: Address
-  /** Transaction receipt */
+  /** Burned amount, in base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Burned amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Transaction receipt. */
   receipt: TransactionReceipt
 }
 ```
@@ -111,9 +174,8 @@ type ReturnType = {
 
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
-Amount to burn in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
-token address.
+Amount of tokens to burn, in base units or formatted decimal form. Include `amount.decimals`
+when the token is not declared on the Client's `tokens`.
 
 ### from
 
@@ -123,9 +185,8 @@ Address to burn tokens from.
 
 ### token
 
-- **Type:** `string | bigint`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP-20 token id, or a token address.
+Token to operate on: a TIP-20 token id or a contract address.
 
 <WriteParameters />

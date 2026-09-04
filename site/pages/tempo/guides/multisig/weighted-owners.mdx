@@ -43,14 +43,14 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Store the first owner's approval.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: owner_1,
 })
 
 // 4. Reach quorum with any other owner using the operation hash.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_3,

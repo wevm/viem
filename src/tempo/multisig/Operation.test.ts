@@ -1,5 +1,4 @@
-import { Address, P256 } from 'ox'
-import * as Json from 'ox/Json'
+import { Address, Hex, Json, P256 } from 'ox'
 import {
   KeyAuthorization,
   MultisigConfig,
@@ -21,7 +20,10 @@ const owners = [1n, 2n]
       signature: SignatureEnvelope.serialize({
         prehash: false,
         publicKey,
-        signature: { r: BigInt(index * 2 + 1), s: BigInt(index * 2 + 2) },
+        signature: {
+          r: Hex.fromNumber(index * 2 + 1, { size: 32 }),
+          s: Hex.fromNumber(index * 2 + 2, { size: 32 }),
+        },
         type: 'p256',
       }),
     }
@@ -540,7 +542,7 @@ describe('InvalidStoreValueError', () => {
     expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
       [Multisig.Operation.InvalidStoreValueError: Stored multisig operation is malformed or unsupported.
 
-      Version: viem@x.y.z]
+      Version: viem@x.x.x]
     `)
   })
 

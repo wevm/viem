@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/nonce/index.d.ts",
-  "module": "../_esm/nonce/index.js",
-  "main": "../_cjs/nonce/index.js"
-}

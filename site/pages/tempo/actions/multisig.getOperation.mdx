@@ -24,18 +24,18 @@ const operation = await client.multisig.getOperation({
 ```
 
 ```ts [viem.config.ts] filename="viem.config.ts"
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 import { store } from './store.db'
 
-export const client = createClient({
+export const client = Client.create({
   experimental_multisig: { store },
 })
 ```
 
 :::
 
-Use the operation hash returned by `sendTransaction`, or the `transactionHash` from a pending
-`sendTransactionSync` receipt.
+Use the operation hash returned by `transaction.send`, or the `transactionHash` from a pending
+`transaction.sendSync` receipt.
 
 ## Return Type
 

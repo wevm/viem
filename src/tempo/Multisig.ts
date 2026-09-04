@@ -1,8 +1,5 @@
 import type { Address } from 'abitype'
-import * as Address_ from 'ox/Address'
-import * as Hash from 'ox/Hash'
-import * as Hex from 'ox/Hex'
-import * as RpcResponse from 'ox/RpcResponse'
+import { AbiFunction, Address as Address_, Hash, Hex, RpcResponse } from 'ox'
 import {
   KeyAuthorization,
   MultisigConfig,
@@ -11,19 +8,19 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { getBlockNumber } from '../actions/public/getBlockNumber.js'
-import { createClient } from '../clients/createClient.js'
-import { custom } from '../clients/transports/custom.js'
-import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
-import { isAddressEqual } from '../utils/address/isAddressEqual.js'
+import { getNumber as getBlockNumber } from '../core/actions/block/getNumber.js'
+import { create as createClient } from '../core/Client.js'
+import { custom } from '../core/transports/custom.js'
+type EIP1193RequestOptions = Parameters<
+  ReturnType<typeof createClient>['request']
+>[1]
+
 import * as Abis from './Abis.js'
+import { getConfigCommitment } from './actions/multisig/getConfigCommitment.js'
 import * as Addresses from './Addresses.js'
-import { getConfigCommitment } from './actions/multisig.js'
 import * as ConfigStore from './multisig/Config.js'
 import * as OperationStore from './multisig/Operation.js'
 import type * as Store from './Store.js'
-import * as Transaction from './Transaction.js'
 
 const submissionTtl = 30_000
 const pollingInterval = 100
@@ -264,7 +261,7 @@ async function submit(options: submit.Options) {
   }
 
   const { signature: _, ...unsigned } = transaction
-  const envelope = TxEnvelopeTempo.from(unsigned as never)
+  const envelope = TxEnvelopeTempo.from(unsigned)
   const serializedUnsigned = serializeUnsigned(
     envelope,
     options.serialized.startsWith(TxEnvelopeTempo.feePayerMagic),
@@ -605,7 +602,7 @@ async function approveKeyAuthorization(
         })
       if (
         !authorization.account ||
-        !isAddressEqual(authorization.account, signature.account)
+        !Address_.isEqual(authorization.account, signature.account)
       )
         throw new RpcResponse.InvalidParamsError({
           message:
@@ -785,9 +782,7 @@ declare namespace approveKeyAuthorization {
 /** Deserializes a Tempo transaction or throws an RPC parameter error. */
 function deserialize(serialized: Hex.Hex) {
   try {
-    return Transaction.deserialize(
-      serialized as Transaction.TransactionSerializedTempo,
-    )
+    return TxEnvelopeTempo.deserialize(serialized as TxEnvelopeTempo.Serialized)
   } catch {
     throw new RpcResponse.InvalidParamsError({
       message: 'Invalid serialized Tempo transaction.',
@@ -842,13 +837,19 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
   for (const call of options.transaction.calls) {
     if (
       !call.to ||
-      !isAddressEqual(call.to, Addresses.nativeMultisig) ||
+      !Address_.isEqual(call.to, Addresses.nativeMultisig) ||
       !call.data
     )
       continue
     const decoded = (() => {
       try {
-        return decodeFunctionData({ abi: Abis.nativeMultisig, data: call.data })
+        const item = AbiFunction.fromAbi(Abis.nativeMultisig, 'updateConfig')
+        if (!call.data.startsWith(AbiFunction.getSelector(item)))
+          return undefined
+        return {
+          functionName: item.name,
+          args: AbiFunction.decodeData(item, call.data),
+        }
       } catch {
         return undefined
       }
@@ -900,7 +901,7 @@ declare namespace cacheNextConfigs {
     /** Shared multisig store. */
     store: Store.Store
     /** Submitted transaction containing potential config updates. */
-    transaction: Transaction.TransactionSerializableTempo
+    transaction: TxEnvelopeTempo.TxEnvelopeTempo
   }
 }
 
@@ -1174,8 +1175,12 @@ async function removeSettledSubmission(
 /** Preserves or upgrades a fee-payer envelope without removing an existing signature. */
 function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
   if (!existing) return incoming
-  const existingTransaction = TxEnvelopeTempo.deserialize(existing as never)
-  const incomingTransaction = TxEnvelopeTempo.deserialize(incoming as never)
+  const existingTransaction = TxEnvelopeTempo.deserialize(
+    existing as TxEnvelopeTempo.Serialized,
+  )
+  const incomingTransaction = TxEnvelopeTempo.deserialize(
+    incoming as TxEnvelopeTempo.Serialized,
+  )
   if (!('feePayerSignature' in incomingTransaction)) return existing
   if (incomingTransaction.feePayerSignature !== null) return incoming
   if (!('feePayerSignature' in existingTransaction)) return incoming
@@ -1245,7 +1250,7 @@ async function toTransaction(
         from: operation.account,
         hash: operation.hash,
         transactionIndex: null,
-      } as never,
+      } as Parameters<typeof ox_Transaction.toRpc>[0],
       { pending: true },
     ),
     multisig: MultisigOperation.toRpc(current),
@@ -1399,7 +1404,10 @@ async function resolveRequestChainId(
     ) {
       if (!isSerializedTempoTransaction(value)) return undefined
       try {
-        return parseChainId(Transaction.deserialize(value).chainId)
+        return parseChainId(
+          TxEnvelopeTempo.deserialize(value as TxEnvelopeTempo.Serialized)
+            .chainId,
+        )
       } catch {
         return undefined
       }
@@ -1442,8 +1450,8 @@ async function resolveRequestChainId(
     if (!operation) return undefined
     if (operation.type === 'transaction')
       return parseChainId(
-        Transaction.deserialize(
-          operation.transaction as Transaction.TransactionSerializedTempo,
+        TxEnvelopeTempo.deserialize(
+          operation.transaction as TxEnvelopeTempo.Serialized,
         ).chainId,
       )
     return parseChainId(

@@ -1,8 +1,8 @@
 import { MultisigConfig } from 'ox/tempo'
-import { custom, toHex } from 'viem'
-import { waitForTransactionReceipt } from 'viem/actions'
+import { custom, Actions as viem_Actions } from 'viem'
+import { Hex } from 'viem/utils'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, chain, feeToken, getClient } from '~test/tempo/config.js'
+import { accounts, chain, feeToken, getClient } from '~test/tempoMultisig.js'
 import * as Account from '../Account.js'
 import * as actions from './index.js'
 
@@ -10,7 +10,7 @@ const client = getClient()
 const account = Account.fromMultisig({
   address: 'infer',
   owners: [accounts[17], accounts[18]],
-  salt: toHex(0x502200, { size: 32 }),
+  salt: Hex.fromNumber(0x502200, { size: 32 }),
   threshold: 2,
 })
 
@@ -44,7 +44,7 @@ describe('updateConfig', () => {
       transport: custom({
         async request(request) {
           requests.push(request)
-          if (request.method === 'eth_chainId') return toHex(chain.id)
+          if (request.method === 'eth_chainId') return Hex.fromNumber(chain.id)
           if (request.method === 'eth_sendTransaction') return hash
           throw new Error(`Unexpected request: ${request.method}`)
         },
@@ -62,7 +62,10 @@ describe('updateConfig', () => {
 
     expect({ requests, result }).toMatchInlineSnapshot(
       {
-        requests: [{}, { params: [{ data: expect.any(String) }] }],
+        requests: [
+          {},
+          { params: [{ data: expect.any(String), input: expect.any(String) }] },
+        ],
       },
       `
       {
@@ -74,8 +77,10 @@ describe('updateConfig', () => {
             "method": "eth_sendTransaction",
             "params": [
               {
+                "chainId": "0x539",
                 "data": Any<String>,
                 "from": "0x63274A8f64D08B0A6ee67919B7bA3f6220B406ac",
+                "input": Any<String>,
                 "to": "0xAACC000000000000000000000000000000000000",
               },
             ],
@@ -96,7 +101,9 @@ describe('updateConfig', () => {
         threshold: account.config.threshold,
       },
     })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await viem_Actions.transaction.waitForReceipt(client, {
+      hash,
+    }).receipt
     const config = MultisigConfig.from({ ...account.config, version: 1n })
     const commitment = await actions.multisig.getConfigCommitment(client, {
       account: account.address,
@@ -121,7 +128,7 @@ describe('updateConfigSync', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [accounts[17], accounts[18]],
-      salt: toHex(0x502201, { size: 32 }),
+      salt: Hex.fromNumber(0x502201, { size: 32 }),
       threshold: 2,
     })
     await actions.token.transferSync(client, {
@@ -173,6 +180,8 @@ describe('updateConfigSync', () => {
           "version": 1n,
         },
         "receipt": {
+          "blobGasPrice": undefined,
+          "blobGasUsed": undefined,
           "blockHash": Any<String>,
           "blockNumber": Any<BigInt>,
           "contractAddress": null,
@@ -184,12 +193,11 @@ describe('updateConfigSync', () => {
           "gasUsed": Any<BigInt>,
           "logs": Any<Array>,
           "logsBloom": Any<String>,
-          "multisig": undefined,
           "status": "success",
           "to": "0xaacc000000000000000000000000000000000000",
           "transactionHash": Any<String>,
           "transactionIndex": Any<Number>,
-          "type": "0x76",
+          "type": "tempo",
         },
       }
     `,

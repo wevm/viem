@@ -1,0 +1,99 @@
+---
+description: Encode data into blobs and send EIP-4844 blob transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Blob Transactions
+
+## Overview
+
+EIP-4844 transactions carry temporary blob data outside normal EVM calldata. Viem accepts encoded
+blobs and a KZG implementation. Ox provides an opt-in WASM implementation backed by
+[`c-kzg-4844`](https://github.com/ethereum/c-kzg-4844).
+
+Viem derives commitments and versioned hashes, signs the transaction, and broadcasts it through
+[`transaction.send`](/docs/actions/wallet/transaction/send).
+
+## Recipes
+
+These recipes assume you have [set up a Client](/docs) with a Local Account and installed
+[`ox`](https://oxlib.sh) as a direct dependency.
+
+### Encode Blob Data
+
+Use [`Blobs.from`](/docs/utilities/blobs/from) to split arbitrary bytes into correctly encoded blobs.
+
+```ts twoslash
+import { Blobs, Hex } from 'viem/utils'
+
+const blobs = Blobs.from(Hex.fromString('Hello from a blob')) // [!code focus]
+```
+
+### Configure KZG
+
+Create Ox's WASM KZG implementation with its bundled Ethereum mainnet trusted setup.
+
+```ts twoslash
+// @noErrors
+import { Setups } from 'ox/trusted-setups'
+import { Kzg } from 'ox/wasm'
+
+const kzg = await Kzg.create({ trustedSetup: Setups.mainnet }) // [!code focus]
+```
+
+The instance implements Viem's [`Kzg`](/docs/utilities/kzg/from) interface. Call `dispose` when the
+application no longer needs the instance.
+
+### Send a Blob Transaction
+
+Pass the blobs and KZG adapter. Viem derives the remaining blob fields during preparation.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @noErrors
+import { Setups } from 'ox/trusted-setups'
+import { Kzg } from 'ox/wasm'
+import { Blobs, Hex } from 'viem/utils'
+import { client } from './viem.config'
+
+const kzg = await Kzg.create({ trustedSetup: Setups.mainnet })
+
+try {
+  const hash = await client.transaction.send({
+    blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+    kzg, // [!code focus]
+    to: '0x0000000000000000000000000000000000000000',
+  })
+} finally {
+  kzg.dispose()
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/docs/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Reuse and Dispose KZG
+
+Create the WASM instance during process initialization and reuse it across transactions. Call
+`dispose` during shutdown to release its c-kzg allocations.
+
+Create one instance inside each JavaScript worker that performs KZG operations.
+
+### Use Blobs for Data Availability
+
+Blob data is temporary and unavailable to EVM execution. Put values required by a contract in
+calldata or contract storage instead.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:binary" title="Blobs" description="Encode blobs and derive commitments, proofs, or versioned hashes." to="/docs/utilities/blobs" />
+  <Card icon="lucide:key-round" title="KZG" description="Configure the commitment interface used by blob transactions." to="/docs/utilities/kzg" />
+</Cards>

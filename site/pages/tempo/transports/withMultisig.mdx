@@ -12,10 +12,10 @@ Use `withMultisig` when composing a multisig-aware transport directly. The
 ## Usage
 
 ```ts
-import { createClient, http, withMultisig } from 'viem/tempo'
+import { Client, http, withMultisig } from 'viem/tempo'
 import { store } from './store.db'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withMultisig(http(), { store }),
 })
 ```
@@ -44,7 +44,7 @@ Transport that sends non-multisig requests and final quorum-ready transactions.
 
 ### parameters
 
-- **Type:** `withMultisig.Parameters`
+- **Type:** `withMultisig.Options`
 
 Multisig request handler configuration.
 

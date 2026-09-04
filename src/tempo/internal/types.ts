@@ -1,23 +1,18 @@
-import type { Address } from 'abitype'
-import type { TokenId } from 'ox/tempo'
-import type { Account } from '../../accounts/types.js'
-import type { ReadContractParameters as viem_ReadContractParameters } from '../../actions/public/readContract.js'
-import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } from '../../actions/wallet/writeContractSync.js'
-import type { Chain } from '../../types/chain.js'
-import type {
-  IsUndefined,
-  MaybeRequired,
-  UnionPick,
-} from '../../types/utils.js'
-import type { TransactionRequestTempo } from '../Transaction.js'
+import type { Address } from 'ox'
 
-/**
- * Selects a TIP20 token by `token`, which is either a TIP20 token id or a
- * contract `address`.
- */
+import type { writeSync } from '../../core/actions/contract/writeSync.js'
+import type { UnionPick } from '../../core/internal/types.js'
+import type { TransactionRequest } from '../chainConfig.js'
+
+export type {
+  ReadParameters,
+  WriteSyncParameters,
+} from '../../core/actions/token/internal.js'
+
+/** Selects a TIP-20 token by its contract `address`. */
 export type TokenParameter = {
-  /** Token to operate on: a TIP20 token id or a contract `address`. */
-  token: TokenId.TokenIdOrAddress
+  /** Token to operate on: a TIP-20 contract `address`. */
+  token: Address.Address
 }
 
 export type TokenParameters = TokenParameter & {
@@ -29,37 +24,9 @@ export type TokenParameters = TokenParameter & {
   decimals?: number | undefined
 }
 
-export type GetAccountParameter<
-  account extends Account | undefined = Account | undefined,
-  accountOverride extends Account | Address | undefined = Account | Address,
-  required extends boolean = true,
-  nullish extends boolean = false,
-> = MaybeRequired<
-  {
-    account?:
-      | accountOverride
-      | Account
-      | Address
-      | (nullish extends true ? null : never)
-      | undefined
-  },
-  IsUndefined<account> extends true
-    ? required extends true
-      ? true
-      : false
-    : false
->
-
-export type ReadParameters = Pick<
-  viem_ReadContractParameters<never, never, never>,
-  'account' | 'blockNumber' | 'blockOverrides' | 'blockTag' | 'stateOverride'
->
-
-export type WriteParameters<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = UnionPick<
-  viem_WriteContractSyncParameters<never, never, never, chain, account>,
+/** Transaction-override fields shared by Tempo write actions. */
+export type WriteParameters = UnionPick<
+  writeSync.Options,
   | 'account'
   | 'chain'
   | 'gas'
@@ -69,7 +36,7 @@ export type WriteParameters<
   | 'throwOnReceiptRevert'
 > &
   UnionPick<
-    TransactionRequestTempo,
+    TransactionRequest,
     | 'feePayer'
     | 'feeToken'
     | 'keyAuthorization'
@@ -78,11 +45,3 @@ export type WriteParameters<
     | 'validAfter'
     | 'validBefore'
   >
-
-export type WriteSyncParameters<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = UnionPick<
-  viem_WriteContractSyncParameters<never, never, never, chain, account>,
-  'pollingInterval' | 'timeout'
->

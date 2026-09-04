@@ -1,9 +1,7 @@
-import * as Address from 'ox/Address'
-import * as Hash from 'ox/Hash'
-import type * as Hex from 'ox/Hex'
-import * as Json from 'ox/Json'
+import type { Hex } from 'ox'
+import { Address, Hash, Json } from 'ox'
 import { MultisigConfig } from 'ox/tempo'
-import { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../core/Errors.js'
 import type * as Store from '../Store.js'
 
 /** A valid 48-owner config is much smaller; 64 KiB bounds hostile store parsing work. */
@@ -112,12 +110,12 @@ function serialize(config: MultisigConfig.Config): string {
 }
 
 /** Thrown when a stored multisig config is malformed or mismatched. */
-export class InvalidStoreValueError extends BaseError {
+export class InvalidStoreValueError extends BaseError<Error | undefined> {
+  override name = 'Multisig.Config.InvalidStoreValueError'
   /** Creates an invalid store value error. */
   constructor(options: InvalidStoreValueError.Options = {}) {
     super('Stored multisig config is malformed or mismatched.', {
       cause: options.cause as Error | undefined,
-      name: 'Multisig.Config.InvalidStoreValueError',
     })
   }
 }

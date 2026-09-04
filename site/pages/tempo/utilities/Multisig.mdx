@@ -17,8 +17,8 @@ handler validates each approval, stores the operation, selects a canonical quoru
 the final transaction after the configured threshold is reached. The handler also caches validated
 configs, which lets later requests identify an account by address alone.
 
-Use normal [`sendTransaction`](/docs/actions/wallet/sendTransaction) and
-[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) for the standard client flow.
+Use normal [`transaction.send`](/docs/actions/wallet/transaction/send) and
+[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync) for the standard client flow.
 Use [`Multisig.handleRequest`](/tempo/utilities/Multisig.handleRequest) when integrating the
 coordinator into another RPC handler. Use [`withMultisig`](/tempo/transports/withMultisig) when
 composing a transport directly.
@@ -28,10 +28,12 @@ composing a transport directly.
 Enable multisig coordination with a shared store:
 
 ```ts twoslash
-import { createClient } from 'viem/tempo'
-import { store } from './store.db'
+import { Client, type Store } from 'viem/tempo'
 
-const client = createClient({
+// Supply an atomic store shared by every coordinating process.
+declare const store: Store.Atomic
+
+const client = Client.create({
   experimental_multisig: { store },
 })
 ```

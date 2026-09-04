@@ -1,69 +1,103 @@
-import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
-import { getTransaction, sendTransactionSync } from '../../actions/index.js'
-import { maxUint256 } from '../../constants/number.js'
+import * as tempo from '~test/tempo.js'
+import { afterAll, expect, test } from 'vitest'
+
+import { Actions } from 'viem'
+
 import * as Concurrent from './concurrent.js'
 
-const client = getClient({
-  account: accounts.at(0)!,
+test('single request returns false', async () => {
+  const result = await Concurrent.detect('0xsingle')
+  expect(result).toBe(false)
 })
 
-describe('detect', () => {
-  test('single request returns false', async () => {
-    const result = await Concurrent.detect('0xsingle')
-    expect(result).toBe(false)
-  })
-
-  test('concurrent requests return true', async () => {
-    const results = await Promise.all([
-      Concurrent.detect('0xconcurrent'),
-      Concurrent.detect('0xconcurrent'),
-    ])
-    expect(results[0]).toBe(true)
-    expect(results[1]).toBe(true)
-  })
-
-  test('3+ concurrent requests all return true', async () => {
-    const results = await Promise.all([
-      Concurrent.detect('0xtriple'),
-      Concurrent.detect('0xtriple'),
-      Concurrent.detect('0xtriple'),
-    ])
-    expect(results[0]).toBe(true)
-    expect(results[1]).toBe(true)
-    expect(results[2]).toBe(true)
-  })
+test('concurrent requests return true', async () => {
+  const results = await Promise.all([
+    Concurrent.detect('0xconcurrent'),
+    Concurrent.detect('0xconcurrent'),
+  ])
+  expect(results[0]).toBe(true)
+  expect(results[1]).toBe(true)
 })
 
-describe('integration', () => {
-  test('sendTransaction with expiring nonce', async () => {
-    const receipt = await sendTransactionSync(client, {
-      to: '0x0000000000000000000000000000000000000000',
-      nonceKey: 'expiring',
-    })
+test('3+ concurrent requests all return true', async () => {
+  const results = await Promise.all([
+    Concurrent.detect('0xtriple'),
+    Concurrent.detect('0xtriple'),
+    Concurrent.detect('0xtriple'),
+  ])
+  expect(results[0]).toBe(true)
+  expect(results[1]).toBe(true)
+  expect(results[2]).toBe(true)
+})
 
-    expect(receipt.status).toBe('success')
+test('sequential requests return false', async () => {
+  expect(await Concurrent.detect('0xsequential')).toBe(false)
+  expect(await Concurrent.detect('0xsequential')).toBe(false)
+})
+
+test('different keys do not interfere', async () => {
+  const results = await Promise.all([
+    Concurrent.detect('0xkey-a'),
+    Concurrent.detect('0xkey-b'),
+  ])
+  expect(results[0]).toBe(false)
+  expect(results[1]).toBe(false)
+})
+
+// Expiring-nonce integration (TIP-1009): `detect` drives nonceKey selection
+// in the transaction prepare hook.
+const node = tempo.defineNode()
+afterAll(() => node.stop())
+
+const to = '0x00000000000000000000000000000000000000ff'
+const maxUint256 = 2n ** 256n - 1n
+
+/** Expiring-nonce window from node time (host clocks may skew). */
+async function validBefore(client: ReturnType<typeof tempo.getClient>) {
+  const block = await Actions.block.get(client)
+  return Number(block.timestamp) + 25
+}
+
+test('sendTransaction with expiring nonce', { timeout: 120_000 }, async () => {
+  const client = tempo.getClient({ rpcUrl: await node.start() })
+  const receipt = await Actions.transaction.sendSync(client, {
+    calls: [{ to }],
+    feeToken: tempo.pathUsd,
+    nonceKey: 'expiring',
+    validBefore: await validBefore(client),
   })
+  expect(receipt.status).toBe('success')
 
-  test('concurrent transactions use expiring nonces', async () => {
-    const receipts = await Promise.all([
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000001',
-      }),
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000002',
-      }),
-      sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000003',
-      }),
-    ])
+  const transaction = await Actions.transaction.get(client, {
+    hash: receipt.transactionHash,
+  })
+  expect(transaction.nonceKey).toBe(maxUint256)
+})
+
+test(
+  'concurrent transactions use expiring nonces',
+  { timeout: 120_000 },
+  async () => {
+    const client = tempo.getClient({ rpcUrl: await node.start() })
+    const window = await validBefore(client)
+    // Distinct recipients: identical expiring-nonce transactions share a hash.
+    const receipts = await Promise.all(
+      [1, 2, 3].map((i) =>
+        Actions.transaction.sendSync(client, {
+          calls: [{ to: `0x00000000000000000000000000000000000000f${i}` }],
+          feeToken: tempo.pathUsd,
+          validBefore: window,
+        }),
+      ),
+    )
+    for (const receipt of receipts) expect(receipt.status).toBe('success')
 
     const transactions = await Promise.all(
-      receipts.map((r) => getTransaction(client, { hash: r.transactionHash })),
+      receipts.map((receipt) =>
+        Actions.transaction.get(client, { hash: receipt.transactionHash }),
+      ),
     )
-
-    expect(transactions[0].nonceKey).toBe(maxUint256)
-    expect(transactions[1].nonceKey).toBe(maxUint256)
-    expect(transactions[2].nonceKey).toBe(maxUint256)
-  })
-})
+    for (const transaction of transactions)
+      expect(transaction.nonceKey).toBe(maxUint256)
+  },
+)

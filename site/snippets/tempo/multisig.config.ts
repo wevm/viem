@@ -1,8 +1,10 @@
 // [!region setup]
-import { createClient } from 'viem/tempo'
-import { store } from './store.db'
+import { Client, type Store } from 'viem/tempo'
 
-export const client = createClient({
+// Supply an atomic store shared by every coordinating process.
+declare const store: Store.Atomic
+
+export const client = Client.create({
   experimental_multisig: { store },
 })
 // [!endregion setup]

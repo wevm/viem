@@ -106,7 +106,7 @@ const info = await client.zone.getZoneInfo()
 
 The signed token is persisted with [`Store`](/tempo/utilities/Store). By default,
 [`Store.defaultStore`](/tempo/utilities/Store.defaultStore) selects an in-memory store in Node.js
-or `sessionStorage` in browsers. A connected session reuses the token instead of signing each
+or `sessionStore` in browsers. A connected session reuses the token instead of signing each
 request again. Provide a custom `store` to control where the token is stored.
 
 ### Check Token Expiry

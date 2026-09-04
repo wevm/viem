@@ -1,0 +1,142 @@
+---
+description: Estimate the L1 data fee for an OP Stack L2 transaction.
+---
+
+# `l2.estimateL1Fee`
+
+Estimates the [L1 data fee](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) required to execute an L2 transaction.
+
+## Usage
+
+Estimate the L1 data fee for a native token transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const fee = await client.fee.estimateL1Fee({ // [!code focus:4]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: 1510504576n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.l2.estimateL1Fee` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/op-stack'
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const fee = await Actions.l2.estimateL1Fee(client, { // [!code focus:4]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: Value.fromEther('1'),
+})
+// @log: 1510504576n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/op-stack/l2.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`bigint`
+
+The L1 data fee in wei.
+
+## Parameters
+
+### accessList
+
+- **Type:** `AccessList`
+
+The EIP-2930 access list included in the serialized transaction.
+
+### account
+
+- **Type:** `Account | Address`
+
+The Account or address associated with the transaction.
+
+### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The L2 Chain used to resolve defaults and the gas price oracle.
+
+### chainId
+
+- **Type:** `number`
+- **Default:** `chain.id`
+
+The Chain ID used to serialize the transaction.
+
+### data
+
+- **Type:** `Hex`
+
+The contract bytecode or encoded function call.
+
+### gas
+
+- **Type:** `bigint`
+
+The transaction gas limit.
+
+### gasPriceOracleAddress
+
+- **Type:** `Address`
+
+An override for the OP Stack gas price oracle address.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+The maximum total fee per gas in wei.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+The maximum priority fee per gas in wei.
+
+### nonce
+
+- **Type:** `number`
+
+The transaction nonce.
+
+### to
+
+- **Type:** `Address | null`
+
+The transaction recipient.
+
+### type
+
+- **Type:** `'eip1559'`
+
+The transaction envelope type.
+
+### value
+
+- **Type:** `bigint`
+
+The value in wei sent with the transaction.

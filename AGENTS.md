@@ -25,6 +25,9 @@ This document contains general guidelines for AI agents working on the Viem code
 - **`type` over `interface` by default**; use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
 - **`.js` extensions**; all relative source imports include `.js` for ESM compatibility.
 - **Follow local import style**; viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
+- **Zod import aliases**; import `zod/mini` as `z`.
+  - Import zod module namespaces as `z_<Module>`.
+  - Example: `import * as z_Hex from './Hex.js'`.
 - **Classes for errors only**; all other APIs use functions and plain data.
 - **Errors live next to the code that throws them**; keep module-specific failure classes local.
   - Put error classes near the bottom of the owning module.
@@ -54,15 +57,47 @@ This document contains general guidelines for AI agents working on the Viem code
   - Put parity and migration notes in the changeset.
 - **Static imports by default**; use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
 - **Namespace imports for modules**; prefer `import * as <Module>` for module imports.
+  - Access members as `Errors.BaseError` or `RpcSchema.Default`.
   - Alias a module's own `./internal/*` helper as `import * as internal`.
   - Named imports are fine for `internal/types.ts`.
   - Named imports are fine for single-function helpers like `stringify`, `uid`, and `wait`.
   - Named imports are fine for non-namespace third-party packages like `vitest`.
+- **External consumers use viem entrypoints**; never import `ox` directly outside package implementation code.
+  - Import utility namespaces and types such as `Address`, `Hex`, and `Value` from `viem/utils`.
+- **Internal ox imports use barrel named imports**; never deep-import `ox/<Module>` paths.
+  - Use `import { Hex, Value } from 'ox'` and `import type { Address } from 'ox'`.
+  - Tempo modules come from `import { TxEnvelopeTempo } from 'ox/tempo'`.
+  - Zod schemas come from `import { z } from 'ox/zod'`; tempo zod lives at `z.tempo.<Module>`.
+  - Preserve alias bindings via `import { TransactionRequest as ox_TransactionRequest } from 'ox'`.
+  - `ox/TxEnvelope` is exported from the root barrel as `TransactionEnvelope`.
+  - Exception: facade re-export files (e.g. `src/utils/*.ts`) keep deep `export * from 'ox/<Module>'`.
+- **Actions are imported via the root `Actions` namespace**; use `import { Actions } from 'viem'`.
+  - Call standalone actions as `Actions.<action>(client, ...)`.
+  - Test actions live in their domain namespaces, such as `Actions.block.mine`.
+  - Decorator usage prefers named imports like `testActions`.
+  - Do not use named imports for individual actions.
 - **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
+- **No `as never`**; treat a needed `as never` as a bug in the surrounding types and fix the
+  types instead. Known root causes and their fixes:
+  - Inference-defeating property unions (`strict?: strict | boolean | undefined`) — drop the
+    widening arm so literal arguments pin the generic.
+  - Union-of-actions dispatch (`typeof write | typeof writeSync`) — route through the shared
+    internal dispatchers (`dispatchWrite`/`dispatchSend`/`estimateWrite`/`simulateWrite` in
+    `core/actions/token/internal.ts`, re-exported for tempo); never add per-file dispatch casts.
+  - Either-or option unions (`blockNumber`/`blockTag`) — thread one side with a conditional
+    spread instead of passing both.
+  - Action args that collide with transaction-request fields (`signature`) — destructure them
+    out before spreading options into a write.
+  - Runtime-selected calls vs conditional return types — branch on the runtime discriminant so
+    each arm typechecks, and cast only the final return to the conditional type.
+  - When a cast is genuinely unavoidable (wire-codec/envelope unions, dynamic hook plumbing),
+    prefer a precise `as X` with a one-line justification comment; a commented `as never` is the
+    last resort and only in internal seams or tests exercising them.
 - **Destructure when accessing multiple properties**; prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
 - **Read from `options.x` when normalizing a single field**; avoid inventing a second name.
   - Applies when transforming one option into a local of the same name.
 - **Ox helpers over ad hoc conversion**; use ox helpers like `Hex.fromNumber`, `Hex.toBytes`, `Bytes.fromHex`, `Value.fromGwei`, etc. instead of open-coded conversions.
+- **Use ox branded types**; prefer existing ox types such as `Hex.Hex`, `Bytes.Bytes`, and `Address.Address` over raw template literal types when the branded module type exists.
 - **Keep property order readable**; preserve the local ordering style. Do not alphabetize arrays, RLP tuples, ABI parameters, transaction fields, or other order-sensitive wire shapes.
 
 ## Type Inference Conventions
@@ -70,7 +105,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Preserve literals**; use `const` generics and narrow helper signatures when an API should preserve literal inputs.
 - **Builder outputs compose**; preserve account and chain override generics so builder results pass directly to their downstream actions.
 - **Type tests in `.test-d.ts`**; use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation. Run via `pnpm test:typecheck`.
-- **Snapshot inferred public types**; use type snapshots for public surfaces.
+- **Snapshot inferred public types**; use type snapshots for migrated public surfaces.
 - **No `any` leakage**; user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
 - **Type inference after every feature**; check whether new types can be narrowed.
   - Add or update type tests when public inference changes.
@@ -80,20 +115,42 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Profile before guessing**; find check-time hot spots with
   `tsc -p <project> --extendedDiagnostics --generateTrace <dir>` and
   `npx @typescript/analyze-trace <dir>`. Cost is usually a few call expressions, not
-  spread evenly.
+  spread evenly. The trace flags need a TypeScript 5.x `tsc` (the workspace default is
+  the native 7): run them via `npx -p typescript@5.9.3 tsc`.
+- **Forward explicit type arguments between generic actions**; when one generic action calls
+  another with its own type parameters (`prepare` → `estimateGas`, decorator → action),
+  pass the type arguments explicitly so every parameter is an identical alias
+  instantiation. Re-inferring `Client`-shaped arguments from open type parameters
+  re-relates the entire client surface structurally (this was ~90% of repo check time in
+  the ERC-4337 module).
+- **Measure before retyping client parameters**; narrow `Pick<Client.Client, 'request'>`
+  client parameters are cheap and stay the norm for simple actions, but rewriting an
+  existing full-client parameter into a new structural alias can regress: at concrete call
+  sites an identical alias instantiation relates by identity (free), while a new
+  structural target forces a per-site structural walk (measured +35s across the test
+  project when tried on the ERC-4337 actions).
 - **Instantiation baselines gate regressions**; `pnpm bench:types` runs colocated
   `*.bench-d.ts` attest benches against pinned `attest.instantiations` counts
-  (20% threshold) and CI runs it in the types job. Measure new baselines by leaving
-  `attest.instantiations()` empty and running the bench once.
+  (20% threshold) and CI runs it in the types job. Attest needs the classic JS
+  compiler API, so `.pnpmfile.cjs` pins its `typescript` to 5.9.3; measure new
+  baselines by leaving `attest.instantiations()` empty and running the bench once.
 
 ## API Conventions
 
 - **Stateless module APIs**; public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
 - **Public entrypoint docs**; when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
 - **Alphabetical exports**; barrel/entrypoint export statements sort by module specifier; named-export lists and the exported declaration blocks of action/module files sort by exported name.
+- **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
+- **No runtime `z.RpcSchema` in actions**; default action paths convert wire values with ox
+  core helpers (`Hex.toBigInt`, `TransactionRequest.toRpc`, `Block.fromRpc`, …), keeping zod
+  out of default bundles (~14 kB gzip per action otherwise).
+  - `ox/zod` (`z.encode`/`z.decode`) is reserved for chain codec hooks
+    (`client.chain?.codecs?.…`).
+  - Build RPC `params` inline in the `client.request` call; hoisted params lose contextual
+    tuple typing against the schema's mutable param tuples.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions
@@ -113,6 +170,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Covers qualified fields such as `#### options.foo` and `##### options.rank.foo`.
   - Positional function arguments stay in signature order.
   - Applies to hand-written docs only.
+  - Generated `utilities/` pages are synced from Ox.
 - **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
   - Public type properties get TSDoc too.
@@ -125,6 +183,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
   - Generated site page files are not edited by hand.
+- **The root skill routes to the Viem MCP server**; keep `SKILL.md` limited to MCP usage.
+  Do not bundle a duplicate documentation corpus.
 
 ## Type Conventions
 
@@ -147,10 +207,13 @@ This document contains general guidelines for AI agents working on the Viem code
   - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
   - Exercise real behavior against the configured test chain or real ephemeral servers.
   - If a test seems to need a mock, rework the code or test.
+- **Finish package builds before starting tests**; `exports:update` rewrites `package.json`, so concurrent test startup can read incomplete JSON.
+- **Estimate Zone factory fixture gas**; fixed limits can become insufficient as the local `latest` node changes. Assert the creation receipt succeeds before extracting events.
 - **Target the relevant project**; prefer narrow test commands while iterating.
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
+  - Use `OFFLINE=true` for offline runs that do not need anvil.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
   its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`
@@ -158,6 +221,12 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Tempo tests boot one container per test file**; the file's `afterAll` stops it. A cancelled
   run leaks `tempo.<uuid>` containers that starve later runs. `docker ps` and `docker rm -f`
   the leaked ones before re-running `--project tempo`.
+- **The bundler harness needs the scoped fastify override**; `test/src/bundler.ts` boots Alto
+  via prool in the core global setup. The `pnpm-workspace.yaml` override must stay
+  `"fastify@>=5.0.0": ">=5.8.5"` — a bare `"fastify"` key rewrites Alto's pinned deps and
+  breaks its boot.
+- **Blob tests need raised timeouts**; PeerDAS cell proofs (`Blobs.toCellProofs`) cost ~5s of
+  CPU per blob, over the 5s default. Give blob-sidecar tests `{ timeout: 30_000 }`.
 - **Full parallel runs can rate-limit the fork upstream**; 100+ fresh fork instances cold-fetching
   pinned state can saturate the fork RPC, failing random fork-state tests (`getBalance`,
   `getProof`, …). Re-run with `--maxWorkers=4`, and verify suspicious failures in isolation before
@@ -165,17 +234,27 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Omit `blockTimestamp` from fork transaction snapshots**; its presence on
   `eth_getTransactionByHash` / `includeTransactions` objects depends on the upstream node
   implementation (reth extension). Destructure it out before snapshotting.
+- **Use `anvil.local` for pending-hash polling tests**; a fork forwards unknown-hash lookups
+  (`eth_getTransactionReceipt`, `eth_getTransactionByHash`) to the upstream RPC, adding unbounded
+  latency to polls over pending or replaced transactions.
+  - Reserve `anvil.mainnet` for tests that need pinned fork state.
+  - Transport retries also stack here: proxy tests asserting error passthrough should set
+    `retryCount: 0` on the proxied transport.
+- **Do not query historical ranges on a fork**; `eth_feeHistory` (and similar) over pre-fork
+  blocks forwards upstream, where retention varies (`pruned history unavailable`, HTTP 400).
+  Use `anvil.history`, a non-fork instance seeded with fixed blocks; never mine or send on it
+  beyond the idempotent seed in `fee/getHistory.test.ts`.
 - **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.
-- **Import public APIs from package entrypoints in tests**; use aliases for public exports.
-  - Use entrypoints such as `'viem'`, `'viem/actions'`, `'viem/tempo'`, and `'viem/node'`.
+- **Import public API from `'viem'` in tests**; use aliases for public exports.
+  - Import public modules from `'viem'` or `'viem/node'`.
   - Avoid relative imports for public surface tests.
   - Internal helpers may stay relative.
   - Non-exported members may stay relative.
   - Chain definitions may stay relative.
 - **Import transports by their bare name**; use transport sugar exports in tests.
-  - Use `http(...)`, `custom(...)`, `fallback(...)`, and `webSocket(...)`.
+  - Use `http(...)`, `custom(...)`, `fallback(...)`, `webSocket(...)`, `loadBalance(...)`, `rateLimit(...)`.
   - Import those functions from `'viem'`.
   - Do not call `Transport.http(...)`.
   - Keep `Transport` namespace imports for non-transport members only.
@@ -195,7 +274,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use deterministic data, like a pinned fork block anvil caches.
   - Omit nondeterministic values before snapshotting.
   - Do not fetch values in `beforeAll` for mutable fixtures.
-  - Do not construct aggregate objects solely to snapshot unrelated values together.
+  - Do not assert stashed fields one-by-one.
   - For nondeterministic lookups, use deterministic not-found assertions.
   - Locally-produced transaction equality is fine for whole-object assertions.
 - **Serialization vectors live in ox**; the upstream ox package owns the vector test suite.
@@ -211,13 +290,14 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Types**; run `pnpm check:types` after TypeScript changes.
 - **Repo checks**; run `pnpm check:repo` when package metadata or workspace shape changes.
 - **Docs dev server**; use `pnpm docs:dev` for documentation UI work; `pnpm docs:build` builds the site.
-- **`pnpm check` mutates**; it runs Biome with write and unsafe fixes. Use it only when intentionally applying lint/format fixes.
-- **`pnpm contracts:build` mutates generated contract artifacts**; it runs Forge and
-  `scripts/generateTypedArtifacts.ts`.
-- **Install hooks can mutate**; `pnpm install` initializes Git submodules and rebuilds contracts.
+- **`pnpm check` mutates**; it runs `vp check --fix` (oxlint + oxfmt). Use it only when intentionally applying lint/format fixes.
+- **`pnpm exports:update` mutates**; it rewrites `package.json#exports` (+ `typesVersions`).
+- **`pnpm contracts:build` mutates generated contract artifacts**; it runs Forge and `scripts/contracts:build.ts`.
+- **Install hooks can mutate**; `pnpm install` runs `postinstall` (`pnpm dev`).
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
-- **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
-  `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
+- **Contract deps come from npm, not submodules**; `contracts/foundry.toml` remaps to
+  `node_modules` packages (`solady-v153`, `account-abstraction-v07`, ...). `pnpm contracts:build`
+  needs Foundry and runs on demand; `contracts/generated.ts` is committed.
 
 ## Changeset Conventions
 
@@ -340,6 +420,13 @@ Guidelines for authoring docs and guides under `site/pages/`.
   - Sub-pages use a short task or concept slug.
   - Example: `/docs/chains/create`.
   - Nest deeper only when a module has sub-groups.
+- **Viem utilities are re-exported Ox docs.**
+  - Utility modules under `docs/utilities/` are pure Ox re-exports.
+  - Sync their pages from Ox docs with `pnpm docs:sync-utils`.
+  - Do not hand-author concept or Recipes sections for them.
+  - Do not hand-edit generated utility pages.
+  - Update the sync script instead.
+
 ### Guides
 
 - A guide's main body is a **`## Recipes`** section: independent, self-contained tasks, each a

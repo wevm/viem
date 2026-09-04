@@ -1,22 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleCalypso = /*#__PURE__*/ defineChain({
+export const skaleCalypso = /*#__PURE__*/ Chain.from({
   id: 1_564_830_818,
   name: 'SKALE Calypso Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.skalenodes.com/v1/honorable-steel-rasalhague'],
-      webSocket: [
-        'wss://mainnet.skalenodes.com/v1/ws/honorable-steel-rasalhague',
-      ],
-    },
+    http: 'https://mainnet.skalenodes.com/v1/honorable-steel-rasalhague',
+    ws: 'wss://mainnet.skalenodes.com/v1/ws/honorable-steel-rasalhague',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://honorable-steel-rasalhague.explorer.mainnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

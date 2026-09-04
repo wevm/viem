@@ -1,0 +1,92 @@
+import { Card, Cards } from 'vocs'
+
+# Contract Instances
+
+## Overview
+
+Use [`Contract.from`](/docs/contract/instances/create) to create a type-safe interface bound to an ABI, address, and [Client](/docs/clients).
+
+The instance exposes contract functions and events as methods. Repeated calls do not need to pass `abi`, `address`, and `functionName`.
+
+Pass contract function arguments as the first parameter. Pass supported call options as the second parameter.
+
+Functions without inputs accept the options as their only parameter.
+
+Use standalone [Contract Actions](/docs/actions/public/contract/read) when a call does not reuse the
+same ABI and address.
+
+Event methods accept filters and block ranges while the instance supplies the bound `abi`, `address`, and `eventName`.
+
+`Contract.from` constructs the instance synchronously and makes no RPC request.
+
+It does not check that the address is deployed or that its bytecode matches the ABI.
+
+```ts twoslash
+import { Client, Contract, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+
+const contract = Contract.from({
+  abi: Abis.erc20,
+  address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  client,
+})
+
+const balance = await contract.read.balanceOf([
+  '0x0000000000000000000000000000000000000000',
+])
+// @log: 0n
+```
+
+<Cards>
+  <Card
+    title="Create an Instance"
+    description="Bind an ABI, address, and Client."
+    icon="lucide:box"
+    to="/docs/contract/instances/create"
+  />
+  <Card
+    title="Read Functions"
+    description="Read state without sending a transaction."
+    icon="lucide:book-open"
+    to="/docs/contract/instances/read"
+  />
+  <Card
+    title="Write Functions"
+    description="Send state-changing contract transactions."
+    icon="lucide:pencil"
+    to="/docs/contract/instances/write"
+  />
+  <Card
+    title="Simulate Functions"
+    description="Run state-changing functions without sending a transaction."
+    icon="lucide:flask-conical"
+    to="/docs/contract/instances/simulate"
+  />
+  <Card
+    title="Estimate Gas"
+    description="Estimate the gas units that a state-changing function may use."
+    icon="lucide:gauge"
+    to="/docs/contract/instances/estimateGas"
+  />
+  <Card
+    title="Create Event Filters"
+    description="Install a typed filter for one contract event."
+    icon="lucide:list-filter"
+    to="/docs/contract/instances/createEventFilter"
+  />
+  <Card
+    title="Query Event Logs"
+    description="Fetch historical logs for one contract event."
+    icon="lucide:scroll-text"
+    to="/docs/contract/instances/getLogs"
+  />
+  <Card
+    title="Watch Events"
+    description="Watch new logs for one contract event."
+    icon="lucide:radio"
+    to="/docs/contract/instances/watchEvent"
+  />
+</Cards>

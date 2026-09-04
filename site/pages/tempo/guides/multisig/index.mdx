@@ -21,14 +21,14 @@ without changing that address.
 
 When one process holds enough owner accounts to reach the threshold, pass those accounts to
 [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig) and use
-[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The account creates the complete
+[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync). The account creates the complete
 multisig signature locally.
 
 ```ts twoslash
-import { Account, createClient } from 'viem/tempo'
+import { Account, Client } from 'viem/tempo'
 
 // 1. Create a client.
-const client = createClient()
+const client = Client.create()
 
 // 2. Create a 1-of-2 multisig with one local owner.
 const owner_1 = Account.fromSecp256k1(
@@ -41,7 +41,7 @@ const account = Account.fromMultisig({
 })
 
 // 3. Send with enough local signatures to reach quorum.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
 })
@@ -54,7 +54,7 @@ approvals in a shared store. Use stateless coordination when your application pa
 request between every owner.
 
 When owners sign independently, enable `experimental_multisig` on the client and use
-[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The first owner passes the
+[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync). The first owner passes the
 transaction fields with the multisig `account` and local `owner`. Every later owner passes the
 same account, the operation hash from the pending receipt, and their signer.
 
@@ -86,21 +86,21 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Store the first owner's approval and receive a pending receipt.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: owner_1,
 })
 
 // 4. Add the second owner's approval by operation hash.
-const pending2 = await client.sendTransactionSync({
+const pending2 = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_2,
 })
 
 // 5. Reach quorum with the third owner's approval.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_3,
@@ -120,11 +120,7 @@ submission. This flow does not require `experimental_multisig` or a shared store
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
-import {
-  prepareTransactionRequest,
-  sendTransactionSync,
-  signTransaction,
-} from 'viem/actions'
+import { Actions as CoreActions } from 'viem'
 import { client } from './viem.config'
 
 // 1. Create independent owners and a multisig from their addresses.
@@ -141,7 +137,7 @@ const multisig = Account.fromMultisig({
 })
 
 // 2. Prepare one request for both owners.
-const request = await prepareTransactionRequest(client, {
+const { request } = await CoreActions.transaction.prepare(client, {
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
 })
@@ -149,12 +145,12 @@ const request = await prepareTransactionRequest(client, {
 // 3. Sign the same request with each owner.
 const signatures = await Promise.all(
   [owner_1, owner_2].map((account) =>
-    signTransaction(client, { ...request, account })
+    CoreActions.transaction.sign(client, { ...request, account })
   )
 )
 
 // 4. Submit the complete transaction.
-const receipt = await sendTransactionSync(client, { ...request, signatures })
+const receipt = await CoreActions.transaction.sendSync(client, { ...request, signatures })
 ```
 
 ## Recipes

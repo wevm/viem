@@ -1,0 +1,56 @@
+# Authorization.recoverAddress
+
+Recovers the authorizing address of an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization.
+
+## Imports
+
+```ts
+import { Authorization } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { Authorization } from 'viem/utils'
+
+declare const authorization: Authorization.Authorization<true>
+
+// Recover from a signed authorization (signature carried on the object).
+const address = Authorization.recoverAddress({ authorization })
+
+// Or pass an explicit signature for an unsigned authorization.
+const address2 = Authorization.recoverAddress({
+  authorization,
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function recoverAddress(
+  options: recoverAddress.Options,
+): Address
+```
+
+## Parameters
+
+### options.authorization
+
+- **Type:** `Authorization.Authorization<boolean>`
+
+The authorization (signed, or unsigned with an explicit `signature`).
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+- **Optional**
+
+Signature of the authorization. Defaults to the one carried on a signed authorization.
+
+## Return Type
+
+The recovered authorizing address.
+
+`Address`

@@ -1,0 +1,82 @@
+# Connect Wallet [wallet.connect]
+
+Requests to connect accounts with optional capabilities via [ERC-7846 `wallet_connect`](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
+Falls back to [`Actions.wallet.requestAddresses`](/docs/actions/wallet/requestAddresses) (`eth_requestAccounts`) when the wallet does not support `wallet_connect` and no capabilities were requested.
+
+## Usage
+
+This example connects to wallet accounts with optional capabilities.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { accounts } = await client.wallet.connect()
+// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.wallet.connect` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { accounts } = await Actions.wallet.connect(client)
+// @log: [{ address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', capabilities: {} }]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom } from 'viem'
+import 'viem/window'
+
+export const client = Client.create({
+  transport: custom(window.ethereum!),
+})
+```
+
+:::
+
+## Return Value
+
+`{ accounts: readonly { address: Address; capabilities?: Capabilities }[] }`
+
+The connected accounts, each with its checksummed `address` and any [capabilities](/docs/actions/capabilities) granted or returned by the wallet.
+
+## Parameters
+
+### capabilities
+
+- **Type:** `Capabilities`
+
+[Capabilities](/docs/actions/capabilities) to request from the wallet (for example, sign-in with Ethereum).
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const { accounts } = await Actions.wallet.connect(client, {
+  capabilities: { // [!code focus]
+    signInWithEthereum: { // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: '12345678', // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```

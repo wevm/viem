@@ -8,8 +8,7 @@ This API is experimental and may change in future releases.
 
 ## Usage
 
-Use `Selectors` when you need the `bytes4` selector for a Tempo precompile function, or when building
-typed access-key scopes with [`Scopes.contract`](/tempo/utilities/Scopes#scopescontract).
+Use `Selectors` when you need the `bytes4` selector for a Tempo precompile function, or when building typed access-key scopes with [`Scopes.contract`](/tempo/utilities/Scopes#scopescontract).
 
 ### TIP-20 Selector
 
@@ -22,15 +21,12 @@ const selector = Selectors.tip20.transfer
 
 ### Overloaded Selector
 
-Some precompile functions are overloaded. For those functions, the selector is keyed by full
-function signature.
+Some precompile functions are overloaded. For those functions, the selector is keyed by full function signature.
 
 ```ts twoslash
 import { Selectors } from 'viem/tempo'
 
-const selector = Selectors.tip20Factory.createToken[
-  'createToken(string,string,string,address,address,bytes32,string)'
-]
+const selector = Selectors.tip20Factory.createToken['createToken(string,string,string,address,address,bytes32,string)']
 //    ^? const selector: "0x5323d222"
 ```
 
@@ -49,7 +45,7 @@ const scope = tip20.transfer({
 })
 ```
 
-## Return Type
+## Return Value
 
 Selector values are hex strings.
 
@@ -70,16 +66,17 @@ import { Selectors } from 'viem/tempo'
 
 Selectors.accountKeychain
 Selectors.addressRegistry
+Selectors.feeAmm
+Selectors.feeManager
 Selectors.nonce
 Selectors.receivePolicyGuard
 Selectors.signatureVerifier
 Selectors.stablecoinDex
+Selectors.storageCredits
 Selectors.tip20
 Selectors.tip20ChannelReserve
 Selectors.tip20Factory
 Selectors.tip403Registry
-Selectors.feeManager
-Selectors.feeAmm
 Selectors.validatorConfig
 Selectors.validatorConfigV2
 ```

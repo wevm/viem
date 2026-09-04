@@ -1,18 +1,33 @@
-import { Hex } from 'ox'
-import { encodeDeployData, getAddress, isAddressEqual, zeroAddress } from 'viem'
-import {
-  readContract,
-  sendTransactionSync,
-  writeContractSync,
-} from 'viem/actions'
-import { Abis, Actions } from 'viem/tempo'
+import { AbiConstructor, Address, Hex } from 'ox'
+import { Actions as CoreActions } from 'viem'
+import { Abis, Actions, Account as TempoAccount } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient, setupFeeToken } from '~test/tempo/config.js'
+import * as tempo from '~test/tempo.js'
 import { deployEarnFactories } from '~test/tempo/earn.js'
 import { earnFactory } from '~test/tempo/earnContracts.js'
 
+const accounts = tempo.accounts.map((account) =>
+  TempoAccount.fromSecp256k1(account.privateKey),
+) as unknown as {
+  0: TempoAccount.RootAccount
+  1: TempoAccount.RootAccount
+  2: TempoAccount.RootAccount
+  3: TempoAccount.RootAccount
+  4: TempoAccount.RootAccount
+  5: TempoAccount.RootAccount
+  6: TempoAccount.RootAccount
+  7: TempoAccount.RootAccount
+  8: TempoAccount.RootAccount
+  9: TempoAccount.RootAccount
+  10: TempoAccount.RootAccount
+}
 const account = accounts[0]
-const client = getClient({ account })
+const client = tempo.getClient({ account })
+const isAddressEqual = Address.isEqual
+const readContract = CoreActions.contract.read
+const sendTransactionSync = CoreActions.transaction.sendSync
+const writeContractSync = CoreActions.contract.writeSync
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 let fixturePromise: ReturnType<typeof deployEarnFactories> | undefined
 function setup() {
   fixturePromise ??= deployEarnFactories(client)
@@ -336,7 +351,7 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
     const fees = {
       fixedFees: [{ account: accounts[2].address, rateBps: 100 }],
     } as const
-    await setupFeeToken(client, { account: owner })
+    await tempo.setupFeeToken(client, { account: owner })
     const deployed = await Actions.earn.deployErc4626StackSync(client, {
       bindingAccount: owner,
       deploymentId: Hex.fromNumber(3, { size: 32 }),
@@ -414,7 +429,7 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
   test('returns completed receipts when final-owner binding fails', async () => {
     const { factories, venue } = await setup()
     const deploymentId = Hex.fromNumber(11, { size: 32 })
-    const owner = getAddress(Hex.random(20))
+    const owner = Address.from(Hex.random(20))
     let failure: Actions.earn.DeployErc4626StackError | undefined
 
     try {
@@ -486,8 +501,7 @@ describe('ERC-4626 Earn deployment', { timeout: 60_000 }, () => {
       ],
     )
     const receipt = await sendTransactionSync(client, {
-      data: encodeDeployData({
-        abi: earnFactory.abi,
+      data: AbiConstructor.encode(earnFactory.abi, {
         args: [
           accounts[10].address,
           earnVaultImplementation,

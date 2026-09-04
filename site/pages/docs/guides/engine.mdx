@@ -1,0 +1,509 @@
+---
+description: "Choose between Viem's default, WASM, Node, and custom cryptography engines."
+---
+
+import { Card, Cards } from 'vocs'
+
+# WASM & Engines
+
+## Overview
+
+Viem uses portable JavaScript cryptography by default. An [`Engine`](/docs/engine)
+replaces individual implementations without changing the
+[`Hash`](/docs/utilities/hash), [`Secp256k1`](/docs/utilities/secp256k1), or
+other public APIs that call them.
+
+| Engine      | Runtime                   | Benefits                            | Trade-offs                           |
+| ----------- | ------------------------- | ----------------------------------- | ------------------------------------ |
+| `viem`      | Browser, Node, and edge   | Audited, isomorphic, no setup       | Slower for some primitives           |
+| `viem/wasm` | Runtimes with WebAssembly | Fast, isomorphic, portable          | Async startup and memory marshalling |
+| `viem/node` | Node.js 24.5 and newer    | Native crypto, no compilation       | Node-only and intentionally partial  |
+| Custom      | Implementation-dependent  | Any supported primitive or provider | You own correctness and key handling |
+
+Engines are partial. Anything they omit leaves the currently installed
+implementation unchanged, falling back to Viem's default when no override was
+installed earlier.
+
+[`Engine.install`](/docs/engine/install) resolves selected provider modules in
+parallel and installs them only after every module is ready.
+
+Calls merge, including within the same slot. Viem selects an implementation
+when a cryptographic function is called.
+
+Install an engine once during application startup, before making cryptographic
+calls. The registry belongs to the loaded Ox module instance behind Viem, so
+separate copies of Ox have separate registries.
+
+## Recipes
+
+These recipes assume you have [installed Viem](/docs/installation).
+
+### Use the Default Engine
+
+No setup is required:
+
+```ts twoslash
+import { Hash } from 'viem/utils'
+
+const digest = Hash.keccak256('0xdeadbeef') // [!code focus]
+```
+
+Viem's defaults delegate to Ox's
+[`@noble`](https://github.com/paulmillr/noble-hashes) and
+[`@scure`](https://github.com/paulmillr/scure-bip32) JavaScript libraries.
+[`Engine.get()`](/docs/engine/get) returns `{}` until an override is installed
+because defaults are fallbacks, not registered overrides.
+
+**Benefits**
+
+- Works across browsers, Node.js, and edge runtimes.
+- Covers Viem's exported cryptography utilities.
+- Requires no initialization or runtime-specific entrypoint.
+- Keeps runtime-specific dependencies out of the default entrypoint.
+
+**Trade-offs**
+
+- Pure JavaScript can be slower than WASM or platform-native implementations.
+- It cannot use Node's OpenSSL and hardware-accelerated SHA paths.
+- It may not satisfy a policy requiring a particular native, hardware, or
+  validated provider.
+
+### Install the WASM Engine
+
+The WASM engine compiles and installs asynchronously:
+
+```ts twoslash
+import { Engine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+await Engine.install() // [!code focus]
+
+const digest = Hash.keccak256('0xdeadbeef')
+```
+
+The underlying Ox provider supplies the following partial slots:
+
+- `Hash`: BLAKE3, HMAC-SHA256, Keccak256, RIPEMD-160, and SHA-256.
+- `Keystore`: synchronous PBKDF2-HMAC-SHA256.
+- `Mnemonic`: BIP-39 seed derivation.
+- `Ed25519`: public-key derivation, signing, verification, and private-key
+  conversion to X25519.
+- `X25519`: public-key derivation and shared-secret calculation.
+
+Other operations keep their current implementation, or use Viem's default when
+no earlier override exists.
+
+Asynchronous KDFs remain on the default because wrapping synchronous WASM in a
+promise would not make it yield.
+
+The `viem/wasm` entrypoint exposes an
+[`Engine.engine`](/docs/engine/engine) factory that prepares its slots without
+installing them. Use it with the root Engine to select the slots to install:
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+const wasm = await WasmEngine.engine()
+await Engine.install({ // [!code focus]
+  Hash: wasm.Hash, // [!code focus]
+}) // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+`WasmEngine.engine()` initializes every WASM slot in parallel.
+`Engine.install` installs the selected slots atomically, while `Hash.sha256()`
+remains the normal formatted public API.
+
+**Benefits**
+
+- Runs in browsers, Node.js, and other runtimes with WebAssembly.
+- Accelerates hashes, key derivation, Ed25519, and X25519 on common runtimes.
+- Keeps cryptographic calls synchronous after one asynchronous startup step.
+- Embeds the compiled module, with no separate WASM asset to host.
+- Uses Ox providers that clear copied secret inputs, staged outputs, and
+  explicit workspaces after each sensitive call, including after recoverable
+  traps.
+
+**Trade-offs**
+
+- Requires asynchronous initialization before cryptographic calls.
+- Copies inputs and outputs across WASM linear memory.
+- Gains vary by primitive, input size, runtime, and processor.
+- Adds the WASM implementation without removing JavaScript fallbacks from the
+  bundle.
+- Uses Ox's pinned portable C implementations, which must stay reviewed and
+  updated.
+
+### Install the Node Engine
+
+The Node engine uses the built-in `node:crypto` implementation. Its setup is
+asynchronous to match `viem/wasm`, although Node requires no compilation:
+
+```ts twoslash
+import { Engine } from 'viem/node'
+import { Hash } from 'viem/utils'
+
+await Engine.install() // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+The underlying Ox provider supplies the following partial slots:
+
+- `Hash`: HMAC-SHA256, RIPEMD-160, and SHA-256.
+- `Keystore`: AES-CTR and synchronous/asynchronous PBKDF2-HMAC-SHA256.
+- `Mnemonic`: BIP-39 seed derivation.
+- `Ed25519`: public-key derivation, signing, and private-key conversion to
+  X25519.
+- `P256`: public-key derivation.
+- `X25519`: public-key derivation and shared-secret calculation.
+
+Other operations keep their current implementation, or use Viem's default when
+no earlier override exists.
+
+Node's `sha3-256` is not Ethereum Keccak256 and must not be substituted for it.
+
+Ed25519 verification stays on the default because Node/OpenSSL does not
+implement the ZIP-215 semantics required by Ox's Engine contract.
+
+Scrypt also stays on the default because OpenSSL rejects parameter combinations
+accepted by that contract.
+
+Install one prepared Node slot through the same core API:
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Hash } from 'viem/utils'
+
+const node = await NodeEngine.engine()
+await Engine.install({ // [!code focus]
+  Hash: node.Hash, // [!code focus]
+}) // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+**Benefits**
+
+- Uses Node's native OpenSSL-backed cryptography and libuv threadpool.
+- Can use processor acceleration for hashes, AES, and supported curves.
+- Requires no WASM compilation or memory marshalling.
+- Lives in a separate entrypoint, so browser bundles do not resolve
+  `node:crypto`.
+
+**Trade-offs**
+
+- Supports Node.js only and must not be imported into browser bundles.
+- Does not provide Keccak256, BLAKE3, scrypt, or ZIP-215 verification.
+- Native call overhead can affect short-input rankings.
+- Algorithm availability and validation modes depend on the Node and OpenSSL
+  build. FIPS mode may reject RIPEMD-160.
+- Leaves Viem's default fallback code available.
+
+### Select Node and WASM Modules
+
+Select modules from different providers in one atomic installation:
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Hash } from 'viem/utils'
+import { Engine as WasmEngine } from 'viem/wasm'
+
+const [node, wasm] = await Promise.all([
+  NodeEngine.engine(),
+  WasmEngine.engine(),
+])
+
+await Engine.install({ // [!code focus]
+  Ed25519: wasm.Ed25519, // [!code focus]
+  Hash: node.Hash, // [!code focus]
+}) // [!code focus]
+
+const digest = Hash.sha256('0xdeadbeef')
+```
+
+The factories initialize together, then `Engine.install` applies the selected
+slots atomically. If either factory rejects, nothing is installed.
+
+Repeated installations merge primitives. Installing Node's `Hash` after WASM
+keeps WASM-only BLAKE3 and Keccak256 installed while replacing the three
+overlapping hashes.
+
+Use [`Engine.reset`](/docs/engine/reset) first when replacing a slot completely:
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+
+const node = await NodeEngine.engine()
+Engine.reset('Hash') // [!code focus]
+await Engine.install({ Hash: node.Hash }) // [!code focus]
+```
+
+### Install a Custom Engine
+
+Install any subset of Viem's engine contract with
+[`Engine.set`](/docs/engine/set):
+
+```ts twoslash
+import { Engine } from 'viem'
+
+Engine.set({ // [!code focus]
+  Hash: { // [!code focus]
+    keccak256: (input) => myKeccak256(input), // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+declare function myKeccak256(input: Uint8Array): Uint8Array
+```
+
+Slots and primitives are optional, and repeated calls merge:
+
+```ts twoslash
+import { Engine } from 'viem'
+
+Engine.set({ Hash: { keccak256: myKeccak256 } }) // [!code focus]
+Engine.set({ Secp256k1: mySecp256k1 }) // [!code focus]
+
+declare const myKeccak256: (input: Uint8Array) => Uint8Array
+declare const mySecp256k1: NonNullable<Engine.Engine['Secp256k1']>
+```
+
+Use `Engine.install` when one or more custom modules are asynchronous. Values
+may be slots or promises of slots:
+
+```ts twoslash
+import { Engine } from 'viem'
+
+await Engine.install({ // [!code focus]
+  Hash: Promise.resolve({ keccak256: myKeccak256 }), // [!code focus]
+}) // [!code focus]
+declare const myKeccak256: (input: Uint8Array) => Uint8Array
+```
+
+Binary values cross engine boundaries as raw `Uint8Array` values. Ox performs
+`Hex` and `Bytes` conversion outside the engine boundary, and Viem re-exports
+the formatted APIs.
+
+Install explicitly instead of relying on a side-effect import. Viem declares
+`sideEffects: false`, so a bundler may drop an import that appears unused.
+
+**Benefits**
+
+- Supports synchronous native libraries and policy-required providers.
+- Replaces one primitive without requiring a complete slot.
+- Preserves Viem's public APIs and input/output conversion.
+- Composes with the built-in Node and WASM engines.
+
+**Trade-offs**
+
+- The engine author owns algorithm semantics, output lengths, key formats, and
+  error behavior.
+- Most engine functions are synchronous. Only explicitly asynchronous
+  contracts such as `scryptAsync` may return promises.
+- Overrides are module-instance-global, so initialization order and concurrent
+  use matter.
+- Installing an engine changes dispatch but does not remove defaults from the
+  bundle.
+
+### Run Engine Benchmarks
+
+Viem's Engine entrypoints re-export providers implemented by Ox. Run the
+[upstream comparison](https://oxlib.sh/guides/engine#benchmarks) from the Ox repository with:
+
+```sh
+pnpm bench:engines
+```
+
+The harness covers every Engine slot and all 38 primitives in Ox's default
+Engine. The columns count the primitives that each provider or reference supplies.
+
+The corresponding Viem entrypoints expose these same providers:
+
+| Slot          | Primitives | `ox`   | `ox/node` | `ox/wasm` | C      |
+| ------------- | ---------- | ------ | --------- | --------- | ------ |
+| `Bls`         | 5          | 5      | n/a       | n/a       | n/a    |
+| `Ed25519`     | 6          | 6      | 3         | 4         | 4      |
+| `Hash`        | 5          | 5      | 3         | 5         | 5      |
+| `Keystore`    | 6          | 6      | 4         | 2         | 2      |
+| `Mnemonic`    | 1          | 1      | 1         | 1         | 1      |
+| `P256`        | 6          | 6      | 1         | n/a       | n/a    |
+| `Secp256k1`   | 6          | 6      | n/a       | 5         | 5      |
+| `X25519`      | 3          | 3      | 2         | 2         | 2      |
+| **Total**     | **38**     | **38** | **14**    | **19**    | **19** |
+
+`n/a` means the provider does not implement a primitive in that slot. The
+harness never times Ox's fallback under another engine's name.
+
+The C reference compiles the same primitive wrappers, vendored sources, and
+target configuration as `ox/wasm` for the host. C covers every primitive
+supplied by WASM, but is not an Ox Engine.
+
+The `ox/wasm` count includes the opt-in Keystore and Secp256k1 providers.
+
+Local runs on an Apple M4 Max with Node.js 25.9.0 and Apple Clang 21.0.0 used
+50 ms warmups, 200 ms measurement budgets, and three repeats.
+
+The table shows the best-observed timings. Lower values are better. Speedup compares the fastest
+Ox Engine in each row with `ox`; C remains a reference only.
+
+The full command prints every primitive and input size:
+
+:::benchmarks{.benchmark-table}
+
+| Primitive and case                    | `ox`      | `ox/node` | `ox/wasm` | C         | Fastest Ox engine vs `ox` |
+| ------------------------------------- | --------- | --------- | --------- | --------- | ------------------------- |
+| `Bls.sign`, 32 B message              | 15.70 ms  | n/a       | n/a       | n/a       | n/a                       |
+| `Ed25519.getPublicKey`, 32 B key      | 95.51 µs  | 41.87 µs  | 21.82 µs  | 18.80 µs  | 4.38× (wasm)              |
+| `Ed25519.sign`, 32 B message          | 202.12 µs | 43.13 µs  | 45.18 µs  | 38.61 µs  | 4.69× (node)              |
+| `Ed25519.verify`, 32 B message        | 960.96 µs | n/a       | 59.31 µs  | 49.81 µs  | 16.20× (wasm)             |
+| `Hash.blake3`, 32 B                   | 1.23 µs   | n/a       | 428 ns    | 563 ns    | 2.88× (wasm)              |
+| `Hash.blake3`, 1024 KiB               | 11.30 ms  | n/a       | 1.08 ms   | 875.06 µs | 10.50× (wasm)             |
+| `Hash.keccak256`, 32 B                | 2.62 µs   | n/a       | 278 ns    | 187 ns    | 9.44× (wasm)              |
+| `Hash.keccak256`, 1024 KiB            | 20.10 ms  | n/a       | 2.32 ms   | 1.39 ms   | 8.67× (wasm)              |
+| `Hash.sha256`, 1024 KiB               | 3.95 ms   | 368.29 µs | 3.25 ms   | 2.48 ms   | 10.72× (node)             |
+| `Keystore.aesCtrEncrypt`, 4 KiB       | 32.02 µs  | 2.92 µs   | n/a       | n/a       | 10.95× (node)             |
+| `Keystore.pbkdf2Sha256`, 262,144 runs | 241.53 ms | 22.94 ms  | 105.01 ms | 86.59 ms  | 10.53× (node)             |
+| `Keystore.scrypt`, N=1,024, r=1, p=1  | 207.76 µs | n/a       | 161.16 µs | 141.87 µs | 1.29× (wasm)              |
+| `Keystore.scrypt`, N=16,384, r=8, p=1 | 24.14 ms  | n/a       | 21.06 ms  | 18.38 ms  | 1.15× (wasm)              |
+| `Keystore.scrypt`, N=262,144, r=1, p=8 | 513.45 ms | n/a       | 443.69 ms | 445.30 ms | 1.16× (wasm)              |
+| `Mnemonic.toSeed`, 12 words           | 6.52 ms   | 470.29 µs | 1.93 ms   | 1.83 ms   | 13.86× (node)             |
+| `P256.getPublicKey`, 32 B key         | 142.41 µs | 11.03 µs  | n/a       | n/a       | 12.91× (node)             |
+| `Secp256k1.getPublicKey`, 32 B key    | 147.40 µs | n/a       | 19.14 µs  | 15.42 µs  | 7.70× (wasm)              |
+| `Secp256k1.getSharedSecret`, 65 B key | 1.77 ms   | n/a       | 34.20 µs  | 27.51 µs  | 51.64× (wasm)             |
+| `Secp256k1.recoverPublicKey`, 32 B    | 1.15 ms   | n/a       | 36.62 µs  | 32.46 µs  | 31.40× (wasm)             |
+| `Secp256k1.sign`, 32 B message        | 183.76 µs | n/a       | 25.03 µs  | 19.86 µs  | 7.34× (wasm)              |
+| `Secp256k1.verify`, 32 B message      | 1.03 ms   | n/a       | 31.50 µs  | 27.31 µs  | 32.80× (wasm)             |
+| `X25519.getSharedSecret`, 32 B key    | 627.61 µs | 48.74 µs  | 41.32 µs  | 33.69 µs  | 15.19× (wasm)             |
+
+:::
+
+The benchmark initializes engines outside the timed loops and sends each Ox
+call through the same Engine resolver. It uses identical inputs, warmups,
+budgets, and repeats. The best-observed repeat represents a peak-throughput
+microbenchmark, not a latency distribution. It measures raw single-call
+byte-array implementations, not Ox formatting or whole applications.
+
+Viem re-exports the same implementations, so these results describe its Engine
+choices. They are not a separate Viem benchmark.
+
+Treat the results as runtime-specific. Node/OpenSSL, CPU acceleration, the WASM
+runtime, C compiler, JIT state, and input size can change the ranking.
+
+### Test Engine Implementations
+
+Reset the installed engine between tests:
+
+```ts twoslash
+import { Engine } from 'viem'
+import { beforeEach } from 'vitest'
+
+beforeEach(() => {
+  Engine.reset() // [!code focus]
+})
+```
+
+For differential tests, obtain an implementation with `engine`, then install it
+for one synchronous call with [`Engine.with`](/docs/engine/with):
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+const wasm = await WasmEngine.engine()
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
+```
+
+`Engine.with` rejects asynchronous functions because concurrent work could
+observe the module-instance-global override. `Engine.install`, `Engine.set`,
+and `Engine.reset` clear Ox's derived cryptographic caches automatically.
+
+Test custom implementations against published vectors, boundary-sized and
+empty inputs, and an independent implementation. Verify exact digest,
+signature, and key lengths rather than checking only that a call succeeds.
+
+The upstream Ox Engine test suite adds independent conformance coverage for
+NIST AES-CTR, RFC 7914 PBKDF2, RFC 8032 Ed25519, all 196 ZIP-215 verification
+cases, and RFC 7748 X25519.
+
+Additional coverage includes libsodium's low-order X25519 corpus, official
+BLAKE3 vectors, and English and Japanese BIP-39 vectors.
+
+Differential fuzz tests also cover subviews, input immutability, output
+ownership, interleaved providers, memory growth, and boundary-sized inputs.
+
+WASM conformance runs in Chromium, Firefox, and WebKit as well as Node.js.
+
+## Best Practices
+
+### Security
+
+Treat an engine as trusted code. Depending on the slot, it can receive HMAC
+keys, private keys, passwords, mnemonic phrases, and plaintext keystore
+material.
+
+`Engine.install` and `Engine.set` validate slot and primitive names. They
+cannot validate correctness, constant-time behavior, or key handling.
+
+Viem's default Engine delegates to Ox's audited cryptographic implementations.
+The WASM Engine does not promise protection from timing or cache side channels.
+
+WebAssembly has
+[no constant-time execution guarantee](https://webassembly.org/docs/security/).
+Ox's WASM providers clear copied secret inputs, staged outputs, and explicit
+workspaces from linear memory in `finally` blocks, including after recoverable
+WebAssembly traps.
+
+They cannot clear caller-owned buffers, JavaScript strings, runtime-managed
+state, or every compiler-created stack temporary.
+
+Clearing copied values does not make the surrounding runtime side-channel
+resistant.
+
+Ox's WASM curve and mnemonic provider pins
+[Monocypher 4.0.3](https://github.com/LoupVaillant/Monocypher/tree/4.0.3).
+
+The published Cure53 audit covered version 3.1.1, not the 4.x series. Version
+4.0.3 includes a fix recorded in Monocypher's
+[security disclosures](https://monocypher.org/quality-assurance/disclosures).
+
+The BLAKE3 provider pins the official portable C implementation and disables
+architecture-specific SIMD and atomics.
+
+The Node engine inherits the properties of the active Node and OpenSSL build.
+Using `node:crypto` does not enable FIPS mode or guarantee that every configured
+provider exposes RIPEMD-160.
+
+For threats involving precise timing measurement or hostile same-process code,
+use an OS keystore, hardware-backed signer, or isolated signing service.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:book-open"
+    title="Engine API"
+    description="Reference Engine installation, state, errors, and types."
+    to="/docs/engine"
+  />
+  <Card
+    icon="lucide:monitor-smartphone"
+    title="Platform Compatibility"
+    description="Review Viem's supported runtimes and runtime entrypoints."
+    to="/docs/compatibility"
+  />
+  <Card
+    icon="lucide:hash"
+    title="Hash Utilities"
+    description="Hash data through the currently installed Engine."
+    to="/docs/utilities/hash"
+  />
+</Cards>

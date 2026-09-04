@@ -9,11 +9,11 @@ Deploys a deterministic engine for an ERC-4626 venue. This API is experimental.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
 const result = await client.earn.createErc4626EngineSync({
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   factory: '0x0000000000000000000000000000000000000001',
   venue: '0x0000000000000000000000000000000000000002',
 })
@@ -35,17 +35,17 @@ owner. The action derives engine metadata from the venue unless `name` or `symbo
 `earn.createErc4626Engine` to return the transaction hash immediately.
 
 ```ts twoslash
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const factory = '0x0000000000000000000000000000000000000001'
 const hash = await client.earn.createErc4626Engine({
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   factory,
   venue: '0x0000000000000000000000000000000000000002',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.createErc4626Engine.extractEvent(receipt.logs, {
   factory,
 })

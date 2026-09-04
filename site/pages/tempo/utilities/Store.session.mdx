@@ -1,6 +1,6 @@
 # `Store.session`
 
-Creates a store backed by `globalThis.sessionStorage`. Suitable for browser environments where tokens should persist for the duration of the tab session.
+Creates a store backed by `globalThis.sessionStore`. Suitable for browser environments where tokens should persist for the duration of the tab session.
 
 ## Usage
 
@@ -21,4 +21,4 @@ const value = await store.getItem('key')
 type ReturnType = Store.Store
 ```
 
-A `Store.Store` instance backed by `sessionStorage`.
+A `Store.Store` instance backed by `sessionStore`.

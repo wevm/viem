@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.getRedeemQuote`
+# Get Earn Redeem Quote [earn.getRedeemQuote]
 
 Gets the asset output for an exact Earn share input, including fees.
 
@@ -16,6 +16,75 @@ const assetAmount = await client.earn.getRedeemQuote({
   vault: '0x0000000000000000000000000000000000000001',
 })
 // @log: 99_500_000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Confirm Proceeds Before a Full Exit
+
+Quote the entire balance from [`earn.getPosition`](/tempo/actions/earn.getPosition), display the
+proceeds, then pass the quote to [`earn.redeemSync`](/tempo/actions/earn.redeem) so execution
+cannot drift below the confirmed number.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { shareBalance } = await client.earn.getPosition({ vault })
+const assetAmount = await client.earn.getRedeemQuote({ // [!code focus]
+  shareAmount: shareBalance, // [!code focus]
+  vault, // [!code focus]
+}) // [!code focus]
+
+const result = await client.earn.redeemSync({
+  assetAmount, // [!code focus]
+  shareAmount: shareBalance,
+  slippageBps: 25, // [!code focus]
+  vault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Batch Quotes Across Vaults
+
+Use `getRedeemQuote.call` with [`multicall`](/docs/actions/public/multicall) to compare redemption
+value across vaults in one round trip.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const shareAmount = 100_000_000n
+
+const { results } = await client.multicall({
+  allowFailure: false,
+  calls: [
+    client.earn.getRedeemQuote.call({ // [!code focus]
+      shareAmount, // [!code focus]
+      vault: '0x0000000000000000000000000000000000000001', // [!code focus]
+    }), // [!code focus]
+    client.earn.getRedeemQuote.call({
+      shareAmount,
+      vault: '0x0000000000000000000000000000000000000002',
+    }),
+  ],
+})
+// @log: [99_500_000n, 99_650_000n]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

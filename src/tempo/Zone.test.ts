@@ -1,5 +1,5 @@
 import { ZoneId } from 'ox/tempo'
-import { createClient } from 'viem'
+import { Client } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 import { http } from './Transport.js'
@@ -13,7 +13,7 @@ describe('Zone.from', () => {
     expect(zone).toMatchObject({
       id,
       name: `Zone ${name}`,
-      rpcUrls: { default: { http: [rpcUrl] } },
+      rpcUrls: { http: [rpcUrl] },
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: false,
     })
@@ -24,7 +24,7 @@ describe('Zone.from', () => {
     expect(Zone.internal).toMatchObject({
       id: ZoneId.toChainId(1, tempo.id),
       name: 'Internal Zone',
-      rpcUrls: { default: { http: [] } },
+      rpcUrls: { http: [] },
       sourceId: tempo.id,
       supportsTransactionReplacementDetection: false,
     })
@@ -35,7 +35,7 @@ describe('Zone.from', () => {
     expect(Zone.internalTestnet).toMatchObject({
       id: ZoneId.toChainId(3, tempoModerato.id),
       name: 'Internal Testnet Zone',
-      rpcUrls: { default: { http: [] } },
+      rpcUrls: { http: [] },
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: false,
     })
@@ -44,7 +44,7 @@ describe('Zone.from', () => {
 
   test('requires a transport URL for zones without an RPC endpoint', () => {
     expect(() =>
-      createClient({ chain: Zone.internal, transport: http() }),
+      Client.create({ chain: Zone.internal, transport: http() }),
     ).toThrow('No URL was provided to the Transport.')
   })
 
@@ -53,14 +53,14 @@ describe('Zone.from', () => {
       Zone.from({
         id: ZoneId.toChainId(6, tempoModerato.id),
         name: 'Custom Zone',
-        rpcUrls: { default: { http: ['https://example.com'] } },
+        rpcUrls: { http: ['https://example.com'] },
         sourceId: tempoModerato.id,
         supportsTransactionReplacementDetection: true,
       }),
     ).toMatchObject({
       id: ZoneId.toChainId(6, tempoModerato.id),
       name: 'Custom Zone',
-      rpcUrls: { default: { http: ['https://example.com'] } },
+      rpcUrls: { http: ['https://example.com'] },
       sourceId: tempoModerato.id,
       supportsTransactionReplacementDetection: true,
     })

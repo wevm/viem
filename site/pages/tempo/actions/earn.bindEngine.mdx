@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `earn.bindEngine`
 
-Permanently binds an engine to its factory-created EarnVault. This API is experimental.
+Permanently binds an engine to its EarnVault and optionally transfers ownership. This API is experimental.
 
 ## Usage
 
@@ -13,7 +13,7 @@ import { client } from './viem.config'
 
 const result = await client.earn.bindEngineSync({
   engine: '0x0000000000000000000000000000000000000001',
-  finalOwner: client.account.address,
+  finalOwner: '0x0000000000000000000000000000000000000003',
   vault: '0x0000000000000000000000000000000000000002',
 })
 // @log: { engine: '0x...', vault: '0x...', receipt: { ... } }
@@ -25,8 +25,9 @@ const result = await client.earn.bindEngineSync({
 
 :::
 
-The action initializes the vault. Set `finalOwner` to transfer engine ownership atomically, or omit
-it to retain the current owner. The binding cannot be changed after initialization.
+The transaction must be signed by the engine's final owner. Binding remains a separate operation so
+deployment and final ownership can use different accounts. It cannot be changed after
+initialization.
 
 ### Asynchronous Usage
 
@@ -40,10 +41,9 @@ import { client } from './viem.config'
 const engine = '0x0000000000000000000000000000000000000001'
 const hash = await client.earn.bindEngine({
   engine,
-  finalOwner: client.account.address,
   vault: '0x0000000000000000000000000000000000000002',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 const { args } = Actions.earn.bindEngine.extractEvent(receipt.logs, {
   engine,
 })
@@ -53,7 +53,7 @@ const { args } = Actions.earn.bindEngine.extractEvent(receipt.logs, {
 
 ```ts
 type ReturnValue = {
-  /** Engine address. */
+  /** ERC-4626 engine address. */
   engine: Address
   /** Transaction receipt. */
   receipt: TransactionReceipt
@@ -70,13 +70,7 @@ The asynchronous action returns the transaction hash instead.
 
 - **Type:** `Address`
 
-Engine address.
-
-### finalOwner
-
-- **Type:** `Address | undefined`
-
-Address that will own the initialized engine. Omit to retain the current owner.
+ERC-4626 engine address.
 
 ### vault
 
@@ -85,3 +79,9 @@ Address that will own the initialized engine. Omit to retain the current owner.
 EarnVault created for the engine.
 
 <WriteParameters />
+
+### finalOwner (Optional)
+
+- **Type:** `Address`
+
+Final engine owner. Omit to preserve the current owner.

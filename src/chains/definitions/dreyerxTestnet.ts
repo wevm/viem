@@ -1,6 +1,6 @@
-import { defineChain } from '../utils.js'
+import * as Chain from '../../core/Chain.js'
 
-export const dreyerxTestnet = /*#__PURE__*/ defineChain({
+export const dreyerxTestnet = /*#__PURE__*/ Chain.from({
   id: 23452,
   name: 'DreyerX Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const dreyerxTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['http://testnet-rpc.dreyerx.com'],
-    },
+    http: 'http://testnet-rpc.dreyerx.com',
   },
   blockExplorers: {
-    default: {
-      name: 'DreyerX Testnet Scan',
-      url: 'https://testnet-scan.dreyerx.com',
-    },
+    name: 'DreyerX Testnet Scan',
+    url: 'https://testnet-scan.dreyerx.com',
   },
   testnet: true,
 })

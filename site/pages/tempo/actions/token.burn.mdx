@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.burn`
+# Burn Tokens [token.burn]
 
 Burns TIP-20 tokens from the caller's balance.
 
@@ -13,7 +13,7 @@ import { client } from './viem.config'
 
 const { receipt } = await client.token.burnSync({
   amount: { formatted: '10.5' },
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -26,9 +26,9 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-### By Token Address
+### Undeclared Tokens
 
-When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+Formatted amounts resolve `decimals` from the Client's declared `tokens` (the pathUSD address above is declared on the default token set). For a token not declared on the Client, include `amount.decimals` so the formatted amount can be parsed.
 
 :::code-group
 
@@ -37,7 +37,7 @@ import { client } from './viem.config'
 
 const { receipt } = await client.token.burnSync({
   amount: { decimals: 6, formatted: '10.5' },
-  token: '0x20c0000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -58,7 +58,7 @@ import { client } from './viem.config'
 
 const { receipt } = await client.token.burnSync({
   amount: 10500000n,
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 ```
 
@@ -80,23 +80,78 @@ import { client } from './viem.config'
 
 const hash = await client.token.burn({
   amount: { formatted: '10.5' },
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
-const { args } 
-  = Actions.token.burn.extractEvent(receipt.logs)
+const { args } = Actions.token.burn.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Recipes
+
+### Record a Redemption with a Burn Memo
+
+Pass `memo` to stamp each burn with the redemption reference it settles (for example, `redeem_5150` hex-encoded), keeping supply reductions auditable against fiat payouts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.burnSync({
+  amount: { formatted: '1000' },
+  memo: '0x72656465656d5f35313530', // [!code focus]
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Retire an Account's Remaining Balance
+
+Combine [`token.getBalance`](/tempo/actions/token.getBalance) with `token.burnSync` to burn the account's exact base-unit balance, for example when decommissioning a settlement wallet.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000000'
+
+const { amount } = await client.token.getBalance({ token }) // [!code focus]
+
+const { formatted } = await client.token.burnSync({
+  amount, // [!code focus]
+  token,
+})
+
+console.log('Burned:', formatted)
+// @log: Burned: 10.5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
-  /** Amount of tokens burned */
-  amount: bigint
-  /** Address tokens were burned from */
+  /** Address tokens were burned from. */
   from: Address
-  /** Transaction receipt */
+  /** Burned amount, in base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`, if known. */
+  decimals?: number | undefined
+  /** Burned amount formatted with the token's `decimals`, if known. */
+  formatted?: string | undefined
+  /** Transaction receipt. */
   receipt: TransactionReceipt
 }
 ```
@@ -107,21 +162,19 @@ type ReturnType = {
 
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
-Amount to burn in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
-token address.
+Amount of tokens to burn, in base units or formatted decimal form. Include `amount.decimals`
+when the token is not declared on the Client's `tokens`.
 
-### memo (optional)
+### memo
 
 - **Type:** `Hex`
 
-Memo to include in the transfer.
+Memo to include in the burn.
 
 ### token
 
-- **Type:** `string | bigint`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP-20 token id, or a token address.
+Token to operate on: a TIP-20 token id or a contract address.
 
 <WriteParameters />

@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["run.ts"],
+  "compilerOptions": {
+    /* The runner executes under Node's native type stripping (`node run.ts`). */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noEmit": true
+  }
+}

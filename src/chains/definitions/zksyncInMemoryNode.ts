@@ -1,16 +1,11 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
 
-export const zksyncInMemoryNode = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const zksyncInMemoryNode = /*#__PURE__*/ Chain.from({
   id: 260,
   name: 'ZKsync InMemory Node',
-  network: 'zksync-in-memory-node',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['http://localhost:8011'],
-    },
+    http: 'http://localhost:8011',
   },
   testnet: true,
 })

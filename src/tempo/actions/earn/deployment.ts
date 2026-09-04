@@ -1,30 +1,19 @@
-import type { Address } from 'abitype'
-import { Hex } from 'ox'
-import type { Account } from '../../../accounts/types.js'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { getCode } from '../../../actions/public/getCode.js'
-import { getLogs } from '../../../actions/public/getLogs.js'
-import { readContract } from '../../../actions/public/readContract.js'
-import { simulateContract } from '../../../actions/public/simulateContract.js'
-import {
-  type WriteContractReturnType,
-  writeContract,
-} from '../../../actions/wallet/writeContract.js'
-import { writeContractSync } from '../../../actions/wallet/writeContractSync.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import { zeroAddress } from '../../../constants/address.js'
-import { maxUint64, maxUint256 } from '../../../constants/number.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
-import { BaseError, type BaseErrorType } from '../../../errors/base.js'
-import { TransactionReceiptRevertedError } from '../../../errors/transaction.js'
-import type { Chain } from '../../../types/chain.js'
-import type { GetEventArgs } from '../../../types/contract.js'
-import type { Log } from '../../../types/log.js'
-import type { Compute } from '../../../types/utils.js'
-import { getAbiItem } from '../../../utils/abi/getAbiItem.js'
-import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
+import type { Errors } from 'ox'
+import { AbiEvent, Address, Hex } from 'ox'
+import type { TransactionReceipt } from '../../chainConfig.js'
+
+import * as Account from '../../../core/Account.js'
+import type * as Chain from '../../../core/Chain.js'
+import type * as Client from '../../../core/Client.js'
+import { BaseError } from '../../../core/Errors.js'
+import { getCode } from '../../../core/actions/address/getCode.js'
+import { read } from '../../../core/actions/contract/read.js'
+import { simulate } from '../../../core/actions/contract/simulate.js'
+import { write } from '../../../core/actions/contract/write.js'
+import { writeSync } from '../../../core/actions/contract/writeSync.js'
+import { getLogs } from '../../../core/actions/event/getLogs.js'
+import { TransactionReceiptRevertedError } from '../../../core/actions/transaction/sendRawSync.js'
+import type { Compute } from '../../../core/internal/types.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import type {
@@ -36,7 +25,11 @@ import {
   pickWriteParameters,
   pickWriteSyncParameters,
 } from '../../internal/utils.js'
-import type { TransactionReceipt } from '../../Transaction.js'
+
+const maxUint64 = 2n ** 64n - 1n
+const maxUint256 = 2n ** 256n - 1n
+const zeroAddress =
+  '0x0000000000000000000000000000000000000000' as const satisfies Address.Address
 
 const engineBindingAbi = [
   {
@@ -67,9 +60,9 @@ const engineBindingAbi = [
 /** @experimental Factory addresses for one reviewed Tempo Earn release. */
 export type EarnFactoryAddresses = {
   /** `ERC4626EngineFactory` address. */
-  erc4626Engine: Address
+  erc4626Engine: Address.Address
   /** `EarnFactory` address from the same release. */
-  earn: Address
+  earn: Address.Address
 }
 
 /** @experimental Deployment-fixed engine migration policy. */
@@ -78,9 +71,9 @@ export type EngineMigrationMode = 'operatorEnabled' | 'userOnly'
 /** @experimental Initial controls for an Earn vault. */
 export type EarnVaultControls = {
   /** Request-cancellation liveness seat. @default zero address */
-  asyncJanitor?: Address | undefined
+  asyncJanitor?: Address.Address | undefined
   /** Fast pause-only seat. @default zero address */
-  emergencyGuardian?: Address | undefined
+  emergencyGuardian?: Address.Address | undefined
   /** Maximum actively managed assets. Zero means unlimited. @default 0 */
   maxManagedAssets?: bigint | undefined
   /** Whole-pool migration policy. @default 'userOnly' */
@@ -93,7 +86,7 @@ export type EarnDistributorConfiguration = {
    * Distributor address. The first entry in `fees.fixedFees` is its protected
    * fee.
    */
-  distributor: Address
+  distributor: Address.Address
   /** Delay before a distributor fee update can execute, in seconds. */
   updateDelay: number
 }
@@ -104,7 +97,7 @@ export type EarnFeeConfiguration = {
   excess?:
     | {
         /** Fee recipient. */
-        account: Address
+        account: Address.Address
         /** Annual target rate in basis points. */
         annualTargetRateBps: number
         /** Rate charged above the target in basis points. */
@@ -119,7 +112,7 @@ export type EarnFeeConfiguration = {
   fixedFees?:
     | readonly {
         /** Fee recipient. */
-        account: Address
+        account: Address.Address
         /** Fee rate in basis points. */
         rateBps: number
       }[]
@@ -133,13 +126,12 @@ export type EarnFeeConfiguration = {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -156,13 +148,13 @@ export type EarnFeeConfiguration = {
  * @returns The transaction hash.
  */
 export async function createErc4626Engine<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: createErc4626Engine.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: createErc4626Engine.Parameters,
 ): Promise<createErc4626Engine.ReturnValue> {
-  return createErc4626Engine.inner(writeContract, client, parameters)
+  return createErc4626Engine.inner(write, client, parameters)
 }
 
 export namespace createErc4626Engine {
@@ -170,40 +162,37 @@ export namespace createErc4626Engine {
     /** Stable deterministic deployment identifier. */
     deploymentId: Hex.Hex
     /** Reviewed `ERC4626EngineFactory` address. */
-    factory: Address
+    factory: Address.Address
     /** Optional engine name override. Empty derives the venue name. */
     name?: string | undefined
     /** Final engine owner. */
-    owner: Address
+    owner: Address.Address
     /** Optional engine symbol override. Empty derives the venue symbol. */
     symbol?: string | undefined
     /** ERC-4626 venue address. */
-    venue: Address
+    venue: Address.Address
   }
 
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = Omit<WriteParameters<chain, account>, 'owner'> &
+  export type Parameters = Omit<WriteParameters, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final engine owner. @default `account.address` */
-      owner?: Account | Address | undefined
+      owner?: Account.Account | Address.Address | undefined
     }
 
-  export type ReturnValue = WriteContractReturnType
+  export type ReturnValue = write.ReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof write | typeof writeSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    parameters: Parameters,
   ): Promise<ReturnType<action>> {
     const {
       account = client.account,
@@ -216,9 +205,9 @@ export namespace createErc4626Engine {
       venue,
       ...rest
     } = parameters
-    if (!account) throw new AccountNotFoundError()
+    if (!account) throw new Account.NotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
-    const owner = parseAccount(owner_).address
+    const owner = Account.from(owner_).address
     return (await action(client, {
       ...rest,
       account,
@@ -238,19 +227,18 @@ export namespace createErc4626Engine {
    * Defines a call to `ERC4626EngineFactory.deploy`.
    *
    * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`Actions.contract.estimateGas`](https://viem.sh/docs/actions/public/contract/estimateGas): estimate the gas cost of the call
+   * - [`Actions.contract.simulate`](https://viem.sh/docs/actions/public/contract/simulate): simulate the call
    * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
    *
    * @example
    * ```ts
-   * import { createClient, http, walletActions } from 'viem'
+   * import { Client, http } from 'viem/tempo'
    * import { tempoModerato } from 'viem/chains'
    * import { Actions } from 'viem/tempo'
    *
-   * const client = createClient({ chain: tempoModerato, transport: http() })
-   *   .extend(walletActions)
-   * await client.sendTransaction({
+   * const client = Client.create({ chain: tempoModerato, transport: http() })
+   * await client.transaction.send({
    *   calls: [Actions.earn.createErc4626Engine.call({
    *     deploymentId: '0x...',
    *     factory: '0x...',
@@ -286,12 +274,12 @@ export namespace createErc4626Engine {
    * @param args - Engine deployment arguments.
    * @returns The predicted engine address.
    */
-  export async function predict<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
+  export async function predict<chain extends Chain.Chain | undefined>(
+    client: Client.Client<chain>,
     args: Args,
   ) {
     validateDeploymentId(args.deploymentId)
-    return readContract(client, {
+    return read(client, {
       address: args.factory,
       abi: Abis.erc4626EngineFactory,
       functionName: 'predictEngine',
@@ -312,15 +300,21 @@ export namespace createErc4626Engine {
    * @param parameters - Factory address used to filter the logs.
    * @returns The deployment event.
    */
-  export function extractEvent(logs: Log[], parameters: { factory: Address }) {
-    const [log] = parseEventLogs({
-      abi: Abis.erc4626EngineFactory,
-      eventName: 'ERC4626EngineDeployed',
-      logs: logs.filter((log) =>
-        isAddressEqual(log.address, parameters.factory),
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { factory: Address.Address }) {
+    const [log] = AbiEvent.extractLogs(
+      Abis.erc4626EngineFactory,
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.factory),
       ),
-      strict: true,
-    })
+      {
+        eventName: 'ERC4626EngineDeployed',
+        strict: true,
+      },
+    )
     if (!log) throw new Error('`ERC4626EngineDeployed` event not found.')
     return log
   }
@@ -333,13 +327,12 @@ export namespace createErc4626Engine {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -355,14 +348,14 @@ export namespace createErc4626Engine {
  * @returns The receipt and deployed engine metadata.
  */
 export async function createErc4626EngineSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: createErc4626EngineSync.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: createErc4626EngineSync.Parameters,
 ): Promise<createErc4626EngineSync.ReturnValue> {
   const { factory, throwOnReceiptRevert = true } = parameters
-  const receipt = await createErc4626Engine.inner(writeContractSync, client, {
+  const receipt = await createErc4626Engine.inner(writeSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
@@ -374,20 +367,14 @@ export async function createErc4626EngineSync<
 
 export namespace createErc4626EngineSync {
   export type Args = createErc4626Engine.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = createErc4626Engine.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
+  export type Parameters = createErc4626Engine.Parameters & WriteSyncParameters
   export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.erc4626EngineFactory,
-      'ERC4626EngineDeployed',
-      { IndexedOnly: false; Required: true }
-    > & { receipt: TransactionReceipt }
+    ReturnType<typeof createErc4626Engine.extractEvent>['args'] & {
+      receipt: TransactionReceipt
+    }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -397,13 +384,12 @@ export namespace createErc4626EngineSync {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -419,13 +405,13 @@ export namespace createErc4626EngineSync {
  * @returns The transaction hash.
  */
 export async function createStack<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: createStack.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: createStack.Parameters,
 ): Promise<createStack.ReturnValue> {
-  return createStack.inner(writeContract, client, parameters)
+  return createStack.inner(write, client, parameters)
 }
 
 export namespace createStack {
@@ -437,40 +423,37 @@ export namespace createStack {
     /** Optional protected fee distributor. */
     distributor?: EarnDistributorConfiguration | undefined
     /** Engine address. */
-    engine: Address
+    engine: Address.Address
     /** Reviewed `EarnFactory` address. */
-    factory: Address
+    factory: Address.Address
     /** Initial fee configuration. Omit for fee-free deployment. */
     fees?: EarnFeeConfiguration | undefined
     /** Final stack owner and operator. */
-    owner: Address
+    owner: Address.Address
     /** Existing simple whitelist policy. Zero selects always-allow. @default 0 */
     transferPolicyId?: bigint | undefined
   }
 
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = Omit<WriteParameters<chain, account>, 'owner'> &
+  export type Parameters = Omit<WriteParameters, 'owner'> &
     Omit<Args, 'owner'> & {
       /** Final stack owner and operator. @default `account.address` */
-      owner?: Account | Address | undefined
+      owner?: Account.Account | Address.Address | undefined
     }
 
-  export type ReturnValue = WriteContractReturnType
+  export type ReturnValue = write.ReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof write | typeof writeSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    parameters: Parameters,
   ): Promise<ReturnType<action>> {
     const {
       account = client.account,
@@ -485,7 +468,7 @@ export namespace createStack {
       transferPolicyId,
       ...rest
     } = parameters
-    if (!account) throw new AccountNotFoundError()
+    if (!account) throw new Account.NotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
     return (await action(client, {
       ...rest,
@@ -498,7 +481,7 @@ export namespace createStack {
         engine,
         factory,
         fees,
-        owner: parseAccount(owner_).address,
+        owner: Account.from(owner_).address,
         transferPolicyId,
       }),
     } as never)) as never
@@ -508,19 +491,18 @@ export namespace createStack {
    * Defines a call to `EarnFactory.deploy`.
    *
    * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`Actions.contract.estimateGas`](https://viem.sh/docs/actions/public/contract/estimateGas): estimate the gas cost of the call
+   * - [`Actions.contract.simulate`](https://viem.sh/docs/actions/public/contract/simulate): simulate the call
    * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
    *
    * @example
    * ```ts
-   * import { createClient, http, walletActions } from 'viem'
+   * import { Client, http } from 'viem/tempo'
    * import { tempoModerato } from 'viem/chains'
    * import { Actions } from 'viem/tempo'
    *
-   * const client = createClient({ chain: tempoModerato, transport: http() })
-   *   .extend(walletActions)
-   * await client.sendTransaction({
+   * const client = Client.create({ chain: tempoModerato, transport: http() })
+   * await client.transaction.send({
    *   calls: [Actions.earn.createStack.call({
    *     deploymentId: '0x...',
    *     engine: '0x...',
@@ -550,20 +532,20 @@ export namespace createStack {
    * @param args - Stack deployment arguments.
    * @returns The predicted EarnShare and EarnFees addresses.
    */
-  export async function predict<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
+  export async function predict<chain extends Chain.Chain | undefined>(
+    client: Client.Client<chain>,
     args: Args,
   ) {
     validateDeploymentId(args.deploymentId)
     const parameters = toDeployParameters(args)
     const [earnShare, earnFees] = await Promise.all([
-      readContract(client, {
+      read(client, {
         address: args.factory,
         abi: Abis.earnFactory,
         functionName: 'predictEarnShare',
         args: [parameters],
       }),
-      readContract(client, {
+      read(client, {
         address: args.factory,
         abi: Abis.earnFactory,
         functionName: 'predictEarnFees',
@@ -580,15 +562,21 @@ export namespace createStack {
    * @param parameters - Factory address used to filter the logs.
    * @returns The deployment event.
    */
-  export function extractEvent(logs: Log[], parameters: { factory: Address }) {
-    const [log] = parseEventLogs({
-      abi: Abis.earnFactory,
-      eventName: 'EarnStackDeployed',
-      logs: logs.filter((log) =>
-        isAddressEqual(log.address, parameters.factory),
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { factory: Address.Address }) {
+    const [log] = AbiEvent.extractLogs(
+      Abis.earnFactory,
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.factory),
       ),
-      strict: true,
-    })
+      {
+        eventName: 'EarnStackDeployed',
+        strict: true,
+      },
+    )
     if (!log) throw new Error('`EarnStackDeployed` event not found.')
     return log
   }
@@ -601,13 +589,12 @@ export namespace createStack {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -623,14 +610,14 @@ export namespace createStack {
  * @returns The receipt and deployed stack addresses.
  */
 export async function createStackSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: createStackSync.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: createStackSync.Parameters,
 ): Promise<createStackSync.ReturnValue> {
   const { factory, throwOnReceiptRevert = true } = parameters
-  const receipt = await createStack.inner(writeContractSync, client, {
+  const receipt = await createStack.inner(writeSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
@@ -642,20 +629,14 @@ export async function createStackSync<
 
 export namespace createStackSync {
   export type Args = createStack.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = createStack.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
+  export type Parameters = createStack.Parameters & WriteSyncParameters
   export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.earnFactory,
-      'EarnStackDeployed',
-      { IndexedOnly: false; Required: true }
-    > & { receipt: TransactionReceipt }
+    ReturnType<typeof createStack.extractEvent>['args'] & {
+      receipt: TransactionReceipt
+    }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 /**
@@ -665,13 +646,12 @@ export namespace createStackSync {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -687,41 +667,38 @@ export namespace createStackSync {
  * @returns The transaction hash.
  */
 export async function bindEngine<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: bindEngine.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: bindEngine.Parameters,
 ): Promise<bindEngine.ReturnValue> {
-  return bindEngine.inner(writeContract, client, parameters)
+  return bindEngine.inner(write, client, parameters)
 }
 
 export namespace bindEngine {
   export type Args = {
-    /** Engine address. */
-    engine: Address
-    /** Address that will own the initialized engine. Omit to retain the current owner. */
-    finalOwner?: Address | undefined
+    /** ERC-4626 engine address. */
+    engine: Address.Address
+    /** Address that will own the initialized engine. Omit to retain its current owner. */
+    finalOwner?: Address.Address | undefined
     /** Factory-created EarnVault address. */
-    vault: Address
+    vault: Address.Address
   }
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = WriteContractReturnType
+  export type Parameters = WriteParameters & Args
+  export type ReturnValue = write.ReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof write | typeof writeSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
+    client: Client.Client<chain, account>,
+    parameters: Parameters,
   ): Promise<ReturnType<action>> {
     const { engine, finalOwner, vault, ...rest } = parameters
     return (await action(client, {
@@ -731,25 +708,23 @@ export namespace bindEngine {
   }
 
   /**
-   * Defines a call to `initializeEarnVault` on an Earn engine.
+   * Defines a call to `ERC4626Engine.initializeEarnVault`.
    *
    * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`Actions.contract.estimateGas`](https://viem.sh/docs/actions/public/contract/estimateGas): estimate the gas cost of the call
+   * - [`Actions.contract.simulate`](https://viem.sh/docs/actions/public/contract/simulate): simulate the call
    * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
    *
    * @example
    * ```ts
-   * import { createClient, http, walletActions } from 'viem'
+   * import { Client, http } from 'viem/tempo'
    * import { tempoModerato } from 'viem/chains'
    * import { Actions } from 'viem/tempo'
    *
-   * const client = createClient({ chain: tempoModerato, transport: http() })
-   *   .extend(walletActions)
-   * await client.sendTransaction({
+   * const client = Client.create({ chain: tempoModerato, transport: http() })
+   * await client.transaction.send({
    *   calls: [Actions.earn.bindEngine.call({
    *     engine: '0x...',
-   *     finalOwner: '0x...',
    *     vault: '0x...',
    *   })],
    * })
@@ -782,15 +757,21 @@ export namespace bindEngine {
    * @param parameters - Engine address used to filter the logs.
    * @returns The initialization event.
    */
-  export function extractEvent(logs: Log[], parameters: { engine: Address }) {
-    const [log] = parseEventLogs({
-      abi: engineBindingAbi,
-      eventName: 'EarnVaultInitialized',
-      logs: logs.filter((log) =>
-        isAddressEqual(log.address, parameters.engine),
+  export function extractEvent<
+    const logs extends readonly (AbiEvent.extractLogs.Log & {
+      address: Address.Address
+    })[],
+  >(logs: logs, parameters: { engine: Address.Address }) {
+    const [log] = AbiEvent.extractLogs(
+      engineBindingAbi,
+      logs.filter((log): log is logs[number] =>
+        Address.isEqual(log.address, parameters.engine),
       ),
-      strict: true,
-    })
+      {
+        eventName: 'EarnVaultInitialized',
+        strict: true,
+      },
+    )
     if (!log) throw new Error('`EarnVaultInitialized` event not found.')
     return log
   }
@@ -803,13 +784,12 @@ export namespace bindEngine {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -825,40 +805,37 @@ export namespace bindEngine {
  * @returns The receipt and bound addresses.
  */
 export async function bindEngineSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: bindEngineSync.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: bindEngineSync.Parameters,
 ): Promise<bindEngineSync.ReturnValue> {
   const { engine, throwOnReceiptRevert = true } = parameters
-  const receipt = await bindEngine.inner(writeContractSync, client, {
+  const receipt = await bindEngine.inner(writeSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
-    return { receipt } as never
+    return { receipt } as bindEngineSync.ReturnValue
+
   const { args } = bindEngine.extractEvent(receipt.logs, { engine })
   return { engine, vault: args.earnVault, receipt }
 }
 
 export namespace bindEngineSync {
   export type Args = bindEngine.Args
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = bindEngine.Parameters<chain, account> &
-    WriteSyncParameters<chain, account>
+  export type Parameters = bindEngine.Parameters & WriteSyncParameters
   export type ReturnValue = {
-    /** Engine address. */
-    engine: Address
+    /** ERC-4626 engine address. */
+    engine: Address.Address
     /** Transaction receipt. */
     receipt: TransactionReceipt
     /** Bound EarnVault address. */
-    vault: Address
+    vault: Address.Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 }
 
 export type DeployErc4626StackErrorType = DeployErc4626StackError & {
@@ -870,7 +847,8 @@ export type DeployErc4626StackErrorType = DeployErc4626StackError & {
  *
  * @experimental
  */
-export class DeployErc4626StackError extends BaseError {
+export class DeployErc4626StackError extends BaseError<Error> {
+  override name = 'DeployErc4626StackError'
   receipts: deployErc4626StackSync.Receipts
   stage: deployErc4626StackSync.Stage
   state: deployErc4626StackSync.State
@@ -885,7 +863,6 @@ export class DeployErc4626StackError extends BaseError {
   ) {
     super(`ERC-4626 Earn deployment failed during ${parameters.stage}.`, {
       cause,
-      name: 'DeployErc4626StackError',
     })
     this.receipts = parameters.receipts
     this.stage = parameters.stage
@@ -901,13 +878,12 @@ export class DeployErc4626StackError extends BaseError {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account, Client, http } from 'viem/tempo'
  * import { tempoModerato } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x...'),
  *   chain: tempoModerato,
  *   transport: http(),
  * })
@@ -923,26 +899,26 @@ export class DeployErc4626StackError extends BaseError {
  * @returns The deployed addresses and receipts created by this run.
  */
 export async function deployErc4626StackSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: deployErc4626StackSync.Parameters<chain, account>,
+  client: Client.Client<chain, account>,
+  parameters: deployErc4626StackSync.Parameters,
 ): Promise<deployErc4626StackSync.ReturnValue> {
   const deployer = parameters.account ?? client.account
-  if (!deployer) throw new AccountNotFoundError()
+  if (!deployer) throw new Account.NotFoundError()
   const owner_ = parameters.owner ?? deployer
-  const owner = parseAccount(owner_).address
-  const deployerAddress = parseAccount(deployer).address
+  const owner = Account.from(owner_).address
+  const deployerAddress = Account.from(deployer).address
   const bindingAccount = (() => {
     if (parameters.bindingAccount) return parameters.bindingAccount
     if (typeof owner_ !== 'string') return owner_
-    if (isAddressEqual(owner, deployerAddress)) return deployer
+    if (Address.isEqual(owner, deployerAddress)) return deployer
     return undefined
   })()
   if (
     bindingAccount &&
-    !isAddressEqual(parseAccount(bindingAccount).address, owner)
+    !Address.isEqual(Account.from(bindingAccount).address, owner)
   )
     throw new Error('`bindingAccount` must match `owner`.')
 
@@ -989,20 +965,20 @@ export async function deployErc4626StackSync<
   }
   if (
     parameters.resume?.engine &&
-    !isAddressEqual(parameters.resume.engine, predictedEngine)
+    !Address.isEqual(parameters.resume.engine, predictedEngine)
   )
     throw new Error('The resumed engine does not match the factory prediction.')
 
   const engineExists = await hasCode(client, predictedEngine)
   if (!bindingAccount) {
     const boundVault = engineExists
-      ? await readContract(client, {
+      ? await read(client, {
           address: predictedEngine,
           abi: Abis.erc4626Engine,
           functionName: 'earnVault',
         })
       : zeroAddress
-    if (isAddressEqual(boundVault, zeroAddress))
+    if (Address.isEqual(boundVault, zeroAddress))
       throw new Error(
         '`bindingAccount` is required when the final owner differs from the deployment account.',
       )
@@ -1011,22 +987,16 @@ export async function deployErc4626StackSync<
   const receipts: deployErc4626StackSync.Receipts = {}
   try {
     if (!engineExists) {
-      await simulateContract(client, {
+      await simulate(client, {
         ...sharedWriteParameters,
         account: deployer,
         ...createErc4626Engine.call(engineArgs),
       } as never)
-      const receipt = await createErc4626Engine.inner(
-        writeContractSync,
-        client,
-        {
-          ...writeParameters,
-          ...engineArgs,
-        } as never,
-      )
+      const receipt = await createErc4626Engine.inner(writeSync, client, {
+        ...writeParameters,
+        ...engineArgs,
+      } as never)
       receipts.engine = receipt
-      if ((receipt as TransactionReceipt).status === 'pending')
-        return { receipt } as never
       createErc4626Engine.extractEvent(receipt.logs, {
         factory: parameters.factories.erc4626Engine,
       })
@@ -1051,14 +1021,14 @@ export async function deployErc4626StackSync<
     const predicted = await createStack.predict(client, stackArgs)
     if (
       parameters.resume?.earnShare &&
-      !isAddressEqual(parameters.resume.earnShare, predicted.earnShare)
+      !Address.isEqual(parameters.resume.earnShare, predicted.earnShare)
     )
       throw new Error(
         'The resumed EarnShare does not match the factory prediction.',
       )
     if (
       parameters.resume?.fees &&
-      !isAddressEqual(parameters.resume.fees, predicted.earnFees)
+      !Address.isEqual(parameters.resume.fees, predicted.earnFees)
     )
       throw new Error(
         'The resumed EarnFees does not match the factory prediction.',
@@ -1071,12 +1041,12 @@ export async function deployErc4626StackSync<
         throw new Error(
           'Predicted EarnFees exists without the predicted EarnShare.',
         )
-      await simulateContract(client, {
+      await simulate(client, {
         ...sharedWriteParameters,
         account: deployer,
         ...createStack.call(stackArgs),
       } as never)
-      const receipt = await createStack.inner(writeContractSync, client, {
+      const receipt = await createStack.inner(writeSync, client, {
         ...writeParameters,
         ...stackArgs,
       } as never)
@@ -1089,7 +1059,7 @@ export async function deployErc4626StackSync<
       state.vault = args.earnVault
       if (
         parameters.resume?.vault &&
-        !isAddressEqual(parameters.resume.vault, args.earnVault)
+        !Address.isEqual(parameters.resume.vault, args.earnVault)
       )
         throw new Error(
           'The resumed EarnVault does not match the factory deployment.',
@@ -1107,7 +1077,7 @@ export async function deployErc4626StackSync<
           fromBlock: parameters.fromBlock,
         })
         state.vault = event.args.earnVault
-        if (!isAddressEqual(event.args.earnFees, predicted.earnFees))
+        if (!Address.isEqual(event.args.earnFees, predicted.earnFees))
           throw new Error(
             'Recovered EarnFees does not match the factory prediction.',
           )
@@ -1127,12 +1097,12 @@ export async function deployErc4626StackSync<
 
   try {
     const vault = state.vault!
-    const boundVault = await readContract(client, {
+    const boundVault = await read(client, {
       address: predictedEngine,
       abi: Abis.erc4626Engine,
       functionName: 'earnVault',
     })
-    if (isAddressEqual(boundVault, zeroAddress)) {
+    if (Address.isEqual(boundVault, zeroAddress)) {
       if (!bindingAccount)
         throw new Error(
           '`bindingAccount` is required when the final owner differs from the deployment account.',
@@ -1144,7 +1114,7 @@ export async function deployErc4626StackSync<
         finalOwner: owner,
         vault,
       }
-      await simulateContract(client, {
+      await simulate(client, {
         ...sharedWriteParameters,
         account: bindingAccount,
         ...bindEngine.call({
@@ -1154,23 +1124,21 @@ export async function deployErc4626StackSync<
         }),
       } as never)
       const receipt = await bindEngine.inner(
-        writeContractSync,
+        writeSync,
         client,
         bindingParameters as never,
       )
       receipts.binding = receipt
-      if ((receipt as TransactionReceipt).status === 'pending')
-        return { receipt } as never
       bindEngine.extractEvent(receipt.logs, { engine: predictedEngine })
-    } else if (!isAddressEqual(boundVault, vault)) {
+    } else if (!Address.isEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`)
     }
-    const verified = await readContract(client, {
+    const verified = await read(client, {
       address: predictedEngine,
       abi: Abis.erc4626Engine,
       functionName: 'earnVault',
     })
-    if (!isAddressEqual(verified, vault))
+    if (!Address.isEqual(verified, vault))
       throw new Error('Engine binding verification failed.')
   } catch (error) {
     throw deploymentError(error, 'binding', state, receipts)
@@ -1187,16 +1155,13 @@ export async function deployErc4626StackSync<
 }
 
 export namespace deployErc4626StackSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = Omit<
-    WriteParameters<chain, account>,
+  export type Parameters = Omit<
+    WriteParameters,
     'gas' | 'keyAuthorization' | 'nonce' | 'owner' | 'throwOnReceiptRevert'
   > &
-    WriteSyncParameters<chain, account> & {
+    WriteSyncParameters & {
       /** Account used only for the final owner binding. */
-      bindingAccount?: Account | Address | undefined
+      bindingAccount?: Account.Account | Address.Address | undefined
       /** Initial Earn vault controls. */
       controls?: EarnVaultControls | undefined
       /** Stable deterministic deployment identifier. */
@@ -1212,7 +1177,7 @@ export namespace deployErc4626StackSync {
       /** Optional engine name override. */
       name?: string | undefined
       /** Final stack owner and operator. @default `account.address` */
-      owner?: Account | Address | undefined
+      owner?: Account.Account | Address.Address | undefined
       /** Previously persisted deployment state. */
       resume?: State | undefined
       /** Optional engine symbol override. */
@@ -1220,17 +1185,17 @@ export namespace deployErc4626StackSync {
       /** Existing simple whitelist policy. Zero selects always-allow. */
       transferPolicyId?: bigint | undefined
       /** ERC-4626 venue address. */
-      venue: Address
+      venue: Address.Address
     }
 
   export type Stage = 'binding' | 'engine' | 'stack'
 
   export type State = {
     deploymentId: Hex.Hex
-    earnShare?: Address | undefined
-    engine: Address
-    fees?: Address | undefined
-    vault?: Address | undefined
+    earnShare?: Address.Address | undefined
+    engine: Address.Address
+    fees?: Address.Address | undefined
+    vault?: Address.Address | undefined
   }
 
   export type Receipts = {
@@ -1241,14 +1206,14 @@ export namespace deployErc4626StackSync {
 
   export type ReturnValue = {
     deploymentId: Hex.Hex
-    earnShare: Address
-    engine: Address
-    fees: Address
+    earnShare: Address.Address
+    engine: Address.Address
+    fees: Address.Address
     receipts: Receipts
-    vault: Address
+    vault: Address.Address
   }
 
-  export type ErrorType = DeployErc4626StackErrorType | BaseErrorType
+  export type ErrorType = DeployErc4626StackErrorType | Errors.GlobalErrorType
 }
 
 function validateDeploymentId(deploymentId: Hex.Hex) {
@@ -1264,7 +1229,7 @@ function toDeployParameters(args: createStack.Args) {
   let totalRateBps = 0
   for (const fee of fixedFees) {
     validateFeeRate(fee.rateBps, '`fixedFees[].rateBps`', false)
-    if (isAddressEqual(fee.account, zeroAddress))
+    if (Address.isEqual(fee.account, zeroAddress))
       throw new Error('Fixed fee recipients cannot be the zero address.')
     const account = fee.account.toLowerCase()
     if (seen.has(account))
@@ -1279,14 +1244,14 @@ function toDeployParameters(args: createStack.Args) {
   if (excess) {
     validateFeeRate(excess.annualTargetRateBps, '`annualTargetRateBps`', true)
     validateFeeRate(excess.rateBps, '`excess.rateBps`', false)
-    if (isAddressEqual(excess.account, zeroAddress))
+    if (Address.isEqual(excess.account, zeroAddress))
       throw new Error('The excess fee recipient cannot be the zero address.')
   }
   const zeroFee = { account: zeroAddress, rateBps: 0 } as const
   const distributor = args.distributor?.distributor ?? zeroAddress
   const updateDelay = args.distributor?.updateDelay ?? 0
   if (args.distributor) {
-    if (isAddressEqual(distributor, zeroAddress))
+    if (Address.isEqual(distributor, zeroAddress))
       throw new Error('An enabled distributor cannot be the zero address.')
     if (updateDelay <= 0)
       throw new Error(
@@ -1350,16 +1315,16 @@ function validateFeeRate(rate: number, name: string, allowZero: boolean) {
 }
 
 async function hasCode(
-  client: Client<Transport, Chain | undefined>,
-  address: Address,
+  client: Client.Client<Chain.Chain | undefined>,
+  address: Address.Address,
 ) {
   const code = await getCode(client, { address })
   return code !== undefined && code !== '0x'
 }
 
 async function validateContracts(
-  client: Client<Transport, Chain | undefined>,
-  parameters: { factories: EarnFactoryAddresses; venue: Address },
+  client: Client.Client<Chain.Chain | undefined>,
+  parameters: { factories: EarnFactoryAddresses; venue: Address.Address },
 ) {
   const [engineFactory, earnFactory, venue] = await Promise.all([
     hasCode(client, parameters.factories.erc4626Engine),
@@ -1369,92 +1334,89 @@ async function validateContracts(
   if (!engineFactory) throw new Error('ERC4626EngineFactory has no code.')
   if (!earnFactory) throw new Error('EarnFactory has no code.')
   if (!venue) throw new Error('ERC-4626 venue has no code.')
-  const tip20Factory = await readContract(client, {
+  const tip20Factory = await read(client, {
     address: parameters.factories.earn,
     abi: Abis.earnFactory,
     functionName: 'tip20Factory',
   })
-  if (!isAddressEqual(tip20Factory, Addresses.tip20Factory))
+  if (!Address.isEqual(tip20Factory, Addresses.tip20Factory))
     throw new Error('EarnFactory uses an unexpected TIP-20 factory.')
 }
 
 async function verifyEngine(
-  client: Client<Transport, Chain | undefined>,
+  client: Client.Client<Chain.Chain | undefined>,
   args: createErc4626Engine.Args,
-  engine: Address,
+  engine: Address.Address,
 ) {
   const [venue, owner] = await Promise.all([
-    readContract(client, {
+    read(client, {
       address: engine,
       abi: Abis.erc4626Engine,
       functionName: 'vault',
     }),
-    readContract(client, {
+    read(client, {
       address: engine,
       abi: Abis.erc4626Engine,
       functionName: 'owner',
     }),
   ])
-  if (!isAddressEqual(venue, args.venue))
+  if (!Address.isEqual(venue, args.venue))
     throw new Error('Engine venue verification failed.')
-  if (!isAddressEqual(owner, args.owner))
+  if (!Address.isEqual(owner, args.owner))
     throw new Error('Engine owner verification failed.')
 }
 
 async function verifyStack(
-  client: Client<Transport, Chain | undefined>,
+  client: Client.Client<Chain.Chain | undefined>,
   parameters: {
-    engine: Address
-    fees: Address
-    owner: Address
-    share: Address
-    vault: Address
+    engine: Address.Address
+    fees: Address.Address
+    owner: Address.Address
+    share: Address.Address
+    vault: Address.Address
   },
 ) {
   const [engine, fees, operator, share] = await Promise.all([
-    readContract(client, {
+    read(client, {
       address: parameters.vault,
       abi: Abis.earnVault,
       functionName: 'engine',
     }),
-    readContract(client, {
+    read(client, {
       address: parameters.vault,
       abi: Abis.earnVault,
       functionName: 'earnFees',
     }),
-    readContract(client, {
+    read(client, {
       address: parameters.vault,
       abi: Abis.earnVault,
       functionName: 'operator',
     }),
-    readContract(client, {
+    read(client, {
       address: parameters.vault,
       abi: Abis.earnVault,
       functionName: 'earnShare',
     }),
   ])
-  if (!isAddressEqual(engine, parameters.engine))
+  if (!Address.isEqual(engine, parameters.engine))
     throw new Error('EarnVault engine verification failed.')
-  if (!isAddressEqual(fees, parameters.fees))
+  if (!Address.isEqual(fees, parameters.fees))
     throw new Error('EarnVault fees verification failed.')
-  if (!isAddressEqual(operator, parameters.owner))
+  if (!Address.isEqual(operator, parameters.owner))
     throw new Error('EarnVault operator verification failed.')
-  if (!isAddressEqual(share, parameters.share))
+  if (!Address.isEqual(share, parameters.share))
     throw new Error('EarnVault share verification failed.')
 }
 
 async function findStackDeployment(
-  client: Client<Transport, Chain | undefined>,
+  client: Client.Client<Chain.Chain | undefined>,
   parameters: {
-    earnShare: Address
-    factory: Address
+    earnShare: Address.Address
+    factory: Address.Address
     fromBlock?: bigint | undefined
   },
 ) {
-  const event = getAbiItem({
-    abi: Abis.earnFactory,
-    name: 'EarnStackDeployed',
-  })
+  const event = AbiEvent.fromAbi(Abis.earnFactory, 'EarnStackDeployed')
   const logs = await getLogs(client, {
     address: parameters.factory,
     args: { earnShare: parameters.earnShare },
@@ -1475,8 +1437,16 @@ function deploymentError(
   receipts: deployErc4626StackSync.Receipts,
 ) {
   if (error instanceof DeployErc4626StackError) return error
-  if (error instanceof TransactionReceiptRevertedError)
-    receipts[stage] = error.receipt
+  const receiptError =
+    error instanceof TransactionReceiptRevertedError
+      ? error
+      : error instanceof BaseError
+        ? error.walk(
+            (cause) => cause instanceof TransactionReceiptRevertedError,
+          )
+        : undefined
+  if (receiptError instanceof TransactionReceiptRevertedError)
+    receipts[stage] = receiptError.receipt as TransactionReceipt
   return new DeployErc4626StackError(
     error instanceof Error ? error : new Error(String(error)),
     { receipts: { ...receipts }, stage, state: { ...state } },

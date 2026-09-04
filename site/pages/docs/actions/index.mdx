@@ -1,0 +1,65 @@
+import { Card, Cards } from 'vocs'
+
+# Actions
+
+## Overview
+
+Actions perform JSON-RPC requests through a [Client](/docs/clients).
+Each standalone action takes a Client as its first argument.
+
+Decorators attach related actions to a Client as methods.
+For example, [`publicActions`](/docs/actions/public) adds Public Actions through
+[`.extend()`](/docs/clients/create#extending-a-client).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+<Cards>
+  <Card
+    title="Public Actions"
+    description="Read chain state and simulate calls: get balances, blocks, and more."
+    icon="lucide:globe"
+    to="/docs/actions/public"
+  />
+  <Card
+    title="Wallet Actions"
+    description="Create, sign, and broadcast transactions from Local or JSON-RPC Accounts."
+    icon="lucide:wallet"
+    to="/docs/actions/wallet"
+  />
+  <Card
+    title="Test Actions"
+    description="Mine blocks, set balances, and manage state on a local test node."
+    icon="lucide:flask-conical"
+    to="/docs/actions/test"
+  />
+  <Card
+    title="ERC-7821 Actions"
+    description="Execute call batches through an ERC-7821-compatible contract."
+    icon="lucide:layers"
+    to="/docs/actions/erc7821"
+  />
+  <Card
+    title="Capabilities"
+    description="Type wallet capability requests and responses."
+    icon="lucide:badge-check"
+    to="/docs/actions/capabilities"
+  />
+</Cards>

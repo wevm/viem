@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.getPosition`
+# Get Earn Position [earn.getPosition]
 
 Gets an account's asset and Earn share balances, allowances, and current share value.
 
@@ -53,6 +53,71 @@ const position = await client.earn.getPosition({
 //   shareToken: '0x20c0...0002',
 //   value: 100_000_000n,
 // }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Fund a Payout from a Yield-Bearing Treasury
+
+Check `value` covers a payout before pulling it from the vault with
+[`earn.withdrawExactSync`](/tempo/actions/earn.withdrawExact), sending assets straight to the
+payee.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const payout = 40_000_000n
+
+const position = await client.earn.getPosition({ vault }) // [!code focus]
+if (position.value < payout) // [!code focus]
+  throw new Error('Treasury position does not cover the payout.') // [!code focus]
+
+const result = await client.earn.withdrawExactSync({
+  assetAmount: payout,
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  slippageBps: 50,
+  vault,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Aggregate Positions Across Vaults
+
+Read every vault in parallel to build a treasury dashboard that totals current redeemable value.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vaults = [
+  '0x0000000000000000000000000000000000000001',
+  '0x0000000000000000000000000000000000000002',
+] as const
+
+const positions = await Promise.all( // [!code focus]
+  vaults.map((vault) => client.earn.getPosition({ vault })), // [!code focus]
+) // [!code focus]
+
+const totalValue = positions.reduce(
+  (total, position) => total + position.value,
+  0n,
+)
+// @log: 250_000_000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -83,7 +83,6 @@ manually:
 :::code-group
 
 ```ts twoslash [example.ts]
-import { waitForTransactionReceipt } from 'viem/actions'
 import { client } from './viem.config'
 
 const hash = await client.token.approve({
@@ -91,7 +90,7 @@ const hash = await client.token.approve({
   spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
 })
-const receipt = await waitForTransactionReceipt(client, { hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = client.token.approve.extractEvent(receipt.logs)
 ```
@@ -134,8 +133,8 @@ const { result } = await client.token.approve.simulate({
 ### Composing Calls
 
 Use `.call` to build an `approve` contract call, ready to pass to
-[`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls`), or
-[`multicall`](/docs/contract/multicall).
+[`sendCalls`](/docs/actions/wallet/sendCalls), [`multicall`](/docs/actions/public/multicall), or any
+other Action that accepts a contract call.
 
 :::code-group
 
@@ -155,7 +154,7 @@ const call = client.token.approve.call({
 
 :::
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -174,9 +173,15 @@ type ReturnType = {
 }
 ```
 
-The non-sync `approve` action returns the transaction [`Hex`](/docs/glossary/types#hex) hash instead.
+The non-sync `approve` action returns the transaction `Hex` hash instead.
 
 ## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
 
 ### amount
 
@@ -186,11 +191,42 @@ Amount to approve in base units. Use `{ formatted: '10.5' }` to parse a human-re
 decimal string for a Client-declared token, or include `amount.decimals` when using a
 token address.
 
+### gas
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce
+
+- **Type:** `bigint`
+
+Nonce for the transaction.
+
 ### spender
 
 - **Type:** `Address`
 
 Account to approve as a spender of the caller's tokens.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts. Only applies to `approveSync`.
 
 ### token
 
@@ -198,40 +234,3 @@ Account to approve as a spender of the caller's tokens.
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### throwOnReceiptRevert (optional)
-
-- **Type:** `boolean`
-- **Default:** `true`
-
-Whether to throw if the transaction receipt reverts. Only applies to `approveSync`.
-
-### account (optional)
-
-- **Type:** `Account | Address`
-
-Account that will send the transaction. Defaults to the Client's `account`.
-
-### gas (optional)
-
-- **Type:** `bigint`
-
-Gas limit for the transaction.
-
-### maxFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max fee per gas for the transaction.
-
-### maxPriorityFeePerGas (optional)
-
-- **Type:** `bigint`
-
-Max priority fee per gas for the transaction.
-
-### nonce (optional)
-
-- **Type:** `number`
-
-Nonce for the transaction.

@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const superseed = /*#__PURE__*/ defineChain({
+export const superseed = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 5330,
   name: 'Superseed',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.superseed.xyz'],
-    },
+    http: 'https://mainnet.superseed.xyz',
   },
   blockExplorers: {
-    default: {
-      name: 'Superseed Explorer',
-      url: 'https://explorer.superseed.xyz',
-      apiUrl: 'https://explorer.superseed.xyz/api/v2',
-    },
+    name: 'Superseed Explorer',
+    url: 'https://explorer.superseed.xyz',
+    apiUrl: 'https://explorer.superseed.xyz/api/v2',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x8b097CF1f9BbD9cbFD0DD561858a1FCbC8857Be0',

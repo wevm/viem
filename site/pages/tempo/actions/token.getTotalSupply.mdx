@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `token.getTotalSupply`
+# Get Token Total Supply [token.getTotalSupply]
 
 Gets the total supply of a TIP-20 token.
 
@@ -25,7 +25,35 @@ console.log('Total Supply:', totalSupply)
 
 :::
 
-## Return Type
+## Recipes
+
+### Snapshot Supply for a Reserve Attestation
+
+Resolve the snapshot block with [`block.getNumber`](/docs/actions/public/block/getNumber), then pass `blockNumber` so the reported circulating supply matches custodian reserve balances captured at the same moment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const blockNumber = await client.block.getNumber()
+
+const totalSupply = await client.token.getTotalSupply({
+  blockNumber, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log(`Supply at block ${blockNumber}:`, totalSupply.formatted)
+// @log: Supply at block 19868020: 48250000.5
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -33,7 +61,7 @@ type ReturnType = {
   amount: bigint
   /** Token decimals used to derive `formatted`. */
   decimals: number
-  /** Total supply formatted with the token's `decimals`. */
+  /** Total supply formatted as a human-readable decimal string. */
   formatted: string
 }
 ```
@@ -43,18 +71,18 @@ string (`formatted`, derived from the token's `decimals`).
 
 ## Parameters
 
-### token
-
-- **Type:** `string`
-
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP-20 token id, or a token address.
-
-### decimals (optional)
+### decimals
 
 - **Type:** `number`
 
-Token decimals for converting base units to human-readable amounts. Inferred from
-the chain's `tokens` config, or fetched from the token contract when omitted.
+Decimals used to convert between base units and the human-readable amount.
+Inferred from the Client's `tokens` set when `token` matches a declared token;
+otherwise fetched from the token contract when needed.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.
 
 <ReadParameters />

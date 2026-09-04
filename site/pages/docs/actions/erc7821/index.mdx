@@ -1,0 +1,64 @@
+import { Card, Cards } from 'vocs'
+
+# ERC-7821 Actions
+
+## Overview
+
+ERC-7821 Actions execute call batches through a contract that implements the
+[ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) minimal batch executor interface.
+
+Use these actions with contracts such as delegated
+[EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) accounts.
+Viem checks the execution mode, encodes the calls, and sends the transaction.
+
+Pass `erc7821Actions()` to [`.extend()`](/docs/clients/create#extending-a-client) to add these
+actions to a Client.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.erc7821.execute({
+  address: client.account.address,
+  calls: [
+    { data: '0xdeadbeef', to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' },
+    { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 69420n },
+  ],
+})
+// @log: '0x9d2478f5cb1d21ac4153dbe5da9700e106a06d1cf1b957554fcd51de26eec4ae'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, erc7821Actions, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
+  chain: mainnet,
+  transport: http(),
+}).extend(erc7821Actions())
+```
+
+:::
+
+<Cards>
+  <Card
+    title="Execute Calls"
+    description="Execute one call batch through an ERC-7821 contract."
+    icon="lucide:play"
+    to="/docs/actions/erc7821/execute"
+  />
+  <Card
+    title="Execute Batches"
+    description="Execute multiple call batches through an ERC-7821 contract."
+    icon="lucide:layers"
+    to="/docs/actions/erc7821/executeBatches"
+  />
+  <Card
+    title="Check Execution Mode"
+    description="Check whether a contract supports an execution mode."
+    icon="lucide:badge-check"
+    to="/docs/actions/erc7821/supportsExecutionMode"
+  />
+</Cards>

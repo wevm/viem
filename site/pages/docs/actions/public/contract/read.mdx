@@ -1,0 +1,524 @@
+# Read Contract [contract.read]
+
+Calls a read-only (`pure`/`view`) function on a contract, and returns the decoded response.
+
+## Usage
+
+This example calls a read-only (`pure`/`view`) function on a contract, and returns the decoded response.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const balance = await client.contract.read({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  functionName: 'balanceOf',
+})
+// @log: 424122n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.contract.read` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Abis } from 'viem/utils'
+import { client } from './viem.config'
+
+const balance = await Actions.contract.read(client, {
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  functionName: 'balanceOf',
+})
+// @log: 424122n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Read as a Sender
+
+Pass `account` when a view function reads `msg.sender`.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const allowed = await client.contract.read({
+  abi: Abi.from(['function canMint() view returns (bool)']),
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  functionName: 'canMint',
+})
+```
+
+### Read Hypothetical Historical State
+
+Combine a block number with state overrides to evaluate temporary changes on top of historical state.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+
+const supply = await client.contract.read({
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockNumber: 19_760_235n, // [!code focus]
+  functionName: 'totalSupply',
+  stateOverride: { // [!code focus]
+    '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': { // [!code focus]
+      balance: 1n, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+## Return Value
+
+`Actions.contract.read.ReturnType`
+
+The decoded return value of the contract function. The type is inferred from the `abi` and `functionName`.
+
+## Parameters
+
+### abi
+
+- **Type:** `Abi`
+
+The contract's ABI. The `functionName` and `args` are inferred from it.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi: Abis.erc20, // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  functionName: 'totalSupply',
+})
+```
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The account or address to use as the call's `msg.sender`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const balance = await Actions.contract.read(client, {
+  abi,
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  functionName: 'balanceOf',
+})
+```
+
+### address
+
+- **Type:** `Address`
+
+The address of the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### args
+
+- **Type:** Inferred from `abi` and `functionName`.
+
+The arguments to pass to the contract function.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.contract.read(client, {
+  abi: Abis.erc20,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'], // [!code focus]
+  functionName: 'balanceOf',
+})
+```
+
+### as
+
+- **Type:** `'Object' | 'Array'`
+- **Default:** `'Object'`
+
+The shape to use when the function returns multiple named values.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const user = await Actions.contract.read(client, {
+  abi: Abi.from([
+    'function getUser() view returns (address owner, uint256 balance)',
+  ]),
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  as: 'Array', // [!code focus]
+  functionName: 'getUser',
+})
+```
+
+### authorizationList
+
+- **Type:** `AuthorizationList`
+
+The signed EIP-7702 authorization list to attach to the call.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  authorizationList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: 0n, // [!code focus]
+      r: '0x...', // [!code focus]
+      s: '0x...', // [!code focus]
+      yParity: 0, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### blockHash
+
+- **Type:** `Hex`
+
+Reads the contract at the block with the given hash ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)). Pair with [`requireCanonical`](#requirecanonical) to reject blocks outside the canonical chain.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Reads the contract at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockNumber: 42069n, // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+The block fields to override for the read.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockOverrides: { // [!code focus]
+    baseFeePerGas: 1_000_000_000n, // [!code focus]
+  }, // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `client.blockTag ?? 'latest'`
+
+Reads the contract at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockTag: 'safe', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### code
+
+- **Type:** `Hex`
+
+Reads against contract bytecode that is not yet deployed (deployless read). Provide `code` instead of `address`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  code: '0x6080604052...', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### factory
+
+- **Type:** `Address`
+
+The factory address for a deployless read. Pass [`factoryData`](#factorydata) and the counterfactual contract `address`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb', // [!code focus]
+  factoryData: '0x...',
+  functionName: 'totalSupply',
+})
+```
+
+### factoryData
+
+- **Type:** `Hex`
+
+The calldata that the factory uses to deploy the counterfactual contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb',
+  factoryData: '0x...', // [!code focus]
+  functionName: 'totalSupply',
+})
+```
+
+### functionName
+
+- **Type:** Inferred from `abi`.
+
+The name of the function to call on the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  functionName: 'totalSupply', // [!code focus]
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+The options to pass to the underlying transport request.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+const controller = new AbortController()
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  functionName: 'totalSupply',
+  requestOptions: { signal: controller.signal }, // [!code focus]
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the block given via [`blockHash`](#blockhash) must be in the canonical chain ([EIP-1898](https://eips.ethereum.org/EIPS/eip-1898)).
+
+When `true`, the read fails for blocks that are known but not canonical, such as uncle blocks.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  functionName: 'totalSupply',
+  requireCanonical: true, // [!code focus]
+})
+```
+
+### stateOverride
+
+- **Type:** `StateOverrides`
+
+The [state overrides](/docs/actions/public/call#stateoverride) to apply for the read.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abis.erc20
+// ---cut---
+const supply = await Actions.contract.read(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  functionName: 'totalSupply',
+  stateOverride: { // [!code focus]
+    '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': { balance: 1n }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ContractError.ContractFunctionExecutionError` | The contract function could not be executed. Its `cause` is `ContractError.ContractFunctionRevertedError` for a revert or `ContractError.ContractFunctionZeroDataError` when the call returns no data. |

@@ -1,0 +1,63 @@
+# Engine Errors
+
+## Overview
+
+Engine configuration validates slot names, primitive names, slot values, and synchronous scopes.
+The concrete errors are exported on each `Engine` namespace.
+
+| Error | Description |
+| --- | --- |
+| [`Engine.AsyncScopeError`](#engineasyncscopeerror) | `Engine.with` receives a function that returns a Promise. |
+| [`Engine.InvalidSlotValueError`](#engineinvalidslotvalueerror) | An Engine slot is not an object or `undefined`. |
+| [`Engine.UnknownPrimitiveError`](#engineunknownprimitiveerror) | A slot contains an unrecognized primitive name. |
+| [`Engine.UnknownSlotError`](#engineunknownsloterror) | An Engine contains an unrecognized slot name. |
+
+## Recipes
+
+### Handle an Asynchronous Scope
+
+Catch `Engine.AsyncScopeError` when a callback passed to
+[`Engine.with`](/docs/engine/with) returns a Promise.
+
+```ts twoslash
+import { Engine } from 'viem'
+
+try {
+  Engine.with({}, async () => {})
+} catch (error) {
+  if (error instanceof Engine.AsyncScopeError) { // [!code focus]
+    console.error('The Engine scope must be synchronous.') // [!code focus]
+  } // [!code focus]
+}
+```
+
+## `Engine.AsyncScopeError`
+
+Thrown when [`Engine.with`](/docs/engine/with) receives an asynchronous function. Initialize an
+Engine before entering the scope and keep the callback synchronous.
+
+```ts twoslash
+import { Engine } from 'viem'
+
+try {
+  Engine.with({}, async () => {})
+} catch (error) {
+  if (error instanceof Engine.AsyncScopeError) {
+    error.name
+    //    ^?
+  }
+}
+```
+
+## `Engine.InvalidSlotValueError`
+
+Thrown when an Engine slot is not an object or `undefined`.
+
+## `Engine.UnknownPrimitiveError`
+
+Thrown when a slot contains a primitive that is not part of its contract.
+
+## `Engine.UnknownSlotError`
+
+Thrown when [`Engine.install`](/docs/engine/install), [`Engine.set`](/docs/engine/set), or
+[`Engine.reset`](/docs/engine/reset) receives an unrecognized slot.

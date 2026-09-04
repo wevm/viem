@@ -43,7 +43,7 @@ const multisig = Account.fromMultisig(
   '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
 )
 
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner,

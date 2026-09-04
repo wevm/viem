@@ -1,0 +1,22 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "viem": "2.52.1",
+    "test-next": "0.1.0",
+    "test-vite": "0.0.0",
+    "site": "0.0.0"
+  },
+  "changesets": [
+    "brave-passkeys-sign",
+    "bright-keys-protect",
+    "calm-zones-withdraw",
+    "clean-dingos-breathe",
+    "extract-event-log-shape",
+    "friendly-client-bridges",
+    "lucky-otters-discover",
+    "quiet-donuts-attack",
+    "released-v3",
+    "tidy-actions-gather"
+  ]
+}

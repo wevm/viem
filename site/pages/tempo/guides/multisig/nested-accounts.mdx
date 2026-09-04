@@ -34,7 +34,7 @@ const childOwner = Account.fromSecp256k1(
 const child = Account.fromMultisig({ address: 'infer', owners: [childOwner] })
 
 // 2. Submit the child's first transaction with its complete local quorum.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: child,
   calls: [{ data: '0xdeadbeef', to: child.address }],
 })
@@ -62,7 +62,7 @@ const childOwner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const child = Account.fromMultisig({ address: 'infer', owners: [childOwner] })
-const childReceipt = await client.sendTransactionSync({
+const childReceipt = await client.transaction.sendSync({
   account: child,
   calls: [{ data: '0xdeadbeef', to: child.address }],
 })
@@ -71,7 +71,7 @@ const childReceipt = await client.sendTransactionSync({
 const parent = Account.fromMultisig({ address: 'infer', owners: [child] })
 
 // 3. Approve the parent request with the child's complete quorum.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: parent,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: child,

@@ -1,11 +1,16 @@
+import { Addresses } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import * as Addresses from './Addresses.js'
 
 test('validator addresses', () => {
-  expect(Addresses.validator).toBe('0xcccccccc00000000000000000000000000000000')
-  expect(Addresses.validatorV2).toBe(
-    '0xcccccccc00000000000000000000000000000001',
-  )
+  expect({
+    validator: Addresses.validator,
+    validatorV2: Addresses.validatorV2,
+  }).toMatchInlineSnapshot(`
+    {
+      "validator": "0xcccccccc00000000000000000000000000000000",
+      "validatorV2": "0xcccccccc00000000000000000000000000000001",
+    }
+  `)
 })
 
 describe('portal', () => {

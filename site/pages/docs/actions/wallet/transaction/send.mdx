@@ -1,0 +1,779 @@
+# Send Transaction [transaction.send]
+
+Creates, signs, and sends a transaction, then waits for its receipt. Local Accounts use the sync
+RPC. JSON-RPC Accounts broadcast normally, then poll for the receipt.
+
+## Usage
+
+Use `sendSync` to send a transaction and wait for its receipt.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Asynchronous Usage
+
+Use `send` when the transaction hash is needed immediately and receipt tracking happens elsewhere.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.transaction.sendSync` directly by passing the Client as the first argument. Use
+`Actions.transaction.send` for the asynchronous variant.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const receipt = await Actions.transaction.sendSync(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Wait for More Confirmations
+
+For a JSON-RPC Account, set `confirmations` when one included block is insufficient. The option
+does not apply to Local Account sync sends.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  confirmations: 2, // [!code focus]
+  pollingInterval: 1_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+### Reject Reverts Within a Deadline
+
+Set `throwOnReceiptRevert` to reject a reverted receipt. Set `timeout` to bound receipt polling for
+JSON-RPC Accounts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  throwOnReceiptRevert: true, // [!code focus]
+  timeout: 30_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Send with a Connected Wallet
+
+Use a JSON-RPC Account when a connected wallet holds the signing key. The wallet receives an
+`eth_sendTransaction` request and handles transaction approval and signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.transaction.send({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import 'viem/window'
+
+export const client = Client.create({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+```
+
+:::
+
+### Reuse Estimated Fees
+
+Estimate EIP-1559 fees first when you need to inspect one fee quote before sending. Pass the
+returned fields to the transaction.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const fees = await client.fee.estimateFeesPerGas() // [!code focus]
+
+const hash = await client.transaction.send({
+  ...fees, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: '0x...'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, publicActions, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+})
+  .extend(publicActions())
+  .extend(walletActions())
+```
+
+:::
+
+### Send Blob Data
+
+Pass encoded blobs and a configured KZG adapter for an EIP-4844 transaction. See
+[Blob Transactions](/docs/guides/transactions/blobs) to configure the adapter.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Blobs, Hex, Kzg } from 'viem/utils'
+import { client } from './viem.config'
+
+export async function sendBlob(kzg: Kzg.Kzg) {
+  return client.transaction.send({
+    blobs: Blobs.from(Hex.fromString('Hello from a blob')), // [!code focus]
+    kzg, // [!code focus]
+    to: '0x0000000000000000000000000000000000000000',
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+### Synchronous
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+### Asynchronous
+
+`Hex`
+
+The transaction hash.
+
+## Parameters
+
+### accessList
+
+- **Type:** `AccessList`
+
+The EIP-2930 access list to attach to the transaction.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  accessList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      storageKeys: [ // [!code focus]
+        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account (or address) the transaction is sent from.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+#### nonceManager
+
+- **Type:** `NonceManager`
+
+A nonce manager attached to a Local Account, used to derive and auto-increment the transaction nonce. The nonce is reset if signing or broadcasting fails.
+
+```ts twoslash
+import { Account, Actions, Client, http, NonceManager } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const nonceManager = NonceManager.jsonRpc()
+const account = {
+  ...Account.fromPrivateKey('0x…'),
+  nonceManager, // [!code focus]
+}
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### assertChainId
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to assert that the Client's chain matches the connected network before broadcasting (JSON-RPC Accounts only). Set to `false` to skip the assertion.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  assertChainId: false, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### authorizationList
+
+- **Type:** `AuthorizationList`
+
+The EIP-7702 (signed) authorization list to attach to the transaction. When `to` is omitted, the recipient is inferred from the first authorization.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  authorizationList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: 0n, // [!code focus]
+      r: '0x...', // [!code focus]
+      s: '0x...', // [!code focus]
+      yParity: 0, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  type: 'eip7702',
+})
+```
+
+### blobs
+
+- **Type:** `readonly Hex[]`
+
+The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#kzg) to derive the blob fields.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
+
+const blobData = '0x1234' as const
+const kzg = {} as Kzg.Kzg
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  blobs: [blobData], // [!code focus]
+  kzg, // [!code focus]
+  maxFeePerBlobGas: 1_000_000_000n,
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### chain
+
+- **Type:** `Chain | null`
+- **Default:** `client.chain`
+
+The chain the transaction targets. Pass `null` to skip the current-chain assertion (see [`assertChainId`](#assertchainid)).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  chain: optimism, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### confirmations
+
+- **Type:** `number`
+- **Default:** `1`
+
+Number of confirmations that `sendSync` waits for when the action needs to poll for a receipt.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  confirmations: 2, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### data
+
+- **Type:** `Hex`
+
+The calldata to send with the transaction.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  data: '0x06fdde03', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### dataSuffix
+
+- **Type:** `Hex`
+- **Default:** `client.dataSuffix`
+
+Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  data: '0x06fdde03',
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### gas
+
+- **Type:** `bigint | number | Hex`
+
+The gas limit for the transaction. Estimated automatically when omitted (Local Accounts).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  gas: 21_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### gasPrice
+
+- **Type:** `bigint | number | Hex`
+
+The legacy gas price (in wei). Mutually exclusive with `maxFeePerGas`/`maxPriorityFeePerGas`.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  gasPrice: 20_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### kzg
+
+- **Type:** `Kzg`
+
+The KZG context used to derive EIP-4844 blob fields from [`blobs`](#blobs).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
+
+const blobData = '0x1234' as const
+const kzg = {} as Kzg.Kzg
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  blobs: [blobData],
+  kzg, // [!code focus]
+  maxFeePerBlobGas: 1_000_000_000n,
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxFeePerBlobGas
+
+- **Type:** `bigint | number | Hex`
+
+The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  maxFeePerBlobGas: 1_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The total fee per gas (in wei) the sender is willing to pay (EIP-1559).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  maxFeePerGas: 20_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxPriorityFeePerGas
+
+- **Type:** `bigint | number | Hex`
+
+The max priority fee per gas (in wei) to pay to the block producer (EIP-1559).
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### nonce
+
+- **Type:** `bigint | number | Hex`
+
+The nonce to use for the transaction. Derived automatically when omitted.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  nonce: 69, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency, in milliseconds, when `sendSync` needs to poll for a receipt.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  pollingInterval: 1_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### requestOptions
+
+- **Type:** `{ dedupe?: boolean; signal?: AbortSignal; ... }`
+
+Per-request transport options forwarded to the underlying JSON-RPC request.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const controller = new AbortController()
+const hash = await Actions.transaction.send(client, {
+  requestOptions: { signal: controller.signal }, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+
+Whether `sendSync` throws if the returned receipt status is `reverted`.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  throwOnReceiptRevert: true, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`
+
+Timeout, in milliseconds, before `sendSync` stops waiting.
+
+```ts twoslash
+import { Actions } from 'viem'
+// [!include ~/snippets/docs/reference-client.ts:setup]
+// ---cut---
+const receipt = await Actions.transaction.sendSync(client, {
+  timeout: 60_000, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### to
+
+- **Type:** `Address | null`
+
+The contract address or recipient of the transaction. Omit to send a contract deployment transaction.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+  value: 1n,
+})
+```
+
+### type
+
+- **Type:** `string`
+
+Forces the transaction to a specific type, such as `'eip1559'`, `'eip2930'`, or `'legacy'`.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  type: 'eip1559', // [!code focus]
+})
+```
+
+### value
+
+- **Type:** `bigint | number | Hex`
+
+The value (in wei) sent with the transaction.
+
+```ts twoslash
+import { Account, Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const account = Account.fromPrivateKey('0x…')
+const client = Client.create({ account, chain: mainnet, transport: http() })
+// ---cut---
+const hash = await Actions.transaction.send(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No Account was provided on the Action or the Client. |
+| `Chain.NotFoundError` | No chain was provided and the Client has no chain. |
+| `Chain.MismatchError` | The chain does not match the connected network. |
+| `Actions.transaction.Errors.TransactionReceiptRevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |

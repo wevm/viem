@@ -1,9 +1,10 @@
 import { MultisigConfig } from 'ox/tempo'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account as CoreAccount, Actions as viem_Actions } from 'viem'
 import { Account } from 'viem/tempo'
+import { Secp256k1 } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
-import { prepareTransactionRequest } from '../actions/index.js'
+import { accounts, getClient } from '~test/tempoMultisig.js'
+import type { TransactionRequest } from './chainConfig.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -20,12 +21,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromMultisig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).multisigSimulation)
+      .toMatchInlineSnapshot(`
       {
         "account": "0xfE8359a006AF94a7C2D44463536C90D09eD563a8",
         "approvals": [
@@ -75,12 +79,15 @@ describe('prepareTransactionRequest', () => {
       threshold: 2,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'infer', ...config }),
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: Account.fromMultisig({ address: 'infer', ...config }),
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.multisigSimulation?.approvals).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).multisigSimulation?.approvals)
+      .toMatchInlineSnapshot(`
       [
         {
           "keyData": "0x0578",
@@ -103,12 +110,15 @@ describe('prepareTransactionRequest', () => {
       version: 2n,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).multisigSimulation)
+      .toMatchInlineSnapshot(`
       {
         "account": "0x13D0eA1C219b3CA583082664961b9e8CD2D8B678",
         "approvals": [
@@ -149,12 +159,15 @@ describe('prepareTransactionRequest', () => {
       owners: [child],
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      parameters: ['chainId'],
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        parameters: ['chainId'],
+      })
+    ).request
 
-    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+    expect((request as TransactionRequest).multisigSimulation)
+      .toMatchInlineSnapshot(`
       {
         "account": "0xE6727027C4B41cf41a8D87B033B2020035B92F25",
         "approvals": [
@@ -199,14 +212,14 @@ describe('prepareTransactionRequest', () => {
   })
 
   test('error: rejects a generic local owner account', async () => {
-    const owner = privateKeyToAccount(generatePrivateKey())
+    const owner = CoreAccount.fromPrivateKey(Secp256k1.randomPrivateKey())
     const config = MultisigConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
 
     await expect(
-      prepareTransactionRequest(client, {
+      viem_Actions.transaction.prepare(client, {
         account: Account.fromMultisig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],

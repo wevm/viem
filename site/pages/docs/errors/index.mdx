@@ -1,0 +1,60 @@
+---
+description: Type Viem errors, narrow runtime failures, and inspect nested causes.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Error Handling
+
+## Overview
+
+Fallible Viem functions expose an `ErrorType` from the same namespace as their options and return
+type. Concrete error classes let applications narrow those declared failures at runtime without
+parsing messages.
+
+Every Viem error inherits from [`Errors.BaseError`](/docs/errors/base-error) and preserves its
+underlying failure as `cause`.
+
+```ts twoslash
+import { Actions, ContractError } from 'viem'
+
+function getMessage(error: Actions.contract.read.ErrorType) {
+  if (error instanceof ContractError.ContractFunctionExecutionError)
+    return `Could not read ${error.functionName}.`
+  if (error instanceof Error) return error.message
+  return 'Unknown error.'
+}
+```
+
+<Cards>
+  <Card
+    title="Typed Errors"
+    description="Use function ErrorType namespaces and narrow runtime failures."
+    icon="lucide:braces"
+    to="/docs/errors/typed-errors"
+  />
+  <Card
+    title="Contract Errors"
+    description="Handle contract failures and decoded revert reasons."
+    icon="lucide:file-warning"
+    to="/docs/errors/contract"
+  />
+  <Card
+    title="RPC Errors"
+    description="Match node failures across reverts, fees, nonces, and gas."
+    icon="lucide:server-crash"
+    to="/docs/errors/rpc"
+  />
+  <Card
+    title="Base Error"
+    description="The base error class inherited by all errors thrown by Viem."
+    icon="lucide:circle-alert"
+    to="/docs/errors/base-error"
+  />
+  <Card
+    title="Configuration"
+    description="Set Viem-scoped defaults (docs origin, version) applied to every error."
+    icon="lucide:settings"
+    to="/docs/errors/configuration"
+  />
+</Cards>

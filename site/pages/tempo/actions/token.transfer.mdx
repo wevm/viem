@@ -1,8 +1,10 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `token.transfer`
+# Transfer Tokens [token.transfer]
 
-Transfers TIP-20 tokens from the caller to a recipient.
+Transfers TIP-20 tokens to another address.
+
+Pass `from` to transfer on behalf of another address using an allowance (calls `transferFrom`); otherwise transfers from the caller (calls `transfer`). Pass `memo` to use the memo-carrying transfer function.
 
 ## Usage
 
@@ -14,7 +16,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.transferSync({
   amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -27,9 +29,9 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-### By Token Address
+### Undeclared Tokens
 
-When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+Formatted amounts resolve `decimals` from the Client's declared `tokens` (the pathUSD address above is declared on the default token set). For a token not declared on the Client, include `amount.decimals` so the formatted amount can be parsed.
 
 :::code-group
 
@@ -39,7 +41,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.transferSync({
   amount: { decimals: 6, formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: '0x20c0000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -61,7 +63,7 @@ import { client } from './viem.config'
 const { receipt } = await client.token.transferSync({
   amount: 10500000n,
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
 ```
 
@@ -84,30 +86,113 @@ import { client } from './viem.config'
 const hash = await client.token.transfer({
   amount: { formatted: '10.5' },
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'pathusd',
+  token: '0x20c0000000000000000000000000000000000000',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
-const { args } 
-  = Actions.token.transfer.extractEvent(receipt.logs)
+const { args } = Actions.token.transfer.extractEvent(receipt.logs)
 ```
 
-## Return Type
+## Recipes
+
+### Reconcile Payments with an Order Memo
+
+Pass `memo` to stamp each payment with an order identifier (for example, `order_1024` hex-encoded), so reconciliation jobs can match onchain transfers to orders without external lookups.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '249.99' },
+  memo: '0x6f726465725f31303234', // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Charge a Customer from an Allowance
+
+Pass `from` to pull a charge from a customer's wallet through an allowance granted with [`token.approveSync`](/tempo/actions/token.approve), the standard server-side flow for subscription billing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '19.99' },
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Run Concurrent Payouts with Expiring Nonces
+
+Pass `nonceKey: 'expiring'` to submit a payroll batch concurrently from one account, without serializing the transfers on nonce order.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000000'
+
+const payouts = [
+  { amount: { formatted: '1250.00' }, to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb' },
+  { amount: { formatted: '980.50' }, to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+] as const
+
+const results = await Promise.all(
+  payouts.map((payout) =>
+    client.token.transferSync({
+      ...payout,
+      nonceKey: 'expiring', // [!code focus]
+      token,
+    }),
+  ),
+)
+
+console.log(results.map(({ receipt }) => receipt.status))
+// @log: ['success', 'success']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
-  /** Amount of tokens transferred, in base units. */
+  /** Address the tokens were transferred from. */
+  from: Address
+  /** Address the tokens were transferred to. */
+  to: Address
+  /** Transferred amount, in base units. */
   amount: bigint
   /** Token decimals used to derive `formatted`, if known. */
   decimals?: number | undefined
-  /** Address tokens were transferred from. */
-  from: Address
   /** Transferred amount formatted with the token's `decimals`, if known. */
   formatted?: string | undefined
   /** Transaction receipt. */
   receipt: TransactionReceipt
-  /** Address tokens were transferred to. */
-  to: Address
 }
 ```
 
@@ -117,9 +202,20 @@ type ReturnType = {
 
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
-Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
-token address.
+Amount to transfer, in base units or formatted decimal form. Include `amount.decimals`
+when the token is not declared on the Client's `tokens`.
+
+### from
+
+- **Type:** `Address`
+
+Address to transfer tokens from (uses an allowance via `transferFrom`). Defaults to the caller.
+
+### memo
+
+- **Type:** `Hex`
+
+Memo to include in the transfer.
 
 ### to
 
@@ -129,21 +225,8 @@ Address to transfer tokens to.
 
 ### token
 
-- **Type:** `string`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and `decimals`), a TIP-20 token id, or a token address.
-
-### memo (optional)
-
-- **Type:** `Hex`
-
-Optional memo to attach to the transfer event.
-
-### from (optional)
-
-- **Type:** `Address`
-
-Address to transfer tokens from. When specified, transfers tokens from the given address (requires prior approval). Defaults to the caller's address.
+Token to operate on: a TIP-20 token id or a contract address.
 
 <WriteParameters />

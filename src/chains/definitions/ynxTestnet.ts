@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const ynxTestnet = /*#__PURE__*/ defineChain({
+export const ynxTestnet = /*#__PURE__*/ Chain.from({
   id: 6_423,
   name: 'YNX Testnet',
   nativeCurrency: {
@@ -8,16 +8,10 @@ export const ynxTestnet = /*#__PURE__*/ defineChain({
     name: 'YNXT',
     symbol: 'YNXT',
   },
-  rpcUrls: {
-    default: {
-      http: ['https://evm.ynxweb4.com'],
-    },
-  },
+  rpcUrls: { http: 'https://evm.ynxweb4.com' },
   blockExplorers: {
-    default: {
-      name: 'YNX Explorer',
-      url: 'https://explorer.ynxweb4.com',
-    },
+    name: 'YNX Explorer',
+    url: 'https://explorer.ynxweb4.com',
   },
   testnet: true,
 })

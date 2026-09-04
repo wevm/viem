@@ -1,5 +1,4 @@
-import * as Hex from 'ox/Hex'
-import * as Json from 'ox/Json'
+import { Hex, Json } from 'ox'
 import { MultisigConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Store from '../Store.js'
@@ -27,9 +26,8 @@ describe('read', () => {
       config: initialConfig,
     })
 
-    await expect(
-      Config.read(store, { address, commitment: zeroCommitment }),
-    ).resolves.toMatchInlineSnapshot(`
+    await expect(Config.read(store, { address, commitment: zeroCommitment }))
+      .resolves.toMatchInlineSnapshot(`
       {
         "owners": [
           {
@@ -52,9 +50,8 @@ describe('read', () => {
       config: currentConfig,
     })
 
-    await expect(
-      Config.read(store, { address, commitment: currentCommitment }),
-    ).resolves.toMatchInlineSnapshot(`
+    await expect(Config.read(store, { address, commitment: currentCommitment }))
+      .resolves.toMatchInlineSnapshot(`
       {
         "owners": [
           {

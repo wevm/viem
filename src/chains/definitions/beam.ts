@@ -1,27 +1,24 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const beam = /*#__PURE__*/ defineChain({
+export const beam = /*#__PURE__*/ Chain.from({
   id: 4337,
   name: 'Beam',
-  network: 'beam',
   nativeCurrency: {
     decimals: 18,
     name: 'Beam',
     symbol: 'BEAM',
   },
   rpcUrls: {
-    default: {
-      http: ['https://build.onbeam.com/rpc'],
-      webSocket: ['wss://build.onbeam.com/ws'],
-    },
+    http: 'https://build.onbeam.com/rpc',
+    ws: 'wss://build.onbeam.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Beam Explorer',
-      url: 'https://subnets.avax.network/beam',
-    },
+    name: 'Beam Explorer',
+    url: 'https://subnets.avax.network/beam',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x4956f15efdc3dc16645e90cc356eafa65ffc65ec',
       blockCreated: 1,

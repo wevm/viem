@@ -29,7 +29,7 @@ import { client } from './viem.config'
 const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+const credential = await WebAuthnP256.createCredential({ label: 'Example' })
 const passkeyOwner = Account.fromWebAuthnP256(credential)
 
 // 2. Recreate the account from its stable address and current config.
@@ -99,7 +99,7 @@ const { receipt: pending } = await client.multisig.updateConfigSync({
 })
 
 // 4. Reach quorum with the second current owner.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_2,
@@ -135,14 +135,14 @@ const multisig = Account.fromMultisig(
 )
 
 // 3. Store the first new owner's approval.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: newOwner_1,
 })
 
 // 4. Reach quorum with the second new owner.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: newOwner_2,

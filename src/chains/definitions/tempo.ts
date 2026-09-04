@@ -1,14 +1,12 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../tempo/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const tempo = /*#__PURE__*/ defineChain({
+export const tempo = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 4217,
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.tempo.xyz',
   },
   name: 'Tempo Mainnet',
   nativeCurrency: {
@@ -17,9 +15,7 @@ export const tempo = /*#__PURE__*/ defineChain({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.tempo.xyz'],
-      webSocket: ['wss://rpc.tempo.xyz'],
-    },
+    http: 'https://rpc.tempo.xyz',
+    ws: 'wss://rpc.tempo.xyz',
   },
 })

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const merlinErigonTestnet = /*#__PURE__*/ defineChain({
+export const merlinErigonTestnet = /*#__PURE__*/ Chain.from({
   id: 4203,
   name: 'Merlin Erigon Testnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const merlinErigonTestnet = /*#__PURE__*/ defineChain({
     symbol: 'BTC',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://testnet-erigon-rpc.merlinchain.io'] },
-  },
+  rpcUrls: { http: 'https://testnet-erigon-rpc.merlinchain.io' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://testnet-erigon-scan.merlinchain.io',
-      apiUrl: 'https://testnet-erigon-scan.merlinchain.io/api',
-    },
+    name: 'blockscout',
+    url: 'https://testnet-erigon-scan.merlinchain.io',
+    apiUrl: 'https://testnet-erigon-scan.merlinchain.io/api',
   },
   testnet: true,
 })
