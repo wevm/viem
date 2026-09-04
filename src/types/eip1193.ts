@@ -1600,7 +1600,7 @@ export type TestRpcSchema<mode extends string> = [
   {
     Method: 'evm_revert'
     Parameters?: [id: Quantity] | undefined
-    ReturnType: void
+    ReturnType: boolean
   },
   /**
    * @description Enables the automatic mining of new blocks with each new transaction submitted to the network.

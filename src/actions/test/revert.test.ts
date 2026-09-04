@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { BaseError } from '../../errors/base.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
@@ -40,3 +41,13 @@ test('reverts', async () => {
     }),
   ).toBe(balance)
 })
+
+test('error: could not revert snapshot', async () => {
+  await expect(
+    revert(client, { id: '0x1' }),
+  ).rejects.toThrowError(
+    new BaseError('Snapshot with id "0x1" could not be reverted.'),
+  )
+})
+
+
