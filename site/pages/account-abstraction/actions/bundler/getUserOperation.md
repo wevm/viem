@@ -41,15 +41,15 @@ The Bundler URL above is a public endpoint. Please do not use it in production a
 
 ```ts
 {
-  blockHash: Hash,
-  blockNumber: bigint,
+  blockHash: Hash | null,
+  blockNumber: bigint | null,
   entryPoint: Address,
-  transactionHash: Hash,
+  transactionHash: Hash | null,
   userOperation: UserOperation
 }
 ```
 
-User Operation information.
+User Operation information. `blockHash`, `blockNumber`, and `transactionHash` are `null` while the User Operation is pending (that is, still in the Bundler's mempool).
 
 ## Parameters
 
