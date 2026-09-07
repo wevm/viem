@@ -717,6 +717,7 @@ export { xaiTestnet } from './definitions/xaiTestnet.js'
 export { xdc } from './definitions/xdc.js'
 export { xdcTestnet } from './definitions/xdcTestnet.js'
 export { xgr } from './definitions/xgr.js'
+export { xgrTestnet } from './definitions/xgrTestnet.js'
 export { xLayer } from './definitions/xLayer.js'
 export {
   /** @deprecated Use `xLayerTestnet` */
