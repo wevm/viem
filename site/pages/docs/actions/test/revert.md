@@ -6,6 +6,8 @@ description: Revert the state of the blockchain at the current block.
 
 Revert the state of the blockchain at the current block.
 
+Throws if the snapshot ID does not exist or has already been consumed.
+
 ## Usage
 
 :::code-group

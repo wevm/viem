@@ -152,6 +152,12 @@ test('test methods (strict)', async () => {
   }>({ method: 'eth_wagmi' })
   expectTypeOf<typeof x4>().toEqualTypeOf<number>()
 
+  const x5 = await request({
+    method: 'evm_revert',
+    params: ['0x1'],
+  })
+  expectTypeOf<typeof x5>().toEqualTypeOf<boolean>()
+
   // @ts-expect-error
   request({ method: 'anvil_addCompilationResult' })
   // @ts-expect-error
