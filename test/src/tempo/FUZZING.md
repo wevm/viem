@@ -1,6 +1,7 @@
 # Tempo fuzzing
 
-The focused suites cover expiring and two-dimensional nonce preparation,
+The focused suites cover transaction envelope serialization, sender and fee
+payer signing domains, expiring and two-dimensional nonce preparation,
 concurrent-request detection, and fee-payer relay concurrency.
 
 ## Local runs
