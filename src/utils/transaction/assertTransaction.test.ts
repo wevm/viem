@@ -6,8 +6,134 @@ import {
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
+
+const sender = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' as const
+
+describe('eip8141', () => {
+  const validTx = {
+    chainId: 1,
+    sender,
+    frames: [
+      {
+        mode: 1 as const,
+        flags: 0x03,
+        target: null,
+        limits: { execution: 50000n, state: 0n },
+        data: '0xab' as const,
+      },
+    ],
+  }
+
+  test('valid transaction passes', () => {
+    expect(() => assertTransactionEIP8141(validTx)).not.toThrow()
+  })
+
+  test('zero-address sender rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...validTx,
+        sender: '0x0000000000000000000000000000000000000000',
+      }),
+    ).toThrow('zero address')
+  })
+
+  test('MAX_FRAMES is 64', () => {
+    const frames = Array.from({ length: 65 }, () => ({
+      mode: 0 as const,
+      flags: 0,
+      target: sender,
+      limits: { execution: 1n, state: 0n },
+      data: '0x' as const,
+    }))
+    expect(() => assertTransactionEIP8141({ ...validTx, frames })).toThrow(
+      'MAX_FRAMES (64)',
+    )
+  })
+
+  test('reserved flag bits rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...validTx,
+        frames: [
+          {
+            mode: 2,
+            flags: 0x08,
+            target: sender,
+            limits: { execution: 1n, state: 0n },
+            data: '0x' as const,
+          },
+        ],
+      }),
+    ).toThrow('reserved')
+  })
+
+  test('atomic batch flag on VERIFY frame rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...validTx,
+        frames: [
+          {
+            mode: 1,
+            flags: 0x04,
+            target: null,
+            limits: { execution: 1n, state: 0n },
+            data: '0x' as const,
+          },
+          {
+            mode: 2,
+            flags: 0,
+            target: sender,
+            limits: { execution: 1n, state: 0n },
+            data: '0x' as const,
+          },
+        ],
+      }),
+    ).toThrow('not valid with VERIFY mode')
+  })
+
+  test('total frame gas must be less than 2^64', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...validTx,
+        frames: [
+          {
+            mode: 2,
+            flags: 0,
+            target: sender,
+            limits: { execution: 2n ** 63n, state: 2n ** 63n },
+            data: '0x' as const,
+          },
+        ],
+      }),
+    ).toThrow('less than 2^64')
+  })
+
+  test('unknown signature scheme rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...validTx,
+        signatures: [
+          { scheme: 5 as any, signer: null, msg: '0x', signature: '0x' },
+        ],
+      }),
+    ).toThrow('Invalid signature scheme 5')
+  })
+
+  test('maxFeePerBlobGas without blobs rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({ ...validTx, maxFeePerBlobGas: 1n }),
+    ).toThrow('`maxFeePerBlobGas` must be 0')
+  })
+
+  test('fee cap too high', () => {
+    expect(() =>
+      assertTransactionEIP8141({ ...validTx, maxFeePerGas: 2n ** 256n }),
+    ).toThrow('The fee cap')
+  })
+})
 
 describe('eip7702', () => {
   test('invalid chainId', () => {

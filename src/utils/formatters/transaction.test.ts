@@ -811,3 +811,104 @@ test('contract deployment transaction', () => {
     }
   `)
 })
+
+test('eip8141 transaction', () => {
+  expect(
+    formatTransaction({
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      chainId: '0x1',
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      hash: '0x2',
+      nonce: '0x3',
+      sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      frames: [
+        {
+          mode: '0x1',
+          flags: '0x3',
+          target: null,
+          limits: { execution: '0xc350', state: '0x0' },
+          value: '0x0',
+          data: '0x',
+        },
+        {
+          mode: '0x2',
+          flags: '0x0',
+          target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          limits: { execution: '0x186a0', state: '0x2710' },
+          value: '0xde0b6b3a7640000',
+          data: '0xcafebabe',
+        },
+      ],
+      signatures: [
+        {
+          scheme: '0x1',
+          signer: null,
+          msg: '0x',
+          signature: `0x00${'ab'.repeat(64)}`,
+        },
+      ],
+      maxFeePerBlobGas: '0x0',
+      maxFeePerGas: '0x2540be400',
+      maxPriorityFeePerGas: '0x3b9aca00',
+      blobVersionedHashes: [],
+      transactionIndex: '0x4',
+      type: '0x6',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blobVersionedHashes": [],
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "chainId": 1,
+      "frames": [
+        {
+          "data": "0x",
+          "flags": 3,
+          "limits": {
+            "execution": 50000n,
+            "state": 0n,
+          },
+          "mode": 1,
+          "target": null,
+          "value": 0n,
+        },
+        {
+          "data": "0xcafebabe",
+          "flags": 0,
+          "limits": {
+            "execution": 100000n,
+            "state": 10000n,
+          },
+          "mode": 2,
+          "target": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": 1000000000000000000n,
+        },
+      ],
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "gas": undefined,
+      "gasPrice": undefined,
+      "hash": "0x2",
+      "maxFeePerBlobGas": 0n,
+      "maxFeePerGas": 10000000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "nonce": 3,
+      "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "signatures": [
+        {
+          "msg": "0x",
+          "scheme": 1,
+          "signature": "0x00abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab",
+          "signer": null,
+        },
+      ],
+      "to": null,
+      "transactionIndex": 4,
+      "type": "eip8141",
+      "typeHex": "0x6",
+      "v": undefined,
+      "value": undefined,
+      "yParity": undefined,
+    }
+  `)
+})

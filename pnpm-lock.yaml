@@ -271,7 +271,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -284,7 +284,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -297,7 +297,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -310,7 +310,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -323,7 +323,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -342,7 +342,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -370,7 +370,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -392,7 +392,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -405,7 +405,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -424,7 +424,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -446,7 +446,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -455,11 +455,24 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)
 
+  examples/frame-transactions:
+    dependencies:
+      viem:
+        specifier: file:../../src
+        version: link:../../src
+    devDependencies:
+      tsx:
+        specifier: ^4.19.0
+        version: 4.22.4
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   examples/logs_block-event-logs:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -472,7 +485,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -485,7 +498,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -548,7 +561,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -576,7 +589,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -598,7 +611,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -617,7 +630,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.55.8(typescript@5.9.3)(zod@4.4.3)
+        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -1277,7 +1290,7 @@ packages:
     resolution: {integrity: sha512-ZcnNVhKTmyDJeg0UlnZjvM73JBsTAuhrH/J4fjwGOw59PwOW51r4J+p6CsKZWXdKSme4MFqU62CZMOsdDrU4CA==}
     engines: {node: '>=20'}
     peerDependencies:
-      hono: '>=4.12.27'
+      hono: '>=4.12.34'
 
   '@iconify-json/lucide@1.2.114':
     resolution: {integrity: sha512-NbvH3B1BYo6wBtS7joLi7f2UVQOqK2dtZodMFf3kkBs+Tnh9TkRuy8oVHr1RM8UK6bUtvAXxfNlGAah0CuvPCw==}
@@ -3885,6 +3898,7 @@ packages:
   cron-parser@4.9.0:
     resolution: {integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==}
     engines: {node: '>=12.0.0'}
+    deprecated: v4 is no longer maintained, upgrade to v5
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -5367,7 +5381,7 @@ packages:
       '@modelcontextprotocol/sdk': 1.26.0
       elysia: '>=1'
       express: '>=5'
-      hono: '>=4.12.27'
+      hono: '>=4.12.34'
       viem: '>=2.47.5'
     peerDependenciesMeta:
       '@modelcontextprotocol/sdk':
@@ -5796,6 +5810,7 @@ packages:
   prom-client@14.2.0:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
+    deprecated: prom-client has been replaced by @prometheus-io/client
 
   prool@0.2.14:
     resolution: {integrity: sha512-GAu9hAJqIMac/16sHTm//ya8qfqwh0M+czyRcQYlL8daXYHhSfxOCbNv9SFkmRQ1wZhZHDvDtfqNJZmCcwzJaw==}
@@ -6870,8 +6885,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.55.8:
-    resolution: {integrity: sha512-BHqtsmK4iMLuLnRyrPIB1jVrmFVliRIP/K0dnFT7gBOpfo8Ko4ozhkzUCRNfR+Z/ZZdnlnVrh04fAOuIm5Svkg==}
+  viem@2.56.3:
+    resolution: {integrity: sha512-vUObq3GO7D3lz9gPNEE/xd5jIUnMbeVDWewh252o54pDEDlW4pDe6FEd/qTGL5RyK52cGHMM7kQ3wjxhilEvkQ==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -14490,7 +14505,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.55.8(typescript@5.9.3)(zod@4.4.3):
+  viem@2.56.3(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0

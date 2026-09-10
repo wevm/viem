@@ -7,8 +7,18 @@ import type {
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcAuthorizationList, RpcTransaction } from '../../types/rpc.js'
-import type { Transaction, TransactionType } from '../../types/transaction.js'
+import type {
+  RpcAuthorizationList,
+  RpcFrame,
+  RpcFrameSignature,
+  RpcTransaction,
+} from '../../types/rpc.js'
+import type {
+  Frame,
+  FrameSignature,
+  Transaction,
+  TransactionType,
+} from '../../types/transaction.js'
 import type { ExactPartial, UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 import { type DefineFormatterErrorType, defineFormatter } from './formatter.js'
@@ -41,6 +51,7 @@ export const transactionType = {
   '0x2': 'eip1559',
   '0x3': 'eip4844',
   '0x4': 'eip7702',
+  '0x6': 'eip8141',
 } as const satisfies Record<Hex, TransactionType>
 
 export type FormatTransactionErrorType = ErrorType
@@ -87,6 +98,10 @@ export function formatTransaction(
     transaction_.authorizationList = formatAuthorizationList(
       transaction.authorizationList,
     )
+  if (transaction.frames)
+    transaction_.frames = transaction.frames.map(formatFrame)
+  if (transaction.signatures)
+    transaction_.signatures = transaction.signatures.map(formatFrameSignature)
 
   transaction_.yParity = (() => {
     // If `yParity` is provided, we will use it.
@@ -127,6 +142,29 @@ export const defineTransaction = /*#__PURE__*/ defineFormatter(
 )
 
 //////////////////////////////////////////////////////////////////////////////
+
+function formatFrame(frame: RpcFrame): Frame {
+  return {
+    mode: hexToNumber(frame.mode) as Frame['mode'],
+    flags: hexToNumber(frame.flags),
+    target: frame.target ?? null,
+    limits: {
+      execution: BigInt(frame.limits.execution),
+      state: BigInt(frame.limits.state),
+    },
+    value: frame.value ? BigInt(frame.value) : 0n,
+    data: frame.data,
+  }
+}
+
+function formatFrameSignature(signature: RpcFrameSignature): FrameSignature {
+  return {
+    scheme: hexToNumber(signature.scheme) as FrameSignature['scheme'],
+    signer: signature.signer ?? null,
+    msg: signature.msg,
+    signature: signature.signature,
+  }
+}
 
 function formatAuthorizationList(
   authorizationList: RpcAuthorizationList,

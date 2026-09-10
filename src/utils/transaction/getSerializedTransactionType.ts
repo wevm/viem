@@ -10,6 +10,7 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
@@ -34,6 +35,9 @@ export type GetSerializedTransactionType<
     | (serializedTransaction extends TransactionSerializedEIP7702
         ? 'eip7702'
         : never)
+    | (serializedTransaction extends TransactionSerializedEIP8141
+        ? 'eip8141'
+        : never)
     | (serializedTransaction extends TransactionSerializedLegacy
         ? 'legacy'
         : never),
@@ -55,6 +59,9 @@ export function getSerializedTransactionType<
   serializedTransaction: serializedTransaction,
 ): GetSerializedTransactionType<serializedTransaction> {
   const serializedType = sliceHex(serializedTransaction, 0, 1)
+
+  if (serializedType === '0x06')
+    return 'eip8141' as GetSerializedTransactionType<serializedTransaction>
 
   if (serializedType === '0x04')
     return 'eip7702' as GetSerializedTransactionType<serializedTransaction>
