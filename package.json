@@ -80,7 +80,7 @@
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
     "typescript": "catalog:",
-    "vitest": "^4.1.8"
+    "vitest": "^5.0.0"
   },
   "packageManager": "pnpm@11.13.1",
   "engines": {
