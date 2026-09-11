@@ -9,12 +9,12 @@ export function isUri(value: string) {
   if (/%[0-9a-f](:?[^0-9a-f]|$)/i.test(value)) return false
 
   // from RFC 3986
-  const splitted = splitUri(value)
-  const scheme = splitted[1]
-  const authority = splitted[2]
-  const path = splitted[3]
-  const query = splitted[4]
-  const fragment = splitted[5]
+  const parts = splitUri(value)
+  const scheme = parts[1]
+  const authority = parts[2]
+  const path = parts[3]
+  const query = parts[4]
+  const fragment = parts[5]
 
   // scheme and path are required, though the path can be empty
   if (!(scheme?.length && path.length >= 0)) return false
