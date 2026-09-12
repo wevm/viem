@@ -1,5 +1,11 @@
 # viem
 
+## 2.56.5
+
+### Patch Changes
+
+- [#5069](https://github.com/wevm/viem/pull/5069) [`86adf420cfb20721ff99aa5bf6e6c1017588d473`](https://github.com/wevm/viem/commit/86adf420cfb20721ff99aa5bf6e6c1017588d473) Thanks [@moyanghe-uniswap](https://github.com/moyanghe-uniswap)! - Fixed `stateOverride` being silently dropped by `estimateGas` in `viem/linea` — it was destructured into an unused rest object and never serialized onto the `linea_estimateGas` request, so overrides never reached the node.
+
 ## 2.56.4
 
 ### Patch Changes
