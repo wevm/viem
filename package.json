@@ -52,7 +52,7 @@
     "version:update": "bun scripts/updateVersion.ts"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.2",
+    "@arethetypeswrong/cli": "^0.18.5",
     "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
