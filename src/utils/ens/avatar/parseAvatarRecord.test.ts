@@ -7,9 +7,35 @@ import { parseAvatarRecord } from './parseAvatarRecord.js'
 
 const client = anvilMainnet.getClient()
 
+const ipfsImageContentTypes = {
+  QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS: 'image/png',
+  'QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif': 'image/gif',
+} as const
+
+// Metadata of token 10063 of the ERC-1155 contract used in the `erc 1155` test.
+const ipfsMetadataHash = 'QmYTuHaoY1winNAxmf7JmCmSrkChuMAAnqgSuJBTiWZe9f'
+
+let ipfsGateway: Awaited<ReturnType<typeof createHttpServer>>
 let metadataServer: Awaited<ReturnType<typeof createHttpServer>>
 
 beforeAll(async () => {
+  ipfsGateway = await createHttpServer((req, res) => {
+    if (req.url?.includes(ipfsMetadataHash)) {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          image:
+            'ipfs://QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif',
+        }),
+      )
+      return
+    }
+    const contentType = Object.entries(ipfsImageContentTypes).find(([path]) =>
+      req.url?.includes(path),
+    )?.[1]
+    res.writeHead(200, { 'Content-Type': contentType ?? 'text/plain' })
+    res.end()
+  })
   metadataServer = await createHttpServer((_req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(
@@ -25,7 +51,7 @@ beforeAll(async () => {
   })
 })
 
-afterAll(() => metadataServer.close())
+afterAll(() => Promise.all([ipfsGateway.close(), metadataServer.close()]))
 
 test('default', async () => {
   expect(
@@ -45,10 +71,11 @@ describe('nft', () => {
     })
     expect(
       await parseAvatarRecord(client, {
+        gatewayUrls: { ipfs: ipfsGateway.url },
         record: `eip155:1/erc721:${contractAddress}/69`,
       }),
-    ).toMatchInlineSnapshot(
-      '"https://ipfs.io/ipfs/QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS"',
+    ).toBe(
+      `${ipfsGateway.url}/ipfs/QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS`,
     )
   })
 
@@ -81,11 +108,12 @@ describe('nft', () => {
   test('erc 1155', async () => {
     expect(
       await parseAvatarRecord(client, {
+        gatewayUrls: { ipfs: ipfsGateway.url },
         record:
           'eip155:1/erc1155:0xb32979486938aa9694bfc898f35dbed459f44424/10063',
       }),
-    ).toMatchInlineSnapshot(
-      '"https://ipfs.io/ipfs/QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif"',
+    ).toBe(
+      `${ipfsGateway.url}/ipfs/QmSP4nq9fnN9dAiCj42ug9Wa79rqmQerZXZch82VqpiH7U/image.gif`,
     )
   })
 })
