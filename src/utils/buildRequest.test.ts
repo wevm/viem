@@ -1194,6 +1194,29 @@ describe('behavior', () => {
       expect(retryCount).toBe(3)
     })
 
+    test('non-deterministic rate limit error (QuickNode -32007)', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: -32007,
+              message: 'N/second request limit reached',
+            },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(3)
+    })
+
     test('non-deterministic UnknownRpcError', async () => {
       let retryCount = -1
       await expect(() =>
@@ -1541,6 +1564,14 @@ describe('shouldRetry', () => {
     // JSON-RPC body containing `{ code: 429 }` rather than a real HTTP 429.
     // shouldRetry must return true so that retryCount is honoured.
     const err = Object.assign(new Error('rate limited'), { code: 429 })
+    expect(shouldRetry(err)).toBe(true)
+  })
+
+  test('RPC code -32007 (rate-limit, e.g. QuickNode HTTP 200 + JSON body)', () => {
+    // Some providers (e.g. QuickNode) respond with HTTP 200 and a JSON-RPC
+    // body containing `{ code: -32007 }` when rate limited rather than a real
+    // HTTP 429. shouldRetry must return true so that retryCount is honoured.
+    const err = Object.assign(new Error('rate limited'), { code: -32007 })
     expect(shouldRetry(err)).toBe(true)
   })
 
