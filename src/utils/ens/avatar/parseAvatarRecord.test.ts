@@ -1,18 +1,31 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
-import { deployEnsAvatarTokenUri } from '~test/utils.js'
+import { createHttpServer, deployEnsAvatarTokenUri } from '~test/utils.js'
 
 import { reset } from '../../../actions/index.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'
 
 const client = anvilMainnet.getClient()
 
+let metadataServer: Awaited<ReturnType<typeof createHttpServer>>
+
 beforeAll(async () => {
+  metadataServer = await createHttpServer((_req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(
+      JSON.stringify({
+        image: 'ipfs://QmbUCe7JMPsG39FRaLaJ9VwSKrE74PzEb1s4DKuEkARepS',
+      }),
+    )
+  })
+
   await reset(client, {
     blockNumber: 23_085_558n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })
+
+afterAll(() => metadataServer.close())
 
 test('default', async () => {
   expect(
@@ -27,7 +40,9 @@ test('default', async () => {
 
 describe('nft', () => {
   test('default ({id} template)', async () => {
-    const { contractAddress } = await deployEnsAvatarTokenUri()
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
     expect(
       await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/69`,
@@ -38,7 +53,9 @@ describe('nft', () => {
   })
 
   test('onchain (encoded json)', async () => {
-    const { contractAddress } = await deployEnsAvatarTokenUri()
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
     expect(
       await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/100`,
@@ -49,7 +66,9 @@ describe('nft', () => {
   })
 
   test('onchain (raw json)', async () => {
-    const { contractAddress } = await deployEnsAvatarTokenUri()
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
     expect(
       await parseAvatarRecord(client, {
         record: `eip155:1/erc721:${contractAddress}/108`,
