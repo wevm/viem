@@ -1,5 +1,19 @@
 # viem
 
+## 2.56.4
+
+### Patch Changes
+
+- [#5058](https://github.com/wevm/viem/pull/5058) [`307961495ce402adbbd31c793277850726308f82`](https://github.com/wevm/viem/commit/307961495ce402adbbd31c793277850726308f82) Thanks [@riba2534](https://github.com/riba2534)! - Fixed `getUserOperation` throwing `Cannot convert null to a BigInt` for pending User Operations, and made `blockHash`, `blockNumber`, and `transactionHash` nullable on its return value (as well as on `GetUserOperationByHashReturnType`) to reflect what Bundlers return while a User Operation is in the mempool.
+
+- [#5055](https://github.com/wevm/viem/pull/5055) [`5531c78f24039475d276fa34e6d7c9073b0abf35`](https://github.com/wevm/viem/commit/5531c78f24039475d276fa34e6d7c9073b0abf35) Thanks [@alexursol2](https://github.com/alexursol2)! - Added OP Stack configuration to the Whitechain Sepolia chain.
+
+- [#5056](https://github.com/wevm/viem/pull/5056) [`1a6076e582f596acba03b7cc28963a746bcce839`](https://github.com/wevm/viem/commit/1a6076e582f596acba03b7cc28963a746bcce839) Thanks [@struong](https://github.com/struong)! - Added canonical Earn factory addresses to the Tempo mainnet and testnet chain definitions and inferred them in Earn deployments.
+
+- [#5062](https://github.com/wevm/viem/pull/5062) [`200fbe123d897208d315242d5f6ceabdce503a08`](https://github.com/wevm/viem/commit/200fbe123d897208d315242d5f6ceabdce503a08) Thanks [@oliverboehm-xgr](https://github.com/oliverboehm-xgr)! - Added XGR Testnet chain.
+
+- [#5068](https://github.com/wevm/viem/pull/5068) [`3dd157b5305c9fb837752c74039d7571cc9d6ec0`](https://github.com/wevm/viem/commit/3dd157b5305c9fb837752c74039d7571cc9d6ec0) Thanks [@pucedoteth](https://github.com/pucedoteth)! - Fixed the SIWE scheme check accepting a comma. `[a-zA-Z0-9+-.]` reads `+-.` as a character range (`+` `,` `-` `.`), so `createSiweMessage` did not reject a scheme such as `ht,tps` despite validating against RFC 3986, and `parseSiweMessage` returned it as `scheme`.
+
 ## 2.56.3
 
 ### Patch Changes
