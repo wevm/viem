@@ -353,6 +353,7 @@ export { koi } from './definitions/koi.js'
 export { kroma } from './definitions/kroma.js'
 export { kromaSepolia } from './definitions/kromaSepolia.js'
 export { krown } from './definitions/krown.js'
+export { kasturi } from './definitions/kasturi.js';
 export { l3x } from './definitions/l3x.js'
 export { l3xTestnet } from './definitions/l3xTestnet.js'
 export { ladyChain } from './definitions/ladyChain.js'
