@@ -162,7 +162,7 @@ We will place these in a `config.ts` file.
 
 :::info
 
-The example belows how to set up a Client for either a **JSON-RPC Account (Browser Extension, WalletConnect,  etc)** or **Local Account (Private Key)**
+The example below shows how to set up a Client for either a **JSON-RPC Account (Browser Extension, WalletConnect, etc.)** or **Local Account (Private Key)**
 
 :::
 
