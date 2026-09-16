@@ -12,17 +12,12 @@ import { pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, getClient, nodeEnv } from './config.js'
-import { createCustomTempo } from './prool.tmp.js'
 
 export const port = 9545
 
-const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
-const legacyHardfork = hardfork === 'T9'
-
 /** Dev key used to provision and administer local Zones. */
-export const zoneAdminKey = legacyHardfork
-  ? '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
-  : '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+export const zoneAdminKey =
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 
 export const rpcUrl = (() => {
   // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
@@ -89,14 +84,6 @@ export async function createServer() {
         ...args,
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
-    // Custom container configuration: Zones, T9 hardfork.
-    if (zones || hardfork === 'T9')
-      return createCustomTempo({
-        ...args,
-        hardfork,
-        image,
-      })
-    // Standard Tempo test container fallback.
     return TestContainers.Instance.tempo({ ...args, image })
   })()
 
@@ -183,7 +170,7 @@ async function startZone(
   if (nodeEnv !== 'localnet')
     throw new Error('Local zones require `VITE_TEMPO_ENV=localnet`.')
 
-  if (!legacyHardfork) await configureNativeZoneToken()
+  await configureNativeZoneToken()
 
   const tag = import.meta.env.VITE_TEMPO_ZONE_TAG ?? 'latest'
   const image = tag.startsWith('sha256:')
@@ -199,7 +186,6 @@ async function startZone(
 
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      // Native T10 genesis assigns the factory to Anvil #0. Pre-T10 provisioning uses Anvil #1.
       key: zoneAdminKey,
       token: pathUsd,
     },
