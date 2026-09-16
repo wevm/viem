@@ -1,5 +1,19 @@
 # viem
 
+## 2.56.6
+
+### Patch Changes
+
+- [#5094](https://github.com/wevm/viem/pull/5094) [`e80a7b1979439a3130d3f12b1d92d42379fd557a`](https://github.com/wevm/viem/commit/e80a7b1979439a3130d3f12b1d92d42379fd557a) Thanks [@0xjohnk](https://github.com/0xjohnk)! - Added public RPC, block explorer, Multicall3, and USDC address metadata to Arc.
+
+- [#5063](https://github.com/wevm/viem/pull/5063) [`e38289c13777a3da75cca0549e4aa694884f456d`](https://github.com/wevm/viem/commit/e38289c13777a3da75cca0549e4aa694884f456d) Thanks [@nicknixcape](https://github.com/nicknixcape)! - Added HyveChain.
+
+- [#5096](https://github.com/wevm/viem/pull/5096) [`ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5`](https://github.com/wevm/viem/commit/ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5) Thanks [@jxom](https://github.com/jxom)! - Limited token balance and metadata probe gas to prevent failing candidates from exhausting the `simulateCalls` asset-tracing gas budget.
+
+- [#5083](https://github.com/wevm/viem/pull/5083) [`83c47e96f39c2838da74f1d34f78c16313e29390`](https://github.com/wevm/viem/commit/83c47e96f39c2838da74f1d34f78c16313e29390) Thanks [@Eras256](https://github.com/Eras256)! - Fixed `shouldRetry` not retrying QuickNode's `-32007` rate-limit error code, mirroring the existing handling for the `429` (Alchemy) case.
+
+- [#5077](https://github.com/wevm/viem/pull/5077) [`b8c79781ecc7bb3c99e14a0e2164ea6245a00a30`](https://github.com/wevm/viem/commit/b8c79781ecc7bb3c99e14a0e2164ea6245a00a30) Thanks [@dmytrozahumennov-wb](https://github.com/dmytrozahumennov-wb)! - Added `whitechainSepolia` to `viem/op-stack` chain exports.
+
 ## 2.56.5
 
 ### Patch Changes
