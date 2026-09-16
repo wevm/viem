@@ -176,8 +176,8 @@ importers:
         specifier: ^0.2.57
         version: 0.2.57(ox@0.14.44(typescript@5.9.3)(zod@4.4.3))
       prool:
-        specifier: ~0.2.14
-        version: 0.2.14(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
+        specifier: ~0.2.16
+        version: 0.2.16(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
       publint:
         specifier: ^0.2.12
         version: 0.2.12
@@ -5794,8 +5794,8 @@ packages:
     engines: {node: '>=10'}
     deprecated: prom-client has been replaced by @prometheus-io/client
 
-  prool@0.2.14:
-    resolution: {integrity: sha512-GAu9hAJqIMac/16sHTm//ya8qfqwh0M+czyRcQYlL8daXYHhSfxOCbNv9SFkmRQ1wZhZHDvDtfqNJZmCcwzJaw==}
+  prool@0.2.16:
+    resolution: {integrity: sha512-WW5HOJExIBmCJvS6XcjwXFuq+oNy2j8PaSwzF0NA99TnVn7XZ8bG1Yl2kdBPlzpOjozL0xooDjZkkgnw++LeZA==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -13179,7 +13179,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.2.14(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
+  prool@0.2.16(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.4

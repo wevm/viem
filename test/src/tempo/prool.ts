@@ -61,6 +61,9 @@ export async function createServer() {
     return `sha-${sha}`
   })()
 
+  const hardfork = import.meta.env.VITE_TEMPO_HARDFORK as
+    | Instance.tempo.Parameters['hardfork']
+    | 'Tnext'
   const zones = import.meta.env.VITE_TEMPO_ZONES === 'true'
   const args = {
     blockTime: (() => {
@@ -71,6 +74,7 @@ export async function createServer() {
       if (process.env.CI) return '50ms' // Faster CI cadence.
       return '2ms' // Fastest local cadence.
     })(),
+    hardfork: hardfork === 'Tnext' ? undefined : hardfork,
     log: import.meta.env.VITE_TEMPO_LOG,
     port,
   } satisfies Instance.tempo.Parameters
