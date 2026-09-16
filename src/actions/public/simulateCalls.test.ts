@@ -650,6 +650,41 @@ test('behavior: traceAssetChanges isolates invalid opcode balance reads', async 
   ])
 })
 
+test('behavior: traceAssetChanges isolates gas-exhausting candidate reads', async () => {
+  const client_ = createClient({ chain: mainnet, transport: http() })
+  const target = '0x7000000000000000000000000000000000000007'
+  const token = '0x8000000000000000000000000000000000000008'
+
+  const { assetChanges, results } = await simulateCalls(client_, {
+    account: zeroAddress,
+    blockNumber: 22_263_623n,
+    calls: [
+      { data: '0x1234', to: target },
+      { data: '0x1234', to: token },
+    ],
+    stateOverrides: [
+      {
+        address: target,
+        // Accept the two-byte simulated call, but loop forever on balance and metadata reads.
+        code: '0x36600214600b575b6007565b00',
+      },
+      {
+        address: token,
+        // Return one for balance and decimals reads.
+        code: '0x60015f5260205ff3',
+      },
+    ],
+    traceAssetChanges: true,
+  })
+
+  expect(results.map((result) => result.status)).toEqual(['success', 'success'])
+  expect(assetChanges.map((change) => change.token.address)).toEqual([
+    '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    token,
+  ])
+  expect(assetChanges[1]?.value).toEqual({ pre: 1n, post: 1n, diff: 0n })
+})
+
 test('behavior: traceAssetChanges omits assets without a pre-balance', async () => {
   const client_ = createClient({ chain: mainnet, transport: http() })
   const target = '0x8000000000000000000000000000000000000008'
