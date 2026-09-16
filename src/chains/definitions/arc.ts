@@ -10,7 +10,12 @@ export const arc = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.mainnet.arc.io'],
+      http: [
+        'https://rpc.mainnet.arc.io',
+        'https://rpc.blockdaemon.mainnet.arc.io',
+        'https://rpc.drpc.mainnet.arc.io',
+        'https://rpc.quicknode.mainnet.arc.io',
+      ],
     },
   },
   blockExplorers: {
