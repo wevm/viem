@@ -2,6 +2,12 @@
 pragma solidity ^0.8.28;
 
 contract EnsAvatarTokenUri {
+    string internal metadataUri;
+
+    constructor(string memory metadataUri_) {
+        metadataUri = metadataUri_;
+    }
+
     function ownerOf(uint256 tokenId) public view returns (address) {
         return 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045;
     }
@@ -75,6 +81,6 @@ contract EnsAvatarTokenUri {
             return "wat";
         }
 
-        return "https://boredapeyachtclub.com/api/mutants/0x{id}";
+        return string.concat(metadataUri, "0x{id}");
     }
 }

@@ -14,9 +14,10 @@ export type LineaRpcSchema = [
           transaction: RpcTransactionRequest,
           block: Hex | BlockNumber | BlockTag,
         ]
+      | [transaction: RpcTransactionRequest, stateOverride: RpcStateOverride]
       | [
           transaction: RpcTransactionRequest,
-          block: BlockNumber | BlockTag,
+          block: Hex | BlockNumber | BlockTag,
           stateOverride: RpcStateOverride,
         ]
     ReturnType: {

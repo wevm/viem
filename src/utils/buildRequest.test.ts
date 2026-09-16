@@ -1544,6 +1544,19 @@ describe('shouldRetry', () => {
     expect(shouldRetry(err)).toBe(true)
   })
 
+  test('RPC code -32007 (QuickNode rate limit)', () => {
+    // QuickNode returns its own rate-limit error as `{ code: -32007 }`
+    // rather than the standard `LimitExceededRpcError` code (`-32005`) or
+    // HTTP 429. shouldRetry must return true so that retryCount is honoured.
+    const err = Object.assign(
+      new Error(
+        '15/second request limit reached - reduce calls per second or upgrade your account at quicknode.com',
+      ),
+      { code: -32007 },
+    )
+    expect(shouldRetry(err)).toBe(true)
+  })
+
   test('WalletConnectSessionSettlementError', () => {
     expect(
       shouldRetry(new WalletConnectSessionSettlementError({} as any)),

@@ -53,10 +53,13 @@ export type GetUserOperationByHashReturnType<
   uint256 = bigint,
   uint32 = number,
 > = {
-  blockHash: Hash
-  blockNumber: uint256
+  /** `null` if the User Operation is pending. */
+  blockHash: Hash | null
+  /** `null` if the User Operation is pending. */
+  blockNumber: uint256 | null
   entryPoint: Address
-  transactionHash: Hash
+  /** `null` if the User Operation is pending. */
+  transactionHash: Hash | null
   userOperation: UserOperation<entryPointVersion, uint256, uint32>
 }
 

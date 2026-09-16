@@ -11,6 +11,14 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
       url: 'https://explore.testnet.tempo.xyz',
     },
   },
+  contracts: {
+    earnFactory: {
+      address: '0xb5889A96114014d4C032ebD76772c10bF3b97137',
+    },
+    erc4626EngineFactory: {
+      address: '0xd43D00981222a8db444A528E69f19E3cE5A7D2Ff',
+    },
+  },
   name: 'Tempo Testnet (Moderato)',
   nativeCurrency: {
     name: 'USD',

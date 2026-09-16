@@ -13,6 +13,7 @@ import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getCallError } from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import { serializeStateOverride } from '../../utils/stateOverride.js'
 import {
   type AssertRequestParameters,
   assertRequest,
@@ -75,6 +76,7 @@ export async function estimateGas<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      stateOverride,
       to,
       value,
       ...rest
@@ -107,6 +109,8 @@ export async function estimateGas<
       'estimateGas',
     )
 
+    const rpcStateOverride = serializeStateOverride(stateOverride)
+
     type LineaEstimateGasSchema = Filter<
       LineaRpcSchema,
       { Method: 'linea_estimateGas' }
@@ -114,7 +118,13 @@ export async function estimateGas<
     const { baseFeePerGas, gasLimit, priorityFeePerGas } =
       await client.request<LineaEstimateGasSchema>({
         method: 'linea_estimateGas',
-        params: block ? [request, block] : [request],
+        params: rpcStateOverride
+          ? block
+            ? [request, block, rpcStateOverride]
+            : [request, rpcStateOverride]
+          : block
+            ? [request, block]
+            : [request],
       })
     return {
       baseFeePerGas: BigInt(baseFeePerGas),
