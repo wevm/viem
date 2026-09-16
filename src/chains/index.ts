@@ -4,6 +4,7 @@ export {
   /** @deprecated Use `zeroGGalileoTestnet` instead. */
   zeroG,
 } from './definitions/0g.js'
+export { zagros } from './definitions/zagros.js'
 /** @deprecated Use `zeroGTestnet` instead. */
 export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
 export { eCanna } from './definitions/eCanna.js'
