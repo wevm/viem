@@ -6,6 +6,8 @@ export {
 } from './definitions/0g.js'
 /** @deprecated Use `zeroGTestnet` instead. */
 export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
+export { eCanna } from './definitions/eCanna.js'
+export { eCannaTestnet } from './definitions/eCannaTestnet.js'
 export { zeroGMainnet } from './definitions/0gMainnet.js'
 export { zeroGTestnet } from './definitions/0gTestnet.js'
 export { fireChain } from './definitions/5ireChain.js'
