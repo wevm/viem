@@ -263,8 +263,8 @@ jobs:
         total-shards: [3]
         include:
           - hardfork: T10
-            # Tempo de760926 and sender-bound Zones 196f47b7.
-            tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
+            # Sender-bound Zones 196f47b7.
+            tempo-tag: latest
             zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
           - hardfork: Tnext
             # Tempo 7331a612. Newer `latest` images (731535b9 onwards) never
@@ -283,6 +283,9 @@ jobs:
 
       - name: Build contracts
         run: pnpm contracts:build
+
+      - name: Test Tempo Genesis
+        run: pnpm test --run --project tempo-config
 
       - name: Test Local Tempo
         uses: nick-fields/retry@v3

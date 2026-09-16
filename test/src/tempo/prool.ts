@@ -89,8 +89,8 @@ export async function createServer() {
         ...args,
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
-    // Custom container configuration: Zones, T9 hardfork.
-    if (zones || hardfork === 'T9')
+    // Named hardforks require a custom genesis even without Zones.
+    if (zones || hardfork)
       return createCustomTempo({
         ...args,
         hardfork,

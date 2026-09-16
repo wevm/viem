@@ -1,5 +1,6 @@
-// TODO: Remove this file when Tempo's dev genesis includes EIP-2935 history storage and pre-T10 localnet coverage is retired.
+// Custom genesis selects the hardfork independently of the node image.
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { Instance } from 'prool'
 import {
   GenericContainer,
@@ -31,9 +32,7 @@ const historyStorage = {
 } as const
 
 type Genesis = {
-  config: {
-    t10Time?: number | string | undefined
-  }
+  config: Record<string, unknown>
   alloc: Record<
     string,
     {
@@ -64,37 +63,63 @@ function buildCustomGenesis(options: {
   hardfork?: string | undefined
   image: string
 }) {
-  const dumped = execFileSync(
-    'docker',
-    [
-      'run',
-      '--rm',
-      '--platform',
-      'linux/amd64',
-      '--entrypoint',
-      '/usr/local/bin/tempo',
-      options.image,
-      '-q',
-      'dump-genesis',
-      '--chain',
-      'dev',
-    ],
-    { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
-  )
-  const genesis = JSON.parse(dumped) as Genesis
-  if (options.hardfork === 'T9') {
-    delete genesis.config.t10Time
-    delete genesis.alloc[zoneFactory.address]
-    delete genesis.alloc[zoneMessenger.address]
-    delete genesis.alloc[zonePortal.address]
-    delete genesis.alloc[zoneVerifier.address]
-  }
+  const dumped =
+    options.hardfork === 'T9' || options.hardfork === 'T10'
+      ? readFileSync(new URL('./genesis/t10.json', import.meta.url), 'utf8')
+      : execFileSync(
+          'docker',
+          [
+            'run',
+            '--rm',
+            '--platform',
+            'linux/amd64',
+            '--entrypoint',
+            '/usr/local/bin/tempo',
+            options.image,
+            '-q',
+            'dump-genesis',
+            '--chain',
+            'dev',
+          ],
+          { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
+        )
+  const genesis = configureGenesis(JSON.parse(dumped), options.hardfork)
   genesis.alloc[historyStorage.address] = {
     balance: '0x0',
     code: historyStorage.code,
     nonce: '0x1',
   }
   return `${JSON.stringify(genesis)}\n`
+}
+
+export function configureGenesis(genesis: Genesis, hardfork?: string) {
+  if (!hardfork || hardfork === 'Tnext') return genesis
+  if (hardfork !== 'T9' && hardfork !== 'T10')
+    throw new Error(`Unsupported Tempo hardfork: ${hardfork}`)
+
+  const target = Number(hardfork.slice(1))
+  if (!Object.hasOwn(genesis.config, `t${target}Time`))
+    throw new Error(`Tempo genesis does not support ${hardfork}`)
+
+  for (const key of Object.keys(genesis.config)) {
+    const match = key.match(/^t(\d+)([a-z]*)Time$/)
+    if (!match) continue
+    const fork = Number(match[1])
+    if (fork > target || (fork === target && match[2]))
+      delete genesis.config[key]
+    else genesis.config[key] = 0
+  }
+
+  // Pre-T10 nodes provision Zone contracts outside genesis.
+  const addresses = [zoneFactory, zoneMessenger, zonePortal, zoneVerifier].map(
+    ({ address }) => address.toLowerCase(),
+  )
+  if (hardfork === 'T9')
+    for (const address of Object.keys(genesis.alloc))
+      if (addresses.includes(address.toLowerCase()))
+        delete genesis.alloc[address]
+
+  return genesis
 }
 
 const tempoContainerPort = 8545

@@ -40,6 +40,13 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/_esm/**', '**/_cjs/**', '**/_types/**'],
     retry: 3,
     projects: [
+      {
+        extends: true,
+        test: {
+          name: 'tempo-config',
+          include: ['test/src/tempo/prool.tmp.test.ts'],
+        },
+      },
       ...((process.env.TYPES
         ? [
             {
