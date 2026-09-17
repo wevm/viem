@@ -85,10 +85,7 @@ export const chainConfig = {
           throw new Error(
             'A local owner account is required to approve a stored multisig transaction.',
           )
-        if (
-          request.owner.source !== 'root' &&
-          request.owner.source !== 'multisig'
-        )
+        if (request.owner.source !== 'root')
           throw new Error(
             'A Tempo owner account is required to approve a stored multisig transaction.',
           )
@@ -125,7 +122,6 @@ export const chainConfig = {
           account: request.account,
           from: operation.account,
           multisigSimulation: getMultisigSimulation({
-            account: operation.account,
             config: operation.config,
             local: request.account,
           }),
@@ -168,11 +164,7 @@ export const chainConfig = {
         throw new Error(
           'A local owner account is required to approve a multisig transaction.',
         )
-      if (
-        request.owner &&
-        request.owner.source !== 'root' &&
-        request.owner.source !== 'multisig'
-      )
+      if (request.owner && request.owner.source !== 'root')
         throw new Error(
           'A Tempo owner account is required to approve a multisig transaction.',
         )
@@ -206,7 +198,6 @@ export const chainConfig = {
           )
         request.from = account
         request.multisigSimulation = getMultisigSimulation({
-          account,
           config,
           local,
         })
@@ -409,48 +400,18 @@ export type ChainConfig = typeof chainConfig
 
 /** Builds a bounded multisig spec for gas simulation. */
 function getMultisigSimulation(options: {
-  account: Address
   config: MultisigConfig.Config
   local?: MultisigAccount | undefined
 }): MultisigSimulation.Spec {
-  const { account, config, local } = options
+  const { config, local } = options
   return {
-    account,
     approvals: selectOwners(config).map((owner) => {
       const localOwner = local?.owners.find((account) =>
         isAddressEqual(account.address, owner.owner),
       )
-      if (localOwner?.source === 'multisig') {
-        const nested = localOwner as MultisigAccount
-        if (!nested.config)
-          throw new Error(
-            'A nested multisig config is required for gas estimation.',
-          )
-        return {
-          type: 'multisig',
-          spec: {
-            account: nested.address,
-            approvals: selectOwners(nested.config).map((owner) => {
-              const nestedOwner = nested.owners.find((account) =>
-                isAddressEqual(account.address, owner.owner),
-              )
-              if (nestedOwner?.source === 'multisig')
-                throw new Error(
-                  'Multisig simulation nesting exceeds depth two.',
-                )
-              return {
-                ...getSimulationKey(nestedOwner),
-                owner: owner.owner,
-              }
-            }),
-            config: nested.config,
-          },
-        }
-      }
       return {
         ...getSimulationKey(localOwner),
         owner: owner.owner,
-        type: 'primitive',
       }
     }),
     config,

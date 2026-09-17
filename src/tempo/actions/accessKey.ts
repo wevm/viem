@@ -48,6 +48,7 @@ import type {
   WriteParameters,
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import { parseApproval } from '../multisig/Signature.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import { getConfig } from './multisig.js'
 
@@ -1240,7 +1241,7 @@ export async function signAuthorization<
         signature: SignatureEnvelope.from({
           account: account.address,
           config,
-          signatures: [SignatureEnvelope.from(signature)],
+          signatures: [parseApproval(signature)],
         }),
         type,
         ...(witness ? { witness } : {}),

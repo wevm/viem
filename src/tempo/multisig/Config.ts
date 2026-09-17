@@ -4,12 +4,13 @@ import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { MultisigConfig } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
+import { nativeMultisigFactory } from '../Addresses.js'
 import type * as Store from '../Store.js'
 
 /** A valid 48-owner config is much smaller; 64 KiB bounds hostile store parsing work. */
 const maxStoredValueLength = 65_536
 
-/** Zero commitment used before an account records its first config update. */
+/** Zero commitment used before an account is initialized. */
 const zeroCommitment = `0x${'00'.repeat(32)}` as const
 
 /** Reads a cached multisig config. */
@@ -43,7 +44,14 @@ export async function write(
   const { address, commitment } = options
   const config = MultisigConfig.from(options.config)
   assertKey({ address, commitment, config })
-  await store.setItem(key({ address, commitment }), serialize(config))
+  const value = serialize(config)
+  await store.setItem(key({ address, commitment }), value)
+  // Initialization commits the version-zero config without changing its version.
+  if (commitment.toLowerCase() === zeroCommitment)
+    await store.setItem(
+      key({ address, commitment: MultisigConfig.getCommitment(config) }),
+      value,
+    )
 }
 
 export declare namespace write {
@@ -69,11 +77,13 @@ function assertKey(options: {
     throw new InvalidStoreValueError()
   if (config.version === 0n) {
     if (
-      commitment.toLowerCase() !== zeroCommitment ||
-      !Address.isEqual(MultisigConfig.getAddress(config), address)
+      !Address.isEqual(
+        MultisigConfig.getAddress(config, { factory: nativeMultisigFactory }),
+        address,
+      )
     )
       throw new InvalidStoreValueError()
-    return
+    if (commitment.toLowerCase() === zeroCommitment) return
   }
   if (
     MultisigConfig.getCommitment(config).toLowerCase() !==

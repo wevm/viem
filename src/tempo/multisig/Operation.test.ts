@@ -9,7 +9,9 @@ import {
 } from 'ox/tempo'
 import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
+import { nativeMultisigFactory } from '../Addresses.js'
 import * as Operation from './Operation.js'
+import { parseApproval } from './Signature.js'
 
 const owners = [1n, 2n]
   .map((value, index) => {
@@ -31,7 +33,9 @@ const initialConfig = MultisigConfig.from({
   owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
   threshold: 2,
 })
-const account = MultisigConfig.getAddress(initialConfig)
+const account = MultisigConfig.getAddress(initialConfig, {
+  factory: nativeMultisigFactory,
+})
 const config = MultisigConfig.from({ ...initialConfig, version: 1n })
 const transaction = TxEnvelopeTempo.serialize(
   TxEnvelopeTempo.from({
@@ -112,9 +116,7 @@ const keyAuthorizationSuccess = MultisigOperation.from({
       signature: SignatureEnvelope.from({
         account,
         config,
-        signatures: owners.map((owner) =>
-          SignatureEnvelope.deserialize(owner.signature),
-        ),
+        signatures: owners.map((owner) => parseApproval(owner.signature)),
       }),
     }),
   ),
@@ -135,7 +137,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
+        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
         "approvals": [
           Any<String>,
         ],
@@ -155,7 +157,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0x837807510029fcb64338b96f2ec398978d75cdee4989e40adc58d30c3b46d717",
+        "hash": "0xd2f6445bbb010aa1c8d040dd9c293e7b31591fda0ff72c9540d0c87d8b011b65",
         "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
@@ -201,7 +203,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
+        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
         "approvals": [
           Any<String>,
         ],
@@ -221,7 +223,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0xb22d88f1fbdb78b42a9d6289d2ebda1cb52dcd18581b3bb5a0de3a48a2fc1e55",
+        "hash": "0x3efb30f978361d4a99ae002945f798fa0da4d9237ebfe38ebe187e2164f402e4",
         "keyAuthorization": Any<String>,
         "signatureCount": 1,
         "status": "pending",
@@ -251,7 +253,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0xf75618474e5f7fd9ef17dd85167a5b1e1f19b84b",
+        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
         "approvals": [
           Any<String>,
           Any<String>,
@@ -272,7 +274,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0xb22d88f1fbdb78b42a9d6289d2ebda1cb52dcd18581b3bb5a0de3a48a2fc1e55",
+        "hash": "0x3efb30f978361d4a99ae002945f798fa0da4d9237ebfe38ebe187e2164f402e4",
         "keyAuthorization": Any<String>,
         "signatureCount": 2,
         "status": "success",
@@ -407,7 +409,7 @@ describe('submission', () => {
     expect(
       await Operation.readSubmission(store, operation, submissionId),
     ).toMatchInlineSnapshot(
-      `"0x328b36e6ff34123fe429b6b3df55edebdb4998616f64b5a40c6c2be969ccf2f3"`,
+      `"0xa0d835f21a547b8a9178afc39f8cfcb8f6689624214adaad0f436c8f663c2c82"`,
     )
   })
 

@@ -8,6 +8,8 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
+The recovery factory temporarily defaults to `0x7171717171717171717171717171717171717171`. Nested multisig owners are unsupported.
+
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
 It is not yet available on Tempo mainnet or testnet.
@@ -163,7 +165,6 @@ const receipt = await sendTransactionSync(client, { ...request, signatures })
   <Card icon="lucide:send" title="Send Transactions" description="Choose local signing or coordinated signing." to="/tempo/guides/multisig/send" />
   <Card icon="lucide:scale" title="Weighted Owners" description="Configure an M-of-N quorum or assign different approval weights to owners." to="/tempo/guides/multisig/weighted-owners" />
   <Card icon="lucide:fingerprint" title="Passkeys & Other Keys" description="Combine secp256k1, P256, WebAuthn, and WebCrypto owners in one account." to="/tempo/guides/multisig/key-types" />
-  <Card icon="lucide:network" title="Nested Accounts" description="Use an initialized multisig account as an owner of another multisig." to="/tempo/guides/multisig/nested-accounts" />
   <Card icon="lucide:key-round" title="Authorize Access Keys" description="Authorize and immediately use an access key from a multisig account." to="/tempo/guides/multisig/access-keys" />
   <Card icon="lucide:hand-coins" title="Sponsor Fees" description="Combine independent multisig approvals with a separate fee payer." to="/tempo/guides/multisig/sponsor-fees" />
   <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds while preserving the multisig address." to="/tempo/guides/multisig/rotate-owners" />

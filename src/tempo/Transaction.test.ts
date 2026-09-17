@@ -2,6 +2,7 @@ import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
+import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction from './Transaction.js'
 
 const client = getClient({
@@ -322,15 +323,16 @@ describe('serialize', () => {
       threshold: 2,
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
     })
-    const multisigAccount = MultisigConfig.getAddress(multisig)
+    const multisigAccount = MultisigConfig.getAddress(multisig, {
+      factory: nativeMultisigFactory,
+    })
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
+      from: multisigAccount,
       multisigSimulation: {
-        account: multisigAccount,
         approvals: owners.map((owner) => ({
           owner: owner.address,
-          type: 'primitive' as const,
         })),
         config: multisig,
       },
@@ -383,7 +385,9 @@ describe('serialize', () => {
       threshold: 1,
       owners: [{ owner: owner.address, weight: 1 }],
     })
-    const account = MultisigConfig.getAddress(initialConfig)
+    const account = MultisigConfig.getAddress(initialConfig, {
+      factory: nativeMultisigFactory,
+    })
     const multisig = MultisigConfig.from({
       ...initialConfig,
       version: 2n,
@@ -393,8 +397,7 @@ describe('serialize', () => {
       chainId: 1,
       from: account,
       multisigSimulation: {
-        account,
-        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        approvals: [{ owner: owner.address }],
         config: multisig,
       },
       nonce: 1,

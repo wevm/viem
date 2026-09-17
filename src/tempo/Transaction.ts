@@ -43,6 +43,7 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { MultisigAccount, RootAccount } from './Account.js'
+import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -381,10 +382,11 @@ async function serializeTempo(
 
     const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
-      SignatureEnvelope.from(approval),
+      parseApproval(approval),
     )
     const config = MultisigConfig.from(multisigSimulation.config)
-    const account = multisigSimulation.account
+    const account = transaction.from
+    if (!account) throw new Error('A multisig sender is required for signing.')
     const sorted = SignatureEnvelope.sortMultisigApprovals({
       account,
       config,
