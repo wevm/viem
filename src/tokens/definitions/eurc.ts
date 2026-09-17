@@ -15,6 +15,7 @@ export const eurc = /*#__PURE__*/ defineToken({
     338: '0x31f7538adb53cF16350e6B0c89d03D91b7D12c46', // cronosTestnet
     480: '0x1C60ba0A0eD1019e8Eb035E6daF4155A5cE2380B', // worldchain
     4801: '0xe479EcA5740Ac65d6E1823bea2f1C08Bc14e954F', // worldchainSepolia
+    5042: '0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1', // arc
     8453: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42', // base
     43113: '0x5E44db7996c682E92a960b65AC713a54AD815c6B', // avalancheFuji
     43114: '0xC891EB4cbdEFf6e073e859e987815Ed1505c2ACD', // avalanche
