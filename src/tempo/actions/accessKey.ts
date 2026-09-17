@@ -1324,7 +1324,7 @@ export namespace signAuthorization {
     /** Multisig account being authorized. */
     account: Address | MultisigAccount
     /** Local owner that approves the authorization. */
-    owner: RootAccount | MultisigAccount
+    owner: RootAccount
   }
 
   /** Coordinated key authorization parameters. */
@@ -1334,7 +1334,7 @@ export namespace signAuthorization {
         /** Stored multisig operation hash. */
         hash: Hex
         /** Local owner that approves the authorization. */
-        owner: RootAccount | MultisigAccount
+        owner: RootAccount
       }
   >
 

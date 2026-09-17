@@ -42,7 +42,7 @@ import {
   parseTransaction as viem_parseTransaction,
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
-import type { MultisigAccount, RootAccount } from './Account.js'
+import type { RootAccount } from './Account.js'
 import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<
@@ -136,7 +136,7 @@ export type TransactionRequestTempo<
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
-    owner?: MultisigAccount | RootAccount | undefined
+    owner?: RootAccount | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -156,17 +156,30 @@ export type TransactionSerializableTempo<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
-    from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: quantity | undefined
-    owner?: MultisigAccount | RootAccount | undefined
+    owner?: RootAccount | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
-    signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
     type?: 'tempo' | undefined
-  }
+  } & (
+    | {
+        from: Address
+        multisigSimulation?: MultisigSimulation.Spec | undefined
+        signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+      }
+    | {
+        from?: Address | undefined
+        multisigSimulation?: undefined
+        signatures?: readonly SignatureEnvelope.Serialized[] | undefined
+      }
+    | {
+        from?: Address | undefined
+        multisigSimulation?: MultisigSimulation.Spec | undefined
+        signatures?: undefined
+      }
+  )
 
 export type TransactionSerialized<
   type extends TransactionType = TransactionType,

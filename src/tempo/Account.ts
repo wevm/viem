@@ -367,7 +367,7 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       return value.address
     })(),
   )
-  const ownerAccounts = (() => {
+  const ownerAccounts: LocalAccount[] = (() => {
     if (!configInput) return []
     return configInput.owners.flatMap((value) => {
       const owner =
@@ -491,9 +491,10 @@ export declare namespace fromMultisig {
   /** Multisig owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
-    | LocalAccount
+    | RootAccount
+    | LocalAccount<'privateKey' | 'hd'>
     | (Omit<MultisigConfig.Owner, 'owner'> & {
-        owner: Address.Address | LocalAccount
+        owner: Address.Address | RootAccount | LocalAccount<'privateKey' | 'hd'>
       })
 
   /** Parameters for {@link fromMultisig}. */

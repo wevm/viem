@@ -85,11 +85,16 @@ export async function createServer() {
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
   const instance = (() => {
     // Explicitly configured local Tempo binary.
-    if (import.meta.env.VITE_TEMPO_BINARY)
+    if (import.meta.env.VITE_TEMPO_BINARY) {
+      if (import.meta.env.VITE_TEMPO_MULTISIG === 'true')
+        throw new Error(
+          'Multisig tests require the Docker image with a configured recovery factory; unset VITE_TEMPO_BINARY.',
+        )
       return Instance.tempo({
         ...args,
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
+    }
     if (import.meta.env.VITE_TEMPO_MULTISIG === 'true') {
       const genesis = JSON.parse(
         execFileSync(

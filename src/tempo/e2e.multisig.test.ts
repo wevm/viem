@@ -115,6 +115,7 @@ describe('stateless', () => {
 
   test('example: rejects nested ownership', () => {
     const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
+    // @ts-expect-error Verify runtime rejection for untyped callers.
     expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
       'Multisig owners must use primitive signatures.',
     )
@@ -1193,6 +1194,7 @@ describe('stateful', () => {
 
   test('example: rejects nested ownership', () => {
     const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
+    // @ts-expect-error Verify runtime rejection for untyped callers.
     expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
       'Multisig owners must use primitive signatures.',
     )
@@ -1826,6 +1828,7 @@ describe('stateful', () => {
 
   test('behavior: rejects a nested owner after configuration rotation', () => {
     const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
+    // @ts-expect-error Verify runtime rejection for untyped callers.
     expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
       'Multisig owners must use primitive signatures.',
     )
@@ -2276,6 +2279,7 @@ describe('stateful', () => {
 
   test('behavior: rejects nested access key authorization owners', () => {
     const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
+    // @ts-expect-error Verify runtime rejection for untyped callers.
     expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
       'Multisig owners must use primitive signatures.',
     )
