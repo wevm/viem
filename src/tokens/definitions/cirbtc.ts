@@ -11,6 +11,7 @@ import { defineToken } from '../defineToken.js'
 export const cirbtc = /*#__PURE__*/ defineToken({
   addresses: {
     1: '0x72DFB2E44f59C5AD2bAFE84314E5b99a7cd5075E', // mainnet
+    5042: '0x171A4217b86A807A64eB94757Db6849fb4bDbAA0', // arc
     5042002: '0xf0C4a4CE82A5746AbAAd9425360Ab04fbBA432BF', // arcTestnet
     11155111: '0x3a3fe695F684Bf9b9e43CF43C2b895Ea5e392bB3', // sepolia
   },
