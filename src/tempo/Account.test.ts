@@ -4,6 +4,7 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
+import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
@@ -22,6 +23,35 @@ const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
 describe('fromMultisig', () => {
+  test('behavior: custom local owner', async () => {
+    const owner = privateKeyToAccount(privateKey_secp256k1)
+    const customOwner = toAccount(owner)
+    const account = Account.fromMultisig({
+      owners: [{ owner: customOwner, weight: 2 }],
+      threshold: 2,
+    })
+    const payload = keccak256('0x1234')
+    const signature = SignatureEnvelope.from(
+      await account.sign({ hash: payload }),
+    )
+
+    expect(customOwner.source).toBe('custom')
+    expect(signature.type).toBe('multisig')
+    if (signature.type !== 'multisig')
+      throw new Error('Expected multisig signature.')
+    expect(signature.signatures).toHaveLength(1)
+    expect(
+      SignatureEnvelope.verify(signature.signatures[0]!, {
+        payload: MultisigConfig.getSignPayload({
+          account: account.address,
+          config: account.config,
+          payload,
+        }),
+        address: owner.address,
+      }),
+    ).toBe(true)
+  })
+
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromMultisig({

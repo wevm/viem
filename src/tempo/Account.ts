@@ -491,10 +491,11 @@ export declare namespace fromMultisig {
   /** Multisig owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
-    | RootAccount
-    | LocalAccount<'privateKey' | 'hd'>
+    | (LocalAccount & { accessKeyAddress?: never; owners?: never })
     | (Omit<MultisigConfig.Owner, 'owner'> & {
-        owner: Address.Address | RootAccount | LocalAccount<'privateKey' | 'hd'>
+        owner:
+          | Address.Address
+          | (LocalAccount & { accessKeyAddress?: never; owners?: never })
       })
 
   /** Parameters for {@link fromMultisig}. */

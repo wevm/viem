@@ -1,4 +1,4 @@
-import { privateKeyToAccount } from 'viem/accounts'
+import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { Account, MultisigConfig } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
@@ -68,4 +68,10 @@ test('fromMultisig accepts primitive owner accounts', () => {
   const ethereumOwner = privateKeyToAccount(`0x${'1'.repeat(64)}`)
   Account.fromMultisig({ owners: [owner, ethereumOwner, owner.address] })
   Account.fromMultisig({ owners: [{ owner: ethereumOwner, weight: 2 }] })
+})
+
+test('fromMultisig accepts custom local owners', () => {
+  const customOwner = toAccount(privateKeyToAccount(`0x${'1'.repeat(64)}`))
+  Account.fromMultisig({ owners: [customOwner] })
+  Account.fromMultisig({ owners: [{ owner: customOwner, weight: 2 }] })
 })
