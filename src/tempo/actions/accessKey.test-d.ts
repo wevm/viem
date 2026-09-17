@@ -85,10 +85,7 @@ test('behavior: rejects non-root coordinated owners', async () => {
     owner: multisig,
   })
   // @ts-expect-error Nested multisig owners are unsupported.
-  await client.accessKey.signAuthorization({
-    hash: '0x',
-    owner: multisig,
-  })
+  await client.accessKey.signAuthorization({ hash: '0x', owner: multisig })
   await Actions.accessKey.signAuthorization(client, {
     accessKey,
     account: multisig,
@@ -96,8 +93,5 @@ test('behavior: rejects non-root coordinated owners', async () => {
     owner: accessKey,
   })
   // @ts-expect-error Access-key owners are unsupported.
-  await client.accessKey.signAuthorization({
-    hash: '0x',
-    owner: accessKey,
-  })
+  await client.accessKey.signAuthorization({ hash: '0x', owner: accessKey })
 })
