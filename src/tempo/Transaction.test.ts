@@ -1,6 +1,11 @@
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import {
+  accounts,
+  feeToken,
+  getClient,
+  multisigFactory,
+} from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
 import * as Transaction from './Transaction.js'
 
@@ -25,8 +30,18 @@ describe('getType', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
   })
 
-  test('behavior: multisigVersion', () => {
-    expect(Transaction.getType({ multisigVersion: 1n })).toBe('tempo')
+  test('behavior: multisig identity', () => {
+    expect(
+      Transaction.getType({
+        multisig: {
+          account: accounts[1].address,
+          config: MultisigConfig.from({
+            owners: [{ owner: accounts[1].address, weight: 1 }],
+            threshold: 1,
+          }),
+        },
+      }),
+    ).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -316,7 +331,7 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: explicit nonce key omits multisig init', async () => {
+  test('behavior: explicit nonce key retains the complete config', async () => {
     const owners = [accounts[1], accounts[2]] as const
     const multisig = MultisigConfig.from({
       threshold: 2,
@@ -325,7 +340,12 @@ describe('serialize', () => {
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
-      multisig,
+      multisig: {
+        account: MultisigConfig.getAddress(multisig, {
+          factory: multisigFactory,
+        }),
+        config: multisig,
+      },
       nonce: 0,
       nonceKey: 1n,
     } as const
@@ -343,11 +363,16 @@ describe('serialize', () => {
     const { account, signatures: approvals, ...rest } = signature
     expect(account).toBeDefined()
     expect(approvals).toHaveLength(2)
-    expect(rest).toMatchInlineSnapshot(`
-      {
-        "type": "multisig",
-      }
-    `)
+    expect(rest).toEqual({
+      type: 'multisig',
+      config: {
+        ...multisig,
+        owners: multisig.owners.map(({ owner, weight }) => ({
+          owner: owner.toLowerCase(),
+          weight,
+        })),
+      },
+    })
   })
 
   test('behavior: signs multisig approvals with config version', async () => {
@@ -359,8 +384,12 @@ describe('serialize', () => {
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
-      multisig,
-      multisigVersion: 2n,
+      multisig: {
+        account: MultisigConfig.getAddress(multisig, {
+          factory: multisigFactory,
+        }),
+        config: { ...multisig, version: 2n },
+      },
       nonce: 1,
     } as const
 
@@ -375,9 +404,8 @@ describe('serialize', () => {
       }),
     )
     const digest = MultisigConfig.getSignPayload({
-      initialConfig: multisig,
+      ...transaction.multisig,
       payload,
-      version: transaction.multisigVersion,
     })
 
     expect(

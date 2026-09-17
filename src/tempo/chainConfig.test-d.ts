@@ -49,13 +49,12 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     ],
   })
   const request_multisig = await prepareTransactionRequest(client, {
-    multisig: config,
-    multisigVersion: 1n,
+    multisig: { account: '0x0000000000000000000000000000000000000001', config },
   })
   expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
-  expectTypeOf(request_multisig.multisigVersion).toEqualTypeOf<
-    bigint | undefined
-  >()
+  expectTypeOf(
+    request_multisig.multisig!.config.version,
+  ).toEqualTypeOf<bigint>()
 })
 
 test('prepareTransactionRequest stays a union when ambiguous', async () => {

@@ -343,3 +343,6 @@ type FixedArray<
 > = result['length'] extends count
   ? result
   : FixedArray<type, count, readonly [...result, type]>
+
+/** Development-only recovery factory configured by the multisig test genesis. */
+export const multisigFactory = '0x7171717171717171717171717171717171717171'

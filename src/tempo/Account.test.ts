@@ -19,6 +19,30 @@ const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
 describe('fromMultisig', () => {
+  test('behavior: factory is required for config construction', () => {
+    expect(() => {
+      // @ts-expect-error Recovery factory is required for config construction.
+      Account.fromMultisig({ owners: [tempo.accounts[1]] })
+    }).toThrow('A recovery factory is required')
+  })
+
+  test('behavior: rotated configs require the stable address', () => {
+    const options = { factory: tempo.multisigFactory } as const
+    const account = Account.fromMultisig(
+      { owners: [tempo.accounts[1]] },
+      options,
+    )
+    expect(() =>
+      Account.fromMultisig({ ...account.config, version: 1n }, options),
+    ).toThrow('account address requires version zero')
+    const updated = Account.fromMultisig(
+      { ...account.config, version: 1n },
+      { ...options, address: account.address },
+    )
+    expect(updated.address).toBe(account.address)
+    expect(updated.config.version).toBe(1n)
+  })
+
   test('initialized account address', () => {
     const account = Account.fromMultisig(
       '0x0000000000000000000000000000000000000001',

@@ -29,10 +29,11 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1, owner_2],
   threshold: 2,
-})
+}, { factory })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
@@ -58,8 +59,7 @@ const { receipt } = await client.token.transferSync({
 
 If the multisig is uninitialized, the authorization carries its initial config and this first
 access-key transaction initializes the account. If the multisig is already initialized,
-[`signAuthorization`](/tempo/actions/accessKey.signAuthorization) resolves its current version
-before the owners sign.
+[`signAuthorization`](/tempo/actions/accessKey.signAuthorization) validates the supplied current config against its stored commitment before the owners sign.
 
 ### Collect Owner Approvals Separately
 
@@ -79,10 +79,11 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
-})
+}, { factory })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })

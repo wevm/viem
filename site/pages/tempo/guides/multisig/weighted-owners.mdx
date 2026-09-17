@@ -40,10 +40,11 @@ const owner_2 = Account.fromSecp256k1(
 const owner_3 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1.address, owner_2.address, owner_3.address],
   threshold: 2,
-})
+}, { factory })
 
 const request = await prepareTransactionRequest(client, {
   account,
@@ -73,6 +74,7 @@ the heavy owner and either light owner satisfy the threshold of `3`.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [
     { owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', weight: 2 },
@@ -80,7 +82,7 @@ const account = Account.fromMultisig({
     { owner: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', weight: 1 },
   ],
   threshold: 3,
-})
+}, { factory })
 ```
 
 ## Best Practices

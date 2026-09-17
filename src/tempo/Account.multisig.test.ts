@@ -18,6 +18,8 @@ import {
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
+const factory = tempo.multisigFactory
+
 const client = tempo.getClient()
 
 describe('fromMultisig', () => {
@@ -35,7 +37,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -71,7 +73,7 @@ describe('fromMultisig', () => {
       const tx = await getTransaction(client, { hash: receipt.transactionHash })
       expect(tx.signature?.type).toBe('multisig')
       if (tx.signature?.type !== 'multisig') throw new Error('unreachable')
-      expect(tx.signature.init).toMatchObject({ threshold: 2 })
+      expect(tx.signature.config).toMatchObject({ threshold: 2 })
       expect(tx.nonce).toBe(0)
     }
 
@@ -102,7 +104,7 @@ describe('fromMultisig', () => {
       const tx = await getTransaction(client, { hash: receipt.transactionHash })
       expect(tx.signature?.type).toBe('multisig')
       if (tx.signature?.type !== 'multisig') throw new Error('unreachable')
-      expect(tx.signature.init).toBeUndefined()
+      expect(tx.signature.config).toMatchObject({ threshold: 2 })
       expect(tx.nonce).toBe(1)
     }
   })
@@ -119,7 +121,7 @@ describe('fromMultisig', () => {
         { owner: owner_3.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -166,7 +168,7 @@ describe('fromMultisig', () => {
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
       threshold: owners.length,
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -181,10 +183,7 @@ describe('fromMultisig', () => {
         calls: [{ to, value: 0n }],
         feeToken,
       })
-      expect(request).toMatchObject({
-        keyData: '0x0578',
-        keyType: 'webAuthn',
-      })
+      expect(request.multisigSimulation?.approvals).toHaveLength(4)
       const signatures = await Promise.all(
         owners.map((owner) =>
           signTransaction(client, { ...request, account: owner }),
@@ -217,10 +216,13 @@ describe('fromMultisig', () => {
   test('mixed local and external owners', async () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
-    const account = Account.fromMultisig({
-      owners: [localOwner, externalOwner.address],
-      threshold: 2,
-    })
+    const account = Account.fromMultisig(
+      {
+        owners: [localOwner, externalOwner.address],
+        threshold: 2,
+      },
+      { factory },
+    )
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -259,104 +261,11 @@ describe('fromMultisig', () => {
     }
   })
 
-  test('example: nested ownership', async () => {
-    const childOwner = accounts[17]
-    const child = Account.fromMultisig({
-      owners: [childOwner],
-      salt: toHex(0x106101, { size: 32 }),
-    })
-    expect(child.config.threshold).toBe(1)
-    expect(child.config.owners[0]?.weight).toBe(1)
-
-    await Actions.token.transferSync(client, {
-      account: accounts[0],
-      amount: { formatted: '10000' },
-      to: child.address,
-      token: feeToken,
-    })
-
-    const childBootstrap = await prepareTransactionRequest(client, {
-      account: child,
-      calls: [{ to, value: 0n }],
-      feeToken,
-    })
-    const childTransaction = await signTransaction(client, childBootstrap)
-    const childReceipt = await sendRawTransactionSync(client, {
-      serializedTransaction: childTransaction,
-    })
-    expect(childReceipt.status).toBe('success')
-
-    const account = Account.fromMultisig({
-      owners: [child],
-      salt: toHex(0x106102, { size: 32 }),
-    })
-
-    await Actions.token.transferSync(client, {
-      account: accounts[0],
-      amount: { formatted: '10000' },
-      to: account.address,
-      token: feeToken,
-    })
-
-    for (let nonce = 0; nonce < 2; nonce++) {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [{ to, value: 0n }],
-        feeToken,
-      })
-      const signature = await signTransaction(client, {
-        ...request,
-        account: child,
-      })
-      const receipt = await sendTransactionSync(client, {
-        ...request,
-        signatures: [signature],
-      })
-
-      expect(receipt.status).toBe('success')
-      expect(receipt.from).toBe(account.address.toLowerCase())
-      expect(request.nonce).toBe(nonce)
-
-      const parentTransaction = await getTransaction(client, {
-        hash: receipt.transactionHash,
-      })
-      expect(parentTransaction.signature?.type).toBe('multisig')
-      if (parentTransaction.signature?.type !== 'multisig')
-        throw new Error('unreachable')
-      expect(parentTransaction.signature.signatures[0]?.type).toBe('multisig')
-    }
-
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
-      access: account,
-    })
-    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
-      account,
-      accessKey,
-    })
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feeToken,
-      keyAuthorization,
-      to,
-      value: 0n,
-    })
-    const transaction = await signTransaction(client, request)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: transaction,
-    })
-
-    expect(receipt.status).toBe('success')
-    const nestedAuthorization = await getTransaction(client, {
-      hash: receipt.transactionHash,
-    })
-    expect(nestedAuthorization.keyAuthorization?.signature.type).toBe(
-      'multisig',
-    )
-    if (nestedAuthorization.keyAuthorization?.signature.type !== 'multisig')
-      throw new Error('unreachable')
-    expect(
-      nestedAuthorization.keyAuthorization.signature.signatures[0]?.type,
-    ).toBe('multisig')
+  test('behavior: rejects nested multisig owners', () => {
+    const child = Account.fromMultisig({ owners: [accounts[1]] }, { factory })
+    expect(() =>
+      Account.fromMultisig({ owners: [child] }, { factory }),
+    ).toThrow('Multisig owners must use primitive signatures.')
   })
 
   test('example: weighted quorum', async () => {
@@ -373,7 +282,7 @@ describe('fromMultisig', () => {
         { owner: light_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -460,7 +369,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     const accountClient = tempo.getClient({ account })
 
@@ -497,13 +406,16 @@ describe('fromMultisig', () => {
   test('infer multisig from `account` (no `multisig` field)', async () => {
     const owner_1 = accounts[10]
     const owner_2 = accounts[11]
-    const account = Account.fromMultisig({
-      threshold: 2,
-      owners: [
-        { owner: owner_1.address, weight: 1 },
-        { owner: owner_2.address, weight: 1 },
-      ],
-    })
+    const account = Account.fromMultisig(
+      {
+        threshold: 2,
+        owners: [
+          { owner: owner_1.address, weight: 1 },
+          { owner: owner_2.address, weight: 1 },
+        ],
+      },
+      { factory },
+    )
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -536,7 +448,36 @@ describe('fromMultisig', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
 
-  test('behavior: address requires an initialized account', async () => {
+  test('behavior: reconstructs an address with an explicit current config', async () => {
+    const original = Account.fromMultisig(
+      { salt: toHex(0x83f3, { size: 32 }), owners: [accounts[1]] },
+      { factory },
+    )
+    const account = Account.fromMultisig(original.address)
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+    const request = await prepareTransactionRequest(client, {
+      account,
+      multisig: { account: account.address, config: original.config },
+      calls: [{ to }],
+      feeToken,
+    })
+    const signature = await signTransaction(client, {
+      ...request,
+      account: accounts[1],
+    })
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      signatures: [signature],
+    })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: address requires the current config', async () => {
     const account = Account.fromMultisig(accounts[0].address)
 
     await expect(
@@ -546,7 +487,7 @@ describe('fromMultisig', () => {
         feeToken,
       }),
     ).rejects.toThrow(
-      'Cannot prepare an uninitialized multisig account from an address. Provide its initial config instead.',
+      'Current multisig config is required. Provide it in the multisig request.',
     )
   })
 
@@ -560,7 +501,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config)
+    const account = Account.fromMultisig(config, { factory })
 
     const request = await prepareTransactionRequest(client, {
       account,
@@ -633,11 +574,14 @@ describe('fromMultisig', () => {
   test('example: bootstrap and immediate access key use', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromMultisig({
-      owners: [owner_1, owner_2],
-      salt: toHex(0x106103, { size: 32 }),
-      threshold: 2,
-    })
+    const account = Account.fromMultisig(
+      {
+        owners: [owner_1, owner_2],
+        salt: toHex(0x106103, { size: 32 }),
+        threshold: 2,
+      },
+      { factory },
+    )
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -677,17 +621,20 @@ describe('fromMultisig', () => {
     )
     if (immediateTransaction.keyAuthorization?.signature.type !== 'multisig')
       throw new Error('unreachable')
-    expect(immediateTransaction.keyAuthorization.signature.init).toBeDefined()
+    expect(immediateTransaction.keyAuthorization.signature.config).toBeDefined()
   })
 
   test('external owners authorize an access key', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromMultisig({
-      owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x106106, { size: 32 }),
-      threshold: 2,
-    })
+    const account = Account.fromMultisig(
+      {
+        owners: [owner_1.address, owner_2.address],
+        salt: toHex(0x106106, { size: 32 }),
+        threshold: 2,
+      },
+      { factory },
+    )
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -731,11 +678,14 @@ describe('fromMultisig', () => {
   test('example: bootstrap and subsequent access key use', async () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]
-    const account = Account.fromMultisig({
-      owners: [owner_1, owner_2],
-      salt: toHex(0x106104, { size: 32 }),
-      threshold: 2,
-    })
+    const account = Account.fromMultisig(
+      {
+        owners: [owner_1, owner_2],
+        salt: toHex(0x106104, { size: 32 }),
+        threshold: 2,
+      },
+      { factory },
+    )
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -769,11 +719,11 @@ describe('fromMultisig', () => {
     expect(bootstrapResult.signature?.type).toBe('multisig')
     if (bootstrapResult.signature?.type !== 'multisig')
       throw new Error('unreachable')
-    expect(bootstrapResult.signature.init).toBeDefined()
+    expect(bootstrapResult.signature.config).toBeDefined()
     expect(bootstrapResult.keyAuthorization?.signature.type).toBe('multisig')
     if (bootstrapResult.keyAuthorization?.signature.type !== 'multisig')
       throw new Error('unreachable')
-    expect(bootstrapResult.keyAuthorization.signature.init).toBeUndefined()
+    expect(bootstrapResult.keyAuthorization.signature.config).toBeDefined()
 
     const request = await prepareTransactionRequest(client, {
       account: accessKey,
@@ -790,117 +740,52 @@ describe('fromMultisig', () => {
   })
 
   test('example: configuration rotation', async () => {
-    const owner_1 = accounts[14]
-    const owner_2 = accounts[15]
-    const owner_3 = accounts[16]
-    const owner_4 = accounts[17]
-    const account = Account.fromMultisig({
-      salt: toHex(0x106105, { size: 32 }),
-      threshold: 2,
-      owners: [owner_1, owner_2],
-    })
-    const initialConfig = account.config
-
+    const account = Account.fromMultisig(
+      {
+        salt: toHex(0x106105, { size: 32 }),
+        threshold: 2,
+        owners: [accounts[14], accounts[15]],
+      },
+      { factory },
+    )
     await Actions.token.transferSync(client, {
       account: accounts[0],
       amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
-
-    const bootstrap = await prepareTransactionRequest(client, {
+    await sendTransactionSync(client, { account, calls: [{ to }], feeToken })
+    const nextOwners = [accounts[16], accounts[17]]
+    const {
+      receipt,
+      account: address,
+      ...config
+    } = await Actions.multisig.updateConfigSync(client, {
       account,
-      calls: [{ to, value: 0n }],
-      feeToken,
-    })
-    expect(bootstrap.multisigSignatureCount).toBeUndefined()
-    expect(bootstrap.multisigVersion).toBe(0n)
-    const bootstrapSignatures = await Promise.all(
-      [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...bootstrap, account: owner }),
-      ),
-    )
-    const bootstrapReceipt = await sendTransactionSync(client, {
-      ...bootstrap,
-      signatures: bootstrapSignatures,
-    })
-    expect(bootstrapReceipt.status).toBe('success')
-    expect(
-      await Actions.multisig.getConfig(client, { account: account.address }),
-    ).toEqual({
-      version: 0n,
-      threshold: initialConfig.threshold,
-      owners: initialConfig.owners,
-    })
-
-    const initializedAccount = Account.fromMultisig(account.address)
-    expect(initializedAccount.config).toBeUndefined()
-    const update = await prepareTransactionRequest(client, {
-      account: initializedAccount,
-      calls: [
-        Actions.multisig.updateConfig.call({
-          threshold: 2,
-          owners: [
-            { owner: owner_3.address, weight: 1 },
-            { owner: owner_4.address, weight: 1 },
-          ],
-        }),
-      ],
-      feeToken,
-    })
-    expect(update.multisig).toBe(initializedAccount.address)
-    expect(update.multisigInit).toBeUndefined()
-    const updateSignatures = await Promise.all(
-      [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...update, account: owner }),
-      ),
-    )
-    const updateReceipt = await sendTransactionSync(client, {
-      ...update,
-      signatures: updateSignatures,
-    })
-    expect(updateReceipt.status).toBe('success')
-    expect(
-      Actions.multisig.updateConfig.extractEvent(updateReceipt.logs).args,
-    ).toMatchObject({
-      account: initializedAccount.address,
+      current: account.config,
       threshold: 2,
-      owners: expect.arrayContaining([
-        { owner: owner_3.address, weight: 1 },
-        { owner: owner_4.address, weight: 1 },
-      ]),
-    })
-
-    const request = await prepareTransactionRequest(client, {
-      account: initializedAccount,
-      calls: [{ to, value: 0n }],
+      owners: nextOwners.map((owner) => ({ owner: owner.address, weight: 1 })),
       feeToken,
     })
-    expect(request.multisigSignatureCount).toBeUndefined()
-    expect(request.multisigOwnerStates?.[0]).toEqual({
-      account: initializedAccount.address,
-      config: {
-        owners: expect.arrayContaining([
-          { owner: owner_3.address, weight: 1 },
-          { owner: owner_4.address, weight: 1 },
-        ]),
-        threshold: 2,
-      },
-      initialized: true,
-      version: 1n,
-    })
-    expect(request.multisigVersion).toBe(1n)
-    const signatures = await Promise.all(
-      [owner_3, owner_4].map((owner) =>
-        signTransaction(client, { ...request, account: owner }),
-      ),
-    )
-    const receipt = await sendTransactionSync(client, {
-      ...request,
-      signatures,
-    })
-
     expect(receipt.status).toBe('success')
-    expect(receipt.from).toBe(initializedAccount.address.toLowerCase())
+    expect(address).toBe(account.address)
+    expect(config.version).toBe(1n)
+    expect(
+      await Actions.multisig.getConfigCommitment(client, { account: address }),
+    ).toBe(MultisigConfig.getCommitment(config))
+    await expect(
+      prepareTransactionRequest(client, { account, calls: [{ to }], feeToken }),
+    ).rejects.toThrow('Multisig config does not match the on-chain commitment.')
+    const updated = Account.fromMultisig(
+      { ...config, owners: nextOwners },
+      { factory, address },
+    )
+    const result = await sendTransactionSync(client, {
+      account: updated,
+      calls: [{ to }],
+      feeToken,
+    })
+    expect(result.status).toBe('success')
+    expect(result.from).toBe(address.toLowerCase())
   })
 })

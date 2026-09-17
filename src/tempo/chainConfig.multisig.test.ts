@@ -1,64 +1,58 @@
-import { MultisigConfig } from 'ox/tempo'
+import { Account, MultisigConfig } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, getClient, multisigFactory } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
 
-const client = getClient({
-  account: accounts.at(0)!,
-})
+const client = getClient({ account: accounts[0] })
+const account = Account.fromMultisig(
+  { owners: [accounts[1], accounts[2], accounts[3]], threshold: 2 },
+  { factory: multisigFactory },
+)
 
 describe('prepareTransactionRequest', () => {
-  test('behavior: multisigSignatureCount left for node inference', async () => {
-    const config = MultisigConfig.from({
-      threshold: 2,
-      owners: [
-        { owner: accounts[1].address, weight: 1 },
-        { owner: accounts[2].address, weight: 1 },
-        { owner: accounts[3].address, weight: 1 },
-      ],
-    })
-
+  test('behavior: models a quorum without excess approvals', async () => {
     const request = await prepareTransactionRequest(client, {
-      multisig: config,
-      multisigVersion: 0n,
+      account,
       parameters: ['chainId'],
     })
-
-    expect(request.multisigSignatureCount).toBeUndefined()
+    expect(request.multisig).toEqual({
+      account: account.address,
+      config: account.config,
+    })
+    expect(request.multisigSimulation).toEqual({
+      config: account.config,
+      approvals: account.config.owners
+        .slice(0, 2)
+        .map(({ owner }) => ({ owner })),
+    })
   })
 
-  test('behavior: explicit multisigSignatureCount is preserved', async () => {
-    const config = MultisigConfig.from({
-      threshold: 2,
-      owners: [
-        { owner: accounts[1].address, weight: 1 },
-        { owner: accounts[2].address, weight: 1 },
-        { owner: accounts[3].address, weight: 1 },
-      ],
-    })
-
+  test('behavior: explicit simulation approvals are preserved', async () => {
+    const multisigSimulation = {
+      config: account.config,
+      approvals: account.config.owners
+        .slice(1)
+        .map(({ owner }) => ({ owner, keyType: 'secp256k1' as const })),
+    }
     const request = await prepareTransactionRequest(client, {
-      multisig: config,
-      multisigSignatureCount: 3,
-      multisigVersion: 0n,
+      account,
+      multisigSimulation,
       parameters: ['chainId'],
     })
-
-    expect(request.multisigSignatureCount).toBe(3)
+    expect(request.multisigSimulation).toEqual(multisigSimulation)
   })
 
-  test('behavior: explicit multisigVersion is preserved', async () => {
-    const config = MultisigConfig.from({
-      threshold: 1,
-      owners: [{ owner: accounts[1].address, weight: 1 }],
-    })
-
-    const request = await prepareTransactionRequest(client, {
-      multisig: config,
-      multisigVersion: 2n,
-      parameters: ['chainId'],
-    })
-
-    expect(request.multisigVersion).toBe(2n)
+  test('behavior: rejects nonzero version before initialization', async () => {
+    await expect(
+      prepareTransactionRequest(client, {
+        multisig: {
+          account: account.address,
+          config: MultisigConfig.from({ ...account.config, version: 1n }),
+        },
+        parameters: ['chainId'],
+      }),
+    ).rejects.toThrow(
+      'Uninitialized multisig accounts require a version-zero config.',
+    )
   })
 })

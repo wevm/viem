@@ -2260,6 +2260,24 @@ describe('behavior: attemptFill', () => {
     )
   })
 
+  test('behavior: local fee payer does not refill a complete request', async () => {
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+    const account = privateKeyToAccount(sourceAccount.privateKey)
+    await prepareTransactionRequest(client, {
+      account,
+      chainId: 1,
+      feePayer: account,
+      gas: 21_000n,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      parameters: ['nonce'],
+      to: targetAccount.address,
+      type: 'eip1559',
+    } as never)
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
   test('behavior: do not attempt fill when all parameters are already provided', async () => {
     await setup()
 

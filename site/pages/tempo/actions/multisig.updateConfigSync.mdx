@@ -12,10 +12,6 @@ and returns the emitted configuration with the receipt.
 The transaction must be authorized by the current owner quorum. Use
 [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) when you do not want to wait.
 
-:::warning
-The multisig account must already be initialized. The protocol does not allow initialization and
-a configuration update in the same transaction.
-:::
 
 ## Usage
 
@@ -34,13 +30,15 @@ const owner_2 = Account.fromSecp256k1(
 const newOwner = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1, owner_2],
   threshold: 2,
-})
+}, { factory })
 
 const result = await client.multisig.updateConfigSync({
   account,
+  current: account.config,
   owners: [{ owner: newOwner.address, weight: 1 }],
   threshold: 1,
 })
@@ -62,11 +60,17 @@ type ReturnType = {
     weight: number
   }[]
   receipt: TransactionReceipt
+  salt: Hex
   threshold: number
+  version: bigint
 }
 ```
 
 ## Parameters
+
+### current
+
+`MultisigConfig.Config`: the complete current config, including salt and version.
 
 ### owners
 

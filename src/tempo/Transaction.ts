@@ -7,6 +7,7 @@ import {
   type AuthorizationTempo,
   type KeyAuthorization,
   type MultisigConfig,
+  type MultisigSimulation,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -40,6 +41,7 @@ import {
   parseTransaction as viem_parseTransaction,
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
+import { parseMultisigApproval } from './internal/multisig.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -112,12 +114,10 @@ export type TransactionReceiptRpc = TransactionReceipt<
   ox_TransactionReceipt.RpcType
 >
 
-/** @internal */
-export type MultisigOwnerState = {
+/** Native multisig identity and complete current configuration. */
+export type Multisig = {
   account: Address
-  config?: Pick<MultisigConfig.Config, 'owners' | 'threshold'> | undefined
-  initialized: boolean
-  version: bigint
+  config: MultisigConfig.Config
 }
 
 export type TransactionRequestTempo<
@@ -132,21 +132,10 @@ export type TransactionRequestTempo<
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** Bootstrap multisig config hint for node-side gas modeling (TIP-1061). Attached automatically when `multisig` is present; the node ignores it for registered senders. */
-    multisigInit?:
-      | {
-          salt: Hex.Hex
-          threshold: number
-          owners: readonly { owner: Address; weight: number }[]
-        }
-      | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Modeled owner approval count for node-side gas modeling (TIP-1061). */
-    multisigSignatureCount?: number | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
+    /** Native multisig identity and complete current configuration. */
+    multisig?: Multisig | undefined
+    /** Owner approvals modeled during gas estimation. */
+    multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
@@ -169,11 +158,8 @@ export type TransactionSerializableTempo<
     feePayerSignature?: viem_Signature | null | undefined
     from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisig?: Address | MultisigConfig.Config<index> | undefined
-    /** @internal Local signing state for nested multisig owner accounts. */
-    multisigOwnerStates?: readonly MultisigOwnerState[] | undefined
-    /** Current multisig config version. Inferred during request preparation; defaults to `0n` for bootstrap. */
-    multisigVersion?: bigint | undefined
+    /** Native multisig identity and complete current configuration. */
+    multisig?: Multisig | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
@@ -207,7 +193,7 @@ export function getType(
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.multisig !== 'undefined' ||
-    typeof transaction.multisigVersion !== 'undefined' ||
+    typeof transaction.multisigSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.signatures !== 'undefined' ||
@@ -388,38 +374,16 @@ async function serializeTempo(
     if (!transaction.multisig || !transaction.signatures) return undefined
 
     const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
-    const signatures = transaction.signatures.map((approval) =>
-      SignatureEnvelope.from(approval),
-    )
-    const sorted =
-      typeof transaction.multisig === 'string'
-        ? SignatureEnvelope.sortMultisigApprovals({
-            account: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-        : SignatureEnvelope.sortMultisigApprovals({
-            initialConfig: transaction.multisig,
-            payload,
-            signatures,
-            version: transaction.multisigVersion,
-          })
-    const keyAuthorizationSignature = transaction.keyAuthorization?.signature
-    const keyAuthorizationInitializes =
-      keyAuthorizationSignature?.type === 'multisig' &&
-      typeof keyAuthorizationSignature.init !== 'undefined'
-    if (typeof transaction.multisig === 'string')
-      return SignatureEnvelope.from({
-        account: transaction.multisig,
-        signatures: sorted,
-      })
+    const { account, config } = transaction.multisig
     return SignatureEnvelope.from({
-      initialConfig: transaction.multisig,
-      signatures: sorted,
-      ...(nonce || transaction.nonceKey || keyAuthorizationInitializes
-        ? {}
-        : { init: true }),
+      account,
+      config,
+      signatures: SignatureEnvelope.sortMultisigApprovals({
+        account,
+        config,
+        payload,
+        signatures: transaction.signatures.map(parseMultisigApproval),
+      }),
     })
   })()
 

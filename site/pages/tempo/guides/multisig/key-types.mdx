@@ -34,15 +34,16 @@ const owners = [
   ),
   Account.fromP256(P256.randomPrivateKey()),
   Account.fromWebAuthnP256(
-    await WebAuthnP256.createCredential({ name: 'Multisig owner' })
+    await WebAuthnP256.createCredential({ label: 'Multisig owner' })
   ),
   Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
 ]
 
+declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: owners.map((owner) => owner.address),
   threshold: owners.length,
-})
+}, { factory })
 const request = await prepareTransactionRequest(client, {
   account,
   calls: [

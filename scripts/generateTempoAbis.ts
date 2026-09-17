@@ -46,28 +46,24 @@ function tempoAdapter(): SourceAdapter {
     string,
     { after: string; items: string[] }
   > = {
-    // TODO: Remove after https://github.com/wevm/viem/pull/5029 replaces the legacy multisig implementation.
+    // Native multisig is not yet available on the default Tempo branch.
+    // Source: tempoxyz/tempo@83f3ccd147344d0f249f356f3374ef3c86ae8968
     INativeMultisig: {
       after: 'IAddressRegistry',
       items: [
         'function deriveAccount(bytes32 salt, uint8 threshold, (address owner, uint8 weight)[] owners) pure returns (address account)',
-        'function isMultisigAccount(address account) view returns (bool)',
-        'function getConfig(address account) view returns ((uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners))',
-        'function updateConfig(uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'event MultisigInitialized(address indexed account)',
-        'event MultisigConfigUpdated(address indexed account, uint8 threshold, (address owner, uint8 weight)[] owners)',
-        'error NotMultisigAccount()',
+        'function getConfigCommitment(address account) view returns (bytes32 commitment)',
+        'function updateConfig((bytes32 salt, uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners) current, uint8 threshold, (address owner, uint8 weight)[] owners)',
+        'event MultisigConfigUpdated(address indexed account, bytes32 salt, uint64 version, uint8 threshold, (address owner, uint8 weight)[] owners)',
         'error InvalidAccount()',
         'error InvalidConfig()',
         'error InvalidThreshold()',
-        'error InvalidOwner()',
+        'error InvalidMultisigOwner()',
         'error InvalidWeight()',
         'error TooManyOwners()',
         'error DuplicateOwner()',
         'error InvalidOwnerOrder()',
-        'error AccountAlreadyInitialized()',
-        'error UnauthorizedCaller()',
-        'error SameTransactionUpdateNotAllowed()',
+        'error UnauthorizedMultisigCaller()',
       ],
     },
   }

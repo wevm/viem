@@ -1,151 +1,56 @@
 ---
-description: Instantiates a native multisig account from its initial config or initialized address.
+description: Creates a native multisig account with a current configuration and explicit recovery factory.
 ---
 
 # `Account.fromMultisig`
 
-Instantiates an Account for a [native multisig](https://tips.sh/1061). Pass an initial config to
-derive and bootstrap an account, or pass the address of an initialized account to reconstruct it.
-
-:::warning
-**Experimental.** Native multisig support is experimental and may change in a future release.
-It is not yet available on Tempo mainnet or testnet.
-:::
-
-Owners can be local accounts, addresses, or weighted owner entries. Direct owners have a
-weight of `1`, and `threshold` defaults to `1`.
-
-Local owner accounts are retained so the returned account can aggregate their approvals when
-you call `signTransaction`. Address-only owners support distributed signing, where each owner
-signs the same prepared request and the sender supplies the resulting `signatures`.
-
-:::tip
-See the [Multisig guides](/tempo/guides/multisig) for complete transaction, nesting, access key,
-fee sponsorship, and owner rotation workflows.
-:::
+Creates a native multisig account. Supply the recovery factory configured by the chain; there is no default production factory. The first transaction initializes the account, and every subsequent signature includes its complete current config.
 
 ## Usage
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const owner_1 = Account.fromSecp256k1(
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-)
-const owner_2 = Account.fromSecp256k1(
-  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
-)
-
-const account = Account.fromMultisig({
-  owners: [owner_1, owner_2],
-  threshold: 2,
-})
-
-console.log('Address:', account.address)
-```
-
-`Account.fromMultisig` normalizes the config with `MultisigConfig.from`, including canonical
-owner ordering. You can also pass a pre-built `MultisigConfig.Config`.
-
-### Initialized Account
-
-After bootstrap, reconstruct the account from its stable address. Request preparation reads the
-current owners, threshold, and version from the multisig precompile.
-
-```ts twoslash
-import { Account } from 'viem/tempo'
-
-const account = Account.fromMultisig(
-  '0x0000000000000000000000000000000000000001'
-)
-```
-
-The address form cannot bootstrap an uninitialized account or aggregate local owner signatures.
-Collect approvals independently and pass them to the prepared request's `signatures` field.
-
-:::tip
-You can continue passing the original initial config after the account is initialized. The
-initial config and initialized address identify the same stable account, even after owner rotation.
-:::
-
-### External Owners
-
-Pass addresses when owner approvals are collected outside the current process.
-
-```ts twoslash
-import { Account } from 'viem/tempo'
-
-const account = Account.fromMultisig({
-  owners: [
-    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
-  ],
-  threshold: 2,
-})
-```
-
-### Weighted Owners
-
-Pass `{ owner, weight }` entries to give owners different approval weights.
-
-```ts twoslash
-import { Account } from 'viem/tempo'
-
+declare const factory: `0x${string}`
 const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-
-const account = Account.fromMultisig({
-  owners: [
-    { owner, weight: 2 },
-    { owner: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', weight: 1 },
-  ],
-  threshold: 2,
-})
+const account = Account.fromMultisig({ owners: [owner] }, { factory })
 ```
+
+Owners may be addresses, local accounts, or `{ owner, weight }` entries. Local accounts can collect approvals automatically. Address-only owners sign the prepared request independently as shown in [Send Transactions](/tempo/guides/multisig/send).
+
+Only secp256k1, P256, and WebAuthn owner signatures are supported. Nested multisig accounts and access keys cannot act as owners.
+
+## Updated Configurations
+
+Retain the original address and the complete updated config returned by [multisig.updateConfigSync](/tempo/actions/multisig.updateConfigSync). Reconstruct the account with that address:
+
+```ts twoslash
+import { Account, type MultisigConfig } from 'viem/tempo'
+
+declare const factory: `0x${string}`
+declare const address: `0x${string}`
+declare const config: MultisigConfig.Config
+const account = Account.fromMultisig(config, { factory, address })
+```
+
+Preparation checks the supplied config against the stored commitment. A stale config is rejected. `Account.fromMultisig(address)` creates an account without a config; supply `{ account: address, config }` in the request's `multisig` field before signing.
 
 ## Return Type
 
-```ts
-type ReturnType = MultisigAccount
-
-type MultisigAccount = LocalAccount<'multisig'> & {
-  /** Normalized initial configuration, when supplied. */
-  config: MultisigConfig.Config | undefined
-  /** @internal Local owner accounts retained for signing. */
-  owners: readonly LocalAccount[]
-}
-```
-
-The account's `signTransaction` method combines retained local owner approvals with any approvals
-provided through the request's `signatures`. `sign`, `signMessage`, and `signTypedData` are not
-supported.
+`MultisigAccount`: a local account with its normalized `config` and retained local `owners`. It supports `signTransaction`; direct `sign`, `signMessage`, and `signTypedData` are unsupported.
 
 ## Parameters
 
-### value
+### config
 
-- **Type:** `Address | Account.fromMultisig.Config`
+The current owners and optional `threshold`, `salt`, and `version`. Threshold defaults to `1`, salt to 32 zero bytes, and version to `0n`. Owners are sorted by address.
 
-An initialized multisig address or the initial config used to derive and bootstrap an account.
+### options.factory
 
-#### value.owners
+`Address`: the recovery factory configured by the chain. Required when constructing from a config.
 
-- **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
+### options.address
 
-The initial owners. Passing a local account makes that account available for local aggregation.
-Passing an address keeps that owner's approval external.
-
-#### value.threshold (optional)
-
-- **Type:** `number`
-- **Default:** `1`
-
-The total owner weight required to authorize a transaction.
-
-#### value.salt (optional)
-
-- **Type:** `Hex`
-- **Default:** `0x0000000000000000000000000000000000000000000000000000000000000000`
-
-A 32-byte salt used to derive a distinct address for the same owner set and threshold.
+`Address`: the stable account address. Supply this address when using an updated config. Without it, the address is derived from the version-zero config and factory.

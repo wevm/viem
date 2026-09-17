@@ -2280,11 +2280,6 @@ export default defineConfig({
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Nested Accounts',
-                  link: '/tempo/guides/multisig/nested-accounts',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Authorize Access Keys',
                   link: '/tempo/guides/multisig/access-keys',
                 },
@@ -2811,13 +2806,8 @@ export default defineConfig({
               items: [
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getConfig',
-                  link: '/tempo/actions/multisig.getConfig',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'isInitialized',
-                  link: '/tempo/actions/multisig.isInitialized',
+                  text: 'getConfigCommitment',
+                  link: '/tempo/actions/multisig.getConfigCommitment',
                 },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

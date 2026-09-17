@@ -1,0 +1,36 @@
+---
+description: Reads the stored commitment for a native multisig configuration.
+---
+
+# `multisig.getConfigCommitment`
+
+Reads the stored configuration commitment. An uninitialized account returns zero. The node does not store the full config: retain its salt, version, threshold, and owners locally.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const commitment = await client.multisig.getConfigCommitment({
+  account: '0x1234567890123456789012345678901234567890',
+})
+const initialized = BigInt(commitment) !== 0n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+`Hex`: the 32-byte commitment, or zero before initialization.
+
+## Parameters
+
+### account
+
+`Address`: the stable multisig account address.

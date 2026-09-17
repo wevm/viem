@@ -90,10 +90,15 @@ export async function createServer() {
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
     // Custom container configuration: Zones, T9 hardfork.
-    if (zones || hardfork === 'T9')
+    if (
+      zones ||
+      hardfork === 'T9' ||
+      import.meta.env.VITE_TEMPO_MULTISIG === 'true'
+    )
       return createCustomTempo({
         ...args,
         hardfork,
+        multisig: import.meta.env.VITE_TEMPO_MULTISIG === 'true',
         image,
       })
     // Standard Tempo test container fallback.

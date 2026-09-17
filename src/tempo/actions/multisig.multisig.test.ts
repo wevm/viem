@@ -1,121 +1,94 @@
+import { MultisigConfig } from 'ox/tempo'
 import { toHex } from 'viem'
-import {
-  prepareTransactionRequest,
-  sendRawTransactionSync,
-  signTransaction,
-  waitForTransactionReceipt,
-} from 'viem/actions'
+import { sendTransactionSync, waitForTransactionReceipt } from 'viem/actions'
 import { Account } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { describe, expect, test } from 'vitest'
+import {
+  accounts,
+  feeToken,
+  getClient,
+  multisigFactory,
+} from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const client = getClient()
-const account = Account.fromMultisig({
-  salt: toHex(0x502200, { size: 32 }),
-  threshold: 2,
-  owners: [accounts[17], accounts[18]],
-})
-const uninitializedAccount = Account.fromMultisig({
-  salt: toHex(0x502201, { size: 32 }),
-  threshold: 2,
-  owners: [accounts[17], accounts[18]],
-})
 
-beforeAll(async () => {
-  await actions.token.transferSync(client, {
-    account: accounts[0],
-    amount: { formatted: '10000' },
-    to: account.address,
-    token: feeToken,
-  })
-  const request = await prepareTransactionRequest(client, {
-    account,
-    calls: [{ to: accounts[0].address, value: 0n }],
-    feeToken,
-  })
-  const transaction = await signTransaction(client, request)
-  await sendRawTransactionSync(client, {
-    serializedTransaction: transaction,
-  })
-})
-
-describe('isInitialized', () => {
-  test('default', async () => {
-    expect(
-      await actions.multisig.isInitialized(client, {
-        account: account.address,
-      }),
-    ).toBe(true)
-  })
-
-  test('uninitialized', async () => {
-    expect(
-      await actions.multisig.isInitialized(client, {
-        account: uninitializedAccount.address,
-      }),
-    ).toBe(false)
-  })
-})
-
-describe('getConfig', () => {
-  test('default', async () => {
-    expect(
-      await actions.multisig.getConfig(client, { account: account.address }),
-    ).toEqual({
-      owners: account.config.owners,
-      threshold: account.config.threshold,
-      version: 0n,
-    })
-  })
-
+describe('getConfigCommitment', () => {
   test('behavior: uninitialized account', async () => {
-    await expect(
-      actions.multisig.getConfig(client, {
-        account: uninitializedAccount.address,
+    expect(
+      await actions.multisig.getConfigCommitment(client, {
+        account: accounts[0].address,
       }),
-    ).rejects.toThrow('NotMultisigAccount')
+    ).toBe(toHex(0n, { size: 32 }))
   })
 })
 
-describe('updateConfig', () => {
-  test('default', async () => {
-    const current = await actions.multisig.getConfig(client, {
-      account: account.address,
+for (const sync of [false, true]) {
+  describe(sync ? 'updateConfigSync' : 'updateConfig', () => {
+    test('default', async () => {
+      const account = Account.fromMultisig(
+        {
+          salt: toHex(sync ? 0x502201 : 0x502200, { size: 32 }),
+          owners: [accounts[17], accounts[18]],
+          threshold: 2,
+        },
+        { factory: multisigFactory },
+      )
+      await actions.token.transferSync(client, {
+        account: accounts[0],
+        amount: { formatted: '10000' },
+        to: account.address,
+        token: feeToken,
+      })
+      await sendTransactionSync(client, {
+        account,
+        calls: [{ to: accounts[0].address }],
+        feeToken,
+      })
+      expect(
+        await actions.multisig.getConfigCommitment(client, {
+          account: account.address,
+        }),
+      ).toBe(MultisigConfig.getCommitment(account.config))
+      const parameters = {
+        account,
+        current: account.config,
+        owners: account.config.owners,
+        threshold: 1,
+        feeToken,
+      }
+      const result = sync
+        ? await actions.multisig.updateConfigSync(client, parameters)
+        : {
+            receipt: await waitForTransactionReceipt(client, {
+              hash: await actions.multisig.updateConfig(client, parameters),
+            }),
+          }
+      expect(result.receipt.status).toBe('success')
+      const { args } = actions.multisig.updateConfig.extractEvent(
+        result.receipt.logs,
+      )
+      expect(args).toEqual({
+        account: account.address,
+        salt: account.config.salt,
+        version: 1n,
+        threshold: 1,
+        owners: account.config.owners.map(({ owner, weight }) => ({
+          owner,
+          weight,
+        })),
+      })
+      expect(
+        await actions.multisig.getConfigCommitment(client, {
+          account: account.address,
+        }),
+      ).toBe(
+        MultisigConfig.getCommitment({
+          ...account.config,
+          version: 1n,
+          threshold: 1,
+        }),
+      )
     })
-    const hash = await actions.multisig.updateConfig(client, {
-      account,
-      owners: account.config.owners,
-      threshold: account.config.threshold,
-    })
-    const receipt = await waitForTransactionReceipt(client, { hash })
-
-    expect(receipt.status).toBe('success')
-    await expect(
-      actions.multisig.getConfig(client, { account: account.address }),
-    ).resolves.toMatchObject({ version: current.version + 1n })
   })
-})
-
-describe('updateConfigSync', () => {
-  test('default', async () => {
-    const current = await actions.multisig.getConfig(client, {
-      account: account.address,
-    })
-    const result = await actions.multisig.updateConfigSync(client, {
-      account,
-      owners: account.config.owners,
-      threshold: account.config.threshold,
-    })
-
-    expect(result).toMatchObject({
-      account: account.address,
-      owners: account.config.owners,
-      threshold: account.config.threshold,
-    })
-    expect(result.receipt.status).toBe('success')
-    await expect(
-      actions.multisig.getConfig(client, { account: account.address }),
-    ).resolves.toMatchObject({ version: current.version + 1n })
-  })
-})
+}

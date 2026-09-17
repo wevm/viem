@@ -7,6 +7,7 @@ import {
   type StartedTestContainer,
   Wait,
 } from 'testcontainers'
+import { multisigFactory } from './config.js'
 
 const zoneFactory = {
   address: '0x5aF2000000000000000000000000000000000000',
@@ -33,6 +34,9 @@ const historyStorage = {
 type Genesis = {
   config: {
     t10Time?: number | string | undefined
+    t11Time?: number | string | undefined
+    t12Time?: number | string | undefined
+    multisigRecoveryFactory?: string | undefined
   }
   alloc: Record<
     string,
@@ -47,6 +51,7 @@ type Genesis = {
 
 type Parameters = {
   blockTime: string
+  multisig?: boolean | undefined
   hardfork?: string | undefined
   image: string
   log?: Instance.tempo.Parameters['log'] | undefined
@@ -61,6 +66,7 @@ export function createCustomTempo(parameters: Parameters) {
 }
 
 function buildCustomGenesis(options: {
+  multisig?: boolean | undefined
   hardfork?: string | undefined
   image: string
 }) {
@@ -82,6 +88,11 @@ function buildCustomGenesis(options: {
     { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
   )
   const genesis = JSON.parse(dumped) as Genesis
+  if (options.multisig) {
+    genesis.config.t11Time = 0
+    genesis.config.t12Time = 0
+    genesis.config.multisigRecoveryFactory = multisigFactory
+  }
   if (options.hardfork === 'T9') {
     delete genesis.config.t10Time
     delete genesis.alloc[zoneFactory.address]

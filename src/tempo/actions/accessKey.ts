@@ -36,10 +36,7 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
-import {
-  createMultisigStateResolver,
-  getMultisigOwnerStates,
-} from '../internal/multisig.js'
+import { assertMultisigConfig } from '../internal/multisig.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -1053,12 +1050,18 @@ export async function prepareAuthorization<
     if ('multisig' in parameters) return parameters.multisig
     if (parsed.source !== 'multisig') return undefined
     const account = parsed as MultisigAccount
-    const getState = createMultisigStateResolver((account) =>
-      multisig.getConfig(client, { account }),
+    if (!account.config)
+      throw new Error(
+        'Current multisig config is required to authorize an access key.',
+      )
+    const commitment = await multisig.getConfigCommitment(client, {
+      account: account.address,
+    })
+    assertMultisigConfig(
+      { account: account.address, config: account.config },
+      commitment,
     )
-    const states = await getMultisigOwnerStates(account, getState)
-    const state = states[0]!
-    return { init: !state.initialized, states, version: state.version }
+    return { config: account.config }
   })()
   const authorizationSignPayload = getKeyAuthorizationSignPayload(
     parsed as never,
@@ -1073,7 +1076,7 @@ export async function prepareAuthorization<
       ? MultisigConfig.getSignPayload({
           account: parsed.address,
           payload: authorizationSignPayload,
-          version: multisigState.version,
+          config: multisigState.config,
         })
       : authorizationSignPayload
   return {

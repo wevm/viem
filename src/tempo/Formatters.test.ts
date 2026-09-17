@@ -1,6 +1,11 @@
 import { KeyAuthorization, MultisigConfig, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import {
+  accounts,
+  feeToken,
+  getClient,
+  multisigFactory,
+} from '~test/tempo/config.js'
 import {
   estimateGas,
   getTransaction,
@@ -84,14 +89,20 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('behavior: multisigVersion is client-side only', () => {
+  test('behavior: multisig identity is client-side only', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      multisigVersion: 2n,
+      multisig: {
+        account: accounts[1].address,
+        config: MultisigConfig.from({
+          threshold: 1,
+          owners: [{ owner: accounts[1].address, weight: 1 }],
+        }),
+      },
     } as never)
 
-    expect((rpc as Record<string, unknown>).multisigVersion).toBeUndefined()
+    expect((rpc as Record<string, unknown>).multisig).toBeUndefined()
   })
 
   test('behavior: multisig key authorization', () => {
@@ -99,9 +110,12 @@ describe('formatTransactionRequest', () => {
       threshold: 1,
       owners: [{ owner: accounts[1].address, weight: 1 }],
     })
-    const account = MultisigConfig.getAddress(initialConfig)
+    const account = MultisigConfig.getAddress(initialConfig, {
+      factory: multisigFactory,
+    })
     const signature = SignatureEnvelope.from({
-      initialConfig,
+      account,
+      config: initialConfig,
       signatures: [
         SignatureEnvelope.from({
           r: 1n,
@@ -128,10 +142,9 @@ describe('formatTransactionRequest', () => {
     } as never)
 
     expect(rpc.keyAuthorization?.account).toBe(account)
-    expect(rpc.keyAuthorization?.signature).toMatchObject({
-      account,
-      signatures: [{ type: 'secp256k1' }],
-    })
+    expect(rpc.keyAuthorization?.signature).toBe(
+      '0xf89794005c3446a4e52b28b50c4185becd44725c470122f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b',
+    )
   })
 
   test('behavior: unknown account source returns no keyType', () => {

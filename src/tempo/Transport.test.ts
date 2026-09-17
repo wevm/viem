@@ -21,6 +21,7 @@ import {
   feeToken,
   getClient,
   http,
+  multisigFactory,
 } from '~test/tempo/config.js'
 import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
@@ -507,11 +508,13 @@ describe('withRelay', () => {
             { owner: owner_2.address, weight: 1 },
           ],
         })
-        const account = Account.fromMultisig(config)
+        const account = Account.fromMultisig(config, {
+          factory: multisigFactory,
+        })
 
         const request = await prepareTransactionRequest(client, {
           feePayer: true,
-          multisig: config,
+          multisig: { account: account.address, config },
           to: account.address,
           value: 0n,
         })
@@ -524,7 +527,7 @@ describe('withRelay', () => {
           ...request,
           account,
           feePayer: true,
-          multisig: config,
+          multisig: { account: account.address, config },
           signatures,
         })
 
