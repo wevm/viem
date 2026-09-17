@@ -1,5 +1,19 @@
 # viem
 
+## 2.56.7
+
+### Patch Changes
+
+- [#5098](https://github.com/wevm/viem/pull/5098) [`5a6b1e8ef72b8eabd237e0b3bb836108dc3654da`](https://github.com/wevm/viem/commit/5a6b1e8ef72b8eabd237e0b3bb836108dc3654da) Thanks [@deepakansh11nov](https://github.com/deepakansh11nov)! - Added E Canna Mainnet (4111) and E Canna Testnet (4112).
+
+- [#5106](https://github.com/wevm/viem/pull/5106) [`ed37560943385e6636153c0d8db7ac81f2013757`](https://github.com/wevm/viem/commit/ed37560943385e6636153c0d8db7ac81f2013757) Thanks [@hjchen-circle](https://github.com/hjchen-circle)! - Added Arc mainnet addresses for EURC and cirBTC.
+
+- [#5107](https://github.com/wevm/viem/pull/5107) [`1dfad6e684d635b5775812a219dc27b51ee4a081`](https://github.com/wevm/viem/commit/1dfad6e684d635b5775812a219dc27b51ee4a081) Thanks [@jxom](https://github.com/jxom)! - Updated experimental multisig for the latest protocol, including recovery-factory addresses, initial config caching, and primitive-only approvals.
+
+- [#5093](https://github.com/wevm/viem/pull/5093) [`6b4be93c6e95cab9ec47079c10df1d91d8cffc99`](https://github.com/wevm/viem/commit/6b4be93c6e95cab9ec47079c10df1d91d8cffc99) Thanks [@canopyhub](https://github.com/canopyhub)! - Added OrdoFi public RPC (HTTP + WebSocket) to Robinhood Chain.
+
+- [#5097](https://github.com/wevm/viem/pull/5097) [`f43b66920158db6a2093e9982957d5f5f2a09408`](https://github.com/wevm/viem/commit/f43b66920158db6a2093e9982957d5f5f2a09408) Thanks [@2bsrwjskys-coder](https://github.com/2bsrwjskys-coder)! - Added Zagros chain.
+
 ## 2.56.6
 
 ### Patch Changes
