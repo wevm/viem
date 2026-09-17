@@ -8,9 +8,6 @@ Instantiates an Account for a [native multisig](https://tips.sh/1061). Omit `add
 `infer` to derive the canonical CREATE2 account address. After the config changes, use the stable
 address and pass the current config fields.
 
-The recovery factory temporarily defaults to `0x7171717171717171717171717171717171717171`.
-Owners must use secp256k1, P256, or WebAuthn signatures; nested multisig owners are unsupported.
-
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
 It is not yet available on Tempo mainnet or testnet.
