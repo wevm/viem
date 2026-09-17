@@ -33,5 +33,34 @@ test('error: insufficient balance', async () => {
       to: '0x0000000000000000000000000000000000000000',
       value: parseEther('0.0001'),
     }),
-  ).rejects.toThrowError('exceeds transaction sender account balance')
+  ).rejects.toThrowError(
+    // Linea reports the missing balance as "up-front cost … exceeds …
+    // sender account balance" for zero-value calls, and as a Besu
+    // "Cannot remove … wei from account" internal error once a non-zero
+    // `value` reaches the transfer step.
+    /exceeds transaction sender account balance|Cannot remove/,
+  )
+})
+
+test('args: stateOverride', async () => {
+  // Same unfunded-sender call as the test above — the balance override is
+  // what lets it succeed.
+  const account = Hex.random(20)
+  const { baseFeePerGas, gasLimit, priorityFeePerGas } = await estimateGas(
+    client,
+    {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+      value: parseEther('0.0001'),
+      stateOverride: [
+        {
+          address: account,
+          balance: parseEther('1'),
+        },
+      ],
+    },
+  )
+  expect(baseFeePerGas).toBeGreaterThan(0n)
+  expect(gasLimit).toBe(21000n)
+  expect(priorityFeePerGas).toBeGreaterThan(0n)
 })

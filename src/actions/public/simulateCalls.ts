@@ -43,6 +43,9 @@ const getBalanceCode =
 const staticCallCode =
   '0x608060405234801561000f575f5ffd5b5060043610610029575f3560e01c8063fd00430c1461002d575b5f5ffd5b6100476004803603810190610042919061012b565b610049565b005b80825f375f5f825f865afa610060573d5f5f3e3d5ffd5b3d5f5f3e3d5ff35b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f61009982610070565b9050919050565b6100a98161008f565b81146100b3575f5ffd5b50565b5f813590506100c4816100a0565b92915050565b5f5ffd5b5f5ffd5b5f5ffd5b5f5f83601f8401126100eb576100ea6100ca565b5b8235905067ffffffffffffffff811115610108576101076100ce565b5b602083019150836001820283011115610124576101236100d2565b5b9250929050565b5f5f5f6040848603121561014257610141610068565b5b5f61014f868287016100b6565b935050602084013567ffffffffffffffff8111156101705761016f61006c565b5b61017c868287016100d6565b9250925050925092509256fea2646970667358221220635ed99185cacf3f2acba6921f23687c969cec2bbaf5f9ad599f507e6e105e6964736f6c63430008230033'
 
+// Bound each probe so a failing candidate cannot exhaust the simulation gas budget.
+const assetProbeGas = 1_000_000n
+
 const staticCallAddressBase = 0x00000000000000000000000000000000deadbeefn
 
 // ERC20 & ERC721 share this selector – both are `Transfer(address,address,uint256)`.
@@ -311,6 +314,7 @@ export async function simulateCalls<
               {
                 calls: assetAddresses.map((address) => ({
                   to: staticCallAddress,
+                  gas: assetProbeGas,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(balanceOfFunction, [
@@ -325,6 +329,7 @@ export async function simulateCalls<
               {
                 calls: assetAddresses.map((address) => ({
                   to: staticCallAddress,
+                  gas: assetProbeGas,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(decimalsFunction),
@@ -337,6 +342,7 @@ export async function simulateCalls<
               {
                 calls: assetAddresses.map((address) => ({
                   to: staticCallAddress,
+                  gas: assetProbeGas,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(tokenUriFunction, [0n]),
@@ -349,6 +355,7 @@ export async function simulateCalls<
               {
                 calls: assetAddresses.map((address) => ({
                   to: staticCallAddress,
+                  gas: assetProbeGas,
                   data: encodeStaticCall(
                     address,
                     AbiFunction.encodeData(symbolFunction),
@@ -525,7 +532,7 @@ async function readBalance<chain extends Chain | undefined>(
               { address: staticCallAddress, code: staticCallCode },
             ]
           : stateOverride,
-      ...(address ? { to: staticCallAddress } : {}),
+      ...(address ? { gas: assetProbeGas, to: staticCallAddress } : {}),
       ...(typeof blockNumber === 'bigint' ? { blockNumber } : { blockTag }),
     } as never)
     return { data: result.data ?? '0x', status: 'success' as const }

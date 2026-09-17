@@ -258,17 +258,9 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        hardfork: [T10, Tnext]
+        hardfork: [T13, Tnext]
         shard: [1, 2, 3]
         total-shards: [3]
-        include:
-          - hardfork: T10
-            # Tempo de760926 and sender-bound Zones 196f47b7.
-            tempo-tag: sha256:af7a8955370adc4868a3237352ceded3bd917702a14758796eab86b338b75e49
-            zone-tag: sha256:45b4e66b0a7d5f8d9486eeb05e0842c7a223b53e9ef910ef73cd9558f4a79118
-          - hardfork: Tnext
-            tempo-tag: latest
-            zone-tag: sha256:2c6e58767e75f5b9dc012361daa89cb8baaad7d70f8c4151aa8a506b3d92f44b
 
     steps:
       - name: Clone repository
@@ -292,9 +284,9 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
-          VITE_TEMPO_TAG: ${{ matrix.tempo-tag }}
+          VITE_TEMPO_TAG: latest
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: ${{ matrix.zone-tag }}
+          VITE_TEMPO_ZONE_TAG: sha256:ad97eaf7025f87f630b4be14f46b0f7b917710b11121b2f73988caaf9d260e81
 
   test-envs:
     name: Test Environments

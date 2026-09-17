@@ -1,5 +1,39 @@
 # viem
 
+## 2.56.6
+
+### Patch Changes
+
+- [#5094](https://github.com/wevm/viem/pull/5094) [`e80a7b1979439a3130d3f12b1d92d42379fd557a`](https://github.com/wevm/viem/commit/e80a7b1979439a3130d3f12b1d92d42379fd557a) Thanks [@0xjohnk](https://github.com/0xjohnk)! - Added public RPC, block explorer, Multicall3, and USDC address metadata to Arc.
+
+- [#5063](https://github.com/wevm/viem/pull/5063) [`e38289c13777a3da75cca0549e4aa694884f456d`](https://github.com/wevm/viem/commit/e38289c13777a3da75cca0549e4aa694884f456d) Thanks [@nicknixcape](https://github.com/nicknixcape)! - Added HyveChain.
+
+- [#5096](https://github.com/wevm/viem/pull/5096) [`ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5`](https://github.com/wevm/viem/commit/ee4489f4ebd0b9bdb6acb66b8e7b835616601ad5) Thanks [@jxom](https://github.com/jxom)! - Limited token balance and metadata probe gas to prevent failing candidates from exhausting the `simulateCalls` asset-tracing gas budget.
+
+- [#5083](https://github.com/wevm/viem/pull/5083) [`83c47e96f39c2838da74f1d34f78c16313e29390`](https://github.com/wevm/viem/commit/83c47e96f39c2838da74f1d34f78c16313e29390) Thanks [@Eras256](https://github.com/Eras256)! - Fixed `shouldRetry` not retrying QuickNode's `-32007` rate-limit error code, mirroring the existing handling for the `429` (Alchemy) case.
+
+- [#5077](https://github.com/wevm/viem/pull/5077) [`b8c79781ecc7bb3c99e14a0e2164ea6245a00a30`](https://github.com/wevm/viem/commit/b8c79781ecc7bb3c99e14a0e2164ea6245a00a30) Thanks [@dmytrozahumennov-wb](https://github.com/dmytrozahumennov-wb)! - Added `whitechainSepolia` to `viem/op-stack` chain exports.
+
+## 2.56.5
+
+### Patch Changes
+
+- [#5069](https://github.com/wevm/viem/pull/5069) [`86adf420cfb20721ff99aa5bf6e6c1017588d473`](https://github.com/wevm/viem/commit/86adf420cfb20721ff99aa5bf6e6c1017588d473) Thanks [@moyanghe-uniswap](https://github.com/moyanghe-uniswap)! - Fixed `stateOverride` being silently dropped by `estimateGas` in `viem/linea` — it was destructured into an unused rest object and never serialized onto the `linea_estimateGas` request, so overrides never reached the node.
+
+## 2.56.4
+
+### Patch Changes
+
+- [#5058](https://github.com/wevm/viem/pull/5058) [`307961495ce402adbbd31c793277850726308f82`](https://github.com/wevm/viem/commit/307961495ce402adbbd31c793277850726308f82) Thanks [@riba2534](https://github.com/riba2534)! - Fixed `getUserOperation` throwing `Cannot convert null to a BigInt` for pending User Operations, and made `blockHash`, `blockNumber`, and `transactionHash` nullable on its return value (as well as on `GetUserOperationByHashReturnType`) to reflect what Bundlers return while a User Operation is in the mempool.
+
+- [#5055](https://github.com/wevm/viem/pull/5055) [`5531c78f24039475d276fa34e6d7c9073b0abf35`](https://github.com/wevm/viem/commit/5531c78f24039475d276fa34e6d7c9073b0abf35) Thanks [@alexursol2](https://github.com/alexursol2)! - Added OP Stack configuration to the Whitechain Sepolia chain.
+
+- [#5056](https://github.com/wevm/viem/pull/5056) [`1a6076e582f596acba03b7cc28963a746bcce839`](https://github.com/wevm/viem/commit/1a6076e582f596acba03b7cc28963a746bcce839) Thanks [@struong](https://github.com/struong)! - Added canonical Earn factory addresses to the Tempo mainnet and testnet chain definitions and inferred them in Earn deployments.
+
+- [#5062](https://github.com/wevm/viem/pull/5062) [`200fbe123d897208d315242d5f6ceabdce503a08`](https://github.com/wevm/viem/commit/200fbe123d897208d315242d5f6ceabdce503a08) Thanks [@oliverboehm-xgr](https://github.com/oliverboehm-xgr)! - Added XGR Testnet chain.
+
+- [#5068](https://github.com/wevm/viem/pull/5068) [`3dd157b5305c9fb837752c74039d7571cc9d6ec0`](https://github.com/wevm/viem/commit/3dd157b5305c9fb837752c74039d7571cc9d6ec0) Thanks [@pucedoteth](https://github.com/pucedoteth)! - Fixed the SIWE scheme check accepting a comma. `[a-zA-Z0-9+-.]` reads `+-.` as a character range (`+` `,` `-` `.`), so `createSiweMessage` did not reject a scheme such as `ht,tps` despite validating against RFC 3986, and `parseSiweMessage` returned it as `scheme`.
+
 ## 2.56.3
 
 ### Patch Changes

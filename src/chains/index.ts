@@ -4,8 +4,11 @@ export {
   /** @deprecated Use `zeroGGalileoTestnet` instead. */
   zeroG,
 } from './definitions/0g.js'
+export { zagros } from './definitions/zagros.js'
 /** @deprecated Use `zeroGTestnet` instead. */
 export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
+export { eCanna } from './definitions/eCanna.js'
+export { eCannaTestnet } from './definitions/eCannaTestnet.js'
 export { zeroGMainnet } from './definitions/0gMainnet.js'
 export { zeroGTestnet } from './definitions/0gTestnet.js'
 export { fireChain } from './definitions/5ireChain.js'
@@ -293,6 +296,7 @@ export { hychain } from './definitions/hychain.js'
 export { hychainTestnet } from './definitions/hychainTestnet.js'
 export { hyperEvm, hyperEvm as hyperliquid } from './definitions/hyperEvm.js'
 export { hyperliquidEvmTestnet } from './definitions/hyperliquidEvmTestnet.js'
+export { hyveChain } from './definitions/hyveChain.js'
 export { icbNetwork } from './definitions/icbNetwork.js'
 export { idchain } from './definitions/idchain.js'
 export { igra } from './definitions/igra.js'
