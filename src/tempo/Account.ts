@@ -278,7 +278,7 @@ export declare namespace fromSecp256k1 {
 /**
  * Instantiates an Account for a native multisig (TIP-1061) config.
  *
- * Supply the current config and the chain recovery factory. After rotation,
+ * Supply the current config and optionally override the recovery factory. After rotation,
  * retain the updated config and pass the original address in `options.address`.
  * Address-only accounts require the current config in the prepared request.
  *
@@ -295,11 +295,10 @@ export declare namespace fromSecp256k1 {
  * ```ts
  * import { Account } from 'viem/tempo'
  *
- * declare const factory: `0x${string}`
  * const account = Account.fromMultisig({
  *   threshold: 2,
  *   owners: [owner_1, owner_2],
- * }, { factory })
+ * })
  *
  * // The multisig config is inferred from the account.
  * const request = await client.prepareTransactionRequest({ account, ...rest })
@@ -313,19 +312,17 @@ export declare namespace fromSecp256k1 {
  */
 export function fromMultisig(
   config: fromMultisig.Config,
-  options: fromMultisig.Options,
+  options?: fromMultisig.Options,
 ): MultisigAccount<MultisigConfig.Config>
 export function fromMultisig(
   address: Address.Address,
 ): MultisigAccount<undefined>
 export function fromMultisig(
   value: fromMultisig.Parameters,
-  options?: fromMultisig.Options,
+  options: fromMultisig.Options = {},
 ): MultisigAccount {
-  if (typeof value !== 'string' && !options)
-    throw new Error(
-      'A recovery factory is required to create a multisig account.',
-    )
+  // Temporary default until the production recovery factory is finalized.
+  const { factory = '0x7171717171717171717171717171717171717171' } = options
   const config = (() => {
     if (typeof value === 'string') return undefined
     const ownerEntries = value.owners.map((value) =>
@@ -345,7 +342,7 @@ export function fromMultisig(
   const address = Address.checksum(
     typeof value === 'string'
       ? value
-      : (options?.address ?? MultisigConfig.getAddress(config!, options!)),
+      : (options.address ?? MultisigConfig.getAddress(config!, { factory })),
   )
   const ownerAccounts =
     typeof value === 'string'
@@ -436,8 +433,8 @@ export declare namespace fromMultisig {
   }
 
   export type Options = {
-    /** Recovery factory configured by the chain. */
-    factory: Address.Address
+    /** Recovery factory. Temporarily defaults to `0x7171717171717171717171717171717171717171`. */
+    factory?: Address.Address | undefined
     /** Stable account address when supplying an updated configuration. */
     address?: Address.Address | undefined
   }

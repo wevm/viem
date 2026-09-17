@@ -19,25 +19,31 @@ const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
 describe('fromMultisig', () => {
-  test('behavior: factory is required for config construction', () => {
-    expect(() => {
-      // @ts-expect-error Recovery factory is required for config construction.
-      Account.fromMultisig({ owners: [tempo.accounts[1]] })
-    }).toThrow('A recovery factory is required')
+  test('behavior: temporary default factory', () => {
+    const config = { owners: [tempo.accounts[1]] }
+    const account = Account.fromMultisig(config)
+    expect(account.address.toLowerCase()).toBe(
+      '0x005c3446a4e52b28b50c4185becd44725c470122',
+    )
+    expect(Account.fromMultisig(config, {}).address).toBe(account.address)
+    expect(
+      Account.fromMultisig(config, { factory: tempo.multisigFactory }).address,
+    ).toBe(account.address)
+    expect(
+      Account.fromMultisig(config, {
+        factory: '0x7272727272727272727272727272727272727272',
+      }).address,
+    ).not.toBe(account.address)
   })
 
   test('behavior: rotated configs require the stable address', () => {
-    const options = { factory: tempo.multisigFactory } as const
-    const account = Account.fromMultisig(
-      { owners: [tempo.accounts[1]] },
-      options,
-    )
+    const account = Account.fromMultisig({ owners: [tempo.accounts[1]] })
     expect(() =>
-      Account.fromMultisig({ ...account.config, version: 1n }, options),
+      Account.fromMultisig({ ...account.config, version: 1n }),
     ).toThrow('account address requires version zero')
     const updated = Account.fromMultisig(
       { ...account.config, version: 1n },
-      { ...options, address: account.address },
+      { address: account.address },
     )
     expect(updated.address).toBe(account.address)
     expect(updated.config.version).toBe(1n)

@@ -3,12 +3,7 @@ import { toHex } from 'viem'
 import { sendTransactionSync, waitForTransactionReceipt } from 'viem/actions'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import {
-  accounts,
-  feeToken,
-  getClient,
-  multisigFactory,
-} from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const client = getClient()
@@ -26,14 +21,11 @@ describe('getConfigCommitment', () => {
 for (const sync of [false, true]) {
   describe(sync ? 'updateConfigSync' : 'updateConfig', () => {
     test('default', async () => {
-      const account = Account.fromMultisig(
-        {
-          salt: toHex(sync ? 0x502201 : 0x502200, { size: 32 }),
-          owners: [accounts[17], accounts[18]],
-          threshold: 2,
-        },
-        { factory: multisigFactory },
-      )
+      const account = Account.fromMultisig({
+        salt: toHex(sync ? 0x502201 : 0x502200, { size: 32 }),
+        owners: [accounts[17], accounts[18]],
+        threshold: 2,
+      })
       await actions.token.transferSync(client, {
         account: accounts[0],
         amount: { formatted: '10000' },

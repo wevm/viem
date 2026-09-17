@@ -20,7 +20,6 @@ These recipes assume you have [set up a Tempo client](/tempo) and funded the mul
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
-declare const factory: `0x${string}`
 declare const account: Account.MultisigAccount<import('viem/tempo').MultisigConfig.Config>
 const newOwner = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
@@ -33,7 +32,7 @@ const { receipt, account: address, ...config } = await client.multisig.updateCon
 })
 const updated = Account.fromMultisig(
   { ...config, owners: [newOwner] },
-  { factory, address },
+  { address },
 )
 ```
 

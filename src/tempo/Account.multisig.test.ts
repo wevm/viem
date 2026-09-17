@@ -18,8 +18,6 @@ import {
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 
-const factory = tempo.multisigFactory
-
 const client = tempo.getClient()
 
 describe('fromMultisig', () => {
@@ -37,7 +35,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -121,7 +119,7 @@ describe('fromMultisig', () => {
         { owner: owner_3.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -168,7 +166,7 @@ describe('fromMultisig', () => {
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
       threshold: owners.length,
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -216,13 +214,10 @@ describe('fromMultisig', () => {
   test('mixed local and external owners', async () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
-    const account = Account.fromMultisig(
-      {
-        owners: [localOwner, externalOwner.address],
-        threshold: 2,
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      owners: [localOwner, externalOwner.address],
+      threshold: 2,
+    })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -262,10 +257,10 @@ describe('fromMultisig', () => {
   })
 
   test('behavior: rejects nested multisig owners', () => {
-    const child = Account.fromMultisig({ owners: [accounts[1]] }, { factory })
-    expect(() =>
-      Account.fromMultisig({ owners: [child] }, { factory }),
-    ).toThrow('Multisig owners must use primitive signatures.')
+    const child = Account.fromMultisig({ owners: [accounts[1]] })
+    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
+      'Multisig owners must use primitive signatures.',
+    )
   })
 
   test('example: weighted quorum', async () => {
@@ -282,7 +277,7 @@ describe('fromMultisig', () => {
         { owner: light_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -369,7 +364,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     const accountClient = tempo.getClient({ account })
 
@@ -406,16 +401,13 @@ describe('fromMultisig', () => {
   test('infer multisig from `account` (no `multisig` field)', async () => {
     const owner_1 = accounts[10]
     const owner_2 = accounts[11]
-    const account = Account.fromMultisig(
-      {
-        threshold: 2,
-        owners: [
-          { owner: owner_1.address, weight: 1 },
-          { owner: owner_2.address, weight: 1 },
-        ],
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -449,10 +441,10 @@ describe('fromMultisig', () => {
   })
 
   test('behavior: reconstructs an address with an explicit current config', async () => {
-    const original = Account.fromMultisig(
-      { salt: toHex(0x83f3, { size: 32 }), owners: [accounts[1]] },
-      { factory },
-    )
+    const original = Account.fromMultisig({
+      salt: toHex(0x83f3, { size: 32 }),
+      owners: [accounts[1]],
+    })
     const account = Account.fromMultisig(original.address)
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -501,7 +493,7 @@ describe('fromMultisig', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromMultisig(config, { factory })
+    const account = Account.fromMultisig(config)
 
     const request = await prepareTransactionRequest(client, {
       account,
@@ -574,14 +566,11 @@ describe('fromMultisig', () => {
   test('example: bootstrap and immediate access key use', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromMultisig(
-      {
-        owners: [owner_1, owner_2],
-        salt: toHex(0x106103, { size: 32 }),
-        threshold: 2,
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106103, { size: 32 }),
+      threshold: 2,
+    })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -627,14 +616,11 @@ describe('fromMultisig', () => {
   test('external owners authorize an access key', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromMultisig(
-      {
-        owners: [owner_1.address, owner_2.address],
-        salt: toHex(0x106106, { size: 32 }),
-        threshold: 2,
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x106106, { size: 32 }),
+      threshold: 2,
+    })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -678,14 +664,11 @@ describe('fromMultisig', () => {
   test('example: bootstrap and subsequent access key use', async () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]
-    const account = Account.fromMultisig(
-      {
-        owners: [owner_1, owner_2],
-        salt: toHex(0x106104, { size: 32 }),
-        threshold: 2,
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106104, { size: 32 }),
+      threshold: 2,
+    })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
       access: account,
     })
@@ -740,14 +723,11 @@ describe('fromMultisig', () => {
   })
 
   test('example: configuration rotation', async () => {
-    const account = Account.fromMultisig(
-      {
-        salt: toHex(0x106105, { size: 32 }),
-        threshold: 2,
-        owners: [accounts[14], accounts[15]],
-      },
-      { factory },
-    )
+    const account = Account.fromMultisig({
+      salt: toHex(0x106105, { size: 32 }),
+      threshold: 2,
+      owners: [accounts[14], accounts[15]],
+    })
     await Actions.token.transferSync(client, {
       account: accounts[0],
       amount: { formatted: '10000' },
@@ -778,7 +758,7 @@ describe('fromMultisig', () => {
     ).rejects.toThrow('Multisig config does not match the on-chain commitment.')
     const updated = Account.fromMultisig(
       { ...config, owners: nextOwners },
-      { factory, address },
+      { address },
     )
     const result = await sendTransactionSync(client, {
       account: updated,

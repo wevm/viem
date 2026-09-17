@@ -2,7 +2,7 @@
 'viem': patch
 ---
 
-Updated Ox to `0.14.45` and migrated experimental multisig accounts to explicit recovery factories, complete config signatures, and commitment-based state.
+Updated Ox to `0.14.45` and migrated experimental multisig accounts to configurable recovery factories, complete config signatures, and commitment-based state.
 
 ```ts
 const account = Account.fromMultisig(config, { factory })

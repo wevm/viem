@@ -1,13 +1,13 @@
 import { Account, MultisigConfig } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient, multisigFactory } from '~test/tempo/config.js'
+import { accounts, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
 
 const client = getClient({ account: accounts[0] })
-const account = Account.fromMultisig(
-  { owners: [accounts[1], accounts[2], accounts[3]], threshold: 2 },
-  { factory: multisigFactory },
-)
+const account = Account.fromMultisig({
+  owners: [accounts[1], accounts[2], accounts[3]],
+  threshold: 2,
+})
 
 describe('prepareTransactionRequest', () => {
   test('behavior: models a quorum without excess approvals', async () => {

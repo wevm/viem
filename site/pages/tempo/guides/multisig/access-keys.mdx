@@ -29,11 +29,10 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1, owner_2],
   threshold: 2,
-}, { factory })
+})
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
@@ -79,11 +78,10 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-declare const factory: `0x${string}`
 const account = Account.fromMultisig({
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
-}, { factory })
+})
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })

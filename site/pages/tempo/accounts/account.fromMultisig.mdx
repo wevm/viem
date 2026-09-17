@@ -1,21 +1,20 @@
 ---
-description: Creates a native multisig account with a current configuration and explicit recovery factory.
+description: Creates a native multisig account with a current configuration and optional recovery factory.
 ---
 
 # `Account.fromMultisig`
 
-Creates a native multisig account. Supply the recovery factory configured by the chain; there is no default production factory. The first transaction initializes the account, and every subsequent signature includes its complete current config.
+Creates a native multisig account. The recovery factory temporarily defaults to `0x7171717171717171717171717171717171717171`. Override it when the chain uses a different factory. The first transaction initializes the account, and every subsequent signature includes its complete current config.
 
 ## Usage
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-declare const factory: `0x${string}`
 const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const account = Account.fromMultisig({ owners: [owner] }, { factory })
+const account = Account.fromMultisig({ owners: [owner] })
 ```
 
 Owners may be addresses, local accounts, or `{ owner, weight }` entries. Local accounts can collect approvals automatically. Address-only owners sign the prepared request independently as shown in [Send Transactions](/tempo/guides/multisig/send).
@@ -29,10 +28,9 @@ Retain the original address and the complete updated config returned by [multisi
 ```ts twoslash
 import { Account, type MultisigConfig } from 'viem/tempo'
 
-declare const factory: `0x${string}`
 declare const address: `0x${string}`
 declare const config: MultisigConfig.Config
-const account = Account.fromMultisig(config, { factory, address })
+const account = Account.fromMultisig(config, { address })
 ```
 
 Preparation checks the supplied config against the stored commitment. A stale config is rejected. `Account.fromMultisig(address)` creates an account without a config; supply `{ account: address, config }` in the request's `multisig` field before signing.
@@ -47,9 +45,9 @@ Preparation checks the supplied config against the stored commitment. A stale co
 
 The current owners and optional `threshold`, `salt`, and `version`. Threshold defaults to `1`, salt to 32 zero bytes, and version to `0n`. Owners are sorted by address.
 
-### options.factory
+### options.factory (optional)
 
-`Address`: the recovery factory configured by the chain. Required when constructing from a config.
+`Address`: the recovery factory configured by the chain. Temporarily defaults to `0x7171717171717171717171717171717171717171`.
 
 ### options.address
 

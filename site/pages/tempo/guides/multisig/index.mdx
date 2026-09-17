@@ -8,7 +8,7 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-The chain must enable T12 and configure a recovery factory. Supply that factory explicitly when creating an account. Retain the complete current config locally; the node stores only its commitment. Nested multisig owners are unsupported.
+The chain must enable T12 and configure a recovery factory. The factory temporarily defaults to `0x7171717171717171717171717171717171717171`; override it if the chain uses another address. Retain the complete current config locally; the node stores only its commitment. Nested multisig owners are unsupported.
 
 :::warning
 **Experimental.** Native multisig support is experimental and may change in a future release.
