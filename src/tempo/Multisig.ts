@@ -140,13 +140,12 @@ export function handleRequest(
         }
       }
       if (operation.status === 'pending')
-        return await toTransaction(client, operation, parameters.store)
+        return await toTransaction(client, operation)
       const transactionHash = await getSubmittedTransactionHash(
         parameters.store,
         operation,
       )
-      if (!transactionHash)
-        return await toTransaction(client, operation, parameters.store)
+      if (!transactionHash) return await toTransaction(client, operation)
       const transaction = await next(
         {
           ...request,
@@ -155,7 +154,7 @@ export function handleRequest(
         requestOptions,
       )
       if (!transaction || typeof transaction !== 'object')
-        return await toTransaction(client, operation, parameters.store)
+        return await toTransaction(client, operation)
       const success =
         operation.status === 'submitting'
           ? await completeSubmission(
@@ -306,23 +305,16 @@ async function submit(options: submit.Options) {
       const existingApprovals = existing
         ? await selectApprovals({
             account: signature.account,
-            client: options.client,
             config,
-            discardInvalidNested: true,
             hash: operationHash,
             approvals: existing.approvals,
-            blockNumber,
-            store: options.store,
           })
         : undefined
       const approvals = await selectApprovals({
         account: signature.account,
-        client: options.client,
         config,
         hash: operationHash,
         approvals: [...(existingApprovals?.approvals ?? []), ...incoming],
-        blockNumber,
-        store: options.store,
       })
       return MultisigOperation.from({
         account: signature.account,
@@ -427,12 +419,9 @@ async function submit(options: submit.Options) {
         })
         const finalApprovals = await selectApprovals({
           account: claim.account,
-          blockNumber,
-          client: options.client,
           config: claim.config,
           hash: claim.hash,
           approvals: claim.approvals,
-          store: options.store,
         })
         const final = MultisigOperation.serializeTransaction(claim, {
           approvals: finalApprovals.selectedApprovals,
@@ -703,12 +692,8 @@ async function approveKeyAuthorization(
         ? await selectApprovals({
             account: approval.account,
             approvals: existing.approvals,
-            blockNumber,
-            client: options.client,
             config: approval.config,
-            discardInvalidNested: true,
             hash: approval.hash,
-            store: options.store,
           })
         : undefined
       const approvals = await selectApprovals({
@@ -717,11 +702,8 @@ async function approveKeyAuthorization(
           ...(existingApprovals?.approvals ?? []),
           ...approval.approvals,
         ],
-        blockNumber,
-        client: options.client,
         config: approval.config,
         hash: approval.hash,
-        store: options.store,
       })
       if (
         existing &&
@@ -804,16 +786,18 @@ function assertConfig(options: {
   const { account, commitment, config } = options
   if (
     config.version === 0n &&
-    MultisigConfig.getAddress(config).toLowerCase() !== account.toLowerCase()
+    MultisigConfig.getAddress(config, {
+      factory: Addresses.nativeMultisigFactory,
+    }).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
       message: 'Initial multisig config does not match the multisig account.',
     })
-  const expected = (() => {
-    if (config.version === 0n) return Hex.fromNumber(0, { size: 32 })
-    return MultisigConfig.getCommitment(config)
-  })()
-  if (commitment.toLowerCase() !== expected.toLowerCase())
+  if (config.version === 0n && Hex.toBigInt(commitment) === 0n) return
+  if (
+    commitment.toLowerCase() !==
+    MultisigConfig.getCommitment(config).toLowerCase()
+  )
     throw new RpcResponse.InvalidParamsError({
       message: `Multisig config does not match account ${account}.`,
     })
@@ -904,100 +888,16 @@ declare namespace cacheNextConfigs {
   }
 }
 
-/** Selects approvals after validating every nested config. */
-// biome-ignore lint/correctness/noUnusedVariables: _
-async function selectApprovals(options: selectApprovals.Options) {
-  const validation = new Map<string, Promise<Hex.Hex>>()
-  let validationCount = 0
-  const select = async (approvals: readonly SignatureEnvelope.Serialized[]) => {
-    const result = await MultisigOperation.selectApprovals({
-      account: options.account,
-      approvals,
-      config: options.config,
-      hash: options.hash,
-    })
-    const configs = new Map<
-      string,
-      { account: Address; config: MultisigConfig.Config }
-    >()
-    const visit = (signature: SignatureEnvelope.SignatureEnvelope) => {
-      if (signature.type !== 'multisig') return
-      const config = MultisigConfig.from(signature.config)
-      const key = signature.account.toLowerCase()
-      configs.set(key, { account: signature.account, config })
-      for (const approval of signature.signatures) visit(approval)
-    }
-    for (const approval of result.approvals)
-      visit(SignatureEnvelope.from(approval))
-
-    for (const { account, config } of configs.values()) {
-      const key = `${account.toLowerCase()}:${MultisigConfig.getCommitment(config)}`
-      const pending = (() => {
-        const existing = validation.get(key)
-        if (existing) return existing
-        validationCount++
-        if (validationCount > MultisigConfig.maxOwners)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Multisig approval validation exceeds the owner limit.',
-          })
-        const pending = validateConfig({
-          account,
-          blockNumber: options.blockNumber,
-          client: options.client,
-          config,
-        })
-        validation.set(key, pending)
-        return pending
-      })()
-      const commitment = await pending
-      await ConfigStore.write(options.store, {
-        address: account,
-        commitment,
-        config,
-      })
-    }
-    return result
-  }
+/** Validates primitive approvals and translates invalid input into an RPC error. */
+async function selectApprovals(
+  options: MultisigOperation.selectApprovals.Options,
+) {
   try {
-    if (!options.discardInvalidNested) return await select(options.approvals)
-
-    const approvals: SignatureEnvelope.Serialized[] = []
-    for (const approval of options.approvals) {
-      if (SignatureEnvelope.from(approval).type !== 'multisig') {
-        approvals.push(approval)
-        continue
-      }
-      try {
-        const retained = (await select([approval])).approvals[0]
-        if (retained) approvals.push(retained)
-      } catch (error) {
-        if (
-          error instanceof MultisigOperation.InvalidApprovalError ||
-          error instanceof RpcResponse.InvalidParamsError
-        )
-          continue
-        throw error
-      }
-    }
-    return await select(approvals)
+    return await MultisigOperation.selectApprovals(options)
   } catch (error) {
     if (error instanceof MultisigOperation.InvalidApprovalError)
       throw new RpcResponse.InvalidParamsError({ message: error.shortMessage })
     throw error
-  }
-}
-
-declare namespace selectApprovals {
-  /** Options for {@link selectApprovals}. */
-  export type Options = MultisigOperation.selectApprovals.Options & {
-    /** Block used to validate every config. */
-    blockNumber: bigint
-    /** Client used to validate nested multisig configurations. */
-    client: ReturnType<typeof createClient>
-    /** Discards stored nested approvals invalidated by a child configuration change. */
-    discardInvalidNested?: boolean | undefined
-    /** Shared multisig store. */
-    store: Store.Store
   }
 }
 
@@ -1186,7 +1086,6 @@ function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
 async function toTransaction(
   client: ReturnType<typeof createClient>,
   operation: MultisigOperation.TransactionOperation,
-  store: Store.Store,
 ) {
   const approvals = await (async () => {
     if (operation.status !== 'pending')
@@ -1206,12 +1105,8 @@ async function toTransaction(
     return await selectApprovals({
       account: operation.account,
       approvals: operation.approvals,
-      blockNumber,
-      client,
       config: operation.config,
-      discardInvalidNested: true,
       hash: operation.hash,
-      store,
     })
   })()
   const current =
@@ -1224,17 +1119,9 @@ async function toTransaction(
           weight: approvals.weight,
         })
       : operation
-  const serialized = MultisigOperation.serializeTransaction(
-    approvals.approvals.length > 0 ? current : operation,
-    {
-      // Keep one stored approval in the synthetic envelope when every nested
-      // approval became stale. The next submission replaces it before broadcast.
-      approvals:
-        approvals.selectedApprovals.length > 0
-          ? approvals.selectedApprovals
-          : operation.approvals.slice(0, 1),
-    },
-  )
+  const serialized = MultisigOperation.serializeTransaction(current, {
+    approvals: approvals.selectedApprovals,
+  })
   const transaction = deserialize(serialized)
   return {
     ...ox_Transaction.toRpc(

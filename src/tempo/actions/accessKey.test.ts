@@ -286,7 +286,6 @@ describe('signAuthorization', () => {
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
-        "isAdmin": false,
         "multisig": {
           "account": Any<String>,
           "approvals": [
@@ -355,7 +354,6 @@ describe('signAuthorization', () => {
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
-        "isAdmin": false,
         "multisig": {
           "account": Any<String>,
           "approvals": [

@@ -1,6 +1,8 @@
+import { execFileSync } from 'node:child_process'
 import { RpcTransport } from 'ox'
 import { Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
+import { GenericContainer, Wait } from 'testcontainers'
 import { getBlock } from '../../../src/actions/public/getBlock.js'
 import {
   type Chain,
@@ -8,7 +10,7 @@ import {
   parseUnits,
   type Transport,
 } from '../../../src/index.js'
-import { pathUsd } from '../../../src/tempo/Addresses.js'
+import { nativeMultisigFactory, pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, getClient, nodeEnv } from './config.js'
@@ -83,11 +85,88 @@ export async function createServer() {
     : `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`
   const instance = (() => {
     // Explicitly configured local Tempo binary.
-    if (import.meta.env.VITE_TEMPO_BINARY)
+    if (import.meta.env.VITE_TEMPO_BINARY) {
+      if (import.meta.env.VITE_TEMPO_MULTISIG === 'true')
+        throw new Error(
+          'Multisig tests require the Docker image with a configured recovery factory; unset VITE_TEMPO_BINARY.',
+        )
       return Instance.tempo({
         ...args,
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
+    }
+    if (import.meta.env.VITE_TEMPO_MULTISIG === 'true') {
+      const genesis = JSON.parse(
+        execFileSync(
+          'docker',
+          [
+            'run',
+            '--rm',
+            '--platform',
+            'linux/amd64',
+            image,
+            '-q',
+            'dump-genesis',
+            '--chain',
+            'dev',
+          ],
+          { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
+        ),
+      )
+      genesis.config.multisigRecoveryFactory = nativeMultisigFactory
+      return TestContainers.Instance.testcontainer({
+        name: 'tempo',
+        endpoints: { default: { protocol: 'http', port: 8545 } },
+        container: () =>
+          new GenericContainer(image)
+            .withPlatform('linux/amd64')
+            .withCopyContentToContainer([
+              { content: JSON.stringify(genesis), target: '/tmp/genesis.json' },
+            ])
+            .withCommand([
+              'node',
+              '--dev',
+              '--dev.block-time',
+              args.blockTime,
+              '--chain',
+              '/tmp/genesis.json',
+              '--datadir',
+              '/tmp/tempo',
+              '--http.addr',
+              '0.0.0.0',
+              '--http.port',
+              '8545',
+              '--http.api',
+              'all',
+              '--ws',
+              '--ws.addr',
+              '0.0.0.0',
+              '--ws.port',
+              '8545',
+              '--ws.api',
+              'all',
+              '--engine.disable-precompile-cache',
+              '--engine.legacy-state-root',
+              '--faucet.enabled',
+              '--faucet.node-address',
+              'http://localhost:8545',
+              '--faucet.private-key',
+              zoneAdminKey,
+              '--faucet.address',
+              '0x20c0000000000000000000000000000000000000',
+              '0x20c0000000000000000000000000000000000001',
+              '0x20c0000000000000000000000000000000000002',
+              '0x20c0000000000000000000000000000000000003',
+              '--faucet.amount',
+              '1000000000000',
+            ])
+            .withWaitStrategy(
+              Wait.forLogMessage(
+                /Received (block|new payload) from consensus engine/,
+              ),
+            ),
+      })
+    }
     return TestContainers.Instance.tempo({ ...args, image })
   })()
 

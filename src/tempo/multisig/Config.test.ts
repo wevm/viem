@@ -2,6 +2,7 @@ import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { MultisigConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
+import { nativeMultisigFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
@@ -10,7 +11,9 @@ const initialConfig = MultisigConfig.from({
   owners: [{ owner, weight: 1 }],
   threshold: 1,
 })
-const address = MultisigConfig.getAddress(initialConfig)
+const address = MultisigConfig.getAddress(initialConfig, {
+  factory: nativeMultisigFactory,
+})
 const zeroCommitment = Hex.fromNumber(0, { size: 32 })
 const currentConfig = MultisigConfig.from({
   ...initialConfig,
@@ -19,6 +22,23 @@ const currentConfig = MultisigConfig.from({
 const currentCommitment = MultisigConfig.getCommitment(currentConfig)
 
 describe('read', () => {
+  test('behavior: retains the initial config after initialization', async () => {
+    const store = Store.memory()
+    await Config.write(store, {
+      address,
+      commitment: zeroCommitment,
+      config: initialConfig,
+    })
+    const commitment = MultisigConfig.getCommitment(initialConfig)
+    expect(await Config.read(store, { address, commitment })).toEqual(
+      initialConfig,
+    )
+    await Config.write(store, { address, commitment, config: initialConfig })
+    expect(await Config.read(store, { address, commitment })).toEqual(
+      initialConfig,
+    )
+  })
+
   test('behavior: returns an initial config', async () => {
     const store = Store.memory()
     await Config.write(store, {

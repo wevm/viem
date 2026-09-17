@@ -7,6 +7,7 @@ import {
   sendTransactionSync,
 } from '../actions/index.js'
 import * as Account from './Account.js'
+import { nativeMultisigFactory } from './Addresses.js'
 import * as Formatters from './Formatters.js'
 
 const client = getClient({
@@ -128,36 +129,15 @@ describe('formatTransactionRequest', () => {
   test('behavior: multisig simulation', () => {
     const rpc = Formatters.formatTransactionRequest({
       multisigSimulation: {
-        account: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         approvals: [
           {
             keyType: 'secp256k1',
             owner: '0x1111111111111111111111111111111111111111',
-            type: 'primitive',
           },
           {
-            spec: {
-              account: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-              approvals: [
-                {
-                  keyData: '0x0578',
-                  keyType: 'webAuthn',
-                  owner: '0x2222222222222222222222222222222222222222',
-                },
-              ],
-              config: MultisigConfig.from({
-                owners: [
-                  {
-                    owner: '0x2222222222222222222222222222222222222222',
-                    weight: 1,
-                  },
-                ],
-                salt: `0x${'22'.repeat(32)}`,
-                threshold: 1,
-                version: 1,
-              }),
-            },
-            type: 'multisig',
+            keyType: 'webAuthn',
+            keyData: '0x0578',
+            owner: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
           },
         ],
         config: MultisigConfig.from({
@@ -179,26 +159,15 @@ describe('formatTransactionRequest', () => {
 
     expect(rpc.multisigSimulation).toMatchInlineSnapshot(`
       {
-        "account": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "approvals": [
           {
             "keyType": "secp256k1",
             "owner": "0x1111111111111111111111111111111111111111",
-            "type": "primitive",
           },
           {
-            "spec": {
-              "account": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-              "approvals": [
-                {
-                  "keyData": "0x0578",
-                  "keyType": "webAuthn",
-                  "owner": "0x2222222222222222222222222222222222222222",
-                },
-              ],
-              "config": "0xf83ba022222222222222222222222222222222222222222222222222222222222222220101d7d694222222222222222222222222222222222222222201",
-            },
-            "type": "multisig",
+            "keyData": "0x0578",
+            "keyType": "webAuthn",
+            "owner": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
           },
         ],
         "config": "0xf852a011111111111111111111111111111111111111111111111111111111111111118002eed694111111111111111111111111111111111111111101d694bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01",
@@ -272,7 +241,9 @@ describe('formatTransactionRequest', () => {
       threshold: 1,
       owners: [{ owner: accounts[1].address, weight: 1 }],
     })
-    const account = MultisigConfig.getAddress(initialConfig)
+    const account = MultisigConfig.getAddress(initialConfig, {
+      factory: nativeMultisigFactory,
+    })
     const signature = SignatureEnvelope.from({
       account,
       config: initialConfig,
@@ -303,7 +274,7 @@ describe('formatTransactionRequest', () => {
 
     expect(rpc.keyAuthorization?.account).toBe(account)
     expect(rpc.keyAuthorization?.signature).toMatchInlineSnapshot(
-      `"0xf8979413d0ea1c219b3ca583082664961b9e8cd2d8b678f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
+      `"0xf89794005c3446a4e52b28b50c4185becd44725c470122f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
     )
   })
 

@@ -24,6 +24,7 @@ import {
 } from '~test/tempo/config.js'
 import { custom } from '../clients/transports/custom.js'
 import * as Account_ from './Account.js'
+import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction_ from './Transaction.js'
 import {
   walletNamespaceCompat,
@@ -91,9 +92,11 @@ describe('withRelay', () => {
     const transaction = {
       calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
       chainId: chain.id,
+      from: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       multisigSimulation: {
-        account: MultisigConfig.getAddress(config),
-        approvals: [{ owner: owner.address, type: 'primitive' as const }],
+        approvals: [{ owner: owner.address }],
         config,
       },
     } as const

@@ -2485,10 +2485,6 @@ export default defineConfig({
                   link: '/tempo/guides/multisig/key-types',
                 },
                 {
-                  text: 'Nested Accounts',
-                  link: '/tempo/guides/multisig/nested-accounts',
-                },
-                {
                   text: 'Authorize Access Keys',
                   link: '/tempo/guides/multisig/access-keys',
                 },

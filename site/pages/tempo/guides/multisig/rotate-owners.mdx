@@ -29,7 +29,7 @@ import { client } from './viem.config'
 const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
-const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+const credential = await WebAuthnP256.createCredential({ label: 'Example' })
 const passkeyOwner = Account.fromWebAuthnP256(credential)
 
 // 2. Recreate the account from its stable address and current config.
