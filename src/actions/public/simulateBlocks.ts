@@ -115,6 +115,14 @@ export type SimulateBlocksReturnType<
         data: Hex
         gasUsed: bigint
         logs?: Log[] | undefined
+        /**
+         * Gas used by the call as measured by the node before gas refunds are
+         * applied. `undefined` when the node does not report it.
+         *
+         * Note: this is a measurement of gas usage, not a guaranteed minimum
+         * sufficient gas limit for the call.
+         */
+        maxUsedGas?: bigint | undefined
       }
       error: Error
       mutability: AbiStateMutability
@@ -247,6 +255,8 @@ export async function simulateBlocks<
 
         const data = call.error?.data ?? call.returnData
         const gasUsed = BigInt(call.gasUsed)
+        const maxUsedGas =
+          call.maxUsedGas === undefined ? undefined : BigInt(call.maxUsedGas)
         const logs = call.logs?.map((log) => formatLog(log))
         const status = call.status === '0x1' ? 'success' : 'failure'
 
@@ -279,6 +289,9 @@ export async function simulateBlocks<
           data,
           gasUsed,
           logs,
+          // only present when reported by the node, so existing consumers
+          // (and snapshots) are unaffected on nodes that omit it.
+          ...(maxUsedGas === undefined ? {} : { maxUsedGas }),
           status,
           ...(status === 'success'
             ? {
