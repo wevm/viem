@@ -10,11 +10,13 @@ import type {
   SignatureLegacy,
 } from '../../types/misc.js'
 import type {
+  FrameSignature,
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -22,10 +24,12 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
 import type { MaybePromise, OneOf } from '../../types/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import {
   type SerializeAuthorizationListErrorType,
   serializeAuthorizationList,
@@ -47,6 +51,7 @@ import {
   toBlobSidecars,
 } from '../blob/toBlobSidecars.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
+import { pad } from '../data/pad.js'
 import { trim } from '../data/trim.js'
 import {
   bytesToHex,
@@ -54,17 +59,18 @@ import {
   numberToHex,
 } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
-
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
   type AssertTransactionEIP7702ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -103,6 +109,7 @@ export type SerializeTransactionErrorType =
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
   | SerializeTransactionEIP7702ErrorType
+  | SerializeTransactionEIP8141ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
@@ -140,10 +147,125 @@ export function serializeTransaction<
       signature,
     ) as SerializedTransactionReturnType<transaction>
 
+  if (type === 'eip8141')
+    return serializeTransactionEIP8141(
+      transaction as TransactionSerializableEIP8141,
+      signature,
+    ) as SerializedTransactionReturnType<transaction>
+
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
+}
+
+type SerializeTransactionEIP8141ErrorType =
+  | AssertTransactionEIP8141ErrorType
+  | ConcatHexErrorType
+  | GetAddressErrorType
+  | NumberToHexErrorType
+  | ToRlpErrorType
+  | ErrorType
+
+function serializeTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+  signature?: Signature | undefined,
+): TransactionSerializedEIP8141 {
+  const {
+    chainId,
+    nonce,
+    sender,
+    frames,
+    maxPriorityFeePerGas,
+    maxFeePerGas,
+    maxFeePerBlobGas,
+    blobVersionedHashes,
+  } = transaction
+
+  const signatures = signature
+    ? attachSignatureEIP8141(transaction.signatures, signature)
+    : (transaction.signatures ?? [])
+
+  assertTransactionEIP8141({ ...transaction, signatures })
+
+  const serializedFrames = frames.map((frame) => [
+    frame.mode ? numberToHex(frame.mode) : '0x',
+    frame.flags ? numberToHex(frame.flags) : '0x',
+    frame.target ? getAddress(frame.target) : '0x',
+    [
+      frame.limits.execution ? numberToHex(frame.limits.execution) : '0x',
+      frame.limits.state ? numberToHex(frame.limits.state) : '0x',
+    ],
+    frame.value ? numberToHex(frame.value) : '0x',
+    frame.data ?? '0x',
+  ])
+
+  const serializedSignatures = signatures.map((signature) => [
+    signature.scheme ? numberToHex(signature.scheme) : '0x',
+    signature.signer ? getAddress(signature.signer) : '0x',
+    signature.msg ?? '0x',
+    signature.signature ?? '0x',
+  ])
+
+  return concatHex([
+    '0x06',
+    toRlp([
+      numberToHex(chainId),
+      nonce ? numberToHex(nonce) : '0x',
+      sender,
+      serializedFrames,
+      serializedSignatures,
+      [
+        maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
+        maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
+        maxFeePerBlobGas ? numberToHex(maxFeePerBlobGas) : '0x',
+      ],
+      blobVersionedHashes ?? [],
+    ]),
+  ]) as TransactionSerializedEIP8141
+}
+
+/**
+ * Returns the EIP-8141 `signatures` list with the sender's unsigned
+ * `SECP256K1` slot (no explicit `signer`, empty `msg`, empty `signature`)
+ * filled in with `signature`, encoded as `v (1 byte) || r (32 bytes) || s (32 bytes)`.
+ * A slot is appended when none exists, so an unsigned transaction and its
+ * signed counterpart share the same canonical signature hash.
+ */
+export function attachSignatureEIP8141(
+  signatures: readonly FrameSignature[] | undefined,
+  signature?: Signature | undefined,
+): FrameSignature[] {
+  const signatures_ = [...(signatures ?? [])]
+  let index = signatures_.findIndex(
+    (signature) =>
+      signature.scheme === 1 &&
+      signature.signer === null &&
+      signature.msg === '0x' &&
+      signature.signature === '0x',
+  )
+  if (index === -1) {
+    signatures_.push({ scheme: 1, signer: null, msg: '0x', signature: '0x' })
+    index = signatures_.length - 1
+  }
+  if (!signature) return signatures_
+
+  const yParity = (() => {
+    if (signature.yParity === 0 || signature.yParity === 1)
+      return signature.yParity
+    if (signature.v === 0n || signature.v === 27n) return 0
+    if (signature.v === 1n || signature.v === 28n) return 1
+    throw new InvalidLegacyVError({ v: signature.v as bigint })
+  })()
+  signatures_[index] = {
+    ...signatures_[index],
+    signature: concatHex([
+      numberToHex(yParity, { size: 1 }),
+      pad(signature.r, { size: 32 }),
+      pad(signature.s, { size: 32 }),
+    ]),
+  }
+  return signatures_
 }
 
 type SerializeTransactionEIP7702ErrorType =

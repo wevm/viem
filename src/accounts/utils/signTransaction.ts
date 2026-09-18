@@ -10,6 +10,7 @@ import {
 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
 import {
+  attachSignatureEIP8141,
   type SerializeTransactionFn,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
@@ -44,11 +45,18 @@ export async function signTransaction<
 >(
   parameters: SignTransactionParameters<serializer, transaction>,
 ): Promise<SignTransactionReturnType<serializer, transaction>> {
-  const {
-    privateKey,
-    transaction,
-    serializer = serializeTransaction,
-  } = parameters
+  const { privateKey, serializer = serializeTransaction } = parameters
+
+  const transaction = (() => {
+    // For EIP-8141 Transactions, the signature is placed in the outer `signatures` list,
+    // so reserve its slot up-front: the canonical signature hash commits to the slot's metadata.
+    if ('frames' in parameters.transaction)
+      return {
+        ...parameters.transaction,
+        signatures: attachSignatureEIP8141(parameters.transaction.signatures),
+      } as typeof parameters.transaction
+    return parameters.transaction
+  })()
 
   const signableTransaction = (() => {
     // For EIP-4844 Transactions, we want to sign the transaction payload body (tx_payload_body) without the sidecars (ie. without the network wrapper).
@@ -57,6 +65,18 @@ export async function signTransaction<
       return {
         ...transaction,
         sidecars: false,
+      }
+    // For EIP-8141 Transactions, the signature hash elides the `signature` bytes of every
+    // entry signed over the canonical hash (empty `msg`).
+    // See: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-8141.md#signature-hash
+    if ('frames' in transaction)
+      return {
+        ...transaction,
+        signatures: transaction.signatures?.map((signature) =>
+          signature.msg === '0x'
+            ? { ...signature, signature: '0x' as const }
+            : signature,
+        ),
       }
     return transaction
   })()

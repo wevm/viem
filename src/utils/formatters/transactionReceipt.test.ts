@@ -136,6 +136,112 @@ test('unknown type', () => {
   `)
 })
 
+test('eip8141 receipt with payer and frameReceipts', () => {
+  const receipt = formatTransactionReceipt({
+    blockHash:
+      '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+    blockNumber: '0xe6e55f',
+    contractAddress: null,
+    cumulativeGasUsed: '0x58b887',
+    effectiveGasPrice: '0x2beb40be9',
+    from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+    gasUsed: '0x9458',
+    logs: [],
+    logsBloom: '0x00',
+    status: '0x1',
+    to: null,
+    transactionHash:
+      '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+    transactionIndex: '0x45',
+    type: '0x6',
+    payer: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc',
+    frameReceipts: [
+      {
+        status: '0x1',
+        gasUsed: '0x5208',
+        stateGasUsed: '0x3e8',
+        logs: [
+          {
+            address: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+            data: '0x',
+            topics: [],
+          },
+        ],
+      },
+      {
+        status: '0x0',
+        gasUsed: '0x186a0',
+        stateGasUsed: '0x0',
+        logs: [],
+      },
+      {
+        status: '0x2',
+        gasUsed: '0x0',
+        logs: [],
+      },
+    ],
+  } as any)
+  expect(receipt.type).toBe('eip8141')
+  expect(receipt.payer).toBe('0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc')
+  expect(receipt.frameReceipts).toMatchInlineSnapshot(`
+    [
+      {
+        "gasUsed": 21000n,
+        "logs": [
+          {
+            "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
+            "blockHash": null,
+            "blockNumber": null,
+            "blockTimestamp": undefined,
+            "data": "0x",
+            "logIndex": null,
+            "topics": [],
+            "transactionHash": null,
+            "transactionIndex": null,
+          },
+        ],
+        "stateGasUsed": 1000n,
+        "status": "success",
+      },
+      {
+        "gasUsed": 100000n,
+        "logs": [],
+        "stateGasUsed": 0n,
+        "status": "reverted",
+      },
+      {
+        "gasUsed": 0n,
+        "logs": [],
+        "stateGasUsed": 0n,
+        "status": "skipped",
+      },
+    ]
+  `)
+})
+
+test('non-eip8141 receipt has no payer or frameReceipts', () => {
+  const receipt = formatTransactionReceipt({
+    blockHash:
+      '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+    blockNumber: '0xe6e55f',
+    contractAddress: null,
+    cumulativeGasUsed: '0x58b887',
+    effectiveGasPrice: '0x2beb40be9',
+    from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+    gasUsed: '0x9458',
+    logs: [],
+    logsBloom: '0x00',
+    status: '0x1',
+    to: '0x15d4c048f83bd7e37d49ea4c83a07267ec4203da',
+    transactionHash:
+      '0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b',
+    transactionIndex: '0x45',
+    type: '0x2',
+  })
+  expect(receipt.payer).toBeUndefined()
+  expect(receipt.frameReceipts).toBeUndefined()
+})
+
 test('nullish values', () => {
   expect(
     formatTransactionReceipt({
