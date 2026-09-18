@@ -1,5 +1,11 @@
 # viem
 
+## 2.56.8
+
+### Patch Changes
+
+- [#5110](https://github.com/wevm/viem/pull/5110) [`f54b9d3e9d89dfc750525d57c9fd83ce0157aca1`](https://github.com/wevm/viem/commit/f54b9d3e9d89dfc750525d57c9fd83ce0157aca1) Thanks [@jxom](https://github.com/jxom)! - Fixed declaration inference for exported Tempo chains by preserving named formatter return types.
+
 ## 2.56.7
 
 ### Patch Changes
