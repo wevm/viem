@@ -1,6 +1,15 @@
-import { createPublicClient, http, webSocket } from 'viem'
-import { mainnet } from 'viem/chains'
+import { createPublicClient, defineChain, http, webSocket } from 'viem'
+import { mainnet, tempo, tempoDevnet, tempoModerato } from 'viem/chains'
 import { Zone } from 'viem/tempo'
+import { tempoTestnet } from 'viem/tempo/chains'
+
+export const tempoChain = tempoTestnet
+export const tempoChains = [tempo, tempoDevnet, tempoModerato, tempoTestnet]
+export const customTempoChain = defineChain({
+  ...tempoTestnet,
+  id: 123,
+  name: 'Custom Tempo Chain',
+})
 
 export const zone = Zone.from({
   id: 123,
