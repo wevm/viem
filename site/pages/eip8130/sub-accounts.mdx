@@ -1,0 +1,156 @@
+---
+description: Derive multiple EIP-8130 accounts per owner and link them with delegate actors
+---
+
+# Sub Accounts
+
+EIP-8130 has no dedicated "sub account" type — instead you compose two primitives:
+
+1. **Derive many accounts from one owner** — each `salt` yields a distinct, independent account address controlled by the same signer.
+2. **Link accounts with delegate actors** — a `delegate` actor lets one account's keys authorize transactions on another, so a primary account can drive its sub accounts.
+
+## Many accounts, one owner
+
+The account address is a deterministic function of the salt (plus the wallet code and initial actors). Pass a distinct `salt` to derive independent sub accounts for the same owner — useful for per-app, per-user, or per-purpose isolation.
+
+```ts
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
+import { newSmartAccount } from 'viem/eip8130'
+
+const owner = privateKeyToAccount(generatePrivateKey())
+
+// A stable, human-meaningful salt derivation is convenient here.
+const main = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('main') })
+const trading = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('trading') })
+const savings = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor('savings') })
+
+main.address !== trading.address // distinct accounts, same owner key
+```
+
+Each sub account is deployed independently on its first transaction (see [Sending a Transaction](/eip8130/sending-a-transaction#deploy-on-first-use)).
+
+## Linking with delegate actors
+
+A **delegate actor** authorizes signatures that are valid for another account to act for *this* account. Add `key.delegate(primary)` to a sub account and the primary account's keys can drive it — a "controlled by" link, without sharing raw private keys.
+
+```ts
+import {
+  actorScope,
+  authorizeActor,
+  key,
+  sendTransaction,
+} from 'viem/eip8130'
+
+// On the sub account, authorize the primary account as a delegate.
+const link = await subAccount.change(
+  [
+    authorizeActor(key.delegate(main.address), {
+      scope: actorScope.operator,
+    }),
+  ],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+
+const hash = await sendTransaction(client, {
+  account: subAccount,
+  accountChanges: [link],
+  calls: [],
+  gas: 200_000n,
+})
+```
+
+Once linked, build an account handle that signs for the sub account using the **primary** signer via the delegate authenticator:
+
+```ts
+import {
+  canonicalAuthenticators,
+  sendTransaction,
+  toAccount,
+} from 'viem/eip8130'
+
+// Drive `subAccount.address` with `main`'s key through the delegate authenticator.
+const subAsDelegate = toAccount({
+  signer: main.signer,
+  authenticator: canonicalAuthenticators.delegate,
+  address: subAccount.address,
+})
+
+const hash = await sendTransaction(client, {
+  account: subAsDelegate,
+  calls: [{ to: recipient, value: 1n }],
+  gas: 200_000n,
+})
+```
+
+:::note
+The delegate authenticator validates a signature produced for the linked account, so authentication gas is priced from the delegate blob's shape. Pass `senderAuthAuthenticator: canonicalAuthenticators.delegate` to [`estimateGas`](/eip8130/sending-a-transaction#estimate-gas) when pricing delegate-signed transactions.
+:::
+
+## Revoking a link
+
+Revoke the delegate actor to unlink a sub account at any time:
+
+```ts
+import { key, revokeActor } from 'viem/eip8130'
+
+const unlink = await subAccount.change(
+  [revokeActor(key.delegate(main.address))],
+  { chainId: client.chain.id, sequence: Number(sequence) },
+)
+```
+
+## Fulfilling an ERC-7895 request
+
+When a dApp asks a wallet to create a sub account via [ERC-7895](https://eips.ethereum.org/EIPS/eip-7895) `wallet_addSubAccount` (`type: 'create'`), `fulfillAddSubAccount` builds the two primitives above in one step: a **distinct** account whose owner set is the requested `keys` **plus** `key.delegate(parent)` — the link installed at creation, so no separate change transaction is needed.
+
+```ts
+import { fulfillAddSubAccount, sendTransaction } from 'viem/eip8130'
+
+// `keys` are the owner keys the dApp requested (wallet_addSubAccount).
+const sub = fulfillAddSubAccount({
+  parent: parent.address,
+  signer: parent.signer, // signs for the sub account via the delegate authenticator
+  proxy: 'erc1167',
+  keys: [{ publicKey: dappKeyAddress, type: 'address' }],
+})
+
+// ERC-7895 response shape:
+sub.response.address
+
+// Deploy + first call in one shot — the parent drives it as a delegate:
+const hash = await sendTransaction(client, {
+  account: sub,
+  accountChanges: [sub.createChange],
+  calls: [{ to: recipient, value: 1n }],
+  gas: 300_000n,
+})
+```
+
+The returned handle is a full account (its own `address`, `createChange`, and `signTransaction`) driven by the parent's `signer` through the delegate authenticator. Requested `keys` map to owner actors by `type`: `'address'` → `key.k1`, `'p256'` / `'webcrypto-p256'` → `key.p256`, `'webauthn-p256'` → `key.webAuthn`. Pass a stable `salt` to derive a deterministic sub-account address.
+
+By default the requested `keys` are unrestricted **co-owners**. Pass `keyScope` (and optionally `keyPolicy`) to register them as **scoped** actors instead — so the parent stays the sole full owner while the dApp key is a bounded session key:
+
+```ts
+import { actorScope, defineSessionPolicy, encodeSessionPolicyConfig } from 'viem/eip8130'
+
+const session = defineSessionPolicy({
+  account: subAddress, // the sub-account address you're creating
+  policyConfig: encodeSessionPolicyConfig({
+    tokenLimits: [{ token: usdc, limit: 100_000_000n, period: 604_800n }],
+  }),
+})
+
+const sub = fulfillAddSubAccount({
+  parent: parent.address,
+  signer: parent.signer,
+  proxy: 'erc1167',
+  keys: [{ publicKey: dappKeyAddress, type: 'address' }],
+  keyScope: actorScope.policy, // policy-gated session key (not a full owner)
+  keyPolicy: session.actorPolicy,
+})
+```
+
+## Next
+
+- Let a third party pay for a sub account's gas — [Sponsoring Transactions](/eip8130/sponsoring-transactions).
+- Negotiate sponsorship with a service — [Payer Services (ERC-8168)](/eip8130/payer-services).
