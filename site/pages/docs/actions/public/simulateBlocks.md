@@ -122,6 +122,12 @@ export const client = createPublicClient({
 
 Simulation results.
 
+Each call result includes `gasUsed` (gas charged to the call), and `maxUsedGas`
+when the node reports it. `maxUsedGas` is the node's measurement of the gas used
+by the call before gas refunds are applied – it is not a guaranteed minimum
+sufficient gas limit for the call. It is `undefined` against nodes that do not
+report it.
+
 ## Parameters
 
 ### blocks
