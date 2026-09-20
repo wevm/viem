@@ -1595,12 +1595,13 @@ export type TestRpcSchema<mode extends string> = [
     ReturnType: Quantity
   },
   /**
-   * @description Revert the state of the blockchain to a previous snapshot. Takes a single parameter, which is the snapshot id to revert to.
+   * @description Revert the state of the blockchain to a previous snapshot. Takes a single parameter, which is the snapshot id to revert to. Returns `true` if the snapshot existed, `false` otherwise.
+   * @link https://hardhat.org/hardhat-network/docs/reference#evm_revert
    */
   {
     Method: 'evm_revert'
     Parameters?: [id: Quantity] | undefined
-    ReturnType: void
+    ReturnType: boolean
   },
   /**
    * @description Enables the automatic mining of new blocks with each new transaction submitted to the network.
