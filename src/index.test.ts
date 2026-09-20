@@ -24,6 +24,7 @@ test('exports', () => {
       "UnknownSignatureError",
       "UnknownTypeError",
       "getContract",
+      "SnapshotRevertError",
       "WaitForCallsStatusTimeoutError",
       "createClient",
       "rpcSchema",

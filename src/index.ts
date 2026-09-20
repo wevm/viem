@@ -406,7 +406,9 @@ export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
 export type {
   RevertErrorType,
   RevertParameters,
+  SnapshotRevertErrorType,
 } from './actions/test/revert.js'
+export { SnapshotRevertError } from './actions/test/revert.js'
 export type {
   SendUnsignedTransactionErrorType,
   SendUnsignedTransactionParameters,

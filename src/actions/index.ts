@@ -414,6 +414,8 @@ export {
 export {
   type RevertErrorType,
   type RevertParameters,
+  type SnapshotRevertErrorType,
+  SnapshotRevertError,
   revert,
 } from './test/revert.js'
 export {
