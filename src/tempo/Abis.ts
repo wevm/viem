@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@d656ef5581505b59f1611b358e611f5a602d399e
+// Source: tempoxyz/tempo@a2624758a6709731d98b9bd6fc8e5afca398fea9
 
 export const accountKeychain = [
   {
@@ -4325,7 +4325,87 @@ export const zonePortal = [
   },
 ] as const
 
-// Source: tempoxyz/earn@e8c4c47216b61e727524e5283daf2c7b76f516f7
+export const zoneVerifier = [
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint32', name: 'zoneId' },
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'anchorBlockNumber' },
+      { type: 'bytes32', name: 'anchorBlockHash' },
+      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'tokenEnablementTransition',
+        components: [
+          { type: 'uint64', name: 'prevProcessedTokenCount' },
+          { type: 'uint64', name: 'nextProcessedTokenCount' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint32', name: 'zoneId' },
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'anchorBlockNumber' },
+      { type: 'bytes32', name: 'anchorBlockHash' },
+      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+] as const
+
+// Source: tempoxyz/earn@d6373e4939ec2bbf5dcccffd5f2519ff4a62d6b1
 
 export const earnContributionController = [
   {
@@ -4384,6 +4464,17 @@ export const earnContributionController = [
       { name: 'maxEarnShareSupply', type: 'uint256' },
     ],
     outputs: [{ name: 'fundedAssets', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'fundBatchExact',
+    inputs: [
+      { name: 'funders', type: 'address[]' },
+      { name: 'requestedAssets', type: 'uint256[]' },
+      { name: 'maxEarnShareSupply', type: 'uint256' },
+    ],
+    outputs: [{ name: 'totalFundedAssets', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -4464,6 +4555,7 @@ export const earnContributionController = [
     ],
   },
   { type: 'error', name: 'Inactive', inputs: [] },
+  { type: 'error', name: 'InvalidArrayLengths', inputs: [] },
   { type: 'error', name: 'NotSelf', inputs: [] },
   {
     type: 'error',
@@ -4479,6 +4571,7 @@ export const earnContributionController = [
   { type: 'error', name: 'TokenCallFailed', inputs: [] },
   { type: 'error', name: 'TokenCallFalse', inputs: [] },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
 export const earnEngine = [
@@ -5518,6 +5611,13 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'function',
+    name: 'consumedSettlements',
+    inputs: [{ name: 'settlementId', type: 'bytes32' }],
+    outputs: [{ name: 'consumed', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'cumulativePaid',
     inputs: [{ name: 'recipient', type: 'address' }],
     outputs: [{ name: 'cumulativeAmount', type: 'uint256' }],
@@ -5539,13 +5639,21 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'function',
-    name: 'fundWithAssets',
+    name: 'fundAndPublishRoot',
     inputs: [
+      { name: 'settlementId', type: 'bytes32' },
+      { name: 'expectedRootVersion', type: 'uint64' },
       { name: 'funder', type: 'address' },
       { name: 'assets', type: 'uint256' },
       { name: 'minEarnShares', type: 'uint256' },
+      { name: 'root', type: 'bytes32' },
+      { name: 'totalEntitlement', type: 'uint256' },
+      { name: 'statementHash_', type: 'bytes32' },
     ],
-    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    outputs: [
+      { name: 'earnShares', type: 'uint256' },
+      { name: 'version', type: 'uint64' },
+    ],
     stateMutability: 'nonpayable',
   },
   {
@@ -5590,6 +5698,7 @@ export const earnMerkleRewardDistributor = [
     type: 'function',
     name: 'publishRoot',
     inputs: [
+      { name: 'expectedRootVersion', type: 'uint64' },
       { name: 'root', type: 'bytes32' },
       { name: 'totalEntitlement', type: 'uint256' },
       { name: 'statementHash_', type: 'bytes32' },
@@ -5812,6 +5921,11 @@ export const earnMerkleRewardDistributor = [
   },
   {
     type: 'error',
+    name: 'SettlementAlreadyConsumed',
+    inputs: [{ name: 'settlementId', type: 'bytes32' }],
+  },
+  {
+    type: 'error',
     name: 'StaleRootVersion',
     inputs: [
       { name: 'expected', type: 'uint64' },
@@ -5842,7 +5956,94 @@ export const earnMerkleRewardDistributor = [
   { type: 'error', name: 'ZeroDeadline', inputs: [] },
   { type: 'error', name: 'ZeroMinimumEarnShares', inputs: [] },
   { type: 'error', name: 'ZeroRoot', inputs: [] },
+  { type: 'error', name: 'ZeroSettlementId', inputs: [] },
   { type: 'error', name: 'ZeroStatementHash', inputs: [] },
+] as const
+
+export const earnRewardsFactory = [
+  {
+    type: 'function',
+    name: 'campaignId',
+    inputs: [{ name: 'earnVault', type: 'address' }],
+    outputs: [{ name: '', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'install',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+      { name: 'treasury', type: 'address' },
+      { name: 'claimDeadline', type: 'uint40' },
+      { name: 'targetYield', type: 'bool' },
+      { name: 'boostRewards', type: 'bool' },
+    ],
+    outputs: [
+      {
+        name: 'result',
+        type: 'tuple',
+        components: [
+          { name: 'contributionController', type: 'address' },
+          { name: 'merkleDistributor', type: 'address' },
+        ],
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'predictContributionController',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'predictMerkleDistributor',
+    inputs: [
+      { name: 'earnVault', type: 'address' },
+      { name: 'owner', type: 'address' },
+      { name: 'treasury', type: 'address' },
+      { name: 'claimDeadline', type: 'uint40' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    name: 'ContributionControllerInstalled',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'owner', type: 'address', indexed: true },
+      { name: 'contributionController', type: 'address', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MerkleDistributorInstalled',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'owner', type: 'address', indexed: true },
+      { name: 'treasury', type: 'address', indexed: true },
+      { name: 'merkleDistributor', type: 'address', indexed: false },
+      { name: 'campaignId', type: 'bytes32', indexed: false },
+      { name: 'claimDeadline', type: 'uint40', indexed: false },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'EmptyInstallation', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidExistingDeployment',
+    inputs: [{ name: 'component', type: 'address' }],
+  },
+  { type: 'error', name: 'InvalidRewardConfiguration', inputs: [] },
+  { type: 'error', name: 'ZeroAddress', inputs: [] },
 ] as const
 
 export const earnRouter = [
@@ -6008,6 +6209,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'acceptOperator',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'accrueFees',
     inputs: [],
     outputs: [
@@ -6054,6 +6262,13 @@ export const earnVault = [
   {
     type: 'function',
     name: 'cancelDistributorTransfer',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'cancelOperatorTransfer',
     inputs: [],
     outputs: [],
     stateMutability: 'nonpayable',
@@ -6319,6 +6534,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'pendingOperator',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'pendingRedeem',
     inputs: [{ name: 'requestId', type: 'bytes32' }],
     outputs: [
@@ -6490,6 +6712,13 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'transferOperator',
+    inputs: [{ name: 'newOperator', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'withdrawExact',
     inputs: [
       { name: 'assets', type: 'uint256' },
@@ -6587,6 +6816,25 @@ export const earnVault = [
   },
   {
     type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [
+      { name: 'engine', type: 'address', indexed: true },
+      { name: 'earnShare', type: 'address', indexed: true },
+      { name: 'earnFees', type: 'address', indexed: true },
+      { name: 'operator', type: 'address', indexed: false },
+      { name: 'emergencyGuardian', type: 'address', indexed: false },
+      { name: 'asyncJanitor', type: 'address', indexed: false },
+      { name: 'maxManagedAssets', type: 'uint256', indexed: false },
+      { name: 'migrationMode', type: 'uint8', indexed: false },
+      { name: 'distributor', type: 'address', indexed: false },
+      { name: 'distributorUpdateDelay', type: 'uint40', indexed: false },
+      { name: 'distributorFeeRecipient', type: 'address', indexed: false },
+      { name: 'distributorFeeRateBps', type: 'uint16', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'EmergencyRolesChanged',
     inputs: [
       { name: 'emergencyGuardian', type: 'address', indexed: true },
@@ -6611,6 +6859,18 @@ export const earnVault = [
   },
   {
     type: 'event',
+    name: 'EngineShareShortfallReconciled',
+    inputs: [
+      { name: 'engine', type: 'address', indexed: true },
+      { name: 'previousManagedEngineShares', type: 'uint256', indexed: false },
+      { name: 'observedRawEngineShares', type: 'uint256', indexed: false },
+      { name: 'shortfallEngineShares', type: 'uint256', indexed: false },
+      { name: 'totalEarnShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'EngineShareSurplusAbsorbed',
     inputs: [
       { name: 'caller', type: 'address', indexed: true },
@@ -6626,6 +6886,33 @@ export const earnVault = [
     inputs: [
       { name: 'previousMaxManagedAssets', type: 'uint256', indexed: false },
       { name: 'newMaxManagedAssets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferCancelled',
+    inputs: [
+      { name: 'operator', type: 'address', indexed: true },
+      { name: 'pendingOperator', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferStarted',
+    inputs: [
+      { name: 'operator', type: 'address', indexed: true },
+      { name: 'pendingOperator', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OperatorTransferred',
+    inputs: [
+      { name: 'previousOperator', type: 'address', indexed: true },
+      { name: 'newOperator', type: 'address', indexed: true },
     ],
     anonymous: false,
   },
@@ -6795,8 +7082,10 @@ export const earnVault = [
   { type: 'error', name: 'NotEngine', inputs: [] },
   { type: 'error', name: 'NotOperator', inputs: [] },
   { type: 'error', name: 'NotPendingDistributor', inputs: [] },
+  { type: 'error', name: 'NotPendingOperator', inputs: [] },
   { type: 'error', name: 'NotRequesterOrJanitor', inputs: [] },
   { type: 'error', name: 'OperatorMigrationDisabled', inputs: [] },
+  { type: 'error', name: 'OperatorTransferNotPending', inputs: [] },
   { type: 'error', name: 'PendingRedeemsOpen', inputs: [] },
   { type: 'error', name: 'ReentrantCall', inputs: [] },
   {
@@ -7741,6 +8030,18 @@ export const vedaEngine = [
   },
   {
     type: 'event',
+    name: 'VedaEngineInitialized',
+    inputs: [
+      { name: 'teller', type: 'address', indexed: true },
+      { name: 'queue', type: 'address', indexed: true },
+      { name: 'accountant', type: 'address', indexed: true },
+      { name: 'peripheryVersion', type: 'uint64', indexed: false },
+      { name: 'maxRateAge', type: 'uint64', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
     name: 'VedaPeripheryUpdated',
     inputs: [
       { name: 'registryVersion', type: 'uint64', indexed: true },
@@ -7893,6 +8194,14 @@ export const vedaEngine = [
   { type: 'error', name: 'QueueUnavailable', inputs: [] },
   {
     type: 'error',
+    name: 'QueuedAssetsBelowMinimum',
+    inputs: [
+      { name: 'minimumAssets', type: 'uint256' },
+      { name: 'actualAssets', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
     name: 'RateChangedWithinTransaction',
     inputs: [
       { name: 'expected', type: 'uint256' },
@@ -7975,6 +8284,7 @@ export const vedaEngine = [
     ],
   },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
+  { type: 'error', name: 'ZeroMinimumQueuedAssets', inputs: [] },
 ] as const
 
 // `SingleZoneEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
@@ -8011,7 +8321,7 @@ export const earnRouterCallbackData = [
   },
 ] as const
 
-// Source: tempoxyz/zones@7e38642cdd5a1500784fd15cf30eda5366f3350a
+// Source: tempoxyz/zones@421d77a9e5a12cd3fbb2ed10da1010f31b75f012
 
 export const zoneOutbox = [
   {
@@ -8287,43 +8597,6 @@ export const zoneMessenger = [
   },
 ] as const
 
-export const zoneVerifier = [
-  {
-    name: 'verify',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint32', name: 'zoneId' },
-      { type: 'uint64', name: 'tempoBlockNumber' },
-      { type: 'uint64', name: 'anchorBlockNumber' },
-      { type: 'bytes32', name: 'anchorBlockHash' },
-      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
-      {
-        type: 'tuple',
-        name: 'blockTransition',
-        components: [
-          { type: 'bytes32', name: 'prevBlockHash' },
-          { type: 'bytes32', name: 'nextBlockHash' },
-        ],
-      },
-      {
-        type: 'tuple',
-        name: 'depositQueueTransition',
-        components: [
-          { type: 'bytes32', name: 'prevProcessedHash' },
-          { type: 'bytes32', name: 'nextProcessedHash' },
-          { type: 'uint64', name: 'prevDepositNumber' },
-          { type: 'uint64', name: 'nextDepositNumber' },
-        ],
-      },
-      { type: 'bytes32', name: 'withdrawalQueueHash' },
-      { type: 'bytes', name: 'verifierConfig' },
-      { type: 'bytes', name: 'proof' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-] as const
-
 export const core = [
   ...accountKeychain,
   ...addressRegistry,
@@ -8344,6 +8617,7 @@ export const core = [
   ...validatorConfigV2,
   ...zoneFactory,
   ...zonePortal,
+  ...zoneVerifier,
 ] as const
 
 export const earn = [
@@ -8354,6 +8628,7 @@ export const earn = [
   ...earnFactory,
   ...earnFees,
   ...earnMerkleRewardDistributor,
+  ...earnRewardsFactory,
   ...earnRouter,
   ...earnVault,
   ...erc4626Engine,
@@ -8361,6 +8636,6 @@ export const earn = [
   ...vedaEngine,
 ] as const
 
-export const zone = [...zoneMessenger, ...zoneOutbox, ...zoneVerifier] as const
+export const zone = [...zoneMessenger, ...zoneOutbox] as const
 
 export const all = [...core, ...earn, ...zone] as const

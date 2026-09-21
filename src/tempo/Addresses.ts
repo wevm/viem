@@ -12,6 +12,7 @@ export const accountImplementation =
 export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
 export const accountRegistrar = '0x7702ac0000000000000000000000000000000000'
 export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
+export const currentCommittee = '0xC077E00000000000000000000000000000000000'
 export const feeManager = '0xfeec000000000000000000000000000000000000'
 export const nativeMultisig = '0xAACC000000000000000000000000000000000000'
 /** Temporary recovery factory until the production address is finalized. */

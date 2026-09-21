@@ -31,7 +31,7 @@ function tempoAdapter(): SourceAdapter {
     string,
     { after: string; items: string[] }
   > = {
-    // TODO: Remove after https://github.com/wevm/viem/pull/5029 replaces the legacy multisig implementation.
+    // The upstream precompile sources do not include the native multisig interface.
     INativeMultisig: {
       after: 'IAddressRegistry',
       items: [
