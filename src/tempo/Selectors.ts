@@ -301,6 +301,16 @@ export const zoneFactory = {
 } as const satisfies FunctionSelectors<typeof Abis.zoneFactory, 'createZone'> &
   OverloadedFunctionSelectors<'createZone'>
 
+export const zoneVerifier = {
+  verify: {
+    'verify(uint32,uint64,uint64,bytes32,uint64,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),bytes32,bytes,bytes)':
+      '0x7106a43e',
+    'verify(uint32,uint64,uint64,bytes32,uint64,uint256,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),(uint64,uint64),bytes32,bytes,bytes)':
+      '0xebb2ddc9',
+  },
+} as const satisfies FunctionSelectors<typeof Abis.zoneVerifier, 'verify'> &
+  OverloadedFunctionSelectors<'verify'>
+
 export const zonePortal = {
   FIXED_DEPOSIT_GAS: '0xf706cfbf',
   MAX_DEPOSITS_PER_TEMPO_BLOCK: '0x1bf00ca8',
@@ -415,7 +425,3 @@ export const zoneOutbox = {
 export const zoneMessenger = {
   relayMessage: '0x11da5261',
 } as const satisfies FunctionSelectors<typeof Abis.zoneMessenger>
-
-export const zoneVerifier = {
-  verify: '0x7106a43e',
-} as const satisfies FunctionSelectors<typeof Abis.zoneVerifier>
