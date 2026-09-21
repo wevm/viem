@@ -31,7 +31,7 @@ function tempoAdapter(): SourceAdapter {
     string,
     { after: string; items: string[] }
   > = {
-    // The upstream precompile sources do not include the native multisig interface.
+    // TODO: Remove once native multisig is merged into Tempo main.
     INativeMultisig: {
       after: 'IAddressRegistry',
       items: [
