@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { parseTransaction } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { accounts } from '~test/constants.js'
@@ -16,11 +17,7 @@ import { toRlp } from '../encoding/toRlp.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
-import {
-  parseAccessList,
-  parseTransaction,
-  toTransactionArray,
-} from './parseTransaction.js'
+import { parseAccessList, toTransactionArray } from './parseTransaction.js'
 import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {
@@ -28,6 +25,67 @@ const base = {
   nonce: 785,
   value: parseEther('1'),
 } satisfies TransactionSerializableBase
+
+describe('eip8141', () => {
+  test('unsigned', () => {
+    expect(
+      parseTransaction(
+        '0x06f84d010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0',
+      ),
+    ).toMatchInlineSnapshot(`
+      {
+        "blobVersionedHashes": [],
+        "chainId": 1,
+        "frames": [
+          {
+            "data": "0x",
+            "flags": 3,
+            "gas": 50000n,
+            "mode": 1,
+            "stateGas": 0n,
+            "value": 0n,
+          },
+          {
+            "data": "0x",
+            "flags": 0,
+            "gas": 50000n,
+            "mode": 2,
+            "stateGas": 0n,
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 1n,
+          },
+        ],
+        "maxFeePerBlobGas": 0n,
+        "maxFeePerGas": 20n,
+        "maxPriorityFeePerGas": 1n,
+        "nonce": 7,
+        "sender": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "signatures": [
+          {
+            "payload": "0x",
+            "scheme": "secp256k1",
+          },
+        ],
+        "type": "eip8141",
+      }
+    `)
+  })
+
+  test.each([
+    '0x06f85487200000000000000794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0',
+    '0x06f85401872000000000000094f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0',
+  ] as const)('rejects unsafe numeric indices: %s', (serialized) => {
+    expect(() => parseTransaction(serialized)).toThrow('9007199254740992n')
+  })
+
+  test.each([
+    '0x06c0',
+    '0x06c701808080808080',
+    '0x06f84e81010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0',
+  ] as const)('malformed: %s', (serialized) => {
+    expect(() => parseTransaction(serialized)).toThrow()
+  })
+})
 
 describe('eip7702', () => {
   const baseEip7702 = {

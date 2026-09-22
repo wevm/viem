@@ -21,15 +21,19 @@ export type GetTransactionType<
   transaction extends OneOf<
     TransactionSerializableGeneric | TransactionRequestGeneric
   > = TransactionSerializableGeneric,
-  result =
-    | (transaction extends LegacyProperties ? 'legacy' : never)
-    | (transaction extends EIP1559Properties ? 'eip1559' : never)
-    | (transaction extends EIP2930Properties ? 'eip2930' : never)
-    | (transaction extends EIP4844Properties ? 'eip4844' : never)
-    | (transaction extends EIP7702Properties ? 'eip7702' : never)
-    | (transaction['type'] extends TransactionSerializableGeneric['type']
-        ? Extract<transaction['type'], string>
-        : never),
+  result = transaction extends { type: infer type extends string }
+    ? type
+    : transaction extends { frames: readonly unknown[] }
+      ? 'eip8141'
+      :
+          | (transaction extends LegacyProperties ? 'legacy' : never)
+          | (transaction extends EIP1559Properties ? 'eip1559' : never)
+          | (transaction extends EIP2930Properties ? 'eip2930' : never)
+          | (transaction extends EIP4844Properties ? 'eip4844' : never)
+          | (transaction extends EIP7702Properties ? 'eip7702' : never)
+          | (transaction['type'] extends TransactionSerializableGeneric['type']
+              ? Extract<transaction['type'], string>
+              : never),
 > = IsNever<keyof transaction> extends true
   ? string
   : IsNever<result> extends false
@@ -47,6 +51,9 @@ export function getTransactionType<
 >(transaction: transaction): GetTransactionType<transaction> {
   if (transaction.type)
     return transaction.type as GetTransactionType<transaction>
+
+  if (typeof transaction.frames !== 'undefined')
+    return 'eip8141' as GetTransactionType<transaction>
 
   if (typeof transaction.authorizationList !== 'undefined')
     return 'eip7702' as any
@@ -82,6 +89,7 @@ type BaseProperties = {
   authorizationList?: undefined
   blobs?: undefined
   blobVersionedHashes?: undefined
+  frames?: undefined
   gasPrice?: undefined
   maxFeePerBlobGas?: undefined
   maxFeePerGas?: undefined

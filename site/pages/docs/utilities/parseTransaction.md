@@ -4,7 +4,7 @@ description: Converts a serialized transaction to a structured transaction.
 
 # parseTransaction
 
-Parses a serialized RLP-encoded transaction. Supports signed & unsigned EIP-1559, EIP-2930 and Legacy Transactions.
+Parses a signed or unsigned RLP-encoded transaction, including [EIP-8141 frame transactions](https://eips.ethereum.org/EIPS/eip-8141).
 
 ## Import
 ```ts
@@ -22,7 +22,11 @@ const transaction = parseTransaction('0x02ef018203118477359400847735940080947099
 
 `TransactionSerializable`
 
-The parsed transaction object.
+The parsed transaction object. EIP-8141 results contain `sender`, `frames`, and `signatures`, including unsigned signature placeholders. Frame destinations use `to`; gas budgets use `gas` and `stateGas`.
+
+Chain IDs and nonces use numbers. Parsing throws if either exceeds `Number.MAX_SAFE_INTEGER`. PeerDAS sidecars are retained when present.
+
+Parsing does not verify account authorization. [`recoverTransactionAddress`](/docs/utilities/recoverTransactionAddress) rejects frame transactions because they can contain multiple signers.
 
 ## Parameters
 

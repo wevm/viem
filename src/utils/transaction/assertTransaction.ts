@@ -1,3 +1,4 @@
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { versionedHashVersionKzg } from '../../constants/kzg.js'
 import { maxUint256 } from '../../constants/number.js'
 import {
@@ -29,12 +30,54 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
-import { hexToNumber } from '../encoding/fromHex.js'
+import { hexToBigInt, hexToNumber } from '../encoding/fromHex.js'
+import { type NumberToHexErrorType, numberToHex } from '../encoding/toHex.js'
+
+export type AssertTransactionEIP8141ErrorType =
+  | BaseErrorType
+  | NumberToHexErrorType
+  | TxEnvelopeEip8141.assert.ErrorType
+  | ErrorType
+
+/** Asserts the structural validity of an EIP-8141 envelope without verifying authorization. */
+export function assertTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+) {
+  for (const field of [
+    'accessList',
+    'authorizationList',
+    'blobs',
+    'data',
+    'from',
+    'gas',
+    'gasPrice',
+    'kzg',
+    'r',
+    's',
+    'to',
+    'v',
+    'value',
+    'yParity',
+  ])
+    if (
+      field in transaction &&
+      transaction[field as keyof typeof transaction] !== undefined
+    )
+      throw new BaseError(
+        `EIP-8141 transactions do not support the outer "${field}" field.`,
+      )
+
+  TxEnvelopeEip8141.assert({
+    ...transaction,
+    nonce: hexToBigInt(numberToHex(transaction.nonce ?? 0)),
+  })
+}
 
 export type AssertTransactionEIP7702ErrorType =
   | AssertTransactionEIP1559ErrorType

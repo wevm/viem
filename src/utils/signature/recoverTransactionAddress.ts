@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TransactionSerialized } from '../../types/transaction.js'
@@ -22,6 +23,7 @@ export type RecoverTransactionAddressParameters = {
 export type RecoverTransactionAddressReturnType = Address
 
 export type RecoverTransactionAddressErrorType =
+  | BaseErrorType
   | SerializeTransactionErrorType
   | RecoverAddressErrorType
   | Keccak256ErrorType
@@ -34,6 +36,14 @@ export async function recoverTransactionAddress(
   const { serializedTransaction, signature: signature_ } = parameters
 
   const transaction = parseTransaction(serializedTransaction)
+
+  if ('frames' in transaction)
+    throw new BaseError(
+      'Cannot recover a single signer from an EIP-8141 transaction.',
+      {
+        name: 'RecoverTransactionAddress.UnsupportedTransactionTypeError',
+      },
+    )
 
   const signature = signature_ ?? {
     r: transaction.r!,

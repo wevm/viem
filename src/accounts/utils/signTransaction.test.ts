@@ -1,3 +1,4 @@
+import { signTransaction } from 'viem/accounts'
 import { assertType, describe, expect, test, vi } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
@@ -20,7 +21,6 @@ import { toBlobs } from '../../utils/blob/toBlobs.js'
 import type { SerializeTransactionFn } from '../../utils/transaction/serializeTransaction.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { privateKeyToAccount } from '../privateKeyToAccount.js'
-import { signTransaction } from './signTransaction.js'
 
 const client = anvilMainnet.getClient()
 
@@ -503,3 +503,22 @@ describe('legacy', () => {
     )
   })
 })
+
+test.each(['eip8141', undefined] as const)(
+  'rejects ordinary signing of frame transactions: %s',
+  async (type) => {
+    await expect(
+      signTransaction({
+        privateKey: accounts[0].privateKey,
+        transaction: {
+          chainId: 1,
+          frames: [{}],
+          sender: accounts[0].address,
+          type,
+        },
+      }),
+    ).rejects.toThrow(
+      'EIP-8141 transactions require signing the entries in the signatures array.',
+    )
+  },
+)

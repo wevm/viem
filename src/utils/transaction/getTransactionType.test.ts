@@ -1,6 +1,5 @@
+import { getTransactionType } from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
-
-import { getTransactionType } from './getTransactionType.js'
 
 describe('type', () => {
   test('eip1559', () => {
@@ -158,4 +157,19 @@ test('invalid', () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+test('eip8141 inference precedes fees and blobs', () => {
+  expect(
+    getTransactionType({ frames: [], maxFeePerGas: 1n }),
+  ).toMatchInlineSnapshot(`"eip8141"`)
+  expect(
+    getTransactionType({ blobVersionedHashes: [], frames: [] }),
+  ).toMatchInlineSnapshot(`"eip8141"`)
+  expect(
+    getTransactionType({ frames: [], type: 'eip1559' }),
+  ).toMatchInlineSnapshot(`"eip1559"`)
+  expect(
+    getTransactionType({ frames: undefined, maxFeePerGas: 1n }),
+  ).toMatchInlineSnapshot(`"eip1559"`)
 })

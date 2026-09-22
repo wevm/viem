@@ -1,3 +1,4 @@
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import {
   InvalidAddressError,
   type InvalidAddressErrorType,
@@ -25,12 +26,14 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
@@ -47,6 +50,7 @@ import {
   hexToNumber,
 } from '../encoding/fromHex.js'
 import { type FromRlpErrorType, fromRlp } from '../encoding/fromRlp.js'
+import { type NumberToHexErrorType, numberToHex } from '../encoding/toHex.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
 import { isHash } from '../hash/isHash.js'
 
@@ -79,6 +83,7 @@ export type ParseTransactionReturnType<
           ? TransactionSerializableEIP4844<bigint, number, false>
           : never)
       | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
+      | (type extends 'eip8141' ? TransactionSerializableEIP8141 : never)
       | (type extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
 
@@ -88,12 +93,18 @@ export type ParseTransactionErrorType =
   | ParseTransactionEIP2930ErrorType
   | ParseTransactionEIP4844ErrorType
   | ParseTransactionEIP7702ErrorType
+  | ParseTransactionEIP8141ErrorType
   | ParseTransactionLegacyErrorType
 
 export function parseTransaction<
   const serialized extends TransactionSerializedGeneric,
 >(serializedTransaction: serialized): ParseTransactionReturnType<serialized> {
   const type = getSerializedTransactionType(serializedTransaction)
+
+  if (type === 'eip8141')
+    return parseTransactionEIP8141(
+      serializedTransaction as TransactionSerializedEIP8141,
+    ) as ParseTransactionReturnType<serialized>
 
   if (type === 'eip1559')
     return parseTransactionEIP1559(
@@ -118,6 +129,23 @@ export function parseTransaction<
   return parseTransactionLegacy(
     serializedTransaction,
   ) as ParseTransactionReturnType<serialized>
+}
+
+type ParseTransactionEIP8141ErrorType =
+  | HexToNumberErrorType
+  | NumberToHexErrorType
+  | TxEnvelopeEip8141.deserialize.ErrorType
+  | ErrorType
+
+function parseTransactionEIP8141(
+  serializedTransaction: TransactionSerializedEIP8141,
+): TransactionSerializableEIP8141 {
+  const transaction = TxEnvelopeEip8141.deserialize(serializedTransaction)
+  return {
+    ...transaction,
+    chainId: hexToNumber(numberToHex(transaction.chainId)),
+    nonce: hexToNumber(numberToHex(transaction.nonce ?? 0n)),
+  }
 }
 
 type ParseTransactionEIP7702ErrorType =
