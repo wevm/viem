@@ -1,0 +1,104 @@
+{
+  "accounts": {
+    "0000000000000000000000000000000000008141": {
+      "balance": "0",
+      "code": "0x60083614600a575f5ffd5b5f3560c01c4211601657005b5f5ffd",
+      "nonce": "1"
+    },
+    "70997970c51812dc3a010c7d01b50e0d17dc79c8": {
+      "balance": "1000000000000000000000"
+    },
+    "f39fd6e51aad88f6f4ce6ab8827279cfffb92266": {
+      "balance": "1000000000000000000000"
+    }
+  },
+  "dataDir": "frames",
+  "engine": {
+    "NethDev": {
+      "params": {}
+    }
+  },
+  "genesis": {
+    "author": "0x0000000000000000000000000000000000000000",
+    "difficulty": "0x1",
+    "extraData": "0x",
+    "gasLimit": "0x1c9c380",
+    "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "seal": {
+      "ethereum": {
+        "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "nonce": "0x0000000000000042"
+      }
+    },
+    "timestamp": "0x0"
+  },
+  "name": "Viem frames",
+  "nodes": [],
+  "params": {
+    "accountStartNonce": "0x0",
+    "blobSchedule": [
+      {
+        "baseFeeUpdateFraction": "0x4c6964",
+        "max": 9,
+        "name": "prague",
+        "target": 6,
+        "timestamp": "0x0"
+      }
+    ],
+    "chainID": "0x1fcd",
+    "eip1014Transition": "0x0",
+    "eip1052Transition": "0x0",
+    "eip1108Transition": "0x0",
+    "eip1153TransitionTimestamp": "0x0",
+    "eip1283DisableTransition": "0x0",
+    "eip1283Transition": "0x0",
+    "eip1344Transition": "0x0",
+    "eip140Transition": "0x0",
+    "eip145Transition": "0x0",
+    "eip150Transition": "0x0",
+    "eip152Transition": "0x0",
+    "eip1559Transition": "0x0",
+    "eip155Transition": "0x0",
+    "eip160Transition": "0x0",
+    "eip161abcTransition": "0x0",
+    "eip161dTransition": "0x0",
+    "eip1884Transition": "0x0",
+    "eip2028Transition": "0x0",
+    "eip211Transition": "0x0",
+    "eip214Transition": "0x0",
+    "eip2200Transition": "0x0",
+    "eip2537Transition": "0x0",
+    "eip2537TransitionTimestamp": "0x0",
+    "eip2565Transition": "0x0",
+    "eip2780TransitionTimestamp": "0x0",
+    "eip2929Transition": "0x0",
+    "eip2930Transition": "0x0",
+    "eip3198Transition": "0x0",
+    "eip3529Transition": "0x0",
+    "eip3541Transition": "0x0",
+    "eip3651TransitionTimestamp": "0x0",
+    "eip3855TransitionTimestamp": "0x0",
+    "eip3860TransitionTimestamp": "0x0",
+    "eip4844TransitionTimestamp": "0x0",
+    "eip4895TransitionTimestamp": "0x0",
+    "eip5656TransitionTimestamp": "0x0",
+    "eip658Transition": "0x0",
+    "eip6780TransitionTimestamp": "0x0",
+    "eip7594TransitionTimestamp": "0x0",
+    "eip7623TransitionTimestamp": "0x0",
+    "eip7702TransitionTimestamp": "0x0",
+    "eip7708TransitionTimestamp": "0x0",
+    "eip7778TransitionTimestamp": "0x0",
+    "eip7825TransitionTimestamp": "0x0",
+    "eip7951TransitionTimestamp": "0x0",
+    "eip7976TransitionTimestamp": "0x0",
+    "eip8037TransitionTimestamp": "0x0",
+    "eip8141TransitionTimestamp": "0x0",
+    "gasLimitBoundDivisor": "0x0400",
+    "maxCodeSize": "0x6000",
+    "maxCodeSizeTransition": "0x0",
+    "maximumExtraDataSize": "0x20",
+    "minGasLimit": "0x1388",
+    "networkID": "0x1fcd"
+  }
+}
