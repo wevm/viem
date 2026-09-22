@@ -75,7 +75,7 @@ describe('updateConfig', () => {
             "params": [
               {
                 "data": Any<String>,
-                "from": "0x63274A8f64D08B0A6ee67919B7bA3f6220B406ac",
+                "from": "0x7908416D7A25F84AE74f4B100905647304899045",
                 "to": "0xAACC000000000000000000000000000000000000",
               },
             ],
@@ -156,7 +156,7 @@ describe('updateConfigSync', () => {
       },
       `
       {
-        "account": "0x86e6B51fC75432648d7D2a47309E4A82B65e1500",
+        "account": "0x6e01eF1ed5338Ff07eD90A66c26BDb51542e39F0",
         "config": {
           "owners": [
             {
@@ -178,9 +178,9 @@ describe('updateConfigSync', () => {
           "contractAddress": null,
           "cumulativeGasUsed": Any<BigInt>,
           "effectiveGasPrice": Any<BigInt>,
-          "feePayer": "0x86e6b51fc75432648d7d2a47309e4a82b65e1500",
+          "feePayer": "0x6e01ef1ed5338ff07ed90a66c26bdb51542e39f0",
           "feeToken": "0x20c0000000000000000000000000000000000000",
-          "from": "0x86e6b51fc75432648d7d2a47309e4a82b65e1500",
+          "from": "0x6e01ef1ed5338ff07ed90a66c26bdb51542e39f0",
           "gasUsed": Any<BigInt>,
           "logs": Any<Array>,
           "logsBloom": Any<String>,

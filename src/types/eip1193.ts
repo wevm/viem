@@ -1266,6 +1266,11 @@ export type PublicRpcSchema = [
           | undefined
         logs?: readonly Log[] | undefined
         gasUsed: Hex
+        /**
+         * Gas used by the call as measured by the node before gas refunds are
+         * applied. Only reported by nodes that support it.
+         */
+        maxUsedGas?: Hex | undefined
         returnData: Hex
         status: Hex
       }[]

@@ -79,6 +79,16 @@ test('behavior: prepareTransactionRequest rejects unsupported multisig owners', 
   })
   await prepareTransactionRequest(client, {
     account,
+    // @ts-expect-error Nested multisig owners are unsupported.
+    owner: account,
+  })
+  await prepareTransactionRequest(client, {
+    account,
+    // @ts-expect-error Access keys cannot approve multisig transactions.
+    owner: Account.fromSecp256k1(`0x${'2'.repeat(64)}`, { access: account }),
+  })
+  await prepareTransactionRequest(client, {
+    account,
     // @ts-expect-error Ethereum accounts cannot approve Tempo multisig transactions.
     owner: privateKeyToAccount(`0x${'2'.repeat(64)}`),
   })
@@ -86,11 +96,11 @@ test('behavior: prepareTransactionRequest rejects unsupported multisig owners', 
 
 test('behavior: Tempo transaction owners are local Tempo accounts', () => {
   expectTypeOf<Transaction.TransactionRequestTempo['owner']>().toEqualTypeOf<
-    Account.MultisigAccount | Account.RootAccount | undefined
+    Account.RootAccount | undefined
   >()
   expectTypeOf<
     Transaction.TransactionSerializableTempo['owner']
-  >().toEqualTypeOf<Account.MultisigAccount | Account.RootAccount | undefined>()
+  >().toEqualTypeOf<Account.RootAccount | undefined>()
 })
 
 test('prepareTransactionRequest stays a union when ambiguous', async () => {
