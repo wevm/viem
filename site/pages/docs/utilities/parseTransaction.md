@@ -4,7 +4,7 @@ description: Converts a serialized transaction to a structured transaction.
 
 # parseTransaction
 
-Parses a signed or unsigned RLP-encoded transaction, including [EIP-8141 frame transactions](https://eips.ethereum.org/EIPS/eip-8141).
+Parses a signed or unsigned RLP-encoded transaction.
 
 ## Import
 ```ts
