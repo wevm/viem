@@ -321,7 +321,6 @@ export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
 export type TransactionSerializedEIP7702 = `0x04${string}`
-/** Serialized EIP-8141 frame transaction. */
 export type TransactionSerializedEIP8141 = `0x06${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
