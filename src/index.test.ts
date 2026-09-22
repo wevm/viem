@@ -429,6 +429,7 @@ test('exports', () => {
       "assertRequest",
       "assertTransactionEIP1559",
       "assertTransactionEIP2930",
+      "assertTransactionEIP8141",
       "assertTransactionLegacy",
       "getSerializedTransactionType",
       "getTransactionType",

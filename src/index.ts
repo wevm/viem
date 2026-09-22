@@ -1204,6 +1204,7 @@ export type {
   FeeValuesType,
 } from './types/fee.js'
 export type { Filter, FilterType } from './types/filter.js'
+export type { Frame, FrameSignature } from './types/frame.js'
 export type { GetTransactionRequestKzgParameter, Kzg } from './types/kzg.js'
 export type { Log } from './types/log.js'
 export type {
@@ -1270,6 +1271,7 @@ export type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -1277,6 +1279,7 @@ export type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
@@ -1910,9 +1913,11 @@ export {
 export {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './utils/transaction/assertTransaction.js'
 export {

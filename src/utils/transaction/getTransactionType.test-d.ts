@@ -17,7 +17,7 @@ test('empty', () => {
 
 test('opaque', () => {
   expectTypeOf(getTransactionType({} as TransactionSerializable)).toEqualTypeOf<
-    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702'
+    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702' | 'eip8141'
   >()
   expectTypeOf(
     getTransactionType({} as TransactionSerializableLegacy),

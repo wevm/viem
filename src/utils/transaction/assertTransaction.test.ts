@@ -1,3 +1,4 @@
+import { assertTransactionEIP8141 } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { maxUint256 } from '../../constants/number.js'
 import { parseGwei } from '../unit/parseGwei.js'
@@ -8,6 +9,71 @@ import {
   assertTransactionEIP7702,
   assertTransactionLegacy,
 } from './assertTransaction.js'
+
+describe('eip8141', () => {
+  const transaction = {
+    chainId: 1,
+    frames: [
+      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+    ],
+    sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  } as const
+
+  test('valid', () => {
+    expect(() => assertTransactionEIP8141(transaction)).not.toThrow()
+  })
+
+  test.each([
+    -1,
+    1.5,
+    Number.MAX_SAFE_INTEGER + 1,
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+  ])('invalid nonce: %s', (nonce) => {
+    expect(() => assertTransactionEIP8141({ ...transaction, nonce })).toThrow()
+  })
+
+  test('unsafe chain ID', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...transaction,
+        chainId: Number.MAX_SAFE_INTEGER + 1,
+      }),
+    ).toThrow('chainId must be an unsigned 256-bit integer')
+  })
+
+  test('invalid frames', () => {
+    expect(() =>
+      assertTransactionEIP8141({ ...transaction, frames: [] }),
+    ).toThrow('Expected between 1 and 64 frames')
+  })
+
+  test.each([
+    'accessList',
+    'authorizationList',
+    'blobs',
+    'data',
+    'from',
+    'gas',
+    'gasPrice',
+    'kzg',
+    'r',
+    's',
+    'to',
+    'v',
+    'value',
+    'yParity',
+  ])('incompatible outer field: %s', (field) => {
+    expect(() =>
+      assertTransactionEIP8141({ ...transaction, [field]: '0x' }),
+    ).toThrow(
+      `EIP-8141 transactions do not support the outer "${field}" field.`,
+    )
+    expect(() =>
+      assertTransactionEIP8141({ ...transaction, [field]: undefined }),
+    ).not.toThrow()
+  })
+})
 
 describe('eip7702', () => {
   test('invalid chainId', () => {

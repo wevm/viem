@@ -6,6 +6,8 @@ description: Recovers the signing address from a transaction & signature.
 
 Recovers the original signing address from a transaction & signature.
 
+EIP-8141 frame transactions are unsupported. Their `sender` field is not proof of authorization, and their signature list can contain multiple signers.
+
 ## Usage
 
 :::code-group
