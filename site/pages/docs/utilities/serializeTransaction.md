@@ -4,7 +4,7 @@ description: Serializes a transaction object.
 
 # serializeTransaction
 
-Serializes a transaction object, including [EIP-8141 frame transactions](https://eips.ethereum.org/EIPS/eip-8141).
+Serializes a transaction object.
 
 ## Import
 
