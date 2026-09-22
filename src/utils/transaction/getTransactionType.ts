@@ -13,6 +13,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
 } from '../../types/transaction.js'
 import type { Assign, ExactPartial, IsNever, OneOf } from '../../types/utils.js'
@@ -21,19 +22,16 @@ export type GetTransactionType<
   transaction extends OneOf<
     TransactionSerializableGeneric | TransactionRequestGeneric
   > = TransactionSerializableGeneric,
-  result = transaction extends { type: infer type extends string }
-    ? type
-    : transaction extends { frames: readonly unknown[] }
-      ? 'eip8141'
-      :
-          | (transaction extends LegacyProperties ? 'legacy' : never)
-          | (transaction extends EIP1559Properties ? 'eip1559' : never)
-          | (transaction extends EIP2930Properties ? 'eip2930' : never)
-          | (transaction extends EIP4844Properties ? 'eip4844' : never)
-          | (transaction extends EIP7702Properties ? 'eip7702' : never)
-          | (transaction['type'] extends TransactionSerializableGeneric['type']
-              ? Extract<transaction['type'], string>
-              : never),
+  result =
+    | (transaction extends LegacyProperties ? 'legacy' : never)
+    | (transaction extends EIP1559Properties ? 'eip1559' : never)
+    | (transaction extends EIP2930Properties ? 'eip2930' : never)
+    | (transaction extends EIP4844Properties ? 'eip4844' : never)
+    | (transaction extends EIP7702Properties ? 'eip7702' : never)
+    | (transaction extends EIP8141Properties ? 'eip8141' : never)
+    | (transaction['type'] extends TransactionSerializableGeneric['type']
+        ? Extract<transaction['type'], string>
+        : never),
 > = IsNever<keyof transaction> extends true
   ? string
   : IsNever<result> extends false
@@ -140,3 +138,4 @@ type EIP7702Properties = Assign<
     authorizationList: TransactionSerializableEIP7702['authorizationList']
   }
 >
+type EIP8141Properties = Pick<TransactionSerializableEIP8141, 'frames' | 'type'>
