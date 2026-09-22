@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { Frame, FrameSignature, Secp256k1, TxEnvelopeEip8141 } from 'ox'
+import { Secp256k1, TxEnvelopeEip8141 } from 'ox'
 import {
   commitmentsToVersionedHashes,
   fromRlp,
@@ -44,23 +44,23 @@ describe('eip8141', () => {
   const transaction = {
     chainId: 1,
     frames: [
-      Frame.from({
+      {
         flags: 'approveExecutionAndPayment',
         gas: 50_000n,
         mode: 'verify',
-      }),
-      Frame.from({
+      },
+      {
         gas: 50_000n,
         mode: 'sender',
         to: accounts[1].address,
         value: 1n,
-      }),
+      },
     ],
     maxFeePerGas: 20n,
     maxPriorityFeePerGas: 1n,
     nonce: 7,
     sender: accounts[0].address,
-    signatures: [FrameSignature.from({ scheme: 'secp256k1' })],
+    signatures: [{ scheme: 'secp256k1' }],
   } satisfies TransactionSerializableEIP8141
 
   test('unsigned', () => {
@@ -84,8 +84,8 @@ describe('eip8141', () => {
     })
     const signed = {
       ...transaction,
-      signatures: [FrameSignature.from({ scheme: 'secp256k1', signature })],
-    }
+      signatures: [{ scheme: 'secp256k1', signature }],
+    } satisfies TransactionSerializableEIP8141
     const before = structuredClone(signed)
     const serialized = serializeTransaction(signed)
     expect(serialized).toMatchInlineSnapshot(
@@ -104,7 +104,7 @@ describe('eip8141', () => {
     expect(
       serializeTransaction({
         chainId: 0,
-        frames: [Frame.from({})],
+        frames: [{}],
         sender: accounts[0].address,
       }),
     ).toMatchInlineSnapshot(
@@ -113,11 +113,12 @@ describe('eip8141', () => {
   })
 
   test('explicit payload witnesses remain in the signing hash', () => {
-    const signature = FrameSignature.from({
+    const signature = {
       payload:
         '0x063021765780860ccd7ce32ef36ca5df8518a9366e454d4224157610865eecac',
+      scheme: 'arbitrary',
       signature: '0xaabb',
-    })
+    } as const
     const serialized = serializeTransaction({
       ...transaction,
       signatures: [signature],
