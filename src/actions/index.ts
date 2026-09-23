@@ -213,6 +213,12 @@ export {
   getStorageAt,
 } from './public/getStorageAt.js'
 export {
+  type GetStorageValuesErrorType,
+  type GetStorageValuesParameters,
+  type GetStorageValuesReturnType,
+  getStorageValues,
+} from './public/getStorageValues.js'
+export {
   type GetTransactionErrorType,
   type GetTransactionParameters,
   type GetTransactionReturnType,

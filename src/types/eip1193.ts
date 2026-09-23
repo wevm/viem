@@ -1019,6 +1019,21 @@ export type PublicRpcSchema = [
     ReturnType: Hex
   },
   /**
+   * @description Returns values from multiple storage positions for multiple addresses
+   * @link https://github.com/ethereum/execution-apis/issues/752
+   * @example
+   * provider.request({ method: 'eth_getStorageValues', params: [{ '0x...': ['0x...'] }, 'latest'] })
+   * // => { '0x...': ['0x...'] }
+   */
+  {
+    Method: 'eth_getStorageValues'
+    Parameters: [
+      requests: Record<Address, readonly Hex[]>,
+      block: BlockNumber | BlockTag | BlockIdentifier,
+    ]
+    ReturnType: Record<Address, readonly Hex[]>
+  },
+  /**
    * @description Returns information about a transaction specified by block hash and transaction index
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example

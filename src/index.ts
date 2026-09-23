@@ -248,6 +248,11 @@ export type {
   GetStorageAtReturnType,
 } from './actions/public/getStorageAt.js'
 export type {
+  GetStorageValuesErrorType,
+  GetStorageValuesParameters,
+  GetStorageValuesReturnType,
+} from './actions/public/getStorageValues.js'
+export type {
   GetTransactionErrorType,
   GetTransactionParameters,
   GetTransactionReturnType,
