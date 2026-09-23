@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.takerAllowed`
+
+Checks whether an address may call swaps on a propAMM pool.
+
+## Usage
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const allowed = await client.propAmm.takerAllowed({
+  pool: '0x0000000000000000000000000000000000000002',
+  taker: '0x0000000000000000000000000000000000000001',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = boolean
+```
+
+Whether the taker is on the pool allowlist.
+
+## Parameters
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+### taker
+
+- **Type:** `Address`
+
+Address that will submit the swap transaction.
+
+<ReadParameters />

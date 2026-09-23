@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-Added propAMM pool reads, route-aware quotes, and exact-input and exact-output swaps to `viem/tempo`.
+Added propAMM pool reads, route-aware quotes, and exact-input and exact-output swaps with batched input approvals to `viem/tempo`.
 
 ```ts
 const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({

@@ -2,9 +2,11 @@ import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
-import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
-import { writeContract } from '../../actions/wallet/writeContract.js'
-import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
+import {
+  type SendTransactionReturnType,
+  sendTransaction,
+} from '../../actions/wallet/sendTransaction.js'
+import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -20,6 +22,7 @@ import * as Abis from '../Abis.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
+import * as tokenActions from './token.js'
 
 /** Reads the base token of a propAMM pool.
  * @example
@@ -465,7 +468,7 @@ namespace exactOutput {
   }
 }
 
-/** Swaps through an allowed propAMM pool with an exact input or exact output.
+/** Approves the input token and swaps through an allowed propAMM pool in one transaction.
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -491,10 +494,7 @@ export async function swap<
   client: Client<Transport, chain, account>,
   parameters: swap.Parameters<chain, account>,
 ): Promise<swap.ReturnValue> {
-  return writeContract(client, {
-    ...parameters,
-    ...swap.call(parameters),
-  } as never)
+  return swap.inner(sendTransaction, client, parameters)
 }
 
 export namespace swap {
@@ -522,7 +522,7 @@ export namespace swap {
         mode: 'exactOutput'
         /** Exact output amount in token base units. */
         amountOut: bigint
-        /** Highest accepted input in token base units. */
+        /** Highest accepted input in token base units; unused approval remains. */
         maxAmountIn: bigint
       }
   )
@@ -530,10 +530,40 @@ export namespace swap {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
-  export type ReturnValue = WriteContractReturnType
+  export type ReturnValue = SendTransactionReturnType
   export type ErrorType = BaseErrorType
 
-  /** Defines a swap call for simulation, gas estimation, and batched calls. */
+  /** @internal */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const tokenIn = await (parameters.baseToQuote
+      ? baseToken(client, { pool: parameters.pool })
+      : quoteToken(client, { pool: parameters.pool }))
+    const amount =
+      parameters.mode === 'exactInput'
+        ? parameters.amountIn
+        : parameters.maxAmountIn
+    return (await action(client, {
+      ...parameters,
+      calls: [
+        tokenActions.approve.call(client, {
+          amount,
+          spender: parameters.pool,
+          token: tokenIn,
+        }),
+        swap.call(parameters),
+      ],
+    } as never)) as never
+  }
+
+  /** Defines the raw swap call without its input-token approval. */
   export function call(
     parameters: Extract<Args, { mode: 'exactInput' }>,
   ): ReturnType<typeof exactInput.call>
@@ -571,7 +601,7 @@ export namespace swap {
   }
 }
 
-/** Swaps and returns the confirmed trade event and receipt.
+/** Approves the input token, swaps, and returns the confirmed trade and receipt.
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
@@ -599,9 +629,8 @@ export async function swapSync<
   parameters: swapSync.Parameters<chain, account>,
 ): Promise<swapSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await writeContractSync(client, {
+  const receipt = await swap.inner(sendTransactionSync, client, {
     ...rest,
-    ...swap.call(parameters),
     throwOnReceiptRevert,
   } as never)
   if ((receipt as TempoTransactionReceipt).status === 'pending')

@@ -3017,39 +3017,227 @@ type DecoratorBase<
     ) => () => void
   }
   propAmm: {
-    /** Reads the pool's base token. */
+    /**
+     * Reads the base token of a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const base = await client.propAmm.baseToken({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns The base token address.
+     */
     baseToken: (
       parameters: propAmmActions.baseToken.Parameters,
     ) => Promise<propAmmActions.baseToken.ReturnValue>
-    /** Quotes an exact input or exact output for a customer route. */
+    /**
+     * Quotes an exact input or output for a caller, recipient, and customer route.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+     *   amountIn: 1_000_000n,
+     *   baseToQuote: true,
+     *   customerId: '0x...',
+     *   mode: 'exactInput',
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     *   taker: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Route, swap mode, amount, and read options.
+     * @returns Quoted counteramount, oracle price, observation time, and rounding credit.
+     */
     getSwapQuote: (
       parameters: propAmmActions.getSwapQuote.Parameters,
     ) => Promise<propAmmActions.getSwapQuote.ReturnValue>
-    /** Reads whether the pool is paused. */
+    /**
+     * Reads whether a propAMM pool is paused.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const paused = await client.propAmm.paused({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns Whether swaps are paused.
+     */
     paused: (
       parameters: propAmmActions.paused.Parameters,
     ) => Promise<propAmmActions.paused.ReturnValue>
-    /** Reads whether the resolved recipient is allowed. */
+    /**
+     * Reads whether a resolved address may receive swap output.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const allowed = await client.propAmm.recipientAllowed({
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, resolved recipient, and read options.
+     * @returns Whether the recipient is allowed.
+     */
     recipientAllowed: (
       parameters: propAmmActions.recipientAllowed.Parameters,
     ) => Promise<propAmmActions.recipientAllowed.ReturnValue>
-    /** Resolves the recipient checked by the pool. */
+    /**
+     * Resolves a Tempo recipient to the address checked by the pool's allowlist.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const resolved = await client.propAmm.resolveRecipient({
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, recipient, and read options.
+     * @returns The resolved recipient address.
+     */
     resolveRecipient: (
       parameters: propAmmActions.resolveRecipient.Parameters,
     ) => Promise<propAmmActions.resolveRecipient.ReturnValue>
-    /** Reads the pool's quote token. */
+    /**
+     * Reads the quote token of a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const quote = await client.propAmm.quoteToken({ pool: '0x...' })
+     * ```
+     *
+     * @param parameters - Pool and read options.
+     * @returns The quote token address.
+     */
     quoteToken: (
       parameters: propAmmActions.quoteToken.Parameters,
     ) => Promise<propAmmActions.quoteToken.ReturnValue>
-    /** Swaps an exact input or exact output against the pool. */
+    /**
+     * Approves the input token and swaps an exact input or output in one transaction.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     * const hash = await client.propAmm.swap({
+     *   amountIn: 1_000_000n,
+     *   baseToQuote: true,
+     *   customerId: '0x...',
+     *   deadline: 1_800_000_000n,
+     *   expectedOraclePrice: 1_000_000_000_000_000_000n,
+     *   minAmountOut: 1_000_000n,
+     *   minimumOracleUpdatedAt: 1_799_999_000n,
+     *   mode: 'exactInput',
+     *   oraclePriceToleranceBps: 10n,
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     *   tradeId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Swap and transaction options.
+     * @returns The transaction hash.
+     */
     swap: (
       parameters: propAmmActions.swap.Parameters<chain, account>,
     ) => Promise<propAmmActions.swap.ReturnValue>
-    /** Swaps and returns the executed trade. */
+    /**
+     * Approves the input token, swaps, and returns the confirmed trade and receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     * const trade = await client.propAmm.swapSync({
+     *   amountOut: 1_000_000n,
+     *   baseToQuote: false,
+     *   customerId: '0x...',
+     *   deadline: 1_800_000_000n,
+     *   expectedOraclePrice: 1_000_000_000_000_000_000n,
+     *   maxAmountIn: 1_010_000n,
+     *   minimumOracleUpdatedAt: 1_799_999_000n,
+     *   mode: 'exactOutput',
+     *   oraclePriceToleranceBps: 10n,
+     *   pool: '0x...',
+     *   recipient: '0x...',
+     *   tradeId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Swap and transaction options.
+     * @returns Confirmed trade data and receipt.
+     */
     swapSync: (
       parameters: propAmmActions.swapSync.Parameters<chain, account>,
     ) => Promise<propAmmActions.swapSync.ReturnValue>
-    /** Reads whether the taker is allowed. */
+    /**
+     * Reads whether an address may call swaps on a propAMM pool.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     * const allowed = await client.propAmm.takerAllowed({
+     *   pool: '0x...',
+     *   taker: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Pool, taker, and read options.
+     * @returns Whether the taker is allowed.
+     */
     takerAllowed: (
       parameters: propAmmActions.takerAllowed.Parameters,
     ) => Promise<propAmmActions.takerAllowed.ReturnValue>

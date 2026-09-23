@@ -3068,7 +3068,34 @@ export default defineConfig({
             },
             {
               text: 'PropAMM',
-              link: '/tempo/actions/propAmm',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/actions/propAmm' },
+                { text: 'baseToken', link: '/tempo/actions/propAmm.baseToken' },
+                {
+                  text: 'getSwapQuote',
+                  link: '/tempo/actions/propAmm.getSwapQuote',
+                },
+                { text: 'paused', link: '/tempo/actions/propAmm.paused' },
+                {
+                  text: 'quoteToken',
+                  link: '/tempo/actions/propAmm.quoteToken',
+                },
+                {
+                  text: 'recipientAllowed',
+                  link: '/tempo/actions/propAmm.recipientAllowed',
+                },
+                {
+                  text: 'resolveRecipient',
+                  link: '/tempo/actions/propAmm.resolveRecipient',
+                },
+                { text: 'swap', link: '/tempo/actions/propAmm.swap' },
+                { text: 'swapSync', link: '/tempo/actions/propAmm.swapSync' },
+                {
+                  text: 'takerAllowed',
+                  link: '/tempo/actions/propAmm.takerAllowed',
+                },
+              ],
             },
             {
               text: 'Token',

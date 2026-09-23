@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.resolveRecipient`
+
+Resolves the address checked by a propAMM pool before sending output.
+
+## Usage
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const resolved = await client.propAmm.resolveRecipient({
+  pool: '0x0000000000000000000000000000000000000002',
+  recipient: '0x0000000000000000000000000000000000000001',
+})
+// @log: '0x0000000000000000000000000000000000000001'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = Address
+```
+
+The address that the pool checks against its recipient allowlist.
+
+## Parameters
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+### recipient
+
+- **Type:** `Address`
+
+Destination supplied to the swap.
+
+<ReadParameters />

@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.recipientAllowed`
+
+Checks whether a resolved address may receive output from a propAMM pool.
+
+## Usage
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const allowed = await client.propAmm.recipientAllowed({
+  pool: '0x0000000000000000000000000000000000000002',
+  recipient: '0x0000000000000000000000000000000000000001',
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = boolean
+```
+
+Whether the resolved recipient is on the pool allowlist.
+
+## Parameters
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+### recipient
+
+- **Type:** `Address`
+
+Resolved recipient address to check.
+
+<ReadParameters />

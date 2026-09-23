@@ -2,20 +2,19 @@
 
 ## Overview
 
-A propAMM pool exchanges a fixed pair at an oracle-bound price for approved takers and recipients. Supply the pool address explicitly. A propAMM swap pulls input tokens from the transaction sender, who must hold the tokens and approve the pool.
+A propAMM pool exchanges a fixed pair at an oracle-bound price for approved takers and recipients. Supply the pool address explicitly. A propAMM swap pulls input tokens from the transaction sender. The sender must hold the tokens; the swap action approves the pool in the same transaction.
 
 ## Recipes
 
-### Quote, Approve, Simulate, and Swap
+### Quote and Swap with Approval
 
-This example sells an exact amount of the pool's base token. Use `baseToQuote: false` to send quote and receive base. Provide an approved caller, recipient, and nonzero customer ID.
+This example sells an exact amount of the pool's base token. The approval and swap execute in one Tempo transaction. Use `baseToQuote: false` to send quote and receive base. Provide an approved caller, recipient, and nonzero customer ID.
 
 ```ts
 import { createClient, http, parseUnits } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempo } from 'viem/chains'
 import { Actions, tempoActions } from 'viem/tempo'
-import { simulateContract } from 'viem/actions'
 import * as Hex from 'ox/Hex'
 
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
@@ -36,8 +35,6 @@ const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
   taker: account.address,
 })
 
-await client.token.approveSync({ amount: amountIn, spender: pool, token: base })
-
 const swap = {
   amountIn,
   baseToQuote: true,
@@ -53,12 +50,19 @@ const swap = {
   tradeId: Hex.random(32),
 }
 
-await simulateContract(client, { ...Actions.propAmm.swap.call(swap), account })
-const trade = await client.propAmm.swapSync(swap)
+await Actions.simulate.simulateCalls(client, {
+  calls: [
+    Actions.token.approve.call(client, { amount: amountIn, spender: pool, token: base }),
+    Actions.propAmm.swap.call(swap),
+  ],
+})
+const trade = await client.propAmm.swapSync(swap) // [!code focus]
 console.log(trade.amountOut, trade.receipt.transactionHash)
 ```
 
-For an exact output, call `getSwapQuote` and then `swap` or `swapSync` with `mode: 'exactOutput'`, `amountOut`, and a `maxAmountIn` limit. Approve that maximum input amount on the input token.
+For an exact output, call `getSwapQuote` with `mode: 'exactOutput'`, then call `swap` or `swapSync` with `amountOut` and `maxAmountIn`. The action approves `maxAmountIn` and submits the swap in one transaction. The `.call` builder defines only the swap call, so add an approval when assembling a batch manually.
+
+If an exact-output swap spends less than `maxAmountIn`, the unused allowance remains on the input token.
 
 ## Best Practices
 

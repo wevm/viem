@@ -1,0 +1,97 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.getSwapQuote`
+
+Quotes the input or output amount for a specific propAMM caller, recipient, and customer route.
+
+## Usage
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const [amountOut, oraclePrice, oracleUpdatedAt, creditAfter] = await client.propAmm.getSwapQuote({
+  amountIn: 1_000_000n,
+  baseToQuote: true,
+  customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
+  mode: 'exactInput',
+  pool: '0x0000000000000000000000000000000000000002',
+  recipient: '0x0000000000000000000000000000000000000001',
+  taker: '0x0000000000000000000000000000000000000001',
+})
+// @log: [amountOut, oraclePrice, oracleUpdatedAt, creditAfter]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnValue = readonly [
+  amount: bigint,
+  oraclePrice: bigint,
+  oracleUpdatedAt: bigint,
+  creditAfter: bigint,
+]
+```
+
+For exact input, `amount` is the quoted output. For exact output, it is the required input. The other values bind the oracle observation and report the route's remaining rounding credit.
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactInput'`. Input amount in token base units.
+
+### amountOut
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactOutput'`. Output amount in token base units.
+
+### baseToQuote
+
+- **Type:** `boolean`
+
+Set `true` to send base and receive quote, or `false` to send quote and receive base.
+
+### customerId
+
+- **Type:** `Hex`
+
+Nonzero 32-byte customer route identifier. Quotes account for this route's rounding credit.
+
+### mode
+
+- **Type:** `'exactInput' | 'exactOutput'`
+
+Select the amount that you specify.
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+### recipient
+
+- **Type:** `Address`
+
+Destination of the output token.
+
+### taker
+
+- **Type:** `Address`
+
+Address that will submit the swap and supply the input token.
+
+<ReadParameters />
