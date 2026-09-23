@@ -13,10 +13,11 @@ export type {
 } from 'ox/tempo'
 export {
   Channel,
-  DexFundingSource,
   EarnShares,
   FundingPolicy,
   FundingRequirement,
+  FundingSource,
+  FundingSourceDex,
   MultisigConfig,
   MultisigOperation,
   Period,
