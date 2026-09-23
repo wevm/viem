@@ -22,6 +22,7 @@ Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requ
 :::code-group
 
 ```ts [example.ts]
+import { parseUnits } from 'viem'
 import { Addresses, Actions, DexFundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -30,18 +31,22 @@ const usdcE = '0x...' // Second input token address.
 
 await client.sendTransaction({
   calls: [
-    Actions.token.transfer.call({ token: ousd, to: '0x...', amount: 50_000_000n }),
+    Actions.token.transfer.call({
+      token: ousd,
+      to: '0x...',
+      amount: parseUnits('50', 6),
+    }),
   ],
   requireFunds: [{
     token: ousd,
-    amount: 50_000_000n,
+    amount: parseUnits('50', 6),
     slippageBps: 100,
     sources: [
       {
         to: Addresses.nativeDexFundingSource,
         data: DexFundingSource.encode({
           tokenIn: Addresses.pathUsd,
-          maxAmountIn: 30_000_000n,
+          maxAmountIn: parseUnits('30', 6),
         }),
       },
       {
@@ -65,6 +70,7 @@ Tempo write actions accept `requireFunds`. For actions with an exact input, the 
 :::code-group
 
 ```ts [example.ts]
+import { parseUnits } from 'viem'
 import { Addresses, DexFundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
@@ -73,7 +79,7 @@ const ousd = '0x...' // Output token address.
 await client.token.transferSync({
   token: ousd,
   to: '0x...',
-  amount: 50_000_000n,
+  amount: parseUnits('50', 6),
   requireFunds: [{
     slippageBps: 100,
     sources: [{
