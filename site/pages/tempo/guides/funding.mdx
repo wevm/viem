@@ -29,6 +29,9 @@ const ousd = '0x...' // Output token address.
 const usdcE = '0x...' // Second input token address.
 
 await client.sendTransaction({
+  calls: [
+    Actions.token.transfer.call({ token: ousd, to: '0x...', amount: 50_000_000n }),
+  ],
   requireFunds: [{
     token: ousd,
     amount: 50_000_000n,
@@ -47,9 +50,6 @@ await client.sendTransaction({
       },
     ],
   }],
-  calls: [
-    Actions.token.transfer.call({ token: ousd, to: '0x...', amount: 50_000_000n }),
-  ],
 })
 ```
 
