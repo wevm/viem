@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
+import { estimateGas as core_estimateGas } from '../../actions/public/estimateGas.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import {
@@ -20,8 +21,9 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, pickWriteParameters } from '../internal/utils.js'
 import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
+import * as simulateActions from './simulate.js'
 import * as tokenActions from './token.js'
 
 /** Reads the base token of a propAMM pool.
@@ -543,6 +545,19 @@ export namespace swap {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
+    return (await action(client, {
+      ...parameters,
+      calls: await getCalls(client, parameters),
+    } as never)) as never
+  }
+
+  async function getCalls<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ) {
     const tokenIn = await (parameters.baseToQuote
       ? baseToken(client, { pool: parameters.pool })
       : quoteToken(client, { pool: parameters.pool }))
@@ -550,17 +565,54 @@ export namespace swap {
       parameters.mode === 'exactInput'
         ? parameters.amountIn
         : parameters.maxAmountIn
-    return (await action(client, {
-      ...parameters,
-      calls: [
-        tokenActions.approve.call(client, {
-          amount,
-          spender: parameters.pool,
-          token: tokenIn,
-        }),
-        swap.call(parameters),
-      ],
-    } as never)) as never
+    return [
+      tokenActions.approve.call(client, {
+        amount,
+        spender: parameters.pool,
+        token: tokenIn,
+      }),
+      swap.call(parameters),
+    ] as const
+  }
+
+  /**
+   * Estimates gas for the approval and swap transaction.
+   *
+   * @param client - Client.
+   * @param parameters - Swap and transaction options.
+   * @returns The gas estimate.
+   */
+  export async function estimateGas<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<bigint> {
+    return core_estimateGas(client, {
+      ...pickWriteParameters(parameters as never),
+      calls: await getCalls(client, parameters),
+    } as never)
+  }
+
+  /**
+   * Simulates the approval and swap calls without submitting a transaction.
+   *
+   * @param client - Client.
+   * @param parameters - Swap and transaction options.
+   * @returns The approval and swap simulation results.
+   */
+  export async function simulate<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ) {
+    return simulateActions.simulateCalls(client, {
+      account: parameters.account ?? client.account,
+      calls: await getCalls(client, parameters),
+    })
   }
 
   /** Defines the raw swap call without its input-token approval. */

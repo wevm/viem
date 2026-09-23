@@ -14,7 +14,7 @@ This example sells an exact amount of the pool's base token. The approval and sw
 import { createClient, http, parseUnits } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempo } from 'viem/chains'
-import { Actions, tempoActions } from 'viem/tempo'
+import { tempoActions } from 'viem/tempo'
 import * as Hex from 'ox/Hex'
 
 const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
@@ -24,7 +24,6 @@ const recipient = account.address
 const customerId = Hex.fromString('customer-route', { size: 32 })
 const amountIn = parseUnits('1', 6) // Use the base token's decimals.
 
-const base = await client.propAmm.baseToken({ pool })
 const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
   amountIn,
   baseToQuote: true,
@@ -35,11 +34,11 @@ const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
   taker: account.address,
 })
 
-const swap = {
+const trade = await client.propAmm.swapSync({ // [!code focus]
   amountIn,
   baseToQuote: true,
   customerId,
-  mode: 'exactInput' as const,
+  mode: 'exactInput',
   deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
   expectedOraclePrice: price,
   minAmountOut: amountOut,
@@ -48,15 +47,7 @@ const swap = {
   pool,
   recipient,
   tradeId: Hex.random(32),
-}
-
-await Actions.simulate.simulateCalls(client, {
-  calls: [
-    Actions.token.approve.call(client, { amount: amountIn, spender: pool, token: base }),
-    Actions.propAmm.swap.call(swap),
-  ],
 })
-const trade = await client.propAmm.swapSync(swap) // [!code focus]
 console.log(trade.amountOut, trade.receipt.transactionHash)
 ```
 

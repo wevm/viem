@@ -38,6 +38,8 @@ const hash = await client.propAmm.swap({
 
 The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition.
 
+Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
+
 ## Return Value
 
 ```ts

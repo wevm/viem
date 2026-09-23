@@ -137,7 +137,7 @@ describe('swap', () => {
       spender: stack.pool,
       token: stack.quote,
     })
-    const hash = await client.propAmm.swap({
+    const parameters = {
       amountIn: parseUnits('1', 6),
       baseToQuote: false,
       customerId,
@@ -145,12 +145,20 @@ describe('swap', () => {
       expectedOraclePrice: price,
       minAmountOut: amountOut,
       minimumOracleUpdatedAt: updatedAt,
-      mode: 'exactInput',
+      mode: 'exactInput' as const,
       oraclePriceToleranceBps: 0n,
       pool: stack.pool,
       recipient: recipient.address,
       tradeId,
-    })
+    }
+    const gas = await Actions.propAmm.swap.estimateGas(client, parameters)
+    expect(gas).toBeGreaterThan(0n)
+    const simulation = await Actions.propAmm.swap.simulate(client, parameters)
+    expect(simulation.results.map((result) => result.status)).toEqual([
+      'success',
+      'success',
+    ])
+    const hash = await client.propAmm.swap(parameters)
     const receipt = await waitForTransactionReceipt(client, { hash })
     expect(receipt.status).toBe('success')
     await Actions.token.approveSync(client, {
