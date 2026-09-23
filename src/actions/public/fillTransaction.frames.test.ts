@@ -12,7 +12,52 @@ import { expect, test } from 'vitest'
 import { accounts as constants } from '~test/constants.js'
 import { accounts, getClient } from '~test/frames/config.js'
 
-const client = getClient()
+const client = getClient({ account: accounts[0].address })
+
+test('default', async () => {
+  const result = await fillTransaction(client, {
+    frames: [{ gas: 50_000n, to: accounts[1].address }],
+    // TODO: remove once migrated to reth or anvil. Nethermind cannot fill unsigned frame gas.
+    gas: 50_000n,
+    // TODO: remove once migrated to reth or anvil. Nethermind simulation requires an outer recipient.
+    to: accounts[1].address,
+  })
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "raw": undefined,
+      "transaction": {
+        "blobVersionedHashes": [],
+        "blockTimestamp": null,
+        "chainId": 8141,
+        "data": "0x",
+        "frames": [
+          {
+            "data": "0x",
+            "flags": 0,
+            "gas": 50000n,
+            "mode": 0,
+            "stateGas": 0n,
+            "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+            "value": 0n,
+          },
+        ],
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gas": 50000n,
+        "gasPrice": 2100000001n,
+        "hash": null,
+        "input": "0x",
+        "maxFeePerBlobGas": 0n,
+        "maxFeePerGas": 2100000001n,
+        "maxPriorityFeePerGas": 1n,
+        "nonce": 0,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip8141",
+        "typeHex": "0x6",
+        "value": 0n,
+      },
+    }
+  `)
+})
 
 test('fills a frame transaction for signing', async () => {
   const balance = await getBalance(client, { address: accounts[1].address })
