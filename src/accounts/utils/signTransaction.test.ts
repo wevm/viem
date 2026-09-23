@@ -1,3 +1,5 @@
+import { Signature, TxEnvelopeEip8141 } from 'ox'
+import { parseTransaction, recoverAddress } from 'viem'
 import { signTransaction } from 'viem/accounts'
 import { assertType, describe, expect, test, vi } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
@@ -505,7 +507,7 @@ describe('legacy', () => {
 })
 
 test.each(['eip8141', undefined] as const)(
-  'rejects ordinary signing of frame transactions: %s',
+  'rejects missing frame signature entries: %s',
   async (type) => {
     await expect(
       signTransaction({
@@ -518,7 +520,95 @@ test.each(['eip8141', undefined] as const)(
         },
       }),
     ).rejects.toThrow(
-      'EIP-8141 transactions require signing the entries in the signatures array.',
+      'Expected an unsigned secp256k1 entry for the transaction sender at signature index 0.',
     )
   },
 )
+
+describe('eip8141', () => {
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  const transaction = {
+    chainId: 8141,
+    frames: [
+      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+    ],
+    sender: account.address,
+    signatures: [{ scheme: 'secp256k1' }],
+  } as const
+
+  test.each(['eip8141', undefined] as const)('signs: %s', async (type) => {
+    const serialized = await account.signTransaction({ ...transaction, type })
+    const parsed = parseTransaction(serialized)
+    if (parsed.type !== 'eip8141')
+      throw new Error('Expected a frame transaction.')
+    const [entry] = parsed.signatures!
+    if (entry?.scheme !== 'secp256k1' || !entry.signature)
+      throw new Error('Expected a secp256k1 signature.')
+
+    expect(
+      await recoverAddress({
+        hash: TxEnvelopeEip8141.getSignPayload({
+          ...parsed,
+          nonce: BigInt(parsed.nonce ?? 0),
+        }),
+        signature: Signature.toHex(entry.signature),
+      }),
+    ).toBe(account.address)
+    expect(transaction.signatures[0]).not.toHaveProperty('signature')
+  })
+
+  test('preserves other entries', async () => {
+    const entry = {
+      scheme: 'arbitrary',
+      signature: '0xdeadbeef',
+      payload: `0x${'11'.repeat(32)}`,
+    } as const
+    const serialized = await account.signTransaction({
+      ...transaction,
+      signatures: [...transaction.signatures, entry],
+    })
+
+    expect(parseTransaction(serialized).signatures?.[1]).toEqual(entry)
+  })
+
+  test.each([
+    { signatures: [] },
+    { sender: accounts[1].address },
+    { signatures: [{ scheme: 'p256' }] },
+    { signatures: [{ scheme: 'arbitrary', signature: '0x' }] },
+    { signatures: [{ scheme: 'secp256k1', signer: accounts[1].address }] },
+    { signatures: [{ scheme: 'secp256k1', payload: `0x${'11'.repeat(32)}` }] },
+    {
+      signatures: [
+        { scheme: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
+      ],
+    },
+  ] as const)(
+    'rejects incompatible signature metadata: %#',
+    async (overrides) => {
+      await expect(
+        account.signTransaction({ ...transaction, ...overrides }),
+      ).rejects.toThrow('Expected an unsigned secp256k1 entry')
+    },
+  )
+
+  test('rejects another execution approver', async () => {
+    await expect(
+      account.signTransaction({
+        ...transaction,
+        frames: [{ ...transaction.frames[0], to: accounts[1].address }],
+      }),
+    ).rejects.toThrow('Execution approval must target the transaction sender.')
+  })
+
+  test('accepts numeric scheme and explicit signer', async () => {
+    const serialized = await account.signTransaction({
+      ...transaction,
+      signatures: [{ scheme: 1 as const, signer: account.address }],
+    })
+
+    expect(
+      parseTransaction(serialized).signatures?.[0]?.signer?.toLowerCase(),
+    ).toBe(account.address.toLowerCase())
+  })
+})

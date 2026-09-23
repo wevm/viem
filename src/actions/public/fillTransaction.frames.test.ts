@@ -1,4 +1,9 @@
-import { fillTransaction } from 'viem/actions'
+import {
+  fillTransaction,
+  getBalance,
+  sendRawTransaction,
+  waitForTransactionReceipt,
+} from 'viem/actions'
 import { expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
 
@@ -45,7 +50,41 @@ test('default', async () => {
   `)
 })
 
-test.todo('fills a frame transaction for signing')
+test('fills a frame transaction for signing', async () => {
+  const balance = await getBalance(client, { address: accounts[1].address })
+
+  const { transaction } = await fillTransaction(client, {
+    frames: [
+      { flags: 'approveExecutionAndPayment', mode: 'verify' },
+      { mode: 'sender', to: accounts[1].address, value: 1n },
+    ],
+    signatures: [{ scheme: 'secp256k1' }],
+  })
+  if (transaction.type !== 'eip8141')
+    throw new Error('Expected a frame transaction.')
+
+  expect(await getBalance(client, { address: accounts[1].address })).toBe(
+    balance,
+  )
+
+  const serializedTransaction = await accounts[0].signTransaction({
+    chainId: transaction.chainId,
+    frames: transaction.frames,
+    maxFeePerGas: transaction.maxFeePerGas,
+    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    nonce: transaction.nonce,
+    sender: transaction.from,
+    signatures: transaction.signatures,
+  })
+  const hash = await sendRawTransaction(client, { serializedTransaction })
+
+  expect((await waitForTransactionReceipt(client, { hash })).status).toBe(
+    'success',
+  )
+  expect(await getBalance(client, { address: accounts[1].address })).toBe(
+    balance + 1n,
+  )
+})
 
 test('args: frames.gas', async () => {
   const { transaction } = await fillTransaction(client, {

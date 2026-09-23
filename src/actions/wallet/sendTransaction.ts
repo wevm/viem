@@ -315,6 +315,12 @@ export async function sendTransaction<
     }
 
     if (account?.type === 'local') {
+      if (frames && chain && assertChainId)
+        assertCurrentChain({
+          currentChainId: await getAction(client, getChainId, 'getChainId')({}),
+          chain,
+        })
+
       const nonceManager = ((): NonceManager | undefined => {
         if (!account.nonceManager || typeof nonce !== 'undefined')
           return account.nonceManager
