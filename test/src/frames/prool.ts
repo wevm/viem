@@ -4,8 +4,8 @@ import * as TestContainers from 'prool/testcontainers'
 import { GenericContainer, Wait } from 'testcontainers'
 
 export const image =
-  'ghcr.io/wevm/nethermind-frames@sha256:1f8e5b5698e18af41849fd95016271a96f8d7fd192014270c08d0306283dc07a'
-export const revision = 'db50104a5b66652768b0f877d293fc784ea8c44f'
+  'ghcr.io/wevm/nethermind-frames@sha256:a02f98bdd010e240b3b2e5703e3863b680a574facde223143d3606fc56e9680b'
+export const revision = '52153c73fb71c779dd0cf07c1d04d73542934881'
 
 export const port = Number(import.meta.env.VITE_FRAMES_PORT ?? 10545)
 export const rpcUrl = `http://localhost:${port}/${Number(import.meta.env.VITEST_POOL_ID ?? 1)}`

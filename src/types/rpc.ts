@@ -1,7 +1,5 @@
 import type { Address } from 'abitype'
-import type * as Frame from 'ox/Frame'
-import type * as FrameReceipt from 'ox/FrameReceipt'
-import type * as FrameSignature from 'ox/FrameSignature'
+import type { Frame, FrameReceipt, FrameSignature } from 'ox'
 
 import type {
   Block,
@@ -93,7 +91,7 @@ export type RpcTransactionRequest = OneOf<
       Quantity,
       Index,
       '0x6',
-      RpcFrame,
+      PartialBy<RpcFrame, 'executionGasLimit' | 'stateGasLimit'>,
       RpcFrameSignature
     >
 >

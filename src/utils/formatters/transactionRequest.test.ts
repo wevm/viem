@@ -400,7 +400,6 @@ test('eip8141 transaction', () => {
           "executionGasLimit": "0xc350",
           "flags": 3,
           "mode": 1,
-          "stateGasLimit": "0x0",
           "value": "0x0",
         },
         {
@@ -448,10 +447,8 @@ test('eip8141 defaults', () => {
       "frames": [
         {
           "data": "0x",
-          "executionGasLimit": "0x0",
           "flags": 0,
           "mode": 0,
-          "stateGasLimit": "0x0",
           "value": "0x0",
         },
       ],
@@ -459,4 +456,22 @@ test('eip8141 defaults', () => {
       "type": "0x6",
     }
   `)
+})
+
+test('eip8141 explicit zero gas', () => {
+  expect(
+    formatTransactionRequest({ frames: [{ gas: 0n, stateGas: 0n }] }),
+  ).toEqual({
+    frames: [
+      {
+        data: '0x',
+        executionGasLimit: '0x0',
+        flags: 0,
+        mode: 0,
+        stateGasLimit: '0x0',
+        value: '0x0',
+      },
+    ],
+    type: '0x6',
+  })
 })
