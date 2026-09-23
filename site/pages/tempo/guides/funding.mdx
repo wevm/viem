@@ -58,9 +58,9 @@ await client.sendTransaction({
 ```
 :::
 
-### Fund a Token Transfer
+### Fund an Action
 
-Pass `requireFunds` to [`token.transferSync`](/tempo/actions/token.transfer) when sending a single token transfer. The action funds the required OUSD balance before transferring it.
+Tempo write actions accept `requireFunds`. For actions with an exact input, the action can infer the requirement's `token` and `amount`. This transfer funds the required OUSD balance before sending it.
 
 :::code-group
 
@@ -75,8 +75,6 @@ await client.token.transferSync({
   to: '0x...',
   amount: 50_000_000n,
   requireFunds: [{
-    token: ousd,
-    amount: 50_000_000n,
     slippageBps: 100,
     sources: [{
       to: Addresses.nativeDexFundingSource,
@@ -90,6 +88,8 @@ await client.token.transferSync({
 // [!include ~/snippets/tempo/viem.config.ts:setup]
 ```
 :::
+
+`token.transfer` (without `from`), `token.burn`, and `dex.sell` infer the spent token and exact amount. Their `Sync` variants do the same. Other actions, including `earn.deposit`, need explicit `token` and `amount`; either field can always be supplied to override an inferred value.
 
 ## Best Practices
 

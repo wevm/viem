@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-Added owner-authorized Tempo funding requirements to transactions and token actions.
+Added owner-authorized Tempo funding requirements to transactions and actions, with inferred targets for exact-spend actions.
 
 ```ts
 await client.sendTransaction({

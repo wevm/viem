@@ -428,19 +428,17 @@ describe('Actions.token.transferSync', () => {
       feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
-          amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
             {
-              to: source,
+              to: Addresses.nativeDexFundingSource,
               data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              to: source,
+              to: Addresses.nativeDexFundingSource,
               data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
@@ -452,6 +450,13 @@ describe('Actions.token.transferSync', () => {
 
     expect(receipt.status).toBe('success')
     expect(amount).toBe(parseUnits('50', 6))
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.requireFunds?.[0]).toMatchObject({
+      token: Addresses.pathUsd,
+      amount: parseUnits('50', 6),
+    })
     expect(
       parseEventLogs({
         abi: Abis.tip20Funder,
@@ -459,6 +464,105 @@ describe('Actions.token.transferSync', () => {
         logs: receipt.logs,
       }).map(({ args }) => args.amountOut),
     ).toEqual([parseUnits('30', 6), parseUnits('20', 6)])
+  })
+
+  test('requires explicit requirements when transferring from another account', async () => {
+    await expect(
+      Actions.token.transferSync(client, {
+        account: accounts[0],
+        amount: parseUnits('1', 6),
+        from: accounts[1].address,
+        requireFunds: [{ sources: [] }],
+        to: recipient,
+        token: Addresses.pathUsd,
+      }),
+    ).rejects.toThrow(
+      'When `from` is set, specify `token` and `amount` in each `requireFunds` entry; funding targets the transaction sender, not `from`.',
+    )
+  })
+})
+
+describe('Actions.token.burnSync', () => {
+  test('infers the burned token and amount', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    await mintInputs(account.address, [Addresses.alphaUsd])
+    await Actions.token.grantRolesSync(client, {
+      account: accounts[0],
+      roles: ['issuer'],
+      to: account.address,
+      token: Addresses.pathUsd,
+    })
+
+    const { amount, receipt } = await Actions.token.burnSync(client, {
+      account,
+      amount: parseUnits('25', 6),
+      feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
+      requireFunds: [
+        {
+          sources: [
+            {
+              to: Addresses.nativeDexFundingSource,
+              data: DexFundingSource.encode({ tokenIn: Addresses.alphaUsd }),
+            },
+          ],
+        },
+      ],
+      token: Addresses.pathUsd,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(amount).toBe(parseUnits('25', 6))
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.requireFunds?.[0]).toMatchObject({
+      token: Addresses.pathUsd,
+      amount: parseUnits('25', 6),
+    })
+  })
+})
+
+describe('Actions.dex.sellSync', () => {
+  test('infers the exact input token and amount', async () => {
+    await Actions.dex.placeSync(client, {
+      account: accounts[0],
+      amount: parseUnits('100', 6),
+      tick: 0,
+      token: Addresses.betaUsd,
+      type: 'sell',
+    })
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    await mintInputs(account.address, [Addresses.alphaUsd])
+
+    const { receipt } = await Actions.dex.sellSync(client, {
+      account,
+      amountIn: parseUnits('25', 6),
+      feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
+      minAmountOut: 1n,
+      requireFunds: [
+        {
+          sources: [
+            {
+              to: Addresses.nativeDexFundingSource,
+              data: DexFundingSource.encode({ tokenIn: Addresses.alphaUsd }),
+            },
+          ],
+        },
+      ],
+      tokenIn: Addresses.pathUsd,
+      tokenOut: Addresses.betaUsd,
+    })
+
+    expect(receipt.status).toBe('success')
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.requireFunds?.[0]).toMatchObject({
+      token: Addresses.pathUsd,
+      amount: parseUnits('25', 6),
+    })
   })
 })
 

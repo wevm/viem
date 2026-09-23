@@ -46,6 +46,7 @@ import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type {
   GetAccountParameter,
+  InferredWriteParameters,
   ReadParameters,
   TokenParameter,
   TokenParameters,
@@ -55,6 +56,7 @@ import {
   type CallParameters,
   defineCall,
   findDeclaredToken,
+  inferFundingRequirements,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
@@ -553,7 +555,7 @@ export namespace burn {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = InferredWriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -572,8 +574,13 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { amount, memo, token, ...rest } = parameters
     const call = burn.call(client, { amount, memo, token } as never)
+    const { address, decimals } = resolveToken(client, { token })
     return (await action(client, {
       ...rest,
+      requireFunds: inferFundingRequirements(parameters.requireFunds, {
+        token: address,
+        amount: internal_Token.toBaseUnits(amount, decimals),
+      }),
       ...call,
     } as never)) as never
   }
@@ -3420,7 +3427,7 @@ export namespace transfer {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = InferredWriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -3437,6 +3444,7 @@ export namespace transfer {
   ): Promise<ReturnType<action>> {
     return (await action(client, {
       ...parameters,
+      requireFunds: inferTransferFunding(client, parameters),
       ...transfer.call(client, parameters as never),
     } as never)) as never
   }
@@ -3505,7 +3513,10 @@ export namespace transfer {
     parameters: transfer.Parameters<chain, account>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters({
+        ...parameters,
+        requireFunds: inferTransferFunding(client, parameters),
+      }),
       ...transfer.call(client, parameters as never),
     } as never)
   }
@@ -3531,7 +3542,10 @@ export namespace transfer {
     >
   > {
     return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters({
+        ...parameters,
+        requireFunds: inferTransferFunding(client, parameters),
+      }),
       ...transfer.call(client, parameters as never),
     } as never) as never
   }
@@ -4850,4 +4864,30 @@ export declare namespace watchUpdateQuoteToken {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
+}
+
+function inferTransferFunding<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: transfer.Parameters<chain, account>,
+) {
+  const { amount, from, requireFunds, token } = parameters
+  if (requireFunds === undefined) return undefined
+  if (
+    from !== undefined &&
+    requireFunds.some(
+      (requirement) =>
+        requirement.token === undefined || requirement.amount === undefined,
+    )
+  )
+    throw new Error(
+      'When `from` is set, specify `token` and `amount` in each `requireFunds` entry; funding targets the transaction sender, not `from`.',
+    )
+  const { address, decimals } = resolveToken(client, { token })
+  return inferFundingRequirements(requireFunds, {
+    token: address,
+    amount: internal_Token.toBaseUnits(amount, decimals),
+  })
 }
