@@ -1,4 +1,3 @@
-import { DexFundingSource } from 'ox/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { rpcUrl } from '~test/tempo/prool.js'
@@ -12,7 +11,14 @@ import {
   signTransaction,
 } from '../actions/index.js'
 import { parseEventLogs, parseUnits } from '../index.js'
-import { Abis, Account, Actions, Addresses, Tick } from './index.js'
+import {
+  Abis,
+  Account,
+  Actions,
+  Addresses,
+  DexFundingSource,
+  Tick,
+} from './index.js'
 import * as Transaction from './Transaction.js'
 
 const client = getClient()

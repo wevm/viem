@@ -1,6 +1,5 @@
-import { DexFundingSource, FundingRequirement } from 'ox/tempo'
+import { Addresses, DexFundingSource, FundingRequirement } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import * as Addresses from './Addresses.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
 

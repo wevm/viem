@@ -17,32 +17,39 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Fund a Payment
 
-Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requirements. Source data is encoded with Ox. This example consumes up to 30 USDC.e, then uses OUSD for the remaining shortfall.
+Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requirements. `DexFundingSource.encode` encodes native DEX source data. This example sources up to 30 pathUSD, then uses USDC.e for the remaining OUSD shortfall.
 
 :::code-group
 
 ```ts [example.ts]
-import { DexFundingSource } from 'ox/tempo'
-import { Addresses, Actions } from 'viem/tempo'
+import { Addresses, Actions, DexFundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const usdc = '0x...' // Output token address.
-const usdcE = '0x...' // First input token address.
-const ousd = '0x...' // Second input token address.
-const nativeDexSource = Addresses.nativeDexFundingSource
-const recipient = '0x...'
+const ousd = '0x...' // Output token address.
+const usdcE = '0x...' // Second input token address.
 
 await client.sendTransaction({
   requireFunds: [{
-    token: usdc,
+    token: ousd,
     amount: 50_000_000n,
     slippageBps: 100,
     sources: [
-      { to: nativeDexSource, data: DexFundingSource.encode({ tokenIn: usdcE, maxAmountIn: 30_000_000n }) },
-      { to: nativeDexSource, data: DexFundingSource.encode({ tokenIn: ousd }) },
+      {
+        to: Addresses.nativeDexFundingSource,
+        data: DexFundingSource.encode({
+          tokenIn: Addresses.pathUsd,
+          maxAmountIn: 30_000_000n,
+        }),
+      },
+      {
+        to: Addresses.nativeDexFundingSource,
+        data: DexFundingSource.encode({ tokenIn: usdcE }),
+      },
     ],
   }],
-  calls: [Actions.token.transfer.call({ token: usdc, to: recipient, amount: 50_000_000n })],
+  calls: [
+    Actions.token.transfer.call({ token: ousd, to: '0x...', amount: 50_000_000n }),
+  ],
 })
 ```
 
