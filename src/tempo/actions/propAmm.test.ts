@@ -85,6 +85,19 @@ describe('recipientAllowed', () => {
 })
 
 describe('getSwapQuote', () => {
+  test('requires a taker when the client has no account', async () => {
+    await expect(
+      getClient().extend(tempoActions()).propAmm.getSwapQuote({
+        amountIn: 1n,
+        baseToQuote: true,
+        customerId,
+        mode: 'exactInput',
+        pool: stack.pool,
+        recipient: recipient.address,
+      }),
+    ).rejects.toThrow('A taker or client account is required to quote.')
+  })
+
   test('keeps rounding credit isolated by customer route', async () => {
     const routeA = Hex.fromString('route-a', { size: 32 })
     const routeB = Hex.fromString('route-b', { size: 32 })
@@ -101,6 +114,27 @@ describe('getSwapQuote', () => {
     const initialA = await quote(routeA)
     const initialB = await quote(routeB)
     expect(initialA).toEqual(initialB)
+    expect(
+      await client.propAmm.getSwapQuote({
+        amountIn: 1n,
+        baseToQuote: true,
+        customerId: routeA,
+        mode: 'exactInput',
+        pool: stack.pool,
+        recipient: recipient.address,
+      }),
+    ).toEqual(initialA)
+    expect(
+      await getClient().extend(tempoActions()).propAmm.getSwapQuote({
+        account: account.address,
+        amountIn: 1n,
+        baseToQuote: true,
+        customerId: routeA,
+        mode: 'exactInput',
+        pool: stack.pool,
+        recipient: recipient.address,
+      }),
+    ).toEqual(initialA)
     await client.propAmm.swapSync({
       amountIn: 1n,
       baseToQuote: true,
@@ -110,7 +144,6 @@ describe('getSwapQuote', () => {
       minAmountOut: initialA[0],
       minimumOracleUpdatedAt: initialA[2],
       mode: 'exactInput',
-      oraclePriceToleranceBps: 0n,
       pool: stack.pool,
       recipient: recipient.address,
       tradeId: Hex.random(32),
@@ -193,7 +226,6 @@ describe('swap', () => {
         mode: 'exactOutput',
         pool: stack.pool,
         recipient: recipient.address,
-        taker: account.address,
       })
     const trade = await client.propAmm.swapSync({
       amountOut: parseUnits('1', 6),
@@ -204,7 +236,6 @@ describe('swap', () => {
       maxAmountIn: amountIn,
       minimumOracleUpdatedAt: buyUpdatedAt,
       mode: 'exactOutput',
-      oraclePriceToleranceBps: 0n,
       pool: stack.pool,
       recipient: recipient.address,
       tradeId: Hex.random(32),

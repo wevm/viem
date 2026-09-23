@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateGas as core_estimateGas } from '../../actions/public/estimateGas.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -16,7 +17,7 @@ import type { GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
-import type { Compute } from '../../types/utils.js'
+import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
@@ -288,16 +289,19 @@ export namespace resolveRecipient {
  * })
  * ```
  * @param client - Client.
- * @param parameters - Route, swap mode, amount, and read options.
+ * @param parameters - Route, swap mode, amount, and read options. Taker defaults to the read or client account.
  * @returns Quoted counteramount, oracle price, observation time, and remaining rounding credit.
  */
 export async function getSwapQuote<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getSwapQuote.Parameters,
 ): Promise<getSwapQuote.ReturnValue> {
+  const account = parameters.account ?? client.account
+  const taker = parameters.taker ?? (account && parseAccount(account).address)
+  if (!taker) throw new Error('A taker or client account is required to quote.')
   return readContract(client, {
     ...parameters,
-    ...getSwapQuote.call(parameters),
+    ...getSwapQuote.call({ ...parameters, taker }),
   } as never) as Promise<getSwapQuote.ReturnValue>
 }
 
@@ -322,7 +326,11 @@ export namespace getSwapQuote {
         amountOut: bigint
       }
   )
-  export type Parameters = ReadParameters & Args
+  export type Parameters = ReadParameters &
+    UnionOmit<Args, 'taker'> & {
+      /** Address that will call the swap. Defaults to the read account or client account. */
+      taker?: Address | undefined
+    }
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'quoteExactInputFor'
@@ -482,7 +490,7 @@ namespace exactOutput {
  *   amountIn: 1_000_000n, minAmountOut: 1_000_000n,
  *   recipient: '0x...', customerId: '0x...', tradeId: '0x...',
  *   deadline: 1_800_000_000n, expectedOraclePrice: 1_000_000_000_000_000_000n,
- *   oraclePriceToleranceBps: 10n, minimumOracleUpdatedAt: 1_799_999_000n,
+ *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
  * ```
  * @param client - Client.
@@ -528,10 +536,14 @@ export namespace swap {
         maxAmountIn: bigint
       }
   )
+  export type InputArgs = UnionOmit<Args, 'oraclePriceToleranceBps'> & {
+    /** Accepted oracle-price movement in basis points. Defaults to zero. */
+    oraclePriceToleranceBps?: bigint | undefined
+  }
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> & InputArgs
   export type ReturnValue = SendTransactionReturnType
   export type ErrorType = BaseErrorType
 
@@ -571,7 +583,10 @@ export namespace swap {
         spender: parameters.pool,
         token: tokenIn,
       }),
-      swap.call(parameters),
+      swap.call({
+        ...parameters,
+        oraclePriceToleranceBps: parameters.oraclePriceToleranceBps ?? 0n,
+      }),
     ] as const
   }
 
@@ -665,7 +680,7 @@ export namespace swap {
  *   amountIn: 1_000_000n, minAmountOut: 1_000_000n,
  *   recipient: '0x...', customerId: '0x...', tradeId: '0x...',
  *   deadline: 1_800_000_000n, expectedOraclePrice: 1_000_000_000_000_000_000n,
- *   oraclePriceToleranceBps: 10n, minimumOracleUpdatedAt: 1_799_999_000n,
+ *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
  * console.log(trade.amountOut, trade.receipt.transactionHash)
  * ```
@@ -692,7 +707,7 @@ export async function swapSync<
 }
 
 export namespace swapSync {
-  export type Args = swap.Args
+  export type Args = swap.InputArgs
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,

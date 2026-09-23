@@ -22,7 +22,6 @@ const trade = await client.propAmm.swapSync({
   minAmountOut: 1_000_000n,
   minimumOracleUpdatedAt: 1_799_999_000n,
   mode: 'exactInput',
-  oraclePriceToleranceBps: 0n,
   pool: '0x0000000000000000000000000000000000000002',
   recipient: '0x0000000000000000000000000000000000000001',
   tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
@@ -116,6 +115,7 @@ Select the amount that you specify.
 ### oraclePriceToleranceBps
 
 - **Type:** `bigint`
+- **Default:** `0n`
 
 Maximum accepted oracle price movement in basis points. Zero binds exactly.
 

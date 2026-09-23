@@ -38,7 +38,6 @@ test('pool reads and quotes preserve their public types', async () => {
     await client.propAmm.getSwapQuote({
       ...route,
       amountIn: 1n,
-      taker: client.account.address,
     }),
   ).toEqualTypeOf<readonly [bigint, bigint, bigint, bigint]>()
   expectTypeOf(
@@ -69,13 +68,12 @@ test('swap builders compose with standalone and decorated actions', async () => 
     expectedOraclePrice: 1n,
     minAmountOut: 1n,
     minimumOracleUpdatedAt: 1n,
-    oraclePriceToleranceBps: 0n,
     tradeId,
   }
   expectTypeOf(await propAmm.swap(client, options)).toEqualTypeOf<Hash>()
   expectTypeOf(await client.propAmm.swap(options)).toEqualTypeOf<Hash>()
   expectTypeOf(
-    propAmm.swap.call(options).functionName,
+    propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n }).functionName,
   ).toEqualTypeOf<'swapExactInput'>()
   const trade = await client.propAmm.swapSync(options)
   expectTypeOf(trade.amountOut).toEqualTypeOf<bigint>()

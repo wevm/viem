@@ -20,7 +20,6 @@ const [amountOut, oraclePrice, oracleUpdatedAt, creditAfter] = await client.prop
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
   recipient: '0x0000000000000000000000000000000000000001',
-  taker: '0x0000000000000000000000000000000000000001',
 })
 // @log: [amountOut, oraclePrice, oracleUpdatedAt, creditAfter]
 ```
@@ -91,7 +90,8 @@ Destination of the output token.
 ### taker
 
 - **Type:** `Address`
+- **Default:** The read account override or client account
 
-Address that will submit the swap and supply the input token.
+Address that will submit the swap and supply the input token. A taker is required if neither account is set.
 
 <ReadParameters />

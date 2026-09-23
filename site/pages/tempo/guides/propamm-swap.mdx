@@ -31,7 +31,6 @@ const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
   mode: 'exactInput',
   pool,
   recipient,
-  taker: account.address,
 })
 
 const trade = await client.propAmm.swapSync({ // [!code focus]
@@ -43,7 +42,6 @@ const trade = await client.propAmm.swapSync({ // [!code focus]
   expectedOraclePrice: price,
   minAmountOut: amountOut,
   minimumOracleUpdatedAt: updatedAt,
-  oraclePriceToleranceBps: 0n,
   pool,
   recipient,
   tradeId: Hex.random(32),
