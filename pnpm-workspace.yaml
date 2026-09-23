@@ -92,6 +92,7 @@ overrides:
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
   micromatch@<4.0.8: ^4.0.8
   minimatch: '>=10.2.3'
+  mppx@<0.8.2: 0.8.2
   nanoid@>=3.0.0 <3.3.18: 3.3.18
   nanoid@>=4.0.0 <5.1.16: 5.1.16
   next@>=15.6.0-canary.0 <16.1.5: '>=16.1.5'
