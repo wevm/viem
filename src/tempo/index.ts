@@ -17,7 +17,6 @@ export {
   FundingPolicy,
   FundingRequirement,
   FundingSource,
-  FundingSourceDex,
   MultisigConfig,
   MultisigOperation,
   Period,

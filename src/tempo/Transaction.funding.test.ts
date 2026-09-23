@@ -1,4 +1,4 @@
-import { Addresses, FundingRequirement, FundingSourceDex } from 'viem/tempo'
+import { Addresses, FundingRequirement, FundingSource } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
@@ -8,15 +8,7 @@ const requirement = FundingRequirement.from({
   token,
   amount: 50_000_000n,
   slippageBps: 0,
-  sources: [
-    {
-      to: Addresses.nativeDexFundingSource,
-      data: FundingSourceDex.encodeData({
-        tokenIn: token,
-        maxAmountIn: 30_000_000n,
-      }),
-    },
-  ],
+  sources: [FundingSource.dex({ maxAmountIn: 30_000_000n, tokenIn: token })],
 })
 
 describe('getType', () => {

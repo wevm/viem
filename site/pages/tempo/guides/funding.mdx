@@ -17,13 +17,13 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Fund a Transaction
 
-Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requirements. `FundingSourceDex.from` creates a native DEX source with its address and encoded data. This example sources up to 30 pathUSD, then uses USDC.e for the remaining OUSD shortfall.
+Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requirements. `FundingSource.dex` creates a native DEX source with its address and encoded data. This example sources up to 30 pathUSD, then uses USDC.e for the remaining OUSD shortfall.
 
 :::code-group
 
 ```ts [example.ts]
 import { parseUnits } from 'viem'
-import { Addresses, Actions, FundingSourceDex } from 'viem/tempo'
+import { Addresses, Actions, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const ousd = '0x...' // Output token address.
@@ -42,11 +42,11 @@ await client.sendTransaction({
     amount: parseUnits('50', 6),
     slippageBps: 100,
     sources: [
-      FundingSourceDex.from({
+      FundingSource.dex({
         tokenIn: Addresses.pathUsd,
         maxAmountIn: parseUnits('30', 6),
       }),
-      FundingSourceDex.from({ tokenIn: usdcE }),
+      FundingSource.dex({ tokenIn: usdcE }),
     ],
   }],
 })
@@ -65,7 +65,7 @@ Tempo write actions accept `requireFunds`. For actions with an exact input, the 
 
 ```ts [example.ts]
 import { parseUnits } from 'viem'
-import { Addresses, FundingSourceDex } from 'viem/tempo'
+import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const ousd = '0x...' // Output token address.
@@ -76,7 +76,7 @@ await client.token.transferSync({
   amount: parseUnits('50', 6),
   requireFunds: [{
     slippageBps: 100,
-    sources: [FundingSourceDex.from({ tokenIn: Addresses.pathUsd })],
+    sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
   }],
 })
 ```
