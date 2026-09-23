@@ -163,6 +163,7 @@ export async function signTransaction<
       {
         ...transaction,
         account,
+        ...(transaction.frames ? { sender: account.address } : {}),
         chainId,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },

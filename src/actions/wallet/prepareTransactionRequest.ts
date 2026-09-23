@@ -24,7 +24,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
@@ -214,7 +214,15 @@ export type PrepareTransactionRequestReturnType<
       IsNever<_transactionRequest> extends true
         ? unknown
         : ExactPartial<_transactionRequest>
-    > & { chainId?: number | undefined },
+    > & {
+      chainId?: number | undefined
+    } & (IsNever<_transactionType> extends true
+        ? {}
+        : _transactionType extends 'eip8141'
+          ? _derivedAccount extends Account | Address
+            ? { sender: Address }
+            : { sender?: undefined }
+          : {}),
     ParameterTypeToParameters<
       request['parameters'] extends readonly PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]
@@ -302,8 +310,7 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = args as PrepareTransactionRequestParameters
-
+  let request = { ...args } as PrepareTransactionRequestParameters
   request.account ??= client.account
   request.parameters ??= defaultParameters
 
@@ -313,6 +320,23 @@ export async function prepareTransactionRequest<
     nonceManager,
     parameters,
   } = request
+
+  const frames = request.frames
+  if (
+    frames &&
+    parameters.some((parameter) =>
+      ['chainId', 'fees', 'gas', 'nonce'].includes(parameter),
+    ) &&
+    request.signatures?.some(
+      (entry) =>
+        (!entry.payload || entry.payload === '0x') &&
+        entry.signature !== undefined &&
+        entry.signature !== '0x',
+    )
+  )
+    throw new BaseError(
+      'Signed frame transactions must be sent with sendRawTransaction.',
+    )
 
   const prepareTransactionRequest = (() => {
     if (typeof chain?.prepareTransactionRequest === 'function')
@@ -428,6 +452,13 @@ export async function prepareTransactionRequest<
         typeof (request as any).maxPriorityFeePerGas !== 'bigint')
     )
       return true
+    if (
+      parameters.includes('gas') &&
+      frames?.some(
+        (frame) => frame.gas === undefined || frame.stateGas === undefined,
+      )
+    )
+      return true
     if (parameters.includes('gas') && typeof request.gas !== 'bigint')
       return true
     return false
@@ -452,6 +483,15 @@ export async function prepareTransactionRequest<
             type,
             ...rest
           } = result.transaction
+          const filledFrames = result.transaction.frames
+          if (
+            frames &&
+            parameters.includes('gas') &&
+            filledFrames?.length !== frames.length
+          )
+            throw new BaseError(
+              'The node returned an unexpected number of frames.',
+            )
           const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
           const hasFilledFeePayerSignature =
             'feePayerSignature' in rest &&
@@ -464,11 +504,22 @@ export async function prepareTransactionRequest<
           supportsFillTransaction.set(client.uid, true)
           return {
             ...request,
+            ...(frames && parameters.includes('gas')
+              ? {
+                  frames: frames.map((frame, index) => ({
+                    ...frame,
+                    gas: frame.gas ?? filledFrames?.[index]?.gas,
+                    stateGas: frame.stateGas ?? filledFrames?.[index]?.stateGas,
+                  })),
+                }
+              : {}),
             ...(from ? { from } : {}),
             ...(type && !request.type ? { type } : {}),
-            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
+            ...(typeof chainId !== 'undefined'
+              ? { chainId: request.chainId ?? chainId }
+              : {}),
             ...(typeof gas !== 'undefined' ? { gas } : {}),
-            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
+            ...(typeof gasPrice !== 'undefined' && !frames ? { gasPrice } : {}),
             ...(typeof nonce !== 'undefined' ? { nonce } : {}),
             ...(typeof maxFeePerBlobGas !== 'undefined' &&
             request.type !== 'legacy' &&
@@ -506,6 +557,15 @@ export async function prepareTransactionRequest<
           }
         })
         .catch((e) => {
+          if (
+            frames &&
+            parameters.includes('gas') &&
+            frames.some(
+              (frame) =>
+                frame.gas === undefined || frame.stateGas === undefined,
+            )
+          )
+            throw e
           const error = e as FillTransactionErrorType
 
           if (error.name !== 'TransactionExecutionError') return request
@@ -684,7 +744,17 @@ export async function prepareTransactionRequest<
     }
   }
 
-  if (parameters.includes('gas') && typeof gas === 'undefined')
+  if (
+    parameters.includes('gas') &&
+    request.frames?.some(
+      (frame) => frame.gas === undefined || frame.stateGas === undefined,
+    )
+  )
+    throw new BaseError(
+      'Provide gas and stateGas for every frame, or use a node that supports filling frame gas limits.',
+    )
+
+  if (parameters.includes('gas') && !frames && typeof gas === 'undefined')
     request.gas = await getAction(
       client,
       estimateGas,
@@ -706,6 +776,9 @@ export async function prepareTransactionRequest<
         phase: 'afterFillParameters',
       },
     )
+
+  if (frames && account)
+    request = { ...request, sender: account.address } as typeof request
 
   assertRequest(request as AssertRequestParameters)
 

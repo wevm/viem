@@ -116,6 +116,7 @@ export async function estimateGas<
 
   const parameters = (() => {
     if (Array.isArray(prepare)) return prepare
+    if (args.frames) return ['blobVersionedHashes']
     // Some RPC Providers do not compute versioned hashes from blobs. We will need
     // to compute them.
     if (account?.type !== 'local') return ['blobVersionedHashes']

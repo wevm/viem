@@ -1,7 +1,12 @@
 import { expectTypeOf, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { kzg } from '~test/kzg.js'
-import type { BlobSidecar, Hex, TransactionRequest } from '../../index.js'
+import type {
+  BlobSidecar,
+  Hex,
+  TransactionRequest,
+  TransactionSerializableEIP8141,
+} from '../../index.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray } from '../../types/misc.js'
 import {
@@ -254,4 +259,15 @@ test('args: parameters', async () => {
     | 'eip8141'
     | undefined
   >()
+})
+
+test('eip8141', async () => {
+  const request = await prepareTransactionRequest(clientWithAccount, {
+    frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
+    signatures: [{ scheme: 'secp256k1' }],
+  })
+
+  expectTypeOf(request.type).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(request.sender).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(request).toMatchTypeOf<TransactionSerializableEIP8141>()
 })
