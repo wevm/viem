@@ -152,6 +152,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
+- **Frame transaction tests use `tmp_frames`**; run `pnpm test --run --project tmp_frames` with Docker available.
+  - Colocate integration tests as `*.frames.test.ts` and use `~test/frames/config.js` for funded accounts and clients.
+  - Prool starts an isolated Nethermind instance per worker and destroys it after each test file.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
   its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`
