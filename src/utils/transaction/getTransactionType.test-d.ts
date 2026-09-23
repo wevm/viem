@@ -1,15 +1,14 @@
+import {
+  getTransactionType,
+  type TransactionSerializable,
+  type TransactionSerializableEIP1559,
+  type TransactionSerializableEIP2930,
+  type TransactionSerializableEIP4844,
+  type TransactionSerializableEIP7702,
+  type TransactionSerializableEIP8141,
+  type TransactionSerializableLegacy,
+} from 'viem'
 import { expectTypeOf, test } from 'vitest'
-import type {
-  TransactionSerializable,
-  TransactionSerializableEIP1559,
-  TransactionSerializableEIP2930,
-  TransactionSerializableLegacy,
-} from '../../index.js'
-import type {
-  TransactionSerializableEIP4844,
-  TransactionSerializableEIP7702,
-} from '../../types/transaction.js'
-import { getTransactionType } from './getTransactionType.js'
 
 test('empty', () => {
   expectTypeOf(getTransactionType({})).toEqualTypeOf<string>()
@@ -17,7 +16,7 @@ test('empty', () => {
 
 test('opaque', () => {
   expectTypeOf(getTransactionType({} as TransactionSerializable)).toEqualTypeOf<
-    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702'
+    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702' | 'eip8141'
   >()
   expectTypeOf(
     getTransactionType({} as TransactionSerializableLegacy),
@@ -34,6 +33,9 @@ test('opaque', () => {
   expectTypeOf(
     getTransactionType({} as TransactionSerializableEIP7702),
   ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({} as TransactionSerializableEIP8141),
+  ).toEqualTypeOf<'eip8141'>()
 })
 
 test('const: type', () => {
@@ -50,6 +52,9 @@ test('const: type', () => {
   expectTypeOf(
     getTransactionType({ type: 'eip7702' }),
   ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({ type: 'eip8141' }),
+  ).toEqualTypeOf<'eip8141'>()
 })
 
 test('const: legacy attributes', () => {
@@ -154,4 +159,41 @@ test('const: 7702 attributes', () => {
       maxPriorityFeePerGas: 1n,
     }),
   ).toEqualTypeOf<'eip7702'>()
+})
+
+test('const: 8141 attributes', () => {
+  expectTypeOf(getTransactionType({ frames: [] })).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ frames: [], maxFeePerGas: 1n }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ frames: [], maxPriorityFeePerGas: 1n }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ blobVersionedHashes: [], frames: [] }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ frames: [], maxFeePerBlobGas: 1n }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({
+      frames: [],
+      sidecars: { blobs: [], cellProofs: [], commitments: [] },
+    }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ frames: undefined, maxFeePerGas: 1n }),
+  ).toEqualTypeOf<'eip1559'>()
+})
+
+test('const: 8141 attributes with explicit type', () => {
+  expectTypeOf(
+    getTransactionType({ frames: [], type: 'eip8141' }),
+  ).toEqualTypeOf<'eip8141'>()
+  expectTypeOf(
+    getTransactionType({ frames: [], type: 'eip1559' }),
+  ).toEqualTypeOf<'eip1559'>()
+  expectTypeOf(
+    getTransactionType({ frames: [], type: '0x7e' }),
+  ).toEqualTypeOf<'0x7e'>()
 })

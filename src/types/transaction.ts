@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 
 import type {
   AuthorizationList,
@@ -10,6 +11,7 @@ import type {
   FeeValuesEIP4844,
   FeeValuesLegacy,
 } from './fee.js'
+import type { Frame, FrameSignature } from './frame.js'
 import type { Kzg } from './kzg.js'
 import type { Log } from './log.js'
 import type { ByteArray, Hash, Hex, Signature } from './misc.js'
@@ -33,6 +35,7 @@ export type TransactionType =
   | 'eip2930'
   | 'eip4844'
   | 'eip7702'
+  | 'eip8141'
   | (string & {})
 
 export type TransactionReceipt<
@@ -318,6 +321,7 @@ export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
 export type TransactionSerializedEIP7702 = `0x04${string}`
+export type TransactionSerializedEIP8141 = `0x06${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
 export type TransactionSerialized<
@@ -327,6 +331,7 @@ export type TransactionSerialized<
     | (type extends 'eip2930' ? TransactionSerializedEIP2930 : never)
     | (type extends 'eip4844' ? TransactionSerializedEIP4844 : never)
     | (type extends 'eip7702' ? TransactionSerializedEIP7702 : never)
+    | (type extends 'eip8141' ? TransactionSerializedEIP8141 : never)
     | (type extends 'legacy' ? TransactionSerializedLegacy : never),
 > = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
@@ -405,12 +410,42 @@ export type TransactionSerializableEIP7702<
     yParity?: number | undefined
   }
 
+/** An EIP-8141 envelope with ordered frames and explicit signature entries. */
+export type TransactionSerializableEIP8141<
+  quantity = bigint,
+  index = number,
+> = {
+  /** Versioned blob hashes. */
+  blobVersionedHashes?: readonly Hex[] | undefined
+  /** Chain ID. */
+  chainId: number
+  /** Frames to execute, in order. */
+  frames: readonly Frame<quantity>[]
+  /** Maximum fee per blob gas, in wei. */
+  maxFeePerBlobGas?: quantity | undefined
+  /** Maximum fee per gas, in wei. */
+  maxFeePerGas?: quantity | undefined
+  /** Maximum priority fee per gas, in wei. */
+  maxPriorityFeePerGas?: quantity | undefined
+  /** Sender nonce. Defaults to zero. */
+  nonce?: index | undefined
+  /** Account authorizing execution. */
+  sender: Address
+  /** PeerDAS sidecars, excluded from the signing hash. */
+  sidecars?: TxEnvelopeEip8141.TxEnvelopeEip8141['sidecars'] | undefined
+  /** Signature entries, including unsigned placeholders. */
+  signatures?: readonly FrameSignature[] | undefined
+  /** Transaction type. Inferred when frames are present. */
+  type?: 'eip8141' | undefined
+}
+
 export type TransactionSerializable<quantity = bigint, index = number> = OneOf<
   | TransactionSerializableLegacy<quantity, index>
   | TransactionSerializableEIP2930<quantity, index>
   | TransactionSerializableEIP1559<quantity, index>
   | TransactionSerializableEIP4844<quantity, index>
   | TransactionSerializableEIP7702<quantity, index>
+  | TransactionSerializableEIP8141<quantity, index>
 >
 
 export type TransactionSerializableGeneric<
@@ -422,10 +457,16 @@ export type TransactionSerializableGeneric<
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined
+  frames?: readonly Frame<quantity>[] | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
   maxPriorityFeePerGas?: quantity | undefined
-  sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
+  sender?: Address | undefined
+  sidecars?:
+    | readonly BlobSidecar<Hex>[]
+    | TransactionSerializableEIP8141['sidecars']
+    | false
+    | undefined
   type?: string | undefined
 }

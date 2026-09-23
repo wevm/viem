@@ -140,13 +140,17 @@ EIP-1559 transaction hex value – a "0x02"-prefixed string: `"0x02${string}"`
 
 EIP-2930 transaction hex value – a "0x01"-prefixed string: `"0x01${string}"`
 
+## `TransactionSerializedEIP8141`
+
+An EIP-8141 frame transaction encoded as a `"0x06"`-prefixed string: `"0x06${string}"`.
+
 ## `TransactionSerializedLegacy`
 
 Legacy transaction hex value – a "0x"-prefixed string: `"0x${string}"`
 
 ## `TransactionType`
 
-All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "eip7702" | "legacy"`
+All types of transactions. `"eip1559" | "eip2930" | "eip4844" | "eip7702" | "eip8141" | "legacy"`
 
 ## `TransactionRequest`
 

@@ -532,9 +532,11 @@ export {
 export {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './transaction/assertTransaction.js'
 export {

@@ -1,4 +1,11 @@
 import type { Address } from 'abitype'
+import { Secp256k1, TxEnvelopeEip8141 } from 'ox'
+import {
+  commitmentsToVersionedHashes,
+  fromRlp,
+  serializeTransaction,
+  sliceHex,
+} from 'viem'
 import { assertType, describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { accounts } from '~test/constants.js'
@@ -10,6 +17,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
@@ -25,13 +33,143 @@ import { stringToHex } from '../index.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
 import { parseTransaction } from './parseTransaction.js'
-import { serializeTransaction } from './serializeTransaction.js'
 
 const base = {
   to: accounts[1].address,
   nonce: 785,
   value: parseEther('1'),
 } satisfies TransactionSerializableBase
+
+describe('eip8141', () => {
+  const transaction = {
+    chainId: 1,
+    frames: [
+      {
+        flags: 'approveExecutionAndPayment',
+        gas: 50_000n,
+        mode: 'verify',
+      },
+      {
+        gas: 50_000n,
+        mode: 'sender',
+        to: accounts[1].address,
+        value: 1n,
+      },
+    ],
+    maxFeePerGas: 20n,
+    maxPriorityFeePerGas: 1n,
+    nonce: 7,
+    sender: accounts[0].address,
+    signatures: [{ scheme: 'secp256k1' }],
+  } satisfies TransactionSerializableEIP8141
+
+  test('unsigned', () => {
+    expect(serializeTransaction(transaction)).toMatchInlineSnapshot(
+      `"0x06f84d010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0"`,
+    )
+  })
+
+  test('signed', () => {
+    const envelope = TxEnvelopeEip8141.from({
+      ...transaction,
+      nonce: BigInt(transaction.nonce),
+    })
+    const payload = TxEnvelopeEip8141.getSignPayload(envelope)
+    expect(payload).toMatchInlineSnapshot(
+      `"0x063021765780860ccd7ce32ef36ca5df8518a9366e454d4224157610865eecac"`,
+    )
+    const signature = Secp256k1.sign({
+      payload,
+      privateKey: accounts[0].privateKey,
+    })
+    const signed = {
+      ...transaction,
+      signatures: [{ scheme: 'secp256k1', signature }],
+    } satisfies TransactionSerializableEIP8141
+    const before = structuredClone(signed)
+    const serialized = serializeTransaction(signed)
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x06f891010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180f848f846018080b841013553a87c90c71fdfaa10259da1a98414f9dfb62b427ee7116ed865284109e0b635870bd58b419cb8b81792bdca11e0bcbdc94feebfd651fef2453dc0fb615acac3011480c0"`,
+    )
+    expect(
+      TxEnvelopeEip8141.getSignPayload(TxEnvelopeEip8141.from(serialized)),
+    ).toEqual(payload)
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
+      serialized,
+    )
+    expect(signed).toEqual(before)
+  })
+
+  test('defaults', () => {
+    expect(
+      serializeTransaction({
+        chainId: 0,
+        frames: [{}],
+        sender: accounts[0].address,
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x06e7808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8808080c280808080c0c3808080c0"`,
+    )
+  })
+
+  test('explicit payload witnesses remain in the signing hash', () => {
+    const signature = {
+      payload:
+        '0x063021765780860ccd7ce32ef36ca5df8518a9366e454d4224157610865eecac',
+      scheme: 'arbitrary',
+      signature: '0xaabb',
+    } as const
+    const serialized = serializeTransaction({
+      ...transaction,
+      signatures: [signature],
+    })
+    const decoded = TxEnvelopeEip8141.from(serialized)
+    expect(TxEnvelopeEip8141.getSignPayload(decoded)).toEqual(
+      keccak256(serialized),
+    )
+    expect(decoded.signatures).toEqual([signature])
+  })
+
+  test('outer signature', () => {
+    expect(() =>
+      serializeTransaction(transaction, { r: '0x01', s: '0x02', yParity: 0 }),
+    ).toThrow('EIP-8141 transactions use the signatures array')
+  })
+
+  test('explicit incompatible type', () => {
+    expect(() =>
+      serializeTransaction(
+        // @ts-expect-error frames are not part of EIP-1559
+        { ...transaction, type: 'eip1559' },
+      ),
+    ).toThrow('Frame transaction fields require type "eip8141".')
+  })
+
+  test('PeerDAS wrapper', () => {
+    const commitment = `0xc0${'00'.repeat(47)}` as const
+    const sidecars = {
+      blobs: [`0x${'00'.repeat(131_072)}` as const],
+      cellProofs: Array.from({ length: 128 }, () => commitment),
+      commitments: [commitment],
+    }
+    const blobVersionedHashes = commitmentsToVersionedHashes({
+      commitments: [commitment],
+    })
+    const serialized = serializeTransaction({
+      ...transaction,
+      blobVersionedHashes,
+      maxFeePerBlobGas: 1n,
+      sidecars,
+    })
+    const decoded = parseTransaction(serialized)
+    expect(decoded.sidecars).toEqual(sidecars)
+    expect(decoded.blobVersionedHashes).toEqual(blobVersionedHashes)
+    expect(serializeTransaction(decoded)).toEqual(serialized)
+    const wrapper = fromRlp(sliceHex(serialized, 1))
+    expect(wrapper.length).toBe(5)
+    expect(wrapper[1]).toBe('0x01')
+  })
+})
 
 describe('eip7702', () => {
   const baseEip7702 = {

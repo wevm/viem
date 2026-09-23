@@ -1,3 +1,4 @@
+import { recoverTransactionAddress } from 'viem'
 import { expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -24,7 +25,6 @@ import {
   serializeTransaction,
   stringToHex,
 } from '../index.js'
-import { recoverTransactionAddress } from './recoverTransactionAddress.js'
 
 const client = anvilMainnet.getClient().extend(walletActions)
 
@@ -144,4 +144,19 @@ test('legacy', async () => {
         '0xf8a90c8507558bdb0082d57a948813f5bcbe6c7071d8bd32d2a4f07599bb5797b080b844a9059cbb00000000000000000000000068674fb6a9ee3749d5d8f71eeed5f254a75ffeea0000000000000000000000000000000000000000000001894b59bd5cd2fc000026a00d39b9cb3369c546185f4ddd6ee6908052c39fe856642726fa93f9a2a83db755a06a8c3928a80275ecef8a0ff00486483f8db6274b5ffd44fbcb8765418e9bec26' as TransactionSerializedLegacy,
     }),
   ).toMatchInlineSnapshot(`"0xb03B8ffAB1f3Ac3CabE4A0B2ED441fDFd3C96C8E"`)
+})
+
+test('eip8141 has no single recoverable signer', async () => {
+  const serializedTransaction =
+    '0x06f84d010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0'
+  await expect(
+    recoverTransactionAddress({ serializedTransaction }),
+  ).rejects.toThrow(
+    'Cannot recover a single signer from an EIP-8141 transaction.',
+  )
+  await expect(
+    recoverTransactionAddress({ serializedTransaction, signature: '0x' }),
+  ).rejects.toThrow(
+    'Cannot recover a single signer from an EIP-8141 transaction.',
+  )
 })

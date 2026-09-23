@@ -1,3 +1,5 @@
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
@@ -15,6 +17,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -22,6 +25,7 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
@@ -60,11 +64,13 @@ import {
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
   type AssertTransactionEIP7702ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -98,11 +104,13 @@ export type SerializeTransactionFn<
 >
 
 export type SerializeTransactionErrorType =
+  | BaseErrorType
   | GetTransactionTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
   | SerializeTransactionEIP7702ErrorType
+  | SerializeTransactionEIP8141ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
@@ -115,6 +123,21 @@ export function serializeTransaction<
   signature?: Signature | undefined,
 ): SerializedTransactionReturnType<transaction, _transactionType> {
   const type = getTransactionType(transaction) as GetTransactionType
+
+  if (type === 'eip8141')
+    return serializeTransactionEIP8141(
+      transaction as TransactionSerializableEIP8141,
+      signature,
+    ) as SerializedTransactionReturnType<transaction>
+
+  if (
+    transaction.frames !== undefined ||
+    transaction.sender !== undefined ||
+    transaction.signatures !== undefined
+  )
+    throw new BaseError('Frame transaction fields require type "eip8141".', {
+      name: 'SerializeTransaction.InvalidTypeError',
+    })
 
   if (type === 'eip1559')
     return serializeTransactionEIP1559(
@@ -144,6 +167,29 @@ export function serializeTransaction<
     transaction as TransactionSerializableLegacy,
     signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
+}
+
+type SerializeTransactionEIP8141ErrorType =
+  | AssertTransactionEIP8141ErrorType
+  | BaseErrorType
+  | TxEnvelopeEip8141.serialize.ErrorType
+  | ErrorType
+
+function serializeTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+  signature?: Signature | undefined,
+): TransactionSerializedEIP8141 {
+  if (signature)
+    throw new BaseError(
+      'EIP-8141 transactions use the signatures array, not an outer signature.',
+    )
+
+  assertTransactionEIP8141(transaction)
+
+  return TxEnvelopeEip8141.serialize({
+    ...transaction,
+    nonce: BigInt(transaction.nonce ?? 0),
+  })
 }
 
 type SerializeTransactionEIP7702ErrorType =

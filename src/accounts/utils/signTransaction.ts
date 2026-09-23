@@ -1,3 +1,4 @@
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type {
@@ -33,6 +34,7 @@ export type SignTransactionReturnType<
 > = TransactionSerialized<GetTransactionType<transaction>>
 
 export type SignTransactionErrorType =
+  | BaseErrorType
   | Keccak256ErrorType
   | SignErrorType
   | ErrorType
@@ -49,6 +51,18 @@ export async function signTransaction<
     transaction,
     serializer = serializeTransaction,
   } = parameters
+
+  if (
+    serializer === serializeTransaction &&
+    (transaction.type === 'eip8141' ||
+      (!transaction.type && transaction.frames !== undefined))
+  )
+    throw new BaseError(
+      'EIP-8141 transactions require signing the entries in the signatures array.',
+      {
+        name: 'SignTransaction.UnsupportedTransactionTypeError',
+      },
+    )
 
   const signableTransaction = (() => {
     // For EIP-4844 Transactions, we want to sign the transaction payload body (tx_payload_body) without the sidecars (ie. without the network wrapper).
