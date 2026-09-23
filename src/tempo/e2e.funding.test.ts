@@ -1,5 +1,4 @@
 import { NativeDexFunding } from 'ox/tempo'
-import { tempoLocalnet } from 'viem/chains'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { accounts, addresses, getClient } from '~test/tempo/config.js'
 import { rpcUrl } from '~test/tempo/prool.js'
@@ -16,13 +15,12 @@ import { parseEventLogs, parseUnits } from '../index.js'
 import { Abis, Account, Actions, Addresses } from './index.js'
 import * as Transaction from './Transaction.js'
 
-const client = getClient({
-  chain: tempoLocalnet.extend({ feeToken: addresses.pathUsd }),
-})
+const client = getClient()
 let output: `0x${string}`
 const source = Addresses.nativeDexFundingSource
 const recipient = '0x8888888888888888888888888888888888888888' as const
 let inputs: readonly [`0x${string}`, `0x${string}`]
+
 beforeAll(async () => {
   output = (
     await setupToken({
@@ -56,45 +54,27 @@ beforeAll(async () => {
       tick: 0,
     })
 })
+
 afterAll(async () => {
   await fetch(`${rpcUrl}/stop`)
 })
-async function setupToken(parameters: {
-  name?: string
-  symbol?: string
-  quoteToken: `0x${string}`
-}) {
-  const { token } = await Actions.token.createSync(client, {
-    account: accounts[0],
-    admin: accounts[0],
-    currency: 'USD',
-    name: 'Test Token',
-    symbol: 'TST',
-    ...parameters,
-  })
-  await Actions.token.grantRolesSync(client, {
-    account: accounts[0],
-    roles: ['issuer'],
-    to: accounts[0].address,
-    token,
-  })
-  await Actions.token.mintSync(client, {
-    account: accounts[0],
-    amount: parseUnits('10000', 6),
-    to: accounts[0].address,
-    token,
-  })
-  return { token }
-}
+
 describe('sendTransactionSync', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -102,6 +82,7 @@ describe('sendTransactionSync', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     const receipt = await sendTransactionSync(client, {
       requireFunds: [
         {
@@ -132,6 +113,7 @@ describe('sendTransactionSync', () => {
       ],
       account,
     })
+
     expect(receipt.status).toBe('success')
     expect(
       (
@@ -171,6 +153,7 @@ describe('sendTransactionSync', () => {
       },
     ])
   })
+
   test('uses the node RPC signer for a funded payment', async () => {
     const account = accounts[0].address
     await Actions.token.transferSync(client, {
@@ -195,6 +178,7 @@ describe('sendTransactionSync', () => {
         to: account,
         amount: parseUnits('500', 6),
       })
+
     const prepared = await prepareTransactionRequest(client, {
       calls: [
         Actions.token.transfer.call({
@@ -226,6 +210,7 @@ describe('sendTransactionSync', () => {
       ],
       feeToken: addresses.alphaUsd,
     })
+
     expect(prepared.requireFunds).toEqual([
       {
         token: output,
@@ -246,10 +231,12 @@ describe('sendTransactionSync', () => {
         amount: parseUnits('50', 6),
       },
     ])
+
     const receipt = await sendTransactionSync(client, {
       ...prepared,
       account: accounts[0].address,
     })
+
     expect(receipt.status).toBe('success')
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.requireFunds).toEqual(prepared.requireFunds)
@@ -258,6 +245,7 @@ describe('sendTransactionSync', () => {
       eventName: 'SourceFunded',
       logs: receipt.logs,
     })
+
     expect(funded.map(({ args }) => args.amountOut)).toEqual([
       parseUnits('30', 6),
       parseUnits('20', 6),
@@ -278,15 +266,23 @@ describe('sendTransactionSync', () => {
     })
   })
 })
+
 describe('prepareTransactionRequest', () => {
   test('preserves requirements through preparation and signing', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -294,6 +290,7 @@ describe('prepareTransactionRequest', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     const prepared = await prepareTransactionRequest(client, {
       requireFunds: [
         {
@@ -324,6 +321,7 @@ describe('prepareTransactionRequest', () => {
       ],
       account,
     })
+
     expect(prepared.requireFunds).toEqual([
       {
         token: output,
@@ -344,6 +342,7 @@ describe('prepareTransactionRequest', () => {
         ],
       },
     ])
+
     const signed = await signTransaction(client, prepared)
     expect(
       Transaction.deserialize(signed as Transaction.TransactionSerializedTempo)
@@ -370,15 +369,23 @@ describe('prepareTransactionRequest', () => {
     ])
   })
 })
+
 describe('estimateGas', () => {
   test('includes funding without moving balances', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -386,6 +393,7 @@ describe('estimateGas', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     expect(
       await estimateGas(client, {
         requireFunds: [
@@ -428,15 +436,23 @@ describe('estimateGas', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
+
 describe('call', () => {
   test('simulates funding and payment without persisting state', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -444,6 +460,7 @@ describe('call', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await call(client, {
       requireFunds: [
         {
@@ -474,6 +491,7 @@ describe('call', () => {
       ],
       account,
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -484,15 +502,23 @@ describe('call', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
+
 describe('behavior', () => {
   test('uses the existing balance before sourcing the shortfall', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -500,6 +526,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: output,
@@ -536,6 +563,7 @@ describe('behavior', () => {
       ],
       account,
     })
+
     expect(receipt.status).toBe('success')
     expect(
       (
@@ -554,14 +582,22 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('490', 6))
   })
+
   test('continues after a source with zero input capacity', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -569,6 +605,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     expect(
       (
         await sendTransactionSync(client, {
@@ -620,14 +657,22 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('450', 6))
   })
+
   test('repeated requirements specify target balances', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -635,6 +680,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     const receipt = await sendTransactionSync(client, {
       calls: [
         Actions.token.transfer.call({
@@ -683,6 +729,7 @@ describe('behavior', () => {
         },
       ],
     })
+
     expect(receipt.status).toBe('success')
     expect(
       (
@@ -701,14 +748,22 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
+
   test('rejects a failing payment without moving funds', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -716,6 +771,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await expect(
       sendTransactionSync(client, {
         requireFunds: [
@@ -765,14 +821,22 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
+
   test('rejects insufficient input capacity without moving funds', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -780,6 +844,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await expect(
       estimateGas(client, {
         calls: [
@@ -817,6 +882,7 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
+
   test('funding cannot pay transaction fees', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
     for (const token of inputs)
@@ -826,6 +892,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await expect(
       sendTransactionSync(client, {
         requireFunds: [
@@ -864,6 +931,12 @@ describe('behavior', () => {
       to: account.address,
       amount: parseUnits('1', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     expect(
       (
         await sendTransactionSync(client, {
@@ -899,14 +972,22 @@ describe('behavior', () => {
       ).status,
     ).toBe('success')
   })
+
   test('rejects a source without liquidity', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -914,6 +995,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     const { token } = await setupToken({ quoteToken: output })
     await Actions.token.mintSync(client, {
       account: accounts[0],
@@ -955,14 +1037,22 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('100', 6))
   })
+
   test('rechecks earlier balances after later requirements', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+
     await Actions.token.transferSync(client, {
       account: accounts[0],
       token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('10', 6),
     })
+
+    await Actions.fee.setUserTokenSync(client, {
+      account,
+      token: addresses.pathUsd,
+    })
+
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -970,6 +1060,7 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
+
     await Actions.dex.placeSync(client, {
       account: accounts[0],
       token: inputs[0],
@@ -1047,3 +1138,34 @@ describe('behavior', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
+
+async function setupToken(parameters: {
+  name?: string
+  symbol?: string
+  quoteToken: `0x${string}`
+}) {
+  const { token } = await Actions.token.createSync(client, {
+    account: accounts[0],
+    admin: accounts[0],
+    currency: 'USD',
+    name: 'Test Token',
+    symbol: 'TST',
+    ...parameters,
+  })
+
+  await Actions.token.grantRolesSync(client, {
+    account: accounts[0],
+    roles: ['issuer'],
+    to: accounts[0].address,
+    token,
+  })
+
+  await Actions.token.mintSync(client, {
+    account: accounts[0],
+    amount: parseUnits('10000', 6),
+    to: accounts[0].address,
+    token,
+  })
+
+  return { token }
+}
