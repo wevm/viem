@@ -6,9 +6,22 @@ import { expect, test } from 'vitest'
 import { accounts as constants } from '~test/constants.js'
 import { accounts, chain, getClient } from '~test/frames/config.js'
 
-const client = getClient()
+const client = getClient({ account: accounts[0].address })
 
-test('simulates frames without changing state', async () => {
+test('default', async () => {
+  // TODO: remove once migrated to reth or anvil. Nethermind requires signatures during unsigned simulation.
+  await expect(
+    call(client, {
+      frames: [
+        { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      ],
+      // TODO: remove once migrated to reth or anvil. Nethermind simulation requires an outer recipient.
+      to: accounts[0].address,
+    }),
+  ).rejects.toThrow('VERIFY frame reverted')
+})
+
+test('args: signatures', async () => {
   const balance = await getBalance(client, { address: accounts[1].address })
   const nonce = await getTransactionCount(client, {
     address: accounts[0].address,
