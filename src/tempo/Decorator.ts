@@ -13,6 +13,7 @@ import * as feeActions from './actions/fee.js'
 import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
+import * as propAmmActions from './actions/propAmm.js'
 import * as receivePolicyActions from './actions/receivePolicy.js'
 import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
@@ -3015,6 +3016,44 @@ type DecoratorBase<
       parameters: policyActions.watchBlacklistUpdated.Parameters,
     ) => () => void
   }
+  propAmm: {
+    /** Reads the pool's base token. */
+    baseToken: (
+      parameters: propAmmActions.baseToken.Parameters,
+    ) => Promise<propAmmActions.baseToken.ReturnValue>
+    /** Quotes an exact input or exact output for a customer route. */
+    getSwapQuote: (
+      parameters: propAmmActions.getSwapQuote.Parameters,
+    ) => Promise<propAmmActions.getSwapQuote.ReturnValue>
+    /** Reads whether the pool is paused. */
+    paused: (
+      parameters: propAmmActions.paused.Parameters,
+    ) => Promise<propAmmActions.paused.ReturnValue>
+    /** Reads whether the resolved recipient is allowed. */
+    recipientAllowed: (
+      parameters: propAmmActions.recipientAllowed.Parameters,
+    ) => Promise<propAmmActions.recipientAllowed.ReturnValue>
+    /** Resolves the recipient checked by the pool. */
+    resolveRecipient: (
+      parameters: propAmmActions.resolveRecipient.Parameters,
+    ) => Promise<propAmmActions.resolveRecipient.ReturnValue>
+    /** Reads the pool's quote token. */
+    quoteToken: (
+      parameters: propAmmActions.quoteToken.Parameters,
+    ) => Promise<propAmmActions.quoteToken.ReturnValue>
+    /** Swaps an exact input or exact output against the pool. */
+    swap: (
+      parameters: propAmmActions.swap.Parameters<chain, account>,
+    ) => Promise<propAmmActions.swap.ReturnValue>
+    /** Swaps and returns the executed trade. */
+    swapSync: (
+      parameters: propAmmActions.swapSync.Parameters<chain, account>,
+    ) => Promise<propAmmActions.swapSync.ReturnValue>
+    /** Reads whether the taker is allowed. */
+    takerAllowed: (
+      parameters: propAmmActions.takerAllowed.Parameters,
+    ) => Promise<propAmmActions.takerAllowed.ReturnValue>
+  }
   receivePolicy: {
     /**
      * Burns the funds backing a blocked receipt.
@@ -5879,6 +5918,10 @@ export type Decorator<
     DecoratorBase<chain, account>['policy'],
     typeof policyActions
   >
+  propAmm: DecorateNamespace<
+    DecoratorBase<chain, account>['propAmm'],
+    typeof propAmmActions
+  >
   receivePolicy: DecorateNamespace<
     DecoratorBase<chain, account>['receivePolicy'],
     typeof receivePolicyActions
@@ -6074,6 +6117,17 @@ export function decorator() {
         'watchAdminUpdated',
         'watchWhitelistUpdated',
         'watchBlacklistUpdated',
+      ]),
+      propAmm: bindActions(client, propAmmActions, [
+        'baseToken',
+        'paused',
+        'getSwapQuote',
+        'quoteToken',
+        'recipientAllowed',
+        'resolveRecipient',
+        'swap',
+        'swapSync',
+        'takerAllowed',
       ]),
       receivePolicy: bindActions(client, receivePolicyActions, [
         'burn',

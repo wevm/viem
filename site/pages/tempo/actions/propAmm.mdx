@@ -1,0 +1,40 @@
+# PropAMM Actions
+
+Use `Actions.propAmm` or the same actions on `client.propAmm` after extending a client with `tempoActions()`. Every action takes the address of a deployed propAMM pool in `pool`.
+
+Use `mode: 'exactInput'` to specify the amount sent or `mode: 'exactOutput'` to specify the amount received. A propAMM pool has a fixed base and quote token, so these actions use `baseToQuote` instead of the Stablecoin DEX's `tokenIn` and `tokenOut` pair. `true` sends base and receives quote; `false` sends quote and receives base. Read `baseToken` and `quoteToken` to identify the pool's tokens.
+
+## Pool Reads
+
+| Action | Result |
+| --- | --- |
+| `baseToken({ pool })` | Base token address |
+| `quoteToken({ pool })` | Quote token address |
+| `paused({ pool })` | Whether the pool is paused |
+| `takerAllowed({ pool, taker })` | Whether `taker` may call a swap |
+| `resolveRecipient({ pool, recipient })` | Address checked by the recipient allowlist |
+| `recipientAllowed({ pool, recipient })` | Whether the resolved address may receive output |
+
+`taker` is the address that sends the transaction and owns the input tokens. The pool pulls those tokens from `msg.sender`. The output goes to `recipient`, which may resolve to another address before its permission check.
+
+## Quotes
+
+| Action | Required route parameters | Result |
+| --- | --- | --- |
+| `getSwapQuote` with `mode: 'exactInput'` | `pool`, `taker`, `recipient`, `customerId`, `baseToQuote`, `amountIn` | `[amountOut, oraclePrice, oracleUpdatedAt, creditAfter]` |
+| `getSwapQuote` with `mode: 'exactOutput'` | `pool`, `taker`, `recipient`, `customerId`, `baseToQuote`, `amountOut` | `[amountIn, oraclePrice, oracleUpdatedAt, creditAfter]` |
+
+Amounts are integers in the respective token's base units. `customerId` is a nonzero `bytes32` route identifier. Quotes account for that route's rounding credit. Preserve the returned oracle price and observation time when building a swap; a quote does not reserve pool inventory or prove that all permissions and balances are sufficient.
+
+## Swaps
+
+| Action | Amount and limit | Result |
+| --- | --- | --- |
+| `swap` with `mode: 'exactInput'` | `amountIn`, `minAmountOut` | Transaction hash |
+| `swapSync` with `mode: 'exactInput'` | `amountIn`, `minAmountOut` | Confirmed `TradeExecuted` fields and receipt |
+| `swap` with `mode: 'exactOutput'` | `amountOut`, `maxAmountIn` | Transaction hash |
+| `swapSync` with `mode: 'exactOutput'` | `amountOut`, `maxAmountIn` | Confirmed `TradeExecuted` fields and receipt |
+
+All swaps also require `pool`, `baseToQuote`, `recipient`, `customerId`, `tradeId`, `deadline`, `expectedOraclePrice`, `oraclePriceToleranceBps`, and `minimumOracleUpdatedAt`. `deadline` and `minimumOracleUpdatedAt` are Unix seconds; `oraclePriceToleranceBps` is basis points. Set a maximum spend or minimum receive independently of the oracle tolerance. `tradeId` identifies an event for attribution and is not contract-enforced replay protection.
+
+Each action has a `.call` builder for `simulateContract`, gas estimation, and batched calls. The sync variants extract the matching event from the requested pool and return the executed amounts, not the quoted amounts. See [Swap with a propAMM Pool](/tempo/guides/propamm-swap) for a complete flow.

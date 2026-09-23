@@ -2252,6 +2252,10 @@ export default defineConfig({
                   text: 'Sponsor User Fees',
                   link: '/tempo/guides/sponsor-fees',
                 },
+                {
+                  text: 'Swap with a propAMM Pool',
+                  link: '/tempo/guides/propamm-swap',
+                },
               ],
             },
             {
@@ -3061,6 +3065,10 @@ export default defineConfig({
                   link: '/tempo/actions/dex.withdraw',
                 },
               ],
+            },
+            {
+              text: 'PropAMM',
+              link: '/tempo/actions/propAmm',
             },
             {
               text: 'Token',

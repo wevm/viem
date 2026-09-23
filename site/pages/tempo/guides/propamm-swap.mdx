@@ -1,0 +1,76 @@
+# Swap with a propAMM Pool
+
+## Overview
+
+A propAMM pool exchanges a fixed pair at an oracle-bound price for approved takers and recipients. Supply the pool address explicitly. A propAMM swap pulls input tokens from the transaction sender, who must hold the tokens and approve the pool.
+
+## Recipes
+
+### Quote, Approve, Simulate, and Swap
+
+This example sells an exact amount of the pool's base token. Use `baseToQuote: false` to send quote and receive base. Provide an approved caller, recipient, and nonzero customer ID.
+
+```ts
+import { createClient, http, parseUnits } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { Actions, tempoActions } from 'viem/tempo'
+import { simulateContract } from 'viem/actions'
+import * as Hex from 'ox/Hex'
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const client = createClient({ account, chain: tempo, transport: http() }).extend(tempoActions())
+const pool = '0x...' as `0x${string}`
+const recipient = account.address
+const customerId = Hex.fromString('customer-route', { size: 32 })
+const amountIn = parseUnits('1', 6) // Use the base token's decimals.
+
+const base = await client.propAmm.baseToken({ pool })
+const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+  amountIn,
+  baseToQuote: true,
+  customerId,
+  mode: 'exactInput',
+  pool,
+  recipient,
+  taker: account.address,
+})
+
+await client.token.approveSync({ amount: amountIn, spender: pool, token: base })
+
+const swap = {
+  amountIn,
+  baseToQuote: true,
+  customerId,
+  mode: 'exactInput' as const,
+  deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
+  expectedOraclePrice: price,
+  minAmountOut: amountOut,
+  minimumOracleUpdatedAt: updatedAt,
+  oraclePriceToleranceBps: 0n,
+  pool,
+  recipient,
+  tradeId: Hex.random(32),
+}
+
+await simulateContract(client, { ...Actions.propAmm.swap.call(swap), account })
+const trade = await client.propAmm.swapSync(swap)
+console.log(trade.amountOut, trade.receipt.transactionHash)
+```
+
+For an exact output, call `getSwapQuote` and then `swap` or `swapSync` with `mode: 'exactOutput'`, `amountOut`, and a `maxAmountIn` limit. Approve that maximum input amount on the input token.
+
+## Best Practices
+
+### Check Access and Inventory
+
+Check `takerAllowed` for the transaction sender. Resolve the destination with `resolveRecipient` before checking `recipientAllowed`. The pool must hold enough output tokens, and the sender must hold enough input tokens. Quotes do not reserve inventory, so simulate close to submission.
+
+### Bind the Oracle and Price Limit
+
+Pass the quote's oracle price and observation time into the swap. Choose `oraclePriceToleranceBps`, `minAmountOut`, or `maxAmountIn` according to the execution policy. A stale oracle, changed price, expired deadline, paused pool, or changed permissions can revert the swap after the quote.
+
+## See More
+
+- [PropAMM Actions](/tempo/actions/propAmm)
+- [Stablecoin DEX Quotes](/tempo/actions/dex.getSellQuote)
