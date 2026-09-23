@@ -153,17 +153,11 @@ describe('sendTransactionSync', () => {
           token: Addresses.pathUsd,
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
           amount: parseUnits('50', 6),
         },
@@ -236,17 +230,11 @@ describe('prepareTransactionRequest', () => {
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
         },
       ],
@@ -324,19 +312,11 @@ describe('estimateGas', () => {
             amount: parseUnits('50', 6),
             slippageBps: 0,
             sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.alphaUsd,
-                  maxAmountIn: parseUnits('30', 6),
-                }),
-              },
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.betaUsd,
-                }),
-              },
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('30', 6),
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
             ],
           },
         ],
@@ -376,17 +356,11 @@ describe('call', () => {
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
         },
       ],
@@ -426,17 +400,11 @@ describe('Actions.token.transferSync', () => {
         {
           slippageBps: 0,
           sources: [
-            {
-              to: Addresses.nativeDexFundingSource,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: Addresses.nativeDexFundingSource,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
         },
       ],
@@ -496,14 +464,7 @@ describe('Actions.token.burnSync', () => {
       feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          sources: [
-            {
-              to: Addresses.nativeDexFundingSource,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-              }),
-            },
-          ],
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
         },
       ],
       token: Addresses.pathUsd,
@@ -541,14 +502,7 @@ describe('Actions.dex.sellSync', () => {
       minAmountOut: 1n,
       requireFunds: [
         {
-          sources: [
-            {
-              to: Addresses.nativeDexFundingSource,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-              }),
-            },
-          ],
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
         },
       ],
       tokenIn: Addresses.pathUsd,
@@ -587,17 +541,11 @@ describe('behavior', () => {
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
         },
       ],
@@ -654,19 +602,11 @@ describe('behavior', () => {
               amount: parseUnits('50', 6),
               slippageBps: 0,
               sources: [
-                {
-                  to: source,
-                  data: FundingSource.encodeData({
-                    tokenIn: Addresses.alphaUsd,
-                    maxAmountIn: 0n,
-                  }),
-                },
-                {
-                  to: source,
-                  data: FundingSource.encodeData({
-                    tokenIn: Addresses.betaUsd,
-                  }),
-                },
+                FundingSource.dex({
+                  tokenIn: Addresses.alphaUsd,
+                  maxAmountIn: 0n,
+                }),
+                FundingSource.dex({ tokenIn: Addresses.betaUsd }),
               ],
             },
           ],
@@ -712,17 +652,11 @@ describe('behavior', () => {
           token: Addresses.pathUsd,
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
           amount: parseUnits('20', 6),
         },
@@ -731,17 +665,11 @@ describe('behavior', () => {
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            },
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-            },
+            FundingSource.dex({
+              tokenIn: Addresses.alphaUsd,
+              maxAmountIn: parseUnits('30', 6),
+            }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
         },
       ],
@@ -781,19 +709,11 @@ describe('behavior', () => {
             amount: parseUnits('50', 6),
             slippageBps: 0,
             sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.alphaUsd,
-                  maxAmountIn: parseUnits('30', 6),
-                }),
-              },
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.betaUsd,
-                }),
-              },
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('30', 6),
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
             ],
           },
         ],
@@ -848,13 +768,10 @@ describe('behavior', () => {
             amount: parseUnits('50', 6),
             slippageBps: 0,
             sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.alphaUsd,
-                  maxAmountIn: parseUnits('30', 6),
-                }),
-              },
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('30', 6),
+              }),
             ],
           },
         ],
@@ -882,14 +799,7 @@ describe('behavior', () => {
             token: Addresses.pathUsd,
             amount: parseUnits('50', 6),
             slippageBps: 0,
-            sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.betaUsd,
-                }),
-              },
-            ],
+            sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
           },
         ],
         calls: [
@@ -913,14 +823,7 @@ describe('behavior', () => {
               token: Addresses.pathUsd,
               amount: parseUnits('50', 6),
               slippageBps: 0,
-              sources: [
-                {
-                  to: source,
-                  data: FundingSource.encodeData({
-                    tokenIn: Addresses.betaUsd,
-                  }),
-                },
-              ],
+              sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
             },
           ],
           calls: [
@@ -972,12 +875,7 @@ describe('behavior', () => {
             token: Addresses.pathUsd,
             amount: parseUnits('50', 6),
             slippageBps: 0,
-            sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({ tokenIn: token }),
-              },
-            ],
+            sources: [FundingSource.dex({ tokenIn: token })],
           },
         ],
       }),
@@ -1019,14 +917,7 @@ describe('behavior', () => {
         {
           token: Addresses.pathUsd,
           amount: parseUnits('50', 6),
-          sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({
-                tokenIn: Addresses.thetaUsd,
-              }),
-            },
-          ],
+          sources: [FundingSource.dex({ tokenIn: Addresses.thetaUsd })],
         },
       ],
     } as const
@@ -1082,12 +973,7 @@ describe('behavior', () => {
           token: Addresses.alphaUsd,
           amount: parseUnits('520', 6),
           slippageBps: 0,
-          sources: [
-            {
-              to: source,
-              data: FundingSource.encodeData({ tokenIn: Addresses.pathUsd }),
-            },
-          ],
+          sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
         },
       ],
     })
@@ -1103,33 +989,18 @@ describe('behavior', () => {
             amount: parseUnits('80', 6),
             slippageBps: 0,
             sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.alphaUsd,
-                  maxAmountIn: parseUnits('30', 6),
-                }),
-              },
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.betaUsd,
-                }),
-              },
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('30', 6),
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
             ],
           },
           {
             token: Addresses.alphaUsd,
             amount: parseUnits('520', 6),
             slippageBps: 0,
-            sources: [
-              {
-                to: source,
-                data: FundingSource.encodeData({
-                  tokenIn: Addresses.pathUsd,
-                }),
-              },
-            ],
+            sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
           },
         ],
       }),
