@@ -43,7 +43,7 @@ export const publicClient = createPublicClient({
 
 [`TransactionReceipt`](/docs/glossary/types#transactionreceipt)
 
-The transaction receipt.
+The transaction receipt. Frame transactions also expose `payer` and `frameReceipts`. Each frame receipt contains `status`, `gasUsed`, `stateGasUsed`, and logs. Check frame statuses individually; the transaction status does not imply that every frame succeeded.
 
 ## Parameters
 

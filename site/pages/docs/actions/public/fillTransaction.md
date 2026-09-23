@@ -53,6 +53,35 @@ export const publicClient = createPublicClient({
 
 :::
 
+## Recipes
+
+### Frame Transactions
+
+Pass `frames` and `signatures` to fill a frame transaction on a compatible RPC node. Set each frame’s `gas` and `stateGas` budgets explicitly; `fillTransaction` does not estimate individual frame budgets.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import type { Address, FrameSignature } from 'viem'
+
+declare const account: Address
+declare const signatures: readonly FrameSignature[]
+
+const { transaction } = await publicClient.fillTransaction({
+  account,
+  frames: [ // [!code focus:6]
+    { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+    { gas: 50_000n, mode: 'sender', to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n },
+  ],
+  signatures,
+})
+// @log: { type: 'eip8141', chainId: 8141, frames: [...], signatures: [...], ... }
+```
+
+:::warning
+[EIP-8141](https://eips.ethereum.org/EIPS/eip-8141) is a draft. The pinned Nethermind frames implementation requires an outer `to` for simulation and an explicit outer `gas` when filling unsigned transactions. Without `gas`, it validates the empty signature before the transaction can be signed. These are client limitations. Re-sign after changing any transaction field.
+:::
+
 ## Returns
 
 An object with the following properties:

@@ -138,6 +138,31 @@ export const publicClient = createPublicClient({
 This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccountFactory.sol).
 :::
 
+## Recipes
+
+### Frame Transactions
+
+Pass `frames` and `signatures` to simulate a frame transaction on a compatible RPC node. Supply the finalized chain ID, nonce, fees, and frame budgets used to sign the transaction.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import type { Address, TransactionRequestEIP8141 } from 'viem'
+
+declare const account: Address
+declare const request: TransactionRequestEIP8141
+
+const result = await publicClient.call({ // [!code focus]
+  ...request,
+  account,
+})
+// @log: { data: undefined }
+```
+
+:::warning
+[EIP-8141](https://eips.ethereum.org/EIPS/eip-8141) is a draft. The pinned Nethermind frames implementation requires an outer `to` for simulation. Its `eth_call` response does not expose individual frame return values.
+:::
+
 ## Returns
 
 `0x${string}`
