@@ -12,7 +12,7 @@ import {
   signTransaction,
 } from '../actions/index.js'
 import { parseEventLogs, parseUnits } from '../index.js'
-import { Abis, Account, Actions, Addresses } from './index.js'
+import { Abis, Account, Actions, Addresses, Tick } from './index.js'
 import * as Transaction from './Transaction.js'
 
 const client = getClient()
@@ -825,6 +825,66 @@ describe('behavior', () => {
         })
       ).amount,
     ).toBe(before.amount)
+  })
+
+  test('bounds funding input at a non-parity DEX price', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+
+    await mintInputs(account.address, [Addresses.thetaUsd])
+    await Actions.dex.placeSync(client, {
+      account: accounts[0],
+      token: Addresses.thetaUsd,
+      amount: parseUnits('100', 6),
+      type: 'buy',
+      tick: Tick.fromPrice('0.98'),
+    })
+
+    const transaction = {
+      feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      requireFunds: [
+        {
+          token: Addresses.pathUsd,
+          amount: parseUnits('50', 6),
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: Addresses.thetaUsd }),
+            },
+          ],
+        },
+      ],
+    } as const
+
+    await expect(
+      estimateGas(client, {
+        ...transaction,
+        requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 100 }],
+      }),
+    ).rejects.toThrow('InsufficientFunding')
+
+    const receipt = await sendTransactionSync(client, {
+      ...transaction,
+      requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 300 }],
+    })
+
+    expect(receipt.status).toBe('success')
+    const [funded] = parseEventLogs({
+      abi: Abis.tip20Funder,
+      eventName: 'SourceFunded',
+      logs: receipt.logs,
+    })
+    expect(funded.args.amountIn).toBeGreaterThan(parseUnits('50.5', 6))
+    expect(funded.args.amountIn).toBeLessThanOrEqual(parseUnits('51.5', 6))
+    expect(funded.args.amountOut).toBe(parseUnits('50', 6))
   })
 
   test('rechecks earlier balances after later requirements', async () => {
