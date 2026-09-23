@@ -6,7 +6,6 @@ import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   call,
   estimateGas,
-  getBlock,
   getTransaction,
   prepareTransactionRequest,
   sendTransactionSync,
@@ -23,8 +22,6 @@ const recipient = '0x8888888888888888888888888888888888888888' as const
 let inputs: readonly [`0x${string}`, `0x${string}`]
 
 beforeAll(async () => {
-  while ((await getBlock(client)).timestamp === 0n)
-    await new Promise((resolve) => setTimeout(resolve, 50))
   const first = await setupToken({
     name: 'USDC.e',
     symbol: 'USDC.e',
