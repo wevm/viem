@@ -38,32 +38,6 @@ export const publicClient = createPublicClient({
 
 :::
 
-## Recipes
-
-### Frame Transactions
-
-Pass `frames` and `signatures` to estimate a frame transaction on a compatible RPC node. The returned value is a transaction-level estimate. It does not populate or estimate each frame’s `gas` and `stateGas` budgets.
-
-```ts twoslash
-// [!include ~/snippets/publicClient.ts]
-// ---cut---
-import type { Address, TransactionRequestEIP8141 } from 'viem'
-
-declare const account: Address
-declare const request: TransactionRequestEIP8141
-
-const gas = await publicClient.estimateGas({ // [!code focus]
-  ...request,
-  account,
-  prepare: false,
-})
-// @log: 173329n
-```
-
-:::warning
-[EIP-8141](https://eips.ethereum.org/EIPS/eip-8141) is a draft. The pinned Nethermind frames implementation requires an outer `to` for simulation. Its estimate includes the supplied frame budgets and intrinsic gas. It does not replace the supplied budgets.
-:::
-
 ## Returns
 
 `bigint`
