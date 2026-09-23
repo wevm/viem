@@ -52,15 +52,7 @@ describe('sendTransactionSync', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     const receipt = await sendTransactionSync(client, {
       feePayer: accounts[1],
@@ -153,14 +145,7 @@ describe('sendTransactionSync', () => {
       })
     ).amount
     expect(before).toBe(0n)
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account)
 
     const prepared = await prepareTransactionRequest(client, {
       feeToken: Addresses.pathUsd,
@@ -256,15 +241,7 @@ describe('prepareTransactionRequest', () => {
   test('preserves requirements through preparation and signing', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     const prepared = await prepareTransactionRequest(client, {
       feePayer: accounts[1],
@@ -351,15 +328,7 @@ describe('estimateGas', () => {
   test('includes funding without moving balances', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     expect(
       await estimateGas(client, {
@@ -410,15 +379,7 @@ describe('call', () => {
   test('simulates funding and payment without persisting state', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     await call(client, {
       feePayer: accounts[1],
@@ -468,15 +429,7 @@ describe('behavior', () => {
   test('uses the existing balance before sourcing the shortfall', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -539,15 +492,7 @@ describe('behavior', () => {
   test('continues after a source with zero input capacity', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     expect(
       (
@@ -606,15 +551,7 @@ describe('behavior', () => {
   test('repeated requirements specify target balances', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     const receipt = await sendTransactionSync(client, {
       feePayer: accounts[1],
@@ -689,15 +626,7 @@ describe('behavior', () => {
   test('rejects a failing payment without moving funds', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     await expect(
       sendTransactionSync(client, {
@@ -754,15 +683,7 @@ describe('behavior', () => {
   test('rejects insufficient input capacity without moving funds', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     await expect(
       estimateGas(client, {
@@ -876,15 +797,7 @@ describe('behavior', () => {
   test('rejects a source without liquidity', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     const token = Addresses.thetaUsd
     await Actions.token.mintSync(client, {
@@ -940,15 +853,7 @@ describe('behavior', () => {
   test('rechecks earlier balances after later requirements', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
 
-    for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
-      await Actions.token.mintSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        account: accounts[0],
-        token,
-        to: account.address,
-        amount: parseUnits('500', 6),
-      })
+    await mintInputs(account.address)
 
     await Actions.dex.placeSync(client, {
       account: accounts[0],
@@ -1031,3 +936,15 @@ describe('behavior', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
+
+async function mintInputs(to: `0x${string}`) {
+  for (const token of [Addresses.pathUsd, Addresses.betaUsd] as const)
+    await Actions.token.mintSync(client, {
+      feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
+      account: accounts[0],
+      token,
+      to,
+      amount: parseUnits('500', 6),
+    })
+}
