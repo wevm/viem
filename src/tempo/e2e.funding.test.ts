@@ -1,4 +1,4 @@
-import { NativeDexFunding } from 'ox/tempo'
+import { DexFundingSource } from 'ox/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { rpcUrl } from '~test/tempo/prool.js'
@@ -63,15 +63,15 @@ describe('sendTransactionSync', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
         },
@@ -111,15 +111,15 @@ describe('sendTransactionSync', () => {
         slippageBps: 0,
         sources: [
           {
-            target: source,
-            data: NativeDexFunding.encode({
+            to: source,
+            data: DexFundingSource.encode({
               tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
             }),
           },
           {
-            target: source,
-            data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+            to: source,
+            data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
           },
         ],
       },
@@ -154,15 +154,15 @@ describe('sendTransactionSync', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
           amount: parseUnits('50', 6),
@@ -176,15 +176,15 @@ describe('sendTransactionSync', () => {
         slippageBps: 0,
         sources: [
           {
-            target: source,
-            data: NativeDexFunding.encode({
+            to: source,
+            data: DexFundingSource.encode({
               tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
             }),
           },
           {
-            target: source,
-            data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+            to: source,
+            data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
           },
         ],
         amount: parseUnits('50', 6),
@@ -237,15 +237,15 @@ describe('prepareTransactionRequest', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
         },
@@ -267,15 +267,15 @@ describe('prepareTransactionRequest', () => {
         slippageBps: 0,
         sources: [
           {
-            target: source,
-            data: NativeDexFunding.encode({
+            to: source,
+            data: DexFundingSource.encode({
               tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
             }),
           },
           {
-            target: source,
-            data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+            to: source,
+            data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
           },
         ],
       },
@@ -292,15 +292,15 @@ describe('prepareTransactionRequest', () => {
         slippageBps: 0,
         sources: [
           {
-            target: source,
-            data: NativeDexFunding.encode({
+            to: source,
+            data: DexFundingSource.encode({
               tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
             }),
           },
           {
-            target: source,
-            data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+            to: source,
+            data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
           },
         ],
       },
@@ -325,15 +325,15 @@ describe('estimateGas', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({
+                to: source,
+                data: DexFundingSource.encode({
                   tokenIn: Addresses.alphaUsd,
                   maxAmountIn: parseUnits('30', 6),
                 }),
               },
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
               },
             ],
           },
@@ -375,15 +375,15 @@ describe('call', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
         },
@@ -431,15 +431,15 @@ describe('behavior', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
         },
@@ -498,15 +498,15 @@ describe('behavior', () => {
               slippageBps: 0,
               sources: [
                 {
-                  target: source,
-                  data: NativeDexFunding.encode({
+                  to: source,
+                  data: DexFundingSource.encode({
                     tokenIn: Addresses.alphaUsd,
                     maxAmountIn: 0n,
                   }),
                 },
                 {
-                  target: source,
-                  data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                  to: source,
+                  data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
                 },
               ],
             },
@@ -554,15 +554,15 @@ describe('behavior', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
           amount: parseUnits('20', 6),
@@ -573,15 +573,15 @@ describe('behavior', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({
+              to: source,
+              data: DexFundingSource.encode({
                 tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
               }),
             },
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
             },
           ],
         },
@@ -623,15 +623,15 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({
+                to: source,
+                data: DexFundingSource.encode({
                   tokenIn: Addresses.alphaUsd,
                   maxAmountIn: parseUnits('30', 6),
                 }),
               },
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
               },
             ],
           },
@@ -688,8 +688,8 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({
+                to: source,
+                data: DexFundingSource.encode({
                   tokenIn: Addresses.alphaUsd,
                   maxAmountIn: parseUnits('30', 6),
                 }),
@@ -723,8 +723,8 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
               },
             ],
           },
@@ -752,8 +752,8 @@ describe('behavior', () => {
               slippageBps: 0,
               sources: [
                 {
-                  target: source,
-                  data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                  to: source,
+                  data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
                 },
               ],
             },
@@ -809,8 +809,8 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: token }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: token }),
               },
             ],
           },
@@ -856,8 +856,8 @@ describe('behavior', () => {
           amount: parseUnits('50', 6),
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.thetaUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.thetaUsd }),
             },
           ],
         },
@@ -917,8 +917,8 @@ describe('behavior', () => {
           slippageBps: 0,
           sources: [
             {
-              target: source,
-              data: NativeDexFunding.encode({ tokenIn: Addresses.pathUsd }),
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.pathUsd }),
             },
           ],
         },
@@ -937,15 +937,15 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({
+                to: source,
+                data: DexFundingSource.encode({
                   tokenIn: Addresses.alphaUsd,
                   maxAmountIn: parseUnits('30', 6),
                 }),
               },
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: Addresses.betaUsd }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
               },
             ],
           },
@@ -955,8 +955,8 @@ describe('behavior', () => {
             slippageBps: 0,
             sources: [
               {
-                target: source,
-                data: NativeDexFunding.encode({ tokenIn: Addresses.pathUsd }),
+                to: source,
+                data: DexFundingSource.encode({ tokenIn: Addresses.pathUsd }),
               },
             ],
           },

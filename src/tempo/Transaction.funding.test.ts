@@ -1,4 +1,4 @@
-import { FundingRequirement, NativeDexFunding } from 'ox/tempo'
+import { DexFundingSource, FundingRequirement } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Addresses from './Addresses.js'
 import * as Formatters from './Formatters.js'
@@ -11,8 +11,8 @@ const requirement = FundingRequirement.from({
   slippageBps: 0,
   sources: [
     {
-      target: Addresses.nativeDexFundingSource,
-      data: NativeDexFunding.encode({
+      to: Addresses.nativeDexFundingSource,
+      data: DexFundingSource.encode({
         tokenIn: token,
         maxAmountIn: 30_000_000n,
       }),
@@ -36,6 +36,10 @@ describe('formatTransactionRequest', () => {
     expect(formatted.requireFunds).toEqual([
       FundingRequirement.toRpc(requirement),
     ])
+    expect(formatted.requireFunds?.[0]?.sources[0]).toEqual({
+      target: Addresses.nativeDexFundingSource,
+      data: requirement.sources[0]?.data,
+    })
   })
 
   test('preserves requirements in estimation and simulation', () => {
