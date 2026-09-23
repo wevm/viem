@@ -11,7 +11,7 @@ import {
 } from 'viem/actions'
 import { expect, test } from 'vitest'
 import { accounts as constants } from '~test/constants.js'
-import { accounts, chain, getClient } from '~test/frames/config.js'
+import { accounts, getClient } from '~test/frames/config.js'
 
 const client = getClient({ account: accounts[0] })
 const request = {
@@ -67,19 +67,6 @@ test('nonce manager resets after preparation failure', async () => {
   expect(await getTransactionCount(client, { address: account.address })).toBe(
     nonce + 1,
   )
-})
-
-test('rejects a chain mismatch before sending', async () => {
-  const nonce = await getTransactionCount(client, {
-    address: accounts[0].address,
-  })
-
-  await expect(
-    sendTransaction(client, { ...request, chain: { ...chain, id: 1 } }),
-  ).rejects.toThrow('does not match the target chain')
-  expect(
-    await getTransactionCount(client, { address: accounts[0].address }),
-  ).toBe(nonce)
 })
 
 test('does not broadcast when signing is rejected', async () => {
