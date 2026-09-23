@@ -1,3 +1,4 @@
+import { Frame, FrameSignature } from 'ox'
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorizationList } from '../../types/authorization.js'
 import type { BlockTag } from '../../types/block.js'
@@ -41,9 +42,13 @@ export const transactionType = {
   '0x2': 'eip1559',
   '0x3': 'eip4844',
   '0x4': 'eip7702',
+  '0x6': 'eip8141',
 } as const satisfies Record<Hex, TransactionType>
 
-export type FormatTransactionErrorType = ErrorType
+export type FormatTransactionErrorType =
+  | Frame.fromRpc.ErrorType
+  | FrameSignature.fromRpc.ErrorType
+  | ErrorType
 
 export function formatTransaction(
   transaction: ExactPartial<RpcTransaction>,
@@ -88,6 +93,11 @@ export function formatTransaction(
       transaction.authorizationList,
     )
 
+  if (transaction.frames)
+    transaction_.frames = transaction.frames.map(Frame.fromRpc)
+  if (transaction.signatures)
+    transaction_.signatures = transaction.signatures.map(FrameSignature.fromRpc)
+
   transaction_.yParity = (() => {
     // If `yParity` is provided, we will use it.
     if (transaction.yParity) return Number(transaction.yParity)
@@ -115,6 +125,14 @@ export function formatTransaction(
     delete transaction_.maxPriorityFeePerGas
   }
   if (transaction_.type === 'eip1559') delete transaction_.maxFeePerBlobGas
+  if (transaction_.type === 'eip8141') {
+    delete transaction_.accessList
+    delete transaction_.authorizationList
+    delete transaction_.r
+    delete transaction_.s
+    delete transaction_.v
+    delete transaction_.yParity
+  }
 
   return transaction_
 }

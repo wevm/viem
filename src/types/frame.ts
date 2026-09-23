@@ -1,8 +1,12 @@
-import type * as Frame_ox from 'ox/Frame'
-import type * as FrameSignature_ox from 'ox/FrameSignature'
+import type {
+  Frame as Frame_ox,
+  FrameReceipt as FrameReceipt_ox,
+  FrameSignature as FrameSignature_ox,
+} from 'ox'
 
-/** A call frame in an EIP-8141 transaction. */
 export type Frame<quantity = bigint> = Frame_ox.Frame<quantity>
 
-/** An EIP-8141 signature entry, including unsigned placeholders. */
+export type FrameReceipt<quantity = bigint> =
+  FrameReceipt_ox.FrameReceipt<quantity>
+
 export type FrameSignature = FrameSignature_ox.FrameSignature

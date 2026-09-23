@@ -35,7 +35,13 @@ test('ExtractChainFormatterParameters', () => {
     TransactionRequest
   >
   expectTypeOf<Result['type']>().toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
+    | 'legacy'
+    | 'eip2930'
+    | 'eip1559'
+    | 'eip4844'
+    | 'eip7702'
+    | 'eip8141'
+    | undefined
   >()
 
   type Result2 = ExtractChainFormatterParameters<
@@ -44,7 +50,13 @@ test('ExtractChainFormatterParameters', () => {
     TransactionRequest
   >
   expectTypeOf<Result2['type']>().toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
+    | 'legacy'
+    | 'eip2930'
+    | 'eip1559'
+    | 'eip4844'
+    | 'eip7702'
+    | 'eip8141'
+    | undefined
   >()
 
   type Result3 = ExtractChainFormatterParameters<
@@ -58,6 +70,7 @@ test('ExtractChainFormatterParameters', () => {
     | 'eip1559'
     | 'eip4844'
     | 'eip7702'
+    | 'eip8141'
     | 'cip64'
     | undefined
   >()

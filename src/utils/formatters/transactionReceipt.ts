@@ -1,3 +1,4 @@
+import { FrameReceipt } from 'ox'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   Chain,
@@ -25,7 +26,9 @@ export const receiptStatuses = {
   '0x1': 'success',
 } as const
 
-export type FormatTransactionReceiptErrorType = ErrorType
+export type FormatTransactionReceiptErrorType =
+  | FrameReceipt.fromRpc.ErrorType
+  | ErrorType
 
 export function formatTransactionReceipt(
   transactionReceipt: ExactPartial<RpcTransactionReceipt>,
@@ -69,6 +72,10 @@ export function formatTransactionReceipt(
     receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice)
   if (transactionReceipt.blobGasUsed)
     receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed)
+  if (transactionReceipt.frameReceipts)
+    receipt.frameReceipts = transactionReceipt.frameReceipts.map(
+      FrameReceipt.fromRpc,
+    )
 
   return receipt
 }

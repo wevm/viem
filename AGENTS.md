@@ -93,6 +93,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Alphabetical exports**; barrel/entrypoint export statements sort by module specifier; named-export lists and the exported declaration blocks of action/module files sort by exported name.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Core transaction formats use existing modules**; add EIP variants to `src/types/transaction.ts` and `src/utils/transaction/`, without separate protocol entrypoints or conversion facades.
+- **Shared request fields belong on the base type**; variant-only copies can make `OneOf` exclude ordinary transactions when intersected with shared preparation fields.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
@@ -116,6 +117,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Applies to hand-written docs only.
 - **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
+  - Skip type comments that only restate the type name.
   - Public type properties get TSDoc too.
 - **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.
   - Use the same docs as the underlying action.
@@ -152,6 +154,10 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
+- **Frame transaction tests use `tmp_frames`**; run `pnpm test --run --project tmp_frames` with Docker available.
+  - Colocate integration tests as `*.frames.test.ts` and use `~test/frames/config.js` for funded accounts and clients.
+  - Start simulation and filling tests with a minimal unsigned `default` case; cover signed requests separately.
+  - Prool starts an isolated Nethermind instance per worker and destroys it after each test file.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
   its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`

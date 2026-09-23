@@ -1,3 +1,4 @@
+import { Frame, FrameSignature } from 'ox'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
@@ -41,9 +42,13 @@ export const rpcTransactionType = {
   eip1559: '0x2',
   eip4844: '0x3',
   eip7702: '0x4',
+  eip8141: '0x6',
 } as const
 
-export type FormatTransactionRequestErrorType = ErrorType
+export type FormatTransactionRequestErrorType =
+  | Frame.toRpc.ErrorType
+  | FrameSignature.toRpc.ErrorType
+  | ErrorType
 
 export function formatTransactionRequest(
   request: ExactPartial<TransactionRequest> & { account?: Account | undefined },
@@ -66,7 +71,20 @@ export function formatTransactionRequest(
       )
     else rpcRequest.blobs = request.blobs
   }
+  if (typeof request.chainId !== 'undefined')
+    rpcRequest.chainId = numberToHex(request.chainId)
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
+  if (typeof request.frames !== 'undefined') {
+    rpcRequest.frames = request.frames.map((frame) => {
+      const { executionGasLimit, stateGasLimit, ...rest } = Frame.toRpc(frame)
+      return {
+        ...rest,
+        ...(frame.gas === undefined ? {} : { executionGasLimit }),
+        ...(frame.stateGas === undefined ? {} : { stateGasLimit }),
+      }
+    })
+    rpcRequest.type = rpcTransactionType.eip8141
+  }
   if (request.account) rpcRequest.from = request.account.address
   if (typeof request.from !== 'undefined') rpcRequest.from = request.from
   if (typeof request.gas !== 'undefined')
@@ -81,6 +99,8 @@ export function formatTransactionRequest(
     rpcRequest.maxPriorityFeePerGas = numberToHex(request.maxPriorityFeePerGas)
   if (typeof request.nonce !== 'undefined')
     rpcRequest.nonce = numberToHex(request.nonce)
+  if (typeof request.signatures !== 'undefined')
+    rpcRequest.signatures = request.signatures.map(FrameSignature.toRpc)
   if (typeof request.to !== 'undefined') rpcRequest.to = request.to
   if (typeof request.type !== 'undefined')
     rpcRequest.type = rpcTransactionType[request.type]

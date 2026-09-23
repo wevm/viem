@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { Frame, FrameReceipt, FrameSignature } from 'ox'
 
 import type {
   Block,
@@ -16,12 +17,14 @@ import type {
   TransactionEIP2930,
   TransactionEIP4844,
   TransactionEIP7702,
+  TransactionEIP8141,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
   TransactionRequestEIP7702,
+  TransactionRequestEIP8141,
   TransactionRequestLegacy,
 } from './transaction.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
@@ -35,6 +38,7 @@ export type TransactionType =
   | '0x2'
   | '0x3'
   | '0x4'
+  | '0x6'
   | (string & {})
 
 export type RpcAuthorization = {
@@ -62,13 +66,17 @@ export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
 export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>
+export type RpcFrame = Frame.Rpc
+export type RpcFrameReceipt = FrameReceipt.Rpc
+export type RpcFrameSignature = FrameSignature.Rpc
 export type RpcLog = Log<Quantity, Index>
 export type RpcProof = Proof<Quantity, Index>
 export type RpcTransactionReceipt = TransactionReceipt<
   Quantity,
   Index,
   Status,
-  TransactionType
+  TransactionType,
+  RpcFrameReceipt
 >
 export type RpcTransactionRequest = OneOf<
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
@@ -79,6 +87,13 @@ export type RpcTransactionRequest = OneOf<
       TransactionRequestEIP7702<Quantity, Index, '0x4'>,
       'authorizationList'
     > & { authorizationList?: RpcAuthorizationList | undefined })
+  | TransactionRequestEIP8141<
+      Quantity,
+      Index,
+      '0x6',
+      PartialBy<RpcFrame, 'executionGasLimit' | 'stateGasLimit'>,
+      RpcFrameSignature
+    >
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
@@ -102,6 +117,17 @@ export type RpcTransaction<pending extends boolean = boolean> = OneOf<
         'authorizationList' | 'typeHex'
       > & { authorizationList?: RpcAuthorizationList | undefined },
       'yParity'
+    >
+  | Omit<
+      TransactionEIP8141<
+        Quantity,
+        Index,
+        pending,
+        '0x6',
+        RpcFrame,
+        RpcFrameSignature
+      >,
+      'typeHex'
     >
 >
 

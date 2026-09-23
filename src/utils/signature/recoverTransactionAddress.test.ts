@@ -127,6 +127,8 @@ test('via `getTransaction`', async () => {
     blockNumber: anvilMainnet.forkBlockNumber - 15n,
     index: 0,
   })
+  if (transaction.type === 'eip8141')
+    throw new Error('Expected a single-signature transaction.')
   const serializedTransaction = serializeTransaction({
     ...transaction,
     data: transaction.input,
