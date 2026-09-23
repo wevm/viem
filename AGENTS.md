@@ -117,6 +117,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Applies to hand-written docs only.
 - **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
+  - Skip type comments that only restate the type name.
   - Public type properties get TSDoc too.
 - **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.
   - Use the same docs as the underlying action.

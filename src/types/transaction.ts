@@ -214,7 +214,6 @@ export type TransactionEIP7702<
   type: type
 } & FeeValuesEIP1559<quantity>
 
-/** An EIP-8141 transaction returned by an RPC node. */
 export type TransactionEIP8141<
   quantity = bigint,
   index = number,
@@ -341,7 +340,6 @@ export type TransactionRequestEIP7702<
     authorizationList?: AuthorizationList<index, boolean> | undefined
   }
 
-/** An EIP-8141 transaction request with explicit frame gas budgets. */
 export type TransactionRequestEIP8141<
   quantity = bigint,
   index = number,
@@ -479,7 +477,6 @@ export type TransactionSerializableEIP7702<
     yParity?: number | undefined
   }
 
-/** An EIP-8141 envelope with ordered frames and explicit signature entries. */
 export type TransactionSerializableEIP8141<
   quantity = bigint,
   index = number,
