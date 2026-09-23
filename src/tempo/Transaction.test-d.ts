@@ -23,3 +23,20 @@ test('serialize requires a sender when combining multisig simulation and approva
   // @ts-expect-error Multisig approvals require an explicit sender.
   Transaction.serialize({ ...transaction, multisigSimulation, signatures: [] })
 })
+
+test('funding requirements use executable values', () => {
+  const token = '0x20c0000000000000000000000000000000000000'
+  Transaction.serialize({
+    chainId: 1337,
+    calls: [],
+    requireFunds: [{ token, amount: 50n, sources: [] }],
+  })
+  // @ts-expect-error Relay inference is not an executable funding requirement.
+  Transaction.serialize({ chainId: 1337, calls: [], requireFunds: true })
+  Transaction.serialize({
+    chainId: 1337,
+    calls: [],
+    // @ts-expect-error Executable requirements must specify sources.
+    requireFunds: [{ token, amount: 50n }],
+  })
+})

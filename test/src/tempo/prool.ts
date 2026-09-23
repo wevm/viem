@@ -15,7 +15,7 @@ import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, getClient, nodeEnv } from './config.js'
 
-export const port = 9545
+export const port = Number(import.meta.env.VITE_TEMPO_PORT || 9545)
 
 /** Dev key used to provision and administer local Zones. */
 export const zoneAdminKey =

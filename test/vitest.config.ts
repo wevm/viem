@@ -80,6 +80,7 @@ export default defineConfig({
           name: 'tempo',
           exclude: [
             '**/*.multisig.test.ts',
+            '**/*.funding.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
             'src/tempo/**/*.node-fuzz.test.ts',
@@ -90,6 +91,22 @@ export default defineConfig({
           sequence: { groupOrder: 1 },
           hookTimeout: 20_000,
           testTimeout: 10_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'tempo-funding',
+          include: ['src/tempo/**/*.funding.test.ts'],
+          globalSetup: [join(__dirname, './src/tempo/setup.global.funding.ts')],
+          env: {
+            VITE_TEMPO_ENV: 'localnet',
+            VITE_TEMPO_PORT: '9546',
+          },
+          retry: 0,
+          sequence: { groupOrder: 2 },
+          hookTimeout: 180_000,
+          testTimeout: 30_000,
         },
       },
       ...((process.env.VITE_TEMPO_MULTISIG === 'true'

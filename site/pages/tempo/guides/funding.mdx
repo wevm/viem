@@ -1,0 +1,68 @@
+---
+title: Funding Transactions
+description: Source token balances before executing a Tempo transaction.
+---
+
+# Funding Transactions
+
+## Overview
+
+`requireFunds` specifies token balances to satisfy before transaction calls execute. Existing balances count toward each requirement. Funding sources run in order to supply the shortfall, and funding reverts with a failed payment.
+
+This preview requires a TIP-1120-enabled node. It does not enable funding on public networks. Source addresses must match the target deployment.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Fund a Payment
+
+Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requirements. Source data is encoded with Ox. This example consumes up to 30 USDC.e, then uses OUSD for the remaining shortfall.
+
+:::code-group
+
+```ts [example.ts]
+import { NativeDexFunding } from 'ox/tempo'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const usdc = '0x...' // Output token address.
+const usdcE = '0x...' // First input token address.
+const ousd = '0x...' // Second input token address.
+const nativeDexSource = '0x1120000000000000000000000000000000000001'
+const recipient = '0x...'
+
+await client.sendTransaction({
+  requireFunds: [{
+    token: usdc,
+    amount: 50_000_000n,
+    slippageBps: 100,
+    sources: [
+      { target: nativeDexSource, data: NativeDexFunding.encode({ tokenIn: usdcE, maxAmountIn: 30_000_000n }) },
+      { target: nativeDexSource, data: NativeDexFunding.encode({ tokenIn: ousd }) },
+    ],
+  }],
+  calls: [Actions.token.transfer.call({ token: usdc, to: recipient, amount: 50_000_000n })],
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+## Best Practices
+
+- Requirements specify target balances, not additional amounts. Repeated token entries are processed in order.
+- `slippageBps` applies across all sources in a requirement. Zero allows no aggregate loss; omission uses the protocol default.
+- Source caps use input token base units. Omission in `NativeDexFunding.encode` allows the maximum input amount, subject to protocol limits.
+- Funding cannot pay transaction fees. Hold a supported fee token or use [fee sponsorship](/tempo/guides/sponsor-fees).
+- Owner-authorized requirements omit `policyRules`.
+
+The pinned draft node can underestimate gas for some funding paths. The E2E fixtures supply an explicit gas limit; verify estimates against your target node before deployment.
+
+## See More
+
+- [Estimate Gas](/docs/actions/public/estimateGas)
+- [Prepare Transaction Request](/docs/actions/wallet/prepareTransactionRequest)
+- [Token Transfers](/tempo/actions/token.transfer)
