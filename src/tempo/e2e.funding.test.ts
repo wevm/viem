@@ -1,4 +1,5 @@
 import { NativeDexFunding } from 'ox/tempo'
+import { tempoLocalnet } from 'viem/chains'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { accounts, addresses, getClient } from '~test/tempo/config.js'
 import { rpcUrl } from '~test/tempo/prool.js'
@@ -11,28 +12,41 @@ import {
   sendTransactionSync,
   signTransaction,
 } from '../actions/index.js'
-import { parseAbi, parseEventLogs, parseUnits } from '../index.js'
-import { Account, Actions } from './index.js'
+import { parseEventLogs, parseUnits } from '../index.js'
+import { Abis, Account, Actions, Addresses } from './index.js'
 import * as Transaction from './Transaction.js'
 
-const client = getClient()
-const output = addresses.pathUsd
-const source = '0x1120000000000000000000000000000000000001' as const
+const client = getClient({
+  chain: tempoLocalnet.extend({ feeToken: addresses.pathUsd }),
+})
+let output: `0x${string}`
+const source = Addresses.nativeDexFundingSource
 const recipient = '0x8888888888888888888888888888888888888888' as const
 let inputs: readonly [`0x${string}`, `0x${string}`]
-
 beforeAll(async () => {
+  output = (
+    await setupToken({
+      name: 'USDC',
+      symbol: 'USDC',
+      quoteToken: addresses.pathUsd,
+    })
+  ).token
+  output = output.toLowerCase() as `0x${string}`
   const first = await setupToken({
     name: 'USDC.e',
     symbol: 'USDC.e',
     quoteToken: output,
   })
-  const second = await setupToken({
-    name: 'OUSD',
-    symbol: 'OUSD',
-    quoteToken: output,
-  })
-  inputs = [first.token, second.token]
+  inputs = [
+    first.token,
+    (
+      await setupToken({
+        name: 'OUSD',
+        symbol: 'OUSD',
+        quoteToken: output,
+      })
+    ).token,
+  ]
   for (const token of inputs)
     await Actions.dex.placeSync(client, {
       account: accounts[0],
@@ -45,7 +59,6 @@ beforeAll(async () => {
 afterAll(async () => {
   await fetch(`${rpcUrl}/stop`)
 })
-
 async function setupToken(parameters: {
   name?: string
   symbol?: string
@@ -73,41 +86,15 @@ async function setupToken(parameters: {
   })
   return { token }
 }
-
 describe('sendTransactionSync', () => {
   test('default', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -116,9 +103,34 @@ describe('sendTransactionSync', () => {
         amount: parseUnits('500', 6),
       })
     const receipt = await sendTransactionSync(client, {
-      ...request,
+      requireFunds: [
+        {
+          token: output,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+        },
+      ],
+      calls: [
+        Actions.token.transfer.call({
+          token: output,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
       account,
-      gas: undefined,
     })
     expect(receipt.status).toBe('success')
     expect(
@@ -138,29 +150,52 @@ describe('sendTransactionSync', () => {
       ).amount,
     ).toBe(parseUnits('480', 6))
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
-    expect(tx.requireFunds).toEqual(request.requireFunds)
+    expect(tx.requireFunds).toEqual([
+      {
+        token: output,
+        amount: parseUnits('50', 6),
+        slippageBps: 0,
+        sources: [
+          {
+            target: source,
+            data: NativeDexFunding.encode({
+              tokenIn: inputs[0],
+              maxAmountIn: parseUnits('30', 6),
+            }),
+          },
+          {
+            target: source,
+            data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+          },
+        ],
+      },
+    ])
   })
   test('uses the node RPC signer for a funded payment', async () => {
-    const fundingRequirement = {
+    const account = accounts[0].address
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
       token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
+      to: recipient,
+      amount: (
+        await Actions.token.getBalance(client, { account, token: output })
+      ).amount,
+    })
+    const before = (
+      await Actions.token.getBalance(client, {
+        token: output,
+        account: accounts[0].address,
+      })
+    ).amount
+    expect(before).toBe(0n)
+    for (const token of inputs)
+      await Actions.token.mintSync(client, {
+        account: accounts[0],
+        token,
+        to: account,
+        amount: parseUnits('500', 6),
+      })
+    const prepared = await prepareTransactionRequest(client, {
       calls: [
         Actions.token.transfer.call({
           token: output,
@@ -168,28 +203,48 @@ describe('sendTransactionSync', () => {
           amount: parseUnits('50', 6),
         }),
       ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
-    const account = accounts[0].address
-    const before = (
-      await Actions.token.getBalance(client, {
-        token: output,
-        account: accounts[0].address,
-      })
-    ).amount
-    const prepared = await prepareTransactionRequest(client, {
-      ...request,
       account,
       requireFunds: [
-        { ...fundingRequirement, amount: before + parseUnits('50', 6) },
+        {
+          token: output,
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+          amount: parseUnits('50', 6),
+        },
       ],
-      feePayer: undefined,
       feeToken: addresses.alphaUsd,
     })
     expect(prepared.requireFunds).toEqual([
-      { ...fundingRequirement, amount: before + parseUnits('50', 6) },
+      {
+        token: output,
+        slippageBps: 0,
+        sources: [
+          {
+            target: source,
+            data: NativeDexFunding.encode({
+              tokenIn: inputs[0],
+              maxAmountIn: parseUnits('30', 6),
+            }),
+          },
+          {
+            target: source,
+            data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+          },
+        ],
+        amount: parseUnits('50', 6),
+      },
     ])
     const receipt = await sendTransactionSync(client, {
       ...prepared,
@@ -198,11 +253,9 @@ describe('sendTransactionSync', () => {
     expect(receipt.status).toBe('success')
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.requireFunds).toEqual(prepared.requireFunds)
-    // The RPC signer also owns the resting orders, so assert funding events rather than its net input balance.
     const funded = parseEventLogs({
-      abi: parseAbi([
-        'event SourceFunded(address indexed account, address indexed assetOut, address indexed source, bytes32 requestHash, address assetIn, uint256 amountIn, uint256 amountOut)',
-      ]),
+      abi: Abis.tip20Funder,
+      eventName: 'SourceFunded',
       logs: receipt.logs,
     })
     expect(funded.map(({ args }) => args.amountOut)).toEqual([
@@ -217,43 +270,23 @@ describe('sendTransactionSync', () => {
         })
       ).amount,
     ).toBe(before)
+    await Actions.token.mintSync(client, {
+      account: accounts[0],
+      token: output,
+      to: account,
+      amount: parseUnits('1000', 6),
+    })
   })
 })
-
 describe('prepareTransactionRequest', () => {
   test('preserves requirements through preparation and signing', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -262,52 +295,90 @@ describe('prepareTransactionRequest', () => {
         amount: parseUnits('500', 6),
       })
     const prepared = await prepareTransactionRequest(client, {
-      ...request,
+      requireFunds: [
+        {
+          token: output,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+        },
+      ],
+      calls: [
+        Actions.token.transfer.call({
+          token: output,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
       account,
     })
-    expect(prepared.requireFunds).toEqual(request.requireFunds)
+    expect(prepared.requireFunds).toEqual([
+      {
+        token: output,
+        amount: parseUnits('50', 6),
+        slippageBps: 0,
+        sources: [
+          {
+            target: source,
+            data: NativeDexFunding.encode({
+              tokenIn: inputs[0],
+              maxAmountIn: parseUnits('30', 6),
+            }),
+          },
+          {
+            target: source,
+            data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+          },
+        ],
+      },
+    ])
     const signed = await signTransaction(client, prepared)
     expect(
       Transaction.deserialize(signed as Transaction.TransactionSerializedTempo)
         .requireFunds,
-    ).toEqual(request.requireFunds)
+    ).toEqual([
+      {
+        token: output,
+        amount: parseUnits('50', 6),
+        slippageBps: 0,
+        sources: [
+          {
+            target: source,
+            data: NativeDexFunding.encode({
+              tokenIn: inputs[0],
+              maxAmountIn: parseUnits('30', 6),
+            }),
+          },
+          {
+            target: source,
+            data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+          },
+        ],
+      },
+    ])
   })
 })
-
 describe('estimateGas', () => {
   test('includes funding without moving balances', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -315,9 +386,38 @@ describe('estimateGas', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
-    expect(await estimateGas(client, { ...request, account })).toBeGreaterThan(
-      0n,
-    )
+    expect(
+      await estimateGas(client, {
+        requireFunds: [
+          {
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({
+                  tokenIn: inputs[0],
+                  maxAmountIn: parseUnits('30', 6),
+                }),
+              },
+              {
+                target: source,
+                data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+              },
+            ],
+          },
+        ],
+        calls: [
+          Actions.token.transfer.call({
+            token: output,
+            to: recipient,
+            amount: parseUnits('50', 6),
+          }),
+        ],
+        account,
+      }),
+    ).toBeGreaterThan(0n)
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -328,41 +428,15 @@ describe('estimateGas', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
-
 describe('call', () => {
   test('simulates funding and payment without persisting state', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -370,7 +444,36 @@ describe('call', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
-    await call(client, { ...request, account })
+    await call(client, {
+      requireFunds: [
+        {
+          token: output,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+        },
+      ],
+      calls: [
+        Actions.token.transfer.call({
+          token: output,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      account,
+    })
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -381,41 +484,15 @@ describe('call', () => {
     ).toBe(parseUnits('500', 6))
   })
 })
-
 describe('behavior', () => {
   test('uses the existing balance before sourcing the shortfall', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -429,7 +506,36 @@ describe('behavior', () => {
       to: account.address,
       amount: parseUnits('10', 6),
     })
-    const receipt = await sendTransactionSync(client, { ...request, account })
+    const receipt = await sendTransactionSync(client, {
+      requireFunds: [
+        {
+          token: output,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+        },
+      ],
+      calls: [
+        Actions.token.transfer.call({
+          token: output,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      account,
+    })
     expect(receipt.status).toBe('success')
     expect(
       (
@@ -448,40 +554,14 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('490', 6))
   })
-
   test('continues after a source with zero input capacity', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -489,17 +569,37 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
-    const funding = fundingRequirement
-    funding.sources[0]!.data = NativeDexFunding.encode({
-      tokenIn: inputs[0],
-      maxAmountIn: 0n,
-    })
     expect(
       (
         await sendTransactionSync(client, {
-          ...request,
+          calls: [
+            Actions.token.transfer.call({
+              token: output,
+              to: recipient,
+              amount: parseUnits('50', 6),
+            }),
+          ],
           account,
-          requireFunds: [funding],
+          requireFunds: [
+            {
+              token: output,
+              amount: parseUnits('50', 6),
+              slippageBps: 0,
+              sources: [
+                {
+                  target: source,
+                  data: NativeDexFunding.encode({
+                    tokenIn: inputs[0],
+                    maxAmountIn: 0n,
+                  }),
+                },
+                {
+                  target: source,
+                  data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+                },
+              ],
+            },
+          ],
         })
       ).status,
     ).toBe('success')
@@ -520,40 +620,14 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('450', 6))
   })
-
   test('repeated requirements specify target balances', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -562,11 +636,51 @@ describe('behavior', () => {
         amount: parseUnits('500', 6),
       })
     const receipt = await sendTransactionSync(client, {
-      ...request,
+      calls: [
+        Actions.token.transfer.call({
+          token: output,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
       account,
       requireFunds: [
-        { ...fundingRequirement, amount: parseUnits('20', 6) },
-        fundingRequirement,
+        {
+          token: output,
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+          amount: parseUnits('20', 6),
+        },
+        {
+          token: output,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({
+                tokenIn: inputs[0],
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+            },
+          ],
+        },
       ],
     })
     expect(receipt.status).toBe('success')
@@ -587,40 +701,14 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
-
-  test('rolls back funding when the payment fails', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
+  test('rejects a failing payment without moving funds', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -628,20 +716,38 @@ describe('behavior', () => {
         to: account.address,
         amount: parseUnits('500', 6),
       })
-    const receipt = await sendTransactionSync(client, {
-      ...request,
-      account,
-      gas: 5_000_000n,
-      throwOnReceiptRevert: false,
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('51', 6),
-        }),
-      ],
-    })
-    expect(receipt.status).toBe('reverted')
+    await expect(
+      sendTransactionSync(client, {
+        requireFunds: [
+          {
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({
+                  tokenIn: inputs[0],
+                  maxAmountIn: parseUnits('30', 6),
+                }),
+              },
+              {
+                target: source,
+                data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+              },
+            ],
+          },
+        ],
+        account,
+        calls: [
+          Actions.token.transfer.call({
+            token: output,
+            to: recipient,
+            amount: parseUnits('51', 6),
+          }),
+        ],
+      }),
+    ).rejects.toThrow('InsufficientBalance')
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -659,40 +765,14 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
-
   test('rejects insufficient input capacity without moving funds', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -702,12 +782,28 @@ describe('behavior', () => {
       })
     await expect(
       estimateGas(client, {
-        ...request,
+        calls: [
+          Actions.token.transfer.call({
+            token: output,
+            to: recipient,
+            amount: parseUnits('50', 6),
+          }),
+        ],
         account,
         requireFunds: [
           {
-            ...fundingRequirement,
-            sources: fundingRequirement.sources.slice(0, 1),
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({
+                  tokenIn: inputs[0],
+                  maxAmountIn: parseUnits('30', 6),
+                }),
+              },
+            ],
           },
         ],
       }),
@@ -721,39 +817,7 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
-
   test('funding cannot pay transaction fees', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
     for (const token of inputs)
       await Actions.token.mintSync(client, {
@@ -764,60 +828,85 @@ describe('behavior', () => {
       })
     await expect(
       sendTransactionSync(client, {
-        ...request,
+        requireFunds: [
+          {
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({
+                  tokenIn: inputs[0],
+                  maxAmountIn: parseUnits('30', 6),
+                }),
+              },
+              {
+                target: source,
+                data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+              },
+            ],
+          },
+        ],
+        calls: [
+          Actions.token.transfer.call({
+            token: output,
+            to: recipient,
+            amount: parseUnits('50', 6),
+          }),
+        ],
         account,
-        feePayer: undefined,
       }),
     ).rejects.toThrow()
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      token: output,
+      token: addresses.pathUsd,
       to: account.address,
       amount: parseUnits('1', 6),
     })
     expect(
       (
         await sendTransactionSync(client, {
-          ...request,
+          requireFunds: [
+            {
+              token: output,
+              amount: parseUnits('50', 6),
+              slippageBps: 0,
+              sources: [
+                {
+                  target: source,
+                  data: NativeDexFunding.encode({
+                    tokenIn: inputs[0],
+                    maxAmountIn: parseUnits('30', 6),
+                  }),
+                },
+                {
+                  target: source,
+                  data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+                },
+              ],
+            },
+          ],
+          calls: [
+            Actions.token.transfer.call({
+              token: output,
+              to: recipient,
+              amount: parseUnits('50', 6),
+            }),
+          ],
           account,
-          feePayer: undefined,
         })
       ).status,
     ).toBe('success')
   })
   test('rejects a source without liquidity', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -834,11 +923,19 @@ describe('behavior', () => {
     })
     await expect(
       call(client, {
-        ...request,
+        calls: [
+          Actions.token.transfer.call({
+            token: output,
+            to: recipient,
+            amount: parseUnits('50', 6),
+          }),
+        ],
         account,
         requireFunds: [
           {
-            ...fundingRequirement,
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
             sources: [
               {
                 target: source,
@@ -858,40 +955,14 @@ describe('behavior', () => {
       ).amount,
     ).toBe(parseUnits('100', 6))
   })
-
   test('rechecks earlier balances after later requirements', async () => {
-    const fundingRequirement = {
-      token: output,
-      amount: parseUnits('50', 6),
-      slippageBps: 0,
-      sources: [
-        {
-          target: source,
-          data: NativeDexFunding.encode({
-            tokenIn: inputs[0],
-            maxAmountIn: parseUnits('30', 6),
-          }),
-        },
-        {
-          target: source,
-          data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
-        },
-      ],
-    }
-    const request = {
-      requireFunds: [fundingRequirement],
-      calls: [
-        Actions.token.transfer.call({
-          token: output,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      feePayer: accounts[0],
-      throwOnReceiptRevert: true,
-      gas: 2_000_000n,
-    }
     const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      token: addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('10', 6),
+    })
     for (const token of inputs)
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -912,20 +983,58 @@ describe('behavior', () => {
       to: account.address,
       amount: parseUnits('50', 6),
     })
-    const second = {
-      token: inputs[0],
-      amount: parseUnits('520', 6),
-      slippageBps: 0,
-      sources: [
-        { target: source, data: NativeDexFunding.encode({ tokenIn: output }) },
+    await call(client, {
+      account,
+      calls: [{ to: recipient }],
+      requireFunds: [
+        {
+          token: inputs[0],
+          amount: parseUnits('520', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              target: source,
+              data: NativeDexFunding.encode({ tokenIn: output }),
+            },
+          ],
+        },
       ],
-    }
-    const parameters = { ...request, account, calls: [{ to: recipient }] }
-    await call(client, { ...parameters, requireFunds: [second] })
+    })
     await expect(
       call(client, {
-        ...parameters,
-        requireFunds: [fundingRequirement, second],
+        account,
+        calls: [{ to: recipient }],
+        requireFunds: [
+          {
+            token: output,
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({
+                  tokenIn: inputs[0],
+                  maxAmountIn: parseUnits('30', 6),
+                }),
+              },
+              {
+                target: source,
+                data: NativeDexFunding.encode({ tokenIn: inputs[1] }),
+              },
+            ],
+          },
+          {
+            token: inputs[0],
+            amount: parseUnits('520', 6),
+            slippageBps: 0,
+            sources: [
+              {
+                target: source,
+                data: NativeDexFunding.encode({ tokenIn: output }),
+              },
+            ],
+          },
+        ],
       }),
     ).rejects.toThrow()
     expect(
