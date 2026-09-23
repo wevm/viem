@@ -58,6 +58,39 @@ await client.sendTransaction({
 ```
 :::
 
+### Fund a Token Transfer
+
+Pass `requireFunds` to [`token.transferSync`](/tempo/actions/token.transfer) when sending a single token transfer. The action funds the required OUSD balance before transferring it.
+
+:::code-group
+
+```ts [example.ts]
+import { Addresses, DexFundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const ousd = '0x...' // Output token address.
+
+await client.token.transferSync({
+  token: ousd,
+  to: '0x...',
+  amount: 50_000_000n,
+  requireFunds: [{
+    token: ousd,
+    amount: 50_000_000n,
+    slippageBps: 100,
+    sources: [{
+      to: Addresses.nativeDexFundingSource,
+      data: DexFundingSource.encode({ tokenIn: Addresses.pathUsd }),
+    }],
+  }],
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
 ## Best Practices
 
 - Requirements specify target balances, not additional amounts. Repeated token entries are processed in order.

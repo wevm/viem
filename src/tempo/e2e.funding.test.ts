@@ -415,6 +415,53 @@ describe('call', () => {
   })
 })
 
+describe('Actions.token.transferSync', () => {
+  test('funds the transfer from the requested sources', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+
+    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+    const { amount, receipt } = await Actions.token.transferSync(client, {
+      account,
+      amount: parseUnits('50', 6),
+      feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
+      requireFunds: [
+        {
+          token: Addresses.pathUsd,
+          amount: parseUnits('50', 6),
+          slippageBps: 0,
+          sources: [
+            {
+              to: source,
+              data: DexFundingSource.encode({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('30', 6),
+              }),
+            },
+            {
+              to: source,
+              data: DexFundingSource.encode({ tokenIn: Addresses.betaUsd }),
+            },
+          ],
+        },
+      ],
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(amount).toBe(parseUnits('50', 6))
+    expect(
+      parseEventLogs({
+        abi: Abis.tip20Funder,
+        eventName: 'SourceFunded',
+        logs: receipt.logs,
+      }).map(({ args }) => args.amountOut),
+    ).toEqual([parseUnits('30', 6), parseUnits('20', 6)])
+  })
+})
+
 describe('behavior', () => {
   test('uses the existing balance before sourcing the shortfall', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
