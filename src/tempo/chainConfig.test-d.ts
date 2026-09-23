@@ -117,6 +117,12 @@ test('prepareTransactionRequest stays a union when ambiguous', async () => {
     value: 1n,
   })
   expectTypeOf(request.type).toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'tempo'
+    | 'legacy'
+    | 'eip2930'
+    | 'eip1559'
+    | 'eip4844'
+    | 'eip7702'
+    | 'eip8141'
+    | 'tempo'
   >()
 })

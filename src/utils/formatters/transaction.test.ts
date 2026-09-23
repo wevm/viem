@@ -1,6 +1,5 @@
+import { formatTransaction } from 'viem'
 import { expect, test } from 'vitest'
-
-import { formatTransaction } from './transaction.js'
 
 test('legacy transaction', () => {
   expect(
@@ -808,6 +807,139 @@ test('contract deployment transaction', () => {
       "typeHex": "0x0",
       "v": 1n,
       "value": 1n,
+    }
+  `)
+})
+
+test('eip8141 transaction', () => {
+  expect(
+    formatTransaction({
+      blobVersionedHashes: [],
+      blockHash: '0x1',
+      blockNumber: '0x1',
+      chainId: '0x1fcd',
+      frames: [
+        {
+          data: '0x',
+          executionGasLimit: '0xc350',
+          flags: 3,
+          mode: 1,
+          stateGasLimit: '0x0',
+          target: null,
+          value: '0x0',
+        },
+        {
+          data: '0xdeadbeef',
+          executionGasLimit: '0x9c40',
+          flags: 0,
+          mode: 2,
+          stateGasLimit: '0x64',
+          target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: '0x1',
+        },
+      ],
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      gas: '0x1d4c0',
+      gasPrice: '0x2',
+      hash: '0x2',
+      input: '0x',
+      maxFeePerBlobGas: '0x0',
+      maxFeePerGas: '0xa',
+      maxPriorityFeePerGas: '0x1',
+      nonce: '0x0',
+      signatures: [
+        { msg: '0x', scheme: 1, signature: '0x', signer: null },
+        {
+          msg: '0x1111111111111111111111111111111111111111111111111111111111111111',
+          scheme: 0,
+          signature: '0xdeadbeef',
+        },
+        { msg: '0x', scheme: 2, signature: '0x' },
+      ],
+      to: null,
+      transactionIndex: '0x0',
+      type: '0x6',
+      value: '0x0',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blobVersionedHashes": [],
+      "blockHash": "0x1",
+      "blockNumber": 1n,
+      "chainId": 8141,
+      "frames": [
+        {
+          "data": "0x",
+          "flags": 3,
+          "gas": 50000n,
+          "mode": 1,
+          "stateGas": 0n,
+          "value": 0n,
+        },
+        {
+          "data": "0xdeadbeef",
+          "flags": 0,
+          "gas": 40000n,
+          "mode": 2,
+          "stateGas": 100n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": 1n,
+        },
+      ],
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "gas": 120000n,
+      "gasPrice": 2n,
+      "hash": "0x2",
+      "input": "0x",
+      "maxFeePerBlobGas": 0n,
+      "maxFeePerGas": 10n,
+      "maxPriorityFeePerGas": 1n,
+      "nonce": 0,
+      "signatures": [
+        {
+          "payload": "0x",
+          "scheme": "secp256k1",
+        },
+        {
+          "payload": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "scheme": "arbitrary",
+          "signature": "0xdeadbeef",
+        },
+        {
+          "payload": "0x",
+          "scheme": "p256",
+        },
+      ],
+      "to": null,
+      "transactionIndex": 0,
+      "type": "eip8141",
+      "typeHex": "0x6",
+      "value": 0n,
+    }
+  `)
+})
+
+test('eip8141 pending transaction', () => {
+  expect(
+    formatTransaction({ frames: [], signatures: [], type: '0x6' }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blockHash": null,
+      "blockNumber": null,
+      "chainId": undefined,
+      "frames": [],
+      "gas": undefined,
+      "gasPrice": undefined,
+      "maxFeePerBlobGas": undefined,
+      "maxFeePerGas": undefined,
+      "maxPriorityFeePerGas": undefined,
+      "nonce": undefined,
+      "signatures": [],
+      "to": null,
+      "transactionIndex": null,
+      "type": "eip8141",
+      "typeHex": "0x6",
+      "value": undefined,
     }
   `)
 })

@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added EIP-8141 frame transaction types, serialization, and parsing.
+Added EIP-8141 frame transaction types, serialization, parsing, RPC requests, and receipts.
 
 ```ts
 import { serializeTransaction } from 'viem'

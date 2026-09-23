@@ -44,6 +44,8 @@ export const publicClient = createPublicClient({
 
 The transaction information.
 
+For frame transactions, `type` is `eip8141` and the result includes decoded `frames` and `signatures`. The transaction sender is `from`. Frame destinations use `to`, gas budgets use `gas` and `stateGas`, and signature digests use `payload`.
+
 ## Parameters
 
 ### hash (optional)

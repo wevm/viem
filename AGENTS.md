@@ -93,6 +93,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Alphabetical exports**; barrel/entrypoint export statements sort by module specifier; named-export lists and the exported declaration blocks of action/module files sort by exported name.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
 - **Core transaction formats use existing modules**; add EIP variants to `src/types/transaction.ts` and `src/utils/transaction/`, without separate protocol entrypoints or conversion facades.
+- **Shared request fields belong on the base type**; variant-only copies can make `OneOf` exclude ordinary transactions when intersected with shared preparation fields.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.

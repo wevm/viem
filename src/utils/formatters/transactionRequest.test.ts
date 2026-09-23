@@ -1,3 +1,4 @@
+import { formatTransactionRequest } from 'viem'
 import { expect, test } from 'vitest'
 
 import type {
@@ -9,10 +10,7 @@ import type {
   TransactionRequestLegacy,
 } from '../../types/transaction.js'
 
-import {
-  formatTransactionRequest,
-  rpcTransactionType,
-} from './transactionRequest.js'
+import { rpcTransactionType } from './transactionRequest.js'
 
 const base: TransactionRequest = {
   data: '0x1',
@@ -356,7 +354,109 @@ test('rpcTransactionType', () => {
       "eip2930": "0x1",
       "eip4844": "0x3",
       "eip7702": "0x4",
+      "eip8141": "0x6",
       "legacy": "0x0",
+    }
+  `)
+})
+
+test('eip8141 transaction', () => {
+  expect(
+    formatTransactionRequest({
+      chainId: 8141,
+      frames: [
+        { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+        {
+          data: '0xdeadbeef',
+          gas: 40_000n,
+          mode: 'sender',
+          stateGas: 100n,
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: 1n,
+        },
+      ],
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      maxFeePerBlobGas: 0n,
+      maxFeePerGas: 10n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      signatures: [
+        { scheme: 'secp256k1' },
+        {
+          payload:
+            '0x1111111111111111111111111111111111111111111111111111111111111111',
+          scheme: 'arbitrary',
+          signature: '0xdeadbeef',
+        },
+        { scheme: 'p256' },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "chainId": "0x1fcd",
+      "frames": [
+        {
+          "data": "0x",
+          "executionGasLimit": "0xc350",
+          "flags": 3,
+          "mode": 1,
+          "stateGasLimit": "0x0",
+          "value": "0x0",
+        },
+        {
+          "data": "0xdeadbeef",
+          "executionGasLimit": "0x9c40",
+          "flags": 0,
+          "mode": 2,
+          "stateGasLimit": "0x64",
+          "target": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": "0x1",
+        },
+      ],
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "maxFeePerBlobGas": "0x0",
+      "maxFeePerGas": "0xa",
+      "maxPriorityFeePerGas": "0x1",
+      "nonce": "0x0",
+      "signatures": [
+        {
+          "msg": "0x",
+          "scheme": 1,
+          "signature": "0x",
+        },
+        {
+          "msg": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "scheme": 0,
+          "signature": "0xdeadbeef",
+        },
+        {
+          "msg": "0x",
+          "scheme": 2,
+          "signature": "0x",
+        },
+      ],
+      "type": "0x6",
+    }
+  `)
+})
+
+test('eip8141 defaults', () => {
+  expect(
+    formatTransactionRequest({ frames: [{}], signatures: [], type: 'eip8141' }),
+  ).toMatchInlineSnapshot(`
+    {
+      "frames": [
+        {
+          "data": "0x",
+          "executionGasLimit": "0x0",
+          "flags": 0,
+          "mode": 0,
+          "stateGasLimit": "0x0",
+          "value": "0x0",
+        },
+      ],
+      "signatures": [],
+      "type": "0x6",
     }
   `)
 })
