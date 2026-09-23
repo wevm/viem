@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import type { TxEnvelopeEip8141 } from 'ox'
 
 import type {
   AuthorizationList,

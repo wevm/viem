@@ -1,5 +1,4 @@
-import * as Frame from 'ox/Frame'
-import * as FrameSignature from 'ox/FrameSignature'
+import { Frame, FrameSignature } from 'ox'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
@@ -76,7 +75,14 @@ export function formatTransactionRequest(
     rpcRequest.chainId = numberToHex(request.chainId)
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
   if (typeof request.frames !== 'undefined') {
-    rpcRequest.frames = request.frames.map(Frame.toRpc)
+    rpcRequest.frames = request.frames.map((frame) => {
+      const { executionGasLimit, stateGasLimit, ...rest } = Frame.toRpc(frame)
+      return {
+        ...rest,
+        ...(frame.gas === undefined ? {} : { executionGasLimit }),
+        ...(frame.stateGas === undefined ? {} : { stateGasLimit }),
+      }
+    })
     rpcRequest.type = rpcTransactionType.eip8141
   }
   if (request.account) rpcRequest.from = request.account.address

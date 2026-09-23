@@ -1,6 +1,8 @@
-import type * as Frame_ox from 'ox/Frame'
-import type * as FrameReceipt_ox from 'ox/FrameReceipt'
-import type * as FrameSignature_ox from 'ox/FrameSignature'
+import type {
+  Frame as Frame_ox,
+  FrameReceipt as FrameReceipt_ox,
+  FrameSignature as FrameSignature_ox,
+} from 'ox'
 
 export type Frame<quantity = bigint> = Frame_ox.Frame<quantity>
 

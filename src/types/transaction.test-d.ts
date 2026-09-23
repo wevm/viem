@@ -10,6 +10,7 @@ import type {
   GetTransactionReceiptReturnType,
   GetTransactionReturnType,
   Hex,
+  PartialBy,
   RpcFrame,
   RpcFrameReceipt,
   RpcFrameSignature,
@@ -91,7 +92,9 @@ test('frame transaction response narrows by type', () => {
 test('RPC frames retain wire field names and numeric discriminants', () => {
   type Request = Extract<RpcTransactionRequest, { type?: '0x6' | undefined }>
   type Transaction = Extract<RpcTransaction, { type: '0x6' }>
-  expectTypeOf<Request['frames']>().toEqualTypeOf<readonly RpcFrame[]>()
+  expectTypeOf<Request['frames']>().toEqualTypeOf<
+    readonly PartialBy<RpcFrame, 'executionGasLimit' | 'stateGasLimit'>[]
+  >()
   expectTypeOf<Request['signatures']>().toEqualTypeOf<
     readonly RpcFrameSignature[] | undefined
   >()

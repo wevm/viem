@@ -1,4 +1,4 @@
-import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import { TxEnvelopeEip8141 } from 'ox'
 import { versionedHashVersionKzg } from '../../constants/kzg.js'
 import { maxUint256 } from '../../constants/number.js'
 import {

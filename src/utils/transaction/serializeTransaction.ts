@@ -1,4 +1,4 @@
-import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import { TxEnvelopeEip8141 } from 'ox'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   InvalidLegacyVError,
