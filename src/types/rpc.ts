@@ -68,11 +68,8 @@ export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>
 export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>
-/** JSON-RPC representation of a frame. */
 export type RpcFrame = Frame.Rpc
-/** JSON-RPC representation of a frame receipt. */
 export type RpcFrameReceipt = FrameReceipt.Rpc
-/** JSON-RPC representation of a frame signature. */
 export type RpcFrameSignature = FrameSignature.Rpc
 export type RpcLog = Log<Quantity, Index>
 export type RpcProof = Proof<Quantity, Index>
