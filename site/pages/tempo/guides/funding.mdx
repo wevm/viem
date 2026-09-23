@@ -23,13 +23,13 @@ Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with complete requ
 
 ```ts [example.ts]
 import { NativeDexFunding } from 'ox/tempo'
-import { Actions } from 'viem/tempo'
+import { Addresses, Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const usdc = '0x...' // Output token address.
 const usdcE = '0x...' // First input token address.
 const ousd = '0x...' // Second input token address.
-const nativeDexSource = '0x1120000000000000000000000000000000000001'
+const nativeDexSource = Addresses.nativeDexFundingSource
 const recipient = '0x...'
 
 await client.sendTransaction({

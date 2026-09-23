@@ -23,6 +23,7 @@ export const accountKeychain = {
   },
   burnKeyAuthorizationWitness: '0xcff31c46',
   getAllowedCalls: '0x0163e7ec',
+  getFundingPolicyId: '0xb17e5818',
   getKey: '0xbc298553',
   getRemainingLimit: '0x63b4290d',
   getRemainingLimitWithPeriod: '0xa7f72cab',
@@ -59,6 +60,14 @@ export const currentCommittee = {
   getCommitteeMembers: '0xb2a275f9',
   setCommitteeMembers: '0x229bdd9c',
 } as const satisfies FunctionSelectors<typeof Abis.currentCommittee>
+
+export const fundingSource = {
+  discover: '0xeaff627d',
+  fund: '0x0f9cd729',
+  quote: '0xc614990a',
+  supportsToken: '0x933d93f1',
+  verify: '0xf7e83aee',
+} as const satisfies FunctionSelectors<typeof Abis.fundingSource>
 
 export const nonce = {
   getNonce: '0x89535803',
@@ -310,6 +319,19 @@ export const zoneVerifier = {
   },
 } as const satisfies FunctionSelectors<typeof Abis.zoneVerifier, 'verify'> &
   OverloadedFunctionSelectors<'verify'>
+
+export const fundingPolicy = {
+  createPolicy: '0xb4f9d29c',
+  getPolicy: '0x6d738773',
+  policyExists: '0x330f5637',
+  policyIdCounter: '0x3cc32f9c',
+  setAdmins: '0xf6a19689',
+  setRules: '0x52dda7d2',
+} as const satisfies FunctionSelectors<typeof Abis.fundingPolicy>
+
+export const fundingDiscovery = {
+  discover: '0x3cdf692f',
+} as const satisfies FunctionSelectors<typeof Abis.fundingDiscovery>
 
 export const zonePortal = {
   FIXED_DEPOSIT_GAS: '0xf706cfbf',

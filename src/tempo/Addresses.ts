@@ -15,6 +15,10 @@ export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
 /** Current consensus committee precompile address, used with `Abis.currentCommittee` to read committee members. */
 export const currentCommittee = '0xC077e00000000000000000000000000000000000'
 export const feeManager = '0xfeec000000000000000000000000000000000000'
+export const fundingDiscovery = '0x1120000000000000000000000000000000000003'
+export const fundingPolicy = '0x1120000000000000000000000000000000000002'
+export const nativeDexFundingSource =
+  '0x1120000000000000000000000000000000000001'
 export const nativeMultisig = '0xAACC000000000000000000000000000000000000'
 /** Temporary recovery factory until the production address is finalized. */
 export const nativeMultisigFactory =
@@ -27,6 +31,7 @@ export const stablecoinDex = '0xdec0000000000000000000000000000000000000'
 export const storageCredits = '0x1060000000000000000000000000000000000000'
 export const tip20ChannelReserve = '0x4d50500000000000000000000000000000000000'
 export const tip20Factory = '0x20fc000000000000000000000000000000000000'
+export const tip20Funder = '0x1120000000000000000000000000000000000000'
 export const tip403Registry = '0x403c000000000000000000000000000000000000'
 export const validator = '0xcccccccc00000000000000000000000000000000'
 export const validatorV2 = '0xcccccccc00000000000000000000000000000001'

@@ -1,5 +1,6 @@
 import { FundingRequirement, NativeDexFunding } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
+import * as Addresses from './Addresses.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
 
@@ -10,7 +11,7 @@ const requirement = FundingRequirement.from({
   slippageBps: 0,
   sources: [
     {
-      target: '0x1120000000000000000000000000000000000001',
+      target: Addresses.nativeDexFundingSource,
       data: NativeDexFunding.encode({
         tokenIn: token,
         maxAmountIn: 30_000_000n,

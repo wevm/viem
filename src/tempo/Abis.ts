@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@a2624758a6709731d98b9bd6fc8e5afca398fea9
+// Source: tempoxyz/tempo@492639758d54b83ddd68f4a4b7a67e5c51221c0e
 
 export const accountKeychain = [
   {
@@ -199,6 +199,16 @@ export const accountKeychain = [
         ],
       },
     ],
+  },
+  {
+    name: 'getFundingPolicyId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [{ type: 'uint64' }],
   },
   {
     name: 'getRemainingLimit',
@@ -555,6 +565,90 @@ export const currentCommittee = [
     outputs: [],
   },
   { name: 'Unauthorized', type: 'error', inputs: [] },
+] as const
+
+export const fundingSource = [
+  {
+    name: 'supportsToken',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'bytes', name: 'policyData' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes', name: 'requestData' },
+      { type: 'bytes', name: 'policyData' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'discover',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'uint256', name: 'maxCost' },
+      { type: 'bytes', name: 'policyData' },
+    ],
+    outputs: [
+      {
+        type: 'tuple[]',
+        name: 'candidates',
+        components: [
+          { type: 'bytes', name: 'requestData' },
+          { type: 'uint256', name: 'availableAmount' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'quote',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'uint256', name: 'maxCost' },
+      { type: 'bytes', name: 'requestData' },
+      { type: 'bytes', name: 'policyData' },
+      { type: 'bool', name: 'ownerAuthorized' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        name: 'result',
+        components: [
+          { type: 'address', name: 'assetIn' },
+          { type: 'uint256', name: 'rate' },
+          { type: 'uint256', name: 'maxAmountIn' },
+          { type: 'uint256', name: 'amountOut' },
+          { type: 'bytes', name: 'requestData' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'fund',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'bytes', name: 'requestData' },
+    ],
+    outputs: [],
+  },
 ] as const
 
 export const nonce = [
@@ -1779,6 +1873,81 @@ export const tip20Factory = [
     name: 'TokenAlreadyExists',
     type: 'error',
     inputs: [{ type: 'address', name: 'token' }],
+  },
+] as const
+
+export const tip20Funder = [
+  {
+    name: 'SourceFunded',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'assetOut', indexed: true },
+      { type: 'address', name: 'source', indexed: true },
+      { type: 'bytes32', name: 'requestHash' },
+      { type: 'address', name: 'assetIn' },
+      { type: 'uint256', name: 'amountIn' },
+      { type: 'uint256', name: 'amountOut' },
+    ],
+  },
+  {
+    name: 'FundsRequired',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'key', indexed: true },
+      { type: 'address', name: 'asset', indexed: true },
+      { type: 'uint256', name: 'requiredAmount' },
+      { type: 'uint256', name: 'fundedAmount' },
+    ],
+  },
+  { name: 'InvalidFundingContext', type: 'error', inputs: [] },
+  {
+    name: 'InvalidAsset',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'asset' }],
+  },
+  {
+    name: 'TokenNotAllowed',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'token' }],
+  },
+  {
+    name: 'FundingNotAuthorized',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'source' }],
+  },
+  { name: 'InvalidSourceOrder', type: 'error', inputs: [] },
+  {
+    name: 'InvalidFundingQuote',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'source' }],
+  },
+  {
+    name: 'InputLimitExceeded',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'source' },
+      { type: 'uint256', name: 'limit' },
+      { type: 'uint256', name: 'attempted' },
+    ],
+  },
+  {
+    name: 'UnexpectedFundingAmount',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'source' },
+      { type: 'uint256', name: 'maximum' },
+      { type: 'uint256', name: 'received' },
+    ],
+  },
+  {
+    name: 'InsufficientFunding',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'required' },
+      { type: 'uint256', name: 'available' },
+    ],
   },
 ] as const
 
@@ -4403,6 +4572,301 @@ export const zoneVerifier = [
     ],
     outputs: [{ type: 'bool' }],
   },
+] as const
+
+export const fundingPolicy = [
+  {
+    type: 'function',
+    name: 'createPolicy',
+    inputs: [
+      { name: 'admins', type: 'address[]', internalType: 'address[]' },
+      {
+        name: 'rules',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'getPolicy',
+    inputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    outputs: [
+      {
+        name: 'policy',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Policy',
+        components: [
+          { name: 'admins', type: 'address[]', internalType: 'address[]' },
+          { name: 'rulesHash', type: 'bytes32', internalType: 'bytes32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'policyExists',
+    inputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'policyIdCounter',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint64', internalType: 'uint64' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'setAdmins',
+    inputs: [
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      { name: 'admins', type: 'address[]', internalType: 'address[]' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setRules',
+    inputs: [
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      {
+        name: 'rules',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'PolicyAdminsUpdated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'admins',
+        type: 'address[]',
+        indexed: false,
+        internalType: 'address[]',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PolicyCreated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'rulesHash',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'rules',
+        type: 'tuple',
+        indexed: false,
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PolicyRulesUpdated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'rulesHash',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'rules',
+        type: 'tuple',
+        indexed: false,
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'InvalidPolicy', inputs: [] },
+  { type: 'error', name: 'InvalidPolicyData', inputs: [] },
+  { type: 'error', name: 'PolicyNotFound', inputs: [] },
+  {
+    type: 'error',
+    name: 'TokenNotAllowed',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'Unauthorized', inputs: [] },
+] as const
+
+export const fundingDiscovery = [
+  {
+    type: 'function',
+    name: 'discover',
+    inputs: [
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      { name: 'account', type: 'address', internalType: 'address' },
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'policyRules', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        internalType: 'struct IFundingDiscovery.Discovery',
+        components: [
+          { name: 'token', type: 'address', internalType: 'address' },
+          { name: 'amount', type: 'uint256', internalType: 'uint256' },
+          { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'sources',
+            type: 'tuple[]',
+            internalType: 'struct IFundingDiscovery.Source[]',
+            components: [
+              { name: 'target', type: 'address', internalType: 'address' },
+              { name: 'data', type: 'bytes', internalType: 'bytes' },
+              {
+                name: 'availableAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'error',
+    name: 'InvalidCandidate',
+    inputs: [{ name: 'source', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'InvalidSlippage', inputs: [] },
 ] as const
 
 // Source: tempoxyz/earn@d6373e4939ec2bbf5dcccffd5f2519ff4a62d6b1
@@ -8603,6 +9067,9 @@ export const core = [
   ...currentCommittee,
   ...feeAmm,
   ...feeManager,
+  ...fundingDiscovery,
+  ...fundingPolicy,
+  ...fundingSource,
   ...nativeMultisig,
   ...nonce,
   ...receivePolicyGuard,
@@ -8612,6 +9079,7 @@ export const core = [
   ...tip20,
   ...tip20ChannelReserve,
   ...tip20Factory,
+  ...tip20Funder,
   ...tip403Registry,
   ...validatorConfig,
   ...validatorConfigV2,
