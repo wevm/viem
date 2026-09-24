@@ -26,14 +26,13 @@ returns the oracle price and observation time that you pass to the swap.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import * as Hex from 'ox/Hex'
+import { parseUnits, stringToHex } from 'viem'
 import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6), // Use the base token's decimals.
   baseToQuote: true,
-  customerId: Hex.fromString('customer-route', { size: 32 }),
+  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
   recipient: client.account.address,
@@ -56,14 +55,13 @@ transaction. The sender must hold the input tokens.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import * as Hex from 'ox/Hex'
+import { parseUnits, stringToHex, toHex } from 'viem'
 import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6),
   baseToQuote: true,
-  customerId: Hex.fromString('customer-route', { size: 32 }),
+  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
   recipient: client.account.address,
@@ -72,7 +70,7 @@ const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
 const trade = await client.propAmm.swapSync({ // [!code focus]
   amountIn: parseUnits('1', 6),
   baseToQuote: true,
-  customerId: Hex.fromString('customer-route', { size: 32 }),
+  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
   expectedOraclePrice: price,
@@ -80,7 +78,7 @@ const trade = await client.propAmm.swapSync({ // [!code focus]
   minimumOracleUpdatedAt: updatedAt,
   pool: '0x...',
   recipient: client.account.address,
-  tradeId: Hex.random(32),
+  tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
 })
 console.log(trade.amountOut, trade.receipt.transactionHash)
 ```
