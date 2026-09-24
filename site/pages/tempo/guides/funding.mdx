@@ -102,12 +102,14 @@ import { client } from './viem.config'
 const discovery = await client.funding.discover({
   account: client.account.address,
   amount: parseUnits('50', 6),
-  maxSlippageBps: 100,
-  sources: {
-    [Addresses.pathUsd]: [{
-      to: Addresses.dexFundingSource,
-      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-    }],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [{
+        to: Addresses.dexFundingSource,
+        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+      }],
+    },
   },
   token: Addresses.pathUsd,
 })

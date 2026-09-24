@@ -15,12 +15,14 @@ import { client } from './viem.config'
 const discovery = await client.funding.discover({
   account: client.account.address,
   amount: 50_000_000n,
-  maxSlippageBps: 100,
-  sources: {
-    [Addresses.pathUsd]: [{
-      to: Addresses.dexFundingSource,
-      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-    }],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [{
+        to: Addresses.dexFundingSource,
+        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+      }],
+    },
   },
   token: Addresses.pathUsd,
 })
@@ -70,23 +72,11 @@ Target output balance in token base units.
 
 Funding policy ID whose current commitment must match the supplied rules. Omit it to discover without reading a stored policy.
 
-### rules (optional)
+### rules
 
-- **Type:** `Hex`
+- **Type:** `Hex | FundingPolicy.Rules`
 
-Canonical ABI-encoded rules. Supply either `rules` or both `maxSlippageBps` and `sources`. When `policyId` is supplied, the rules must match the policy's current hash.
-
-### maxSlippageBps
-
-- **Type:** `number`
-
-Maximum aggregate slippage in basis points. Required when `rules` is omitted.
-
-### sources
-
-- **Type:** `FundingPolicy.Rules['sources']`
-
-Ordered source permissions keyed by output token. Required when `rules` is omitted.
+Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. When `policyId` is supplied, the rules must match the policy's current hash.
 
 ### token
 

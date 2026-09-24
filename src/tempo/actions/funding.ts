@@ -559,12 +559,14 @@ export namespace setPolicyAdminsSync {
  * const discovery = await Actions.funding.discover(client, {
  *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
  *   amount: 50_000_000n,
- *   maxSlippageBps: 100,
- *   sources: {
- *     [Addresses.pathUsd]: [{
- *       to: Addresses.dexFundingSource,
- *       data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
- *     }],
+ *   rules: {
+ *     maxSlippageBps: 100,
+ *     sources: {
+ *       [Addresses.pathUsd]: [{
+ *         to: Addresses.dexFundingSource,
+ *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+ *       }],
+ *     },
  *   },
  *   token: Addresses.pathUsd,
  * })
@@ -584,20 +586,9 @@ export async function discover<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: discover.Parameters,
 ): Promise<discover.ReturnValue> {
-  const {
-    account,
-    amount,
-    policyId,
-    rules: _rules,
-    maxSlippageBps: _maxSlippageBps,
-    sources: _sources,
-    token,
-    ...rest
-  } = parameters
+  const { account, amount, policyId, rules, token, ...rest } = parameters
   const encodedRules =
-    parameters.rules === undefined
-      ? FundingPolicy.encode(parameters)
-      : parameters.rules
+    typeof rules === 'string' ? rules : FundingPolicy.encode(rules)
   const { sources, ...discovery } =
     policyId === undefined
       ? await readContract(client, {
@@ -631,17 +622,11 @@ export namespace discover {
     amount: bigint
     /** Optional policy ID whose commitment must match the supplied rules. */
     policyId?: bigint | undefined
+    /** Decoded or canonical ABI-encoded rules used to select sources and slippage. */
+    rules: Hex | FundingPolicy.Rules
     /** Required output token. */
     token: Address
-  } & (
-    | {
-        /** Canonical ABI-encoded rules used to select sources and slippage. */
-        rules: Hex
-        maxSlippageBps?: undefined
-        sources?: undefined
-      }
-    | (FundingPolicy.Rules & { rules?: undefined })
-  )
+  }
   export type Parameters = ReadParameters & Args
   export type ReturnValue = {
     /** Requested output token. */
@@ -670,7 +655,9 @@ export namespace discover {
    */
   export function call(args: Args) {
     const rules =
-      args.rules === undefined ? FundingPolicy.encode(args) : args.rules
+      typeof args.rules === 'string'
+        ? args.rules
+        : FundingPolicy.encode(args.rules)
     if (args.policyId === undefined) {
       const parameters = [args.account, args.token, args.amount, rules] as const
       return defineCall({

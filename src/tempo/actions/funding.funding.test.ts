@@ -62,7 +62,7 @@ describe('discover', () => {
         account: account.address,
         token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
-        ...rules,
+        rules,
       })
       expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
       expect(discovery.sources).toHaveLength(1)

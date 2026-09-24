@@ -24,7 +24,7 @@ describe('discover.call', () => {
         token: Addresses.pathUsd,
       } as const
 
-      expect(discover.call({ ...parameters, ...rules }).data).toBe(
+      expect(discover.call({ ...parameters, rules }).data).toBe(
         discover.call({ ...parameters, rules: FundingPolicy.encode(rules) })
           .data,
       )
