@@ -1,6 +1,5 @@
-import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   call,
@@ -47,10 +46,6 @@ beforeAll(async () => {
     type: 'buy',
     tick: 0,
   })
-})
-
-afterAll(async () => {
-  await fetch(`${rpcUrl}/stop`)
 })
 
 describe('sendTransactionSync', () => {
