@@ -35,7 +35,7 @@ const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   baseToQuote: true,
   customerId: Hex.fromString('customer-route', { size: 32 }),
   mode: 'exactInput',
-  pool: '0x...' as `0x${string}`,
+  pool: '0x...',
   recipient: client.account.address,
 })
 console.log(amountOut, price, updatedAt)
@@ -65,7 +65,7 @@ const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   baseToQuote: true,
   customerId: Hex.fromString('customer-route', { size: 32 }),
   mode: 'exactInput',
-  pool: '0x...' as `0x${string}`,
+  pool: '0x...',
   recipient: client.account.address,
 })
 
@@ -78,7 +78,7 @@ const trade = await client.propAmm.swapSync({ // [!code focus]
   expectedOraclePrice: price,
   minAmountOut: amountOut,
   minimumOracleUpdatedAt: updatedAt,
-  pool: '0x...' as `0x${string}`,
+  pool: '0x...',
   recipient: client.account.address,
   tradeId: Hex.random(32),
 })
