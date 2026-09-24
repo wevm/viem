@@ -2646,7 +2646,7 @@ type DecoratorBase<
   }
   funding: {
     /**
-     * Finds available funding sources from source configurations or verified policy rules. Discovery does not reserve funds.
+     * Finds available funding sources from source configurations or verified policy rules. Defaults to the client account; discovery does not reserve funds.
      *
      * @example
      * ```ts
@@ -2658,7 +2658,7 @@ type DecoratorBase<
      * @returns A funding requirement with ordered sources and advisory available amounts.
      */
     discover: (
-      parameters: fundingActions.discover.Parameters,
+      parameters: fundingActions.discover.Parameters<account>,
     ) => Promise<fundingActions.discover.ReturnValue>
 
     /**

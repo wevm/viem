@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import { FundingPolicy, type FundingSource } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
@@ -8,17 +9,23 @@ import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
+import type { UnionOmit } from '../../types/utils.js'
 import { getAbiItem } from '../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import { fundingErrors } from '../internal/fundingErrors.js'
-import type { ReadParameters, WriteParameters } from '../internal/types.js'
+import type {
+  GetAccountParameter,
+  ReadParameters,
+  WriteParameters,
+} from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
@@ -573,7 +580,7 @@ export namespace setPolicyAdminsSync {
 
 /**
  * Finds available funding sources from source configurations or verified policy rules.
- * Discovery reserves no funds and does not guarantee execution-time availability.
+ * Defaults to the client account. Discovery reserves no funds and does not guarantee execution-time availability.
  *
  * @example
  * ```ts
@@ -598,11 +605,16 @@ export namespace setPolicyAdminsSync {
  * @param parameters - Account, output token, amount, and source configurations or policy rules.
  * @returns A funding requirement with ordered sources and their currently available amounts.
  */
-export async function discover<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: discover.Parameters,
+export async function discover<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: discover.Parameters<account>,
 ): Promise<discover.ReturnValue> {
-  const { policyId, rules } = parameters
+  const { account: account_ = client.account, policyId, rules } = parameters
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_).address
   const discovery =
     policyId === undefined
       ? await readContract(client, {
@@ -611,7 +623,7 @@ export async function discover<chain extends Chain | undefined>(
           address: Addresses.fundingDiscovery,
           functionName: 'discover',
           args: [
-            parameters.account,
+            account,
             parameters.token,
             parameters.amount,
             parameters.slippageBps,
@@ -624,7 +636,7 @@ export async function discover<chain extends Chain | undefined>(
           address: Addresses.fundingDiscovery,
           functionName: 'discover',
           args: [
-            parameters.account,
+            account,
             parameters.token,
             parameters.amount,
             policyId,
@@ -667,7 +679,11 @@ export namespace discover {
         sources?: undefined
       }
   )
-  export type Parameters = ReadParameters & Args
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = Omit<ReadParameters, 'account'> &
+    UnionOmit<Args, 'account'> &
+    GetAccountParameter<account, Account | Address>
   export type ReturnValue = {
     /** Requested output token. */
     token: Address

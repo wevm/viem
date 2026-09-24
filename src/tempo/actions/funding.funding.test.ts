@@ -53,8 +53,7 @@ describe('discover', () => {
           ).policyId
         : undefined
 
-      const discovery = await actions.funding.discover(client, {
-        account: account.address,
+      const discovery = await actions.funding.discover(getClient({ account }), {
         amount: parseUnits('50', 6),
         token: Addresses.pathUsd,
         ...(policyId === undefined
@@ -71,6 +70,21 @@ describe('discover', () => {
         isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
       ).toBe(true)
       expect(discovery.sources[0]?.availableAmount).toBeGreaterThan(0n)
+      const overridden = await actions.funding.discover(
+        getClient({ account }),
+        {
+          account: Account.fromSecp256k1(generatePrivateKey()),
+          amount: parseUnits('50', 6),
+          token: Addresses.pathUsd,
+          ...(policyId === undefined
+            ? {
+                slippageBps: 100,
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              }
+            : { policyId, rules }),
+        },
+      )
+      expect(overridden.sources).toEqual([])
 
       const receipt = await sendTransactionSync(client, {
         account,

@@ -14,7 +14,6 @@ import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const discovery = await client.funding.discover({
-  account: client.account.address,
   amount: parseUnits('50', 6),
   slippageBps: 100,
   sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
@@ -45,7 +44,6 @@ import { Addresses } from 'viem/tempo'
 import { client } from './viem.config'
 
 const discovery = await client.funding.discover({
-  account: client.account.address,
   amount: parseUnits('50', 6),
   policyId, // [!code focus]
   rules, // [!code focus]
@@ -72,11 +70,12 @@ type ReturnType = {
 
 ## Parameters
 
-### account
+### account (optional)
 
-- **Type:** `Address`
+- **Type:** `Account | Address`
+- **Default:** `client.account`
 
-Account whose inputs are inspected.
+Account whose inputs are inspected. Required when the client has no account. An explicit account overrides the client account.
 
 ### amount
 

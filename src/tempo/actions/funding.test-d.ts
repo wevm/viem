@@ -1,3 +1,5 @@
+import { createClient, http } from 'viem'
+import { tempoActions } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import * as Addresses from '../Addresses.js'
 import type { FundingRequirement } from '../index.js'
@@ -43,4 +45,29 @@ test('discover', () => {
     sources: [],
     token: Addresses.pathUsd,
   })
+})
+
+test('discover account inference', () => {
+  const parameters = {
+    amount: 1n,
+    slippageBps: 0,
+    sources: [],
+    token: Addresses.pathUsd,
+  } as const
+  const client = createClient({
+    account: '0x0000000000000000000000000000000000000001',
+    transport: http('http://localhost:9546'),
+  }).extend(tempoActions())
+  discover(client, parameters)
+  client.funding.discover(parameters)
+  discover(client, { ...parameters, account: client.account })
+
+  const publicClient = createClient({
+    transport: http('http://localhost:9546'),
+  }).extend(tempoActions())
+  discover(publicClient, { ...parameters, account: client.account.address })
+  // @ts-expect-error An account is required without a client account.
+  discover(publicClient, parameters)
+  // @ts-expect-error The decorator also requires an account without a client account.
+  publicClient.funding.discover(parameters)
 })

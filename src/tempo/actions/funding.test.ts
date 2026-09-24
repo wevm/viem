@@ -1,4 +1,5 @@
 import { FundingPolicy } from 'ox/tempo'
+import { createClient, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import * as Abis from '../Abis.js'
@@ -98,5 +99,23 @@ describe('setPolicyRules.call', () => {
       functionName: 'setRules',
       args: [1n, { maxSlippageBps: 100, routes: [] }],
     })
+  })
+})
+
+describe('discover', () => {
+  test('rejects a missing account', async () => {
+    await expect(
+      discover(createClient({ transport: http('http://localhost:9546') }), {
+        amount: 1n,
+        slippageBps: 0,
+        sources: [],
+        token: Addresses.pathUsd,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+      Version: viem@2.56.8]
+    `)
   })
 })
