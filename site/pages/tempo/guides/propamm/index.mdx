@@ -1,0 +1,31 @@
+---
+description: Quote and swap a fixed token pair through an approved PropAMM pool on Tempo.
+---
+
+import { Card, Cards } from 'vocs'
+
+# PropAMM
+
+## Overview
+
+A PropAMM pool swaps one fixed base and quote token pair at an oracle-bound price. The pool must
+allow the transaction sender and the resolved recipient. You supply the pool address and a customer
+ID for each trade. Unlike the Stablecoin Exchange, a PropAMM swap sends the output directly to the
+recipient's wallet.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Swap with a PropAMM Pool"
+    description="Quote a trade, check access, and swap with approval in one transaction."
+    to="/tempo/guides/propamm/swap"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="PropAMM Actions"
+    description="Read pool state and use the quote and swap actions."
+    to="/tempo/actions/propAmm"
+  />
+</Cards>

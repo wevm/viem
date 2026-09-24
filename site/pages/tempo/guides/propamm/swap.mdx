@@ -1,0 +1,133 @@
+---
+description: Quote and swap a fixed token pair through a PropAMM pool, with approval batched into the transaction.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Swap with a PropAMM Pool
+
+## Overview
+
+A PropAMM pool exchanges a fixed pair at an oracle-bound price for approved takers and recipients.
+Supply the pool address explicitly. The swap pulls input tokens from the transaction sender, so the
+sender must hold them. The swap action approves the pool in the same transaction.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) and have an approved caller,
+recipient, and nonzero customer ID.
+
+### Quote a Swap
+
+Use [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) to preview the output for an exact amount
+of the pool's base token. Use `baseToQuote: false` to send quote and receive base. The quote also
+returns the oracle price and observation time that you pass to the swap.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import * as Hex from 'ox/Hex'
+import { client } from './viem.config'
+
+const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+  amountIn: parseUnits('1', 6), // Use the base token's decimals.
+  baseToQuote: true,
+  customerId: Hex.fromString('customer-route', { size: 32 }),
+  mode: 'exactInput',
+  pool: '0x...' as `0x${string}`,
+  recipient: client.account.address,
+})
+console.log(amountOut, price, updatedAt)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Swap an Exact Input
+
+Get a fresh quote, then use its output, oracle price, and observation time with
+[`swapSync`](/tempo/actions/propAmm.swapSync). The action approves the pool and swaps in one Tempo
+transaction. The sender must hold the input tokens.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import * as Hex from 'ox/Hex'
+import { client } from './viem.config'
+
+const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+  amountIn: parseUnits('1', 6),
+  baseToQuote: true,
+  customerId: Hex.fromString('customer-route', { size: 32 }),
+  mode: 'exactInput',
+  pool: '0x...' as `0x${string}`,
+  recipient: client.account.address,
+})
+
+const trade = await client.propAmm.swapSync({ // [!code focus]
+  amountIn: parseUnits('1', 6),
+  baseToQuote: true,
+  customerId: Hex.fromString('customer-route', { size: 32 }),
+  mode: 'exactInput',
+  deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
+  expectedOraclePrice: price,
+  minAmountOut: amountOut,
+  minimumOracleUpdatedAt: updatedAt,
+  pool: '0x...' as `0x${string}`,
+  recipient: client.account.address,
+  tradeId: Hex.random(32),
+})
+console.log(trade.amountOut, trade.receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Swap for an Exact Output
+
+For an exact output, call [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) with
+`mode: 'exactOutput'`, then call [`swap`](/tempo/actions/propAmm.swap) or
+[`swapSync`](/tempo/actions/propAmm.swapSync) with `amountOut` and `maxAmountIn`. The action approves
+`maxAmountIn` and submits the swap in one transaction. The `.call` builder defines only the swap
+call, so add an approval when assembling a batch manually.
+
+If an exact-output swap spends less than `maxAmountIn`, the unused allowance remains on the input token.
+
+## Best Practices
+
+### Check Access and Inventory
+
+Check `takerAllowed` for the transaction sender. Resolve the destination with `resolveRecipient`
+before checking `recipientAllowed`. The pool must hold enough output tokens, and the sender must
+hold enough input tokens. Quotes do not reserve inventory, so simulate close to submission.
+
+### Bind the Oracle and Price Limit
+
+Pass the quote's oracle price and observation time into the swap. Choose `oraclePriceToleranceBps`,
+`minAmountOut`, or `maxAmountIn` according to the execution policy. A stale oracle, changed price,
+expired deadline, paused pool, or changed permissions can revert the swap after the quote.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:square-function"
+    title="PropAMM Actions"
+    description="The full PropAMM action reference."
+    to="/tempo/actions/propAmm"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Stablecoin Exchange"
+    description="Trade stablecoins through Tempo's enshrined exchange."
+    to="/tempo/guides/stablecoin-exchange"
+  />
+</Cards>

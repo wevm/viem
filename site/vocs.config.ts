@@ -2252,10 +2252,6 @@ export default defineConfig({
                   text: 'Sponsor User Fees',
                   link: '/tempo/guides/sponsor-fees',
                 },
-                {
-                  text: 'Swap with a propAMM Pool',
-                  link: '/tempo/guides/propamm-swap',
-                },
               ],
             },
             {
@@ -2349,6 +2345,20 @@ export default defineConfig({
                 {
                   text: 'Provide Fee AMM Liquidity',
                   link: '/tempo/guides/stablecoin-exchange/fee-amm-liquidity',
+                },
+              ],
+            },
+            {
+              text: 'PropAMM',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/propamm',
+                },
+                {
+                  text: 'Swap with a PropAMM Pool',
+                  link: '/tempo/guides/propamm/swap',
                 },
               ],
             },
