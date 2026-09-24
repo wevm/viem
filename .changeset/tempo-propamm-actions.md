@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added PropAMM actions.
+`viem/tempo`: Added PropAMM actions.
