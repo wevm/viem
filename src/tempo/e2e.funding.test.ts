@@ -21,7 +21,7 @@ import {
 import * as Transaction from './Transaction.js'
 
 const client = getClient()
-const source = Addresses.nativeDexFundingSource
+const source = Addresses.dexFundingSource
 const recipient = '0x8888888888888888888888888888888888888888' as const
 
 beforeAll(async () => {

@@ -28,7 +28,7 @@ describe('formatTransactionRequest', () => {
       FundingRequirement.toRpc(requirement),
     ])
     expect(formatted.requireFunds?.[0]?.sources[0]).toEqual({
-      target: Addresses.nativeDexFundingSource,
+      target: Addresses.dexFundingSource,
       data: requirement.sources[0]?.data,
     })
   })

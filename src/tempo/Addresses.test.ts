@@ -21,7 +21,7 @@ test('funding addresses', () => {
   expect(Addresses.tip20Funder).toBe(
     '0x1120000000000000000000000000000000000000',
   )
-  expect(Addresses.nativeDexFundingSource).toBe(
+  expect(Addresses.dexFundingSource).toBe(
     '0x1120000000000000000000000000000000000001',
   )
   expect(Addresses.fundingPolicy).toBe(

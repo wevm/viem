@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@492639758d54b83ddd68f4a4b7a67e5c51221c0e
+// Source: tempoxyz/tempo@427c6d43f8d2c1269b571bc26c5f23c493046568
 
 export const accountKeychain = [
   {
@@ -4831,7 +4831,44 @@ export const fundingDiscovery = [
       { name: 'account', type: 'address', internalType: 'address' },
       { name: 'token', type: 'address', internalType: 'address' },
       { name: 'amount', type: 'uint256', internalType: 'uint256' },
-      { name: 'policyRules', type: 'bytes', internalType: 'bytes' },
+      { name: 'rules', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        internalType: 'struct IFundingDiscovery.Discovery',
+        components: [
+          { name: 'token', type: 'address', internalType: 'address' },
+          { name: 'amount', type: 'uint256', internalType: 'uint256' },
+          { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'sources',
+            type: 'tuple[]',
+            internalType: 'struct IFundingDiscovery.Source[]',
+            components: [
+              { name: 'target', type: 'address', internalType: 'address' },
+              { name: 'data', type: 'bytes', internalType: 'bytes' },
+              {
+                name: 'availableAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'discover',
+    inputs: [
+      { name: 'account', type: 'address', internalType: 'address' },
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'rules', type: 'bytes', internalType: 'bytes' },
     ],
     outputs: [
       {

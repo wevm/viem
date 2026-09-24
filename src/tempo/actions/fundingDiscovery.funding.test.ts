@@ -13,7 +13,7 @@ const rules = {
   sources: {
     [Addresses.pathUsd]: [
       {
-        target: Addresses.nativeDexFundingSource,
+        target: Addresses.dexFundingSource,
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       },
     ],
@@ -37,52 +37,56 @@ beforeAll(async () => {
 })
 
 describe('discover', () => {
-  test('finds a source and uses it to fund a payment', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-    await actions.token.mintSync(client, {
-      account: accounts[0],
-      token: Addresses.alphaUsd,
-      to: account.address,
-      amount: parseUnits('100', 6),
-    })
-    const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
-      account: accounts[0],
-      admins: [accounts[0].address],
-      rules,
-    })
+  test.each([false, true])(
+    'funds a payment (stored policy: %s)',
+    async (storedPolicy) => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+      await actions.token.mintSync(client, {
+        account: accounts[0],
+        token: Addresses.alphaUsd,
+        to: account.address,
+        amount: parseUnits('100', 6),
+      })
+      const policyId = storedPolicy
+        ? (
+            await actions.fundingPolicy.createPolicySync(client, {
+              account: accounts[0],
+              admins: [accounts[0].address],
+              rules,
+            })
+          ).policyId
+        : undefined
 
-    const discovery = await actions.fundingDiscovery.discover(client, {
-      policyId,
-      account: account.address,
-      token: Addresses.pathUsd,
-      amount: parseUnits('50', 6),
-      policyRules: FundingPolicy.encode(rules),
-    })
-    expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
-    expect(discovery.sources).toHaveLength(1)
-    expect(
-      isAddressEqual(
-        discovery.sources[0]!.to,
-        Addresses.nativeDexFundingSource,
-      ),
-    ).toBe(true)
-    expect(discovery.sources[0]?.availableAmount).toBeGreaterThan(0n)
+      const discovery = await actions.fundingDiscovery.discover(client, {
+        policyId,
+        account: account.address,
+        token: Addresses.pathUsd,
+        amount: parseUnits('50', 6),
+        rules: FundingPolicy.encode(rules),
+      })
+      expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
+      expect(discovery.sources).toHaveLength(1)
+      expect(
+        isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
+      ).toBe(true)
+      expect(discovery.sources[0]?.availableAmount).toBeGreaterThan(0n)
 
-    const receipt = await sendTransactionSync(client, {
-      account,
-      feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
-      requireFunds: [discovery],
-      calls: [
-        actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-    })
-    expect(receipt.status).toBe('success')
-  })
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: accounts[1],
+        feeToken: Addresses.pathUsd,
+        requireFunds: [discovery],
+        calls: [
+          actions.token.transfer.call({
+            token: Addresses.pathUsd,
+            to: recipient,
+            amount: parseUnits('50', 6),
+          }),
+        ],
+      })
+      expect(receipt.status).toBe('success')
+    },
+  )
 
   test('returns no candidates when inputs are unavailable or the target is covered', async () => {
     const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
@@ -95,7 +99,7 @@ describe('discover', () => {
       account: Account.fromSecp256k1(generatePrivateKey()).address,
       token: Addresses.pathUsd,
       amount: parseUnits('50', 6),
-      policyRules: FundingPolicy.encode(rules),
+      rules: FundingPolicy.encode(rules),
     })
     expect(unfunded.sources).toEqual([])
 
@@ -104,7 +108,7 @@ describe('discover', () => {
       account: accounts[0].address,
       token: Addresses.pathUsd,
       amount: parseUnits('1', 6),
-      policyRules: FundingPolicy.encode(rules),
+      rules: FundingPolicy.encode(rules),
     })
     expect(covered.sources).toEqual([])
   })
@@ -121,7 +125,7 @@ describe('discover', () => {
         account: accounts[0].address,
         token: Addresses.betaUsd,
         amount: parseUnits('50', 6),
-        policyRules: FundingPolicy.encode(rules),
+        rules: FundingPolicy.encode(rules),
       }),
     ).rejects.toThrow()
   })
@@ -143,7 +147,30 @@ describe('discover', () => {
         account: accounts[0].address,
         token: Addresses.pathUsd,
         amount: parseUnits('1', 6),
-        policyRules: FundingPolicy.encode(rules),
+        rules: FundingPolicy.encode(rules),
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('rejects a missing policy instead of using rules-only discovery', async () => {
+    await expect(
+      actions.fundingDiscovery.discover(client, {
+        account: accounts[0].address,
+        amount: parseUnits('1', 6),
+        policyId: 0n,
+        rules: FundingPolicy.encode(rules),
+        token: Addresses.pathUsd,
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('rejects malformed rules without a stored policy', async () => {
+    await expect(
+      actions.fundingDiscovery.discover(client, {
+        account: accounts[0].address,
+        amount: parseUnits('1', 6),
+        rules: '0x1234',
+        token: Addresses.pathUsd,
       }),
     ).rejects.toThrow()
   })
@@ -165,7 +192,7 @@ describe('discover', () => {
       account: accounts[0].address,
       token: Addresses.pathUsd,
       amount: parseUnits('1', 6),
-      policyRules: FundingPolicy.encode(invalidRules),
+      rules: FundingPolicy.encode(invalidRules),
     })
     expect(discovery.sources).toEqual([])
   })

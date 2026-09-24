@@ -16,11 +16,10 @@ export const alphaUsd = '0x20c0000000000000000000000000000000000001'
 export const betaUsd = '0x20c0000000000000000000000000000000000002'
 /** Current consensus committee precompile address, used with `Abis.currentCommittee` to read committee members. */
 export const currentCommittee = '0xC077e00000000000000000000000000000000000'
+export const dexFundingSource = '0x1120000000000000000000000000000000000001'
 export const feeManager = '0xfeec000000000000000000000000000000000000'
 export const fundingDiscovery = '0x1120000000000000000000000000000000000003'
 export const fundingPolicy = '0x1120000000000000000000000000000000000002'
-export const nativeDexFundingSource =
-  '0x1120000000000000000000000000000000000001'
 export const nativeMultisig = '0xAACC000000000000000000000000000000000000'
 /** Temporary recovery factory until the production address is finalized. */
 export const nativeMultisigFactory =

@@ -34,7 +34,7 @@ import type { TransactionReceipt } from '../Transaction.js'
  *     maxSlippageBps: 100,
  *     sources: {
  *       [Addresses.pathUsd]: [{
- *         target: Addresses.nativeDexFundingSource,
+ *         target: Addresses.dexFundingSource,
  *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
  *       }],
  *     },

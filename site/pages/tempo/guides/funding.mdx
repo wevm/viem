@@ -88,9 +88,9 @@ await client.token.transferSync({
 
 `token.transfer` (without `from`), `token.burn`, and `dex.sell` infer the spent token and exact amount. Their `Sync` variants do the same. Other actions, including `earn.deposit`, need explicit `token` and `amount`; either field can always be supplied to override an inferred value.
 
-### Discover Funds with a Policy
+### Discover Funds
 
-A funding policy commits to allowed routes without storing the full rules. Retain the rules returned by `createPolicySync` or `setRulesSync`, or retrieve them from their events. Pass the complete encoded rules to [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover); the precompile checks them against the current policy hash.
+Use [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover) with rules describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
 
 :::code-group
 
@@ -99,25 +99,18 @@ import { parseUnits } from 'viem'
 import { Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const rules = {
-  maxSlippageBps: 100,
-  sources: {
-    [Addresses.pathUsd]: [{
-      target: Addresses.nativeDexFundingSource,
-      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-    }],
-  },
-} as const
-
-const { policyId } = await client.fundingPolicy.createPolicySync({
-  admins: [client.account.address],
-  rules,
-})
 const discovery = await client.fundingDiscovery.discover({
   account: client.account.address,
   amount: parseUnits('50', 6),
-  policyId,
-  policyRules: FundingPolicy.encode(rules),
+  rules: FundingPolicy.encode({
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [{
+        target: Addresses.dexFundingSource,
+        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+      }],
+    },
+  }),
   token: Addresses.pathUsd,
 })
 
@@ -134,7 +127,9 @@ await client.token.transferSync({
 ```
 :::
 
-Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is omitted from transaction encoding. If an administrator changes the policy rules, fetch the new rules before discovering again.
+Supply `policyId` to also verify the rules against a stored policy's current hash. Obtain those rules from creation or update events, or an indexer. Access key transactions still require matching `policyRules` regardless of how discovery was called.
+
+Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is omitted from transaction encoding.
 
 ## Best Practices
 

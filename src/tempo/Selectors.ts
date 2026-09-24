@@ -330,8 +330,15 @@ export const fundingPolicy = {
 } as const satisfies FunctionSelectors<typeof Abis.fundingPolicy>
 
 export const fundingDiscovery = {
-  discover: '0x3cdf692f',
-} as const satisfies FunctionSelectors<typeof Abis.fundingDiscovery>
+  discover: {
+    'discover(address,address,uint256,bytes)': '0xc2524450',
+    'discover(uint64,address,address,uint256,bytes)': '0x3cdf692f',
+  },
+} as const satisfies FunctionSelectors<
+  typeof Abis.fundingDiscovery,
+  'discover'
+> &
+  OverloadedFunctionSelectors<'discover'>
 
 export const zonePortal = {
   FIXED_DEPOSIT_GAS: '0xf706cfbf',

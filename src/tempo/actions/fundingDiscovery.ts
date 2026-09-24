@@ -5,13 +5,14 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
+import { getAbiItem } from '../../utils/abi/getAbiItem.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
 /**
- * Finds available funding sources permitted by a funding policy.
+ * Finds available funding sources using supplied rules and an optional funding policy.
  * Discovery reserves no funds and does not guarantee execution-time availability.
  *
  * @example
@@ -21,12 +22,11 @@ import { defineCall } from '../internal/utils.js'
  * const discovery = await Actions.fundingDiscovery.discover(client, {
  *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
  *   amount: 50_000_000n,
- *   policyId: 1n,
- *   policyRules: FundingPolicy.encode({
+ *   rules: FundingPolicy.encode({
  *     maxSlippageBps: 100,
  *     sources: {
  *       [Addresses.pathUsd]: [{
- *         target: Addresses.nativeDexFundingSource,
+ *         target: Addresses.dexFundingSource,
  *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
  *       }],
  *     },
@@ -42,18 +42,30 @@ import { defineCall } from '../internal/utils.js'
  * ```
  *
  * @param client - Client.
- * @param parameters - Policy, account, output token, amount, and encoded rules.
+ * @param parameters - Account, output token, amount, encoded rules, and optional policy ID.
  * @returns A funding requirement with ordered sources and their currently available amounts.
  */
 export async function discover<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: discover.Parameters,
 ): Promise<discover.ReturnValue> {
-  const { account, amount, policyId, policyRules, token, ...rest } = parameters
-  const { sources, ...discovery } = await readContract(client, {
-    ...rest,
-    ...discover.call({ account, amount, policyId, policyRules, token }),
-  })
+  const { account, amount, policyId, rules, token, ...rest } = parameters
+  const { sources, ...discovery } =
+    policyId === undefined
+      ? await readContract(client, {
+          ...rest,
+          address: Addresses.fundingDiscovery,
+          abi: Abis.fundingDiscovery,
+          functionName: 'discover',
+          args: [account, token, amount, rules],
+        })
+      : await readContract(client, {
+          ...rest,
+          address: Addresses.fundingDiscovery,
+          abi: Abis.fundingDiscovery,
+          functionName: 'discover',
+          args: [policyId, account, token, amount, rules],
+        })
   return {
     ...discovery,
     sources: sources.map(({ target, ...source }) => ({
@@ -69,10 +81,10 @@ export namespace discover {
     account: Address
     /** Requested output balance in token base units. */
     amount: bigint
-    /** Selected funding policy ID. */
-    policyId: bigint
-    /** ABI-encoded rules matching the policy's current commitment. */
-    policyRules: Hex
+    /** Optional policy ID whose commitment must match the supplied rules. */
+    policyId?: bigint | undefined
+    /** Canonical ABI-encoded rules used to select sources and slippage. */
+    rules: Hex
     /** Required output token. */
     token: Address
   }
@@ -82,7 +94,7 @@ export namespace discover {
     token: Address
     /** Target balance in token base units. */
     amount: bigint
-    /** Maximum aggregate slippage from the policy. */
+    /** Maximum aggregate slippage from the supplied rules. */
     slippageBps: number
     /** Ordered sources usable directly in an owner-authorized funding requirement. */
     sources: readonly {
@@ -97,23 +109,50 @@ export namespace discover {
   export type ErrorType = BaseErrorType
 
   /**
-   * Defines the `discover` call with complete ABI-encoded policy rules.
+   * Defines the `discover` call, checking a stored policy only when its ID is supplied.
    *
-   * @param args - Policy, account, token, amount, and encoded rules.
+   * @param args - Account, token, amount, encoded rules, and optional policy ID.
    * @returns The contract call.
    */
   export function call(args: Args) {
-    return defineCall({
-      address: Addresses.fundingDiscovery,
-      abi: Abis.fundingDiscovery,
-      functionName: 'discover',
-      args: [
-        args.policyId,
+    if (args.policyId === undefined) {
+      const parameters = [
         args.account,
         args.token,
         args.amount,
-        args.policyRules,
+        args.rules,
+      ] as const
+      return defineCall({
+        address: Addresses.fundingDiscovery,
+        abi: [
+          getAbiItem({
+            abi: Abis.fundingDiscovery,
+            name: 'discover',
+            args: parameters,
+          }),
+        ],
+        functionName: 'discover',
+        args: parameters,
+      })
+    }
+    const parameters = [
+      args.policyId,
+      args.account,
+      args.token,
+      args.amount,
+      args.rules,
+    ] as const
+    return defineCall({
+      address: Addresses.fundingDiscovery,
+      abi: [
+        getAbiItem({
+          abi: Abis.fundingDiscovery,
+          name: 'discover',
+          args: parameters,
+        }),
       ],
+      functionName: 'discover',
+      args: parameters,
     })
   }
 }
