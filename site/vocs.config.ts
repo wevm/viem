@@ -2814,7 +2814,6 @@ export default defineConfig({
               text: 'PropAMM',
               collapsed: true,
               items: [
-                { text: 'Overview', link: '/tempo/actions/propAmm' },
                 { text: 'baseToken', link: '/tempo/actions/propAmm.baseToken' },
                 {
                   text: 'getSwapQuote',
