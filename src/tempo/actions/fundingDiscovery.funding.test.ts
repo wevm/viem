@@ -62,7 +62,7 @@ describe('discover', () => {
     expect(discovery.sources).toHaveLength(1)
     expect(
       isAddressEqual(
-        discovery.sources[0]!.target,
+        discovery.sources[0]!.to,
         Addresses.nativeDexFundingSource,
       ),
     ).toBe(true)
@@ -72,17 +72,7 @@ describe('discover', () => {
       account,
       feePayer: accounts[1],
       feeToken: Addresses.pathUsd,
-      requireFunds: [
-        {
-          token: Addresses.pathUsd,
-          amount: parseUnits('50', 6),
-          slippageBps: 100,
-          sources: discovery.sources.map(({ target, data }) => ({
-            to: target,
-            data,
-          })),
-        },
-      ],
+      requireFunds: [discovery],
       calls: [
         actions.token.transfer.call({
           token: Addresses.pathUsd,

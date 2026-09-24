@@ -121,8 +121,12 @@ const discovery = await client.fundingDiscovery.discover({
   token: Addresses.pathUsd,
 })
 
-const sources = discovery.sources.map(({ target, data }) => ({ to: target, data }))
-// Use `sources` in a transaction's `requireFunds` entry.
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [discovery],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
 ```
 
 ```ts [viem.config.ts]
@@ -130,7 +134,7 @@ const sources = discovery.sources.map(({ target, data }) => ({ to: target, data 
 ```
 :::
 
-Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is not part of a transaction source. If an administrator changes the policy rules, fetch the new rules before discovering again.
+Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is omitted from transaction encoding. If an administrator changes the policy rules, fetch the new rules before discovering again.
 
 ## Best Practices
 

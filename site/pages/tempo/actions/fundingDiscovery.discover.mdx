@@ -27,7 +27,7 @@ const discovery = await client.fundingDiscovery.discover({
   }),
   token: Addresses.pathUsd,
 })
-// @log: { token: '0x...', amount: 50000000n, sources: [{ target: '0x...', data: '0x...', availableAmount: 50000000n }] }
+// @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -36,7 +36,7 @@ const discovery = await client.fundingDiscovery.discover({
 
 :::
 
-Pass each selected candidate's `target` and `data` to a transaction source as `to` and `data`. Do not send `availableAmount` as an execution field.
+For owner-authorized funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
 
 ## Return Type
 
@@ -46,7 +46,7 @@ type ReturnType = {
   amount: bigint
   slippageBps: number
   sources: {
-    target: Address
+    to: Address
     data: Hex
     availableAmount: bigint
   }[]

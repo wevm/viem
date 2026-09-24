@@ -2639,7 +2639,7 @@ type DecoratorBase<
      * })
      * ```
      * @param parameters - Policy, account, token, amount, and full encoded rules.
-     * @returns Ordered candidates and their available amounts.
+     * @returns A funding requirement with ordered sources and advisory available amounts.
      */
     discover: (
       parameters: fundingDiscoveryActions.discover.Parameters,

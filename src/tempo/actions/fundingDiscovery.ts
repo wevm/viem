@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -34,22 +33,34 @@ import { defineCall } from '../internal/utils.js'
  *   }),
  *   token: Addresses.pathUsd,
  * })
- * const sources = discovery.sources.map(({ target, data }) => ({ to: target, data }))
+ * await Actions.token.transferSync(client, {
+ *   amount: 50_000_000n,
+ *   requireFunds: [discovery],
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   token: Addresses.pathUsd,
+ * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Policy, account, output token, amount, and encoded rules.
- * @returns The ordered candidates and their currently available amounts.
+ * @returns A funding requirement with ordered sources and their currently available amounts.
  */
 export async function discover<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: discover.Parameters,
 ): Promise<discover.ReturnValue> {
   const { account, amount, policyId, policyRules, token, ...rest } = parameters
-  return readContract(client, {
+  const { sources, ...discovery } = await readContract(client, {
     ...rest,
     ...discover.call({ account, amount, policyId, policyRules, token }),
   })
+  return {
+    ...discovery,
+    sources: sources.map(({ target, ...source }) => ({
+      ...source,
+      to: target,
+    })),
+  }
 }
 
 export namespace discover {
@@ -66,11 +77,23 @@ export namespace discover {
     token: Address
   }
   export type Parameters = ReadParameters & Args
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.fundingDiscovery,
-    'discover',
-    never
-  >
+  export type ReturnValue = {
+    /** Requested output token. */
+    token: Address
+    /** Target balance in token base units. */
+    amount: bigint
+    /** Maximum aggregate slippage from the policy. */
+    slippageBps: number
+    /** Ordered sources usable directly in an owner-authorized funding requirement. */
+    sources: readonly {
+      /** Funding source address. */
+      to: Address
+      /** Source-specific request data. */
+      data: Hex
+      /** Advisory available output in token base units. */
+      availableAmount: bigint
+    }[]
+  }
   export type ErrorType = BaseErrorType
 
   /**
