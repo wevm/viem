@@ -13,7 +13,7 @@ const rules = {
   sources: {
     [Addresses.pathUsd]: [
       {
-        target: Addresses.dexFundingSource,
+        to: Addresses.dexFundingSource,
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       },
     ],
@@ -179,7 +179,7 @@ describe('discover', () => {
     const invalidRules = {
       maxSlippageBps: 100,
       sources: {
-        [Addresses.pathUsd]: [{ target: recipient, data: '0x' }],
+        [Addresses.pathUsd]: [{ to: recipient, data: '0x' }],
       },
     } as const
     const { policyId } = await actions.fundingPolicy.createPolicySync(client, {

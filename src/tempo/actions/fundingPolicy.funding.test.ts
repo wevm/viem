@@ -9,7 +9,7 @@ const rules = {
   sources: {
     [Addresses.pathUsd]: [
       {
-        target: Addresses.dexFundingSource,
+        to: Addresses.dexFundingSource,
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       },
     ],

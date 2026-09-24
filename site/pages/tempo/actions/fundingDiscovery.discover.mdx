@@ -19,7 +19,7 @@ const discovery = await client.fundingDiscovery.discover({
     maxSlippageBps: 100,
     sources: {
       [Addresses.pathUsd]: [{
-        target: Addresses.dexFundingSource,
+        to: Addresses.dexFundingSource,
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       }],
     },

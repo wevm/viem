@@ -13,7 +13,7 @@ describe('discover.call', () => {
         maxSlippageBps: 100,
         sources: {
           [Addresses.pathUsd]: [
-            { target: Addresses.dexFundingSource, data: '0x1234' },
+            { to: Addresses.dexFundingSource, data: '0x1234' },
           ],
         },
       } as const
