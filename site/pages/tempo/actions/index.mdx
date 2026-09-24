@@ -54,6 +54,15 @@
 | [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets the user's default fee token preference |
 | [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the user's default fee token preference |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
+| **Funding Discovery Actions** | |
+| [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover) | Finds available sources permitted by a funding policy |
+| **Funding Policy Actions** | |
+| [`fundingPolicy.createPolicy`](/tempo/actions/fundingPolicy.createPolicy) | Creates a policy and commits its rules |
+| [`fundingPolicy.getPolicy`](/tempo/actions/fundingPolicy.getPolicy) | Gets policy administrators and the current rules hash |
+| [`fundingPolicy.policyExists`](/tempo/actions/fundingPolicy.policyExists) | Checks whether a policy exists |
+| [`fundingPolicy.policyIdCounter`](/tempo/actions/fundingPolicy.policyIdCounter) | Gets the next policy ID |
+| [`fundingPolicy.setAdmins`](/tempo/actions/fundingPolicy.setAdmins) | Replaces policy administrators |
+| [`fundingPolicy.setRules`](/tempo/actions/fundingPolicy.setRules) | Replaces policy rules |
 | **Multisig Actions** | |
 | [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
 | [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |

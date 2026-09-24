@@ -2821,6 +2821,46 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Funding Discovery',
+              collapsed: true,
+              items: [
+                {
+                  text: 'discover',
+                  link: '/tempo/actions/fundingDiscovery.discover',
+                },
+              ],
+            },
+            {
+              text: 'Funding Policy',
+              collapsed: true,
+              items: [
+                {
+                  text: 'createPolicy',
+                  link: '/tempo/actions/fundingPolicy.createPolicy',
+                },
+                {
+                  text: 'getPolicy',
+                  link: '/tempo/actions/fundingPolicy.getPolicy',
+                },
+                {
+                  text: 'policyExists',
+                  link: '/tempo/actions/fundingPolicy.policyExists',
+                },
+                {
+                  text: 'policyIdCounter',
+                  link: '/tempo/actions/fundingPolicy.policyIdCounter',
+                },
+                {
+                  text: 'setAdmins',
+                  link: '/tempo/actions/fundingPolicy.setAdmins',
+                },
+                {
+                  text: 'setRules',
+                  link: '/tempo/actions/fundingPolicy.setRules',
+                },
+              ],
+            },
+            {
               text: 'Nonce',
               collapsed: true,
               items: [

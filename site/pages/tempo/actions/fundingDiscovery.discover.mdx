@@ -1,0 +1,88 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fundingDiscovery.discover`
+
+Finds currently available funding routes allowed by a policy. Discovery reserves no funds, so a later transaction can still fail if balances or liquidity change.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await client.fundingDiscovery.discover({
+  account: client.account.address,
+  amount: 50_000_000n,
+  policyId: 1n,
+  policyRules: FundingPolicy.encode({
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [{
+        target: Addresses.nativeDexFundingSource,
+        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+      }],
+    },
+  }),
+  token: Addresses.pathUsd,
+})
+// @log: { token: '0x...', amount: 50000000n, sources: [{ target: '0x...', data: '0x...', availableAmount: 50000000n }] }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Pass each selected candidate's `target` and `data` to a transaction source as `to` and `data`. Do not send `availableAmount` as an execution field.
+
+## Return Type
+
+```ts
+type ReturnType = {
+  token: Address
+  amount: bigint
+  slippageBps: number
+  sources: {
+    target: Address
+    data: Hex
+    availableAmount: bigint
+  }[]
+}
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account whose inputs are inspected.
+
+### amount
+
+- **Type:** `bigint`
+
+Target output balance in token base units.
+
+### policyId
+
+- **Type:** `bigint`
+
+Funding policy ID.
+
+### policyRules
+
+- **Type:** `Hex`
+
+Complete ABI-encoded rules matching the current policy hash. A hash alone does not identify source routes.
+
+### token
+
+- **Type:** `Address`
+
+Required output token.
+
+<ReadAccountParameters />

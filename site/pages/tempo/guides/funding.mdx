@@ -88,6 +88,50 @@ await client.token.transferSync({
 
 `token.transfer` (without `from`), `token.burn`, and `dex.sell` infer the spent token and exact amount. Their `Sync` variants do the same. Other actions, including `earn.deposit`, need explicit `token` and `amount`; either field can always be supplied to override an inferred value.
 
+### Discover Funds with a Policy
+
+A funding policy commits to allowed routes without storing the full rules. Retain the rules returned by `createPolicySync` or `setRulesSync`, or retrieve them from their events. Pass the complete encoded rules to [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover); the precompile checks them against the current policy hash.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const rules = {
+  maxSlippageBps: 100,
+  sources: {
+    [Addresses.pathUsd]: [{
+      target: Addresses.nativeDexFundingSource,
+      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+    }],
+  },
+} as const
+
+const { policyId } = await client.fundingPolicy.createPolicySync({
+  admins: [client.account.address],
+  rules,
+})
+const discovery = await client.fundingDiscovery.discover({
+  account: client.account.address,
+  amount: parseUnits('50', 6),
+  policyId,
+  policyRules: FundingPolicy.encode(rules),
+  token: Addresses.pathUsd,
+})
+
+const sources = discovery.sources.map(({ target, data }) => ({ to: target, data }))
+// Use `sources` in a transaction's `requireFunds` entry.
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is not part of a transaction source. If an administrator changes the policy rules, fetch the new rules before discovering again.
+
 ## Best Practices
 
 - Requirements specify target balances, not additional amounts. Repeated token entries are processed in order.

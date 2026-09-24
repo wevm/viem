@@ -2,11 +2,8 @@
 "viem": patch
 ---
 
-Added owner-authorized Tempo funding requirements, native DEX source helpers, and inferred targets for exact-spend actions.
+Added owner-authorized Tempo funding, native DEX source helpers, exact-spend inference, and funding policy management and discovery actions.
 
 ```ts
-await client.sendTransaction({
-  requireFunds: [{ token, amount: 50_000_000n, sources }],
-  calls: [payment],
-})
+const policy = await client.fundingPolicy.getPolicy({ policyId: 1n })
 ```

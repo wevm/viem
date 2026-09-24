@@ -1,0 +1,34 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fundingPolicy.policyIdCounter`
+
+Gets the next funding policy ID. The next successful creation consumes this ID.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nextPolicyId = await client.fundingPolicy.policyIdCounter()
+// @log: 1n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+## Parameters
+
+The parameters object is optional.
+
+<ReadAccountParameters />
