@@ -13,7 +13,7 @@ Quotes the input or output amount for a specific propAMM caller, recipient, and 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const [amountOut, oraclePrice, oracleUpdatedAt, creditAfter] = await client.propAmm.getSwapQuote({
+const { amountOut, price, updatedAt, creditAfter } = await client.propAmm.getSwapQuote({
   amountIn: 1_000_000n,
   baseToQuote: true,
   customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
@@ -21,7 +21,7 @@ const [amountOut, oraclePrice, oracleUpdatedAt, creditAfter] = await client.prop
   pool: '0x0000000000000000000000000000000000000002',
   recipient: '0x0000000000000000000000000000000000000001',
 })
-// @log: [amountOut, oraclePrice, oracleUpdatedAt, creditAfter]
+// @log: { amountOut, price, updatedAt, creditAfter }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,15 +33,14 @@ const [amountOut, oraclePrice, oracleUpdatedAt, creditAfter] = await client.prop
 ## Return Value
 
 ```ts
-type ReturnValue = readonly [
-  amount: bigint,
-  oraclePrice: bigint,
-  oracleUpdatedAt: bigint,
-  creditAfter: bigint,
-]
+type ReturnValue = {
+  price: bigint
+  updatedAt: bigint
+  creditAfter: bigint
+} & ({ amountOut: bigint } | { amountIn: bigint })
 ```
 
-For exact input, `amount` is the quoted output. For exact output, it is the required input. The other values bind the oracle observation and report the route's remaining rounding credit.
+Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit.
 
 ## Parameters
 

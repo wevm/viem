@@ -3046,7 +3046,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
-     * const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+     * const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
      *   amountIn: 1_000_000n,
      *   baseToQuote: true,
      *   customerId: '0x...',
@@ -3060,9 +3060,11 @@ type DecoratorBase<
      * @param parameters - Route, swap mode, amount, and read options.
      * @returns Quoted counteramount, oracle price, observation time, and rounding credit.
      */
-    getSwapQuote: (
-      parameters: propAmmActions.getSwapQuote.Parameters,
-    ) => Promise<propAmmActions.getSwapQuote.ReturnValue>
+    getSwapQuote: <
+      const parameters extends propAmmActions.getSwapQuote.Parameters,
+    >(
+      parameters: parameters,
+    ) => Promise<propAmmActions.getSwapQuote.ReturnValue<parameters>>
     /**
      * Reads whether a propAMM pool is paused.
      *

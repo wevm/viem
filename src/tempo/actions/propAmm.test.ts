@@ -140,22 +140,22 @@ describe('getSwapQuote', () => {
       baseToQuote: true,
       customerId: routeA,
       deadline: (await getBlock(client)).timestamp + 120n,
-      expectedOraclePrice: initialA[1],
-      minAmountOut: initialA[0],
-      minimumOracleUpdatedAt: initialA[2],
+      expectedOraclePrice: initialA.price,
+      minAmountOut: initialA.amountOut,
+      minimumOracleUpdatedAt: initialA.updatedAt,
       mode: 'exactInput',
       pool: stack.pool,
       recipient: recipient.address,
       tradeId: Hex.random(32),
     })
     expect(await quote(routeB)).toEqual(initialB)
-    expect((await quote(routeA))[3]).not.toBe(initialB[3])
+    expect((await quote(routeA)).creditAfter).not.toBe(initialB.creditAfter)
   })
 })
 
 describe('swap', () => {
   test('approves quote input and returns the swap hash', async () => {
-    const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn: parseUnits('1', 6),
       baseToQuote: false,
       customerId,
@@ -218,15 +218,18 @@ describe('swap', () => {
       }),
     ).toThrow('Expected one TradeExecuted event')
 
-    const [amountIn, buyPrice, buyUpdatedAt] =
-      await client.propAmm.getSwapQuote({
-        amountOut: parseUnits('1', 6),
-        baseToQuote: true,
-        customerId,
-        mode: 'exactOutput',
-        pool: stack.pool,
-        recipient: recipient.address,
-      })
+    const {
+      amountIn,
+      price: buyPrice,
+      updatedAt: buyUpdatedAt,
+    } = await client.propAmm.getSwapQuote({
+      amountOut: parseUnits('1', 6),
+      baseToQuote: true,
+      customerId,
+      mode: 'exactOutput',
+      pool: stack.pool,
+      recipient: recipient.address,
+    })
     const trade = await client.propAmm.swapSync({
       amountOut: parseUnits('1', 6),
       baseToQuote: true,
@@ -244,7 +247,7 @@ describe('swap', () => {
   })
 
   test('rejects unapproved callers, expired deadlines, and unavailable output', async () => {
-    const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn: 1_000_000n,
       baseToQuote: true,
       mode: 'exactInput',
@@ -316,7 +319,7 @@ describe('swap', () => {
   })
 
   test('rejects paused pools and stale oracle observations', async () => {
-    const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn: 1_000_000n,
       baseToQuote: true,
       customerId,
@@ -370,7 +373,7 @@ describe('swap', () => {
   })
 
   test('enforces input allowance and exact-output maximum spend', async () => {
-    const [amountIn, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountIn, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountOut: 1_000_000n,
       baseToQuote: true,
       customerId,
@@ -424,7 +427,7 @@ describe('swap', () => {
 
   test('batches approval and swap in one transaction', async () => {
     const amountIn = 1_000_000n
-    const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn,
       baseToQuote: true,
       customerId,
@@ -497,7 +500,7 @@ describe('swap', () => {
 describe('swapSync', () => {
   test('quotes, simulates, approves, and sells base for quote', async () => {
     const amountIn = parseUnits('2', 6)
-    const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+    const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
       amountIn,
       baseToQuote: true,
       mode: 'exactInput',
@@ -553,7 +556,7 @@ describe('swapSync', () => {
 
   test('quotes and buys an exact amount of base', async () => {
     const amountOut = parseUnits('1', 6)
-    const [amountIn, price, updatedAt] = await Actions.propAmm.getSwapQuote(
+    const { amountIn, price, updatedAt } = await Actions.propAmm.getSwapQuote(
       client,
       {
         amountOut,

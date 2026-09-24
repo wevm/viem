@@ -30,7 +30,7 @@ import { parseUnits } from 'viem'
 import * as Hex from 'ox/Hex'
 import { client } from './viem.config'
 
-const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6), // Use the base token's decimals.
   baseToQuote: true,
   customerId: Hex.fromString('customer-route', { size: 32 }),
@@ -60,7 +60,7 @@ import { parseUnits } from 'viem'
 import * as Hex from 'ox/Hex'
 import { client } from './viem.config'
 
-const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6),
   baseToQuote: true,
   customerId: Hex.fromString('customer-route', { size: 32 }),

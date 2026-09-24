@@ -283,7 +283,7 @@ export namespace resolveRecipient {
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  * const client = createClient({ chain: tempo, transport: http() })
- * const [amountOut, price, updatedAt] = await Actions.propAmm.getSwapQuote(client, {
+ * const { amountOut, price, updatedAt } = await Actions.propAmm.getSwapQuote(client, {
  *   pool: '0x...', taker: '0x...', recipient: '0x...', customerId: '0x...',
  *   mode: 'exactInput', baseToQuote: true, amountIn: 1_000_000n,
  * })
@@ -292,17 +292,34 @@ export namespace resolveRecipient {
  * @param parameters - Route, swap mode, amount, and read options. Taker defaults to the read or client account.
  * @returns Quoted counteramount, oracle price, observation time, and remaining rounding credit.
  */
-export async function getSwapQuote<chain extends Chain | undefined>(
+export async function getSwapQuote<
+  chain extends Chain | undefined,
+  const parameters extends getSwapQuote.Parameters,
+>(
   client: Client<Transport, chain>,
+  parameters: parameters,
+): Promise<getSwapQuote.ReturnValue<parameters>>
+export async function getSwapQuote(
+  client: Client,
   parameters: getSwapQuote.Parameters,
 ): Promise<getSwapQuote.ReturnValue> {
   const account = parameters.account ?? client.account
   const taker = parameters.taker ?? (account && parseAccount(account).address)
   if (!taker) throw new Error('A taker or client account is required to quote.')
-  return readContract(client, {
+  const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
     ...parameters,
     ...getSwapQuote.call({ ...parameters, taker }),
-  } as never) as Promise<getSwapQuote.ReturnValue>
+  } as never) as Promise<
+    ReadContractReturnType<typeof Abis.directPropAmm, 'quoteExactInputFor'>
+  >)
+  return {
+    ...(parameters.mode === 'exactInput'
+      ? { amountOut: amount }
+      : { amountIn: amount }),
+    price,
+    updatedAt,
+    creditAfter,
+  }
 }
 
 export namespace getSwapQuote {
@@ -331,9 +348,18 @@ export namespace getSwapQuote {
       /** Address that will call the swap. Defaults to the read account or client account. */
       taker?: Address | undefined
     }
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.directPropAmm,
-    'quoteExactInputFor'
+  /** Quoted amount, oracle observation, and remaining rounding credit. */
+  export type ReturnValue<parameters extends Parameters = Parameters> = Compute<
+    {
+      /** Oracle price used for the quote. */
+      price: bigint
+      /** Oracle observation timestamp. */
+      updatedAt: bigint
+      /** Route's remaining rounding credit. */
+      creditAfter: bigint
+    } & (parameters extends { mode: 'exactInput' }
+      ? { /** Quoted output amount in token base units. */ amountOut: bigint }
+      : { /** Required input amount in token base units. */ amountIn: bigint })
   >
 
   /** Defines a route-aware quote call. */

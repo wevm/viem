@@ -39,7 +39,44 @@ test('pool reads and quotes preserve their public types', async () => {
       ...route,
       amountIn: 1n,
     }),
-  ).toEqualTypeOf<readonly [bigint, bigint, bigint, bigint]>()
+  ).toEqualTypeOf<{
+    amountOut: bigint
+    price: bigint
+    updatedAt: bigint
+    creditAfter: bigint
+  }>()
+  expectTypeOf(
+    await client.propAmm.getSwapQuote({
+      ...route,
+      mode: 'exactOutput',
+      amountOut: 1n,
+    }),
+  ).toEqualTypeOf<{
+    amountIn: bigint
+    price: bigint
+    updatedAt: bigint
+    creditAfter: bigint
+  }>()
+  expectTypeOf(
+    await propAmm.getSwapQuote(client, { ...route, amountIn: 1n }),
+  ).toEqualTypeOf<{
+    amountOut: bigint
+    price: bigint
+    updatedAt: bigint
+    creditAfter: bigint
+  }>()
+  expectTypeOf(
+    await propAmm.getSwapQuote(client, {
+      ...route,
+      mode: 'exactOutput',
+      amountOut: 1n,
+    }),
+  ).toEqualTypeOf<{
+    amountIn: bigint
+    price: bigint
+    updatedAt: bigint
+    creditAfter: bigint
+  }>()
   expectTypeOf(
     propAmm.getSwapQuote.call({
       ...route,

@@ -5,7 +5,7 @@
 Added propAMM pool reads, route-aware quotes, and exact-input and exact-output swaps with batched input approvals to `viem/tempo`.
 
 ```ts
-const [amountOut, price, updatedAt] = await client.propAmm.getSwapQuote({
+const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn,
   baseToQuote: true,
   customerId,
