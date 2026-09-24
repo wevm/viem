@@ -2349,20 +2349,6 @@ export default defineConfig({
               ],
             },
             {
-              text: 'PropAMM',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/guides/propamm',
-                },
-                {
-                  text: 'Swap with a PropAMM Pool',
-                  link: '/tempo/guides/propamm/swap',
-                },
-              ],
-            },
-            {
               text: 'Earn',
               collapsed: true,
               items: [
@@ -2474,6 +2460,21 @@ export default defineConfig({
                 {
                   text: 'Withdraw from a Zone',
                   link: '/tempo/guides/zones/withdraw',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'PropAMM',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/propamm',
+                },
+                {
+                  text: 'Swap with a PropAMM Pool',
+                  link: '/tempo/guides/propamm/swap',
                 },
               ],
             },
@@ -2809,6 +2810,37 @@ export default defineConfig({
               ],
             },
             {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'PropAMM',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/actions/propAmm' },
+                { text: 'baseToken', link: '/tempo/actions/propAmm.baseToken' },
+                {
+                  text: 'getSwapQuote',
+                  link: '/tempo/actions/propAmm.getSwapQuote',
+                },
+                { text: 'paused', link: '/tempo/actions/propAmm.paused' },
+                {
+                  text: 'quoteToken',
+                  link: '/tempo/actions/propAmm.quoteToken',
+                },
+                {
+                  text: 'recipientAllowed',
+                  link: '/tempo/actions/propAmm.recipientAllowed',
+                },
+                {
+                  text: 'resolveRecipient',
+                  link: '/tempo/actions/propAmm.resolveRecipient',
+                },
+                { text: 'swap', link: '/tempo/actions/propAmm.swap' },
+                {
+                  text: 'takerAllowed',
+                  link: '/tempo/actions/propAmm.takerAllowed',
+                },
+              ],
+            },
+            {
               text: 'Multisig',
               collapsed: true,
               items: [
@@ -3073,36 +3105,6 @@ export default defineConfig({
                 {
                   text: 'withdraw',
                   link: '/tempo/actions/dex.withdraw',
-                },
-              ],
-            },
-            {
-              text: 'PropAMM',
-              collapsed: true,
-              items: [
-                { text: 'Overview', link: '/tempo/actions/propAmm' },
-                { text: 'baseToken', link: '/tempo/actions/propAmm.baseToken' },
-                {
-                  text: 'getSwapQuote',
-                  link: '/tempo/actions/propAmm.getSwapQuote',
-                },
-                { text: 'paused', link: '/tempo/actions/propAmm.paused' },
-                {
-                  text: 'quoteToken',
-                  link: '/tempo/actions/propAmm.quoteToken',
-                },
-                {
-                  text: 'recipientAllowed',
-                  link: '/tempo/actions/propAmm.recipientAllowed',
-                },
-                {
-                  text: 'resolveRecipient',
-                  link: '/tempo/actions/propAmm.resolveRecipient',
-                },
-                { text: 'swap', link: '/tempo/actions/propAmm.swap' },
-                {
-                  text: 'takerAllowed',
-                  link: '/tempo/actions/propAmm.takerAllowed',
                 },
               ],
             },
