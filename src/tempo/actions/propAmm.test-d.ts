@@ -4,6 +4,7 @@ import { tempoModerato } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { decorator } from '../Decorator.js'
+import type { TransactionReceipt } from '../Transaction.js'
 import * as propAmm from './propAmm.js'
 
 const client = createClient({
@@ -95,6 +96,21 @@ test('pool reads and quotes preserve their public types', async () => {
       taker: client.account.address,
     }).functionName,
   ).toEqualTypeOf<'quoteExactOutputFor'>()
+  expectTypeOf(
+    client.propAmm.getSwapQuote.call({
+      ...route,
+      amountIn: 1n,
+      taker: client.account.address,
+    }).functionName,
+  ).toEqualTypeOf<'quoteExactInputFor'>()
+  expectTypeOf(
+    client.propAmm.getSwapQuote.call({
+      ...route,
+      mode: 'exactOutput',
+      amountOut: 1n,
+      taker: client.account.address,
+    }).functionName,
+  ).toEqualTypeOf<'quoteExactOutputFor'>()
 })
 
 test('swap builders compose with standalone and decorated actions', async () => {
@@ -112,7 +128,22 @@ test('swap builders compose with standalone and decorated actions', async () => 
   expectTypeOf(
     propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n }).functionName,
   ).toEqualTypeOf<'swapExactInput'>()
+  expectTypeOf(
+    client.propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n })
+      .functionName,
+  ).toEqualTypeOf<'swapExactInput'>()
+  await client.propAmm.swap.simulate({
+    ...options,
+    blockTag: 'latest',
+    validation: true,
+  })
+  await propAmm.swap.simulate(client, {
+    ...options,
+    // @ts-expect-error Transaction gas is not a batch simulation option.
+    gas: 1n,
+  })
   const trade = await client.propAmm.swapSync(options)
+  expectTypeOf(trade.receipt).toEqualTypeOf<TransactionReceipt>()
   expectTypeOf(trade.amountOut).toEqualTypeOf<bigint>()
   expectTypeOf(trade.receipt.transactionHash).toEqualTypeOf<Hash>()
 })

@@ -38,6 +38,8 @@ The action reads the input token from the pool and batches its approval with the
 
 Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
 
+Simulation accepts `blockNumber`, `blockTag`, `stateOverrides`, `traceTransfers`, and `validation` options; transaction options such as `gas` are only supported by `estimateGas`.
+
 ### Asynchronous Usage
 
 The example above uses `swapSync`, which waits for the transaction to be included and returns the

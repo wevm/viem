@@ -16,14 +16,13 @@ import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
-import type { TransactionReceipt } from '../../types/transaction.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
-import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
+import type { TransactionReceipt } from '../Transaction.js'
 import * as simulateActions from './simulate.js'
 import * as tokenActions from './token.js'
 
@@ -721,10 +720,7 @@ export namespace swap {
   async function getCalls<
     chain extends Chain | undefined,
     account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ) {
+  >(client: Client<Transport, chain, account>, parameters: InputArgs) {
     const tokenIn = await (parameters.baseToQuote
       ? baseToken(client, { pool: parameters.pool })
       : quoteToken(client, { pool: parameters.pool }))
@@ -769,7 +765,7 @@ export namespace swap {
    * Simulates the approval and swap calls without submitting a transaction.
    *
    * @param client - Client.
-   * @param parameters - Swap and transaction options.
+   * @param parameters - Swap and simulation options.
    * @returns The approval and swap simulation results.
    */
   export async function simulate<
@@ -777,12 +773,30 @@ export namespace swap {
     account extends Account | undefined,
   >(
     client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
+    parameters: simulate.Parameters,
   ) {
+    const {
+      blockNumber,
+      blockTag,
+      stateOverrides,
+      traceTransfers,
+      validation,
+    } = parameters
     return simulateActions.simulateCalls(client, {
       account: parameters.account ?? client.account,
+      blockNumber,
+      blockTag,
       calls: await getCalls(client, parameters),
+      stateOverrides,
+      traceTransfers,
+      validation,
     })
+  }
+
+  export namespace simulate {
+    /** Swap inputs and batch simulation options. */
+    export type Parameters = InputArgs &
+      Omit<simulateActions.simulateCalls.Parameters, 'calls'>
   }
 
   /**
@@ -870,7 +884,7 @@ export async function swapSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  if ((receipt as TempoTransactionReceipt).status === 'pending')
+  if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
   const { args } = swap.extractEvent(receipt.logs, parameters)
   return { ...args, receipt } as never

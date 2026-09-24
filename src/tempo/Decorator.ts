@@ -6008,9 +6008,7 @@ type BoundHelper<helper> = helper extends (
     ? (args: args) => returnType
     : parameters extends [Client<any, any, any>]
       ? () => returnType
-      : parameters extends [infer args, ...unknown[]]
-        ? (args: args) => returnType
-        : () => returnType
+      : helper
   : never
 
 type BoundActionHelpers<action> = (action extends { call: infer helper }

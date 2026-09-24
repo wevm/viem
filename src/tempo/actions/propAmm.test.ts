@@ -191,6 +191,18 @@ describe('swap', () => {
       'success',
       'success',
     ])
+    const overridden = await client.propAmm.swap.simulate({
+      ...parameters,
+      stateOverrides: [{ address: stack.pool, code: '0x60006000fd' }],
+    })
+    expect(
+      overridden.results.map((result) => result.status),
+    ).toMatchInlineSnapshot(`
+      [
+        "success",
+        "failure",
+      ]
+    `)
     const hash = await client.propAmm.swap(parameters)
     const receipt = await waitForTransactionReceipt(client, { hash })
     expect(receipt.status).toBe('success')

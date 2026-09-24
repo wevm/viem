@@ -141,6 +141,11 @@ function propAmmAdapter(): SourceAdapter {
   }
 
   function validateCheckout(checkout: string) {
+    const status = execFileSync('git', ['status', '--porcelain'], {
+      cwd: checkout,
+      encoding: 'utf8',
+    }).trim()
+    if (status) throw new Error('The propAMM checkout must be clean.')
     const head = execFileSync('git', ['rev-parse', 'HEAD'], {
       cwd: checkout,
       encoding: 'utf8',
@@ -149,10 +154,14 @@ function propAmmAdapter(): SourceAdapter {
       throw new Error(
         `The propAMM checkout must be at ${commit}, received ${head}.`,
       )
-    const uninitialized = execFileSync('git', ['submodule', 'status'], {
-      cwd: checkout,
-      encoding: 'utf8',
-    })
+    const uninitialized = execFileSync(
+      'git',
+      ['submodule', 'status', '--recursive'],
+      {
+        cwd: checkout,
+        encoding: 'utf8',
+      },
+    )
       .split('\n')
       .some((line) => line.startsWith('-'))
     if (uninitialized)

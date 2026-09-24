@@ -37,6 +37,7 @@ describe('decorator', () => {
         "nonce",
         "fee",
         "policy",
+        "propAmm",
         "receivePolicy",
         "reward",
         "simulate",
