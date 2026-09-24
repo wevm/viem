@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { FundingPolicy } from 'ox/tempo'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -17,12 +18,12 @@ import { defineCall } from '../internal/utils.js'
  *
  * @example
  * ```ts
- * import { Actions, Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
+ * import { Actions, Addresses, FundingSource } from 'viem/tempo'
  *
  * const discovery = await Actions.fundingDiscovery.discover(client, {
  *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
  *   amount: 50_000_000n,
- *   rules: FundingPolicy.encode({
+ *   rules: {
  *     maxSlippageBps: 100,
  *     sources: {
  *       [Addresses.pathUsd]: [{
@@ -30,7 +31,7 @@ import { defineCall } from '../internal/utils.js'
  *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
  *       }],
  *     },
- *   }),
+ *   },
  *   token: Addresses.pathUsd,
  * })
  * await Actions.token.transferSync(client, {
@@ -42,7 +43,7 @@ import { defineCall } from '../internal/utils.js'
  * ```
  *
  * @param client - Client.
- * @param parameters - Account, output token, amount, encoded rules, and optional policy ID.
+ * @param parameters - Account, output token, amount, rules, and optional policy ID.
  * @returns A funding requirement with ordered sources and their currently available amounts.
  */
 export async function discover<chain extends Chain | undefined>(
@@ -50,6 +51,8 @@ export async function discover<chain extends Chain | undefined>(
   parameters: discover.Parameters,
 ): Promise<discover.ReturnValue> {
   const { account, amount, policyId, rules, token, ...rest } = parameters
+  const encodedRules =
+    typeof rules === 'string' ? rules : FundingPolicy.encode(rules)
   const { sources, ...discovery } =
     policyId === undefined
       ? await readContract(client, {
@@ -57,14 +60,14 @@ export async function discover<chain extends Chain | undefined>(
           address: Addresses.fundingDiscovery,
           abi: Abis.fundingDiscovery,
           functionName: 'discover',
-          args: [account, token, amount, rules],
+          args: [account, token, amount, encodedRules],
         })
       : await readContract(client, {
           ...rest,
           address: Addresses.fundingDiscovery,
           abi: Abis.fundingDiscovery,
           functionName: 'discover',
-          args: [policyId, account, token, amount, rules],
+          args: [policyId, account, token, amount, encodedRules],
         })
   return {
     ...discovery,
@@ -83,8 +86,8 @@ export namespace discover {
     amount: bigint
     /** Optional policy ID whose commitment must match the supplied rules. */
     policyId?: bigint | undefined
-    /** Canonical ABI-encoded rules used to select sources and slippage. */
-    rules: Hex
+    /** Decoded or canonical ABI-encoded rules used to select sources and slippage. */
+    rules: Hex | FundingPolicy.Rules
     /** Required output token. */
     token: Address
   }
@@ -111,17 +114,16 @@ export namespace discover {
   /**
    * Defines the `discover` call, checking a stored policy only when its ID is supplied.
    *
-   * @param args - Account, token, amount, encoded rules, and optional policy ID.
+   * @param args - Account, token, amount, rules, and optional policy ID.
    * @returns The contract call.
    */
   export function call(args: Args) {
+    const rules =
+      typeof args.rules === 'string'
+        ? args.rules
+        : FundingPolicy.encode(args.rules)
     if (args.policyId === undefined) {
-      const parameters = [
-        args.account,
-        args.token,
-        args.amount,
-        args.rules,
-      ] as const
+      const parameters = [args.account, args.token, args.amount, rules] as const
       return defineCall({
         address: Addresses.fundingDiscovery,
         abi: [
@@ -140,7 +142,7 @@ export namespace discover {
       args.account,
       args.token,
       args.amount,
-      args.rules,
+      rules,
     ] as const
     return defineCall({
       address: Addresses.fundingDiscovery,

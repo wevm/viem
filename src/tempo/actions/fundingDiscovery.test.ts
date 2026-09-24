@@ -1,3 +1,4 @@
+import { FundingPolicy } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import * as Abis from '../Abis.js'
@@ -5,6 +6,31 @@ import * as Addresses from '../Addresses.js'
 import { discover } from './fundingDiscovery.js'
 
 describe('discover.call', () => {
+  test.each([undefined, 1n])(
+    'encodes decoded rules (policy: %s)',
+    (policyId) => {
+      const rules = {
+        maxSlippageBps: 100,
+        sources: {
+          [Addresses.pathUsd]: [
+            { target: Addresses.dexFundingSource, data: '0x1234' },
+          ],
+        },
+      } as const
+      const parameters = {
+        account: '0x0000000000000000000000000000000000000001',
+        amount: 50_000_000n,
+        policyId,
+        token: Addresses.pathUsd,
+      } as const
+
+      expect(discover.call({ ...parameters, rules }).data).toBe(
+        discover.call({ ...parameters, rules: FundingPolicy.encode(rules) })
+          .data,
+      )
+    },
+  )
+
   test('discovers without a stored policy', () => {
     const call = discover.call({
       account: '0x0000000000000000000000000000000000000001',

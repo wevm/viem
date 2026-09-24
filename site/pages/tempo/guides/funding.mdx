@@ -96,13 +96,13 @@ Use [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover) with
 
 ```ts [example.ts]
 import { parseUnits } from 'viem'
-import { Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
+import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const discovery = await client.fundingDiscovery.discover({
   account: client.account.address,
   amount: parseUnits('50', 6),
-  rules: FundingPolicy.encode({
+  rules: {
     maxSlippageBps: 100,
     sources: {
       [Addresses.pathUsd]: [{
@@ -110,7 +110,7 @@ const discovery = await client.fundingDiscovery.discover({
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       }],
     },
-  }),
+  },
   token: Addresses.pathUsd,
 })
 

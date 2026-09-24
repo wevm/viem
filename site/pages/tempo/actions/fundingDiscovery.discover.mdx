@@ -9,13 +9,13 @@ Finds currently available funding routes using supplied rules. Optionally verifi
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Addresses, FundingPolicy, FundingSource } from 'viem/tempo'
+import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const discovery = await client.fundingDiscovery.discover({
   account: client.account.address,
   amount: 50_000_000n,
-  rules: FundingPolicy.encode({
+  rules: {
     maxSlippageBps: 100,
     sources: {
       [Addresses.pathUsd]: [{
@@ -23,7 +23,7 @@ const discovery = await client.fundingDiscovery.discover({
         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
       }],
     },
-  }),
+  },
   token: Addresses.pathUsd,
 })
 // @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
@@ -74,9 +74,9 @@ Funding policy ID whose current commitment must match the supplied rules. Omit i
 
 ### rules
 
-- **Type:** `Hex`
+- **Type:** `Hex | FundingPolicy.Rules`
 
-Complete canonical ABI-encoded rules specifying routes and maximum slippage. When `policyId` is supplied, the rules must match the policy's current hash.
+Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. When `policyId` is supplied, the rules must match the policy's current hash.
 
 ### token
 
