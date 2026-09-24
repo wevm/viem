@@ -196,6 +196,8 @@ type StartedZone = Zone & {
 export type DefineZoneParameters = {
   /** Existing factory to reuse for unique zone IDs. */
   factoryAddress?: `0x${string}` | undefined
+  /** Dev key for the factory owner and Zone sequencer. */
+  key?: `0x${string}` | undefined
 }
 
 export type ZoneInstance = {
@@ -269,7 +271,7 @@ async function startZone(
 
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      key: zoneAdminKey,
+      key: parameters.key ?? zoneAdminKey,
       token: pathUsd,
     },
     image,
