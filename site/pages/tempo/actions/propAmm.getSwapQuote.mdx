@@ -11,13 +11,12 @@ Quotes the input or output amount for a specific propAMM caller, recipient, and 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { amountOut, price, updatedAt, creditAfter } = await client.propAmm.getSwapQuote({
+const { amountOut, price, updatedAt, creditAfter, request } = await client.propAmm.getSwapQuote({
   amountIn: 1_000_000n,
-  customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
 })
-// @log: { amountOut, price, updatedAt, creditAfter }
+// @log: { amountOut, price, updatedAt, creditAfter, request }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,10 +32,11 @@ type ReturnType = {
   price: bigint
   updatedAt: bigint
   creditAfter: bigint
+  request: Actions.propAmm.getSwapQuote.ReturnValue['request']
 } & ({ amountOut: bigint } | { amountIn: bigint })
 ```
 
-Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit.
+Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit. Spread `request` into `swap` or `swapSync` and add `tradeId`. The request sets `minAmountOut` or `maxAmountIn` to the quoted amount, with zero oracle price tolerance.
 
 ## Parameters
 
@@ -62,8 +62,9 @@ Set `true` to send base and receive quote, or `false` to send quote and receive 
 ### customerId
 
 - **Type:** `Hex`
+- **Default:** The taker address left-padded to 32 bytes
 
-Nonzero 32-byte customer route identifier. Quotes account for this route's rounding credit.
+Nonzero 32-byte customer route identifier. Set an explicit value to separate customer routes that share a wallet. Quotes account for this route's rounding credit.
 
 ### mode
 

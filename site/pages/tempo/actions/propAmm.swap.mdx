@@ -13,7 +13,6 @@ import { client } from './viem.config'
 
 const { receipt } = await client.propAmm.swapSync({
   amountIn: 1_000_000n,
-  customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   expectedOraclePrice: 1_000_000_000_000_000_000n,
   minAmountOut: 1_000_000n,
   minimumOracleUpdatedAt: 1_799_999_000n,
@@ -31,7 +30,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `deadline`, `recipient`, and `oraclePriceToleranceBps` values.
+The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `customerId`, `deadline`, `recipient`, and `oraclePriceToleranceBps` values.
 
 Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
 
@@ -48,7 +47,6 @@ import { client } from './viem.config'
 
 const hash = await client.propAmm.swap({
   amountIn: 1_000_000n,
-  customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   expectedOraclePrice: 1_000_000_000_000_000_000n,
   minAmountOut: 1_000_000n,
   minimumOracleUpdatedAt: 1_799_999_000n,
@@ -103,8 +101,9 @@ Set `true` to send base and receive quote, or `false` to send quote and receive 
 ### customerId
 
 - **Type:** `Hex`
+- **Default:** The sender address left-padded to 32 bytes
 
-Nonzero 32-byte customer route identifier.
+Nonzero 32-byte customer route identifier. Set an explicit value to separate customer routes that share a wallet.
 
 ### deadline
 

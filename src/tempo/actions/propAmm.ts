@@ -20,6 +20,7 @@ import type { Hex } from '../../types/misc.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import { pad } from '../../utils/data/pad.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
@@ -367,7 +368,6 @@ export namespace resolveRecipient {
  *   pool: '0x...',
  *   taker: '0x...',
  *   recipient: '0x...',
- *   customerId: '0x...',
  *   mode: 'exactInput',
  *   amountIn: 1_000_000n,
  * })
@@ -375,7 +375,7 @@ export namespace resolveRecipient {
  *
  * @param client - Client.
  * @param parameters - Route, swap mode, amount, and read options. Taker defaults to the read or client account.
- * @returns Quoted counteramount, oracle price, observation time, and remaining rounding credit.
+ * @returns Quoted amount, oracle observation, rounding credit, and swap request.
  */
 export async function getSwapQuote<
   chain extends Chain | undefined,
@@ -394,24 +394,53 @@ export async function getSwapQuote(
   const recipient =
     parameters.recipient ?? (account && parseAccount(account).address)
   if (!recipient) throw new AccountNotFoundError()
+  const baseToQuote = parameters.baseToQuote ?? true
+  const customerId = parameters.customerId ?? pad(taker, { size: 32 })
   const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
     ...parameters,
     ...getSwapQuote.call({
       ...parameters,
-      baseToQuote: parameters.baseToQuote ?? true,
+      baseToQuote,
+      customerId,
       recipient,
       taker,
     }),
   } as never) as Promise<
     ReadContractReturnType<typeof Abis.directPropAmm, 'quoteExactInputFor'>
   >)
+  const request = {
+    baseToQuote,
+    customerId,
+    expectedOraclePrice: price,
+    minimumOracleUpdatedAt: updatedAt,
+    oraclePriceToleranceBps: 0n,
+    pool: parameters.pool,
+    recipient,
+  }
+  if (parameters.mode === 'exactInput')
+    return {
+      amountOut: amount,
+      price,
+      updatedAt,
+      creditAfter,
+      request: {
+        ...request,
+        amountIn: parameters.amountIn,
+        minAmountOut: amount,
+        mode: parameters.mode,
+      },
+    }
   return {
-    ...(parameters.mode === 'exactInput'
-      ? { amountOut: amount }
-      : { amountIn: amount }),
+    amountIn: amount,
     price,
     updatedAt,
     creditAfter,
+    request: {
+      ...request,
+      amountOut: parameters.amountOut,
+      maxAmountIn: amount,
+      mode: parameters.mode,
+    },
   }
 }
 
@@ -443,16 +472,18 @@ export namespace getSwapQuote {
   )
 
   export type Parameters = ReadParameters &
-    UnionOmit<Args, 'baseToQuote' | 'recipient' | 'taker'> & {
+    UnionOmit<Args, 'baseToQuote' | 'customerId' | 'recipient' | 'taker'> & {
       /** True sends base and receives quote. Defaults to true. */
       baseToQuote?: boolean | undefined
+      /** Route identifier. Defaults to the taker address left-padded to 32 bytes. */
+      customerId?: Hex | undefined
       /** Output destination. Defaults to the read account or client account. */
       recipient?: Address | undefined
       /** Address that will call the swap. Defaults to the read account or client account. */
       taker?: Address | undefined
     }
 
-  /** Quoted amount, oracle observation, and remaining rounding credit. */
+  /** Quoted amount, oracle observation, rounding credit, and swap request. */
 
   export type ReturnValue<parameters extends Parameters = Parameters> = Compute<
     {
@@ -466,10 +497,20 @@ export namespace getSwapQuote {
       ? {
           /** Quoted output amount in token base units. */
           amountOut: bigint
+          /** Swap inputs bound to this quote. Add a trade ID before submitting. */
+          request: Omit<
+            Extract<swap.Args, { mode: 'exactInput' }>,
+            'deadline' | 'tradeId'
+          >
         }
       : {
           /** Required input amount in token base units. */
           amountIn: bigint
+          /** Swap inputs bound to this quote. Add a trade ID before submitting. */
+          request: Omit<
+            Extract<swap.Args, { mode: 'exactOutput' }>,
+            'deadline' | 'tradeId'
+          >
         })
   >
 
@@ -637,7 +678,6 @@ namespace exactOutput {
  *   mode: 'exactInput',
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   customerId: '0x...',
  *   tradeId: '0x...',
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
@@ -699,10 +739,16 @@ export namespace swap {
 
   export type InputArgs = UnionOmit<
     Args,
-    'baseToQuote' | 'deadline' | 'oraclePriceToleranceBps' | 'recipient'
+    | 'baseToQuote'
+    | 'customerId'
+    | 'deadline'
+    | 'oraclePriceToleranceBps'
+    | 'recipient'
   > & {
     /** True sends base and receives quote. Defaults to true. */
     baseToQuote?: boolean | undefined
+    /** Route identifier. Defaults to the sender address left-padded to 32 bytes. */
+    customerId?: Hex | undefined
     /** Last accepted execution timestamp. Defaults to five minutes from now. */
     deadline?: bigint | undefined
     /** Output destination. Defaults to the sending account. */
@@ -747,6 +793,10 @@ export namespace swap {
     const recipient =
       parameters.recipient ?? (account && parseAccount(account).address)
     if (!recipient) throw new AccountNotFoundError()
+    const customerId =
+      parameters.customerId ??
+      (account && pad(parseAccount(account).address, { size: 32 }))
+    if (!customerId) throw new AccountNotFoundError()
     const baseToQuote = parameters.baseToQuote ?? true
     const tokenIn = await (baseToQuote
       ? baseToken(client, { pool: parameters.pool })
@@ -764,6 +814,7 @@ export namespace swap {
       swap.call({
         ...parameters,
         baseToQuote,
+        customerId,
         deadline: parameters.deadline ?? BigInt(Expiry.minutes(5)),
         recipient,
         oraclePriceToleranceBps: parameters.oraclePriceToleranceBps ?? 0n,
@@ -887,7 +938,6 @@ export namespace swap {
  *   mode: 'exactInput',
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   customerId: '0x...',
  *   tradeId: '0x...',
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,

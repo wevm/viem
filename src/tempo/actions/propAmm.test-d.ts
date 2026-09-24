@@ -42,6 +42,10 @@ test('pool reads and quotes preserve their public types', async () => {
     }),
   ).toEqualTypeOf<{
     amountOut: bigint
+    request: Omit<
+      Extract<propAmm.swap.Args, { mode: 'exactInput' }>,
+      'deadline' | 'tradeId'
+    >
     price: bigint
     updatedAt: bigint
     creditAfter: bigint
@@ -54,6 +58,10 @@ test('pool reads and quotes preserve their public types', async () => {
     }),
   ).toEqualTypeOf<{
     amountIn: bigint
+    request: Omit<
+      Extract<propAmm.swap.Args, { mode: 'exactOutput' }>,
+      'deadline' | 'tradeId'
+    >
     price: bigint
     updatedAt: bigint
     creditAfter: bigint
@@ -62,6 +70,10 @@ test('pool reads and quotes preserve their public types', async () => {
     await propAmm.getSwapQuote(client, { ...route, amountIn: 1n }),
   ).toEqualTypeOf<{
     amountOut: bigint
+    request: Omit<
+      Extract<propAmm.swap.Args, { mode: 'exactInput' }>,
+      'deadline' | 'tradeId'
+    >
     price: bigint
     updatedAt: bigint
     creditAfter: bigint
@@ -74,6 +86,10 @@ test('pool reads and quotes preserve their public types', async () => {
     }),
   ).toEqualTypeOf<{
     amountIn: bigint
+    request: Omit<
+      Extract<propAmm.swap.Args, { mode: 'exactOutput' }>,
+      'deadline' | 'tradeId'
+    >
     price: bigint
     updatedAt: bigint
     creditAfter: bigint
@@ -151,14 +167,12 @@ test('swap builders compose with standalone and decorated actions', async () => 
 test('quote and swap accept omitted defaults', async () => {
   const quote = await client.propAmm.getSwapQuote({
     amountIn: 1n,
-    customerId,
     mode: 'exactInput',
     pool,
   })
   expectTypeOf(quote.amountOut).toEqualTypeOf<bigint>()
   const parameters = {
     amountOut: 1n,
-    customerId,
     expectedOraclePrice: quote.price,
     maxAmountIn: 2n,
     minimumOracleUpdatedAt: quote.updatedAt,
@@ -170,4 +184,21 @@ test('quote and swap accept omitted defaults', async () => {
   await client.propAmm.swapSync(parameters)
   await propAmm.swap.estimateGas(client, parameters)
   await client.propAmm.swap.simulate(parameters)
+})
+
+test('quote requests compose with swaps in both modes', async () => {
+  const input = await client.propAmm.getSwapQuote({
+    amountIn: 1n,
+    mode: 'exactInput',
+    pool,
+  })
+  expectTypeOf(input.request.mode).toEqualTypeOf<'exactInput'>()
+  await client.propAmm.swap({ ...input.request, tradeId })
+  const output = await client.propAmm.getSwapQuote({
+    amountOut: 1n,
+    mode: 'exactOutput',
+    pool,
+  })
+  expectTypeOf(output.request.mode).toEqualTypeOf<'exactOutput'>()
+  await client.propAmm.swapSync({ ...output.request, tradeId })
 })

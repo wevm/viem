@@ -102,7 +102,6 @@ describe('getSwapQuote', () => {
   test('defaults direction and recipient to the read account', async () => {
     const options = {
       amountIn: 1n,
-      customerId,
       mode: 'exactInput' as const,
       pool: stack.pool,
       taker: account.address,
@@ -110,6 +109,7 @@ describe('getSwapQuote', () => {
     const explicit = await client.propAmm.getSwapQuote({
       ...options,
       baseToQuote: true,
+      customerId: `0x${'0'.repeat(24)}${account.address.slice(2)}`,
       recipient: recipient.address,
     })
     expect(
@@ -138,7 +138,10 @@ describe('getSwapQuote', () => {
       })
     const initialA = await quote(routeA)
     const initialB = await quote(routeB)
-    expect(initialA).toEqual(initialB)
+    expect({ ...initialA, request: undefined }).toEqual({
+      ...initialB,
+      request: undefined,
+    })
     expect(
       await client.propAmm.getSwapQuote({
         amountIn: 1n,
@@ -535,26 +538,22 @@ describe('swap', () => {
 })
 
 describe('swapSync', () => {
-  test('defaults direction, recipient, and deadline', async () => {
+  test('defaults direction, recipient, deadline, and customer ID', async () => {
     const options = {
       amountIn: 1_000_000n,
-      customerId,
       mode: 'exactInput' as const,
       pool: stack.pool,
     }
-    const { amountOut, price, updatedAt } =
-      await client.propAmm.getSwapQuote(options)
+    const { amountOut, request } = await client.propAmm.getSwapQuote(options)
     const before = await Actions.token.getBalance(client, {
       token: stack.quote,
       account: account.address,
     })
     const earliestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
     const trade = await Actions.propAmm.swapSync(getClient(), {
-      ...options,
+      ...request,
       account,
-      expectedOraclePrice: price,
-      minAmountOut: amountOut,
-      minimumOracleUpdatedAt: updatedAt,
+      customerId: undefined,
       tradeId: Hex.random(32),
     })
     const latestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
@@ -570,6 +569,9 @@ describe('swapSync', () => {
       throw new Error('Expected an exact-input swap.')
     expect(call.args[6]).toBeGreaterThanOrEqual(earliestDeadline)
     expect(call.args[6]).toBeLessThanOrEqual(latestDeadline)
+    expect(trade.customerId.toLowerCase()).toBe(
+      `0x${'0'.repeat(24)}${account.address.slice(2).toLowerCase()}`,
+    )
     expect(trade.tokenIn).toBe(stack.base)
     expect(trade.tokenOut).toBe(stack.quote)
     const after = await Actions.token.getBalance(client, {
@@ -637,18 +639,15 @@ describe('swapSync', () => {
 
   test('quotes and buys an exact amount of base', async () => {
     const amountOut = parseUnits('1', 6)
-    const { amountIn, price, updatedAt } = await Actions.propAmm.getSwapQuote(
-      client,
-      {
-        amountOut,
-        baseToQuote: false,
-        mode: 'exactOutput',
-        customerId,
-        pool: stack.pool,
-        recipient: recipient.address,
-        taker: account.address,
-      },
-    )
+    const { amountIn, request } = await Actions.propAmm.getSwapQuote(client, {
+      amountOut,
+      baseToQuote: false,
+      mode: 'exactOutput',
+      customerId,
+      pool: stack.pool,
+      recipient: recipient.address,
+      taker: account.address,
+    })
     const before = await readContract(client, {
       abi: Abis.tip20,
       address: stack.base,
@@ -661,17 +660,7 @@ describe('swapSync', () => {
       token: stack.quote,
     })
     const trade = await Actions.propAmm.swapSync(client, {
-      amountOut,
-      baseToQuote: false,
-      mode: 'exactOutput',
-      customerId,
-      deadline: (await getBlock(client)).timestamp + 120n,
-      expectedOraclePrice: price,
-      maxAmountIn: amountIn,
-      minimumOracleUpdatedAt: updatedAt,
-      oraclePriceToleranceBps: 0n,
-      pool: stack.pool,
-      recipient: recipient.address,
+      ...request,
       tradeId: Hex.random(32),
     })
     expect(trade.amountIn).toBe(amountIn)

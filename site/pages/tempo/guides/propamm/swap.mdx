@@ -14,24 +14,23 @@ sender must hold them. The swap action approves the pool in the same transaction
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo) and have an approved caller,
-recipient, and nonzero customer ID.
+These recipes assume you have [set up a Tempo client](/tempo) and have an approved caller
+and recipient.
 
 ### Quote a Swap
 
 Use [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) to preview the output for an exact amount
 of the pool's base token. Use `baseToQuote: false` to send quote and receive base. The quote also
-returns the oracle price and observation time that you pass to the swap.
+returns a swap `request` containing the route, quoted limit, and oracle observation.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits, stringToHex } from 'viem'
+import { parseUnits } from 'viem'
 import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6), // Use the base token's decimals.
-  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
 })
@@ -46,7 +45,7 @@ console.log(amountOut, price, updatedAt)
 
 ### Swap an Exact Input
 
-Get a fresh quote, then use its output, oracle price, and observation time with
+Get a fresh quote, then pass its `request` to
 [`swapSync`](/tempo/actions/propAmm.swap). The action approves the pool and swaps in one Tempo
 transaction. The sender must hold the input tokens.
 
@@ -56,24 +55,17 @@ five minutes after the call. Set `baseToQuote`, `recipient`, or `deadline` to ov
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits, stringToHex, toHex } from 'viem'
+import { parseUnits, toHex } from 'viem'
 import { client } from './viem.config'
 
-const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
+const { request } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6),
-  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
 })
 
 const trade = await client.propAmm.swapSync({ // [!code focus]
-  amountIn: parseUnits('1', 6),
-  customerId: stringToHex('customer-route', { size: 32 }),
-  mode: 'exactInput',
-  expectedOraclePrice: price,
-  minAmountOut: amountOut,
-  minimumOracleUpdatedAt: updatedAt,
-  pool: '0x...',
+  ...request,
   tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
 })
 console.log(trade.amountOut, trade.receipt.transactionHash)
@@ -89,31 +81,24 @@ console.log(trade.amountOut, trade.receipt.transactionHash)
 
 For an exact output, call [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) with
 `mode: 'exactOutput'`, then call [`swap`](/tempo/actions/propAmm.swap) or
-[`swapSync`](/tempo/actions/propAmm.swap) with `amountOut` and `maxAmountIn`. The action approves
+[`swapSync`](/tempo/actions/propAmm.swap) with the returned `request`. The action approves
 `maxAmountIn` and submits the swap in one transaction. The `.call` builder defines only the swap
 call, so add an approval when assembling a batch manually.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits, stringToHex, toHex } from 'viem'
+import { parseUnits, toHex } from 'viem'
 import { client } from './viem.config'
 
-const { amountIn, price, updatedAt } = await client.propAmm.getSwapQuote({
+const { request } = await client.propAmm.getSwapQuote({
   amountOut: parseUnits('1', 6),
-  customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactOutput',
   pool: '0x...',
 })
 
 const trade = await client.propAmm.swapSync({ // [!code focus]
-  amountOut: parseUnits('1', 6),
-  customerId: stringToHex('customer-route', { size: 32 }),
-  mode: 'exactOutput',
-  expectedOraclePrice: price,
-  maxAmountIn: amountIn,
-  minimumOracleUpdatedAt: updatedAt,
-  pool: '0x...',
+  ...request,
   tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
 })
 console.log(trade.amountIn, trade.receipt.transactionHash)
@@ -127,6 +112,9 @@ console.log(trade.amountIn, trade.receipt.transactionHash)
 
 If an exact-output swap spends less than `maxAmountIn`, the unused allowance remains on the input token.
 
+The customer ID defaults to the taker address left-padded to 32 bytes. Provide the same explicit
+`customerId` to the quote and swap when separating customer routes that share a wallet.
+
 ## Best Practices
 
 ### Check Access and Inventory
@@ -137,7 +125,7 @@ hold enough input tokens. Quotes do not reserve inventory, so simulate close to 
 
 ### Bind the Oracle and Price Limit
 
-Pass the quote's oracle price and observation time into the swap. Choose `oraclePriceToleranceBps`,
+The returned `request` binds the swap to the quoted amount and oracle observation. Choose `oraclePriceToleranceBps`,
 `minAmountOut`, or `maxAmountIn` according to the execution policy. A stale oracle, changed price,
 expired deadline, paused pool, or changed permissions can revert the swap after the quote.
 

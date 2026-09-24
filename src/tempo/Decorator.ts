@@ -3050,7 +3050,6 @@ type DecoratorBase<
      *
      * const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
      *   amountIn: 1_000_000n,
-     *   customerId: '0x...',
      *   mode: 'exactInput',
      *   pool: '0x...',
      *   recipient: '0x...',
@@ -3059,7 +3058,7 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Route, swap mode, amount, and read options.
-     * @returns Quoted counteramount, oracle price, observation time, and rounding credit.
+     * @returns Quoted amount, oracle observation, rounding credit, and swap request.
      */
     getSwapQuote: <
       const parameters extends propAmmActions.getSwapQuote.Parameters,
@@ -3169,7 +3168,6 @@ type DecoratorBase<
      * }).extend(tempoActions())
      * const hash = await client.propAmm.swap({
      *   amountIn: 1_000_000n,
-     *   customerId: '0x...',
      *   expectedOraclePrice: 1_000_000_000_000_000_000n,
      *   minAmountOut: 1_000_000n,
      *   minimumOracleUpdatedAt: 1_799_999_000n,
@@ -3203,7 +3201,6 @@ type DecoratorBase<
      * const trade = await client.propAmm.swapSync({
      *   amountOut: 1_000_000n,
      *   baseToQuote: false,
-     *   customerId: '0x...',
      *   expectedOraclePrice: 1_000_000_000_000_000_000n,
      *   maxAmountIn: 1_010_000n,
      *   minimumOracleUpdatedAt: 1_799_999_000n,
