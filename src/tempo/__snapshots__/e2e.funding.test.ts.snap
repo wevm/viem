@@ -1,24 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`behavior > access key > rejects invalid delegated funding: expired 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted with the following reason:
-Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
-
-Details: Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
-Version: viem@2.56.8]
-`;
-
-exports[`behavior > access key > rejects invalid delegated funding: input 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
-
-Error: FundingNotAuthorized(address source)
-                           (0x1120000000000000000000000000000000000001)
-
-Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
-Version: viem@2.56.8]
-`;
-
-exports[`behavior > access key > rejects invalid delegated funding: limit 1`] = `
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (p256) 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: SpendingLimitExceeded()
@@ -28,7 +10,55 @@ Details: execution reverted: Account keychain error: SpendingLimitExceeded(Spend
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects invalid delegated funding: missing 1`] = `
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (secp256k1) 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted.
+
+Error: SpendingLimitExceeded()
+
+
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.8]
+`;
+
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (webAuthn) 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted.
+
+Error: SpendingLimitExceeded()
+
+
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.8]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: expired 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following reason:
+Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
+
+Details: Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
+Version: viem@2.56.8]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: input 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted.
+
+Error: FundingNotAuthorized(address source)
+                           (0x1120000000000000000000000000000000000001)
+
+Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
+Version: viem@2.56.8]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: limit 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted.
+
+Error: SpendingLimitExceeded()
+
+
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.8]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: missing 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: InvalidPolicyData()
@@ -38,7 +68,7 @@ Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPoli
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects invalid delegated funding: output 1`] = `
+exports[`behavior: access key > rejects invalid delegated funding: output 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: TokenNotAllowed(address token)
@@ -48,7 +78,7 @@ Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllow
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects invalid delegated funding: revoked 1`] = `
+exports[`behavior: access key > rejects invalid delegated funding: revoked 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted with the following reason:
 Revm error: keychain validation failed: AccountKeychainError(KeyAlreadyRevoked(KeyAlreadyRevoked))
 
@@ -56,7 +86,7 @@ Details: Revm error: keychain validation failed: AccountKeychainError(KeyAlready
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects invalid delegated funding: slippage 1`] = `
+exports[`behavior: access key > rejects invalid delegated funding: slippage 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: InvalidFundingContext()
@@ -66,7 +96,7 @@ Details: execution reverted: TIP20 funding error: InvalidFundingContext(InvalidF
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects invalid delegated funding: tampered 1`] = `
+exports[`behavior: access key > rejects invalid delegated funding: tampered 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: InvalidPolicyData()
@@ -76,7 +106,7 @@ Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPoli
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > rejects sources supplied in reverse policy order 1`] = `
+exports[`behavior: access key > rejects sources supplied in reverse policy order 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: FundingNotAuthorized(address source)
@@ -86,7 +116,7 @@ Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNo
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > access key > requires current rules after updates, including when the balance is already sufficient 1`] = `
+exports[`behavior: access key > requires current rules after updates, including when the balance is already sufficient 1`] = `
 [ContractFunctionRevertedError: The contract function "transfer" reverted.
 
 Error: InvalidPolicyData()
@@ -96,38 +126,12 @@ Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPoli
 Version: viem@2.56.8]
 `;
 
-exports[`behavior > owner-authorized > funding cannot pay transaction fees 1`] = `[Error: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.]`;
+exports[`behavior: owner-authorized > funding cannot pay transaction fees 1`] = `[Error: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.]`;
 
-exports[`behavior > owner-authorized > rejects a source without liquidity 1`] = `[Error: Execution reverted with reason: Stablecoin DEX error: PairDoesNotExist(PairDoesNotExist).]`;
+exports[`behavior: owner-authorized > rejects a source without liquidity 1`] = `[Error: Execution reverted with reason: Stablecoin DEX error: PairDoesNotExist(PairDoesNotExist).]`;
 
-exports[`behavior > owner-authorized > rejects insufficient input capacity without moving funds 1`] = `[Error: Execution reverted with reason: TIP20 funding error: InsufficientFunding(InsufficientFunding { required: 50000000, available: 30000000 }).]`;
+exports[`behavior: owner-authorized > rejects insufficient input capacity without moving funds 1`] = `[Error: Execution reverted with reason: TIP20 funding error: InsufficientFunding(InsufficientFunding { required: 50000000, available: 30000000 }).]`;
 
-exports[`keyAuthorization > funds with an existing policy (p256) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+exports[`funding source: earn > rejects execution caps above the access key policy 1`] = `[Error: FundingNotAuthorized]`;
 
-Error: SpendingLimitExceeded()
-
-
-Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
-`;
-
-exports[`keyAuthorization > funds with an existing policy (secp256k1) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
-
-Error: SpendingLimitExceeded()
-
-
-Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
-`;
-
-exports[`keyAuthorization > funds with an existing policy (webAuthn) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
-
-Error: SpendingLimitExceeded()
-
-
-Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
-`;
+exports[`funding source: earn > rejects execution caps above the access key policy 2`] = `[Error: FundingNotAuthorized]`;

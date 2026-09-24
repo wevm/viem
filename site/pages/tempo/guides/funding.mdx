@@ -88,6 +88,77 @@ await client.token.transferSync({
 
 `token.transfer` (without `from`), `token.burn`, and `dex.sell` infer the spent token and exact amount. Their `Sync` variants do the same. Other actions, including `earn.deposit`, need explicit `token` and `amount`; either field can always be supplied to override an inferred value.
 
+### Fund from an Earn Vault
+
+`FundingSource.earn` redeems vault shares to cover the required balance. Pass the deployed Earn funding source address and vault. The source selects its configured engine adapter; the vault must support synchronous withdrawals.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...' // Deployed Earn funding source.
+const vault = '0x...' // Earn vault with PathUSD as its underlying token.
+
+await client.token.transferSync({
+  amount: parseUnits('100', 6),
+  requireFunds: [{ // [!code hl]
+    slippageBps: 100, // [!code hl]
+    sources: [FundingSource.earn({ source, vault })], // [!code hl]
+  }], // [!code hl]
+  to: '0x...',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+Omitting both input caps permits the source to use the shares needed within the requirement's slippage budget. The protocol grants temporary input permission; no standing share approval is needed.
+
+#### Cap Earn Funding
+
+Set `maxValueIn` to spend at most 50 PathUSD worth of EarnShares.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...' // Deployed Earn funding source.
+const vault = '0x...' // Earn vault with PathUSD as its underlying token.
+
+await client.token.transferSync({
+  amount: parseUnits('100', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [
+      FundingSource.earn({
+        maxValueIn: parseUnits('50', 6), // [!code focus]
+        source,
+        vault,
+      }),
+      FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+    ],
+  }],
+  to: '0x...',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+`maxValueIn` caps gross underlying-token value before exit fees, in underlying-token base units. `maxAmountIn` optionally caps EarnShare base units. Both limits apply per source invocation; zero disables input and omission leaves that cap unlimited. Slippage applies across all sources in the requirement.
+
 ### Discover Funds
 
 Use [`funding.discover`](/tempo/actions/funding.discover) with source configurations describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.

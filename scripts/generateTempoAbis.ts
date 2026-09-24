@@ -353,9 +353,15 @@ function earnAdapter(): SourceAdapter {
   }
 
   function getArtifacts(checkout: string) {
-    execFileSync('forge', ['build', '--quiet'], { cwd: checkout })
+    // Isolate artifacts from other profiles and target Tempo's supported EVM.
+    const out = Path.join(checkout, 'out/viem')
+    execFileSync(
+      'forge',
+      ['build', '--quiet', '--evm-version', 'cancun', '--out', out],
+      { cwd: checkout },
+    )
     const artifacts = new Map<string, FoundryArtifact>()
-    for (const file of listFiles(Path.join(checkout, 'out'))) {
+    for (const file of listFiles(out)) {
       if (!file.endsWith('.json') || file.includes('/build-info/')) continue
       const artifact = JSON.parse(
         Fs.readFileSync(file, 'utf8'),

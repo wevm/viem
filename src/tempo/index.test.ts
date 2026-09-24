@@ -14,6 +14,7 @@ test('exports tempo', () => {
       "FundingRequirement",
       "FundingSource",
       "FundingSourceDex",
+      "FundingSourceEarn",
       "MultisigConfig",
       "MultisigOperation",
       "Period",
