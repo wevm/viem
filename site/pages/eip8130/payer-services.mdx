@@ -1,0 +1,291 @@
+---
+description: Negotiate gas sponsorship and token payment with an ERC-8168 payer web service
+---
+
+# Payer Services (ERC-8168)
+
+[ERC-8168](https://github.com/base/eip-8130) standardizes a **payer web service**: a JSON-RPC endpoint a wallet queries to sponsor an EIP-8130 transaction or accept an ERC-20 as gas payment. The service holds the payer key and co-signs `payer_auth` (see [Sponsoring Transactions](/eip8130/sponsoring-transactions) for the underlying mechanism).
+
+Viem exposes the client and helpers under `viem/eip8168`.
+
+:::warning[Warning]
+ERC-8168 is a draft standard. A payer's offers are trust-based — always preflight caps (`conditions`) and confirm token charges with the user before re-signing.
+:::
+
+## The RPC surface
+
+A payer implements four `payer_*` methods (two required, two optional):
+
+| Method | Purpose | Required |
+| --- | --- | --- |
+| `payer_getTerms` | Quote payment offers for an intent (pre-signature). | Yes |
+| `payer_sendTransaction` | Co-sign the sender-signed tx and submit it. | Yes |
+| `payer_signTransaction` | Co-sign and return the bytes without submitting. | No |
+| `payer_getSponsorshipBalance` | Standing, intent-free allowance / credit. | No |
+
+Create a client for the endpoint:
+
+```ts
+import { createPayerClient } from 'viem/eip8168'
+
+const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
+```
+
+## Fill, Then Choose Terms
+
+The recommended flow treats payment as a **capability of filling a transaction**, mirroring the native fill then send pattern. Extend a client with [`eip8168Actions`](/eip8130#2-namespaced-client-decorators) to get `client.payer.*`:
+
+1. `prepareTransactionRequest` fills the transaction and returns the payer's offers on `capabilities.paymentOptions` (a component of the fill).
+2. Pick one and thread it into `sendTransaction` via `capabilities.paymentOption`.
+
+```ts
+import { createClient, http } from 'viem'
+import { createPayerClient, eip8168Actions } from 'viem/eip8168'
+import { vibenet } from './viem.config'
+
+const payerClient = createPayerClient({ url: 'https://payer.example.com/v1' })
+const client = createClient({ chain: vibenet, transport: http() })
+  .extend(eip8168Actions({ payerClient }))
+
+// 1. Fill; offers come back as a component of the fill.
+const { capabilities } = await client.payer.prepareTransactionRequest({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymasterService: { preferredTokens: [usdc] } },
+})
+
+// 2. Choose an offer and send.
+const { transactionHash, tokenCharged } = await client.payer.sendTransaction({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: {
+    paymentOption: capabilities.paymentOptions[0],
+    gasEstimate: capabilities.gasEstimate,
+  },
+})
+```
+
+These are also importable standalone from `viem/eip8168` (`prepareTransactionRequest`, `sendTransaction`), taking the `client` as the first argument and `payerClient` in the parameters.
+
+### Who Estimates Gas
+
+By default the fill estimates gas with **our own node** (`gasEstimator: 'self'`), and when the payer also quotes it uses `max(ours, payer)`, so a payer that adds a token-payment phase never under-sizes the transaction. Pass `gasEstimator: 'payer'` to trust the service's quote outright, or pin `gas` to skip estimation entirely.
+
+```ts
+const { capabilities } = await client.payer.prepareTransactionRequest({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymasterService: {} },
+  gasEstimator: 'payer', // trust the service (default is 'self')
+})
+```
+
+### Awaiting the Receipt
+
+`sendTransactionSync` submits through the payer and then awaits the EIP-8130 receipt (threading the signed `validBefore` for fast expiry detection):
+
+```ts
+const { transactionHash, receipt } = await client.payer.sendTransactionSync({
+  account,
+  calls: [{ to: recipient, data }],
+  capabilities: { paymentOption: capabilities.paymentOptions[0], gasEstimate: capabilities.gasEstimate },
+})
+receipt.eip8130.phaseStatuses // ['0x1']
+```
+
+## Discovering payers
+
+A wallet often has more than one place to get sponsorship: the chain's node RPC may serve `payer_*` itself, a **block builder** integrated with the sequencer (e.g. flashblocks) may expose it, the app may run its own payer, and the wallet may inject one. `createAggregatePayerClient` queries them all **in parallel** and presents the result as a single `PayerClient`, so it drops straight into `sendSponsoredCalls`.
+
+- `getTerms` fans out with `Promise.allSettled` (a slow or failing source never blocks the others) and merges every source's offers best-first, in source order.
+- `sendTransaction` / `signTransaction` read the signed tx's `payer` and route the co-sign back to the source that offered it — so let the aggregate fetch terms (don't pre-pass `terms`).
+
+Use `hasChainPayerService` to decide whether to add the node itself (via `toChainPayerClient`) as a source; register the chains you know serve it with `registerPayerServiceChains`.
+
+```ts
+import {
+  createAggregatePayerClient,
+  createPayerClient,
+  hasChainPayerService,
+  registerPayerServiceChains,
+  sendSponsoredCalls,
+  toChainPayerClient,
+} from 'viem/eip8168'
+
+// Chains whose node RPC (or integrated builder, e.g. flashblocks) serves payer_*.
+registerPayerServiceChains(client.chain.id)
+
+const payerClient = createAggregatePayerClient({
+  payers: [
+    // 1. the chain / block builder, over the wallet's own RPC
+    ...(hasChainPayerService(client.chain) ? [toChainPayerClient(client)] : []),
+    // 2. the app's payer service
+    createPayerClient({ url: 'https://payer.myapp.com/v1' }),
+    // 3. a wallet-injected payer (any PayerClient)
+    walletPayer,
+  ],
+  onError: (error, index) => console.warn(`payer #${index} unavailable`, error),
+})
+
+// Unchanged: the aggregate is just a PayerClient.
+const { transactionHash } = await sendSponsoredCalls(client, {
+  account,
+  payerClient,
+  calls: [{ to: recipient, data }],
+})
+```
+
+The merged `gasEstimate` is the worst-case (largest `gasLimit`) across sources; a source with a tighter cap re-quotes via `GAS_TOO_LOW`, which `sendSponsoredCalls` handles.
+
+## End-to-end: `sendSponsoredCalls`
+
+`sendSponsoredCalls` is the engine underneath `client.payer.sendTransaction`: it runs the whole flow in one call, fetching terms itself rather than taking a pre-selected offer. Reach for it when you want the library to fetch and select in a single step; use the capability API above when you want to surface offers to the user between fill and send. It fetches terms, selects an offer, builds the phases (including any phase-0 token transfer), signs `sender_auth` with the payer named and `payer_auth` empty, then hands off to the payer to co-sign and submit.
+
+```ts
+import { sendSponsoredCalls } from 'viem/eip8168'
+
+const { transactionHash, tokenCharged } = await sendSponsoredCalls(client, {
+  account,        // signs sender_auth
+  payerClient,
+  calls: [{ to: recipient, data }],
+})
+```
+
+- Default selects a **sponsored** (fully-paid) offer.
+- Pass `token` to prefer paying gas in a specific ERC-20.
+- Pass `context` (e.g. a `policyId`) to forward to the payer.
+- Pass `mode: 'sign'` to have the payer co-sign and return the bytes (only when the selected offer advertises `payer_signTransaction`).
+
+### Confirming re-signs
+
+If the payer rejects with a recoverable reason (`PAYMENT_INSUFFICIENT` → a higher token charge; `GAS_TOO_LOW` → a higher gas limit), `sendSponsoredCalls` can re-sign — but only when you approve each attempt via `confirmRetry`. Re-signing mints a **new** `sender_auth` (and, for a passkey, a fresh user gesture), so there is no silent retry: with no callback, the rejection is thrown for you to handle.
+
+```ts
+import { sendSponsoredCalls } from 'viem/eip8168'
+import { formatUnits } from 'viem'
+
+const result = await sendSponsoredCalls(client, {
+  account,
+  payerClient,
+  calls: [{ to: recipient, data }],
+  token: usdc,
+  retries: 2,
+  confirmRetry: async (request) => {
+    if (request.kind === 'requote')
+      return confirm(`Pay ${formatUnits(request.paymentAmount, 6)} USDC?`)
+    // request.kind === 'gas'
+    return confirm(`Raise gas limit to ${request.gasLimit}?`)
+  },
+})
+```
+
+## Step-by-step
+
+For full control, drive the primitives directly.
+
+### 1. Get terms
+
+```ts
+import { numberToHex } from 'viem'
+
+const terms = await payerClient.getTerms({
+  chainId: numberToHex(client.chain.id),
+  from: account.address,
+  calls: [{ to: recipient, data }],
+  preferredTokens: [usdc],
+  fiatCurrency: 'USD',
+})
+```
+
+`terms.options` is a best-first list of offers; `terms.gasEstimate` carries the recommended gas params shared by every offer.
+
+### 2. Inspect and select an offer
+
+Offers come in three kinds. Use the type guards, or let `selectPaymentOption` pick per the spec (prefer a selectable `sponsored` offer, else the first `token` offer; never a declined entry).
+
+```ts
+import {
+  isDeclinedOffer,
+  isSponsoredOffer,
+  isTokenOffer,
+  selectPaymentOption,
+} from 'viem/eip8168'
+
+for (const option of terms.options) {
+  if (isSponsoredOffer(option)) console.log('free via', option.payer)
+  else if (isTokenOffer(option)) console.log('pay in', option.tokens[0].symbol)
+  else if (isDeclinedOffer(option)) console.log('declined:', option.code)
+}
+
+const { option, tokenChoice } = selectPaymentOption(terms, { token: usdc })
+```
+
+### 3. Build the calls
+
+`buildSponsoredCalls` turns the selected offer into the EIP-8130 `payer` + phased `calls` (adding the phase-0 token transfer when paying with a token).
+
+```ts
+import { buildSponsoredCalls } from 'viem/eip8168'
+
+const { payer, calls, paymentAmount } = buildSponsoredCalls({
+  terms,
+  calls: [{ to: recipient, data }],
+  token: usdc,
+})
+```
+
+### 4. Sign and hand off
+
+Prepare the transaction with the offer's gas, sign `sender_auth` with `payer` named and `payer_auth` empty, then submit through the payer.
+
+```ts
+import { hexToBigInt } from 'viem'
+import { prepareTransactionRequest } from 'viem/eip8130'
+
+const tx = await prepareTransactionRequest(client, {
+  account,
+  calls,
+  gas: hexToBigInt(terms.gasEstimate!.gasLimit),
+  maxFeePerGas: hexToBigInt(terms.gasEstimate!.maxFeePerGas),
+  maxPriorityFeePerGas: hexToBigInt(terms.gasEstimate!.maxPriorityFeePerGas),
+})
+tx.payer = payer
+tx.payerAuth = '0x' // the service fills this in
+
+const signedTransaction = await account.signTransaction(tx)
+const { transactionHash } = await payerClient.sendTransaction({ signedTransaction })
+```
+
+## Handling rejections
+
+`payer_sendTransaction` / `payer_signTransaction` fail with a `PAYER_REJECTED` envelope. Decode it with `parsePayerError` to branch on the stable string `code`.
+
+```ts
+import { parsePayerError } from 'viem/eip8168'
+
+try {
+  await payerClient.sendTransaction({ signedTransaction })
+} catch (error) {
+  const rejected = parsePayerError(error)
+  if (rejected?.code === 'PAYMENT_INSUFFICIENT' && rejected.requote) {
+    // Re-sign phase 0 with rejected.requote.paymentAmount and resubmit.
+  } else if (rejected?.code === 'GAS_TOO_LOW' && rejected.minGasLimit) {
+    // Raise gasLimit to rejected.minGasLimit and resubmit.
+  } else {
+    throw error
+  }
+}
+```
+
+## Standing balances
+
+When a payer implements `payer_getSponsorshipBalance`, query a sender's intent-free allowance or prepaid credit to show "sponsored gas remaining" before building any transaction.
+
+```ts
+import { numberToHex } from 'viem'
+
+const { balances } = await payerClient.getSponsorshipBalance({
+  from: account.address,
+  chainId: numberToHex(client.chain.id),
+})
+```
