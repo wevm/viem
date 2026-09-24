@@ -34,10 +34,7 @@ import type { TransactionReceipt } from '../Transaction.js'
  *   rules: {
  *     maxSlippageBps: 100,
  *     sources: {
- *       [Addresses.pathUsd]: [{
- *         to: Addresses.dexFundingSource,
- *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
- *       }],
+ *       [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
  *     },
  *   },
  * })
@@ -562,10 +559,7 @@ export namespace setPolicyAdminsSync {
  *   rules: {
  *     maxSlippageBps: 100,
  *     sources: {
- *       [Addresses.pathUsd]: [{
- *         to: Addresses.dexFundingSource,
- *         data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
- *       }],
+ *       [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
  *     },
  *   },
  *   token: Addresses.pathUsd,

@@ -21,7 +21,6 @@ import {
 import * as Transaction from './Transaction.js'
 
 const client = getClient()
-const source = Addresses.dexFundingSource
 const recipient = '0x8888888888888888888888888888888888888888' as const
 
 beforeAll(async () => {
@@ -105,17 +104,11 @@ describe('sendTransactionSync', () => {
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
-          {
-            to: source,
-            data: FundingSource.encodeData({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-          },
-          {
-            to: source,
-            data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-          },
+          FundingSource.dex({
+            tokenIn: Addresses.alphaUsd,
+            maxAmountIn: parseUnits('30', 6),
+          }),
+          FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
       },
     ])
@@ -164,17 +157,11 @@ describe('sendTransactionSync', () => {
         token: Addresses.pathUsd,
         slippageBps: 0,
         sources: [
-          {
-            to: source,
-            data: FundingSource.encodeData({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-          },
-          {
-            to: source,
-            data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-          },
+          FundingSource.dex({
+            tokenIn: Addresses.alphaUsd,
+            maxAmountIn: parseUnits('30', 6),
+          }),
+          FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
         amount: parseUnits('50', 6),
       },
@@ -249,17 +236,11 @@ describe('prepareTransactionRequest', () => {
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
-          {
-            to: source,
-            data: FundingSource.encodeData({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-          },
-          {
-            to: source,
-            data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-          },
+          FundingSource.dex({
+            tokenIn: Addresses.alphaUsd,
+            maxAmountIn: parseUnits('30', 6),
+          }),
+          FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
       },
     ])
@@ -274,17 +255,11 @@ describe('prepareTransactionRequest', () => {
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
-          {
-            to: source,
-            data: FundingSource.encodeData({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-          },
-          {
-            to: source,
-            data: FundingSource.encodeData({ tokenIn: Addresses.betaUsd }),
-          },
+          FundingSource.dex({
+            tokenIn: Addresses.alphaUsd,
+            maxAmountIn: parseUnits('30', 6),
+          }),
+          FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
       },
     ])

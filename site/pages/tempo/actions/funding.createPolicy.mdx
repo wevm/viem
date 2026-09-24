@@ -17,10 +17,7 @@ const { policyId, rulesHash } = await client.funding.createPolicySync({
   rules: {
     maxSlippageBps: 100,
     sources: {
-      [Addresses.pathUsd]: [{
-        to: Addresses.dexFundingSource,
-        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-      }],
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
     },
   },
 })

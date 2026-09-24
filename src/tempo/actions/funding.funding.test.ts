@@ -11,12 +11,7 @@ const recipient = '0x8888888888888888888888888888888888888888' as const
 const rules = {
   maxSlippageBps: 100,
   sources: {
-    [Addresses.pathUsd]: [
-      {
-        to: Addresses.dexFundingSource,
-        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-      },
-    ],
+    [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
   },
 } as const
 
