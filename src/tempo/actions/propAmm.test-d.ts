@@ -193,12 +193,12 @@ test('quote requests compose with swaps in both modes', async () => {
     pool,
   })
   expectTypeOf(input.request.mode).toEqualTypeOf<'exactInput'>()
-  await client.propAmm.swap({ ...input.request, tradeId })
+  await client.propAmm.swap(input.request)
   const output = await client.propAmm.getSwapQuote({
     amountOut: 1n,
     mode: 'exactOutput',
     pool,
   })
   expectTypeOf(output.request.mode).toEqualTypeOf<'exactOutput'>()
-  await client.propAmm.swapSync({ ...output.request, tradeId })
+  await client.propAmm.swapSync(output.request)
 })

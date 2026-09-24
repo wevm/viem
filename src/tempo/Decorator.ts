@@ -3173,7 +3173,6 @@ type DecoratorBase<
      *   minimumOracleUpdatedAt: 1_799_999_000n,
      *   mode: 'exactInput',
      *   pool: '0x...',
-     *   tradeId: '0x...',
      * })
      * ```
      *
@@ -3206,7 +3205,6 @@ type DecoratorBase<
      *   minimumOracleUpdatedAt: 1_799_999_000n,
      *   mode: 'exactOutput',
      *   pool: '0x...',
-     *   tradeId: '0x...',
      * })
      * ```
      *

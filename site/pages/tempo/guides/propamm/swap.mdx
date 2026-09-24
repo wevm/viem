@@ -55,7 +55,7 @@ five minutes after the call. Set `baseToQuote`, `recipient`, or `deadline` to ov
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits, toHex } from 'viem'
+import { parseUnits } from 'viem'
 import { client } from './viem.config'
 
 const { request } = await client.propAmm.getSwapQuote({
@@ -64,10 +64,7 @@ const { request } = await client.propAmm.getSwapQuote({
   pool: '0x...',
 })
 
-const trade = await client.propAmm.swapSync({ // [!code focus]
-  ...request,
-  tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
-})
+const trade = await client.propAmm.swapSync(request) // [!code focus]
 console.log(trade.amountOut, trade.receipt.transactionHash)
 ```
 
@@ -88,7 +85,7 @@ call, so add an approval when assembling a batch manually.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits, toHex } from 'viem'
+import { parseUnits } from 'viem'
 import { client } from './viem.config'
 
 const { request } = await client.propAmm.getSwapQuote({
@@ -97,10 +94,7 @@ const { request } = await client.propAmm.getSwapQuote({
   pool: '0x...',
 })
 
-const trade = await client.propAmm.swapSync({ // [!code focus]
-  ...request,
-  tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
-})
+const trade = await client.propAmm.swapSync(request) // [!code focus]
 console.log(trade.amountIn, trade.receipt.transactionHash)
 ```
 

@@ -18,7 +18,6 @@ const { receipt } = await client.propAmm.swapSync({
   minimumOracleUpdatedAt: 1_799_999_000n,
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
-  tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
@@ -30,7 +29,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `customerId`, `deadline`, `recipient`, and `oraclePriceToleranceBps` values.
+The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `customerId`, `deadline`, `recipient`, `tradeId`, and `oraclePriceToleranceBps` values.
 
 Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
 
@@ -52,7 +51,6 @@ const hash = await client.propAmm.swap({
   minimumOracleUpdatedAt: 1_799_999_000n,
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
-  tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 ```
@@ -165,6 +163,7 @@ Destination of the output token. Required when no account is available.
 ### tradeId
 
 - **Type:** `Hex`
+- **Default:** A random 32-byte value per swap
 
 Trade attribution value. The contract does not use it as replay protection.
 

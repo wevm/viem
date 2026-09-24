@@ -36,7 +36,7 @@ type ReturnType = {
 } & ({ amountOut: bigint } | { amountIn: bigint })
 ```
 
-Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit. Spread `request` into `swap` or `swapSync` and add `tradeId`. The request sets `minAmountOut` or `maxAmountIn` to the quoted amount, with zero oracle price tolerance.
+Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit. Pass `request` directly to `swap` or `swapSync`. The request sets `minAmountOut` or `maxAmountIn` to the quoted amount, with zero oracle price tolerance.
 
 ## Parameters
 

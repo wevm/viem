@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Hex from 'ox/Hex'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateGas as core_estimateGas } from '../../actions/public/estimateGas.js'
@@ -16,7 +17,6 @@ import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
-import type { Hex } from '../../types/misc.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
@@ -449,7 +449,7 @@ export namespace getSwapQuote {
     /** True sends base and receives quote; false sends quote and receives base. */
     baseToQuote: boolean
     /** Nonzero attribution and rounding-route identifier. */
-    customerId: Hex
+    customerId: Hex.Hex
     /** Pool address. */
     pool: Address
     /** Destination of the output token. */
@@ -476,7 +476,7 @@ export namespace getSwapQuote {
       /** True sends base and receives quote. Defaults to true. */
       baseToQuote?: boolean | undefined
       /** Route identifier. Defaults to the taker address left-padded to 32 bytes. */
-      customerId?: Hex | undefined
+      customerId?: Hex.Hex | undefined
       /** Output destination. Defaults to the read account or client account. */
       recipient?: Address | undefined
       /** Address that will call the swap. Defaults to the read account or client account. */
@@ -497,7 +497,7 @@ export namespace getSwapQuote {
       ? {
           /** Quoted output amount in token base units. */
           amountOut: bigint
-          /** Swap inputs bound to this quote. Add a trade ID before submitting. */
+          /** Swap inputs bound to this quote. */
           request: Omit<
             Extract<swap.Args, { mode: 'exactInput' }>,
             'deadline' | 'tradeId'
@@ -506,7 +506,7 @@ export namespace getSwapQuote {
       : {
           /** Required input amount in token base units. */
           amountIn: bigint
-          /** Swap inputs bound to this quote. Add a trade ID before submitting. */
+          /** Swap inputs bound to this quote. */
           request: Omit<
             Extract<swap.Args, { mode: 'exactOutput' }>,
             'deadline' | 'tradeId'
@@ -567,7 +567,7 @@ namespace exactInput {
   export type Args = {
     amountIn: bigint
     baseToQuote: boolean
-    customerId: Hex
+    customerId: Hex.Hex
     deadline: bigint
     expectedOraclePrice: bigint
     minAmountOut: bigint
@@ -575,7 +575,7 @@ namespace exactInput {
     oraclePriceToleranceBps: bigint
     pool: Address
     recipient: Address
-    tradeId: Hex
+    tradeId: Hex.Hex
   }
 
   export function call({
@@ -618,7 +618,7 @@ namespace exactOutput {
   export type Args = {
     amountOut: bigint
     baseToQuote: boolean
-    customerId: Hex
+    customerId: Hex.Hex
     deadline: bigint
     expectedOraclePrice: bigint
     maxAmountIn: bigint
@@ -626,7 +626,7 @@ namespace exactOutput {
     oraclePriceToleranceBps: bigint
     pool: Address
     recipient: Address
-    tradeId: Hex
+    tradeId: Hex.Hex
   }
 
   export function call({
@@ -678,7 +678,6 @@ namespace exactOutput {
  *   mode: 'exactInput',
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   tradeId: '0x...',
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
@@ -703,7 +702,7 @@ export namespace swap {
     /** True sends base and receives quote; false sends quote and receives base. */
     baseToQuote: boolean
     /** Nonzero attribution and rounding-route identifier. */
-    customerId: Hex
+    customerId: Hex.Hex
     /** Last accepted execution timestamp in seconds. */
     deadline: bigint
     /** Oracle price returned by the quote. */
@@ -717,7 +716,7 @@ export namespace swap {
     /** Destination of the output token. */
     recipient: Address
     /** Trade attribution value, not replay protection. */
-    tradeId: Hex
+    tradeId: Hex.Hex
   } & (
     | {
         /** Exact-input swap. */
@@ -744,17 +743,20 @@ export namespace swap {
     | 'deadline'
     | 'oraclePriceToleranceBps'
     | 'recipient'
+    | 'tradeId'
   > & {
     /** True sends base and receives quote. Defaults to true. */
     baseToQuote?: boolean | undefined
     /** Route identifier. Defaults to the sender address left-padded to 32 bytes. */
-    customerId?: Hex | undefined
+    customerId?: Hex.Hex | undefined
     /** Last accepted execution timestamp. Defaults to five minutes from now. */
     deadline?: bigint | undefined
     /** Output destination. Defaults to the sending account. */
     recipient?: Address | undefined
     /** Accepted oracle-price movement in basis points. Defaults to zero. */
     oraclePriceToleranceBps?: bigint | undefined
+    /** Trade attribution value. Defaults to a random 32-byte value per swap. */
+    tradeId?: Hex.Hex | undefined
   }
 
   export type Parameters<
@@ -816,6 +818,7 @@ export namespace swap {
         baseToQuote,
         customerId,
         deadline: parameters.deadline ?? BigInt(Expiry.minutes(5)),
+        tradeId: parameters.tradeId ?? Hex.random(32),
         recipient,
         oraclePriceToleranceBps: parameters.oraclePriceToleranceBps ?? 0n,
       }),
@@ -902,7 +905,7 @@ export namespace swap {
    */
   export function extractEvent(
     logs: Log[],
-    args: { pool: Address; tradeId: Hex },
+    args: { pool: Address; tradeId: Hex.Hex },
   ) {
     const matching = parseEventLogs({
       abi: Abis.directPropAmm,
@@ -938,7 +941,6 @@ export namespace swap {
  *   mode: 'exactInput',
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   tradeId: '0x...',
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
@@ -956,14 +958,22 @@ export async function swapSync<
   client: Client<Transport, chain, account>,
   parameters: swapSync.Parameters<chain, account>,
 ): Promise<swapSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const {
+    tradeId = Hex.random(32),
+    throwOnReceiptRevert = true,
+    ...rest
+  } = parameters
   const receipt = await swap.inner(sendTransactionSync, client, {
     ...rest,
     throwOnReceiptRevert,
+    tradeId,
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  const { args } = swap.extractEvent(receipt.logs, parameters)
+  const { args } = swap.extractEvent(receipt.logs, {
+    pool: parameters.pool,
+    tradeId,
+  })
   return { ...args, receipt } as never
 }
 

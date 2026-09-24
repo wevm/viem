@@ -554,7 +554,6 @@ describe('swapSync', () => {
       ...request,
       account,
       customerId: undefined,
-      tradeId: Hex.random(32),
     })
     const latestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
     const transaction = await getTransaction(client, {
@@ -572,6 +571,8 @@ describe('swapSync', () => {
     expect(trade.customerId.toLowerCase()).toBe(
       `0x${'0'.repeat(24)}${account.address.slice(2).toLowerCase()}`,
     )
+    expect(trade.tradeId).toMatch(/^0x[0-9a-f]{64}$/)
+    expect(call.args[5]).toBe(trade.tradeId)
     expect(trade.tokenIn).toBe(stack.base)
     expect(trade.tokenOut).toBe(stack.quote)
     const after = await Actions.token.getBalance(client, {
@@ -659,10 +660,7 @@ describe('swapSync', () => {
       spender: stack.pool,
       token: stack.quote,
     })
-    const trade = await Actions.propAmm.swapSync(client, {
-      ...request,
-      tradeId: Hex.random(32),
-    })
+    const trade = await Actions.propAmm.swapSync(client, request)
     expect(trade.amountIn).toBe(amountIn)
     const after = await readContract(client, {
       abi: Abis.tip20,
