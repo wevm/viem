@@ -451,6 +451,10 @@ export default defineConfig({
             text: 'Proof',
             items: [
               {
+                text: 'getStorageValues',
+                link: '/docs/actions/public/getStorageValues',
+              },
+              {
                 text: 'getProof',
                 link: '/docs/actions/public/getProof',
               },
