@@ -147,3 +147,27 @@ test('swap builders compose with standalone and decorated actions', async () => 
   expectTypeOf(trade.amountOut).toEqualTypeOf<bigint>()
   expectTypeOf(trade.receipt.transactionHash).toEqualTypeOf<Hash>()
 })
+
+test('quote and swap accept omitted defaults', async () => {
+  const quote = await client.propAmm.getSwapQuote({
+    amountIn: 1n,
+    customerId,
+    mode: 'exactInput',
+    pool,
+  })
+  expectTypeOf(quote.amountOut).toEqualTypeOf<bigint>()
+  const parameters = {
+    amountOut: 1n,
+    customerId,
+    expectedOraclePrice: quote.price,
+    maxAmountIn: 2n,
+    minimumOracleUpdatedAt: quote.updatedAt,
+    mode: 'exactOutput' as const,
+    pool,
+    tradeId,
+  } as const
+  expectTypeOf(await client.propAmm.swap(parameters)).toEqualTypeOf<Hash>()
+  await client.propAmm.swapSync(parameters)
+  await propAmm.swap.estimateGas(client, parameters)
+  await client.propAmm.swap.simulate(parameters)
+})

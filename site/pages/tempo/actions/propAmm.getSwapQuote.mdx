@@ -13,11 +13,9 @@ import { client } from './viem.config'
 
 const { amountOut, price, updatedAt, creditAfter } = await client.propAmm.getSwapQuote({
   amountIn: 1_000_000n,
-  baseToQuote: true,
   customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
-  recipient: '0x0000000000000000000000000000000000000001',
 })
 // @log: { amountOut, price, updatedAt, creditAfter }
 ```
@@ -57,6 +55,7 @@ Required with `mode: 'exactOutput'`. Output amount in token base units.
 ### baseToQuote
 
 - **Type:** `boolean`
+- **Default:** `true`
 
 Set `true` to send base and receive quote, or `false` to send quote and receive base.
 
@@ -81,8 +80,9 @@ Address of the propAMM pool.
 ### recipient
 
 - **Type:** `Address`
+- **Default:** The account override or client account
 
-Destination of the output token.
+Destination of the output token. Required when no account is available.
 
 ### taker
 

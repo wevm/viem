@@ -13,15 +13,12 @@ import { client } from './viem.config'
 
 const { receipt } = await client.propAmm.swapSync({
   amountIn: 1_000_000n,
-  baseToQuote: true,
   customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
-  deadline: 1_800_000_000n,
   expectedOraclePrice: 1_000_000_000_000_000_000n,
   minAmountOut: 1_000_000n,
   minimumOracleUpdatedAt: 1_799_999_000n,
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
-  recipient: '0x0000000000000000000000000000000000000001',
   tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
 })
 
@@ -34,7 +31,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 :::
 
-The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires an explicit `oraclePriceToleranceBps`.
+The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires explicit `baseToQuote`, `deadline`, `recipient`, and `oraclePriceToleranceBps` values.
 
 Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
 
@@ -51,15 +48,12 @@ import { client } from './viem.config'
 
 const hash = await client.propAmm.swap({
   amountIn: 1_000_000n,
-  baseToQuote: true,
   customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
-  deadline: 1_800_000_000n,
   expectedOraclePrice: 1_000_000_000_000_000_000n,
   minAmountOut: 1_000_000n,
   minimumOracleUpdatedAt: 1_799_999_000n,
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
-  recipient: '0x0000000000000000000000000000000000000001',
   tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
@@ -102,6 +96,7 @@ Required with `mode: 'exactOutput'`. Output amount in token base units.
 ### baseToQuote
 
 - **Type:** `boolean`
+- **Default:** `true`
 
 Set `true` to send base and receive quote, or `false` to send quote and receive base.
 
@@ -114,6 +109,7 @@ Nonzero 32-byte customer route identifier.
 ### deadline
 
 - **Type:** `bigint`
+- **Default:** Five minutes from the current time
 
 Last accepted execution timestamp, in Unix seconds.
 
@@ -163,8 +159,9 @@ Address of the propAMM pool and spender approved by the action.
 ### recipient
 
 - **Type:** `Address`
+- **Default:** The account override or client account
 
-Destination of the output token.
+Destination of the output token. Required when no account is available.
 
 ### tradeId
 

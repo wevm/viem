@@ -1,8 +1,9 @@
 import * as Hex from 'ox/Hex'
-import { parseUnits } from 'viem'
+import { decodeFunctionData, parseUnits } from 'viem'
 import {
   deployContract,
   getBlock,
+  getTransaction,
   readContract,
   sendTransactionSync,
   simulateContract,
@@ -96,6 +97,30 @@ describe('getSwapQuote', () => {
         recipient: recipient.address,
       }),
     ).rejects.toThrow('A taker or client account is required to quote.')
+  })
+
+  test('defaults direction and recipient to the read account', async () => {
+    const options = {
+      amountIn: 1n,
+      customerId,
+      mode: 'exactInput' as const,
+      pool: stack.pool,
+      taker: account.address,
+    }
+    const explicit = await client.propAmm.getSwapQuote({
+      ...options,
+      baseToQuote: true,
+      recipient: recipient.address,
+    })
+    expect(
+      await client.propAmm.getSwapQuote({
+        ...options,
+        account: recipient.address,
+      }),
+    ).toEqual(explicit)
+    await expect(
+      Actions.propAmm.getSwapQuote(getClient(), options),
+    ).rejects.toThrow('Could not find an Account')
   })
 
   test('keeps rounding credit isolated by customer route', async () => {
@@ -510,6 +535,50 @@ describe('swap', () => {
 })
 
 describe('swapSync', () => {
+  test('defaults direction, recipient, and deadline', async () => {
+    const options = {
+      amountIn: 1_000_000n,
+      customerId,
+      mode: 'exactInput' as const,
+      pool: stack.pool,
+    }
+    const { amountOut, price, updatedAt } =
+      await client.propAmm.getSwapQuote(options)
+    const before = await Actions.token.getBalance(client, {
+      token: stack.quote,
+      account: account.address,
+    })
+    const earliestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
+    const trade = await Actions.propAmm.swapSync(getClient(), {
+      ...options,
+      account,
+      expectedOraclePrice: price,
+      minAmountOut: amountOut,
+      minimumOracleUpdatedAt: updatedAt,
+      tradeId: Hex.random(32),
+    })
+    const latestDeadline = BigInt(Math.floor(Date.now() / 1000) + 300)
+    const transaction = await getTransaction(client, {
+      hash: trade.receipt.transactionHash,
+    })
+    const call = decodeFunctionData({
+      abi: Abis.directPropAmm,
+      data: transaction.calls![1]!.data!,
+    })
+    expect(call.functionName).toBe('swapExactInput')
+    if (call.functionName !== 'swapExactInput')
+      throw new Error('Expected an exact-input swap.')
+    expect(call.args[6]).toBeGreaterThanOrEqual(earliestDeadline)
+    expect(call.args[6]).toBeLessThanOrEqual(latestDeadline)
+    expect(trade.tokenIn).toBe(stack.base)
+    expect(trade.tokenOut).toBe(stack.quote)
+    const after = await Actions.token.getBalance(client, {
+      token: stack.quote,
+      account: account.address,
+    })
+    expect(after.amount - before.amount).toBe(amountOut)
+  })
+
   test('quotes, simulates, approves, and sells base for quote', async () => {
     const amountIn = parseUnits('2', 6)
     const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
@@ -685,6 +754,12 @@ async function setup() {
     abi: Abis.directPropAmm,
     address: pool,
     args: [recipient.address, true],
+    functionName: 'setRecipientAllowed',
+  })
+  await writeContractSync(client, {
+    abi: Abis.directPropAmm,
+    address: pool,
+    args: [account.address, true],
     functionName: 'setRecipientAllowed',
   })
   await writeContractSync(client, {

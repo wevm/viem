@@ -11,6 +11,7 @@ import {
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs } from '../../types/contract.js'
@@ -20,6 +21,7 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
+import * as Expiry from '../Expiry.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -367,7 +369,6 @@ export namespace resolveRecipient {
  *   recipient: '0x...',
  *   customerId: '0x...',
  *   mode: 'exactInput',
- *   baseToQuote: true,
  *   amountIn: 1_000_000n,
  * })
  * ```
@@ -390,9 +391,17 @@ export async function getSwapQuote(
   const account = parameters.account ?? client.account
   const taker = parameters.taker ?? (account && parseAccount(account).address)
   if (!taker) throw new Error('A taker or client account is required to quote.')
+  const recipient =
+    parameters.recipient ?? (account && parseAccount(account).address)
+  if (!recipient) throw new AccountNotFoundError()
   const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
     ...parameters,
-    ...getSwapQuote.call({ ...parameters, taker }),
+    ...getSwapQuote.call({
+      ...parameters,
+      baseToQuote: parameters.baseToQuote ?? true,
+      recipient,
+      taker,
+    }),
   } as never) as Promise<
     ReadContractReturnType<typeof Abis.directPropAmm, 'quoteExactInputFor'>
   >)
@@ -434,7 +443,11 @@ export namespace getSwapQuote {
   )
 
   export type Parameters = ReadParameters &
-    UnionOmit<Args, 'taker'> & {
+    UnionOmit<Args, 'baseToQuote' | 'recipient' | 'taker'> & {
+      /** True sends base and receives quote. Defaults to true. */
+      baseToQuote?: boolean | undefined
+      /** Output destination. Defaults to the read account or client account. */
+      recipient?: Address | undefined
       /** Address that will call the swap. Defaults to the read account or client account. */
       taker?: Address | undefined
     }
@@ -622,13 +635,10 @@ namespace exactOutput {
  * const hash = await Actions.propAmm.swap(client, {
  *   pool: '0x...',
  *   mode: 'exactInput',
- *   baseToQuote: true,
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   recipient: '0x...',
  *   customerId: '0x...',
  *   tradeId: '0x...',
- *   deadline: 1_800_000_000n,
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
@@ -687,7 +697,16 @@ export namespace swap {
       }
   )
 
-  export type InputArgs = UnionOmit<Args, 'oraclePriceToleranceBps'> & {
+  export type InputArgs = UnionOmit<
+    Args,
+    'baseToQuote' | 'deadline' | 'oraclePriceToleranceBps' | 'recipient'
+  > & {
+    /** True sends base and receives quote. Defaults to true. */
+    baseToQuote?: boolean | undefined
+    /** Last accepted execution timestamp. Defaults to five minutes from now. */
+    deadline?: bigint | undefined
+    /** Output destination. Defaults to the sending account. */
+    recipient?: Address | undefined
     /** Accepted oracle-price movement in basis points. Defaults to zero. */
     oraclePriceToleranceBps?: bigint | undefined
   }
@@ -720,8 +739,16 @@ export namespace swap {
   async function getCalls<
     chain extends Chain | undefined,
     account extends Account | undefined,
-  >(client: Client<Transport, chain, account>, parameters: InputArgs) {
-    const tokenIn = await (parameters.baseToQuote
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: InputArgs & { account?: Account | Address | null | undefined },
+  ) {
+    const account = parameters.account ?? client.account
+    const recipient =
+      parameters.recipient ?? (account && parseAccount(account).address)
+    if (!recipient) throw new AccountNotFoundError()
+    const baseToQuote = parameters.baseToQuote ?? true
+    const tokenIn = await (baseToQuote
       ? baseToken(client, { pool: parameters.pool })
       : quoteToken(client, { pool: parameters.pool }))
     const amount =
@@ -736,6 +763,9 @@ export namespace swap {
       }),
       swap.call({
         ...parameters,
+        baseToQuote,
+        deadline: parameters.deadline ?? BigInt(Expiry.minutes(5)),
+        recipient,
         oraclePriceToleranceBps: parameters.oraclePriceToleranceBps ?? 0n,
       }),
     ] as const
@@ -855,13 +885,10 @@ export namespace swap {
  * const trade = await Actions.propAmm.swapSync(client, {
  *   pool: '0x...',
  *   mode: 'exactInput',
- *   baseToQuote: true,
  *   amountIn: 1_000_000n,
  *   minAmountOut: 1_000_000n,
- *   recipient: '0x...',
  *   customerId: '0x...',
  *   tradeId: '0x...',
- *   deadline: 1_800_000_000n,
  *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })

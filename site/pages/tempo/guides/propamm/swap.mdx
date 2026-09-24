@@ -31,11 +31,9 @@ import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6), // Use the base token's decimals.
-  baseToQuote: true,
   customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
-  recipient: client.account.address,
 })
 console.log(amountOut, price, updatedAt)
 ```
@@ -52,6 +50,9 @@ Get a fresh quote, then use its output, oracle price, and observation time with
 [`swapSync`](/tempo/actions/propAmm.swap). The action approves the pool and swaps in one Tempo
 transaction. The sender must hold the input tokens.
 
+By default, swaps send base and receive quote, deliver output to the sending account, and expire
+five minutes after the call. Set `baseToQuote`, `recipient`, or `deadline` to override these defaults.
+
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -60,24 +61,19 @@ import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountIn: parseUnits('1', 6),
-  baseToQuote: true,
   customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
   pool: '0x...',
-  recipient: client.account.address,
 })
 
 const trade = await client.propAmm.swapSync({ // [!code focus]
   amountIn: parseUnits('1', 6),
-  baseToQuote: true,
   customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactInput',
-  deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
   expectedOraclePrice: price,
   minAmountOut: amountOut,
   minimumOracleUpdatedAt: updatedAt,
   pool: '0x...',
-  recipient: client.account.address,
   tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
 })
 console.log(trade.amountOut, trade.receipt.transactionHash)
@@ -105,24 +101,19 @@ import { client } from './viem.config'
 
 const { amountIn, price, updatedAt } = await client.propAmm.getSwapQuote({
   amountOut: parseUnits('1', 6),
-  baseToQuote: true,
   customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactOutput',
   pool: '0x...',
-  recipient: client.account.address,
 })
 
 const trade = await client.propAmm.swapSync({ // [!code focus]
   amountOut: parseUnits('1', 6),
-  baseToQuote: true,
   customerId: stringToHex('customer-route', { size: 32 }),
   mode: 'exactOutput',
-  deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
   expectedOraclePrice: price,
   maxAmountIn: amountIn,
   minimumOracleUpdatedAt: updatedAt,
   pool: '0x...',
-  recipient: client.account.address,
   tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
 })
 console.log(trade.amountIn, trade.receipt.transactionHash)
