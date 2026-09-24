@@ -47,7 +47,7 @@ type ReturnType = {
   policyId: bigint
   updater: Address
   rulesHash: Hex
-  rules: { maxSlippageBps: number; routes: FundingPolicy.Route[] }
+  rules: FundingPolicy.Rules
   receipt: TransactionReceipt
 }
 ```

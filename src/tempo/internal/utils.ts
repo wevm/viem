@@ -1,5 +1,5 @@
 import type { Abi, AbiStateMutability, Address } from 'abitype'
-import { type FundingRequirement, TokenId } from 'ox/tempo'
+import { TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
@@ -15,6 +15,7 @@ import type { Hex } from '../../types/misc.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
+import type { FundingRequirementInput } from './fundingRequirement.js'
 import type { InferredFundingRequirement } from './types.js'
 
 /**
@@ -225,7 +226,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
 export function inferFundingRequirements(
   requirements: readonly InferredFundingRequirement[] | undefined,
   input: { token: Address; amount: bigint },
-): readonly FundingRequirement.FundingRequirement[] | undefined {
+): readonly FundingRequirementInput[] | undefined {
   return requirements?.map((requirement) => ({
     ...requirement,
     token: requirement.token ?? input.token,

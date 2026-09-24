@@ -149,6 +149,23 @@ type DecoratorBase<
       parameters: accessKeyActions.burnWitnessSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.burnWitnessSync.ReturnValue>
     /**
+     * Gets the funding policy ID assigned to an installed access key.
+     *
+     * @example
+     * ```ts
+     * const policyId = await client.accessKey.getFundingPolicyId({
+     *   account: '0x...',
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Account and access key.
+     * @returns The policy ID, or zero when none is assigned.
+     */
+    getFundingPolicyId: (
+      parameters: accessKeyActions.getFundingPolicyId.Parameters<account>,
+    ) => Promise<accessKeyActions.getFundingPolicyId.ReturnValue>
+    /**
      * Gets access key information.
      *
      * @example
@@ -6029,6 +6046,7 @@ export function decorator() {
         'authorizeSync',
         'burnWitness',
         'burnWitnessSync',
+        'getFundingPolicyId',
         'getMetadata',
         'getRemainingLimit',
         'isAdmin',

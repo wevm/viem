@@ -1,4 +1,9 @@
-import { Addresses, FundingRequirement, FundingSource } from 'viem/tempo'
+import {
+  Addresses,
+  FundingPolicy,
+  FundingRequirement,
+  FundingSource,
+} from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
@@ -62,5 +67,62 @@ describe('serialize', () => {
     expect(
       await Transaction.serialize({ ...transaction, requireFunds: [] }),
     ).toBe(await Transaction.serialize(transaction))
+  })
+})
+
+describe('behavior', () => {
+  test.each(['decoded', 'encoded'] as const)(
+    'normalizes %s rules before RPC formatting and signing',
+    async (type) => {
+      const rules = {
+        maxSlippageBps: 100,
+        sources: { [token]: [FundingSource.dex({ tokenIn: token })] },
+      }
+      const encoded = FundingPolicy.encode(rules)
+      const input = {
+        ...requirement,
+        rules: type === 'decoded' ? rules : encoded,
+      }
+      const expected = { ...requirement, policyRules: encoded }
+      for (const action of [undefined, 'estimateGas', 'call']) {
+        expect(
+          Formatters.formatTransactionRequest({ requireFunds: [input] }, action)
+            .requireFunds,
+        ).toEqual([FundingRequirement.toRpc(expected)])
+      }
+      const transaction = { chainId: 1337, calls: [{ to: token }] }
+      expect(
+        await Transaction.serialize({ ...transaction, requireFunds: [input] }),
+      ).toBe(
+        await Transaction.serialize({
+          ...transaction,
+          requireFunds: [expected],
+        }),
+      )
+      expect(input).toHaveProperty('rules')
+      expect(input).not.toHaveProperty('policyRules')
+    },
+  )
+
+  test('rejects conflicting rules fields', async () => {
+    const input = {
+      ...requirement,
+      rules: '0x1234' as const,
+      policyRules: '0x5678' as const,
+    }
+    expect(() =>
+      Formatters.formatTransactionRequest({ requireFunds: [input] }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Specify either \`rules\` or \`policyRules\`, not both.]`,
+    )
+    await expect(
+      Transaction.serialize({
+        chainId: 1337,
+        calls: [],
+        requireFunds: [input],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Specify either \`rules\` or \`policyRules\`, not both.]`,
+    )
   })
 })

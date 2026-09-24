@@ -2550,6 +2550,10 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.burnWitness',
                 },
                 {
+                  text: 'getFundingPolicyId',
+                  link: '/tempo/actions/accessKey.getFundingPolicyId',
+                },
+                {
                   text: 'getMetadata',
                   link: '/tempo/actions/accessKey.getMetadata',
                 },

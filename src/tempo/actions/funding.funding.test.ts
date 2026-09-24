@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
+import { ContractFunctionRevertedError } from '../../errors/contract.js'
 import { isAddressEqual, parseUnits } from '../../index.js'
 import { Account, Addresses, FundingPolicy, FundingSource } from '../index.js'
 import * as actions from './index.js'
@@ -60,6 +61,7 @@ describe('discover', () => {
         rules,
       })
       expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
+      expect(discovery.rules).toEqual(rules)
       expect(discovery.sources).toHaveLength(1)
       expect(
         isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
@@ -115,14 +117,22 @@ describe('discover', () => {
       rules,
     })
     await expect(
-      actions.funding.discover(client, {
-        policyId,
-        account: accounts[0].address,
-        token: Addresses.betaUsd,
-        amount: parseUnits('50', 6),
-        rules: FundingPolicy.encode(rules),
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .discover(client, {
+          policyId,
+          account: accounts[0].address,
+          token: Addresses.betaUsd,
+          amount: parseUnits('50', 6),
+          rules: FundingPolicy.encode(rules),
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
   })
 
   test('rejects stale rules', async () => {
@@ -137,37 +147,61 @@ describe('discover', () => {
       rules: { ...rules, maxSlippageBps: 200 },
     })
     await expect(
-      actions.funding.discover(client, {
-        policyId,
-        account: accounts[0].address,
-        token: Addresses.pathUsd,
-        amount: parseUnits('1', 6),
-        rules: FundingPolicy.encode(rules),
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .discover(client, {
+          policyId,
+          account: accounts[0].address,
+          token: Addresses.pathUsd,
+          amount: parseUnits('1', 6),
+          rules: FundingPolicy.encode(rules),
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
   })
 
   test('rejects a missing policy instead of using rules-only discovery', async () => {
     await expect(
-      actions.funding.discover(client, {
-        account: accounts[0].address,
-        amount: parseUnits('1', 6),
-        policyId: 0n,
-        rules: FundingPolicy.encode(rules),
-        token: Addresses.pathUsd,
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .discover(client, {
+          account: accounts[0].address,
+          amount: parseUnits('1', 6),
+          policyId: 0n,
+          rules: FundingPolicy.encode(rules),
+          token: Addresses.pathUsd,
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
   })
 
   test('rejects malformed rules without a stored policy', async () => {
     await expect(
-      actions.funding.discover(client, {
-        account: accounts[0].address,
-        amount: parseUnits('1', 6),
-        rules: '0x1234',
-        token: Addresses.pathUsd,
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .discover(client, {
+          account: accounts[0].address,
+          amount: parseUnits('1', 6),
+          rules: '0x1234',
+          token: Addresses.pathUsd,
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
   })
 
   test('omits a source that cannot verify the output token', async () => {
@@ -206,8 +240,10 @@ describe('createPolicy', () => {
     expect(created.policyId).toBe(counter)
     expect(created.rulesHash).toBe(FundingPolicy.hash(rules))
     expect(created.rules.maxSlippageBps).toBe(100)
-    expect(created.rules.routes).toHaveLength(1)
-    expect(created.rules.routes[0]?.sources).toHaveLength(1)
+    expect(FundingPolicy.hash(created.rules)).toBe(created.rulesHash)
+    expect(Object.values(created.rules.sources)).toEqual(
+      Object.values(rules.sources),
+    )
     expect(await actions.funding.policyIdCounter(client)).toBe(counter + 1n)
     expect(
       await actions.funding.policyExists(client, {
@@ -223,12 +259,20 @@ describe('createPolicy', () => {
 
   test('rejects invalid slippage', async () => {
     await expect(
-      actions.funding.createPolicySync(client, {
-        account: accounts[0],
-        admins: [accounts[0].address],
-        rules: { ...rules, maxSlippageBps: 10_001 },
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .createPolicySync(client, {
+          account: accounts[0],
+          admins: [accounts[0].address],
+          rules: { ...rules, maxSlippageBps: 10_001 },
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
   })
 })
 
@@ -241,18 +285,28 @@ describe('setPolicyRules', () => {
     })
 
     await expect(
-      actions.funding.setPolicyRulesSync(client, {
-        account: accounts[1],
-        policyId: created.policyId,
-        rules: { ...rules, maxSlippageBps: 200 },
-      }),
-    ).rejects.toThrow()
+      actions.funding
+        .setPolicyRulesSync(client, {
+          account: accounts[1],
+          policyId: created.policyId,
+          rules: { ...rules, maxSlippageBps: 200 },
+        })
+        .catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+    ).rejects.toThrowErrorMatchingSnapshot()
 
     const updated = await actions.funding.setPolicyRulesSync(client, {
       account: accounts[0],
       policyId: created.policyId,
       rules: { ...rules, maxSlippageBps: 200 },
     })
+    expect(FundingPolicy.hash(updated.rules)).toBe(updated.rulesHash)
+    expect(updated.rules.maxSlippageBps).toBe(200)
     expect(updated.rulesHash).toBe(
       FundingPolicy.hash({ ...rules, maxSlippageBps: 200 }),
     )

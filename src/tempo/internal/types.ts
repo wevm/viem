@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { FundingRequirement, TokenId } from 'ox/tempo'
+import type { TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractParameters as viem_ReadContractParameters } from '../../actions/public/readContract.js'
 import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } from '../../actions/wallet/writeContractSync.js'
@@ -10,6 +10,7 @@ import type {
   UnionPick,
 } from '../../types/utils.js'
 import type { TransactionRequestTempo } from '../Transaction.js'
+import type { FundingRequirementInput } from './fundingRequirement.js'
 
 /**
  * Selects a TIP20 token by `token`, which is either a TIP20 token id or a
@@ -82,7 +83,7 @@ export type WriteParameters<
 
 /** Funding requirement whose target can be inferred from an action's spend. */
 export type InferredFundingRequirement = Omit<
-  FundingRequirement.FundingRequirement,
+  FundingRequirementInput,
   'token' | 'amount'
 > & {
   /** Output token; defaults to the action's spent token. */

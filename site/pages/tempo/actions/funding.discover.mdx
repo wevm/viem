@@ -32,7 +32,9 @@ const discovery = await client.funding.discover({
 
 :::
 
-For owner-authorized funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
+For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
+
+The result includes the supplied `rules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
 
 ## Return Type
 
@@ -40,6 +42,7 @@ For owner-authorized funding, pass `requireFunds: [discovery]` to a Tempo transa
 type ReturnType = {
   token: Address
   amount: bigint
+  rules: FundingPolicy.Rules | Hex
   slippageBps: number
   sources: {
     to: Address

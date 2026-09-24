@@ -124,9 +124,69 @@ await client.token.transferSync({
 ```
 :::
 
-Supply `policyId` to also verify the rules against a stored policy's current hash. Obtain those rules from creation or update events, or an indexer. Access key transactions still require matching `policyRules` regardless of how discovery was called.
+Supply `policyId` to also verify the rules against a stored policy's current hash. Obtain those rules from creation or update events, or an indexer. Discovery includes the supplied `rules`, so its result can also fund an access key transaction.
 
 Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is omitted from transaction encoding.
+
+### Fund with an Access Key
+
+Authorize the access key with a funding policy and a spending limit for the payment token. An inline policy creates a new policy when the key is installed; use `fundingPolicy: policyId` to bind an existing policy.
+
+:::code-group
+
+```ts [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { parseUnits } from 'viem'
+import { Account, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: client.account,
+})
+
+const { policyId, rules } = await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+
+await client.accessKey.authorizeSync({
+  accessKey,
+  fundingPolicy: policyId,
+  limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+})
+
+await client.token.transferSync({
+  account: accessKey,
+  amount: parseUnits('50', 6),
+  requireFunds: [{
+    rules,
+    sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Pass `rules` as a decoded object or ABI-encoded hex. Viem encodes it into `policyRules` for access key execution and omits it for owner-authorized execution. Do not supply both fields.
+
+Omitting `slippageBps` uses the policy maximum. An explicit value cannot exceed it. Funding cannot pay transaction fees; the account needs a fee balance or a fee payer, and call scopes must allow the payment.
+
+Read an installed key's policy ID with [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId). For discovery, supply that ID and current rules, then pass the result directly as `requireFunds: [discovery]`.
+
+Policy updates invalidate previously encoded rules. Obtain current rules from creation/update events or your indexer and sign a new transaction; Viem does not rewrite signed requirements or automatically retry with different permissions.
+
+For inline installation and payment in one transaction, use `accessKey.signAuthorization` and pass the signed `keyAuthorization` with the access key transaction. Funding and payment revert together, but key and inline-policy installation can persist when a later payment reverts.
 
 ## Best Practices
 
@@ -134,9 +194,9 @@ Discovery reports current availability but does not reserve it. `availableAmount
 - `slippageBps` applies across all sources in a requirement. Zero allows no aggregate loss; omission uses the protocol default.
 - Source caps use input token base units. Omitting `maxAmountIn` allows the maximum input amount, subject to protocol limits.
 - Funding cannot pay transaction fees. Hold a supported fee token or use [fee sponsorship](/tempo/guides/sponsor-fees).
-- Owner-authorized requirements omit `policyRules`.
+- Owner-authorized execution omits discovery `rules` from the signed transaction. Explicit `policyRules` remains a protocol field for access key funding.
 
-The pinned draft node can underestimate gas for some funding paths. The E2E fixtures supply an explicit gas limit; verify estimates against your target node before deployment.
+Gas is estimated automatically. Tests that intentionally submit reverting transactions supply a gas limit to bypass estimation and verify onchain rollback.
 
 ## See More
 

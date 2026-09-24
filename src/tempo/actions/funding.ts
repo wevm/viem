@@ -17,6 +17,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { fundingErrors } from '../internal/fundingErrors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -96,7 +97,7 @@ export namespace createPolicy {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'createPolicy',
       args: [
         args.admins,
@@ -116,7 +117,7 @@ export namespace createPolicy {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       eventName: 'PolicyCreated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -124,7 +125,21 @@ export namespace createPolicy {
       strict: true,
     })
     if (!log) throw new Error('`PolicyCreated` event not found.')
-    return log
+    return {
+      ...log,
+      args: {
+        ...log.args,
+        rules: {
+          maxSlippageBps: log.args.rules.maxSlippageBps,
+          sources: Object.fromEntries(
+            log.args.rules.routes.map(({ token, sources }) => [
+              token,
+              sources.map(({ target, data }) => ({ to: target, data })),
+            ]),
+          ),
+        } satisfies FundingPolicy.Rules,
+      },
+    }
   }
 }
 
@@ -161,10 +176,7 @@ export namespace createPolicySync {
     policyId: bigint
     updater: Address
     rulesHash: Hex
-    rules: {
-      maxSlippageBps: number
-      routes: readonly FundingPolicy.Route[]
-    }
+    rules: FundingPolicy.Rules
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType
@@ -205,7 +217,7 @@ export namespace getPolicy {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'getPolicy',
       args: [args.policyId],
     })
@@ -246,7 +258,7 @@ export namespace policyExists {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'policyExists',
       args: [args.policyId],
     })
@@ -284,7 +296,7 @@ export namespace policyIdCounter {
   export function call() {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'policyIdCounter',
       args: [],
     })
@@ -349,7 +361,7 @@ export namespace setPolicyRules {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'setRules',
       args: [
         args.policyId,
@@ -369,7 +381,7 @@ export namespace setPolicyRules {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       eventName: 'PolicyRulesUpdated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -377,7 +389,21 @@ export namespace setPolicyRules {
       strict: true,
     })
     if (!log) throw new Error('`PolicyRulesUpdated` event not found.')
-    return log
+    return {
+      ...log,
+      args: {
+        ...log.args,
+        rules: {
+          maxSlippageBps: log.args.rules.maxSlippageBps,
+          sources: Object.fromEntries(
+            log.args.rules.routes.map(({ token, sources }) => [
+              token,
+              sources.map(({ target, data }) => ({ to: target, data })),
+            ]),
+          ),
+        } satisfies FundingPolicy.Rules,
+      },
+    }
   }
 }
 
@@ -414,7 +440,7 @@ export namespace setPolicyRulesSync {
     policyId: bigint
     updater: Address
     rulesHash: Hex
-    rules: { maxSlippageBps: number; routes: readonly FundingPolicy.Route[] }
+    rules: FundingPolicy.Rules
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType
@@ -478,7 +504,7 @@ export namespace setPolicyAdmins {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       functionName: 'setAdmins',
       args: [args.policyId, args.admins],
     })
@@ -492,7 +518,7 @@ export namespace setPolicyAdmins {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...fundingErrors],
       eventName: 'PolicyAdminsUpdated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -588,19 +614,20 @@ export async function discover<chain extends Chain | undefined>(
       ? await readContract(client, {
           ...rest,
           address: Addresses.fundingDiscovery,
-          abi: Abis.fundingDiscovery,
+          abi: [...Abis.fundingDiscovery, ...fundingErrors],
           functionName: 'discover',
           args: [account, token, amount, encodedRules],
         })
       : await readContract(client, {
           ...rest,
           address: Addresses.fundingDiscovery,
-          abi: Abis.fundingDiscovery,
+          abi: [...Abis.fundingDiscovery, ...fundingErrors],
           functionName: 'discover',
           args: [policyId, account, token, amount, encodedRules],
         })
   return {
     ...discovery,
+    rules,
     sources: sources.map(({ target, ...source }) => ({
       ...source,
       to: target,
@@ -629,7 +656,9 @@ export namespace discover {
     amount: bigint
     /** Maximum aggregate slippage from the supplied rules. */
     slippageBps: number
-    /** Ordered sources usable directly in an owner-authorized funding requirement. */
+    /** Rules used for discovery, reusable for access key funding. */
+    rules: Hex | FundingPolicy.Rules
+    /** Ordered sources usable directly in a funding requirement. */
     sources: readonly {
       /** Funding source address. */
       to: Address
@@ -658,7 +687,7 @@ export namespace discover {
         address: Addresses.fundingDiscovery,
         abi: [
           getAbiItem({
-            abi: Abis.fundingDiscovery,
+            abi: [...Abis.fundingDiscovery, ...fundingErrors],
             name: 'discover',
             args: parameters,
           }),
@@ -678,7 +707,7 @@ export namespace discover {
       address: Addresses.fundingDiscovery,
       abi: [
         getAbiItem({
-          abi: Abis.fundingDiscovery,
+          abi: [...Abis.fundingDiscovery, ...fundingErrors],
           name: 'discover',
           args: parameters,
         }),

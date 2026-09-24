@@ -26,6 +26,7 @@ import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import { normalizeFundingRequirements } from './internal/fundingRequirement.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -70,6 +71,17 @@ export const chainConfig = {
         multisigSimulation?: MultisigSimulation.Spec | undefined
         owner?: Account | MultisigAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
+      }
+
+      if ('requireFunds' in request && request.requireFunds) {
+        const account = request.account ?? client.account
+        request.requireFunds = normalizeFundingRequirements(
+          request.requireFunds,
+          Boolean(
+            account &&
+              (typeof account === 'string' || account.source !== 'accessKey'),
+          ),
+        )
       }
 
       if (request.hash) {

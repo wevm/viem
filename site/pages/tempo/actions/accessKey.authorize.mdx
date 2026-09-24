@@ -352,6 +352,14 @@ Whether to authorize the key as an admin key. Admin keys are unrestricted and ca
 
 Unix timestamp when the key expires.
 
+### fundingPolicy (optional)
+
+- **Type:** `bigint | FundingPolicy.Inline`
+
+Existing funding policy ID or an inline `{ admins, rules }` policy to create when the key is installed. Funding transactions using this key must supply the current encoded rules in each requirement's `rules`.
+
+See [access key funding](/tempo/guides/funding#fund-with-an-access-key) for a complete example.
+
 ### limits (optional)
 
 - **Type:** `{ token: Address; limit: bigint; period?: number }[]`

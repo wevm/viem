@@ -44,6 +44,10 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { RootAccount } from './Account.js'
+import {
+  type FundingRequirementInput,
+  normalizeFundingRequirements,
+} from './internal/fundingRequirement.js'
 import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<
@@ -144,7 +148,7 @@ export type TransactionRequestTempo<
     owner?: RootAccount | undefined
     /** Token balances to satisfy before calls execute. */
     requireFunds?:
-      | readonly FundingRequirement.FundingRequirement<quantity, index>[]
+      | readonly FundingRequirementInput<quantity, index>[]
       | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
@@ -170,7 +174,7 @@ export type TransactionSerializableTempo<
     owner?: RootAccount | undefined
     /** Token balances to satisfy before calls execute. */
     requireFunds?:
-      | readonly FundingRequirement.FundingRequirement<quantity, index>[]
+      | readonly FundingRequirementInput<quantity, index>[]
       | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     validBefore?: index | undefined
@@ -376,6 +380,7 @@ async function serializeTempo(
 
   const transaction_ox = {
     ...rest,
+    requireFunds: normalizeFundingRequirements(transaction.requireFunds),
     calls: rest.calls?.length
       ? rest.calls
       : [

@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 import type * as RpcSchema from 'ox/RpcSchema'
 import {
+  type FundingPolicy,
   KeyAuthorization,
   MultisigConfig,
   MultisigOperation,
@@ -127,6 +128,8 @@ export namespace authorize {
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
+    /** Existing funding policy ID or inline policy for delegated funding. */
+    fundingPolicy?: FundingPolicy.Authorization | undefined
     /** Spending limits per token. */
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
@@ -166,6 +169,7 @@ export namespace authorize {
       admin,
       chainId = client.chain?.id,
       expiry,
+      fundingPolicy,
       limits,
       scopes,
       witness,
@@ -180,6 +184,7 @@ export namespace authorize {
       chainId,
       admin,
       expiry,
+      fundingPolicy,
       limits,
       scopes,
       witness,
@@ -560,6 +565,64 @@ export namespace getMetadata {
       abi: Abis.accountKeychain,
       functionName: 'getKey',
       args: [account, resolveAccessKeyAddress(accessKey)],
+    })
+  }
+}
+
+/**
+ * Gets the funding policy ID assigned to an installed access key.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const policyId = await Actions.accessKey.getFundingPolicyId(client, {
+ *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+ *   accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Account and access key.
+ * @returns The assigned policy ID, or zero when none is assigned.
+ */
+export async function getFundingPolicyId<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getFundingPolicyId.Parameters<account>,
+): Promise<getFundingPolicyId.ReturnValue> {
+  const { account: account_ = client.account, accessKey, ...rest } = parameters
+  if (!account_) throw new Error('account is required.')
+  const account = parseAccount(account_)
+  return readContract(client, {
+    ...rest,
+    account: null as never,
+    ...getFundingPolicyId.call({ account: account.address, accessKey }),
+  })
+}
+
+export namespace getFundingPolicyId {
+  export type Args = getMetadata.Args
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & GetAccountParameter<account> & Omit<Args, 'account'>
+  export type ReturnValue = bigint
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines the `getFundingPolicyId` call.
+   *
+   * @param args - Account and access key.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'getFundingPolicyId',
+      args: [args.account, resolveAccessKeyAddress(args.accessKey)],
     })
   }
 }
@@ -1111,6 +1174,8 @@ export namespace prepareAuthorization {
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
+    /** Existing funding policy ID or inline policy for delegated funding. */
+    fundingPolicy?: FundingPolicy.Authorization | undefined
     /** Spending limits per token. */
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
@@ -1231,8 +1296,16 @@ export async function signAuthorization<
       const signature = SignatureEnvelope.serialize(
         SignatureEnvelope.from(await sign({ hash: prepared.signPayload })),
       )
-      const { accessKey, admin, chainId, expiry, limits, scopes, witness } =
-        prepared
+      const {
+        accessKey,
+        admin,
+        chainId,
+        expiry,
+        fundingPolicy,
+        limits,
+        scopes,
+        witness,
+      } = prepared
       const { accessKeyAddress, keyType: type } = resolveAccessKey(accessKey)
       const keyAuthorization = KeyAuthorization.from({
         account: account.address,
@@ -1244,6 +1317,7 @@ export async function signAuthorization<
           signatures: [parseApproval(signature)],
         }),
         type,
+        ...(fundingPolicy !== undefined ? { fundingPolicy } : {}),
         ...(witness ? { witness } : {}),
         ...(admin ? { isAdmin: true } : { expiry, limits, scopes }),
       } as never)

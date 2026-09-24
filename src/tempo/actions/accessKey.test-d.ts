@@ -95,3 +95,21 @@ test('behavior: rejects non-root coordinated owners', async () => {
   // @ts-expect-error Access-key owners are unsupported.
   await client.accessKey.signAuthorization({ hash: '0x', owner: accessKey })
 })
+
+test('fundingPolicy accepts an ID or inline policy', async () => {
+  for (const fundingPolicy of [
+    1n,
+    { admins: [owner.address], rules: { maxSlippageBps: 100, sources: {} } },
+  ]) {
+    const parameters = { account: owner, accessKey, fundingPolicy }
+    const authorization = await client.accessKey.signAuthorization(parameters)
+    expectTypeOf(authorization).toEqualTypeOf<KeyAuthorization.Signed>()
+    expectTypeOf(parameters).toMatchTypeOf<Actions.accessKey.authorize.Args>()
+  }
+  expectTypeOf(
+    await client.accessKey.getFundingPolicyId({
+      account: owner,
+      accessKey,
+    }),
+  ).toEqualTypeOf<bigint>()
+})

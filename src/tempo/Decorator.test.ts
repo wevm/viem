@@ -50,6 +50,7 @@ describe('decorator', () => {
   })
 
   test('binds action helpers', () => {
+    expect(typeof client2.accessKey.getFundingPolicyId.call).toBe('function')
     expect(typeof client2.funding.discover.call).toBe('function')
     expect(typeof client2.funding.createPolicy.call).toBe('function')
     expect(typeof client2.funding.setPolicyAdmins.call).toBe('function')

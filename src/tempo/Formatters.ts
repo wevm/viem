@@ -13,6 +13,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account, MultisigAccount } from './Account.js'
+import { normalizeFundingRequirements } from './internal/fundingRequirement.js'
 import {
   isTempo,
   type Transaction,
@@ -152,6 +153,10 @@ export function formatTransactionRequest(
 
   const rpc = ox_TransactionRequest.toRpc({
     ...rpcRequest,
+    requireFunds: normalizeFundingRequirements(
+      request.requireFunds,
+      Boolean(account && account.source !== 'accessKey' && !request.keyId),
+    ),
     type: 'tempo',
   } as never)
 

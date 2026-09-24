@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { assert, beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
@@ -9,12 +9,14 @@ import {
   sendTransactionSync,
   signTransaction,
 } from '../actions/index.js'
+import { ContractFunctionRevertedError } from '../errors/contract.js'
 import { parseEventLogs, parseUnits } from '../index.js'
 import {
   Abis,
   Account,
   Actions,
   Addresses,
+  FundingPolicy,
   FundingSource,
   Tick,
 } from './index.js'
@@ -26,24 +28,24 @@ const recipient = '0x8888888888888888888888888888888888888888' as const
 beforeAll(async () => {
   await Actions.token.transferSync(client, {
     account: accounts[0],
-    token: Addresses.pathUsd,
-    to: accounts[1].address,
     amount: parseUnits('100', 6),
+    to: accounts[1].address,
+    token: Addresses.pathUsd,
   })
 
   await Actions.dex.placeSync(client, {
     account: accounts[0],
-    token: Addresses.alphaUsd,
     amount: parseUnits('1000', 6),
-    type: 'buy',
     tick: 0,
+    token: Addresses.alphaUsd,
+    type: 'buy',
   })
   await Actions.dex.placeSync(client, {
     account: accounts[0],
-    token: Addresses.betaUsd,
     amount: parseUnits('1000', 6),
-    type: 'buy',
     tick: 0,
+    token: Addresses.betaUsd,
+    type: 'buy',
   })
 })
 
@@ -54,62 +56,62 @@ describe('sendTransactionSync', () => {
     await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
     const receipt = await sendTransactionSync(client, {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          amount: parseUnits('50', 6),
+          to: recipient,
+          token: Addresses.pathUsd,
+        }),
+      ],
       feePayer: accounts[1],
       feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
             FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
+              tokenIn: Addresses.alphaUsd,
             }),
             FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
+          token: Addresses.pathUsd,
         },
       ],
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      account,
     })
 
     expect(receipt.status).toBe('success')
     expect(
       (
         await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
           account: account.address,
+          token: Addresses.alphaUsd,
         })
       ).amount,
     ).toBe(parseUnits('470', 6))
     expect(
       (
         await Actions.token.getBalance(client, {
-          token: Addresses.betaUsd,
           account: account.address,
+          token: Addresses.betaUsd,
         })
       ).amount,
     ).toBe(parseUnits('480', 6))
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.requireFunds).toEqual([
       {
-        token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
           FundingSource.dex({
-            tokenIn: Addresses.alphaUsd,
             maxAmountIn: parseUnits('30', 6),
+            tokenIn: Addresses.alphaUsd,
           }),
           FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
+        token: Addresses.pathUsd,
       },
     ])
   })
@@ -118,52 +120,52 @@ describe('sendTransactionSync', () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
     const before = (
       await Actions.token.getBalance(client, {
-        token: Addresses.pathUsd,
         account: account.address,
+        token: Addresses.pathUsd,
       })
     ).amount
     expect(before).toBe(0n)
     await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
     const prepared = await prepareTransactionRequest(client, {
-      feeToken: Addresses.pathUsd,
+      account,
       calls: [
         Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
           amount: parseUnits('50', 6),
+          to: recipient,
+          token: Addresses.pathUsd,
         }),
       ],
-      account,
       feePayer: accounts[1],
+      feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
+          amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
             FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
+              tokenIn: Addresses.alphaUsd,
             }),
             FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
-          amount: parseUnits('50', 6),
+          token: Addresses.pathUsd,
         },
       ],
     })
 
     expect(prepared.requireFunds).toEqual([
       {
-        token: Addresses.pathUsd,
+        amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
           FundingSource.dex({
-            tokenIn: Addresses.alphaUsd,
             maxAmountIn: parseUnits('30', 6),
+            tokenIn: Addresses.alphaUsd,
           }),
           FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
-        amount: parseUnits('50', 6),
+        token: Addresses.pathUsd,
       },
     ])
 
@@ -189,8 +191,8 @@ describe('sendTransactionSync', () => {
     expect(
       (
         await Actions.token.getBalance(client, {
-          token: Addresses.pathUsd,
           account: account.address,
+          token: Addresses.pathUsd,
         })
       ).amount,
     ).toBe(before)
@@ -204,44 +206,44 @@ describe('prepareTransactionRequest', () => {
     await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
     const prepared = await prepareTransactionRequest(client, {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          amount: parseUnits('50', 6),
+          to: recipient,
+          token: Addresses.pathUsd,
+        }),
+      ],
       feePayer: accounts[1],
       feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
             FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
+              tokenIn: Addresses.alphaUsd,
             }),
             FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
+          token: Addresses.pathUsd,
         },
       ],
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      account,
     })
 
     expect(prepared.requireFunds).toEqual([
       {
-        token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
           FundingSource.dex({
-            tokenIn: Addresses.alphaUsd,
             maxAmountIn: parseUnits('30', 6),
+            tokenIn: Addresses.alphaUsd,
           }),
           FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
+        token: Addresses.pathUsd,
       },
     ])
 
@@ -251,16 +253,16 @@ describe('prepareTransactionRequest', () => {
         .requireFunds,
     ).toEqual([
       {
-        token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
         slippageBps: 0,
         sources: [
           FundingSource.dex({
-            tokenIn: Addresses.alphaUsd,
             maxAmountIn: parseUnits('30', 6),
+            tokenIn: Addresses.alphaUsd,
           }),
           FundingSource.dex({ tokenIn: Addresses.betaUsd }),
         ],
+        token: Addresses.pathUsd,
       },
     ])
   })
@@ -274,37 +276,37 @@ describe('estimateGas', () => {
 
     expect(
       await estimateGas(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call({
+            amount: parseUnits('50', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ],
         feePayer: accounts[1],
         feeToken: Addresses.pathUsd,
         requireFunds: [
           {
-            token: Addresses.pathUsd,
             amount: parseUnits('50', 6),
             slippageBps: 0,
             sources: [
               FundingSource.dex({
-                tokenIn: Addresses.alphaUsd,
                 maxAmountIn: parseUnits('30', 6),
+                tokenIn: Addresses.alphaUsd,
               }),
               FundingSource.dex({ tokenIn: Addresses.betaUsd }),
             ],
+            token: Addresses.pathUsd,
           },
         ],
-        calls: [
-          Actions.token.transfer.call({
-            token: Addresses.pathUsd,
-            to: recipient,
-            amount: parseUnits('50', 6),
-          }),
-        ],
-        account,
       }),
     ).toBeGreaterThan(0n)
     expect(
       (
         await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
           account: account.address,
+          token: Addresses.alphaUsd,
         })
       ).amount,
     ).toBe(parseUnits('500', 6))
@@ -318,37 +320,37 @@ describe('call', () => {
     await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
     await call(client, {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          amount: parseUnits('50', 6),
+          to: recipient,
+          token: Addresses.pathUsd,
+        }),
+      ],
       feePayer: accounts[1],
       feeToken: Addresses.pathUsd,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
           amount: parseUnits('50', 6),
           slippageBps: 0,
           sources: [
             FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
+              tokenIn: Addresses.alphaUsd,
             }),
             FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
+          token: Addresses.pathUsd,
         },
       ],
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      account,
     })
 
     expect(
       (
         await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
           account: account.address,
+          token: Addresses.alphaUsd,
         })
       ).amount,
     ).toBe(parseUnits('500', 6))
@@ -371,8 +373,8 @@ describe('Actions.token.transferSync', () => {
           slippageBps: 0,
           sources: [
             FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
               maxAmountIn: parseUnits('30', 6),
+              tokenIn: Addresses.alphaUsd,
             }),
             FundingSource.dex({ tokenIn: Addresses.betaUsd }),
           ],
@@ -388,8 +390,8 @@ describe('Actions.token.transferSync', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.requireFunds?.[0]).toMatchObject({
-      token: Addresses.pathUsd,
       amount: parseUnits('50', 6),
+      token: Addresses.pathUsd,
     })
     expect(
       parseEventLogs({
@@ -446,8 +448,8 @@ describe('Actions.token.burnSync', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.requireFunds?.[0]).toMatchObject({
-      token: Addresses.pathUsd,
       amount: parseUnits('25', 6),
+      token: Addresses.pathUsd,
     })
   })
 })
@@ -484,516 +486,1181 @@ describe('Actions.dex.sellSync', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.requireFunds?.[0]).toMatchObject({
-      token: Addresses.pathUsd,
       amount: parseUnits('25', 6),
+      token: Addresses.pathUsd,
     })
   })
 })
 
-describe('behavior', () => {
-  test('uses the existing balance before sourcing the shortfall', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
+describe('keyAuthorization', () => {
+  test.each(['secp256k1', 'p256', 'webAuthn'] as const)(
+    'funds with an existing policy (%s)',
+    async (type) => {
+      const { account, accessKey } = await setupAccessKey(type)
+      const { policyId, rules } = await Actions.funding.createPolicySync(
+        client,
+        {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 100,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      )
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: policyId,
+          limits: [{ limit: parseUnits('50', 6), token: Addresses.pathUsd }],
+        },
+      )
+      for (let i = 0; i < 2; i++) {
+        const discovery = await Actions.funding.discover(client, {
+          account: account.address,
+          amount: parseUnits('25', 6),
+          policyId,
+          rules,
+          token: Addresses.pathUsd,
+        })
+        const { receipt } = await Actions.token.transferSync(client, {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization: i === 0 ? keyAuthorization : undefined,
+          requireFunds: [discovery],
+          to: recipient,
+          token: Addresses.pathUsd,
+        })
+        expect(receipt.status).toBe('success')
+        expect(
+          await Actions.accessKey.getFundingPolicyId(client, {
+            accessKey,
+            account,
+          }),
+        ).toBe(policyId)
+      }
+      expect(
+        (
+          await Actions.accessKey.getRemainingLimit(client, {
+            accessKey,
+            account,
+            token: Addresses.pathUsd,
+          })
+        ).remaining,
+      ).toBe(0n)
+      await expect(
+        Actions.token
+          .transferSync(client, {
+            account: accessKey,
+            amount: parseUnits('1', 6),
+            feePayer: accounts[1],
+            requireFunds: [
+              {
+                rules,
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              },
+            ],
+            to: recipient,
+            token: Addresses.pathUsd,
+          })
+          .catch((error) => {
+            throw (
+              error.walk?.(
+                (cause: Error) =>
+                  cause instanceof ContractFunctionRevertedError,
+              ) ?? new Error(error.shortMessage ?? error.message)
+            )
+          }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+    },
+  )
 
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    await Actions.token.transferSync(client, {
-      account: accounts[0],
-      token: Addresses.pathUsd,
-      to: account.address,
-      amount: parseUnits('10', 6),
+  test('creates an inline policy, installs a key, and pays with keyAuthorization', async () => {
+    const { account, accessKey } = await setupAccessKey('p256')
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account,
+      fundingPolicy: {
+        admins: [account.address],
+        rules: {
+          maxSlippageBps: 100,
+          sources: {
+            [Addresses.pathUsd]: [
+              FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+            ],
+          },
+        },
+      },
+      limits: [{ limit: parseUnits('50', 6), token: Addresses.pathUsd }],
     })
-    const receipt = await sendTransactionSync(client, {
+    assert(typeof keyAuthorization.fundingPolicy === 'object')
+    const { rules } = keyAuthorization.fundingPolicy
+
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: parseUnits('25', 6),
       feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
+      keyAuthorization,
       requireFunds: [
         {
-          token: Addresses.pathUsd,
-          amount: parseUnits('50', 6),
-          slippageBps: 0,
-          sources: [
-            FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
-          ],
+          rules,
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
         },
       ],
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+    expect(receipt.status).toBe('success')
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.keyAuthorization?.fundingPolicy).toEqual({
+      admins: [account.address.toLowerCase()],
+      rules,
+    })
+    expect(transaction.requireFunds?.[0]?.policyRules).toBe(
+      FundingPolicy.encode(rules),
+    )
+    const policyId = await Actions.accessKey.getFundingPolicyId(client, {
+      accessKey,
       account,
     })
-
-    expect(receipt.status).toBe('success')
+    expect(policyId).toBeGreaterThan(0n)
     expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('470', 6))
+      (await Actions.funding.getPolicy(client, { policyId })).rulesHash,
+    ).toBe(FundingPolicy.hash(rules))
+    const { receipt: reused } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: parseUnits('25', 6),
+      feePayer: accounts[1],
+      requireFunds: [
+        {
+          rules,
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+        },
+      ],
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+    expect(reused.status).toBe('success')
     expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.betaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('490', 6))
+      (await getTransaction(client, { hash: reused.transactionHash }))
+        .keyAuthorization,
+    ).toBeNull()
   })
+})
 
-  test('continues after a source with zero input capacity', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
+describe('behavior', () => {
+  describe('owner-authorized', () => {
+    test('uses the existing balance before sourcing the shortfall', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
 
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
-    expect(
-      (
-        await sendTransactionSync(client, {
-          feePayer: accounts[1],
-          feeToken: Addresses.pathUsd,
+      await Actions.token.transferSync(client, {
+        account: accounts[0],
+        amount: parseUnits('10', 6),
+        to: account.address,
+        token: Addresses.pathUsd,
+      })
+      const receipt = await sendTransactionSync(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call({
+            amount: parseUnits('50', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ],
+        feePayer: accounts[1],
+        feeToken: Addresses.pathUsd,
+        requireFunds: [
+          {
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              FundingSource.dex({
+                maxAmountIn: parseUnits('30', 6),
+                tokenIn: Addresses.alphaUsd,
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+            ],
+            token: Addresses.pathUsd,
+          },
+        ],
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('470', 6))
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.betaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('490', 6))
+    })
+
+    test('continues after a source with zero input capacity', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+      expect(
+        (
+          await sendTransactionSync(client, {
+            account,
+            calls: [
+              Actions.token.transfer.call({
+                amount: parseUnits('50', 6),
+                to: recipient,
+                token: Addresses.pathUsd,
+              }),
+            ],
+            feePayer: accounts[1],
+            feeToken: Addresses.pathUsd,
+            requireFunds: [
+              {
+                amount: parseUnits('50', 6),
+                slippageBps: 0,
+                sources: [
+                  FundingSource.dex({
+                    maxAmountIn: 0n,
+                    tokenIn: Addresses.alphaUsd,
+                  }),
+                  FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+                ],
+                token: Addresses.pathUsd,
+              },
+            ],
+          })
+        ).status,
+      ).toBe('success')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.betaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('450', 6))
+    })
+
+    test('repeated requirements specify target balances', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call({
+            amount: parseUnits('50', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ],
+        feePayer: accounts[1],
+        feeToken: Addresses.pathUsd,
+        requireFunds: [
+          {
+            amount: parseUnits('20', 6),
+            slippageBps: 0,
+            sources: [
+              FundingSource.dex({
+                maxAmountIn: parseUnits('30', 6),
+                tokenIn: Addresses.alphaUsd,
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+            ],
+            token: Addresses.pathUsd,
+          },
+          {
+            amount: parseUnits('50', 6),
+            slippageBps: 0,
+            sources: [
+              FundingSource.dex({
+                maxAmountIn: parseUnits('30', 6),
+                tokenIn: Addresses.alphaUsd,
+              }),
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+            ],
+            token: Addresses.pathUsd,
+          },
+        ],
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('450', 6))
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.betaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+    })
+
+    test('rejects a failing payment without moving funds', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+      await expect(
+        sendTransactionSync(client, {
+          account,
           calls: [
             Actions.token.transfer.call({
-              token: Addresses.pathUsd,
+              amount: parseUnits('51', 6),
               to: recipient,
-              amount: parseUnits('50', 6),
+              token: Addresses.pathUsd,
             }),
           ],
-          account,
+          feePayer: accounts[1],
+          feeToken: Addresses.pathUsd,
           requireFunds: [
             {
-              token: Addresses.pathUsd,
               amount: parseUnits('50', 6),
               slippageBps: 0,
               sources: [
                 FundingSource.dex({
+                  maxAmountIn: parseUnits('30', 6),
                   tokenIn: Addresses.alphaUsd,
-                  maxAmountIn: 0n,
                 }),
                 FundingSource.dex({ tokenIn: Addresses.betaUsd }),
               ],
+              token: Addresses.pathUsd,
             },
           ],
-        })
-      ).status,
-    ).toBe('success')
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.betaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('450', 6))
-  })
-
-  test('repeated requirements specify target balances', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    const receipt = await sendTransactionSync(client, {
-      feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
         }),
-      ],
-      account,
-      requireFunds: [
-        {
-          token: Addresses.pathUsd,
-          slippageBps: 0,
-          sources: [
-            FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
-          ],
-          amount: parseUnits('20', 6),
-        },
-        {
-          token: Addresses.pathUsd,
-          amount: parseUnits('50', 6),
-          slippageBps: 0,
-          sources: [
-            FundingSource.dex({
-              tokenIn: Addresses.alphaUsd,
-              maxAmountIn: parseUnits('30', 6),
-            }),
-            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
-          ],
-        },
-      ],
+      ).rejects.toThrow('InsufficientBalance')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.betaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
     })
 
-    expect(receipt.status).toBe('success')
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('450', 6))
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.betaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
-  })
+    test('rejects insufficient input capacity without moving funds', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
 
-  test('rejects a failing payment without moving funds', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
 
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    await expect(
-      sendTransactionSync(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        requireFunds: [
-          {
-            token: Addresses.pathUsd,
-            amount: parseUnits('50', 6),
-            slippageBps: 0,
-            sources: [
-              FundingSource.dex({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
-            ],
-          },
-        ],
-        account,
-        calls: [
-          Actions.token.transfer.call({
-            token: Addresses.pathUsd,
-            to: recipient,
-            amount: parseUnits('51', 6),
-          }),
-        ],
-      }),
-    ).rejects.toThrow('InsufficientBalance')
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.betaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
-  })
-
-  test('rejects insufficient input capacity without moving funds', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    await expect(
-      estimateGas(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
-        calls: [
-          Actions.token.transfer.call({
-            token: Addresses.pathUsd,
-            to: recipient,
-            amount: parseUnits('50', 6),
-          }),
-        ],
-        account,
-        requireFunds: [
-          {
-            token: Addresses.pathUsd,
-            amount: parseUnits('50', 6),
-            slippageBps: 0,
-            sources: [
-              FundingSource.dex({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-            ],
-          },
-        ],
-      }),
-    ).rejects.toThrow()
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
-  })
-
-  test('funding cannot pay transaction fees', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-    await mintInputs(account.address, [Addresses.betaUsd])
-
-    await expect(
-      sendTransactionSync(client, {
-        feeToken: Addresses.pathUsd,
-        requireFunds: [
-          {
-            token: Addresses.pathUsd,
-            amount: parseUnits('50', 6),
-            slippageBps: 0,
-            sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
-          },
-        ],
-        calls: [
-          Actions.token.transfer.call({
-            token: Addresses.pathUsd,
-            to: recipient,
-            amount: parseUnits('50', 6),
-          }),
-        ],
-        account,
-      }),
-    ).rejects.toThrow()
-
-    expect(
-      (
-        await sendTransactionSync(client, {
+      await expect(
+        estimateGas(client, {
+          account,
+          calls: [
+            Actions.token.transfer.call({
+              amount: parseUnits('50', 6),
+              to: recipient,
+              token: Addresses.pathUsd,
+            }),
+          ],
           feePayer: accounts[1],
           feeToken: Addresses.pathUsd,
           requireFunds: [
             {
+              amount: parseUnits('50', 6),
+              slippageBps: 0,
+              sources: [
+                FundingSource.dex({
+                  maxAmountIn: parseUnits('30', 6),
+                  tokenIn: Addresses.alphaUsd,
+                }),
+              ],
               token: Addresses.pathUsd,
+            },
+          ],
+        }).catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+    })
+
+    test('funding cannot pay transaction fees', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+      await mintInputs(account.address, [Addresses.betaUsd])
+
+      await expect(
+        sendTransactionSync(client, {
+          account,
+          calls: [
+            Actions.token.transfer.call({
+              amount: parseUnits('50', 6),
+              to: recipient,
+              token: Addresses.pathUsd,
+            }),
+          ],
+          feeToken: Addresses.pathUsd,
+          requireFunds: [
+            {
               amount: parseUnits('50', 6),
               slippageBps: 0,
               sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
+              token: Addresses.pathUsd,
             },
           ],
+        }).catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+
+      expect(
+        (
+          await sendTransactionSync(client, {
+            account,
+            calls: [
+              Actions.token.transfer.call({
+                amount: parseUnits('50', 6),
+                to: recipient,
+                token: Addresses.pathUsd,
+              }),
+            ],
+            feePayer: accounts[1],
+            feeToken: Addresses.pathUsd,
+            requireFunds: [
+              {
+                amount: parseUnits('50', 6),
+                slippageBps: 0,
+                sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
+                token: Addresses.pathUsd,
+              },
+            ],
+          })
+        ).status,
+      ).toBe('success')
+    })
+
+    test('rejects a source without liquidity', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+      const token = Addresses.thetaUsd
+      await Actions.token.mintSync(client, {
+        account: accounts[0],
+        amount: parseUnits('100', 6),
+        feePayer: accounts[1],
+        feeToken: Addresses.pathUsd,
+        to: account.address,
+        token,
+      })
+      const before = await Actions.token.getBalance(client, {
+        account: account.address,
+        token,
+      })
+
+      await expect(
+        call(client, {
+          account,
           calls: [
             Actions.token.transfer.call({
-              token: Addresses.pathUsd,
-              to: recipient,
               amount: parseUnits('50', 6),
+              to: recipient,
+              token: Addresses.pathUsd,
             }),
           ],
-          account,
-        })
-      ).status,
-    ).toBe('success')
-  })
-
-  test('rejects a source without liquidity', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    const token = Addresses.thetaUsd
-    await Actions.token.mintSync(client, {
-      feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
-      account: accounts[0],
-      token,
-      to: account.address,
-      amount: parseUnits('100', 6),
+          feePayer: accounts[1],
+          feeToken: Addresses.pathUsd,
+          requireFunds: [
+            {
+              amount: parseUnits('50', 6),
+              slippageBps: 0,
+              sources: [FundingSource.dex({ tokenIn: token })],
+              token: Addresses.pathUsd,
+            },
+          ],
+        }).catch((error) => {
+          throw (
+            error.walk?.(
+              (cause: Error) => cause instanceof ContractFunctionRevertedError,
+            ) ?? new Error(error.shortMessage ?? error.message)
+          )
+        }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token,
+          })
+        ).amount,
+      ).toBe(before.amount)
     })
-    const before = await Actions.token.getBalance(client, {
-      account: account.address,
-      token,
-    })
 
-    await expect(
-      call(client, {
-        feePayer: accounts[1],
-        feeToken: Addresses.pathUsd,
+    test('bounds funding input at a non-parity DEX price', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.thetaUsd])
+      await Actions.dex.placeSync(client, {
+        account: accounts[0],
+        amount: parseUnits('100', 6),
+        tick: Tick.fromPrice('0.98'),
+        token: Addresses.thetaUsd,
+        type: 'buy',
+      })
+
+      const transaction = {
+        account,
         calls: [
           Actions.token.transfer.call({
-            token: Addresses.pathUsd,
-            to: recipient,
             amount: parseUnits('50', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
           }),
         ],
-        account,
-        requireFunds: [
-          {
-            token: Addresses.pathUsd,
-            amount: parseUnits('50', 6),
-            slippageBps: 0,
-            sources: [FundingSource.dex({ tokenIn: token })],
-          },
-        ],
-      }),
-    ).rejects.toThrow()
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token,
-          account: account.address,
-        })
-      ).amount,
-    ).toBe(before.amount)
-  })
-
-  test('bounds funding input at a non-parity DEX price', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-
-    await mintInputs(account.address, [Addresses.thetaUsd])
-    await Actions.dex.placeSync(client, {
-      account: accounts[0],
-      token: Addresses.thetaUsd,
-      amount: parseUnits('100', 6),
-      type: 'buy',
-      tick: Tick.fromPrice('0.98'),
-    })
-
-    const transaction = {
-      feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
-      account,
-      calls: [
-        Actions.token.transfer.call({
-          token: Addresses.pathUsd,
-          to: recipient,
-          amount: parseUnits('50', 6),
-        }),
-      ],
-      requireFunds: [
-        {
-          token: Addresses.pathUsd,
-          amount: parseUnits('50', 6),
-          sources: [FundingSource.dex({ tokenIn: Addresses.thetaUsd })],
-        },
-      ],
-    } as const
-
-    await expect(
-      estimateGas(client, {
-        ...transaction,
-        requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 100 }],
-      }),
-    ).rejects.toThrow('InsufficientFunding')
-
-    const receipt = await sendTransactionSync(client, {
-      ...transaction,
-      requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 300 }],
-    })
-
-    expect(receipt.status).toBe('success')
-    const [funded] = parseEventLogs({
-      abi: Abis.tip20Funder,
-      eventName: 'SourceFunded',
-      logs: receipt.logs,
-    })
-    expect(funded.args.amountIn).toBeGreaterThan(parseUnits('50.5', 6))
-    expect(funded.args.amountIn).toBeLessThanOrEqual(parseUnits('51.5', 6))
-    expect(funded.args.amountOut).toBe(parseUnits('50', 6))
-  })
-
-  test('rechecks earlier balances after later requirements', async () => {
-    const account = Account.fromSecp256k1(generatePrivateKey())
-
-    await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
-
-    await Actions.dex.placeSync(client, {
-      account: accounts[0],
-      token: Addresses.alphaUsd,
-      amount: parseUnits('100', 6),
-      type: 'sell',
-      tick: 0,
-    })
-    await Actions.token.transferSync(client, {
-      account: accounts[0],
-      token: Addresses.pathUsd,
-      to: account.address,
-      amount: parseUnits('50', 6),
-    })
-    await call(client, {
-      feePayer: accounts[1],
-      feeToken: Addresses.pathUsd,
-      account,
-      calls: [{ to: recipient }],
-      requireFunds: [
-        {
-          token: Addresses.alphaUsd,
-          amount: parseUnits('520', 6),
-          slippageBps: 0,
-          sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
-        },
-      ],
-    })
-    await expect(
-      call(client, {
         feePayer: accounts[1],
         feeToken: Addresses.pathUsd,
-        account,
-        calls: [{ to: recipient }],
         requireFunds: [
           {
+            amount: parseUnits('50', 6),
+            sources: [FundingSource.dex({ tokenIn: Addresses.thetaUsd })],
             token: Addresses.pathUsd,
-            amount: parseUnits('80', 6),
-            slippageBps: 0,
-            sources: [
-              FundingSource.dex({
-                tokenIn: Addresses.alphaUsd,
-                maxAmountIn: parseUnits('30', 6),
-              }),
-              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
-            ],
           },
+        ],
+      } as const
+
+      await expect(
+        estimateGas(client, {
+          ...transaction,
+          requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 100 }],
+        }),
+      ).rejects.toThrow('InsufficientFunding')
+
+      const receipt = await sendTransactionSync(client, {
+        ...transaction,
+        requireFunds: [{ ...transaction.requireFunds[0], slippageBps: 300 }],
+      })
+
+      expect(receipt.status).toBe('success')
+      const [funded] = parseEventLogs({
+        abi: Abis.tip20Funder,
+        eventName: 'SourceFunded',
+        logs: receipt.logs,
+      })
+      expect(funded.args.amountIn).toBeGreaterThan(parseUnits('50.5', 6))
+      expect(funded.args.amountIn).toBeLessThanOrEqual(parseUnits('51.5', 6))
+      expect(funded.args.amountOut).toBe(parseUnits('50', 6))
+    })
+
+    test('rechecks earlier balances after later requirements', async () => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+
+      await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+
+      await Actions.dex.placeSync(client, {
+        account: accounts[0],
+        amount: parseUnits('100', 6),
+        tick: 0,
+        token: Addresses.alphaUsd,
+        type: 'sell',
+      })
+      await Actions.token.transferSync(client, {
+        account: accounts[0],
+        amount: parseUnits('50', 6),
+        to: account.address,
+        token: Addresses.pathUsd,
+      })
+      await call(client, {
+        account,
+        calls: [{ to: recipient }],
+        feePayer: accounts[1],
+        feeToken: Addresses.pathUsd,
+        requireFunds: [
           {
-            token: Addresses.alphaUsd,
             amount: parseUnits('520', 6),
             slippageBps: 0,
             sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
+            token: Addresses.alphaUsd,
           },
         ],
-      }),
-    ).rejects.toThrow('InsufficientFunding')
-    expect(
-      (
-        await Actions.token.getBalance(client, {
-          token: Addresses.alphaUsd,
-          account: account.address,
+      })
+      await expect(
+        call(client, {
+          account,
+          calls: [{ to: recipient }],
+          feePayer: accounts[1],
+          feeToken: Addresses.pathUsd,
+          requireFunds: [
+            {
+              amount: parseUnits('80', 6),
+              slippageBps: 0,
+              sources: [
+                FundingSource.dex({
+                  maxAmountIn: parseUnits('30', 6),
+                  tokenIn: Addresses.alphaUsd,
+                }),
+                FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+              ],
+              token: Addresses.pathUsd,
+            },
+            {
+              amount: parseUnits('520', 6),
+              slippageBps: 0,
+              sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
+              token: Addresses.alphaUsd,
+            },
+          ],
+        }),
+      ).rejects.toThrow('InsufficientFunding')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+    })
+  })
+
+  describe('access key', () => {
+    test('preserves separate caps for repeated sources', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: {
+            admins: [account.address],
+            rules: {
+              maxSlippageBps: 100,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+          limits: [{ limit: parseUnits('50', 6), token: Addresses.pathUsd }],
+        },
+      )
+      assert(typeof keyAuthorization.fundingPolicy === 'object')
+      const { rules } = keyAuthorization.fundingPolicy
+
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        amount: parseUnits('25', 6),
+        feePayer: accounts[1],
+        keyAuthorization,
+        requireFunds: [
+          {
+            rules,
+            sources: [
+              FundingSource.dex({
+                maxAmountIn: parseUnits('10', 6),
+                tokenIn: Addresses.alphaUsd,
+              }),
+              FundingSource.dex({
+                maxAmountIn: parseUnits('15', 6),
+                tokenIn: Addresses.alphaUsd,
+              }),
+            ],
+          },
+        ],
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      expect(receipt.status).toBe('success')
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('475', 6))
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.requireFunds?.[0]?.sources).toEqual([
+        FundingSource.dex({
+          maxAmountIn: parseUnits('10', 6),
+          tokenIn: Addresses.alphaUsd,
+        }),
+        FundingSource.dex({
+          maxAmountIn: parseUnits('15', 6),
+          tokenIn: Addresses.alphaUsd,
+        }),
+      ])
+    })
+
+    test('rejects sources supplied in reverse policy order', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const ordered = {
+        maxSlippageBps: 100,
+        sources: {
+          [Addresses.pathUsd]: [
+            FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+          ],
+        },
+      }
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: { admins: [account.address], rules: ordered },
+        },
+      )
+      await expect(
+        Actions.token
+          .transferSync(client, {
+            account: accessKey,
+            amount: parseUnits('25', 6),
+            feePayer: accounts[1],
+            keyAuthorization,
+            requireFunds: [
+              {
+                rules: ordered,
+                sources: [
+                  FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            ],
+            to: recipient,
+            token: Addresses.pathUsd,
+          })
+          .catch((error) => {
+            throw (
+              error.walk?.(
+                (cause: Error) =>
+                  cause instanceof ContractFunctionRevertedError,
+              ) ?? new Error(error.shortMessage ?? error.message)
+            )
+          }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+    })
+
+    test('retains inline policy and key installation after payment reverts', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: {
+            admins: [account.address],
+            rules: {
+              maxSlippageBps: 100,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+          limits: [{ limit: parseUnits('50', 6), token: Addresses.pathUsd }],
+        },
+      )
+      assert(typeof keyAuthorization.fundingPolicy === 'object')
+      const { rules } = keyAuthorization.fundingPolicy
+
+      const receipt = await sendTransactionSync(client, {
+        account: accessKey,
+        calls: [
+          Actions.token.transfer.call({
+            amount: parseUnits('26', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ],
+        feePayer: accounts[1],
+        // Bypass estimation to submit the intentional revert and inspect persisted key state.
+        gas: 20_000_000n,
+        keyAuthorization,
+        requireFunds: [
+          {
+            amount: parseUnits('25', 6),
+            rules,
+            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+            token: Addresses.pathUsd,
+          },
+        ],
+      })
+      expect(receipt.status).toBe('reverted')
+      const policyId = await Actions.accessKey.getFundingPolicyId(client, {
+        accessKey,
+        account,
+      })
+      expect(policyId).toBeGreaterThan(0n)
+      expect(
+        (await Actions.funding.getPolicy(client, { policyId })).rulesHash,
+      ).toBe(FundingPolicy.hash(rules))
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('500', 6))
+      expect(
+        (
+          await Actions.accessKey.getRemainingLimit(client, {
+            accessKey,
+            account,
+            token: Addresses.pathUsd,
+          })
+        ).remaining,
+      ).toBe(parseUnits('50', 6))
+    })
+
+    test.each([
+      'missing',
+      'tampered',
+      'input',
+      'output',
+      'slippage',
+      'limit',
+      'revoked',
+      'expired',
+    ] as const)('rejects invalid delegated funding: %s', async (failure) => {
+      const { account, accessKey } = await setupAccessKey()
+      const { policyId, rules } = await Actions.funding.createPolicySync(
+        client,
+        {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 100,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      )
+      const authorization = await Actions.accessKey.signAuthorization(client, {
+        accessKey,
+        account,
+        ...(failure === 'expired' ? { expiry: 1 } : {}),
+        fundingPolicy: policyId,
+        limits: [
+          {
+            limit: failure === 'limit' ? 0n : parseUnits('50', 6),
+            token: Addresses.pathUsd,
+          },
+        ],
+      })
+      if (failure !== 'expired')
+        await sendTransactionSync(client, {
+          account,
+          feePayer: accounts[1],
+          keyAuthorization: authorization,
         })
-      ).amount,
-    ).toBe(parseUnits('500', 6))
+      if (failure === 'revoked')
+        await Actions.accessKey.revokeSync(client, {
+          accessKey,
+          account,
+          feePayer: accounts[1],
+        })
+      const before = await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      })
+      await expect(
+        Actions.token
+          .transferSync(client, {
+            account: accessKey,
+            amount: parseUnits('25', 6),
+            feePayer: accounts[1],
+            ...(failure === 'expired'
+              ? { keyAuthorization: authorization }
+              : {}),
+            requireFunds: [
+              {
+                ...(failure === 'missing'
+                  ? {}
+                  : {
+                      rules:
+                        failure === 'tampered'
+                          ? { ...rules, maxSlippageBps: 200 }
+                          : rules,
+                    }),
+                ...(failure === 'slippage' ? { slippageBps: 101 } : {}),
+                sources: [
+                  FundingSource.dex({
+                    tokenIn:
+                      failure === 'input'
+                        ? Addresses.betaUsd
+                        : Addresses.alphaUsd,
+                  }),
+                ],
+              },
+            ],
+            throwOnReceiptRevert: true,
+            to: recipient,
+            token: failure === 'output' ? Addresses.betaUsd : Addresses.pathUsd,
+          })
+          .catch((error) => {
+            throw (
+              error.walk?.(
+                (cause: Error) =>
+                  cause instanceof ContractFunctionRevertedError,
+              ) ?? new Error(error.shortMessage ?? error.message)
+            )
+          }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toEqual(before)
+    })
+
+    test('requires current rules after updates, including when the balance is already sufficient', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const { policyId, rules } = await Actions.funding.createPolicySync(
+        client,
+        {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 100,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      )
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: policyId,
+        },
+      )
+      await Actions.token.mintSync(client, {
+        account: accounts[0],
+        amount: parseUnits('50', 6),
+        to: account.address,
+        token: Addresses.pathUsd,
+      })
+      await Actions.funding.setPolicyAdminsSync(client, {
+        account,
+        admins: [account.address, accounts[0].address],
+        feePayer: accounts[1],
+        keyAuthorization,
+        policyId,
+      })
+      expect(
+        (await Actions.funding.getPolicy(client, { policyId })).rulesHash,
+      ).toBe(FundingPolicy.hash(rules))
+      const { rules: updated } = await Actions.funding.setPolicyRulesSync(
+        client,
+        {
+          account,
+          feePayer: accounts[1],
+          policyId,
+          rules: { ...rules, maxSlippageBps: 50 },
+        },
+      )
+      await expect(
+        Actions.token
+          .transferSync(client, {
+            account: accessKey,
+            amount: parseUnits('25', 6),
+            feePayer: accounts[1],
+            requireFunds: [
+              {
+                rules,
+                sources: [],
+              },
+            ],
+            to: recipient,
+            token: Addresses.pathUsd,
+          })
+          .catch((error) => {
+            throw (
+              error.walk?.(
+                (cause: Error) =>
+                  cause instanceof ContractFunctionRevertedError,
+              ) ?? new Error(error.shortMessage ?? error.message)
+            )
+          }),
+      ).rejects.toThrowErrorMatchingSnapshot()
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        amount: parseUnits('25', 6),
+        feePayer: accounts[1],
+        requireFunds: [{ rules: updated, sources: [] }],
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      expect(receipt.status).toBe('success')
+    })
+
+    test('rolls back funding and spending charges when payment reverts', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          accessKey,
+          account,
+          fundingPolicy: {
+            admins: [account.address],
+            rules: {
+              maxSlippageBps: 100,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+          limits: [{ limit: parseUnits('50', 6), token: Addresses.pathUsd }],
+        },
+      )
+      await sendTransactionSync(client, {
+        account,
+        feePayer: accounts[1],
+        keyAuthorization,
+      })
+      assert(typeof keyAuthorization.fundingPolicy === 'object')
+      const { rules } = keyAuthorization.fundingPolicy
+
+      const before = await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      })
+      const receipt = await sendTransactionSync(client, {
+        account: accessKey,
+        calls: [
+          Actions.token.transfer.call({
+            amount: parseUnits('26', 6),
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ],
+        feePayer: accounts[1],
+        // Bypass estimation to verify rollback from a mined, reverted transaction.
+        gas: 2_000_000n,
+        requireFunds: [
+          {
+            amount: parseUnits('25', 6),
+            rules,
+            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+            token: Addresses.pathUsd,
+          },
+        ],
+      })
+      expect(receipt.status).toBe('reverted')
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toEqual(before)
+      expect(
+        (
+          await Actions.accessKey.getRemainingLimit(client, {
+            accessKey,
+            account,
+            token: Addresses.pathUsd,
+          })
+        ).remaining,
+      ).toBe(parseUnits('50', 6))
+    })
   })
 })
 
 async function mintInputs(to: `0x${string}`, tokens: readonly `0x${string}`[]) {
   for (const token of tokens)
     await Actions.token.mintSync(client, {
+      account: accounts[0],
+      amount: parseUnits('500', 6),
       feePayer: accounts[1],
       feeToken: Addresses.pathUsd,
-      account: accounts[0],
-      token,
       to,
-      amount: parseUnits('500', 6),
+      token,
     })
+}
+
+async function setupAccessKey(
+  type: 'secp256k1' | 'p256' | 'webAuthn' = 'secp256k1',
+) {
+  const account = Account.fromSecp256k1(generatePrivateKey())
+  const accessKey =
+    type === 'webAuthn'
+      ? Account.fromHeadlessWebAuthn(generatePrivateKey(), {
+          access: account,
+          origin: 'http://localhost',
+          rpId: 'localhost',
+        })
+      : (type === 'p256' ? Account.fromP256 : Account.fromSecp256k1)(
+          generatePrivateKey(),
+          { access: account },
+        )
+  await mintInputs(account.address, [Addresses.alphaUsd, Addresses.betaUsd])
+  return { accessKey, account }
 }

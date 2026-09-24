@@ -44,6 +44,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { fundingErrors } from '../internal/fundingErrors.js'
 import type {
   GetAccountParameter,
   InferredWriteParameters,
@@ -3446,6 +3447,9 @@ export namespace transfer {
       ...parameters,
       requireFunds: inferTransferFunding(client, parameters),
       ...transfer.call(client, parameters as never),
+      ...(parameters.requireFunds
+        ? { abi: [...Abis.tip20, ...fundingErrors] }
+        : {}),
     } as never)) as never
   }
 
