@@ -1,5 +1,43 @@
 # viem
 
+## 2.56.9
+
+### Patch Changes
+
+- [#5123](https://github.com/wevm/viem/pull/5123) [`2068265d2fefb41da2ca672f7b8ef0d221efdbde`](https://github.com/wevm/viem/commit/2068265d2fefb41da2ca672f7b8ef0d221efdbde) Thanks [@rabbitmainnet](https://github.com/rabbitmainnet)! - Added Rabbit Chain Testnet (chain ID 9280) to `viem/chains`.
+
+- [#5124](https://github.com/wevm/viem/pull/5124) [`4767ff7be7aed3845b617f8b16806d72469ea657`](https://github.com/wevm/viem/commit/4767ff7be7aed3845b617f8b16806d72469ea657) Thanks [@kyscott18](https://github.com/kyscott18)! - Added the `getStorageValues` action for batch retrieval of contract storage slots.
+
+- [#5108](https://github.com/wevm/viem/pull/5108) [`5a201d9a5996a836023bdb676c8d7c0f43f9c8fa`](https://github.com/wevm/viem/commit/5a201d9a5996a836023bdb676c8d7c0f43f9c8fa) Thanks [@Lukecele](https://github.com/Lukecele)! - Added Plasma mainnet addresses for USDC and EURC.
+
+- [#5114](https://github.com/wevm/viem/pull/5114) [`de663c98de19da2ffccdd1681fd616e6ed653b98`](https://github.com/wevm/viem/commit/de663c98de19da2ffccdd1681fd616e6ed653b98) Thanks [@jxom](https://github.com/jxom)! - Resynced Tempo contract ABIs and added the current committee address.
+
+  ```diff
+   // Abis.earnMerkleRewardDistributor contract calls
+  -functionName: 'fundWithAssets',
+  -args: [funder, assets, minEarnShares],
+  +functionName: 'fundAndPublishRoot',
+  +args: [settlementId, expectedRootVersion, funder, assets, minEarnShares, root, totalEntitlement, statementHash],
+
+   functionName: 'publishRoot',
+  -args: [root, totalEntitlement, statementHash],
+  +args: [expectedRootVersion, root, totalEntitlement, statementHash],
+
+  -const verifierAbi = Abis.zone
+  +const verifierAbi = Abis.core
+
+  -const selector = Selectors.zoneVerifier.verify
+  +const selector = Selectors.zoneVerifier.verify[
+  +  'verify(uint32,uint64,uint64,bytes32,uint64,(bytes32,bytes32),(bytes32,bytes32,uint64,uint64),bytes32,bytes,bytes)'
+  +]
+  ```
+
+- [#5112](https://github.com/wevm/viem/pull/5112) [`c704647d93ed5eaabe3ca9e22fdd4f7e9132b641`](https://github.com/wevm/viem/commit/c704647d93ed5eaabe3ca9e22fdd4f7e9132b641) Thanks [@spalladino](https://github.com/spalladino)! - Added optional `maxUsedGas` to `simulateBlocks` call results, preserving the per-call `maxUsedGas` reported by `eth_simulateV1`.
+
+  `maxUsedGas` is the node's measurement of the gas used by a call before gas refunds are applied – it is not a guaranteed minimum sufficient gas limit for the call. It is `undefined` against nodes that do not report it, and is available on both successful and failed call results.
+
+- [#5126](https://github.com/wevm/viem/pull/5126) [`6feacb3a9066b47d3f083a0da0da2d8172577870`](https://github.com/wevm/viem/commit/6feacb3a9066b47d3f083a0da0da2d8172577870) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added PropAMM actions.
+
 ## 2.56.8
 
 ### Patch Changes
