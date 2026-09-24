@@ -90,7 +90,7 @@ await client.token.transferSync({
 
 ### Discover Funds
 
-Use [`funding.discover`](/tempo/actions/funding.discover) with rules describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
+Use [`funding.discover`](/tempo/actions/funding.discover) with source configurations describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
 
 :::code-group
 
@@ -102,12 +102,8 @@ import { client } from './viem.config'
 const discovery = await client.funding.discover({
   account: client.account.address,
   amount: parseUnits('50', 6),
-  rules: {
-    maxSlippageBps: 100,
-    sources: {
-      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-    },
-  },
+  slippageBps: 100,
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
   token: Addresses.pathUsd,
 })
 
@@ -124,7 +120,7 @@ await client.token.transferSync({
 ```
 :::
 
-Supply `policyId` to also verify the rules against a stored policy's current hash. Obtain those rules from creation or update events, or an indexer. Discovery includes the supplied `rules`, so its result can also fund an access key transaction.
+Supply `policyId` and `rules` instead of `sources` and `slippageBps` to discover and verify the rules against a stored policy's current hash. Obtain those rules from creation or update events, or an indexer. Discovery includes the supplied `rules`, so its result can also fund an access key transaction.
 
 Discovery reports current availability but does not reserve it. `availableAmount` is advisory and is omitted from transaction encoding.
 

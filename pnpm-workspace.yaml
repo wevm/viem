@@ -51,7 +51,7 @@ auditConfig:
     - GHSA-7pqw-9j4j-h8q3
 
 overrides:
-  ox: https://pkg.pr.new/ox@e35669b9
+  ox: https://pkg.pr.new/ox@4eb6793a
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*

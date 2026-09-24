@@ -6,48 +6,46 @@ import * as Addresses from '../Addresses.js'
 import { discover, setPolicyAdmins, setPolicyRules } from './funding.js'
 
 describe('discover.call', () => {
-  test.each([undefined, 1n])(
-    'encodes decoded rules (policy: %s)',
-    (policyId) => {
-      const rules = {
-        maxSlippageBps: 100,
-        sources: {
-          [Addresses.pathUsd]: [
-            { to: Addresses.dexFundingSource, data: '0x1234' },
-          ],
-        },
-      } as const
-      const parameters = {
-        account: '0x0000000000000000000000000000000000000001',
-        amount: 50_000_000n,
-        policyId,
-        token: Addresses.pathUsd,
-      } as const
+  test('encodes decoded policy rules', () => {
+    const rules = {
+      maxSlippageBps: 100,
+      sources: {
+        [Addresses.pathUsd]: [
+          { to: Addresses.dexFundingSource, data: '0x1234' },
+        ],
+      },
+    } as const
+    const parameters = {
+      account: '0x0000000000000000000000000000000000000001',
+      amount: 50_000_000n,
+      policyId: 1n,
+      token: Addresses.pathUsd,
+    } as const
 
-      expect(discover.call({ ...parameters, rules }).data).toBe(
-        discover.call({ ...parameters, rules: FundingPolicy.encode(rules) })
-          .data,
-      )
-    },
-  )
+    expect(discover.call({ ...parameters, rules }).data).toBe(
+      discover.call({ ...parameters, rules: FundingPolicy.encode(rules) }).data,
+    )
+  })
 
   test('discovers without a stored policy', () => {
     const call = discover.call({
       account: '0x0000000000000000000000000000000000000001',
       amount: 50_000_000n,
-      rules: '0x1234',
+      slippageBps: 100,
+      sources: [{ to: Addresses.dexFundingSource, data: '0x1234' }],
       token: Addresses.pathUsd,
     })
 
     expect(call.to).toBe(Addresses.fundingDiscovery)
-    expect(call.data.slice(0, 10)).toBe('0xc2524450')
+    expect(call.data.slice(0, 10)).toBe('0x6a67e281')
     expect(
       decodeFunctionData({ abi: Abis.fundingDiscovery, data: call.data }).args,
     ).toEqual([
       '0x0000000000000000000000000000000000000001',
       '0x20C0000000000000000000000000000000000000',
       50_000_000n,
-      '0x1234',
+      100,
+      [{ target: Addresses.dexFundingSource, data: '0x1234' }],
     ])
   })
 
@@ -60,14 +58,14 @@ describe('discover.call', () => {
       token: Addresses.pathUsd,
     })
 
-    expect(call.data.slice(0, 10)).toBe('0x3cdf692f')
+    expect(call.data.slice(0, 10)).toBe('0x6add729d')
     expect(
       decodeFunctionData({ abi: Abis.fundingDiscovery, data: call.data }).args,
     ).toEqual([
-      policyId,
       '0x0000000000000000000000000000000000000001',
       '0x20C0000000000000000000000000000000000000',
       50_000_000n,
+      policyId,
       '0x1234',
     ])
   })

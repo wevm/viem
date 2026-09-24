@@ -2,7 +2,7 @@
 
 exports[`createPolicy > rejects invalid slippage 1`] = `[Error: Slippage must be between 0 and 10,000 basis points.]`;
 
-exports[`discover > rejects a missing policy instead of using rules-only discovery 1`] = `
+exports[`discover > rejects a missing policy instead of using policy-free discovery 1`] = `
 [ContractFunctionRevertedError: The contract function "discover" reverted.
 
 Error: PolicyNotFound()
@@ -22,7 +22,7 @@ Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllow
 Version: viem@2.56.8]
 `;
 
-exports[`discover > rejects malformed rules without a stored policy 1`] = `
+exports[`discover > rejects malformed rules for a stored policy 1`] = `
 [ContractFunctionRevertedError: The contract function "discover" reverted.
 
 Error: InvalidPolicyData()

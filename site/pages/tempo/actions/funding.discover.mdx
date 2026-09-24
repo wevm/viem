@@ -2,25 +2,22 @@ import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `funding.discover`
 
-Finds currently available funding routes using supplied rules. Optionally verifies those rules against a stored funding policy. Discovery reserves no funds, so a later transaction can still fail if balances or liquidity change.
+Finds available funding routes from source configurations, or from rules verified against a stored funding policy. Discovery reserves no funds, so a later transaction can still fail if balances or liquidity change.
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const discovery = await client.funding.discover({
   account: client.account.address,
-  amount: 50_000_000n,
-  rules: {
-    maxSlippageBps: 100,
-    sources: {
-      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-    },
-  },
+  amount: parseUnits('50', 6),
+  slippageBps: 100,
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
   token: Addresses.pathUsd,
 })
 // @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
@@ -34,7 +31,28 @@ const discovery = await client.funding.discover({
 
 For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
 
-The result includes the supplied `rules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
+When a policy ID is supplied, the result includes the verified `rules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
+
+## Recipes
+
+### Discover Against a Funding Policy
+
+Pass `policyId` and `rules` to verify the rules against the policy's current commitment. Use the rules returned by policy creation or its latest update.
+
+```ts
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await client.funding.discover({
+  account: client.account.address,
+  amount: parseUnits('50', 6),
+  policyId, // [!code focus]
+  rules, // [!code focus]
+  token: Addresses.pathUsd,
+})
+// @log: { token: '0x...', amount: 50000000n, rules: { ... }, slippageBps: 100, sources: [...] }
+```
 
 ## Return Type
 
@@ -42,7 +60,7 @@ The result includes the supplied `rules`. Viem encodes them for access key execu
 type ReturnType = {
   token: Address
   amount: bigint
-  rules: FundingPolicy.Rules | Hex
+  rules?: FundingPolicy.Rules | Hex
   slippageBps: number
   sources: {
     to: Address
@@ -70,13 +88,25 @@ Target output balance in token base units.
 
 - **Type:** `bigint`
 
-Funding policy ID whose current commitment must match the supplied rules. Omit it to discover without reading a stored policy.
+Funding policy ID whose current commitment must match the supplied rules. Omit it and supply `sources` and `slippageBps` to discover without reading a stored policy.
 
-### rules
+### rules (policy discovery)
 
 - **Type:** `Hex | FundingPolicy.Rules`
 
-Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. When `policyId` is supplied, the rules must match the policy's current hash.
+Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. Required with `policyId`; the rules must match the policy's current hash.
+
+### slippageBps (policy-free discovery)
+
+- **Type:** `number`
+
+Maximum aggregate slippage in basis points. Required without `policyId`.
+
+### sources (policy-free discovery)
+
+- **Type:** `readonly FundingSource.Source[]`
+
+Ordered source configurations for the requested token. Required without `policyId`. Each entry contains `to` and configuration `data`, such as `FundingSource.dex({ tokenIn })`.
 
 ### token
 

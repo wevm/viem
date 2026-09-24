@@ -2646,15 +2646,15 @@ type DecoratorBase<
   }
   funding: {
     /**
-     * Finds available funding sources using rules and an optional policy. Discovery does not reserve funds.
+     * Finds available funding sources from source configurations or verified policy rules. Discovery does not reserve funds.
      *
      * @example
      * ```ts
      * const result = await client.funding.discover({
-     *   account, amount, rules, token,
+     *   account, amount, slippageBps, sources, token,
      * })
      * ```
-     * @param parameters - Account, token, amount, rules, and optional policy ID.
+     * @param parameters - Account, token, amount, and source configurations or policy rules.
      * @returns A funding requirement with ordered sources and advisory available amounts.
      */
     discover: (

@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@427c6d43f8d2c1269b571bc26c5f23c493046568
+// Source: tempoxyz/tempo@19f4703d9080cade268ff539b7dadf0bf3a31d91
 
 export const accountKeychain = [
   {
@@ -574,7 +574,7 @@ export const fundingSource = [
     stateMutability: 'view',
     inputs: [
       { type: 'address', name: 'token' },
-      { type: 'bytes', name: 'policyData' },
+      { type: 'bytes', name: 'configData' },
     ],
     outputs: [{ type: 'bool' }],
   },
@@ -583,8 +583,8 @@ export const fundingSource = [
     type: 'function',
     stateMutability: 'view',
     inputs: [
-      { type: 'bytes', name: 'requestData' },
-      { type: 'bytes', name: 'policyData' },
+      { type: 'bytes', name: 'executionData' },
+      { type: 'bytes', name: 'configData' },
     ],
     outputs: [{ type: 'bool' }],
   },
@@ -597,14 +597,14 @@ export const fundingSource = [
       { type: 'address', name: 'assetOut' },
       { type: 'uint256', name: 'amountOut' },
       { type: 'uint256', name: 'maxCost' },
-      { type: 'bytes', name: 'policyData' },
+      { type: 'bytes', name: 'configData' },
     ],
     outputs: [
       {
         type: 'tuple[]',
         name: 'candidates',
         components: [
-          { type: 'bytes', name: 'requestData' },
+          { type: 'bytes', name: 'executionData' },
           { type: 'uint256', name: 'availableAmount' },
         ],
       },
@@ -619,8 +619,8 @@ export const fundingSource = [
       { type: 'address', name: 'assetOut' },
       { type: 'uint256', name: 'amountOut' },
       { type: 'uint256', name: 'maxCost' },
-      { type: 'bytes', name: 'requestData' },
-      { type: 'bytes', name: 'policyData' },
+      { type: 'bytes', name: 'executionData' },
+      { type: 'bytes', name: 'configData' },
       { type: 'bool', name: 'ownerAuthorized' },
     ],
     outputs: [
@@ -632,7 +632,7 @@ export const fundingSource = [
           { type: 'uint256', name: 'rate' },
           { type: 'uint256', name: 'maxAmountIn' },
           { type: 'uint256', name: 'amountOut' },
-          { type: 'bytes', name: 'requestData' },
+          { type: 'bytes', name: 'executionData' },
         ],
       },
     ],
@@ -645,7 +645,7 @@ export const fundingSource = [
       { type: 'address', name: 'account' },
       { type: 'address', name: 'assetOut' },
       { type: 'uint256', name: 'amountOut' },
-      { type: 'bytes', name: 'requestData' },
+      { type: 'bytes', name: 'executionData' },
     ],
     outputs: [],
   },
@@ -4827,11 +4827,19 @@ export const fundingDiscovery = [
     type: 'function',
     name: 'discover',
     inputs: [
-      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
       { name: 'account', type: 'address', internalType: 'address' },
       { name: 'token', type: 'address', internalType: 'address' },
       { name: 'amount', type: 'uint256', internalType: 'uint256' },
-      { name: 'rules', type: 'bytes', internalType: 'bytes' },
+      { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+      {
+        name: 'sources',
+        type: 'tuple[]',
+        internalType: 'struct IFundingPolicy.Source[]',
+        components: [
+          { name: 'target', type: 'address', internalType: 'address' },
+          { name: 'data', type: 'bytes', internalType: 'bytes' },
+        ],
+      },
     ],
     outputs: [
       {
@@ -4868,6 +4876,7 @@ export const fundingDiscovery = [
       { name: 'account', type: 'address', internalType: 'address' },
       { name: 'token', type: 'address', internalType: 'address' },
       { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
       { name: 'rules', type: 'bytes', internalType: 'bytes' },
     ],
     outputs: [

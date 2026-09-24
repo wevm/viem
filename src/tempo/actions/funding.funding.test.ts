@@ -54,14 +54,18 @@ describe('discover', () => {
         : undefined
 
       const discovery = await actions.funding.discover(client, {
-        policyId,
         account: account.address,
-        token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
-        rules,
+        token: Addresses.pathUsd,
+        ...(policyId === undefined
+          ? {
+              slippageBps: 100,
+              sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+            }
+          : { policyId, rules }),
       })
       expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
-      expect(discovery.rules).toEqual(rules)
+      expect(discovery.rules).toEqual(storedPolicy ? rules : undefined)
       expect(discovery.sources).toHaveLength(1)
       expect(
         isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
@@ -165,7 +169,7 @@ describe('discover', () => {
     ).rejects.toThrowErrorMatchingSnapshot()
   })
 
-  test('rejects a missing policy instead of using rules-only discovery', async () => {
+  test('rejects a missing policy instead of using policy-free discovery', async () => {
     await expect(
       actions.funding
         .discover(client, {
@@ -185,12 +189,13 @@ describe('discover', () => {
     ).rejects.toThrowErrorMatchingSnapshot()
   })
 
-  test('rejects malformed rules without a stored policy', async () => {
+  test('rejects malformed rules for a stored policy', async () => {
     await expect(
       actions.funding
         .discover(client, {
           account: accounts[0].address,
           amount: parseUnits('1', 6),
+          policyId: 1n,
           rules: '0x1234',
           token: Addresses.pathUsd,
         })

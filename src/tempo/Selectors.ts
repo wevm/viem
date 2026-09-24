@@ -331,8 +331,8 @@ export const fundingPolicy = {
 
 export const fundingDiscovery = {
   discover: {
-    'discover(address,address,uint256,bytes)': '0xc2524450',
-    'discover(uint64,address,address,uint256,bytes)': '0x3cdf692f',
+    'discover(address,address,uint256,uint16,(address,bytes)[])': '0x6a67e281',
+    'discover(address,address,uint256,uint64,bytes)': '0x6add729d',
   },
 } as const satisfies FunctionSelectors<
   typeof Abis.fundingDiscovery,

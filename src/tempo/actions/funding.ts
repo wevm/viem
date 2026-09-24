@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { FundingPolicy } from 'ox/tempo'
+import { FundingPolicy, type FundingSource } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -572,7 +572,7 @@ export namespace setPolicyAdminsSync {
 }
 
 /**
- * Finds available funding sources using supplied rules and an optional funding policy.
+ * Finds available funding sources from source configurations or verified policy rules.
  * Discovery reserves no funds and does not guarantee execution-time availability.
  *
  * @example
@@ -582,12 +582,8 @@ export namespace setPolicyAdminsSync {
  * const discovery = await Actions.funding.discover(client, {
  *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
  *   amount: 50_000_000n,
- *   rules: {
- *     maxSlippageBps: 100,
- *     sources: {
- *       [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
- *     },
- *   },
+ *   slippageBps: 100,
+ *   sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
  *   token: Addresses.pathUsd,
  * })
  * await Actions.token.transferSync(client, {
@@ -599,36 +595,46 @@ export namespace setPolicyAdminsSync {
  * ```
  *
  * @param client - Client.
- * @param parameters - Account, output token, amount, rules, and optional policy ID.
+ * @param parameters - Account, output token, amount, and source configurations or policy rules.
  * @returns A funding requirement with ordered sources and their currently available amounts.
  */
 export async function discover<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: discover.Parameters,
 ): Promise<discover.ReturnValue> {
-  const { account, amount, policyId, rules, token, ...rest } = parameters
-  const encodedRules =
-    typeof rules === 'string' ? rules : FundingPolicy.encode(rules)
-  const { sources, ...discovery } =
+  const { policyId, rules } = parameters
+  const discovery =
     policyId === undefined
       ? await readContract(client, {
-          ...rest,
-          address: Addresses.fundingDiscovery,
+          ...parameters,
           abi: [...Abis.fundingDiscovery, ...fundingErrors],
+          address: Addresses.fundingDiscovery,
           functionName: 'discover',
-          args: [account, token, amount, encodedRules],
+          args: [
+            parameters.account,
+            parameters.token,
+            parameters.amount,
+            parameters.slippageBps,
+            parameters.sources.map(({ to, data }) => ({ target: to, data })),
+          ],
         })
       : await readContract(client, {
-          ...rest,
-          address: Addresses.fundingDiscovery,
+          ...parameters,
           abi: [...Abis.fundingDiscovery, ...fundingErrors],
+          address: Addresses.fundingDiscovery,
           functionName: 'discover',
-          args: [policyId, account, token, amount, encodedRules],
+          args: [
+            parameters.account,
+            parameters.token,
+            parameters.amount,
+            policyId,
+            typeof rules === 'string' ? rules : FundingPolicy.encode(rules),
+          ],
         })
   return {
     ...discovery,
-    rules,
-    sources: sources.map(({ target, ...source }) => ({
+    ...(policyId === undefined ? {} : { rules }),
+    sources: discovery.sources.map(({ target, ...source }) => ({
       ...source,
       to: target,
     })),
@@ -641,23 +647,36 @@ export namespace discover {
     account: Address
     /** Requested output balance in token base units. */
     amount: bigint
-    /** Optional policy ID whose commitment must match the supplied rules. */
-    policyId?: bigint | undefined
-    /** Decoded or canonical ABI-encoded rules used to select sources and slippage. */
-    rules: Hex | FundingPolicy.Rules
     /** Required output token. */
     token: Address
-  }
+  } & (
+    | {
+        policyId?: undefined
+        rules?: undefined
+        /** Maximum aggregate slippage in basis points. */
+        slippageBps: number
+        /** Ordered sources with configuration data. */
+        sources: readonly FundingSource.Source[]
+      }
+    | {
+        /** Policy ID whose commitment must match the supplied rules. */
+        policyId: bigint
+        /** Decoded or canonical ABI-encoded policy rules. */
+        rules: Hex | FundingPolicy.Rules
+        slippageBps?: undefined
+        sources?: undefined
+      }
+  )
   export type Parameters = ReadParameters & Args
   export type ReturnValue = {
     /** Requested output token. */
     token: Address
     /** Target balance in token base units. */
     amount: bigint
-    /** Maximum aggregate slippage from the supplied rules. */
+    /** Maximum aggregate slippage used for discovery. */
     slippageBps: number
-    /** Rules used for discovery, reusable for access key funding. */
-    rules: Hex | FundingPolicy.Rules
+    /** Verified policy rules, present when a policy ID is supplied. */
+    rules?: Hex | FundingPolicy.Rules | undefined
     /** Ordered sources usable directly in a funding requirement. */
     sources: readonly {
       /** Funding source address. */
@@ -673,16 +692,18 @@ export namespace discover {
   /**
    * Defines the `discover` call, checking a stored policy only when its ID is supplied.
    *
-   * @param args - Account, token, amount, rules, and optional policy ID.
+   * @param args - Account, token, amount, and source configurations or policy rules.
    * @returns The contract call.
    */
   export function call(args: Args) {
-    const rules =
-      typeof args.rules === 'string'
-        ? args.rules
-        : FundingPolicy.encode(args.rules)
     if (args.policyId === undefined) {
-      const parameters = [args.account, args.token, args.amount, rules] as const
+      const parameters = [
+        args.account,
+        args.token,
+        args.amount,
+        args.slippageBps,
+        args.sources.map(({ to, data }) => ({ target: to, data })),
+      ] as const
       return defineCall({
         address: Addresses.fundingDiscovery,
         abi: [
@@ -697,11 +718,13 @@ export namespace discover {
       })
     }
     const parameters = [
-      args.policyId,
       args.account,
       args.token,
       args.amount,
-      rules,
+      args.policyId,
+      typeof args.rules === 'string'
+        ? args.rules
+        : FundingPolicy.encode(args.rules),
     ] as const
     return defineCall({
       address: Addresses.fundingDiscovery,
