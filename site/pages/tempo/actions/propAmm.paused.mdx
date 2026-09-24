@@ -6,8 +6,6 @@ Reads whether swaps in a propAMM pool are paused.
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -25,10 +23,10 @@ const paused = await client.propAmm.paused({
 
 :::
 
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = boolean
+type ReturnType = boolean
 ```
 
 Whether the pool currently rejects swaps.

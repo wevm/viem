@@ -6,11 +6,45 @@ Approves the input token and swaps through a propAMM pool in one Tempo transacti
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.propAmm.swapSync({
+  amountIn: 1_000_000n,
+  baseToQuote: true,
+  customerId: '0x0101010101010101010101010101010101010101010101010101010101010101',
+  deadline: 1_800_000_000n,
+  expectedOraclePrice: 1_000_000_000_000_000_000n,
+  minAmountOut: 1_000_000n,
+  minimumOracleUpdatedAt: 1_799_999_000n,
+  mode: 'exactInput',
+  pool: '0x0000000000000000000000000000000000000002',
+  recipient: '0x0000000000000000000000000000000000000001',
+  tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires an explicit `oraclePriceToleranceBps`.
+
+Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
+
+### Asynchronous Usage
+
+The example above uses `swapSync`, which waits for the transaction to be included and returns the
+confirmed trade fields and receipt. Use `swap` to return the hash immediately and wait for inclusion
+manually:
+
+```ts twoslash
 import { client } from './viem.config'
 
 const hash = await client.propAmm.swap({
@@ -26,26 +60,28 @@ const hash = await client.propAmm.swap({
   recipient: '0x0000000000000000000000000000000000000001',
   tradeId: '0x0202020202020202020202020202020202020202020202020202020202020202',
 })
-// @log: 0x...
+const receipt = await client.waitForTransactionReceipt({ hash })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
-The action reads the input token from the pool and batches its approval with the swap. `propAmm.swap.call` defines only the raw swap call for manual composition and requires an explicit `oraclePriceToleranceBps`.
-
-Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
-
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = Hash
+type ReturnType = {
+  amountIn: bigint
+  amountOut: bigint
+  customerId: Hex
+  oraclePrice: bigint
+  oracleUpdatedAt: bigint
+  receipt: TransactionReceipt
+  recipient: Address
+  taker: Address
+  tokenIn: Address
+  tokenOut: Address
+  tradeId: Hex
+}
 ```
 
-Returns the transaction hash.
+Returns the confirmed trade event fields and transaction receipt for `swapSync`. The asynchronous `swap` action returns a transaction hash.
 
 ## Parameters
 

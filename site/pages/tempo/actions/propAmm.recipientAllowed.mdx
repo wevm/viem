@@ -6,8 +6,6 @@ Checks whether a resolved address may receive output from a propAMM pool.
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -26,10 +24,10 @@ const allowed = await client.propAmm.recipientAllowed({
 
 :::
 
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = boolean
+type ReturnType = boolean
 ```
 
 Whether the resolved recipient is on the pool allowlist.

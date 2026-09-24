@@ -50,7 +50,7 @@ console.log(amountOut, price, updatedAt)
 ### Swap an Exact Input
 
 Get a fresh quote, then use its output, oracle price, and observation time with
-[`swapSync`](/tempo/actions/propAmm.swapSync). The action approves the pool and swaps in one Tempo
+[`swapSync`](/tempo/actions/propAmm.swap). The action approves the pool and swaps in one Tempo
 transaction. The sender must hold the input tokens.
 
 :::code-group
@@ -95,7 +95,7 @@ console.log(trade.amountOut, trade.receipt.transactionHash)
 
 For an exact output, call [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) with
 `mode: 'exactOutput'`, then call [`swap`](/tempo/actions/propAmm.swap) or
-[`swapSync`](/tempo/actions/propAmm.swapSync) with `amountOut` and `maxAmountIn`. The action approves
+[`swapSync`](/tempo/actions/propAmm.swap) with `amountOut` and `maxAmountIn`. The action approves
 `maxAmountIn` and submits the swap in one transaction. The `.call` builder defines only the swap
 call, so add an approval when assembling a batch manually.
 

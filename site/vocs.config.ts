@@ -3100,7 +3100,6 @@ export default defineConfig({
                   link: '/tempo/actions/propAmm.resolveRecipient',
                 },
                 { text: 'swap', link: '/tempo/actions/propAmm.swap' },
-                { text: 'swapSync', link: '/tempo/actions/propAmm.swapSync' },
                 {
                   text: 'takerAllowed',
                   link: '/tempo/actions/propAmm.takerAllowed',

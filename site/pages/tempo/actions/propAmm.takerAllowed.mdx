@@ -6,8 +6,6 @@ Checks whether an address may call swaps on a propAMM pool.
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -26,10 +24,10 @@ const allowed = await client.propAmm.takerAllowed({
 
 :::
 
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = boolean
+type ReturnType = boolean
 ```
 
 Whether the taker is on the pool allowlist.

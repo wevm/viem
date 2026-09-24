@@ -6,8 +6,6 @@ Quotes the input or output amount for a specific propAMM caller, recipient, and 
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -30,10 +28,10 @@ const { amountOut, price, updatedAt, creditAfter } = await client.propAmm.getSwa
 
 :::
 
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = {
+type ReturnType = {
   price: bigint
   updatedAt: bigint
   creditAfter: bigint

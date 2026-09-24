@@ -6,7 +6,7 @@ A propAMM pool trades one fixed base and quote token pair at an oracle-bound pri
 
 Use [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) with `mode: 'exactInput'` or `mode: 'exactOutput'` to price a customer route. The quote returns the oracle price and observation time needed by the swap. A quote does not reserve inventory or establish that the sender has enough input tokens.
 
-[`swap`](/tempo/actions/propAmm.swap) and [`swapSync`](/tempo/actions/propAmm.swapSync) read the pool's input token and batch an approval with the swap in one Tempo transaction. The [`swap.call`](/tempo/actions/propAmm.swap) builder defines only the raw contract call, so add an approval when composing calls manually. The pool pulls input tokens from the transaction sender and sends output to `recipient`.
+[`swap`](/tempo/actions/propAmm.swap) and [`swapSync`](/tempo/actions/propAmm.swap) read the pool's input token and batch an approval with the swap in one Tempo transaction. The [`swap.call`](/tempo/actions/propAmm.swap) builder defines only the raw contract call, so add an approval when composing calls manually. The pool pulls input tokens from the transaction sender and sends output to `recipient`.
 
 A pool's `baseToQuote` direction sends base when `true` and quote when `false`. Read [`baseToken`](/tempo/actions/propAmm.baseToken) and [`quoteToken`](/tempo/actions/propAmm.quoteToken) to identify the tokens. Keep the customer ID, price limit, deadline, and oracle binding explicit for each trade.
 

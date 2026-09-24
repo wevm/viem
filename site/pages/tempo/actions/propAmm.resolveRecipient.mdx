@@ -6,8 +6,6 @@ Resolves the address checked by a propAMM pool before sending output.
 
 ## Usage
 
-### Standalone Action
-
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -26,10 +24,10 @@ const resolved = await client.propAmm.resolveRecipient({
 
 :::
 
-## Return Value
+## Return Type
 
 ```ts
-type ReturnValue = Address
+type ReturnType = Address
 ```
 
 The address that the pool checks against its recipient allowlist.
