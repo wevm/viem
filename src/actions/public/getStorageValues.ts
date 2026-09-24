@@ -56,13 +56,18 @@ export type GetStorageValuesErrorType =
  * @returns The values of the requested storage slots. {@link GetStorageValuesReturnType}
  *
  * @example
- * import { createPublicClient, http } from 'viem'
+ * import { createPublicClient, http, toHex } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { getStorageValues } from 'viem/actions'
  *
  * const client = createPublicClient({ chain: mainnet, transport: http() })
  * const values = await getStorageValues(client, {
- *   requests: { '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': ['0x0', '0x1'] },
+ *   requests: {
+ *     '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': [
+ *       toHex(0, { size: 32 }),
+ *       toHex(1, { size: 32 }),
+ *     ],
+ *   },
  * })
  */
 export async function getStorageValues<chain extends Chain | undefined>(

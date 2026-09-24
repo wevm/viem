@@ -9,16 +9,19 @@ Returns storage values for multiple slots and multiple addresses in one request.
 ## Usage
 
 ```ts
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, toHex } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({ chain: mainnet, transport: http() })
 const values = await client.getStorageValues({
   requests: {
-    '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': ['0x0', '0x1'],
+    '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': [
+      toHex(0, { size: 32 }),
+      toHex(1, { size: 32 }),
+    ],
   },
 })
-// @log: { '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': ['0x...', '0x...'] }
+// @log: { '0xfba3912ca04dd458c843e2ee08967fc04f3579c2': ['0x...', '0x...'] }
 ```
 
 ## Returns
