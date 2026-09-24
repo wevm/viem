@@ -49,7 +49,7 @@ describe('discover', () => {
       })
       const policyId = storedPolicy
         ? (
-            await actions.fundingPolicy.createPolicySync(client, {
+            await actions.funding.createPolicySync(client, {
               account: accounts[0],
               admins: [accounts[0].address],
               rules,
@@ -57,12 +57,12 @@ describe('discover', () => {
           ).policyId
         : undefined
 
-      const discovery = await actions.fundingDiscovery.discover(client, {
+      const discovery = await actions.funding.discover(client, {
         policyId,
         account: account.address,
         token: Addresses.pathUsd,
         amount: parseUnits('50', 6),
-        rules,
+        ...rules,
       })
       expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
       expect(discovery.sources).toHaveLength(1)
@@ -89,12 +89,12 @@ describe('discover', () => {
   )
 
   test('returns no candidates when inputs are unavailable or the target is covered', async () => {
-    const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
+    const { policyId } = await actions.funding.createPolicySync(client, {
       account: accounts[0],
       admins: [accounts[0].address],
       rules,
     })
-    const unfunded = await actions.fundingDiscovery.discover(client, {
+    const unfunded = await actions.funding.discover(client, {
       policyId,
       account: Account.fromSecp256k1(generatePrivateKey()).address,
       token: Addresses.pathUsd,
@@ -103,7 +103,7 @@ describe('discover', () => {
     })
     expect(unfunded.sources).toEqual([])
 
-    const covered = await actions.fundingDiscovery.discover(client, {
+    const covered = await actions.funding.discover(client, {
       policyId,
       account: accounts[0].address,
       token: Addresses.pathUsd,
@@ -114,13 +114,13 @@ describe('discover', () => {
   })
 
   test('rejects an output token without a route', async () => {
-    const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
+    const { policyId } = await actions.funding.createPolicySync(client, {
       account: accounts[0],
       admins: [accounts[0].address],
       rules,
     })
     await expect(
-      actions.fundingDiscovery.discover(client, {
+      actions.funding.discover(client, {
         policyId,
         account: accounts[0].address,
         token: Addresses.betaUsd,
@@ -131,18 +131,18 @@ describe('discover', () => {
   })
 
   test('rejects stale rules', async () => {
-    const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
+    const { policyId } = await actions.funding.createPolicySync(client, {
       account: accounts[0],
       admins: [accounts[0].address],
       rules,
     })
-    await actions.fundingPolicy.setRulesSync(client, {
+    await actions.funding.setPolicyRulesSync(client, {
       account: accounts[0],
       policyId,
       rules: { ...rules, maxSlippageBps: 200 },
     })
     await expect(
-      actions.fundingDiscovery.discover(client, {
+      actions.funding.discover(client, {
         policyId,
         account: accounts[0].address,
         token: Addresses.pathUsd,
@@ -154,7 +154,7 @@ describe('discover', () => {
 
   test('rejects a missing policy instead of using rules-only discovery', async () => {
     await expect(
-      actions.fundingDiscovery.discover(client, {
+      actions.funding.discover(client, {
         account: accounts[0].address,
         amount: parseUnits('1', 6),
         policyId: 0n,
@@ -166,7 +166,7 @@ describe('discover', () => {
 
   test('rejects malformed rules without a stored policy', async () => {
     await expect(
-      actions.fundingDiscovery.discover(client, {
+      actions.funding.discover(client, {
         account: accounts[0].address,
         amount: parseUnits('1', 6),
         rules: '0x1234',
@@ -182,12 +182,12 @@ describe('discover', () => {
         [Addresses.pathUsd]: [{ to: recipient, data: '0x' }],
       },
     } as const
-    const { policyId } = await actions.fundingPolicy.createPolicySync(client, {
+    const { policyId } = await actions.funding.createPolicySync(client, {
       account: accounts[0],
       admins: [accounts[0].address],
       rules: invalidRules,
     })
-    const discovery = await actions.fundingDiscovery.discover(client, {
+    const discovery = await actions.funding.discover(client, {
       policyId,
       account: accounts[0].address,
       token: Addresses.pathUsd,
@@ -195,5 +195,95 @@ describe('discover', () => {
       rules: FundingPolicy.encode(invalidRules),
     })
     expect(discovery.sources).toEqual([])
+  })
+})
+
+describe('createPolicy', () => {
+  test('creates a policy and emits its rules', async () => {
+    const counter = await actions.funding.policyIdCounter(client)
+    const created = await actions.funding.createPolicySync(client, {
+      account: accounts[0],
+      admins: [accounts[0].address],
+      rules,
+    })
+
+    expect(created.receipt.status).toBe('success')
+    expect(created.policyId).toBe(counter)
+    expect(created.rulesHash).toBe(FundingPolicy.hash(rules))
+    expect(created.rules.maxSlippageBps).toBe(100)
+    expect(created.rules.routes).toHaveLength(1)
+    expect(created.rules.routes[0]?.sources).toHaveLength(1)
+    expect(await actions.funding.policyIdCounter(client)).toBe(counter + 1n)
+    expect(
+      await actions.funding.policyExists(client, {
+        policyId: created.policyId,
+      }),
+    ).toBe(true)
+    expect(
+      await actions.funding.getPolicy(client, {
+        policyId: created.policyId,
+      }),
+    ).toMatchObject({ rulesHash: created.rulesHash })
+  })
+
+  test('rejects invalid slippage', async () => {
+    await expect(
+      actions.funding.createPolicySync(client, {
+        account: accounts[0],
+        admins: [accounts[0].address],
+        rules: { ...rules, maxSlippageBps: 10_001 },
+      }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('setPolicyRules', () => {
+  test('rejects unauthorized updates and changes the commitment', async () => {
+    const created = await actions.funding.createPolicySync(client, {
+      account: accounts[0],
+      admins: [accounts[0].address],
+      rules,
+    })
+
+    await expect(
+      actions.funding.setPolicyRulesSync(client, {
+        account: accounts[1],
+        policyId: created.policyId,
+        rules: { ...rules, maxSlippageBps: 200 },
+      }),
+    ).rejects.toThrow()
+
+    const updated = await actions.funding.setPolicyRulesSync(client, {
+      account: accounts[0],
+      policyId: created.policyId,
+      rules: { ...rules, maxSlippageBps: 200 },
+    })
+    expect(updated.rulesHash).toBe(
+      FundingPolicy.hash({ ...rules, maxSlippageBps: 200 }),
+    )
+  })
+})
+
+describe('setPolicyAdmins', () => {
+  test('replaces administrators without changing the rules commitment', async () => {
+    const created = await actions.funding.createPolicySync(client, {
+      account: accounts[0],
+      admins: [accounts[0].address],
+      rules,
+    })
+    const updated = await actions.funding.setPolicyAdminsSync(client, {
+      account: accounts[0],
+      admins: [accounts[0].address, accounts[1].address],
+      policyId: created.policyId,
+    })
+
+    expect(updated.admins).toHaveLength(2)
+    expect(
+      (
+        await actions.funding.getPolicy(client, {
+          policyId: created.policyId,
+        })
+      ).rulesHash,
+    ).toBe(created.rulesHash)
   })
 })

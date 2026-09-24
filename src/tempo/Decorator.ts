@@ -10,8 +10,7 @@ import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
-import * as fundingDiscoveryActions from './actions/fundingDiscovery.js'
-import * as fundingPolicyActions from './actions/fundingPolicy.js'
+import * as fundingActions from './actions/funding.js'
 import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
@@ -2628,99 +2627,95 @@ type DecoratorBase<
       parameters: feeActions.watchSetUserToken.Parameters,
     ) => () => void
   }
-  fundingDiscovery: {
+  funding: {
     /**
      * Finds available funding sources using rules and an optional policy. Discovery does not reserve funds.
      *
      * @example
      * ```ts
-     * const result = await client.fundingDiscovery.discover({
+     * const result = await client.funding.discover({
      *   account, amount, rules, token,
      * })
      * ```
-     * @param parameters - Account, token, amount, encoded rules, and optional policy ID.
+     * @param parameters - Account, token, amount, rules, and optional policy ID.
      * @returns A funding requirement with ordered sources and advisory available amounts.
      */
     discover: (
-      parameters: fundingDiscoveryActions.discover.Parameters,
-    ) => Promise<fundingDiscoveryActions.discover.ReturnValue>
-  }
-  fundingPolicy: {
+      parameters: fundingActions.discover.Parameters,
+    ) => Promise<fundingActions.discover.ReturnValue>
+
     /**
      * Creates a funding policy and commits to its rules.
      * @param parameters - Policy administrators and rules.
      * @returns The transaction hash.
      */
     createPolicy: (
-      parameters: fundingPolicyActions.createPolicy.Parameters<chain, account>,
-    ) => Promise<fundingPolicyActions.createPolicy.ReturnValue>
+      parameters: fundingActions.createPolicy.Parameters<chain, account>,
+    ) => Promise<fundingActions.createPolicy.ReturnValue>
     /**
      * Creates a funding policy and reads its ID from the creation event.
      * @param parameters - Policy administrators and rules.
      * @returns The creation event and transaction receipt.
      */
     createPolicySync: (
-      parameters: fundingPolicyActions.createPolicySync.Parameters<
-        chain,
-        account
-      >,
-    ) => Promise<fundingPolicyActions.createPolicySync.ReturnValue>
+      parameters: fundingActions.createPolicySync.Parameters<chain, account>,
+    ) => Promise<fundingActions.createPolicySync.ReturnValue>
     /**
      * Gets policy administrators and the current rules hash.
      * @param parameters - Policy ID and optional block selection.
      * @returns The administrators and rules hash.
      */
     getPolicy: (
-      parameters: fundingPolicyActions.getPolicy.Parameters,
-    ) => Promise<fundingPolicyActions.getPolicy.ReturnValue>
+      parameters: fundingActions.getPolicy.Parameters,
+    ) => Promise<fundingActions.getPolicy.ReturnValue>
     /**
      * Checks whether a policy exists.
      * @param parameters - Policy ID and optional block selection.
      * @returns Whether the policy exists.
      */
     policyExists: (
-      parameters: fundingPolicyActions.policyExists.Parameters,
-    ) => Promise<fundingPolicyActions.policyExists.ReturnValue>
+      parameters: fundingActions.policyExists.Parameters,
+    ) => Promise<fundingActions.policyExists.ReturnValue>
     /**
      * Gets the next funding policy ID.
      * @param parameters - Optional block selection.
      * @returns The ID consumed by the next successful creation.
      */
     policyIdCounter: (
-      parameters?: fundingPolicyActions.policyIdCounter.Parameters,
-    ) => Promise<fundingPolicyActions.policyIdCounter.ReturnValue>
+      parameters?: fundingActions.policyIdCounter.Parameters,
+    ) => Promise<fundingActions.policyIdCounter.ReturnValue>
     /**
      * Replaces policy administrators without changing the rules hash.
      * @param parameters - Policy ID and replacement administrators.
      * @returns The transaction hash.
      */
-    setAdmins: (
-      parameters: fundingPolicyActions.setAdmins.Parameters<chain, account>,
-    ) => Promise<fundingPolicyActions.setAdmins.ReturnValue>
+    setPolicyAdmins: (
+      parameters: fundingActions.setPolicyAdmins.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyAdmins.ReturnValue>
     /**
      * Replaces policy administrators and reads the update event.
      * @param parameters - Policy ID and replacement administrators.
      * @returns The update event and transaction receipt.
      */
-    setAdminsSync: (
-      parameters: fundingPolicyActions.setAdminsSync.Parameters<chain, account>,
-    ) => Promise<fundingPolicyActions.setAdminsSync.ReturnValue>
+    setPolicyAdminsSync: (
+      parameters: fundingActions.setPolicyAdminsSync.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyAdminsSync.ReturnValue>
     /**
      * Replaces policy rules and changes their commitment.
      * @param parameters - Policy ID and replacement rules.
      * @returns The transaction hash.
      */
-    setRules: (
-      parameters: fundingPolicyActions.setRules.Parameters<chain, account>,
-    ) => Promise<fundingPolicyActions.setRules.ReturnValue>
+    setPolicyRules: (
+      parameters: fundingActions.setPolicyRules.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyRules.ReturnValue>
     /**
      * Replaces policy rules and reads the updated commitment.
      * @param parameters - Policy ID and replacement rules.
      * @returns The update event and transaction receipt.
      */
-    setRulesSync: (
-      parameters: fundingPolicyActions.setRulesSync.Parameters<chain, account>,
-    ) => Promise<fundingPolicyActions.setRulesSync.ReturnValue>
+    setPolicyRulesSync: (
+      parameters: fundingActions.setPolicyRulesSync.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyRulesSync.ReturnValue>
   }
   policy: {
     /**
@@ -5971,13 +5966,9 @@ export type Decorator<
     DecoratorBase<chain, account>['fee'],
     typeof feeActions
   >
-  fundingDiscovery: DecorateNamespace<
-    DecoratorBase<chain, account>['fundingDiscovery'],
-    typeof fundingDiscoveryActions
-  >
-  fundingPolicy: DecorateNamespace<
-    DecoratorBase<chain, account>['fundingPolicy'],
-    typeof fundingPolicyActions
+  funding: DecorateNamespace<
+    DecoratorBase<chain, account>['funding'],
+    typeof fundingActions
   >
   policy: DecorateNamespace<
     DecoratorBase<chain, account>['policy'],
@@ -6163,19 +6154,17 @@ export function decorator() {
         'watchSetUserToken',
         'watchSetValidatorToken',
       ]),
-      fundingDiscovery: bindActions(client, fundingDiscoveryActions, [
+      funding: bindActions(client, fundingActions, [
         'discover',
-      ]),
-      fundingPolicy: bindActions(client, fundingPolicyActions, [
         'createPolicy',
         'createPolicySync',
         'getPolicy',
         'policyExists',
         'policyIdCounter',
-        'setAdmins',
-        'setAdminsSync',
-        'setRules',
-        'setRulesSync',
+        'setPolicyAdmins',
+        'setPolicyAdminsSync',
+        'setPolicyRules',
+        'setPolicyRulesSync',
       ]),
       policy: bindActions(client, policyActions, [
         'create',

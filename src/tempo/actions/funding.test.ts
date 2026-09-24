@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { discover } from './fundingDiscovery.js'
+import { discover, setPolicyAdmins, setPolicyRules } from './funding.js'
 
 describe('discover.call', () => {
   test.each([undefined, 1n])(
@@ -24,7 +24,7 @@ describe('discover.call', () => {
         token: Addresses.pathUsd,
       } as const
 
-      expect(discover.call({ ...parameters, rules }).data).toBe(
+      expect(discover.call({ ...parameters, ...rules }).data).toBe(
         discover.call({ ...parameters, rules: FundingPolicy.encode(rules) })
           .data,
       )
@@ -70,5 +70,35 @@ describe('discover.call', () => {
       50_000_000n,
       '0x1234',
     ])
+  })
+})
+
+describe('setPolicyAdmins.call', () => {
+  test('encodes the policy precompile call', () => {
+    const call = setPolicyAdmins.call({
+      policyId: 1n,
+      admins: [Addresses.pathUsd],
+    })
+    expect(
+      decodeFunctionData({ abi: Abis.fundingPolicy, data: call.data }),
+    ).toEqual({
+      functionName: 'setAdmins',
+      args: [1n, ['0x20C0000000000000000000000000000000000000']],
+    })
+  })
+})
+
+describe('setPolicyRules.call', () => {
+  test('encodes the policy precompile call', () => {
+    const call = setPolicyRules.call({
+      policyId: 1n,
+      rules: { maxSlippageBps: 100, sources: {} },
+    })
+    expect(
+      decodeFunctionData({ abi: Abis.fundingPolicy, data: call.data }),
+    ).toEqual({
+      functionName: 'setRules',
+      args: [1n, { maxSlippageBps: 100, routes: [] }],
+    })
   })
 })

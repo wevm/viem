@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `fundingPolicy.setAdmins`
+# `funding.setPolicyAdmins`
 
 Replaces a policy's administrators. A current administrator must send the transaction. The rules hash does not change.
 
@@ -11,7 +11,7 @@ Replaces a policy's administrators. A current administrator must send the transa
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { admins, receipt } = await client.fundingPolicy.setAdminsSync({
+const { admins, receipt } = await client.funding.setPolicyAdminsSync({
   admins: ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'],
   policyId: 1n,
 })
@@ -24,7 +24,7 @@ const { admins, receipt } = await client.fundingPolicy.setAdminsSync({
 
 :::
 
-The asynchronous `setAdmins` variant returns a transaction hash. Use `Actions.fundingPolicy.setAdmins.extractEvent(receipt.logs)` to read its update event.
+The asynchronous `setAdmins` variant returns a transaction hash. Use `Actions.funding.setPolicyAdmins.extractEvent(receipt.logs)` to read its update event.
 
 ## Return Type
 

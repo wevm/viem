@@ -90,7 +90,7 @@ await client.token.transferSync({
 
 ### Discover Funds
 
-Use [`fundingDiscovery.discover`](/tempo/actions/fundingDiscovery.discover) with rules describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
+Use [`funding.discover`](/tempo/actions/funding.discover) with rules describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
 
 :::code-group
 
@@ -99,17 +99,15 @@ import { parseUnits } from 'viem'
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const discovery = await client.fundingDiscovery.discover({
+const discovery = await client.funding.discover({
   account: client.account.address,
   amount: parseUnits('50', 6),
-  rules: {
-    maxSlippageBps: 100,
-    sources: {
-      [Addresses.pathUsd]: [{
-        to: Addresses.dexFundingSource,
-        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-      }],
-    },
+  maxSlippageBps: 100,
+  sources: {
+    [Addresses.pathUsd]: [{
+      to: Addresses.dexFundingSource,
+      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+    }],
   },
   token: Addresses.pathUsd,
 })

@@ -1,6 +1,6 @@
 import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `fundingPolicy.policyIdCounter`
+# `funding.policyIdCounter`
 
 Gets the next funding policy ID. The next successful creation consumes this ID.
 
@@ -11,7 +11,7 @@ Gets the next funding policy ID. The next successful creation consumes this ID.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const nextPolicyId = await client.fundingPolicy.policyIdCounter()
+const nextPolicyId = await client.funding.policyIdCounter()
 // @log: 1n
 ```
 

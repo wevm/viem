@@ -12,6 +12,7 @@ import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
+import { getAbiItem } from '../../utils/abi/getAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
@@ -28,7 +29,7 @@ import type { TransactionReceipt } from '../Transaction.js'
  * ```ts
  * import { Actions, Addresses, FundingSource } from 'viem/tempo'
  *
- * const hash = await Actions.fundingPolicy.createPolicy(client, {
+ * const hash = await Actions.funding.createPolicy(client, {
  *   admins: ['0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'],
  *   rules: {
  *     maxSlippageBps: 100,
@@ -301,17 +302,17 @@ export namespace policyIdCounter {
  * @param parameters - Policy ID and replacement rules.
  * @returns The transaction hash.
  */
-export async function setRules<
+export async function setPolicyRules<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setRules.Parameters<chain, account>,
-): Promise<setRules.ReturnValue> {
-  return setRules.inner(writeContract, client, parameters)
+  parameters: setPolicyRules.Parameters<chain, account>,
+): Promise<setPolicyRules.ReturnValue> {
+  return setPolicyRules.inner(writeContract, client, parameters)
 }
 
-export namespace setRules {
+export namespace setPolicyRules {
   export type Args = {
     /** Policy ID. */
     policyId: bigint
@@ -343,7 +344,7 @@ export namespace setRules {
   }
 
   /**
-   * Defines the `setRules` call with canonical route order.
+   * Defines the `setPolicyRules` call with canonical route order.
    *
    * @param args - Policy ID and replacement rules.
    * @returns The contract call.
@@ -390,28 +391,28 @@ export namespace setRules {
  * @param parameters - Policy ID and replacement rules.
  * @returns The rules update event and transaction receipt.
  */
-export async function setRulesSync<
+export async function setPolicyRulesSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setRulesSync.Parameters<chain, account>,
-): Promise<setRulesSync.ReturnValue> {
+  parameters: setPolicyRulesSync.Parameters<chain, account>,
+): Promise<setPolicyRulesSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await setRules.inner(writeContractSync, client, {
+  const receipt = await setPolicyRules.inner(writeContractSync, client, {
     ...rest,
     throwOnReceiptRevert,
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  return { ...setRules.extractEvent(receipt.logs).args, receipt } as never
+  return { ...setPolicyRules.extractEvent(receipt.logs).args, receipt } as never
 }
 
-export namespace setRulesSync {
+export namespace setPolicyRulesSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = setRules.Parameters<chain, account>
+  > = setPolicyRules.Parameters<chain, account>
   export type ReturnValue = {
     policyId: bigint
     updater: Address
@@ -430,17 +431,17 @@ export namespace setRulesSync {
  * @param parameters - Policy ID and replacement administrators.
  * @returns The transaction hash.
  */
-export async function setAdmins<
+export async function setPolicyAdmins<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setAdmins.Parameters<chain, account>,
-): Promise<setAdmins.ReturnValue> {
-  return setAdmins.inner(writeContract, client, parameters)
+  parameters: setPolicyAdmins.Parameters<chain, account>,
+): Promise<setPolicyAdmins.ReturnValue> {
+  return setPolicyAdmins.inner(writeContract, client, parameters)
 }
 
-export namespace setAdmins {
+export namespace setPolicyAdmins {
   export type Args = {
     /** Replacement policy administrators. */
     admins: readonly Address[]
@@ -472,7 +473,7 @@ export namespace setAdmins {
   }
 
   /**
-   * Defines the `setAdmins` call.
+   * Defines the `setPolicyAdmins` call.
    *
    * @param args - Policy ID and replacement administrators.
    * @returns The contract call.
@@ -513,28 +514,31 @@ export namespace setAdmins {
  * @param parameters - Policy ID and replacement administrators.
  * @returns The administrator update event and transaction receipt.
  */
-export async function setAdminsSync<
+export async function setPolicyAdminsSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setAdminsSync.Parameters<chain, account>,
-): Promise<setAdminsSync.ReturnValue> {
+  parameters: setPolicyAdminsSync.Parameters<chain, account>,
+): Promise<setPolicyAdminsSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await setAdmins.inner(writeContractSync, client, {
+  const receipt = await setPolicyAdmins.inner(writeContractSync, client, {
     ...rest,
     throwOnReceiptRevert,
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  return { ...setAdmins.extractEvent(receipt.logs).args, receipt } as never
+  return {
+    ...setPolicyAdmins.extractEvent(receipt.logs).args,
+    receipt,
+  } as never
 }
 
-export namespace setAdminsSync {
+export namespace setPolicyAdminsSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = setAdmins.Parameters<chain, account>
+  > = setPolicyAdmins.Parameters<chain, account>
   export type ReturnValue = {
     policyId: bigint
     updater: Address
@@ -542,4 +546,164 @@ export namespace setAdminsSync {
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType
+}
+
+/**
+ * Finds available funding sources using supplied rules and an optional funding policy.
+ * Discovery reserves no funds and does not guarantee execution-time availability.
+ *
+ * @example
+ * ```ts
+ * import { Actions, Addresses, FundingSource } from 'viem/tempo'
+ *
+ * const discovery = await Actions.funding.discover(client, {
+ *   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+ *   amount: 50_000_000n,
+ *   maxSlippageBps: 100,
+ *   sources: {
+ *     [Addresses.pathUsd]: [{
+ *       to: Addresses.dexFundingSource,
+ *       data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+ *     }],
+ *   },
+ *   token: Addresses.pathUsd,
+ * })
+ * await Actions.token.transferSync(client, {
+ *   amount: 50_000_000n,
+ *   requireFunds: [discovery],
+ *   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+ *   token: Addresses.pathUsd,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Account, output token, amount, rules, and optional policy ID.
+ * @returns A funding requirement with ordered sources and their currently available amounts.
+ */
+export async function discover<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: discover.Parameters,
+): Promise<discover.ReturnValue> {
+  const {
+    account,
+    amount,
+    policyId,
+    rules: _rules,
+    maxSlippageBps: _maxSlippageBps,
+    sources: _sources,
+    token,
+    ...rest
+  } = parameters
+  const encodedRules =
+    parameters.rules === undefined
+      ? FundingPolicy.encode(parameters)
+      : parameters.rules
+  const { sources, ...discovery } =
+    policyId === undefined
+      ? await readContract(client, {
+          ...rest,
+          address: Addresses.fundingDiscovery,
+          abi: Abis.fundingDiscovery,
+          functionName: 'discover',
+          args: [account, token, amount, encodedRules],
+        })
+      : await readContract(client, {
+          ...rest,
+          address: Addresses.fundingDiscovery,
+          abi: Abis.fundingDiscovery,
+          functionName: 'discover',
+          args: [policyId, account, token, amount, encodedRules],
+        })
+  return {
+    ...discovery,
+    sources: sources.map(({ target, ...source }) => ({
+      ...source,
+      to: target,
+    })),
+  }
+}
+
+export namespace discover {
+  export type Args = {
+    /** Account whose available inputs are inspected. */
+    account: Address
+    /** Requested output balance in token base units. */
+    amount: bigint
+    /** Optional policy ID whose commitment must match the supplied rules. */
+    policyId?: bigint | undefined
+    /** Required output token. */
+    token: Address
+  } & (
+    | {
+        /** Canonical ABI-encoded rules used to select sources and slippage. */
+        rules: Hex
+        maxSlippageBps?: undefined
+        sources?: undefined
+      }
+    | (FundingPolicy.Rules & { rules?: undefined })
+  )
+  export type Parameters = ReadParameters & Args
+  export type ReturnValue = {
+    /** Requested output token. */
+    token: Address
+    /** Target balance in token base units. */
+    amount: bigint
+    /** Maximum aggregate slippage from the supplied rules. */
+    slippageBps: number
+    /** Ordered sources usable directly in an owner-authorized funding requirement. */
+    sources: readonly {
+      /** Funding source address. */
+      to: Address
+      /** Source-specific request data. */
+      data: Hex
+      /** Advisory available output in token base units. */
+      availableAmount: bigint
+    }[]
+  }
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines the `discover` call, checking a stored policy only when its ID is supplied.
+   *
+   * @param args - Account, token, amount, rules, and optional policy ID.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    const rules =
+      args.rules === undefined ? FundingPolicy.encode(args) : args.rules
+    if (args.policyId === undefined) {
+      const parameters = [args.account, args.token, args.amount, rules] as const
+      return defineCall({
+        address: Addresses.fundingDiscovery,
+        abi: [
+          getAbiItem({
+            abi: Abis.fundingDiscovery,
+            name: 'discover',
+            args: parameters,
+          }),
+        ],
+        functionName: 'discover',
+        args: parameters,
+      })
+    }
+    const parameters = [
+      args.policyId,
+      args.account,
+      args.token,
+      args.amount,
+      rules,
+    ] as const
+    return defineCall({
+      address: Addresses.fundingDiscovery,
+      abi: [
+        getAbiItem({
+          abi: Abis.fundingDiscovery,
+          name: 'discover',
+          args: parameters,
+        }),
+      ],
+      functionName: 'discover',
+      args: parameters,
+    })
+  }
 }

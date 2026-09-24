@@ -1,8 +1,8 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `fundingPolicy.setRules`
+# `funding.createPolicy`
 
-Replaces a policy's routes and maximum slippage. A current administrator must send the transaction. Updating rules invalidates earlier encoded rules.
+Creates a funding policy for token routes. The policy stores its administrators and a hash of its rules. Retain the full rules from the `PolicyCreated` event for later discovery.
 
 ## Usage
 
@@ -12,10 +12,10 @@ Replaces a policy's routes and maximum slippage. A current administrator must se
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const { rulesHash, receipt } = await client.fundingPolicy.setRulesSync({
-  policyId: 1n,
+const { policyId, rulesHash } = await client.funding.createPolicySync({
+  admins: [client.account.address],
   rules: {
-    maxSlippageBps: 50,
+    maxSlippageBps: 100,
     sources: {
       [Addresses.pathUsd]: [{
         to: Addresses.dexFundingSource,
@@ -24,7 +24,7 @@ const { rulesHash, receipt } = await client.fundingPolicy.setRulesSync({
     },
   },
 })
-// @log: { rulesHash: '0x...', receipt: { ... } }
+// @log: { policyId: 1n, rulesHash: '0x...' }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -33,17 +33,17 @@ const { rulesHash, receipt } = await client.fundingPolicy.setRulesSync({
 
 :::
 
-The asynchronous `setRules` variant returns a transaction hash. Use `Actions.fundingPolicy.setRules.extractEvent(receipt.logs)` to read the updated rules from its event.
+The asynchronous `createPolicy` variant returns a transaction hash. Use `Actions.funding.createPolicy.extractEvent(receipt.logs)` to read the ID and rules from its receipt.
 
 ## Return Type
 
-### setRules
+### createPolicy
 
 ```ts
 type ReturnType = Hash
 ```
 
-### setRulesSync
+### createPolicySync
 
 ```ts
 type ReturnType = {
@@ -57,16 +57,16 @@ type ReturnType = {
 
 ## Parameters
 
-### policyId
+### admins
 
-- **Type:** `bigint`
+- **Type:** `Address[]`
 
-Funding policy ID.
+Addresses permitted to update this policy.
 
 ### rules
 
 - **Type:** `FundingPolicy.Rules`
 
-Replacement token-keyed source routes and maximum aggregate slippage.
+Token-keyed source routes and the maximum aggregate slippage. Source order within each route is preserved.
 
 <WriteParameters />

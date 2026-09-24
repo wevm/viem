@@ -1,6 +1,6 @@
 import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `fundingDiscovery.discover`
+# `funding.discover`
 
 Finds currently available funding routes using supplied rules. Optionally verifies those rules against a stored funding policy. Discovery reserves no funds, so a later transaction can still fail if balances or liquidity change.
 
@@ -12,17 +12,15 @@ Finds currently available funding routes using supplied rules. Optionally verifi
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const discovery = await client.fundingDiscovery.discover({
+const discovery = await client.funding.discover({
   account: client.account.address,
   amount: 50_000_000n,
-  rules: {
-    maxSlippageBps: 100,
-    sources: {
-      [Addresses.pathUsd]: [{
-        to: Addresses.dexFundingSource,
-        data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
-      }],
-    },
+  maxSlippageBps: 100,
+  sources: {
+    [Addresses.pathUsd]: [{
+      to: Addresses.dexFundingSource,
+      data: FundingSource.encodeData({ tokenIn: Addresses.alphaUsd }),
+    }],
   },
   token: Addresses.pathUsd,
 })
@@ -72,11 +70,23 @@ Target output balance in token base units.
 
 Funding policy ID whose current commitment must match the supplied rules. Omit it to discover without reading a stored policy.
 
-### rules
+### rules (optional)
 
-- **Type:** `Hex | FundingPolicy.Rules`
+- **Type:** `Hex`
 
-Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. When `policyId` is supplied, the rules must match the policy's current hash.
+Canonical ABI-encoded rules. Supply either `rules` or both `maxSlippageBps` and `sources`. When `policyId` is supplied, the rules must match the policy's current hash.
+
+### maxSlippageBps
+
+- **Type:** `number`
+
+Maximum aggregate slippage in basis points. Required when `rules` is omitted.
+
+### sources
+
+- **Type:** `FundingPolicy.Rules['sources']`
+
+Ordered source permissions keyed by output token. Required when `rules` is omitted.
 
 ### token
 

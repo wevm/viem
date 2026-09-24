@@ -36,6 +36,7 @@ describe('decorator', () => {
         "multisig",
         "nonce",
         "fee",
+        "funding",
         "policy",
         "receivePolicy",
         "reward",
@@ -49,6 +50,10 @@ describe('decorator', () => {
   })
 
   test('binds action helpers', () => {
+    expect(typeof client2.funding.discover.call).toBe('function')
+    expect(typeof client2.funding.createPolicy.call).toBe('function')
+    expect(typeof client2.funding.setPolicyAdmins.call).toBe('function')
+    expect(typeof client2.funding.setPolicyRules.call).toBe('function')
     expect(typeof client2.dex.buy.call).toBe('function')
     expect(typeof client2.amm.getPool.calls).toBe('function')
     expect(typeof client2.multisig.getConfigCommitment.call).toBe('function')

@@ -1,8 +1,8 @@
 import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `fundingPolicy.getPolicy`
+# `funding.policyExists`
 
-Gets a policy's administrators and current rules hash. The policy does not store its complete rules; obtain them from a creation or update event, or an indexer.
+Checks whether a funding policy ID exists.
 
 ## Usage
 
@@ -11,8 +11,8 @@ Gets a policy's administrators and current rules hash. The policy does not store
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const policy = await client.fundingPolicy.getPolicy({ policyId: 1n })
-// @log: { admins: ['0x...'], rulesHash: '0x...' }
+const exists = await client.funding.policyExists({ policyId: 1n })
+// @log: true
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -24,10 +24,7 @@ const policy = await client.fundingPolicy.getPolicy({ policyId: 1n })
 ## Return Type
 
 ```ts
-type ReturnType = {
-  admins: Address[]
-  rulesHash: Hex
-}
+type ReturnType = boolean
 ```
 
 ## Parameters

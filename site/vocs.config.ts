@@ -2821,42 +2821,36 @@ export default defineConfig({
               ],
             },
             {
-              text: 'Funding Discovery',
+              text: 'Funding',
               collapsed: true,
               items: [
                 {
                   text: 'discover',
-                  link: '/tempo/actions/fundingDiscovery.discover',
+                  link: '/tempo/actions/funding.discover',
                 },
-              ],
-            },
-            {
-              text: 'Funding Policy',
-              collapsed: true,
-              items: [
                 {
                   text: 'createPolicy',
-                  link: '/tempo/actions/fundingPolicy.createPolicy',
+                  link: '/tempo/actions/funding.createPolicy',
                 },
                 {
                   text: 'getPolicy',
-                  link: '/tempo/actions/fundingPolicy.getPolicy',
+                  link: '/tempo/actions/funding.getPolicy',
                 },
                 {
                   text: 'policyExists',
-                  link: '/tempo/actions/fundingPolicy.policyExists',
+                  link: '/tempo/actions/funding.policyExists',
                 },
                 {
                   text: 'policyIdCounter',
-                  link: '/tempo/actions/fundingPolicy.policyIdCounter',
+                  link: '/tempo/actions/funding.policyIdCounter',
                 },
                 {
-                  text: 'setAdmins',
-                  link: '/tempo/actions/fundingPolicy.setAdmins',
+                  text: 'setPolicyAdmins',
+                  link: '/tempo/actions/funding.setPolicyAdmins',
                 },
                 {
-                  text: 'setRules',
-                  link: '/tempo/actions/fundingPolicy.setRules',
+                  text: 'setPolicyRules',
+                  link: '/tempo/actions/funding.setPolicyRules',
                 },
               ],
             },
