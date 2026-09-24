@@ -97,6 +97,43 @@ For an exact output, call [`getSwapQuote`](/tempo/actions/propAmm.getSwapQuote) 
 `maxAmountIn` and submits the swap in one transaction. The `.call` builder defines only the swap
 call, so add an approval when assembling a batch manually.
 
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits, stringToHex, toHex } from 'viem'
+import { client } from './viem.config'
+
+const { amountIn, price, updatedAt } = await client.propAmm.getSwapQuote({
+  amountOut: parseUnits('1', 6),
+  baseToQuote: true,
+  customerId: stringToHex('customer-route', { size: 32 }),
+  mode: 'exactOutput',
+  pool: '0x...',
+  recipient: client.account.address,
+})
+
+const trade = await client.propAmm.swapSync({ // [!code focus]
+  amountOut: parseUnits('1', 6),
+  baseToQuote: true,
+  customerId: stringToHex('customer-route', { size: 32 }),
+  mode: 'exactOutput',
+  deadline: BigInt(Math.floor(Date.now() / 1000) + 120),
+  expectedOraclePrice: price,
+  maxAmountIn: amountIn,
+  minimumOracleUpdatedAt: updatedAt,
+  pool: '0x...',
+  recipient: client.account.address,
+  tradeId: toHex(crypto.getRandomValues(new Uint8Array(32))),
+})
+console.log(trade.amountIn, trade.receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 If an exact-output swap spends less than `maxAmountIn`, the unused allowance remains on the input token.
 
 ## Best Practices
