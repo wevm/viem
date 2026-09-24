@@ -27,15 +27,20 @@ import type { TransactionReceipt as TempoTransactionReceipt } from '../Transacti
 import * as simulateActions from './simulate.js'
 import * as tokenActions from './token.js'
 
-/** Reads the base token of a propAMM pool.
+/**
+ * Reads the base token of a propAMM pool.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const token = await Actions.propAmm.baseToken(client, { pool: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool and read options.
  * @returns Base token address.
@@ -49,13 +54,21 @@ export async function baseToken<chain extends Chain | undefined>(
 }
 
 export namespace baseToken {
-  export type Args = { /** Pool address. */ pool: Address }
+  export type Args = {
+    /** Pool address. */
+    pool: Address
+  }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'baseToken'
   >
-  /** Defines the pool's `baseToken` call. */
+
+  /**
+   * Defines the pool's `baseToken` call.
+   */
   export function call({ pool }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -65,15 +78,20 @@ export namespace baseToken {
   }
 }
 
-/** Reads the quote token of a propAMM pool.
+/**
+ * Reads the quote token of a propAMM pool.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const token = await Actions.propAmm.quoteToken(client, { pool: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool and read options.
  * @returns Quote token address.
@@ -87,13 +105,21 @@ export async function quoteToken<chain extends Chain | undefined>(
 }
 
 export namespace quoteToken {
-  export type Args = { /** Pool address. */ pool: Address }
+  export type Args = {
+    /** Pool address. */
+    pool: Address
+  }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'quoteToken'
   >
-  /** Defines the pool's `quoteToken` call. */
+
+  /**
+   * Defines the pool's `quoteToken` call.
+   */
   export function call({ pool }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -103,15 +129,20 @@ export namespace quoteToken {
   }
 }
 
-/** Reads whether a propAMM pool is paused.
+/**
+ * Reads whether a propAMM pool is paused.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const isPaused = await Actions.propAmm.paused(client, { pool: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool and read options.
  * @returns Whether swaps are paused.
@@ -125,13 +156,21 @@ export async function paused<chain extends Chain | undefined>(
 }
 
 export namespace paused {
-  export type Args = { /** Pool address. */ pool: Address }
+  export type Args = {
+    /** Pool address. */
+    pool: Address
+  }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'paused'
   >
-  /** Defines the pool's `paused` call. */
+
+  /**
+   * Defines the pool's `paused` call.
+   */
   export function call({ pool }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -141,15 +180,20 @@ export namespace paused {
   }
 }
 
-/** Reads whether an address may call swaps on a pool.
+/**
+ * Reads whether an address may call swaps on a pool.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const allowed = await Actions.propAmm.takerAllowed(client, { pool: '0x...', taker: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool, taker, and read options.
  * @returns Whether the taker is allowed.
@@ -167,15 +211,22 @@ export async function takerAllowed<chain extends Chain | undefined>(
 
 export namespace takerAllowed {
   export type Args = {
-    /** Pool address. */ pool: Address
-    /** Address that calls the swap. */ taker: Address
+    /** Pool address. */
+    pool: Address
+    /** Address that calls the swap. */
+    taker: Address
   }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'takerAllowed'
   >
-  /** Defines the pool's `takerAllowed` call. */
+
+  /**
+   * Defines the pool's `takerAllowed` call.
+   */
   export function call({ pool, taker }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -186,15 +237,20 @@ export namespace takerAllowed {
   }
 }
 
-/** Reads whether a resolved address may receive swap output.
+/**
+ * Reads whether a resolved address may receive swap output.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const allowed = await Actions.propAmm.recipientAllowed(client, { pool: '0x...', recipient: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool, resolved recipient, and read options.
  * @returns Whether the resolved recipient is allowed.
@@ -212,15 +268,22 @@ export async function recipientAllowed<chain extends Chain | undefined>(
 
 export namespace recipientAllowed {
   export type Args = {
-    /** Pool address. */ pool: Address
-    /** Resolved address to check. */ recipient: Address
+    /** Pool address. */
+    pool: Address
+    /** Resolved address to check. */
+    recipient: Address
   }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'recipientAllowed'
   >
-  /** Defines the pool's `recipientAllowed` call. */
+
+  /**
+   * Defines the pool's `recipientAllowed` call.
+   */
   export function call({ pool, recipient }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -231,15 +294,20 @@ export namespace recipientAllowed {
   }
 }
 
-/** Resolves a Tempo recipient to the address checked by the pool's allowlist.
+/**
+ * Resolves a Tempo recipient to the address checked by the pool's allowlist.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const resolved = await Actions.propAmm.resolveRecipient(client, { pool: '0x...', recipient: '0x...' })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Pool, recipient, and read options.
  * @returns Resolved recipient address.
@@ -257,15 +325,22 @@ export async function resolveRecipient<chain extends Chain | undefined>(
 
 export namespace resolveRecipient {
   export type Args = {
-    /** Pool address. */ pool: Address
-    /** Destination provided to the swap. */ recipient: Address
+    /** Pool address. */
+    pool: Address
+    /** Destination provided to the swap. */
+    recipient: Address
   }
+
   export type Parameters = ReadParameters & Args
+
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.directPropAmm,
     'resolveRecipient'
   >
-  /** Defines the pool's `resolveRecipient` call. */
+
+  /**
+   * Defines the pool's `resolveRecipient` call.
+   */
   export function call({ pool, recipient }: Args) {
     return defineCall({
       abi: Abis.directPropAmm,
@@ -276,18 +351,28 @@ export namespace resolveRecipient {
   }
 }
 
-/** Quotes an exact input or exact output for a caller, recipient, and customer route.
+/**
+ * Quotes an exact input or exact output for a caller, recipient, and customer route.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http() })
+ *
  * const { amountOut, price, updatedAt } = await Actions.propAmm.getSwapQuote(client, {
- *   pool: '0x...', taker: '0x...', recipient: '0x...', customerId: '0x...',
- *   mode: 'exactInput', baseToQuote: true, amountIn: 1_000_000n,
+ *   pool: '0x...',
+ *   taker: '0x...',
+ *   recipient: '0x...',
+ *   customerId: '0x...',
+ *   mode: 'exactInput',
+ *   baseToQuote: true,
+ *   amountIn: 1_000_000n,
  * })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Route, swap mode, amount, and read options. Taker defaults to the read or client account.
  * @returns Quoted counteramount, oracle price, observation time, and remaining rounding credit.
@@ -324,11 +409,16 @@ export async function getSwapQuote(
 
 export namespace getSwapQuote {
   export type Args = {
-    /** True sends base and receives quote; false sends quote and receives base. */ baseToQuote: boolean
-    /** Nonzero attribution and rounding-route identifier. */ customerId: Hex
-    /** Pool address. */ pool: Address
-    /** Destination of the output token. */ recipient: Address
-    /** Address that will call the swap. */ taker: Address
+    /** True sends base and receives quote; false sends quote and receives base. */
+    baseToQuote: boolean
+    /** Nonzero attribution and rounding-route identifier. */
+    customerId: Hex
+    /** Pool address. */
+    pool: Address
+    /** Destination of the output token. */
+    recipient: Address
+    /** Address that will call the swap. */
+    taker: Address
   } & (
     | {
         /** Exact-input quote. */
@@ -343,12 +433,15 @@ export namespace getSwapQuote {
         amountOut: bigint
       }
   )
+
   export type Parameters = ReadParameters &
     UnionOmit<Args, 'taker'> & {
       /** Address that will call the swap. Defaults to the read account or client account. */
       taker?: Address | undefined
     }
+
   /** Quoted amount, oracle observation, and remaining rounding credit. */
+
   export type ReturnValue<parameters extends Parameters = Parameters> = Compute<
     {
       /** Oracle price used for the quote. */
@@ -358,11 +451,19 @@ export namespace getSwapQuote {
       /** Route's remaining rounding credit. */
       creditAfter: bigint
     } & (parameters extends { mode: 'exactInput' }
-      ? { /** Quoted output amount in token base units. */ amountOut: bigint }
-      : { /** Required input amount in token base units. */ amountIn: bigint })
+      ? {
+          /** Quoted output amount in token base units. */
+          amountOut: bigint
+        }
+      : {
+          /** Required input amount in token base units. */
+          amountIn: bigint
+        })
   >
 
-  /** Defines a route-aware quote call. */
+  /**
+   * Defines a route-aware quote call.
+   */
   export function call(
     parameters: Extract<Args, { mode: 'exactInput' }>,
   ): ReturnType<typeof quoteExactInputCall>
@@ -406,7 +507,9 @@ function quoteExactOutputCall(
   })
 }
 
-/** Internal exact-input contract call. */
+/**
+ * Internal exact-input contract call.
+ */
 namespace exactInput {
   export type Args = {
     amountIn: bigint
@@ -455,7 +558,9 @@ namespace exactInput {
   }
 }
 
-/** Internal exact-output contract call. */
+/**
+ * Internal exact-output contract call.
+ */
 namespace exactOutput {
   export type Args = {
     amountOut: bigint
@@ -504,21 +609,32 @@ namespace exactOutput {
   }
 }
 
-/** Approves the input token and swaps through an allowed propAMM pool in one transaction.
+/**
+ * Approves the input token and swaps through an allowed propAMM pool in one transaction.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http(), account: '0x...' })
+ *
  * const hash = await Actions.propAmm.swap(client, {
- *   pool: '0x...', mode: 'exactInput', baseToQuote: true,
- *   amountIn: 1_000_000n, minAmountOut: 1_000_000n,
- *   recipient: '0x...', customerId: '0x...', tradeId: '0x...',
- *   deadline: 1_800_000_000n, expectedOraclePrice: 1_000_000_000_000_000_000n,
+ *   pool: '0x...',
+ *   mode: 'exactInput',
+ *   baseToQuote: true,
+ *   amountIn: 1_000_000n,
+ *   minAmountOut: 1_000_000n,
+ *   recipient: '0x...',
+ *   customerId: '0x...',
+ *   tradeId: '0x...',
+ *   deadline: 1_800_000_000n,
+ *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
  * ```
+ *
  * @param client - Client.
  * @param parameters - Swap and transaction options.
  * @returns Transaction hash.
@@ -535,15 +651,24 @@ export async function swap<
 
 export namespace swap {
   export type Args = {
-    /** True sends base and receives quote; false sends quote and receives base. */ baseToQuote: boolean
-    /** Nonzero attribution and rounding-route identifier. */ customerId: Hex
-    /** Last accepted execution timestamp in seconds. */ deadline: bigint
-    /** Oracle price returned by the quote. */ expectedOraclePrice: bigint
-    /** Earliest accepted oracle observation timestamp. */ minimumOracleUpdatedAt: bigint
-    /** Accepted oracle-price movement in basis points. Zero binds exactly. */ oraclePriceToleranceBps: bigint
-    /** Pool address. */ pool: Address
-    /** Destination of the output token. */ recipient: Address
-    /** Trade attribution value, not replay protection. */ tradeId: Hex
+    /** True sends base and receives quote; false sends quote and receives base. */
+    baseToQuote: boolean
+    /** Nonzero attribution and rounding-route identifier. */
+    customerId: Hex
+    /** Last accepted execution timestamp in seconds. */
+    deadline: bigint
+    /** Oracle price returned by the quote. */
+    expectedOraclePrice: bigint
+    /** Earliest accepted oracle observation timestamp. */
+    minimumOracleUpdatedAt: bigint
+    /** Accepted oracle-price movement in basis points. Zero binds exactly. */
+    oraclePriceToleranceBps: bigint
+    /** Pool address. */
+    pool: Address
+    /** Destination of the output token. */
+    recipient: Address
+    /** Trade attribution value, not replay protection. */
+    tradeId: Hex
   } & (
     | {
         /** Exact-input swap. */
@@ -562,15 +687,19 @@ export namespace swap {
         maxAmountIn: bigint
       }
   )
+
   export type InputArgs = UnionOmit<Args, 'oraclePriceToleranceBps'> & {
     /** Accepted oracle-price movement in basis points. Defaults to zero. */
     oraclePriceToleranceBps?: bigint | undefined
   }
+
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & InputArgs
+
   export type ReturnValue = SendTransactionReturnType
+
   export type ErrorType = BaseErrorType
 
   /** @internal */
@@ -656,7 +785,9 @@ export namespace swap {
     })
   }
 
-  /** Defines the raw swap call without its input-token approval. */
+  /**
+   * Defines the raw swap call without its input-token approval.
+   */
   export function call(
     parameters: Extract<Args, { mode: 'exactInput' }>,
   ): ReturnType<typeof exactInput.call>
@@ -671,7 +802,9 @@ export namespace swap {
     return exactOutput.call(parameters)
   }
 
-  /** Extracts the unique matching trade event from a receipt. */
+  /**
+   * Extracts the unique matching trade event from a receipt.
+   */
   export function extractEvent(
     logs: Log[],
     args: { pool: Address; tradeId: Hex },
@@ -694,22 +827,33 @@ export namespace swap {
   }
 }
 
-/** Approves the input token, swaps, and returns the confirmed trade and receipt.
+/**
+ * Approves the input token, swaps, and returns the confirmed trade and receipt.
+ *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
+ *
  * const client = createClient({ chain: tempo, transport: http(), account: '0x...' })
+ *
  * const trade = await Actions.propAmm.swapSync(client, {
- *   pool: '0x...', mode: 'exactInput', baseToQuote: true,
- *   amountIn: 1_000_000n, minAmountOut: 1_000_000n,
- *   recipient: '0x...', customerId: '0x...', tradeId: '0x...',
- *   deadline: 1_800_000_000n, expectedOraclePrice: 1_000_000_000_000_000_000n,
+ *   pool: '0x...',
+ *   mode: 'exactInput',
+ *   baseToQuote: true,
+ *   amountIn: 1_000_000n,
+ *   minAmountOut: 1_000_000n,
+ *   recipient: '0x...',
+ *   customerId: '0x...',
+ *   tradeId: '0x...',
+ *   deadline: 1_800_000_000n,
+ *   expectedOraclePrice: 1_000_000_000_000_000_000n,
  *   minimumOracleUpdatedAt: 1_799_999_000n,
  * })
  * console.log(trade.amountOut, trade.receipt.transactionHash)
  * ```
+ *
  * @param client - Client.
  * @param parameters - Swap and transaction options.
  * @returns Confirmed trade data and receipt.
@@ -734,15 +878,20 @@ export async function swapSync<
 
 export namespace swapSync {
   export type Args = swap.InputArgs
+
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = swap.Parameters<chain, account>
+
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.directPropAmm,
       'TradeExecuted',
       { IndexedOnly: false; Required: true }
-    > & { /** Confirmed receipt. */ receipt: TransactionReceipt }
+    > & {
+      /** Confirmed receipt. */
+      receipt: TransactionReceipt
+    }
   >
 }

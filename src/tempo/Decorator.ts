@@ -3027,6 +3027,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const base = await client.propAmm.baseToken({ pool: '0x...' })
      * ```
      *
@@ -3046,6 +3047,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
      *   amountIn: 1_000_000n,
      *   baseToQuote: true,
@@ -3075,6 +3077,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const paused = await client.propAmm.paused({ pool: '0x...' })
      * ```
      *
@@ -3094,6 +3097,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const allowed = await client.propAmm.recipientAllowed({
      *   pool: '0x...',
      *   recipient: '0x...',
@@ -3116,6 +3120,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const resolved = await client.propAmm.resolveRecipient({
      *   pool: '0x...',
      *   recipient: '0x...',
@@ -3138,6 +3143,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const quote = await client.propAmm.quoteToken({ pool: '0x...' })
      * ```
      *
@@ -3229,6 +3235,7 @@ type DecoratorBase<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({ chain: tempo, transport: http() }).extend(tempoActions())
+     *
      * const allowed = await client.propAmm.takerAllowed({
      *   pool: '0x...',
      *   taker: '0x...',
