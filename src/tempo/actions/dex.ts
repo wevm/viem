@@ -28,10 +28,11 @@ import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type {
   GetAccountParameter,
+  InferredWriteParameters,
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, inferRequireFunds } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /**
@@ -1719,7 +1720,7 @@ export namespace sell {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = InferredWriteParameters<chain, account> & Args
 
   export type Args = {
     /** Amount of tokenIn to sell. */
@@ -1751,6 +1752,10 @@ export namespace sell {
     const call = sell.call({ tokenIn, tokenOut, amountIn, minAmountOut })
     return (await action(client, {
       ...rest,
+      requireFunds: inferRequireFunds(parameters.requireFunds, {
+        token: tokenIn,
+        amount: amountIn,
+      }),
       ...call,
     } as never)) as never
   }

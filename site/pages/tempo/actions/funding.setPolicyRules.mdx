@@ -1,0 +1,69 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `funding.setPolicyRules`
+
+Replaces a policy's routes and maximum slippage. A current administrator must send the transaction. Updating rules invalidates earlier encoded rules.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { rulesHash, receipt } = await client.funding.setPolicyRulesSync({
+  policyId: 1n,
+  rules: {
+    maxSlippageBps: 50,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+// @log: { rulesHash: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The asynchronous `setRules` variant returns a transaction hash. Use `Actions.funding.setPolicyRules.extractEvent(receipt.logs)` to read the updated rules from its event.
+
+## Return Type
+
+### setRules
+
+```ts
+type ReturnType = Hash
+```
+
+### setRulesSync
+
+```ts
+type ReturnType = {
+  policyId: bigint
+  updater: Address
+  rulesHash: Hex
+  rules: FundingPolicy.Rules
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Funding policy ID.
+
+### rules
+
+- **Type:** `FundingPolicy.Rules`
+
+Replacement token-keyed source routes and maximum aggregate slippage.
+
+<WriteParameters />

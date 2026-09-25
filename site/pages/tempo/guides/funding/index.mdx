@@ -1,0 +1,81 @@
+---
+description: Configure automatic funding for Tempo transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Funding
+
+## Overview
+
+Funding lets a transaction use other sources to supply the token balance it needs.
+
+For example, if an account lacks enough PathUSD for a payment, the transaction can swap its USDC and redeem its Earn vault shares to cover the shortfall before making the payment.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
+:::
+
+## Set Up a Client
+
+Wrap your transport with [`withFunding`](/tempo/transports/withFunding). These guides share this configuration.
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::warning[Persist funding policy rules]
+A long-lived persistent store is highly recommended so registered policy rules remain available across restarts. These examples import your store from `./store`; it must implement the `Store.Store` interface.
+:::
+
+## Fund a Transfer
+
+Set `requireFunds: true` to automatically source assets to fund the transfer. If the account has less than 50 PathUSD, Viem finds other supported tokens in the account to swap for the missing amount before sending the payment.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: true,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+:::info
+You can also specify tokens to source from.
+
+```ts
+requireFunds: [{ token: Addresses.pathUsd }]
+```
+
+In the example above, this sources 50 PathUSD.
+:::
+
+## Recipes
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Source Funds for Transactions"
+    description="Use defaults, configure routes, or override individual sources and limits."
+    to="/tempo/guides/funding/source"
+  />
+  <Card
+    icon="lucide:search"
+    title="Discovering Funds"
+    description="Preview funding or explicitly discover sources before a transaction."
+    to="/tempo/guides/funding/discover"
+  />
+</Cards>

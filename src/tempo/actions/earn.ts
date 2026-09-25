@@ -2871,7 +2871,7 @@ export namespace withdrawExact {
     const { shareToken, vault } = args
     const assetAmount = internal_Token.toBaseUnits(args.assetAmount, undefined)
     const call = withdrawExact.call({ ...args, assetAmount })
-    const [, , shareAmountMax] = call.args
+    const shareAmountMax = call.args.length === 3 ? call.args[2] : call.args[1]
     return [
       defineCall({
         address: shareToken,

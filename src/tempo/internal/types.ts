@@ -10,6 +10,7 @@ import type {
   UnionPick,
 } from '../../types/utils.js'
 import type { TransactionRequestTempo } from '../Transaction.js'
+import type { FundingRequirementIntent } from './funding.js'
 
 /**
  * Selects a TIP20 token by `token`, which is either a TIP20 token id or a
@@ -75,9 +76,30 @@ export type WriteParameters<
     | 'keyAuthorization'
     | 'nonceKey'
     | 'owner'
+    | 'requireFunds'
     | 'validAfter'
     | 'validBefore'
   >
+
+/** Funding requirement whose target can be inferred from an action's spend. */
+export type InferredFundingRequirement = Omit<
+  FundingRequirementIntent,
+  'token' | 'amount'
+> & {
+  /** Output token; defaults to the action's spent token. */
+  token?: Address | undefined
+  /** Target balance; defaults to the action's spent amount. */
+  amount?: bigint | undefined
+}
+
+/** Tempo write parameters with action-level funding inference. */
+export type InferredWriteParameters<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+> = Omit<WriteParameters<chain, account>, 'requireFunds'> & {
+  /** Requirements processed before calls. Use `true` to infer the spent token and amount and discover sources. */
+  requireFunds?: true | readonly InferredFundingRequirement[] | undefined
+}
 
 export type WriteSyncParameters<
   chain extends Chain | undefined = Chain | undefined,

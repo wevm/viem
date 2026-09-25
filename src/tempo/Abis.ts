@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@a2624758a6709731d98b9bd6fc8e5afca398fea9
+// Source: tempoxyz/tempo@19f4703d9080cade268ff539b7dadf0bf3a31d91
 
 export const accountKeychain = [
   {
@@ -199,6 +199,16 @@ export const accountKeychain = [
         ],
       },
     ],
+  },
+  {
+    name: 'getFundingPolicyId',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [{ type: 'uint64' }],
   },
   {
     name: 'getRemainingLimit',
@@ -555,6 +565,90 @@ export const currentCommittee = [
     outputs: [],
   },
   { name: 'Unauthorized', type: 'error', inputs: [] },
+] as const
+
+export const fundingSource = [
+  {
+    name: 'supportsToken',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'bytes', name: 'configData' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes', name: 'executionData' },
+      { type: 'bytes', name: 'configData' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'discover',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'uint256', name: 'maxCost' },
+      { type: 'bytes', name: 'configData' },
+    ],
+    outputs: [
+      {
+        type: 'tuple[]',
+        name: 'candidates',
+        components: [
+          { type: 'bytes', name: 'executionData' },
+          { type: 'uint256', name: 'availableAmount' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'quote',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'uint256', name: 'maxCost' },
+      { type: 'bytes', name: 'executionData' },
+      { type: 'bytes', name: 'configData' },
+      { type: 'bool', name: 'ownerAuthorized' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        name: 'result',
+        components: [
+          { type: 'address', name: 'assetIn' },
+          { type: 'uint256', name: 'rate' },
+          { type: 'uint256', name: 'maxAmountIn' },
+          { type: 'uint256', name: 'amountOut' },
+          { type: 'bytes', name: 'executionData' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'fund',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'assetOut' },
+      { type: 'uint256', name: 'amountOut' },
+      { type: 'bytes', name: 'executionData' },
+    ],
+    outputs: [],
+  },
 ] as const
 
 export const nonce = [
@@ -1779,6 +1873,81 @@ export const tip20Factory = [
     name: 'TokenAlreadyExists',
     type: 'error',
     inputs: [{ type: 'address', name: 'token' }],
+  },
+] as const
+
+export const tip20Funder = [
+  {
+    name: 'SourceFunded',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'assetOut', indexed: true },
+      { type: 'address', name: 'source', indexed: true },
+      { type: 'bytes32', name: 'requestHash' },
+      { type: 'address', name: 'assetIn' },
+      { type: 'uint256', name: 'amountIn' },
+      { type: 'uint256', name: 'amountOut' },
+    ],
+  },
+  {
+    name: 'FundsRequired',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'key', indexed: true },
+      { type: 'address', name: 'asset', indexed: true },
+      { type: 'uint256', name: 'requiredAmount' },
+      { type: 'uint256', name: 'fundedAmount' },
+    ],
+  },
+  { name: 'InvalidFundingContext', type: 'error', inputs: [] },
+  {
+    name: 'InvalidAsset',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'asset' }],
+  },
+  {
+    name: 'TokenNotAllowed',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'token' }],
+  },
+  {
+    name: 'FundingNotAuthorized',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'source' }],
+  },
+  { name: 'InvalidSourceOrder', type: 'error', inputs: [] },
+  {
+    name: 'InvalidFundingQuote',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'source' }],
+  },
+  {
+    name: 'InputLimitExceeded',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'source' },
+      { type: 'uint256', name: 'limit' },
+      { type: 'uint256', name: 'attempted' },
+    ],
+  },
+  {
+    name: 'UnexpectedFundingAmount',
+    type: 'error',
+    inputs: [
+      { type: 'address', name: 'source' },
+      { type: 'uint256', name: 'maximum' },
+      { type: 'uint256', name: 'received' },
+    ],
+  },
+  {
+    name: 'InsufficientFunding',
+    type: 'error',
+    inputs: [
+      { type: 'uint256', name: 'required' },
+      { type: 'uint256', name: 'available' },
+    ],
   },
 ] as const
 
@@ -4405,7 +4574,348 @@ export const zoneVerifier = [
   },
 ] as const
 
-// Source: tempoxyz/earn@d6373e4939ec2bbf5dcccffd5f2519ff4a62d6b1
+export const fundingPolicy = [
+  {
+    type: 'function',
+    name: 'createPolicy',
+    inputs: [
+      { name: 'admins', type: 'address[]', internalType: 'address[]' },
+      {
+        name: 'rules',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'getPolicy',
+    inputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    outputs: [
+      {
+        name: 'policy',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Policy',
+        components: [
+          { name: 'admins', type: 'address[]', internalType: 'address[]' },
+          { name: 'rulesHash', type: 'bytes32', internalType: 'bytes32' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'policyExists',
+    inputs: [{ name: 'policyId', type: 'uint64', internalType: 'uint64' }],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'policyIdCounter',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint64', internalType: 'uint64' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'setAdmins',
+    inputs: [
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      { name: 'admins', type: 'address[]', internalType: 'address[]' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setRules',
+    inputs: [
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      {
+        name: 'rules',
+        type: 'tuple',
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'PolicyAdminsUpdated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'admins',
+        type: 'address[]',
+        indexed: false,
+        internalType: 'address[]',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PolicyCreated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'rulesHash',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'rules',
+        type: 'tuple',
+        indexed: false,
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PolicyRulesUpdated',
+    inputs: [
+      {
+        name: 'policyId',
+        type: 'uint64',
+        indexed: true,
+        internalType: 'uint64',
+      },
+      {
+        name: 'updater',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'rulesHash',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'rules',
+        type: 'tuple',
+        indexed: false,
+        internalType: 'struct IFundingPolicy.Rules',
+        components: [
+          { name: 'maxSlippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'routes',
+            type: 'tuple[]',
+            internalType: 'struct IFundingPolicy.Route[]',
+            components: [
+              { name: 'token', type: 'address', internalType: 'address' },
+              {
+                name: 'sources',
+                type: 'tuple[]',
+                internalType: 'struct IFundingPolicy.Source[]',
+                components: [
+                  { name: 'target', type: 'address', internalType: 'address' },
+                  { name: 'data', type: 'bytes', internalType: 'bytes' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'InvalidPolicy', inputs: [] },
+  { type: 'error', name: 'InvalidPolicyData', inputs: [] },
+  { type: 'error', name: 'PolicyNotFound', inputs: [] },
+  {
+    type: 'error',
+    name: 'TokenNotAllowed',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'Unauthorized', inputs: [] },
+] as const
+
+export const fundingDiscovery = [
+  {
+    type: 'function',
+    name: 'discover',
+    inputs: [
+      { name: 'account', type: 'address', internalType: 'address' },
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+      {
+        name: 'sources',
+        type: 'tuple[]',
+        internalType: 'struct IFundingPolicy.Source[]',
+        components: [
+          { name: 'target', type: 'address', internalType: 'address' },
+          { name: 'data', type: 'bytes', internalType: 'bytes' },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        internalType: 'struct IFundingDiscovery.Discovery',
+        components: [
+          { name: 'token', type: 'address', internalType: 'address' },
+          { name: 'amount', type: 'uint256', internalType: 'uint256' },
+          { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'sources',
+            type: 'tuple[]',
+            internalType: 'struct IFundingDiscovery.Source[]',
+            components: [
+              { name: 'target', type: 'address', internalType: 'address' },
+              { name: 'data', type: 'bytes', internalType: 'bytes' },
+              {
+                name: 'availableAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'discover',
+    inputs: [
+      { name: 'account', type: 'address', internalType: 'address' },
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'policyId', type: 'uint64', internalType: 'uint64' },
+      { name: 'rules', type: 'bytes', internalType: 'bytes' },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        internalType: 'struct IFundingDiscovery.Discovery',
+        components: [
+          { name: 'token', type: 'address', internalType: 'address' },
+          { name: 'amount', type: 'uint256', internalType: 'uint256' },
+          { name: 'slippageBps', type: 'uint16', internalType: 'uint16' },
+          {
+            name: 'sources',
+            type: 'tuple[]',
+            internalType: 'struct IFundingDiscovery.Source[]',
+            components: [
+              { name: 'target', type: 'address', internalType: 'address' },
+              { name: 'data', type: 'bytes', internalType: 'bytes' },
+              {
+                name: 'availableAmount',
+                type: 'uint256',
+                internalType: 'uint256',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'error',
+    name: 'InvalidCandidate',
+    inputs: [{ name: 'source', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'InvalidSlippage', inputs: [] },
+] as const
+
+// Source: tempoxyz/earn@1990188d880d167aa0f60444447ae912f28b4fed
 
 export const earnContributionController = [
   {
@@ -5558,6 +6068,140 @@ export const earnFees = [
   { type: 'error', name: 'ZeroAmount', inputs: [] },
 ] as const
 
+export const earnFundingSource = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: 'engines', type: 'address[]' },
+      { name: 'approvedAdapters', type: 'address[]' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'DEX',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'TIP20_FUNDER',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'adapters',
+    inputs: [{ name: 'engine', type: 'address' }],
+    outputs: [{ name: 'adapter', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'discover',
+    inputs: [
+      { name: 'account', type: 'address' },
+      { name: 'assetOut', type: 'address' },
+      { name: 'amountOut', type: 'uint256' },
+      { name: 'maxCost', type: 'uint256' },
+      { name: 'configData', type: 'bytes' },
+    ],
+    outputs: [
+      {
+        name: 'candidates',
+        type: 'tuple[]',
+        components: [
+          { name: 'executionData', type: 'bytes' },
+          { name: 'availableAmount', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'fund',
+    inputs: [
+      { name: 'account', type: 'address' },
+      { name: 'assetOut', type: 'address' },
+      { name: 'amountOut', type: 'uint256' },
+      { name: 'executionData', type: 'bytes' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'quote',
+    inputs: [
+      { name: 'account', type: 'address' },
+      { name: 'assetOut', type: 'address' },
+      { name: 'amountOut', type: 'uint256' },
+      { name: 'maxCost', type: 'uint256' },
+      { name: 'executionData', type: 'bytes' },
+      { name: 'configData', type: 'bytes' },
+      { name: 'ownerAuthorized', type: 'bool' },
+    ],
+    outputs: [
+      {
+        name: '',
+        type: 'tuple',
+        components: [
+          { name: 'assetIn', type: 'address' },
+          { name: 'rate', type: 'uint256' },
+          { name: 'maxAmountIn', type: 'uint256' },
+          { name: 'amountOut', type: 'uint256' },
+          { name: 'executionData', type: 'bytes' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'supportsToken',
+    inputs: [
+      { name: 'token', type: 'address' },
+      { name: 'configData', type: 'bytes' },
+    ],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'verify',
+    inputs: [
+      { name: 'executionData', type: 'bytes' },
+      { name: 'configData', type: 'bytes' },
+    ],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'pure',
+  },
+  { type: 'error', name: 'EngineChanged', inputs: [] },
+  { type: 'error', name: 'InputLimitExceeded', inputs: [] },
+  { type: 'error', name: 'InvalidConfiguration', inputs: [] },
+  { type: 'error', name: 'InvalidDelivery', inputs: [] },
+  { type: 'error', name: 'ReentrancyGuardReentrantCall', inputs: [] },
+  {
+    type: 'error',
+    name: 'SafeCastOverflowedUintDowncast',
+    inputs: [
+      { name: 'bits', type: 'uint8' },
+      { name: 'value', type: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'SafeERC20FailedOperation',
+    inputs: [{ name: 'token', type: 'address' }],
+  },
+  { type: 'error', name: 'Unauthorized', inputs: [] },
+  { type: 'error', name: 'UnsupportedEngine', inputs: [] },
+  { type: 'error', name: 'UnsupportedToken', inputs: [] },
+] as const
+
 export const earnMerkleRewardDistributor = [
   {
     type: 'constructor',
@@ -6317,6 +6961,26 @@ export const earnVault = [
   },
   {
     type: 'function',
+    name: 'deposit',
+    inputs: [
+      { name: 'assets', type: 'uint256' },
+      { name: 'minEarnShares', type: 'uint256' },
+    ],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'depositVenueShares',
+    inputs: [
+      { name: 'venueShares', type: 'uint256' },
+      { name: 'minEarnShares', type: 'uint256' },
+    ],
+    outputs: [{ name: 'earnShares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     name: 'depositVenueShares',
     inputs: [
       { name: 'venueShares', type: 'uint256' },
@@ -6584,6 +7248,16 @@ export const earnVault = [
     name: 'redeem',
     inputs: [
       { name: 'earnShares', type: 'uint256' },
+      { name: 'minAssets', type: 'uint256' },
+    ],
+    outputs: [{ name: 'assets', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'redeem',
+    inputs: [
+      { name: 'earnShares', type: 'uint256' },
       { name: 'receiver', type: 'address' },
       { name: 'minAssets', type: 'uint256' },
     ],
@@ -6596,6 +7270,27 @@ export const earnVault = [
     inputs: [],
     outputs: [{ name: 'assets', type: 'uint256' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'requestRedeem',
+    inputs: [
+      { name: 'earnShares', type: 'uint256' },
+      { name: 'receiver', type: 'address' },
+      { name: 'engineData', type: 'bytes' },
+    ],
+    outputs: [{ name: 'requestId', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'requestRedeem',
+    inputs: [
+      { name: 'earnShares', type: 'uint256' },
+      { name: 'engineData', type: 'bytes' },
+    ],
+    outputs: [{ name: 'requestId', type: 'bytes32' }],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -6723,6 +7418,16 @@ export const earnVault = [
     inputs: [
       { name: 'assets', type: 'uint256' },
       { name: 'receiver', type: 'address' },
+      { name: 'maxEarnShares', type: 'uint256' },
+    ],
+    outputs: [{ name: 'earnSharesBurned', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdrawExact',
+    inputs: [
+      { name: 'assets', type: 'uint256' },
       { name: 'maxEarnShares', type: 'uint256' },
     ],
     outputs: [{ name: 'earnSharesBurned', type: 'uint256' }],
@@ -7484,6 +8189,364 @@ export const erc4626EngineFactory = [
     inputs: [{ name: 'engine', type: 'address' }],
   },
   { type: 'error', name: 'FactoryCannotBeFinalOwner', inputs: [] },
+] as const
+
+export const erc4626FundingAdapter = [
+  {
+    type: 'function',
+    name: 'valuation',
+    inputs: [
+      { name: 'engine', type: 'address' },
+      { name: 'managedShares', type: 'uint256' },
+    ],
+    outputs: [
+      { name: 'grossAssets', type: 'uint256' },
+      { name: 'liquidAssets', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+] as const
+
+export const propAmmengine = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: 'pool_', type: 'address' },
+      { name: 'owner_', type: 'address' },
+      { name: 'maxAge_', type: 'uint256' },
+      { name: 'route_', type: 'bytes32' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'acceptOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'asset',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'customerId',
+    inputs: [],
+    outputs: [{ name: '', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'deposit',
+    inputs: [{ name: 'assets', type: 'uint256' }],
+    outputs: [{ name: 'shares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'earnVault',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [
+      { name: 'vault_', type: 'address' },
+      { name: 'finalOwner_', type: 'address' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'initializeEarnVault',
+    inputs: [{ name: 'vault_', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'isFeeValuationFresh',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'liquidityStatus',
+    inputs: [],
+    outputs: [
+      { name: 'paused', type: 'bool' },
+      { name: 'admitted', type: 'bool' },
+      { name: 'idleCash', type: 'uint256' },
+      { name: 'venueCash', type: 'uint256' },
+      { name: 'venueBase', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'maxOracleAge',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'name',
+    inputs: [],
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracleDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracleObservationTime',
+    inputs: [],
+    outputs: [{ name: 'observedAt', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pendingOwner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pool',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previewRedeem',
+    inputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'previewWithdraw',
+    inputs: [{ name: 'assets', type: 'uint256' }],
+    outputs: [{ name: 'shares', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceOracle',
+    inputs: [],
+    outputs: [{ name: '', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'redeem',
+    inputs: [
+      { name: 'shares', type: 'uint256' },
+      { name: 'receiver', type: 'address' },
+      { name: 'minAssets', type: 'uint256' },
+    ],
+    outputs: [{ name: 'assets', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'renounceOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'shareScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'supportsInterface',
+    inputs: [{ name: 'id', type: 'bytes4' }],
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    name: 'symbol',
+    inputs: [],
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'totalAssets',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'totalShares',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'valueOf',
+    inputs: [{ name: 'shares', type: 'uint256' }],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'withdraw',
+    inputs: [
+      { name: 'assets', type: 'uint256' },
+      { name: 'receiver', type: 'address' },
+    ],
+    outputs: [{ name: 'shares', type: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'Deposited',
+    inputs: [
+      { name: 'earnVault', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'engineShares', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'EarnVaultInitialized',
+    inputs: [{ name: 'earnVault', type: 'address', indexed: true }],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferStarted',
+    inputs: [
+      { name: 'previousOwner', type: 'address', indexed: true },
+      { name: 'newOwner', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      { name: 'previousOwner', type: 'address', indexed: true },
+      { name: 'newOwner', type: 'address', indexed: true },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Redeemed',
+    inputs: [
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'engineShares', type: 'uint256', indexed: false },
+      { name: 'assets', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'WithdrewExact',
+    inputs: [
+      { name: 'receiver', type: 'address', indexed: true },
+      { name: 'assets', type: 'uint256', indexed: false },
+      { name: 'engineSharesBurned', type: 'uint256', indexed: false },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'AlreadyBound', inputs: [] },
+  { type: 'error', name: 'InexactTransfer', inputs: [] },
+  { type: 'error', name: 'InsufficientBacking', inputs: [] },
+  { type: 'error', name: 'InvalidAmount', inputs: [] },
+  { type: 'error', name: 'InvalidConfiguration', inputs: [] },
+  { type: 'error', name: 'InvalidOracle', inputs: [] },
+  { type: 'error', name: 'InvalidReceiver', inputs: [] },
+  { type: 'error', name: 'NotEarnVault', inputs: [] },
+  {
+    type: 'error',
+    name: 'OwnableInvalidOwner',
+    inputs: [{ name: 'owner', type: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'OwnableUnauthorizedAccount',
+    inputs: [{ name: 'account', type: 'address' }],
+  },
+  { type: 'error', name: 'QuoteMismatch', inputs: [] },
+  { type: 'error', name: 'ReadDuringSettlement', inputs: [] },
+  { type: 'error', name: 'ReentrancyGuardReentrantCall', inputs: [] },
+  {
+    type: 'error',
+    name: 'SafeERC20FailedOperation',
+    inputs: [{ name: 'token', type: 'address' }],
+  },
+] as const
+
+export const propAmmfundingAdapter = [
+  {
+    type: 'function',
+    name: 'valuation',
+    inputs: [
+      { name: 'engine', type: 'address' },
+      { name: 'managedShares', type: 'uint256' },
+    ],
+    outputs: [
+      { name: 'grossAssets', type: 'uint256' },
+      { name: 'liquidAssets', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
 ] as const
 
 export const vedaEngine = [
@@ -8285,6 +9348,22 @@ export const vedaEngine = [
   },
   { type: 'error', name: 'ZeroAddress', inputs: [] },
   { type: 'error', name: 'ZeroMinimumQueuedAssets', inputs: [] },
+] as const
+
+export const vedaFundingAdapter = [
+  {
+    type: 'function',
+    name: 'valuation',
+    inputs: [
+      { name: 'engine', type: 'address' },
+      { name: 'managedShares', type: 'uint256' },
+    ],
+    outputs: [
+      { name: 'grossAssets', type: 'uint256' },
+      { name: 'liquidAssets', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
 ] as const
 
 // `SingleZoneEarnRouter.CallbackData` parameter for `encodeAbiParameters`.
@@ -9510,6 +10589,9 @@ export const core = [
   ...currentCommittee,
   ...feeAmm,
   ...feeManager,
+  ...fundingDiscovery,
+  ...fundingPolicy,
+  ...fundingSource,
   ...nativeMultisig,
   ...nonce,
   ...receivePolicyGuard,
@@ -9519,6 +10601,7 @@ export const core = [
   ...tip20,
   ...tip20ChannelReserve,
   ...tip20Factory,
+  ...tip20Funder,
   ...tip403Registry,
   ...validatorConfig,
   ...validatorConfigV2,
@@ -9534,13 +10617,18 @@ export const earn = [
   ...earnEngineInKindDeposit,
   ...earnFactory,
   ...earnFees,
+  ...earnFundingSource,
   ...earnMerkleRewardDistributor,
   ...earnRewardsFactory,
   ...earnRouter,
   ...earnVault,
   ...erc4626Engine,
   ...erc4626EngineFactory,
+  ...erc4626FundingAdapter,
+  ...propAmmengine,
+  ...propAmmfundingAdapter,
   ...vedaEngine,
+  ...vedaFundingAdapter,
 ] as const
 
 export const zone = [...zoneMessenger, ...zoneOutbox] as const

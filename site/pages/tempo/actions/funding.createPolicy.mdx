@@ -1,0 +1,69 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `funding.createPolicy`
+
+Creates a funding policy for token routes. The policy stores its administrators and a hash of its rules. Retain the full rules from the `PolicyCreated` event for later discovery.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { policyId, rulesHash } = await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+// @log: { policyId: 1n, rulesHash: '0x...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The asynchronous `createPolicy` variant returns a transaction hash. Use `Actions.funding.createPolicy.extractEvent(receipt.logs)` to read the ID and rules from its receipt.
+
+## Return Type
+
+### createPolicy
+
+```ts
+type ReturnType = Hash
+```
+
+### createPolicySync
+
+```ts
+type ReturnType = {
+  policyId: bigint
+  updater: Address
+  rulesHash: Hex
+  rules: FundingPolicy.Rules
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### admins
+
+- **Type:** `Address[]`
+
+Addresses permitted to update this policy.
+
+### rules
+
+- **Type:** `FundingPolicy.Rules`
+
+Token-keyed source routes and the maximum aggregate slippage. Source order within each route is preserved.
+
+<WriteParameters />

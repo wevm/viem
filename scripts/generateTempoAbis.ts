@@ -212,7 +212,8 @@ function tempoAdapter(): SourceAdapter {
   return {
     name: 'tempo',
     async generate() {
-      const commit = await getLatestCommit(repository)
+      const commit =
+        process.env.TEMPO_REF ?? (await getLatestCommit(repository))
       const { content, files } = await getPrecompileSources(commit)
       const interfaces = parseSolInterfaces(content)
       for (const [name, { after, items }] of Object.entries(
@@ -253,6 +254,16 @@ function tempoAdapter(): SourceAdapter {
             item.replace('external bool', 'external returns (bool)'),
           ),
         )
+        output += `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
+        processed.push({ abi, exportName })
+      }
+      for (const name of files.includes('funding_policy.rs')
+        ? ['IFundingPolicy', 'IFundingDiscovery']
+        : []) {
+        const abi = await getJson<ReturnType<typeof Abi.from>>(
+          `https://raw.githubusercontent.com/tempoxyz/tempo/${commit}/crates/contracts/abi/${name}.json`,
+        )
+        const exportName = tempoExportName(name)
         output += `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`
         processed.push({ abi, exportName })
       }
@@ -351,7 +362,7 @@ function earnAdapter(): SourceAdapter {
   return {
     name: 'earn',
     async generate(context) {
-      const commit = getLatestGitCommit(repository)
+      const commit = process.env.EARN_REF ?? getLatestGitCommit(repository)
       const checkout = prepareCheckout(commit)
       const artifacts = getArtifacts(checkout)
       const abiGroups = new Map<string, FoundryArtifact[]>()
@@ -491,9 +502,15 @@ function earnAdapter(): SourceAdapter {
   }
 
   function getArtifacts(checkout: string) {
-    execFileSync('forge', ['build', '--quiet'], { cwd: checkout })
+    // Isolate artifacts from other profiles and target Tempo's supported EVM.
+    const out = Path.join(checkout, 'out/viem')
+    execFileSync(
+      'forge',
+      ['build', '--quiet', '--evm-version', 'cancun', '--out', out],
+      { cwd: checkout },
+    )
     const artifacts = new Map<string, FoundryArtifact>()
-    for (const file of listFiles(Path.join(checkout, 'out'))) {
+    for (const file of listFiles(out)) {
       if (!file.endsWith('.json') || file.includes('/build-info/')) continue
       const artifact = JSON.parse(
         Fs.readFileSync(file, 'utf8'),
@@ -635,7 +652,8 @@ function zonesAdapter(): SourceAdapter {
   return {
     name: 'zones',
     async generate(context) {
-      const commit = await getLatestCommit(repositoryApi)
+      const commit =
+        process.env.ZONES_REF ?? (await getLatestCommit(repositoryApi))
       const [sourceFiles, interfaceContent] = await Promise.all([
         Promise.all(
           sources.map(async (file) => ({

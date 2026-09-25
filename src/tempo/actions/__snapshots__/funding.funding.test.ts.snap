@@ -1,0 +1,53 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createPolicy > rejects invalid slippage 1`] = `[Error: Slippage must be between 0 and 10,000 basis points.]`;
+
+exports[`discover > rejects a missing policy instead of using policy-free discovery 1`] = `
+[ContractFunctionRevertedError: The contract function "discover" reverted.
+
+Error: PolicyNotFound()
+
+
+Details: execution reverted: TIP403 registry error: PolicyNotFound(PolicyNotFound)
+Version: viem@2.56.9]
+`;
+
+exports[`discover > rejects an output token without a route 1`] = `
+[ContractFunctionRevertedError: The contract function "discover" reverted.
+
+Error: TokenNotAllowed(address token)
+                      (0x20C0000000000000000000000000000000000002)
+
+Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllowed { token: 0x20c0000000000000000000000000000000000002 })
+Version: viem@2.56.9]
+`;
+
+exports[`discover > rejects malformed rules for a stored policy 1`] = `
+[ContractFunctionRevertedError: The contract function "discover" reverted.
+
+Error: InvalidPolicyData()
+
+
+Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
+Version: viem@2.56.9]
+`;
+
+exports[`discover > rejects stale rules 1`] = `
+[ContractFunctionRevertedError: The contract function "discover" reverted.
+
+Error: InvalidPolicyData()
+
+
+Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
+Version: viem@2.56.9]
+`;
+
+exports[`setPolicyRules > rejects unauthorized updates and changes the commitment 1`] = `
+[ContractFunctionRevertedError: The contract function "setRules" reverted.
+
+Error: Unauthorized()
+
+
+Details: execution reverted: Current committee error: Unauthorized(Unauthorized)
+Version: viem@2.56.9]
+`;

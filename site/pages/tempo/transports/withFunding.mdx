@@ -1,0 +1,106 @@
+# `withFunding`
+
+Discovers omitted funding sources before filling a transaction with gas, fees, and a nonce.
+
+## Usage
+
+```ts
+import { createClient, http, parseUnits } from 'viem'
+import { tempo } from 'viem/chains'
+import { Addresses, tempoActions, withFunding } from 'viem/tempo'
+import { account } from './account'
+import { store } from './store'
+
+const client = createClient({
+  account,
+  chain: tempo,
+  transport: withFunding(http(), { store }),
+}).extend(tempoActions())
+
+// The transfer supplies the token and amount; the transport discovers sources.
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: true,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+The account must hold a fee token or use a fee payer. Funding supplies application balances, not transaction fees.
+
+## Parameters
+
+### getRoute
+
+- **Type:** `({ chainId, token, transaction }) => Route | undefined | Promise<Route | undefined>`
+
+`transaction` is the unsigned RPC request. Use `transaction.from` to select routes for the funding account; it contains an address, not a local signer.
+
+Optional callback returning ordered source configurations and `slippageBps` for a chain and output token. The token address is checksummed. Return `undefined` to reject discovery for that pair. Explicit sources bypass the callback.
+
+By default, mainnet and testnet use Viem's known tokens with the same currency as the output, excluding the output itself. Localnet uses PathUSD, AlphaUSD, BetaUSD, and ThetaUSD. Inputs have no source-specific cap. Unknown output tokens and other chains, including Zones, require a custom callback.
+
+```ts
+import { http } from 'viem'
+import { Addresses, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+withFunding(http(), {
+  store,
+  getRoute: async ({ chainId, token }) => {
+    if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+    return {
+      slippageBps: 100,
+      sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    }
+  },
+})
+```
+
+Explicit transaction slippage takes precedence over the route default. If both are omitted, slippage is zero. Each requirement has its own aggregate tolerance. Known tokens are discovery inputs, not a guarantee of balances, liquidity, or deployed funding support.
+
+The transport passes the client's configured chain ID to the handler. The handler uses the explicit request-option chain ID or the transaction's chain ID and rejects conflicts. When neither is supplied, it defaults to Tempo mainnet (4217). Discovery and filling receive the resolved chain ID in request options.
+
+### policyId
+
+- **Type:** `bigint`
+
+Default policy selected when key authorization specifies `fundingPolicy: true`. The handler checks that the policy exists on the requested chain. Explicit policy IDs and inline policies bypass default selection.
+
+```ts
+import { http } from 'viem'
+import { withFunding } from 'viem/tempo'
+import { store } from './store'
+
+withFunding(http(), { policyId: 1n, store })
+```
+
+The policy must already exist, and its current rules must be registered for automatic funding. Its administrators can update the rules that apply to attached access keys.
+
+### store
+
+- **Type:** `Store.Store`
+
+Required store for funding policy rules. Use a long-lived persistent store to retain rules across restarts. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
+
+```ts
+import { http } from 'viem'
+import { withFunding } from 'viem/tempo'
+import { store } from './store'
+
+withFunding(http(), { store })
+```
+
+## Behavior
+
+Token transfers, burns, and exact-input DEX sells accept `requireFunds: true`. These actions infer the spent token and amount before calling the transport. Generic transactions still need explicit token and amount requirements.
+
+- Omitted `requireFunds` and `[]` perform no automatic funding.
+- Omitted `sources` use the output token's configured route. A missing route fails.
+- Explicit sources, including `[]`, retain their order, caps, and data.
+- Discovery precedes gas estimation and signing. Discovery does not reserve funds.
+- Filling errors are propagated. Incomplete requirements cannot fall back to signing.
+
+## Return Value
+
+The original transport type and metadata, with a `funding: true` marker. The wrapper uses [`Funding.handleRequest`](/tempo/utilities/Funding.handleRequest), which can also run in a server relay.

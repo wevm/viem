@@ -5,6 +5,7 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import {
   type AuthorizationTempo,
+  type FundingRequirement,
   type KeyAuthorization,
   MultisigConfig,
   type MultisigOperation,
@@ -43,6 +44,11 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { RootAccount } from './Account.js'
+import {
+  type FundingRequirementInput,
+  type FundingRequirementIntent,
+  normalizeRequireFunds,
+} from './internal/funding.js'
 import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<
@@ -84,6 +90,10 @@ export type TransactionTempo<
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   multisig?: MultisigOperation.TransactionOperation | undefined
   nonceKey?: quantity | undefined
+  /** Token balances to satisfy before calls execute. */
+  requireFunds?:
+    | readonly FundingRequirement.FundingRequirement<quantity, index>[]
+    | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
   validBefore?: index | undefined
@@ -137,6 +147,10 @@ export type TransactionRequestTempo<
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
+    /** Token balances to satisfy before calls execute. */
+    requireFunds?:
+      | readonly FundingRequirementIntent<quantity, index>[]
+      | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -159,6 +173,10 @@ export type TransactionSerializableTempo<
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: quantity | undefined
     owner?: RootAccount | undefined
+    /** Token balances to satisfy before calls execute. */
+    requireFunds?:
+      | readonly FundingRequirementInput<quantity, index>[]
+      | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -204,6 +222,7 @@ export function getType(
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feePayerSignature !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
+    typeof transaction.requireFunds !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.multisigSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
@@ -362,6 +381,7 @@ async function serializeTempo(
 
   const transaction_ox = {
     ...rest,
+    requireFunds: normalizeRequireFunds(transaction.requireFunds),
     calls: rest.calls?.length
       ? rest.calls
       : [

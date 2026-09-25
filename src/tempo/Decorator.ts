@@ -10,6 +10,7 @@ import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
+import * as fundingActions from './actions/funding.js'
 import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
@@ -148,6 +149,23 @@ type DecoratorBase<
     burnWitnessSync: (
       parameters: accessKeyActions.burnWitnessSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.burnWitnessSync.ReturnValue>
+    /**
+     * Gets the funding policy ID assigned to an installed access key.
+     *
+     * @example
+     * ```ts
+     * const policyId = await client.accessKey.getFundingPolicyId({
+     *   account: '0x...',
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Account and access key.
+     * @returns The policy ID, or zero when none is assigned.
+     */
+    getFundingPolicyId: (
+      parameters: accessKeyActions.getFundingPolicyId.Parameters<account>,
+    ) => Promise<accessKeyActions.getFundingPolicyId.ReturnValue>
     /**
      * Gets access key information.
      *
@@ -2626,6 +2644,96 @@ type DecoratorBase<
     watchSetUserToken: (
       parameters: feeActions.watchSetUserToken.Parameters,
     ) => () => void
+  }
+  funding: {
+    /**
+     * Finds available funding sources from source configurations or verified policy rules. Defaults to the client account; discovery does not reserve funds.
+     *
+     * @example
+     * ```ts
+     * const result = await client.funding.discover({
+     *   account, amount, slippageBps, sources, token,
+     * })
+     * ```
+     * @param parameters - Account, token, amount, and source configurations or policy rules.
+     * @returns A funding requirement with ordered sources and advisory available amounts.
+     */
+    discover: (
+      parameters: fundingActions.discover.Parameters<account>,
+    ) => Promise<fundingActions.discover.ReturnValue>
+
+    /**
+     * Creates a funding policy and commits to its rules.
+     * @param parameters - Policy administrators and rules.
+     * @returns The transaction hash.
+     */
+    createPolicy: (
+      parameters: fundingActions.createPolicy.Parameters<chain, account>,
+    ) => Promise<fundingActions.createPolicy.ReturnValue>
+    /**
+     * Creates a funding policy and reads its ID from the creation event.
+     * @param parameters - Policy administrators and rules.
+     * @returns The creation event and transaction receipt.
+     */
+    createPolicySync: (
+      parameters: fundingActions.createPolicySync.Parameters<chain, account>,
+    ) => Promise<fundingActions.createPolicySync.ReturnValue>
+    /**
+     * Gets policy administrators and the current rules hash.
+     * @param parameters - Policy ID and optional block selection.
+     * @returns The administrators and rules hash.
+     */
+    getPolicy: (
+      parameters: fundingActions.getPolicy.Parameters,
+    ) => Promise<fundingActions.getPolicy.ReturnValue>
+    /**
+     * Checks whether a policy exists.
+     * @param parameters - Policy ID and optional block selection.
+     * @returns Whether the policy exists.
+     */
+    policyExists: (
+      parameters: fundingActions.policyExists.Parameters,
+    ) => Promise<fundingActions.policyExists.ReturnValue>
+    /**
+     * Gets the next funding policy ID.
+     * @param parameters - Optional block selection.
+     * @returns The ID consumed by the next successful creation.
+     */
+    policyIdCounter: (
+      parameters?: fundingActions.policyIdCounter.Parameters,
+    ) => Promise<fundingActions.policyIdCounter.ReturnValue>
+    /**
+     * Replaces policy administrators without changing the rules hash.
+     * @param parameters - Policy ID and replacement administrators.
+     * @returns The transaction hash.
+     */
+    setPolicyAdmins: (
+      parameters: fundingActions.setPolicyAdmins.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyAdmins.ReturnValue>
+    /**
+     * Replaces policy administrators and reads the update event.
+     * @param parameters - Policy ID and replacement administrators.
+     * @returns The update event and transaction receipt.
+     */
+    setPolicyAdminsSync: (
+      parameters: fundingActions.setPolicyAdminsSync.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyAdminsSync.ReturnValue>
+    /**
+     * Replaces policy rules and changes their commitment.
+     * @param parameters - Policy ID and replacement rules.
+     * @returns The transaction hash.
+     */
+    setPolicyRules: (
+      parameters: fundingActions.setPolicyRules.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyRules.ReturnValue>
+    /**
+     * Replaces policy rules and reads the updated commitment.
+     * @param parameters - Policy ID and replacement rules.
+     * @returns The update event and transaction receipt.
+     */
+    setPolicyRulesSync: (
+      parameters: fundingActions.setPolicyRulesSync.Parameters<chain, account>,
+    ) => Promise<fundingActions.setPolicyRulesSync.ReturnValue>
   }
   policy: {
     /**
@@ -6096,6 +6204,10 @@ export type Decorator<
     DecoratorBase<chain, account>['fee'],
     typeof feeActions
   >
+  funding: DecorateNamespace<
+    DecoratorBase<chain, account>['funding'],
+    typeof fundingActions
+  >
   policy: DecorateNamespace<
     DecoratorBase<chain, account>['policy'],
     typeof policyActions
@@ -6159,6 +6271,7 @@ export function decorator() {
         'authorizeSync',
         'burnWitness',
         'burnWitnessSync',
+        'getFundingPolicyId',
         'getMetadata',
         'getRemainingLimit',
         'isAdmin',
@@ -6283,6 +6396,18 @@ export function decorator() {
         'setValidatorTokenSync',
         'watchSetUserToken',
         'watchSetValidatorToken',
+      ]),
+      funding: bindActions(client, fundingActions, [
+        'discover',
+        'createPolicy',
+        'createPolicySync',
+        'getPolicy',
+        'policyExists',
+        'policyIdCounter',
+        'setPolicyAdmins',
+        'setPolicyAdminsSync',
+        'setPolicyRules',
+        'setPolicyRulesSync',
       ]),
       policy: bindActions(client, policyActions, [
         'create',

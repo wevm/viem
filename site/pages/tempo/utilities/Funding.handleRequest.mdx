@@ -1,0 +1,51 @@
+# `Funding.handleRequest`
+
+Resolves funding sources and access key policy rules before forwarding `eth_fillTransaction` to the downstream handler.
+
+## Usage
+
+```ts
+import { Addresses, Funding, FundingSource } from 'viem/tempo'
+import { client } from './client'
+
+const handleRequest = Funding.handleRequest(
+  (request, options) => client.request(request, options),
+  {
+    getRoute: ({ chainId, token }) => {
+      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+      return {
+        slippageBps: 100,
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }
+    },
+  },
+)
+```
+
+## Parameters
+
+### getRoute
+
+- **Type:** `({ chainId, token, transaction }) => Route | undefined | Promise<Route | undefined>`
+
+`transaction` is the unsigned RPC request. Use `transaction.from` to select routes for the funding account; it contains an address, not a local signer.
+
+Optional callback resolving source configurations for the chain ID and checksummed output token. Return `undefined` when no route is available. Async callbacks can load configuration from a store.
+
+When omitted, the handler uses known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`withFunding`](/tempo/transports/withFunding) for default selection and slippage precedence.
+
+The handler infers the chain from the transaction or accepts `handleRequest(request, { chainId })`. Conflicts are rejected. Without either value, it defaults to Tempo mainnet (4217). All discovery and fill requests forward the resolved chain ID to `next`.
+
+### policyId
+
+- **Type:** `bigint`
+
+Existing default policy for `fundingPolicy: true`. The handler verifies that it exists on the selected chain before returning its ID. Explicit IDs and inline policies remain unchanged.
+
+### store
+
+- **Type:** `Store.Store`
+
+Optional rules store, defaulting to memory. With `withFunding`, policy creation, policy updates, and inline key authorization populate this store. Installed keys use their current onchain policy; new keys use their signed authorization's policy. Supplied and cached rules must match the current commitment before use.
+
+Cache entries are scoped by chain, policy contract, and rules hash. Supply `policyRules` when the store does not contain the current rules. See [access key funding](/tempo/transports/withFunding#access-key-funding).

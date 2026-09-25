@@ -1,4 +1,5 @@
 import { Hex } from 'ox'
+import { EarnFundingVenue } from '~contracts/generated.js'
 import {
   readContract,
   sendTransactionSync,
@@ -23,13 +24,7 @@ import type { Account } from '../../../src/tempo/index.js'
 import { accounts, addresses, setupToken } from './config.js'
 import * as EarnContracts from './earnContracts.js'
 
-/**
- * Deploys a full local Earn stack from the vendored artifacts, mirroring
- * `earn/localnet/foundry/script/DeployLocalEarn.s.sol`: `Simple4626Vault`
- * venue -> `ERC4626Engine` -> `EarnVault` and `EarnFees` implementations ->
- * `EarnFactory` -> `factory.deploy` -> `engine.initializeEarnVault`. Deploys are sequential
- * so each fixture contract address can be recovered independently.
- */
+/** Deploys an ERC-4626 venue, Earn stack, and funding source bound to its engine. */
 export async function deployEarnStack(
   client: Client<Transport, Chain, viem_Account>,
   options: deployEarnStack.Options = {},
@@ -44,9 +39,9 @@ export async function deployEarnStack(
   const operator = client.account
 
   const venue = await deployContract(client, {
-    abi: EarnContracts.simple4626Vault.abi,
-    args: [asset, 'Tempo Earn Test Vault', 'teTEST', 6],
-    bytecode: EarnContracts.simple4626Vault.bytecode,
+    abi: EarnFundingVenue.abi,
+    args: [asset],
+    bytecode: EarnFundingVenue.bytecode.object,
   })
   const engine = await deployContract(client, {
     abi: EarnContracts.erc4626Engine.abi,
@@ -111,6 +106,16 @@ export async function deployEarnStack(
     functionName: 'initializeEarnVault',
   })
 
+  const fundingAdapter = await deployContract(client, {
+    abi: EarnContracts.erc4626FundingAdapter.abi,
+    bytecode: EarnContracts.erc4626FundingAdapter.bytecode,
+  })
+  const fundingSource = await deployContract(client, {
+    abi: EarnContracts.earnFundingSource.abi,
+    args: [[engine], [fundingAdapter]],
+    bytecode: EarnContracts.earnFundingSource.bytecode,
+  })
+
   return {
     adapter,
     asset,
@@ -123,7 +128,7 @@ export async function deployEarnStack(
         functionName: 'approve',
       })
       await writeContractSync(client, {
-        abi: EarnContracts.simple4626Vault.abi,
+        abi: EarnFundingVenue.abi,
         address: venue,
         args: [assets],
         functionName: 'donate',
@@ -132,6 +137,7 @@ export async function deployEarnStack(
     engine,
     factory,
     fees: feesAddress,
+    fundingSource,
     seats: { ...seats, operator },
     shareToken,
     venue,
@@ -160,7 +166,7 @@ export declare namespace deployEarnStack {
     adapter: Address
     /** Venue base asset. */
     asset: Address
-    /** Injects venue yield via `Simple4626Vault.donate`. */
+    /** Injects venue yield without minting shares. */
     donate: (assets: bigint) => Promise<void>
     /** Deployed `ERC4626Engine`. */
     engine: Address
@@ -168,11 +174,13 @@ export declare namespace deployEarnStack {
     factory: Address
     /** Deployed `EarnFees` clone. */
     fees: Address
+    /** Funding source bound to the deployed engine. */
+    fundingSource: Address
     /** Seat accounts wired into the deployment. */
     seats: Seats
     /** TIP-20 share token issued by the vault. */
     shareToken: Address
-    /** Deployed `Simple4626Vault` venue. */
+    /** Deployed ERC-4626 venue. */
     venue: Address
   }
 }

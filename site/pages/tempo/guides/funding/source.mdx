@@ -1,0 +1,505 @@
+---
+title: Source Funds for Transactions
+description: Fund Tempo transactions with default routes, custom sources, and input limits.
+---
+
+# Source Funds for Transactions
+
+## Overview
+
+`requireFunds` specifies balances to satisfy before transaction calls run. Existing balances count toward each requirement. Sources supply the shortfall in order; funding and application calls revert together if either fails.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
+:::
+
+Start with the [funding-enabled client](/tempo/guides/funding#set-up-a-client). On a token transfer, `requireFunds: true` infers the token and amount and discovers sources through `withFunding`.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Source funds required for the transfer. // [!code hl]
+  requireFunds: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Global Configuration
+
+Use `getRoute` on the `withFunding` transport to choose sources and slippage for each output token.
+
+The callback replaces the default route lookup. Returning `undefined` rejects discovery for that request.
+
+These examples use testnet tokens. Replace the Earn source and vault placeholders with deployed addresses; the vault must hold PathUSD.
+
+#### Configure Sources by Token
+
+Use a token map when the client uses one chain. This route redeems Earn shares, then uses AlphaUSD for the remaining shortfall.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), {
+    store,
+    getRoute({ token }) {
+      const routes = {
+        [Addresses.pathUsd]: {
+          slippageBps: 100,
+          sources: [
+            // Attempt to redeem vault shares before AlphaUSD.
+            FundingSource.earn({ source: '0x...', vault: '0x...' }),
+            FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+          ],
+        },
+      }
+
+      return routes[token]
+    },
+  }),
+})
+```
+
+#### Configure by Chain
+
+Nest token routes under their chain ID when the configuration serves multiple chains. An unconfigured chain or token returns `undefined`.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), {
+    store,
+    getRoute({ chainId, token }) {
+      const routes = {
+        42431: {
+          [Addresses.pathUsd]: {
+            slippageBps: 100,
+            sources: [
+              // Redeem at most 30 PathUSD of share value before using the DEX.
+              FundingSource.earn({ maxValueIn: parseUnits('30', 6), source: '0x...', vault: '0x...' }),
+              FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+            ],
+          },
+        },
+      }
+
+      return routes[chainId]?.[token]
+    },
+  }),
+})
+```
+
+#### Configure by Account
+
+Use `transaction.from` to select account-specific routes. This is the funding account's address, including when an access key signs the transaction. Access key funding follows its policy rather than this owner-route callback.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), {
+    store,
+    getRoute({ chainId, token, transaction }) {
+      if (!transaction.from) return undefined
+
+      const routes = {
+        '0x1111111111111111111111111111111111111111': {
+          42431: {
+            [Addresses.pathUsd]: {
+              slippageBps: 100,
+              sources: [
+                // Redeem at most 30 PathUSD of share value before using the DEX.
+                FundingSource.earn({ maxValueIn: parseUnits('30', 6), source: '0x...', vault: '0x...' }),
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      }
+
+      return routes[transaction.from]?.[chainId]?.[token]
+    },
+  }),
+})
+```
+
+Use an account configured in the map. The transfer stays the same for each configuration:
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: true,
+  to: '0x8888888888888888888888888888888888888888',
+  token: Addresses.pathUsd,
+})
+```
+
+### Per-Transaction Configuration
+
+#### Choose Tokens
+
+Specify the token to fund. The transfer action supplies the amount. Omit `sources` to use the configured route.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Infer the required amount from the transfer.
+  requireFunds: [{ token: Addresses.pathUsd }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+#### Choose Slippage
+
+Set transaction slippage to override the route default. The tolerance applies to aggregate input cost across all sources in that requirement.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Keep automatic discovery, allowing up to 1% aggregate slippage.
+  requireFunds: [{ slippageBps: 100 }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+#### Choose Sources
+
+Explicit sources bypass `getRoute` and preserve their order and caps. An empty array disables discovery for that requirement.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [
+      FundingSource.dex({ maxAmountIn: parseUnits('30', 6), tokenIn: Addresses.alphaUsd }),
+      FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+    ],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+import { http } from 'viem'
+import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), { store }),
+})
+```
+
+:::
+
+### Fund from Earn Vault
+
+Pass an Earn source in `requireFunds.sources` to override the configured route for this transaction.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...' // Deployed Earn funding source.
+const vault = '0x...' // Vault with PathUSD as its underlying token.
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Redeem only the shares needed for the missing balance.
+  requireFunds: [{
+    sources: [FundingSource.earn({ source, vault })],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+Omitting input caps lets the source redeem the shares needed within the funding budget. No standing share approval is needed. Default slippage remains zero; set `slippageBps` if redemption incurs costs.
+
+#### Multiple Sources
+
+Cap Earn funding at 50 PathUSD of underlying value, then use a DEX source for the rest of the 100 PathUSD payment.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...' // Deployed Earn funding source.
+const vault = '0x...' // Vault with PathUSD as its underlying token.
+const usdcE = '0x...' // DEX input token on the configured chain.
+
+await client.token.transferSync({
+  amount: parseUnits('100', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [
+      // Redeem at most 50 PathUSD of gross underlying value.
+      FundingSource.earn({ maxValueIn: parseUnits('50', 6), source, vault }),
+      // Cover the remaining shortfall through the DEX.
+      FundingSource.dex({ tokenIn: usdcE }),
+    ],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+`maxValueIn` caps gross underlying value before exit fees, in underlying-token base units. `maxAmountIn` caps share base units. Both apply per source invocation; zero disables input, and omission leaves that cap unlimited.
+
+### Fund with an Access Key
+
+Authorize the access key with a funding policy and a spending limit for the payment token. An inline policy creates a new policy when the key is installed; use `fundingPolicy: policyId` to bind an existing policy.
+
+#### Use a Global Policy
+
+Create a policy with [`funding.createPolicy`](/tempo/actions/funding.createPolicy), configure its ID on the `withFunding` transport, then use `fundingPolicy: true` when authorizing a key. The handler resolves the policy ID before signing and supplies its registered rules for the payment.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const accessKey = Account.fromP256(generatePrivateKey(), { access: client.account })
+
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  // Use the global policy. // [!code hl]
+  fundingPolicy: true, // [!code hl]
+  limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+})
+
+await client.token.transferSync({
+  account: accessKey,
+  amount: parseUnits('50', 6),
+  keyAuthorization,
+  // Fund the payment using sources from the global policy. // [!code hl]
+  requireFunds: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+import { http } from 'viem'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+const account = Account.fromSecp256k1('0x...')
+const policyId = 123n // [!code hl]
+
+export const client = createClient({
+  account,
+  transport: withFunding(http(), { policyId, store }), // [!code hl]
+})
+```
+
+:::
+
+The default policy's administrators can change funding rules for all attached keys. Choose a policy whose administrators you trust; each key retains its own spending limits.
+
+#### Create an Inline Policy
+
+:::code-group
+
+```ts [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { parseUnits } from 'viem'
+import { Account, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: client.account,
+})
+
+// Sign permission to use these funding sources and spend at most 50 PathUSD.
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  fundingPolicy: {
+    admins: [client.account.address],
+    rules: {
+      maxSlippageBps: 100,
+      sources: {
+        [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      },
+    },
+  },
+  limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+})
+
+await client.token.transferSync({
+  account: accessKey,
+  amount: parseUnits('50', 6),
+  // Create the policy, install the key, and fund the payment in one transaction. // [!code hl]
+  keyAuthorization, // [!code hl]
+  requireFunds: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { http } from 'viem'
+import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), { store }),
+})
+```
+
+:::
+
+#### Use an Existing Policy
+
+Create a policy once with [`funding.createPolicySync`](/tempo/actions/funding.createPolicy) and reuse its ID across access keys. The action registers its rules with the funding handler, so subsequent payments can use `requireFunds: true`.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { policyId } = await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: client.account,
+})
+
+// Bind this key to the existing policy without creating another policy.
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  fundingPolicy: policyId, // [!code hl]
+  limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+})
+
+// The handler retrieves the registered rules for the key's policy.
+await client.token.transferSync({
+  account: accessKey,
+  amount: parseUnits('50', 6),
+  keyAuthorization,
+  requireFunds: true,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { http } from 'viem'
+import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), { store }),
+})
+```
+
+:::
+
+You can supply `policyRules` as a decoded object or ABI-encoded hex when the current rules are not in the store. The handler verifies supplied rules against the policy’s current hash. Omitted `slippageBps` uses the policy maximum; an explicit value cannot exceed it.
+
+The signed `keyAuthorization` installs the key in the payment transaction. Funding and payment revert together, but key installation can persist after a payment revert. An inline funding policy can also persist.
+
+For an installed key, read its policy with [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId). You can [discover against that policy](/tempo/guides/funding/discover#discover-against-a-funding-policy) and pass `requireFunds: [discovery]`.
+
+## See More
+
+- [Discovering Funds](/tempo/guides/funding/discover)
+- [withFunding](/tempo/transports/withFunding)
+- [FundingSource.dex](/tempo/utilities/FundingSource.dex)
+- [FundingSource.earn](/tempo/utilities/FundingSource.earn)

@@ -4,6 +4,7 @@
 |--------|-------------|
 | **Access Key Actions** | |
 | [`accessKey.authorize`](/tempo/actions/accessKey.authorize) | Authorizes an access key |
+| [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId) | Gets the funding policy ID assigned to an access key |
 | [`accessKey.getMetadata`](/tempo/actions/accessKey.getMetadata) | Gets access key information |
 | [`accessKey.getRemainingLimit`](/tempo/actions/accessKey.getRemainingLimit) | Gets the remaining spending limit for a key-token pair |
 | [`accessKey.revoke`](/tempo/actions/accessKey.revoke) | Revokes an authorized access key |
@@ -54,6 +55,14 @@
 | [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets the user's default fee token preference |
 | [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the user's default fee token preference |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
+| **Funding Actions** | |
+| [`funding.discover`](/tempo/actions/funding.discover) | Finds available sources permitted by a funding policy |
+| [`funding.createPolicy`](/tempo/actions/funding.createPolicy) | Creates a policy and commits its rules |
+| [`funding.getPolicy`](/tempo/actions/funding.getPolicy) | Gets policy administrators and the current rules hash |
+| [`funding.policyExists`](/tempo/actions/funding.policyExists) | Checks whether a policy exists |
+| [`funding.policyIdCounter`](/tempo/actions/funding.policyIdCounter) | Gets the next policy ID |
+| [`funding.setPolicyAdmins`](/tempo/actions/funding.setPolicyAdmins) | Replaces policy administrators |
+| [`funding.setPolicyRules`](/tempo/actions/funding.setPolicyRules) | Replaces policy rules |
 | **Multisig Actions** | |
 | [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
 | [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |

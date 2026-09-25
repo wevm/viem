@@ -62,7 +62,7 @@ export type RootAccount = Account_base<'root'> & {
     key: resolveAccessKey.Parameters,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
-      'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
+      'chainId' | 'expiry' | 'fundingPolicy' | 'limits' | 'scopes' | 'witness'
     > & {
       /** Whether to authorize the key as an admin key (TIP-1049). */
       admin?: boolean | undefined
@@ -786,7 +786,16 @@ export function getKeyAuthorizationSignPayload(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Hex.Hex {
-  const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
+  const {
+    admin,
+    chainId,
+    expiry,
+    fundingPolicy,
+    key,
+    limits,
+    scopes,
+    witness,
+  } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
   const boundFields =
     isAccessKeyAccount(account) || isMultisigAccount(account)
@@ -797,6 +806,7 @@ export function getKeyAuthorizationSignPayload(
     address: accessKeyAddress,
     chainId,
     type,
+    fundingPolicy,
     witness,
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
@@ -812,6 +822,7 @@ export async function signKeyAuthorization(
     admin,
     chainId,
     expiry,
+    fundingPolicy,
     key,
     limits,
     multisig: multisigState,
@@ -857,6 +868,7 @@ export async function signKeyAuthorization(
     chainId,
     signature: SignatureEnvelope.from(signature),
     type,
+    ...(fundingPolicy !== undefined ? { fundingPolicy } : {}),
     ...(witness ? { witness } : {}),
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
@@ -867,7 +879,7 @@ export async function signKeyAuthorization(
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
+    'chainId' | 'expiry' | 'fundingPolicy' | 'limits' | 'scopes' | 'witness'
   > & {
     /**
      * Whether to authorize the key as an admin key. Admin keys are
@@ -1034,7 +1046,8 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes, witness, admin } = parameters
+      const { chainId, expiry, fundingPolicy, limits, scopes, witness, admin } =
+        parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
       // Admin key authorizations are unrestricted and must not carry expiry,
@@ -1046,6 +1059,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
           address: accessKeyAddress,
           chainId,
           type,
+          fundingPolicy,
           witness,
           ...(admin ? { isAdmin: true } : {}),
           ...restrictions,
@@ -1056,6 +1070,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         chainId,
         signature: SignatureEnvelope.from(signature),
         type,
+        ...(fundingPolicy !== undefined ? { fundingPolicy } : {}),
         ...(witness ? { witness } : {}),
         ...(admin ? { isAdmin: true } : {}),
         ...restrictions,

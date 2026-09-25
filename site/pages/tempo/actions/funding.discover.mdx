@@ -1,0 +1,116 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `funding.discover`
+
+Finds available funding routes from source configurations, or from rules verified against a stored funding policy. Discovery reserves no funds, so a later transaction can still fail if balances or liquidity change.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await client.funding.discover({
+  amount: parseUnits('50', 6),
+  slippageBps: 100,
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+  token: Addresses.pathUsd,
+})
+// @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
+
+When a policy ID is supplied, the result includes the verified `policyRules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
+
+## Recipes
+
+### Discover Against a Funding Policy
+
+Pass `policyId` and `policyRules` to verify the rules against the policy's current commitment. Use the rules returned by policy creation or its latest update.
+
+```ts
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await client.funding.discover({
+  amount: parseUnits('50', 6),
+  policyId, // [!code focus]
+  policyRules: rules, // [!code focus]
+  token: Addresses.pathUsd,
+})
+// @log: { token: '0x...', amount: 50000000n, policyRules: { ... }, slippageBps: 100, sources: [...] }
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  token: Address
+  amount: bigint
+  policyRules?: FundingPolicy.Rules | Hex
+  slippageBps: number
+  sources: {
+    to: Address
+    data: Hex
+    availableAmount: bigint
+  }[]
+}
+```
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account whose inputs are inspected. Required when the client has no account. An explicit account overrides the client account.
+
+### amount
+
+- **Type:** `bigint`
+
+Target output balance in token base units.
+
+### policyId (optional)
+
+- **Type:** `bigint`
+
+Funding policy ID whose current commitment must match the supplied rules. Omit it and supply `sources` and `slippageBps` to discover without reading a stored policy.
+
+### policyRules (policy discovery)
+
+- **Type:** `Hex | FundingPolicy.Rules`
+
+Complete rules specifying routes and maximum slippage, as an object or canonical ABI-encoded bytes. Objects are encoded automatically. Required with `policyId`; the rules must match the policy's current hash.
+
+### slippageBps (policy-free discovery)
+
+- **Type:** `number`
+
+Maximum aggregate slippage in basis points. Required without `policyId`.
+
+### sources (policy-free discovery)
+
+- **Type:** `readonly FundingSource.Source[]`
+
+Ordered source configurations for the requested token. Required without `policyId`. Each entry contains `to` and configuration `data`, such as `FundingSource.dex({ tokenIn })`.
+
+### token
+
+- **Type:** `Address`
+
+Required output token.
+
+<ReadAccountParameters />

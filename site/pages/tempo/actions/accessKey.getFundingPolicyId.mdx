@@ -1,0 +1,47 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.getFundingPolicyId`
+
+Gets the funding policy ID assigned to an installed access key. Returns `0n` when no policy is assigned. Read the policy separately with [`funding.getPolicy`](/tempo/actions/funding.getPolicy).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policyId = await client.accessKey.getFundingPolicyId({
+  account: client.account.address,
+  accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+// @log: 1n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key address or account.
+
+### account
+
+- **Type:** `Address | Account`
+
+The account that authorized the access key. Defaults to the client's account.
+
+<ReadParameters />

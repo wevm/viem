@@ -1,0 +1,41 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `funding.getPolicy`
+
+Gets a policy's administrators and current rules hash. The policy does not store its complete rules; obtain them from a creation or update event, or an indexer.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policy = await client.funding.getPolicy({ policyId: 1n })
+// @log: { admins: ['0x...'], rulesHash: '0x...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  admins: Address[]
+  rulesHash: Hex
+}
+```
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Funding policy ID.
+
+<ReadAccountParameters />

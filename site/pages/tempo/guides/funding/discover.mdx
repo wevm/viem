@@ -1,0 +1,154 @@
+---
+title: Discovering Funds
+description: Preview automatic funding or discover sources explicitly before a transaction.
+---
+
+# Discovering Funds
+
+## Overview
+
+With the [funding-enabled client](/tempo/guides/funding#set-up-a-client), transactions discover omitted sources automatically. Use transaction filling to preview that selection, or `funding.discover` to inspect explicit sources or policy rules.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
+:::
+
+## Recipes
+
+## Preview Automatic Funding
+
+`fillTransaction` uses the same default routes or `getRoute` configuration as sending. It returns concrete funding requirements without signing or broadcasting. Generic transactions need explicit token and amount targets.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Discover sources and fill gas, fees, and nonce without sending the transaction.
+const { transaction } = await client.fillTransaction({
+  calls: [
+    Actions.token.transfer.call({
+      amount: parseUnits('50', 6),
+      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+      token: Addresses.pathUsd,
+    }),
+  ],
+  requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+})
+
+// Inspect the concrete source inputs selected by withFunding.
+console.log(transaction.requireFunds)
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
+Discovery does not swap, redeem, or reserve funds. Balances and liquidity can change before execution. Transaction filling also estimates execution, so it can fail when the payment or fee balance is insufficient.
+
+
+### Direct Discovery
+
+Direct `funding.discover` calls require sources or policy rules; they do not use the transport's `getRoute`. The action uses the client account by default. Pass `account` to inspect another account.
+
+Use [`funding.discover`](/tempo/actions/funding.discover) with source configurations describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Inspect available funds without swapping, redeeming, or reserving them. // [!code focus]
+const discovery = await client.funding.discover({ // [!code focus]
+  amount: parseUnits('50', 6), // [!code focus]
+  slippageBps: 100, // [!code focus]
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })], // [!code focus]
+  token: Addresses.pathUsd, // [!code focus]
+}) // [!code focus]
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [discovery], // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+import { http } from 'viem'
+import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), { store }),
+})
+```
+:::
+
+### Discover Against a Funding Policy
+
+Provide `policyId` and `policyRules` to discover sources and verify the rules against the policy's current commitment. Reuse the rules returned by [`funding.createPolicySync`](/tempo/actions/funding.createPolicy) or the latest policy update.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Create a policy and retain its full rules for later verification.
+const { policyId, rules } = await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+
+// Verify the rules against the current policy hash, then discover permitted funds.
+const discovery = await client.funding.discover({
+  amount: parseUnits('50', 6),
+  policyId, // [!code hl]
+  policyRules: rules, // [!code hl]
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+import { http } from 'viem'
+import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withFunding(http(), { store }),
+})
+```
+
+:::
+
+The result includes the verified `policyRules` and policy slippage limit. Pass it to a transaction using an access key authorized for that policy. See [funding with an access key](/tempo/guides/funding/source#fund-with-an-access-key) for authorization and payment.
+
+For an installed access key, obtain its policy ID with [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId). The policy stores a rules hash; obtain the full rules from creation or update events, or an indexer.
+
+## Best Practices
+
+- Discover close to execution. Balances and liquidity can change afterward.
+- Treat `availableAmount` as advisory. Viem omits it from transaction encoding.
+- Pass rules as decoded objects or ABI-encoded hex. Owner-authorized transactions omit discovery rules from execution.
+- Refresh rules after a policy update. Discovery with a policy ID rejects rules that no longer match its commitment.
+
+## See More
+
+- [Source Funds for Transactions](/tempo/guides/funding/source)
+- [Discover API](/tempo/actions/funding.discover)
+- [Create a Funding Policy](/tempo/actions/funding.createPolicy)

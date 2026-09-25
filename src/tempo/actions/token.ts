@@ -44,8 +44,10 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { fundingErrors } from '../internal/funding.js'
 import type {
   GetAccountParameter,
+  InferredWriteParameters,
   ReadParameters,
   TokenParameter,
   TokenParameters,
@@ -55,6 +57,7 @@ import {
   type CallParameters,
   defineCall,
   findDeclaredToken,
+  inferRequireFunds,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
@@ -553,7 +556,7 @@ export namespace burn {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = InferredWriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -572,8 +575,13 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { amount, memo, token, ...rest } = parameters
     const call = burn.call(client, { amount, memo, token } as never)
+    const { address, decimals } = resolveToken(client, { token })
     return (await action(client, {
       ...rest,
+      requireFunds: inferRequireFunds(parameters.requireFunds, {
+        token: address,
+        amount: internal_Token.toBaseUnits(amount, decimals),
+      }),
       ...call,
     } as never)) as never
   }
@@ -3420,7 +3428,7 @@ export namespace transfer {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = InferredWriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -3437,7 +3445,11 @@ export namespace transfer {
   ): Promise<ReturnType<action>> {
     return (await action(client, {
       ...parameters,
+      requireFunds: inferTransferFunding(client, parameters),
       ...transfer.call(client, parameters as never),
+      ...(parameters.requireFunds
+        ? { abi: [...Abis.tip20, ...fundingErrors] }
+        : {}),
     } as never)) as never
   }
 
@@ -3505,7 +3517,10 @@ export namespace transfer {
     parameters: transfer.Parameters<chain, account>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters({
+        ...parameters,
+        requireFunds: inferTransferFunding(client, parameters),
+      }),
       ...transfer.call(client, parameters as never),
     } as never)
   }
@@ -3531,7 +3546,10 @@ export namespace transfer {
     >
   > {
     return simulateContract(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters({
+        ...parameters,
+        requireFunds: inferTransferFunding(client, parameters),
+      }),
       ...transfer.call(client, parameters as never),
     } as never) as never
   }
@@ -3587,7 +3605,7 @@ export async function transferSync<
   parameters: transferSync.Parameters<chain, account>,
 ): Promise<transferSync.ReturnValue> {
   const { amount, token, throwOnReceiptRevert = true } = parameters
-  const { decimals } = resolveToken(client, { token })
+  const { address, decimals } = resolveToken(client, { token })
   const resolved = internal_Token.resolveAmountDecimals(amount, decimals)
   const receipt = await transfer.inner(writeContractSync, client, {
     ...parameters,
@@ -3595,7 +3613,20 @@ export async function transferSync<
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  const { args } = transfer.extractEvent(receipt.logs)
+  const [event] = parseEventLogs({
+    abi: Abis.tip20,
+    eventName: 'Transfer',
+    logs: receipt.logs,
+  })
+    .filter(
+      (log) =>
+        log.address.toLowerCase() === address.toLowerCase() &&
+        log.args.to?.toLowerCase() === parameters.to.toLowerCase() &&
+        log.args.amount === internal_Token.toBaseUnits(amount, decimals),
+    )
+    .reverse()
+  if (!event) throw new Error('`Transfer` event not found.')
+  const { args } = event
   return {
     ...args,
     ...(resolved === undefined
@@ -4837,4 +4868,31 @@ export declare namespace watchUpdateQuoteToken {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
+}
+
+function inferTransferFunding<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: transfer.Parameters<chain, account>,
+) {
+  const { amount, from, requireFunds, token } = parameters
+  if (requireFunds === undefined) return undefined
+  if (
+    from !== undefined &&
+    (requireFunds === true ||
+      requireFunds.some(
+        (requirement) =>
+          requirement.token === undefined || requirement.amount === undefined,
+      ))
+  )
+    throw new Error(
+      'When `from` is set, specify `token` and `amount` in each `requireFunds` entry; funding targets the transaction sender, not `from`.',
+    )
+  const { address, decimals } = resolveToken(client, { token })
+  return inferRequireFunds(requireFunds, {
+    token: address,
+    amount: internal_Token.toBaseUnits(amount, decimals),
+  })
 }
