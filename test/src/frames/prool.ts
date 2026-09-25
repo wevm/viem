@@ -3,9 +3,8 @@ import { Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import { GenericContainer, Wait } from 'testcontainers'
 
-export const image =
-  'ghcr.io/wevm/nethermind-frames@sha256:a02f98bdd010e240b3b2e5703e3863b680a574facde223143d3606fc56e9680b'
-export const revision = '52153c73fb71c779dd0cf07c1d04d73542934881'
+export const image = 'ghcr.io/wevm/reth:sha-0acab10e8123'
+export const revision = '0acab10e8123f0bd406bf8edc465ee6c059a9e42'
 
 export const port = Number(import.meta.env.VITE_FRAMES_PORT ?? 10545)
 export const rpcUrl = `http://localhost:${port}/${Number(import.meta.env.VITEST_POOL_ID ?? 1)}`
@@ -15,6 +14,7 @@ export function createServer() {
     instance: TestContainers.Instance.testcontainer({
       container: () =>
         new GenericContainer(image)
+          .withPlatform('linux/amd64')
           .withCopyFilesToContainer([
             {
               source: fileURLToPath(
@@ -24,29 +24,25 @@ export function createServer() {
             },
           ])
           .withCommand([
-            '--config',
-            'spaceneth',
-            '--Init.ChainSpecPath',
+            'node',
+            '--chain',
             '/tmp/frames.json',
-            '--Init.EnableUnsecuredDevWallet',
-            'false',
-            '--Init.LogDirectory',
-            '/tmp/logs',
-            '--TxPool.BlobsSupport',
-            'InMemory',
-            '--JsonRpc.Host',
+            '--dev',
+            '--http',
+            '--http.addr',
             '0.0.0.0',
-            '--JsonRpc.EnabledModules',
-            'Eth,Net,Web3',
+            '--http.api',
+            'eth,net,web3',
+            '--ipcdisable',
           ])
           .withLogConsumer((stream) => {
             if (import.meta.env.VITE_FRAMES_LOG)
               stream.on('data', (data) => console.log(data.toString()))
           })
           .withStartupTimeout(120_000)
-          .withWaitStrategy(Wait.forLogMessage('Initialization Completed')),
+          .withWaitStrategy(Wait.forLogMessage('RPC HTTP server started')),
       endpoints: { default: { port: 8545, protocol: 'http' } },
-      name: 'nethermind-frames',
+      name: 'reth-frames',
     }),
     port,
   })
