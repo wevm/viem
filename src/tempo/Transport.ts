@@ -23,6 +23,7 @@ import {
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Funding from './Funding.js'
 import * as Multisig from './Multisig.js'
 import type { Store } from './Store.js'
 import * as Store_ from './Store.js'
@@ -85,6 +86,66 @@ type RelayProxyParameters = {
 
 export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type, { multisig: true }>
+
+/**
+ * Resolves omitted funding sources before filling a transaction.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Addresses, FundingSource, withFunding } from 'viem/tempo'
+ *
+ * const transport = withFunding(http(), {
+ *   getRoute: ({ chainId, token }) => {
+ *     if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+ *     return {
+ *       sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+ *     }
+ *   },
+ * })
+ * ```
+ *
+ * @param transport - Transport to wrap.
+ * @param parameters - Owner discovery routes.
+ * @returns The funding-aware transport.
+ * @experimental
+ */
+export function withFunding<transport extends Transport>(
+  transport: transport,
+  parameters: withFunding.Parameters = {},
+): withFunding.ReturnValue<transport> {
+  return ((options: Parameters<Transport>[0]) => {
+    const value = transport(options)
+    const request = Funding.handleRequest(
+      (request, requestOptions) =>
+        value.request(request as never, requestOptions),
+      parameters,
+    )
+
+    return {
+      ...value,
+      request: ((
+        args: Funding.handleRequest.Request,
+        requestOptions: Parameters<Funding.handleRequest.Handler>[1],
+      ) =>
+        request(args, {
+          ...requestOptions,
+          chainId: requestOptions?.chainId ?? options.chain?.id,
+        })) as typeof value.request,
+      value: { ...value.value, funding: true },
+    }
+  }) as withFunding.ReturnValue<transport>
+}
+
+export declare namespace withFunding {
+  /** Owner discovery routes. */
+  export type Parameters = Funding.handleRequest.Parameters
+  /** Wrapped transport retaining its original metadata. */
+  export type ReturnValue<transport extends Transport = Transport> =
+    transport extends Transport<infer type, infer attributes, infer request>
+      ? Transport<type, attributes & { funding: true }, request>
+      : never
+}
 
 /**
  * Wraps a transport with native multisig request handling.

@@ -61,10 +61,10 @@ describe('discover', () => {
               slippageBps: 100,
               sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
             }
-          : { policyId, rules }),
+          : { policyId, policyRules: rules }),
       })
       expect(isAddressEqual(discovery.token, Addresses.pathUsd)).toBe(true)
-      expect(discovery.rules).toEqual(storedPolicy ? rules : undefined)
+      expect(discovery.policyRules).toEqual(storedPolicy ? rules : undefined)
       expect(discovery.sources).toHaveLength(1)
       expect(
         isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
@@ -81,7 +81,7 @@ describe('discover', () => {
                 slippageBps: 100,
                 sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
               }
-            : { policyId, rules }),
+            : { policyId, policyRules: rules }),
         },
       )
       expect(overridden.sources).toEqual([])
@@ -114,7 +114,7 @@ describe('discover', () => {
       account: Account.fromSecp256k1(generatePrivateKey()).address,
       token: Addresses.pathUsd,
       amount: parseUnits('50', 6),
-      rules: FundingPolicy.encode(rules),
+      policyRules: FundingPolicy.encode(rules),
     })
     expect(unfunded.sources).toEqual([])
 
@@ -123,7 +123,7 @@ describe('discover', () => {
       account: accounts[0].address,
       token: Addresses.pathUsd,
       amount: parseUnits('1', 6),
-      rules: FundingPolicy.encode(rules),
+      policyRules: FundingPolicy.encode(rules),
     })
     expect(covered.sources).toEqual([])
   })
@@ -141,7 +141,7 @@ describe('discover', () => {
           account: accounts[0].address,
           token: Addresses.betaUsd,
           amount: parseUnits('50', 6),
-          rules: FundingPolicy.encode(rules),
+          policyRules: FundingPolicy.encode(rules),
         })
         .catch((error) => {
           throw (
@@ -171,7 +171,7 @@ describe('discover', () => {
           account: accounts[0].address,
           token: Addresses.pathUsd,
           amount: parseUnits('1', 6),
-          rules: FundingPolicy.encode(rules),
+          policyRules: FundingPolicy.encode(rules),
         })
         .catch((error) => {
           throw (
@@ -190,7 +190,7 @@ describe('discover', () => {
           account: accounts[0].address,
           amount: parseUnits('1', 6),
           policyId: 0n,
-          rules: FundingPolicy.encode(rules),
+          policyRules: FundingPolicy.encode(rules),
           token: Addresses.pathUsd,
         })
         .catch((error) => {
@@ -210,7 +210,7 @@ describe('discover', () => {
           account: accounts[0].address,
           amount: parseUnits('1', 6),
           policyId: 1n,
-          rules: '0x1234',
+          policyRules: '0x1234',
           token: Addresses.pathUsd,
         })
         .catch((error) => {
@@ -240,7 +240,7 @@ describe('discover', () => {
       account: accounts[0].address,
       token: Addresses.pathUsd,
       amount: parseUnits('1', 6),
-      rules: FundingPolicy.encode(invalidRules),
+      policyRules: FundingPolicy.encode(invalidRules),
     })
     expect(discovery.sources).toEqual([])
   })

@@ -75,6 +75,8 @@ export {
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
+/** Owner-authorized funding relay handling. */
+export * as Funding from './Funding.js'
 export * as Hardfork from './Hardfork.js'
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 /** @experimental */
@@ -122,6 +124,7 @@ export {
   http,
   walletNamespaceCompat,
   withFeePayer,
+  withFunding,
   withMultisig,
   withRelay,
 } from './Transport.js'

@@ -29,9 +29,67 @@ import * as Transaction_ from './Transaction.js'
 import {
   walletNamespaceCompat,
   withFeePayer,
+  withFunding,
   withMultisig,
   withRelay,
 } from './Transport.js'
+
+describe('withFunding', () => {
+  const client = getClient({ transport: withFunding(http()) })
+
+  test('passes unrelated RPC methods through and retains transport metadata', async () => {
+    expect(client.transport).toMatchInlineSnapshot(
+      { url: expect.any(String) },
+      `
+      {
+        "fetchOptions": undefined,
+        "funding": true,
+        "key": "http",
+        "methods": undefined,
+        "name": "HTTP JSON-RPC",
+        "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
+        "timeout": 10000,
+        "type": "http",
+        "url": Any<String>,
+      }
+    `,
+    )
+    expect(
+      await client.request({ method: 'eth_chainId' }),
+    ).toMatchInlineSnapshot(`"0x539"`)
+  })
+
+  test('propagates getRoute errors', async () => {
+    const client = getClient({
+      transport: withFunding(http(), {
+        getRoute: async () => {
+          throw new Error('Route configuration unavailable.')
+        },
+      }),
+    })
+    await expect(
+      client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            chainId: '0x539',
+            from: accounts[0].address,
+            requireFunds: [
+              {
+                amount: '0x1',
+                token: '0x20c0000000000000000000000000000000000000',
+              },
+            ],
+          },
+        ],
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Route configuration unavailable.]`,
+    )
+  })
+})
 
 describe('withMultisig', () => {
   test('default', async () => {

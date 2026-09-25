@@ -1,10 +1,12 @@
+import { TxEnvelopeTempo } from 'ox/tempo'
 import { assert, beforeAll, describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, getClient, http } from '~test/tempo/config.js'
 import { deployEarnStack } from '~test/tempo/earn.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   call,
   estimateGas,
+  fillTransaction,
   getTransaction,
   prepareTransactionRequest,
   readContract,
@@ -21,6 +23,7 @@ import {
   FundingPolicy,
   FundingSource,
   Tick,
+  withFunding,
 } from './index.js'
 import * as Transaction from './Transaction.js'
 
@@ -529,7 +532,7 @@ describe('behavior: `keyAuthorization` on transaction', () => {
           account: account.address,
           amount: parseUnits('25', 6),
           policyId,
-          rules,
+          policyRules: rules,
           token: Addresses.pathUsd,
         })
         const { receipt } = await Actions.token.transferSync(client, {
@@ -566,7 +569,7 @@ describe('behavior: `keyAuthorization` on transaction', () => {
             feePayer: accounts[1],
             requireFunds: [
               {
-                rules,
+                policyRules: rules,
                 sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
               },
             ],
@@ -613,7 +616,7 @@ describe('behavior: `keyAuthorization` on transaction', () => {
       keyAuthorization,
       requireFunds: [
         {
-          rules,
+          policyRules: rules,
           sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
         },
       ],
@@ -645,7 +648,7 @@ describe('behavior: `keyAuthorization` on transaction', () => {
       feePayer: accounts[1],
       requireFunds: [
         {
-          rules,
+          policyRules: rules,
           sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
         },
       ],
@@ -1203,7 +1206,7 @@ describe('behavior: access key', () => {
       keyAuthorization,
       requireFunds: [
         {
-          rules,
+          policyRules: rules,
           sources: [
             FundingSource.dex({
               maxAmountIn: parseUnits('10', 6),
@@ -1268,7 +1271,7 @@ describe('behavior: access key', () => {
           keyAuthorization,
           requireFunds: [
             {
-              rules: ordered,
+              policyRules: ordered,
               sources: [
                 FundingSource.dex({ tokenIn: Addresses.betaUsd }),
                 FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
@@ -1325,7 +1328,7 @@ describe('behavior: access key', () => {
       requireFunds: [
         {
           amount: parseUnits('25', 6),
-          rules,
+          policyRules: rules,
           sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
           token: Addresses.pathUsd,
         },
@@ -1423,7 +1426,7 @@ describe('behavior: access key', () => {
               ...(failure === 'missing'
                 ? {}
                 : {
-                    rules:
+                    policyRules:
                       failure === 'tampered'
                         ? { ...rules, maxSlippageBps: 200 }
                         : rules,
@@ -1512,7 +1515,7 @@ describe('behavior: access key', () => {
           feePayer: accounts[1],
           requireFunds: [
             {
-              rules,
+              policyRules: rules,
               sources: [],
             },
           ],
@@ -1531,7 +1534,7 @@ describe('behavior: access key', () => {
       account: accessKey,
       amount: parseUnits('25', 6),
       feePayer: accounts[1],
-      requireFunds: [{ rules: updated, sources: [] }],
+      requireFunds: [{ policyRules: updated, sources: [] }],
       to: recipient,
       token: Addresses.pathUsd,
     })
@@ -1583,7 +1586,7 @@ describe('behavior: access key', () => {
       requireFunds: [
         {
           amount: parseUnits('25', 6),
-          rules,
+          policyRules: rules,
           sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
           token: Addresses.pathUsd,
         },
@@ -1769,7 +1772,7 @@ describe('funding source: earn', () => {
       account: account.address,
       amount: parseUnits('50', 6),
       policyId,
-      rules,
+      policyRules: rules,
       token: Addresses.pathUsd,
     })
 
@@ -1854,7 +1857,7 @@ describe('funding source: earn', () => {
             keyAuthorization,
             requireFunds: [
               {
-                rules,
+                policyRules: rules,
                 sources: [
                   FundingSource.earn({
                     maxAmountIn: parseUnits('50', 6),
@@ -1997,6 +2000,853 @@ describe('funding source: earn', () => {
   })
 })
 
+describe('withFunding', () => {
+  const client = getClient({ transport: withFunding(http()) })
+
+  beforeAll(async () => {
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('100', 6),
+      to: accounts[1].address,
+      token: Addresses.pathUsd,
+    })
+
+    // Initialize every standard input pair inspected by the default route.
+    for (const token of [
+      Addresses.alphaUsd,
+      Addresses.betaUsd,
+      Addresses.thetaUsd,
+    ] as const)
+      await Actions.dex.placeSync(client, {
+        account: accounts[0],
+        amount: parseUnits('1000', 6),
+        tick: 0,
+        token,
+        type: 'buy',
+      })
+  })
+
+  test('default', async () => {
+    const account = await setupAccount()
+    const result = await Actions.token.transferSync(client, {
+      account,
+      amount: parseUnits('50', 6),
+      feePayer: accounts[1],
+      requireFunds: [{ slippageBps: 0 }],
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+    expect(
+      parseEventLogs({
+        abi: Abis.tip20Funder,
+        logs: result.receipt.logs,
+      }).map(({ address, args, eventName }) => ({ address, args, eventName })),
+    ).toMatchInlineSnapshot(
+      [
+        {
+          args: {
+            account: expect.any(String),
+            requestHash: expect.any(String),
+          },
+        },
+        { args: { account: expect.any(String) } },
+      ],
+      `
+      [
+        {
+          "address": "0x1120000000000000000000000000000000000000",
+          "args": {
+            "account": Any<String>,
+            "amountIn": 50000000n,
+            "amountOut": 50000000n,
+            "assetIn": "0x20C0000000000000000000000000000000000001",
+            "assetOut": "0x20C0000000000000000000000000000000000000",
+            "requestHash": Any<String>,
+            "source": "0x1120000000000000000000000000000000000001",
+          },
+          "eventName": "SourceFunded",
+        },
+        {
+          "address": "0x1120000000000000000000000000000000000000",
+          "args": {
+            "account": Any<String>,
+            "asset": "0x20C0000000000000000000000000000000000000",
+            "fundedAmount": 50000000n,
+            "key": "0x0000000000000000000000000000000000000000",
+            "requiredAmount": 50000000n,
+          },
+          "eventName": "FundsRequired",
+        },
+      ]
+    `,
+    )
+
+    expect(result).toMatchInlineSnapshot(
+      {
+        from: expect.any(String),
+        receipt: {
+          blockHash: expect.any(String),
+          blockNumber: expect.any(BigInt),
+          cumulativeGasUsed: expect.any(BigInt),
+          effectiveGasPrice: expect.any(BigInt),
+          gasUsed: expect.any(BigInt),
+          from: expect.any(String),
+          logs: expect.any(Array),
+          logsBloom: expect.any(String),
+          transactionHash: expect.any(String),
+        },
+      },
+      `
+      {
+        "amount": 50000000n,
+        "decimals": 6,
+        "formatted": "50",
+        "from": Any<String>,
+        "receipt": {
+          "blockHash": Any<String>,
+          "blockNumber": Any<BigInt>,
+          "contractAddress": null,
+          "cumulativeGasUsed": Any<BigInt>,
+          "effectiveGasPrice": Any<BigInt>,
+          "feePayer": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "from": Any<String>,
+          "gasUsed": Any<BigInt>,
+          "logs": Any<Array>,
+          "logsBloom": Any<String>,
+          "multisig": undefined,
+          "status": "success",
+          "to": "0x20c0000000000000000000000000000000000000",
+          "transactionHash": Any<String>,
+          "transactionIndex": 0,
+          "type": "0x76",
+        },
+        "to": "0x8888888888888888888888888888888888888888",
+      }
+    `,
+    )
+    const transaction = await getTransaction(client, {
+      hash: result.receipt.transactionHash,
+    })
+    expect(transaction).toMatchInlineSnapshot(
+      {
+        blockHash: expect.any(String),
+        blockNumber: expect.any(BigInt),
+        from: expect.any(String),
+        hash: expect.any(String),
+        blockTimestamp: expect.any(BigInt),
+        feePayerSignature: {
+          r: expect.any(String),
+          s: expect.any(String),
+          v: expect.any(BigInt),
+          yParity: expect.any(Number),
+        },
+        gas: expect.any(BigInt),
+        gasPrice: expect.any(BigInt),
+        maxFeePerGas: expect.any(BigInt),
+        signature: {
+          signature: {
+            r: expect.any(BigInt),
+            s: expect.any(BigInt),
+            yParity: expect.any(Number),
+          },
+        },
+        validAfter: expect.any(Number),
+        validBefore: expect.any(Number),
+      },
+      `
+      {
+        "accessList": [],
+        "authorizationList": [],
+        "blockHash": Any<String>,
+        "blockNumber": Any<BigInt>,
+        "blockTimestamp": Any<BigInt>,
+        "calls": [
+          {
+            "data": "0xa9059cbb00000000000000000000000088888888888888888888888888888888888888880000000000000000000000000000000000000000000000000000000002faf080",
+            "to": "0x20c0000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
+        "chainId": 1337,
+        "data": undefined,
+        "feePayerSignature": {
+          "r": Any<String>,
+          "s": Any<String>,
+          "v": Any<BigInt>,
+          "yParity": Any<Number>,
+        },
+        "feeToken": null,
+        "from": Any<String>,
+        "gas": Any<BigInt>,
+        "gasPrice": Any<BigInt>,
+        "hash": Any<String>,
+        "keyAuthorization": null,
+        "maxFeePerBlobGas": undefined,
+        "maxFeePerGas": Any<BigInt>,
+        "maxPriorityFeePerGas": 0n,
+        "multisig": undefined,
+        "nonce": 0,
+        "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "requireFunds": [
+          {
+            "amount": 50000000n,
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002faf080",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ],
+        "signature": {
+          "signature": {
+            "r": Any<BigInt>,
+            "s": Any<BigInt>,
+            "yParity": Any<Number>,
+          },
+          "type": "secp256k1",
+        },
+        "to": null,
+        "transactionIndex": 0,
+        "type": "tempo",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": Any<Number>,
+        "validBefore": Any<Number>,
+        "value": 0n,
+        "yParity": undefined,
+      }
+    `,
+    )
+    // The output was spent by the transfer; 50 AlphaUSD funded it.
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.pathUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 0n,
+        "decimals": 6,
+        "formatted": "0",
+      }
+    `)
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 50000000n,
+        "decimals": 6,
+        "formatted": "50",
+      }
+    `)
+  })
+
+  test('preserves explicit caps and route defaults do not change complete requirements', async () => {
+    const account = await setupAccount()
+    const requirement = {
+      amount: parseUnits('50', 6),
+      slippageBps: 0,
+      sources: [
+        FundingSource.dex({
+          maxAmountIn: parseUnits('50', 6),
+          tokenIn: Addresses.alphaUsd,
+        }),
+      ],
+      token: Addresses.pathUsd,
+    } as const
+    const result = await fillTransaction(client, {
+      account,
+      calls: [{ to: recipient }],
+      feePayer: accounts[1],
+      requireFunds: [requirement],
+    })
+    expect(result).toMatchInlineSnapshot(
+      {
+        raw: expect.any(String),
+        transaction: {
+          from: expect.any(String),
+          gas: expect.any(BigInt),
+          hash: expect.any(String),
+          maxFeePerGas: expect.any(BigInt),
+        },
+      },
+      `
+      {
+        "raw": Any<String>,
+        "transaction": {
+          "accessList": [],
+          "authorizationList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x8888888888888888888888888888888888888888",
+              "value": 0n,
+            },
+          ],
+          "chainId": 1337,
+          "data": undefined,
+          "feePayerSignature": undefined,
+          "feeToken": null,
+          "from": Any<String>,
+          "gas": Any<BigInt>,
+          "gasPrice": undefined,
+          "hash": Any<String>,
+          "keyAuthorization": null,
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": Any<BigInt>,
+          "maxPriorityFeePerGas": 0n,
+          "multisig": undefined,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "requireFunds": [
+            {
+              "amount": 50000000n,
+              "slippageBps": 0,
+              "sources": [
+                {
+                  "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002faf080",
+                  "to": "0x1120000000000000000000000000000000000001",
+                },
+              ],
+              "token": "0x20c0000000000000000000000000000000000000",
+            },
+          ],
+          "signature": {
+            "signature": {
+              "r": 59728239767604526217550949535444980007647751110991992555989432467883920033125n,
+              "s": 17143831728048845831134990513685258884275296176139135115431336905099564136145n,
+              "yParity": 0,
+            },
+            "type": "secp256k1",
+          },
+          "to": null,
+          "type": "tempo",
+          "typeHex": "0x76",
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+        },
+      }
+    `,
+    )
+    expect(
+      TxEnvelopeTempo.deserialize(result.raw as TxEnvelopeTempo.Serialized),
+    ).toMatchInlineSnapshot(
+      {
+        from: expect.any(String),
+        gas: expect.any(BigInt),
+        maxFeePerGas: expect.any(BigInt),
+      },
+      `
+      {
+        "calls": [
+          {
+            "to": "0x8888888888888888888888888888888888888888",
+          },
+        ],
+        "chainId": 1337,
+        "from": Any<String>,
+        "gas": Any<BigInt>,
+        "maxFeePerGas": Any<BigInt>,
+        "nonce": 0n,
+        "nonceKey": 0n,
+        "requireFunds": [
+          {
+            "amount": 50000000n,
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002faf080",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ],
+        "signature": {
+          "signature": {
+            "r": 59728239767604526217550949535444980007647751110991992555989432467883920033125n,
+            "s": 17143831728048845831134990513685258884275296176139135115431336905099564136145n,
+            "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "type": "tempo",
+      }
+    `,
+    )
+  })
+
+  test('fills sources when gas, fees, and nonce are already supplied', async () => {
+    const account = await setupAccount()
+    const result = await prepareTransactionRequest(client, {
+      account,
+      calls: [{ to: recipient }],
+      feePayer: accounts[1],
+      gas: 2_000_000n,
+      maxFeePerGas: 20_000_000_000n,
+      maxPriorityFeePerGas: 0n,
+      nonce: 0,
+      requireFunds: [{ amount: parseUnits('50', 6), token: Addresses.pathUsd }],
+    })
+    expect(result).toMatchInlineSnapshot(
+      {
+        account: { address: expect.any(String), publicKey: expect.any(String) },
+        chain: { rpcUrls: { default: { http: [expect.any(String)] } } },
+        from: expect.any(String),
+        validAfter: expect.any(Number),
+        validBefore: expect.any(Number),
+      },
+      `
+      {
+        "account": {
+          "address": Any<String>,
+          "keyType": "secp256k1",
+          "publicKey": Any<String>,
+          "sign": [Function],
+          "signAuthorization": [Function],
+          "signKeyAuthorization": [Function],
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "signVoucher": [Function],
+          "source": "root",
+          "type": "local",
+        },
+        "calls": [
+          {
+            "to": "0x8888888888888888888888888888888888888888",
+          },
+        ],
+        "chain": {
+          "blockTime": 1000,
+          "extend": [Function],
+          "extendSchema": {},
+          "fees": undefined,
+          "formatters": {
+            "transaction": {
+              "exclude": [
+                "aaAuthorizationList",
+              ],
+              "format": [Function],
+              "type": "transaction",
+            },
+            "transactionReceipt": {
+              "exclude": undefined,
+              "format": [Function],
+              "type": "transactionReceipt",
+            },
+            "transactionRequest": {
+              "exclude": undefined,
+              "format": [Function],
+              "type": "transactionRequest",
+            },
+          },
+          "hardfork": "t3",
+          "id": 1337,
+          "name": "Tempo",
+          "nativeCurrency": {
+            "decimals": 6,
+            "name": "USD",
+            "symbol": "USD",
+          },
+          "prepareTransactionRequest": [
+            [Function],
+            {
+              "runAt": [
+                "beforeFillTransaction",
+                "afterFillParameters",
+              ],
+            },
+          ],
+          "rpcUrls": {
+            "default": {
+              "http": [
+                Any<String>,
+              ],
+            },
+          },
+          "serializers": {
+            "transaction": [Function],
+            "transactionEnvelope": [Function],
+          },
+          "verifyHash": [Function],
+        },
+        "chainId": 1337,
+        "feePayer": {
+          "address": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+          "keyType": "secp256k1",
+          "publicKey": "0x037f40766fbc839e1b69a19685ce42f967a74a87d597a52ef525810484908b3303da5a99a45c7e297d121be1014502a0829ea9c327fa97caad1355f007bcc7bf",
+          "sign": [Function],
+          "signAuthorization": [Function],
+          "signKeyAuthorization": [Function],
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "signVoucher": [Function],
+          "source": "root",
+          "type": "local",
+        },
+        "from": Any<String>,
+        "gas": 2000000n,
+        "maxFeePerGas": 20000000000n,
+        "maxPriorityFeePerGas": 0n,
+        "nonce": 0,
+        "nonceKey": 115792089237316195423570985008687907853269984665640564039457584007913129639935n,
+        "requireFunds": [
+          {
+            "amount": 50000000n,
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002faf080",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ],
+        "type": "tempo",
+        "validAfter": Any<Number>,
+        "validBefore": Any<Number>,
+      }
+    `,
+    )
+  })
+
+  test('resolves async routes by chain and output token', async () => {
+    const account = await setupAccount()
+    await Actions.token.mintSync(client, {
+      account: accounts[0],
+      amount: parseUnits('100', 6),
+      to: account.address,
+      token: Addresses.pathUsd,
+    })
+    await Actions.dex.placeSync(client, {
+      account: accounts[0],
+      amount: parseUnits('1000', 6),
+      tick: 0,
+      token: Addresses.betaUsd,
+      type: 'sell',
+    })
+    const routedClient = getClient({
+      transport: withFunding(http(), {
+        getRoute: async ({ chainId, token }) => {
+          if (chainId !== 1337) return undefined
+          if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+            return {
+              slippageBps: 100,
+              sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+            }
+          if (token.toLowerCase() === Addresses.betaUsd.toLowerCase())
+            return {
+              slippageBps: 50,
+              sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
+            }
+          return undefined
+        },
+      }),
+    })
+    const result = await fillTransaction(routedClient, {
+      account,
+      calls: [{ to: recipient }],
+      feePayer: accounts[1],
+      requireFunds: [{ amount: parseUnits('25', 6), token: Addresses.betaUsd }],
+    })
+    expect(result).toMatchInlineSnapshot(
+      {
+        raw: expect.any(String),
+        transaction: {
+          from: expect.any(String),
+          gas: expect.any(BigInt),
+          hash: expect.any(String),
+          maxFeePerGas: expect.any(BigInt),
+        },
+      },
+      `
+      {
+        "raw": Any<String>,
+        "transaction": {
+          "accessList": [],
+          "authorizationList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x8888888888888888888888888888888888888888",
+              "value": 0n,
+            },
+          ],
+          "chainId": 1337,
+          "data": undefined,
+          "feePayerSignature": undefined,
+          "feeToken": null,
+          "from": Any<String>,
+          "gas": Any<BigInt>,
+          "gasPrice": undefined,
+          "hash": Any<String>,
+          "keyAuthorization": null,
+          "maxFeePerBlobGas": undefined,
+          "maxFeePerGas": Any<BigInt>,
+          "maxPriorityFeePerGas": 0n,
+          "multisig": undefined,
+          "nonce": 0,
+          "nonceKey": 0n,
+          "requireFunds": [
+            {
+              "amount": 25000000n,
+              "slippageBps": 50,
+              "sources": [
+                {
+                  "data": "0x00000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000017f6088",
+                  "to": "0x1120000000000000000000000000000000000001",
+                },
+              ],
+              "token": "0x20c0000000000000000000000000000000000002",
+            },
+          ],
+          "signature": {
+            "signature": {
+              "r": 59728239767604526217550949535444980007647751110991992555989432467883920033125n,
+              "s": 17143831728048845831134990513685258884275296176139135115431336905099564136145n,
+              "yParity": 0,
+            },
+            "type": "secp256k1",
+          },
+          "to": null,
+          "type": "tempo",
+          "typeHex": "0x76",
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+        },
+      }
+    `,
+    )
+  })
+
+  test('discovers Earn shares and transfers the redeemed output', async () => {
+    const stack = await deployEarnStack(getClient({ account: accounts[0] }), {
+      asset: Addresses.pathUsd,
+    })
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    await Actions.token.mintSync(client, {
+      account: accounts[0],
+      amount: parseUnits('100', 6),
+      to: account.address,
+      token: Addresses.pathUsd,
+    })
+    await Actions.earn.depositSync(client, {
+      account,
+      assetAmount: parseUnits('100', 6),
+      feePayer: accounts[1],
+      shareAmountMin: 1n,
+      vault: stack.adapter,
+    })
+    const earnClient = getClient({
+      transport: withFunding(http(), {
+        getRoute: ({ token }) => {
+          if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+            return {
+              sources: [
+                FundingSource.earn({
+                  source: stack.fundingSource,
+                  vault: stack.adapter,
+                }),
+              ],
+            }
+          return undefined
+        },
+      }),
+    })
+    const result = await Actions.token.transferSync(earnClient, {
+      account,
+      amount: parseUnits('50', 6),
+      feePayer: accounts[1],
+      requireFunds: true,
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+    expect(
+      parseEventLogs({
+        abi: Abis.tip20Funder,
+        logs: result.receipt.logs,
+      }).map(({ address, args, eventName }) => ({ address, args, eventName })),
+    ).toMatchInlineSnapshot(
+      [
+        {
+          args: {
+            account: expect.any(String),
+            requestHash: expect.any(String),
+            assetIn: expect.any(String),
+            source: expect.any(String),
+          },
+        },
+        { args: { account: expect.any(String) } },
+      ],
+      `
+      [
+        {
+          "address": "0x1120000000000000000000000000000000000000",
+          "args": {
+            "account": Any<String>,
+            "amountIn": 50000000n,
+            "amountOut": 50000000n,
+            "assetIn": Any<String>,
+            "assetOut": "0x20C0000000000000000000000000000000000000",
+            "requestHash": Any<String>,
+            "source": Any<String>,
+          },
+          "eventName": "SourceFunded",
+        },
+        {
+          "address": "0x1120000000000000000000000000000000000000",
+          "args": {
+            "account": Any<String>,
+            "asset": "0x20C0000000000000000000000000000000000000",
+            "fundedAmount": 50000000n,
+            "key": "0x0000000000000000000000000000000000000000",
+            "requiredAmount": 50000000n,
+          },
+          "eventName": "FundsRequired",
+        },
+      ]
+    `,
+    )
+
+    expect(result).toMatchInlineSnapshot(
+      {
+        from: expect.any(String),
+        receipt: {
+          blockHash: expect.any(String),
+          blockNumber: expect.any(BigInt),
+          cumulativeGasUsed: expect.any(BigInt),
+          effectiveGasPrice: expect.any(BigInt),
+          gasUsed: expect.any(BigInt),
+          from: expect.any(String),
+          logs: expect.any(Array),
+          logsBloom: expect.any(String),
+          transactionHash: expect.any(String),
+        },
+      },
+      `
+      {
+        "amount": 50000000n,
+        "decimals": 6,
+        "formatted": "50",
+        "from": Any<String>,
+        "receipt": {
+          "blockHash": Any<String>,
+          "blockNumber": Any<BigInt>,
+          "contractAddress": null,
+          "cumulativeGasUsed": Any<BigInt>,
+          "effectiveGasPrice": Any<BigInt>,
+          "feePayer": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "from": Any<String>,
+          "gasUsed": Any<BigInt>,
+          "logs": Any<Array>,
+          "logsBloom": Any<String>,
+          "multisig": undefined,
+          "status": "success",
+          "to": "0x20c0000000000000000000000000000000000000",
+          "transactionHash": Any<String>,
+          "transactionIndex": 0,
+          "type": "0x76",
+        },
+        "to": "0x8888888888888888888888888888888888888888",
+      }
+    `,
+    )
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: stack.shareToken,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 50000000n,
+        "decimals": 6,
+        "formatted": "50",
+      }
+    `)
+  })
+  describe('behavior', () => {
+    test('rejects inferred funding when transferring from another account', async () => {
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accounts[0],
+          amount: parseUnits('1', 6),
+          from: accounts[1].address,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: When \`from\` is set, specify \`token\` and \`amount\` in each \`requireFunds\` entry; funding targets the transaction sender, not \`from\`.]`,
+      )
+    })
+
+    test('rejects missing routes without falling back to ordinary preparation', async () => {
+      const account = await setupAccount()
+      await expect(
+        prepareTransactionRequest(client, {
+          account,
+          calls: [{ to: recipient }],
+          feePayer: accounts[1],
+          requireFunds: [
+            { amount: 1n, token: '0x20c000000000000000000000000000000000ffff' },
+          ],
+        }).catch((error) => {
+          throw new Error(error.details ?? error.shortMessage)
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: No funding route configured for 0x20c000000000000000000000000000000000ffff.]`,
+      )
+    })
+
+    test('does not discover when sources are explicitly empty', async () => {
+      const account = await setupAccount()
+      await expect(
+        fillTransaction(client, {
+          account,
+          calls: [{ to: recipient }],
+          feePayer: accounts[1],
+          requireFunds: [{ amount: 1n, sources: [], token: Addresses.pathUsd }],
+        }).catch((error) => {
+          throw new Error(error.details ?? error.shortMessage)
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: execution reverted: TIP20 funding error: InsufficientFunding(InsufficientFunding { required: 1, available: 0 })]`,
+      )
+    })
+
+    test('propagates insufficient input capacity', async () => {
+      const account = await setupAccount()
+      await expect(
+        fillTransaction(client, {
+          account,
+          calls: [{ to: recipient }],
+          feePayer: accounts[1],
+          requireFunds: [
+            { amount: parseUnits('200', 6), token: Addresses.pathUsd },
+          ],
+        }).catch((error) => {
+          throw new Error(error.details ?? error.shortMessage)
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: execution reverted: TIP20 funding error: InsufficientFunding(InsufficientFunding { required: 200000000, available: 100000000 })]`,
+      )
+    })
+  })
+})
+
 async function mintInputs(to: `0x${string}`, tokens: readonly `0x${string}`[]) {
   for (const token of tokens)
     await Actions.token.mintSync(client, {
@@ -2042,6 +2892,17 @@ async function setupEarnAccount(vault: `0x${string}`) {
     feePayer: accounts[1],
     shareAmountMin: 1n,
     vault,
+  })
+  return account
+}
+
+async function setupAccount() {
+  const account = Account.fromSecp256k1(generatePrivateKey())
+  await Actions.token.mintSync(client, {
+    account: accounts[0],
+    amount: parseUnits('100', 6),
+    to: account.address,
+    token: Addresses.alphaUsd,
   })
   return account
 }

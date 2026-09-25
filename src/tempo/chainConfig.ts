@@ -7,6 +7,7 @@ import {
   SignatureEnvelope,
   type TokenId,
 } from 'ox/tempo'
+import { fillTransaction } from '../actions/public/fillTransaction.js'
 import { getCode } from '../actions/public/getCode.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
@@ -26,7 +27,7 @@ import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
-import { normalizeFundingRequirements } from './internal/fundingRequirement.js'
+import { normalizeRequireFunds } from './internal/requireFunds.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -75,7 +76,7 @@ export const chainConfig = {
 
       if ('requireFunds' in request && request.requireFunds) {
         const account = request.account ?? client.account
-        request.requireFunds = normalizeFundingRequirements(
+        request.requireFunds = normalizeRequireFunds(
           request.requireFunds,
           Boolean(
             account &&
@@ -293,6 +294,33 @@ export const chainConfig = {
 
       if (!request.feeToken && request.chain?.feeToken)
         request.feeToken = request.chain.feeToken
+
+      if (
+        request.requireFunds?.some(
+          (requirement) => requirement.sources === undefined,
+        )
+      ) {
+        const result = await fillTransaction(client, request as never)
+        const filled =
+          result.transaction as unknown as Transaction.TransactionTempo
+        return {
+          ...request,
+          chainId: filled.chainId,
+          ...(filled.feePayerSignature
+            ? { feePayerSignature: filled.feePayerSignature }
+            : {}),
+          ...(filled.feeToken ? { feeToken: filled.feeToken } : {}),
+          gas: filled.gas,
+          maxFeePerGas: filled.maxFeePerGas,
+          maxPriorityFeePerGas: filled.maxPriorityFeePerGas ?? 0n,
+          nonce: filled.nonce,
+          requireFunds: filled.requireFunds,
+          type: filled.type,
+          ...(result.capabilities
+            ? { _capabilities: result.capabilities }
+            : {}),
+        } as unknown as typeof r
+      }
 
       return request as unknown as typeof r
     },

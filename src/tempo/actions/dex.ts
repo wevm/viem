@@ -32,7 +32,7 @@ import type {
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall, inferFundingRequirements } from '../internal/utils.js'
+import { defineCall, inferRequireFunds } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /**
@@ -1752,7 +1752,7 @@ export namespace sell {
     const call = sell.call({ tokenIn, tokenOut, amountIn, minAmountOut })
     return (await action(client, {
       ...rest,
-      requireFunds: inferFundingRequirements(parameters.requireFunds, {
+      requireFunds: inferRequireFunds(parameters.requireFunds, {
         token: tokenIn,
         amount: amountIn,
       }),

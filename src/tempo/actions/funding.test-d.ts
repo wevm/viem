@@ -1,13 +1,15 @@
 import { createClient, http } from 'viem'
-import { tempoActions } from 'viem/tempo'
+import { type FundingPolicy, tempoActions } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import * as Addresses from '../Addresses.js'
-import type { FundingRequirement } from '../index.js'
-import { discover } from './funding.js'
+import type { Transaction } from '../index.js'
+import { type createPolicySync, discover } from './funding.js'
 
 test('discover', () => {
   const account = '0x0000000000000000000000000000000000000001'
-  expectTypeOf<discover.ReturnValue>().toExtend<FundingRequirement.FundingRequirement>()
+  expectTypeOf<discover.ReturnValue>().toExtend<
+    NonNullable<Transaction.TransactionRequestTempo['requireFunds']>[number]
+  >()
 
   discover.call({
     account,
@@ -20,7 +22,7 @@ test('discover', () => {
     account,
     amount: 1n,
     policyId: 1n,
-    rules: '0x',
+    policyRules: '0x',
     token: Addresses.pathUsd,
   })
 
@@ -34,13 +36,18 @@ test('discover', () => {
     token: Addresses.pathUsd,
   })
   // @ts-expect-error Rules must be verified against a policy ID.
-  discover.call({ account, amount: 1n, rules: '0x', token: Addresses.pathUsd })
+  discover.call({
+    account,
+    amount: 1n,
+    policyRules: '0x',
+    token: Addresses.pathUsd,
+  })
   // @ts-expect-error Policy rules cannot be overridden by source configurations.
   discover.call({
     account,
     amount: 1n,
     policyId: 1n,
-    rules: '0x',
+    policyRules: '0x',
     slippageBps: 0,
     sources: [],
     token: Addresses.pathUsd,
@@ -70,4 +77,11 @@ test('discover account inference', () => {
   discover(publicClient, parameters)
   // @ts-expect-error The decorator also requires an account without a client account.
   publicClient.funding.discover(parameters)
+})
+
+test('createPolicySync', () => {
+  expectTypeOf<
+    createPolicySync.ReturnValue['rules']
+  >().toEqualTypeOf<FundingPolicy.Rules>()
+  expectTypeOf<createPolicySync.ReturnValue>().not.toHaveProperty('policyRules')
 })

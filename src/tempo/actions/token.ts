@@ -57,7 +57,7 @@ import {
   type CallParameters,
   defineCall,
   findDeclaredToken,
-  inferFundingRequirements,
+  inferRequireFunds,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
@@ -578,7 +578,7 @@ export namespace burn {
     const { address, decimals } = resolveToken(client, { token })
     return (await action(client, {
       ...rest,
-      requireFunds: inferFundingRequirements(parameters.requireFunds, {
+      requireFunds: inferRequireFunds(parameters.requireFunds, {
         token: address,
         amount: internal_Token.toBaseUnits(amount, decimals),
       }),
@@ -4881,16 +4881,17 @@ function inferTransferFunding<
   if (requireFunds === undefined) return undefined
   if (
     from !== undefined &&
-    requireFunds.some(
-      (requirement) =>
-        requirement.token === undefined || requirement.amount === undefined,
-    )
+    (requireFunds === true ||
+      requireFunds.some(
+        (requirement) =>
+          requirement.token === undefined || requirement.amount === undefined,
+      ))
   )
     throw new Error(
       'When `from` is set, specify `token` and `amount` in each `requireFunds` entry; funding targets the transaction sender, not `from`.',
     )
   const { address, decimals } = resolveToken(client, { token })
-  return inferFundingRequirements(requireFunds, {
+  return inferRequireFunds(requireFunds, {
     token: address,
     amount: internal_Token.toBaseUnits(amount, decimals),
   })

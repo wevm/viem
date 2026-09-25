@@ -612,7 +612,11 @@ export async function discover<
   client: Client<Transport, chain, account>,
   parameters: discover.Parameters<account>,
 ): Promise<discover.ReturnValue> {
-  const { account: account_ = client.account, policyId, rules } = parameters
+  const {
+    account: account_ = client.account,
+    policyId,
+    policyRules,
+  } = parameters
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_).address
   const discovery =
@@ -640,12 +644,14 @@ export async function discover<
             parameters.token,
             parameters.amount,
             policyId,
-            typeof rules === 'string' ? rules : FundingPolicy.encode(rules),
+            typeof policyRules === 'string'
+              ? policyRules
+              : FundingPolicy.encode(policyRules),
           ],
         })
   return {
     ...discovery,
-    ...(policyId === undefined ? {} : { rules }),
+    ...(policyId === undefined ? {} : { policyRules }),
     sources: discovery.sources.map(({ target, ...source }) => ({
       ...source,
       to: target,
@@ -664,7 +670,7 @@ export namespace discover {
   } & (
     | {
         policyId?: undefined
-        rules?: undefined
+        policyRules?: undefined
         /** Maximum aggregate slippage in basis points. */
         slippageBps: number
         /** Ordered sources with configuration data. */
@@ -674,7 +680,7 @@ export namespace discover {
         /** Policy ID whose commitment must match the supplied rules. */
         policyId: bigint
         /** Decoded or canonical ABI-encoded policy rules. */
-        rules: Hex | FundingPolicy.Rules
+        policyRules: Hex | FundingPolicy.Rules
         slippageBps?: undefined
         sources?: undefined
       }
@@ -692,7 +698,7 @@ export namespace discover {
     /** Maximum aggregate slippage used for discovery. */
     slippageBps: number
     /** Verified policy rules, present when a policy ID is supplied. */
-    rules?: Hex | FundingPolicy.Rules | undefined
+    policyRules?: Hex | FundingPolicy.Rules | undefined
     /** Ordered sources usable directly in a funding requirement. */
     sources: readonly {
       /** Funding source address. */
@@ -738,9 +744,9 @@ export namespace discover {
       args.token,
       args.amount,
       args.policyId,
-      typeof args.rules === 'string'
-        ? args.rules
-        : FundingPolicy.encode(args.rules),
+      typeof args.policyRules === 'string'
+        ? args.policyRules
+        : FundingPolicy.encode(args.policyRules),
     ] as const
     return defineCall({
       address: Addresses.fundingDiscovery,

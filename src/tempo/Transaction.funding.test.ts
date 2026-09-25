@@ -32,7 +32,7 @@ describe('formatTransactionRequest', () => {
     expect(formatted.requireFunds).toEqual([
       FundingRequirement.toRpc(requirement),
     ])
-    expect(formatted.requireFunds?.[0]?.sources[0]).toEqual({
+    expect(formatted.requireFunds?.[0]?.sources?.[0]).toEqual({
       target: Addresses.dexFundingSource,
       data: requirement.sources[0]?.data,
     })
@@ -81,7 +81,7 @@ describe('behavior', () => {
       const encoded = FundingPolicy.encode(rules)
       const input = {
         ...requirement,
-        rules: type === 'decoded' ? rules : encoded,
+        policyRules: type === 'decoded' ? rules : encoded,
       }
       const expected = { ...requirement, policyRules: encoded }
       for (const action of [undefined, 'estimateGas', 'call']) {
@@ -99,30 +99,8 @@ describe('behavior', () => {
           requireFunds: [expected],
         }),
       )
-      expect(input).toHaveProperty('rules')
-      expect(input).not.toHaveProperty('policyRules')
+      expect(input).toHaveProperty('policyRules')
+      expect(input).not.toHaveProperty('rules')
     },
   )
-
-  test('rejects conflicting rules fields', async () => {
-    const input = {
-      ...requirement,
-      rules: '0x1234' as const,
-      policyRules: '0x5678' as const,
-    }
-    expect(() =>
-      Formatters.formatTransactionRequest({ requireFunds: [input] }),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Specify either \`rules\` or \`policyRules\`, not both.]`,
-    )
-    await expect(
-      Transaction.serialize({
-        chainId: 1337,
-        calls: [],
-        requireFunds: [input],
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Specify either \`rules\` or \`policyRules\`, not both.]`,
-    )
-  })
 })

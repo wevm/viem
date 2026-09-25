@@ -23,8 +23,9 @@ describe('discover.call', () => {
       token: Addresses.pathUsd,
     } as const
 
-    expect(discover.call({ ...parameters, rules }).data).toBe(
-      discover.call({ ...parameters, rules: FundingPolicy.encode(rules) }).data,
+    expect(discover.call({ ...parameters, policyRules: rules }).data).toBe(
+      discover.call({ ...parameters, policyRules: FundingPolicy.encode(rules) })
+        .data,
     )
   })
 
@@ -55,7 +56,7 @@ describe('discover.call', () => {
       account: '0x0000000000000000000000000000000000000001',
       amount: 50_000_000n,
       policyId,
-      rules: '0x1234',
+      policyRules: '0x1234',
       token: Addresses.pathUsd,
     })
 
