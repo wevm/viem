@@ -7,7 +7,7 @@ Error: SpendingLimitExceeded()
 
 
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (secp256k1) 1`] = `
@@ -17,7 +17,7 @@ Error: SpendingLimitExceeded()
 
 
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (webAuthn) 1`] = `
@@ -27,7 +27,7 @@ Error: SpendingLimitExceeded()
 
 
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: expired 1`] = `
@@ -35,7 +35,7 @@ exports[`behavior: access key > rejects invalid delegated funding: expired 1`] =
 Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
 
 Details: Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: input 1`] = `
@@ -45,7 +45,7 @@ Error: FundingNotAuthorized(address source)
                            (0x1120000000000000000000000000000000000001)
 
 Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: limit 1`] = `
@@ -55,7 +55,7 @@ Error: SpendingLimitExceeded()
 
 
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: missing 1`] = `
@@ -65,7 +65,7 @@ Error: InvalidPolicyData()
 
 
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: output 1`] = `
@@ -75,7 +75,7 @@ Error: TokenNotAllowed(address token)
                       (0x20C0000000000000000000000000000000000002)
 
 Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllowed { token: 0x20c0000000000000000000000000000000000002 })
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: revoked 1`] = `
@@ -83,7 +83,7 @@ exports[`behavior: access key > rejects invalid delegated funding: revoked 1`] =
 Revm error: keychain validation failed: AccountKeychainError(KeyAlreadyRevoked(KeyAlreadyRevoked))
 
 Details: Revm error: keychain validation failed: AccountKeychainError(KeyAlreadyRevoked(KeyAlreadyRevoked))
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: slippage 1`] = `
@@ -93,7 +93,7 @@ Error: InvalidFundingContext()
 
 
 Details: execution reverted: TIP20 funding error: InvalidFundingContext(InvalidFundingContext)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: tampered 1`] = `
@@ -103,7 +103,7 @@ Error: InvalidPolicyData()
 
 
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects sources supplied in reverse policy order 1`] = `
@@ -113,7 +113,7 @@ Error: FundingNotAuthorized(address source)
                            (0x1120000000000000000000000000000000000001)
 
 Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > requires current rules after updates, including when the balance is already sufficient 1`] = `
@@ -123,7 +123,7 @@ Error: InvalidPolicyData()
 
 
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
-Version: viem@2.56.8]
+Version: viem@2.56.9]
 `;
 
 exports[`behavior: owner-authorized > funding cannot pay transaction fees 1`] = `[Error: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.]`;

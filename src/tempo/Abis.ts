@@ -9676,6 +9676,913 @@ export const zoneMessenger = [
   },
 ] as const
 
+// Source: tempoxyz/propAMM@bff7c1fa50cf72e2896a078abae4e164c36caa93
+
+export const directPropAmm = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: 'baseToken_', type: 'address', internalType: 'contract ITIP20' },
+      { name: 'quoteToken_', type: 'address', internalType: 'contract ITIP20' },
+      {
+        name: 'oracle_',
+        type: 'address',
+        internalType: 'contract IPriceOracle',
+      },
+      {
+        name: 'addressRegistry_',
+        type: 'address',
+        internalType: 'contract IAddressRegistry',
+      },
+      { name: 'owner_', type: 'address', internalType: 'address' },
+      { name: 'guardian_', type: 'address', internalType: 'address' },
+      { name: 'maxOracleAge_', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'maxPriceDeviationBps_',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'BPS',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'acceptOwnership',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'addressRegistry',
+    inputs: [],
+    outputs: [
+      { name: '', type: 'address', internalType: 'contract IAddressRegistry' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseToQuotePriceAnchor',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'baseToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract ITIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'fund',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'memo', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'guardian',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'maxOracleAge',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint80', internalType: 'uint80' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'maxPriceDeviationBps',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint16', internalType: 'uint16' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracle',
+    inputs: [],
+    outputs: [
+      { name: '', type: 'address', internalType: 'contract IPriceOracle' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'oracleDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'owner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pause',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'paused',
+    inputs: [],
+    outputs: [{ name: '', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'pendingOwner',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceAnchor',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'priceScale',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteDecimals',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint8', internalType: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactInput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactInputFor',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'creditAfter', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactOutput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteExactOutputFor',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'creditAfter', type: 'uint256', internalType: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteToBasePriceAnchor',
+    inputs: [],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'quoteToken',
+    inputs: [],
+    outputs: [{ name: '', type: 'address', internalType: 'contract ITIP20' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'recipientAllowed',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'allowed', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'resetPriceAnchor',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'resolveRecipient',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'resolved', type: 'address', internalType: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'roundingCredit',
+    inputs: [{ name: 'routeKey', type: 'bytes32', internalType: 'bytes32' }],
+    outputs: [{ name: 'credit', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'roundingRouteKey',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [{ name: '', type: 'bytes32', internalType: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'setGuardian',
+    inputs: [{ name: 'newGuardian', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setMaxOracleAge',
+    inputs: [
+      { name: 'newMaxOracleAge', type: 'uint256', internalType: 'uint256' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setMaxPriceDeviationBps',
+    inputs: [
+      {
+        name: 'newMaxPriceDeviationBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setOracle',
+    inputs: [
+      {
+        name: 'newOracle',
+        type: 'address',
+        internalType: 'contract IPriceOracle',
+      },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setRecipientAllowed',
+    inputs: [
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'allowed', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'setTakerAllowed',
+    inputs: [
+      { name: 'taker', type: 'address', internalType: 'address' },
+      { name: 'allowed', type: 'bool', internalType: 'bool' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'swapExactInput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'minAmountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'tradeId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'expectedOraclePrice', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'oraclePriceToleranceBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minimumOracleUpdatedAt',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [{ name: 'amountOut', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'swapExactOutput',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'amountOut', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxAmountIn', type: 'uint256', internalType: 'uint256' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'customerId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'tradeId', type: 'bytes32', internalType: 'bytes32' },
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'expectedOraclePrice', type: 'uint256', internalType: 'uint256' },
+      {
+        name: 'oraclePriceToleranceBps',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+      {
+        name: 'minimumOracleUpdatedAt',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    outputs: [{ name: 'amountIn', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'takerAllowed',
+    inputs: [{ name: 'taker', type: 'address', internalType: 'address' }],
+    outputs: [{ name: 'allowed', type: 'bool', internalType: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'transferOwnership',
+    inputs: [{ name: 'newOwner', type: 'address', internalType: 'address' }],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'unpause',
+    inputs: [],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    name: 'withdraw',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'recipient', type: 'address', internalType: 'address' },
+      { name: 'amount', type: 'uint256', internalType: 'uint256' },
+      { name: 'memo', type: 'bytes32', internalType: 'bytes32' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    name: 'Funded',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      { name: 'memo', type: 'bytes32', indexed: true, internalType: 'bytes32' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'GuardianUpdated',
+    inputs: [
+      {
+        name: 'oldGuardian',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newGuardian',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MaxOracleAgeUpdated',
+    inputs: [
+      {
+        name: 'oldMaxAge',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMaxAge',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'MaxPriceDeviationBpsUpdated',
+    inputs: [
+      {
+        name: 'oldMaxPriceDeviationBps',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newMaxPriceDeviationBps',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OracleUpdated',
+    inputs: [
+      {
+        name: 'oldOracle',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOracle',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'decimals',
+        type: 'uint8',
+        indexed: false,
+        internalType: 'uint8',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferStarted',
+    inputs: [
+      {
+        name: 'oldOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'pendingOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'OwnershipTransferred',
+    inputs: [
+      {
+        name: 'oldOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'newOwner',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PausedStateChanged',
+    inputs: [
+      { name: 'paused', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'PriceAnchorUpdated',
+    inputs: [
+      {
+        name: 'baseToQuote',
+        type: 'bool',
+        indexed: true,
+        internalType: 'bool',
+      },
+      {
+        name: 'oldAnchor',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newAnchor',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RecipientPermissionUpdated',
+    inputs: [
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      { name: 'allowed', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'RoundingCreditUpdated',
+    inputs: [
+      {
+        name: 'routeKey',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'previousCredit',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'newCredit',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'TakerPermissionUpdated',
+    inputs: [
+      {
+        name: 'taker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      { name: 'allowed', type: 'bool', indexed: false, internalType: 'bool' },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'TradeExecuted',
+    inputs: [
+      {
+        name: 'taker',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'customerId',
+        type: 'bytes32',
+        indexed: true,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'tradeId',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+      {
+        name: 'tokenIn',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'tokenOut',
+        type: 'address',
+        indexed: false,
+        internalType: 'address',
+      },
+      {
+        name: 'amountIn',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'amountOut',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'oraclePrice',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'oracleUpdatedAt',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+    ],
+    anonymous: false,
+  },
+  {
+    type: 'event',
+    name: 'Withdrawn',
+    inputs: [
+      {
+        name: 'token',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'recipient',
+        type: 'address',
+        indexed: true,
+        internalType: 'address',
+      },
+      {
+        name: 'amount',
+        type: 'uint256',
+        indexed: false,
+        internalType: 'uint256',
+      },
+      {
+        name: 'memo',
+        type: 'bytes32',
+        indexed: false,
+        internalType: 'bytes32',
+      },
+    ],
+    anonymous: false,
+  },
+  { type: 'error', name: 'AmountIsZero', inputs: [] },
+  { type: 'error', name: 'CustomerIdIsZero', inputs: [] },
+  {
+    type: 'error',
+    name: 'DeadlineExpired',
+    inputs: [
+      { name: 'deadline', type: 'uint256', internalType: 'uint256' },
+      { name: 'currentTimestamp', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'ExactBalanceDeltaFailed',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'expected', type: 'uint256', internalType: 'uint256' },
+      { name: 'actual', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'FutureOracleTimestamp',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'currentTime', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InsufficientInventory',
+    inputs: [
+      { name: 'token', type: 'address', internalType: 'address' },
+      { name: 'available', type: 'uint256', internalType: 'uint256' },
+      { name: 'required', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidAddress', inputs: [] },
+  { type: 'error', name: 'InvalidMaxOracleAge', inputs: [] },
+  {
+    type: 'error',
+    name: 'InvalidMaxPriceDeviationBps',
+    inputs: [
+      { name: 'supplied', type: 'uint256', internalType: 'uint256' },
+      { name: 'maximum', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'InvalidOraclePriceToleranceBps',
+    inputs: [
+      { name: 'supplied', type: 'uint256', internalType: 'uint256' },
+      { name: 'maximum', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'InvalidPrice', inputs: [] },
+  { type: 'error', name: 'NotGuardianOrOwner', inputs: [] },
+  { type: 'error', name: 'NotOwner', inputs: [] },
+  { type: 'error', name: 'NotPaused', inputs: [] },
+  { type: 'error', name: 'NotPendingOwner', inputs: [] },
+  {
+    type: 'error',
+    name: 'OracleDecimalsChanged',
+    inputs: [
+      { name: 'currentDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'proposedDecimals', type: 'uint8', internalType: 'uint8' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'OraclePriceToleranceExceeded',
+    inputs: [
+      { name: 'expectedPrice', type: 'uint256', internalType: 'uint256' },
+      { name: 'actualPrice', type: 'uint256', internalType: 'uint256' },
+      { name: 'toleranceBps', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'OracleTimestampTooOld',
+    inputs: [
+      { name: 'minimumUpdatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'actualUpdatedAt', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  { type: 'error', name: 'Paused', inputs: [] },
+  {
+    type: 'error',
+    name: 'PriceAnchorNotInitialized',
+    inputs: [{ name: 'baseToQuote', type: 'bool', internalType: 'bool' }],
+  },
+  {
+    type: 'error',
+    name: 'PriceDeviationExceeded',
+    inputs: [
+      { name: 'baseToQuote', type: 'bool', internalType: 'bool' },
+      { name: 'price', type: 'uint256', internalType: 'uint256' },
+      { name: 'anchor', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxDeviationBps', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'RecipientNotAllowed',
+    inputs: [{ name: 'recipient', type: 'address', internalType: 'address' }],
+  },
+  { type: 'error', name: 'ReentrancyGuardReentrantCall', inputs: [] },
+  { type: 'error', name: 'SameToken', inputs: [] },
+  {
+    type: 'error',
+    name: 'SlippageExceeded',
+    inputs: [
+      { name: 'limit', type: 'uint256', internalType: 'uint256' },
+      { name: 'actual', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'StaleOraclePrice',
+    inputs: [
+      { name: 'updatedAt', type: 'uint256', internalType: 'uint256' },
+      { name: 'maxAge', type: 'uint256', internalType: 'uint256' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'TakerNotAllowed',
+    inputs: [{ name: 'taker', type: 'address', internalType: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'TokenTransferFailed',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+  },
+  {
+    type: 'error',
+    name: 'UnsupportedDecimals',
+    inputs: [
+      { name: 'baseDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'quoteDecimals', type: 'uint8', internalType: 'uint8' },
+      { name: 'oracleDecimals', type: 'uint8', internalType: 'uint8' },
+    ],
+  },
+  {
+    type: 'error',
+    name: 'UnsupportedToken',
+    inputs: [{ name: 'token', type: 'address', internalType: 'address' }],
+  },
+] as const
+
 export const core = [
   ...accountKeychain,
   ...addressRegistry,
@@ -9726,4 +10633,6 @@ export const earn = [
 
 export const zone = [...zoneMessenger, ...zoneOutbox] as const
 
-export const all = [...core, ...earn, ...zone] as const
+export const propAmm = [...directPropAmm] as const
+
+export const all = [...core, ...earn, ...zone, ...propAmm] as const

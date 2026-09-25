@@ -573,6 +573,7 @@ test('extend', () => {
       "getProof": [Function],
       "getRawTransaction": [Function],
       "getStorageAt": [Function],
+      "getStorageValues": [Function],
       "getTransaction": [Function],
       "getTransactionConfirmations": [Function],
       "getTransactionCount": [Function],

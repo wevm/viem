@@ -165,6 +165,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Omit `blockTimestamp` from fork transaction snapshots**; its presence on
   `eth_getTransactionByHash` / `includeTransactions` objects depends on the upstream node
   implementation (reth extension). Destructure it out before snapshotting.
+- **Isolate concurrent Zone sequencers**; use distinct L1 signer accounts because sequencers share fixed nonce keys.
 - **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.

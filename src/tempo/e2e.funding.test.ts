@@ -4020,9 +4020,7 @@ async function setupAccount() {
   return account
 }
 
-async function setupRelay(
-  parameters: Funding.handleRequest.Parameters = {},
-) {
+async function setupRelay(parameters: Funding.handleRequest.Parameters = {}) {
   const store = parameters.store ?? Store.memory()
   const node = getClient()
   const handler = Funding.handleRequest(
@@ -4038,6 +4036,8 @@ async function setupRelay(
       )
     }),
   )
-  onTestFinished(server.close)
+  onTestFinished(async () => {
+    await server.close()
+  })
   return { store, url: server.url }
 }

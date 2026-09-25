@@ -20,6 +20,7 @@ import {
   readContract,
   waitForTransactionReceipt,
   writeContract,
+  writeContractSync,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
 import { Abis, Actions, Addresses } from 'viem/tempo'
@@ -217,7 +218,19 @@ describe('zone instance', () => {
     async () => {
       if (!factoryAddress) throw new Error('ZoneFactory is unavailable.')
 
-      const secondary = defineZone({ factoryAddress })
+      const secondaryAccount = privateKeyToAccount(accounts[1].privateKey)
+      const secondary = defineZone({
+        factoryAddress,
+        key: accounts[1].privateKey,
+      })
+
+      // Concurrent sequencers need distinct accounts because they use the same L1 nonce keys.
+      await writeContractSync(portalAdminClient, {
+        abi: Abis.zoneFactory,
+        address: factoryAddress,
+        args: [secondaryAccount.address],
+        functionName: 'transferOwnership',
+      })
 
       try {
         const [zone_, sameZone] = await Promise.all([
@@ -249,6 +262,13 @@ describe('zone instance', () => {
         expect(info.zoneId).toBe(zoneId)
       } finally {
         await secondary.stop()
+        await writeContractSync(portalAdminClient, {
+          abi: Abis.zoneFactory,
+          account: secondaryAccount,
+          address: factoryAddress,
+          args: [portalAdmin.address],
+          functionName: 'transferOwnership',
+        })
       }
     },
     150_000,

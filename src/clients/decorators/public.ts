@@ -171,6 +171,11 @@ import {
   getStorageAt,
 } from '../../actions/public/getStorageAt.js'
 import {
+  type GetStorageValuesParameters,
+  type GetStorageValuesReturnType,
+  getStorageValues,
+} from '../../actions/public/getStorageValues.js'
+import {
   type GetTransactionParameters,
   type GetTransactionReturnType,
   getTransaction,
@@ -1414,6 +1419,18 @@ export type PublicActions<
     args: GetStorageAtParameters,
   ) => Promise<GetStorageAtReturnType>
   /**
+   * Returns values from multiple storage slots at a given address and block.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getStorageValues
+   * - JSON-RPC Methods: [`eth_getStorageValues`](https://github.com/ethereum/execution-apis/issues/752)
+   *
+   * @param args - {@link GetStorageValuesParameters}
+   * @returns The values of the requested storage slots. {@link GetStorageValuesReturnType}
+   */
+  getStorageValues: (
+    args: GetStorageValuesParameters,
+  ) => Promise<GetStorageValuesReturnType>
+  /**
    * Returns information about a [Transaction](https://viem.sh/docs/glossary/terms#transaction) given a hash or block identifier.
    *
    * - Docs: https://viem.sh/docs/actions/public/getTransaction
@@ -2347,6 +2364,7 @@ export function publicActions<
     fillTransaction: (args) => fillTransaction(client, args),
     getRawTransaction: (args) => getRawTransaction(client, args),
     getStorageAt: (args) => getStorageAt(client, args),
+    getStorageValues: (args) => getStorageValues(client, args),
     getTransaction: (args) => getTransaction(client, args),
     getTransactionConfirmations: (args) =>
       getTransactionConfirmations(client, args),

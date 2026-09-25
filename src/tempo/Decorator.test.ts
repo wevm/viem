@@ -38,6 +38,7 @@ describe('decorator', () => {
         "fee",
         "funding",
         "policy",
+        "propAmm",
         "receivePolicy",
         "reward",
         "simulate",

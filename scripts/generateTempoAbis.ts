@@ -10,7 +10,7 @@ type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
 type SourceAdapter = {
   generate: (context: AdapterContext) => Promise<readonly GeneratedFile[]>
-  name: 'earn' | 'tempo' | 'zones'
+  name: 'earn' | 'propAmm' | 'tempo' | 'zones'
 }
 type InterfaceDefinition = { items: string[]; name: string }
 
@@ -18,7 +18,156 @@ const adapters: readonly SourceAdapter[] = [
   tempoAdapter(),
   earnAdapter(),
   zonesAdapter(),
+  propAmmAdapter(),
 ]
+
+function propAmmAdapter(): SourceAdapter {
+  const commit = 'bff7c1fa50cf72e2896a078abae4e164c36caa93'
+  const repository = 'https://github.com/tempoxyz/propAMM.git'
+  const output = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+  const contractsOutput = Path.resolve(
+    import.meta.dirname,
+    '../test/src/tempo/propAmmContracts.ts',
+  )
+
+  return {
+    name: 'propAmm',
+    async generate(context) {
+      const checkout = prepareCheckout()
+      execFileSync('forge', ['build', '--quiet'], {
+        cwd: checkout,
+      })
+      function readArtifact(path: string) {
+        return JSON.parse(
+          Fs.readFileSync(Path.join(checkout, 'out', path), 'utf8'),
+        ) as {
+          abi: readonly AbiItem.AbiItem[]
+          bytecode: { object: string }
+        }
+      }
+      const artifact = readArtifact('DirectPropAMM.sol/DirectPropAMM.json')
+      const oracle = readArtifact('MockOracle.sol/MockOracle.json')
+      if (
+        !artifact.abi.some(
+          (item) => item.type === 'function' && item.name === 'swapExactInput',
+        )
+      )
+        throw new Error('The propAMM artifact has no swapExactInput function.')
+      const current = context.read(output)
+      const groupIndex = current.indexOf('\nexport const core = [')
+      if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
+      const markerIndex = current.indexOf('// Source: tempoxyz/propAMM@')
+      const base = current
+        .slice(0, markerIndex === -1 ? groupIndex : markerIndex)
+        .trimEnd()
+      const earnIndex = base.indexOf('// Source: tempoxyz/earn@')
+      const zoneIndex = base.indexOf('// Source: tempoxyz/zones@')
+      if (earnIndex === -1 || zoneIndex === -1)
+        throw new Error('Could not find Earn and Zone ABI sections.')
+      const groups = [
+        [
+          'core',
+          getAbiExportNames(base.slice(0, earnIndex)).sort(compareStrings),
+        ],
+        [
+          'earn',
+          getAbiExportNames(base.slice(earnIndex, zoneIndex)).sort(
+            compareStrings,
+          ),
+        ],
+        ['zone', getAbiExportNames(base.slice(zoneIndex)).sort(compareStrings)],
+        ['propAmm', ['directPropAmm']],
+      ] as const
+      const grouped = groups
+        .map(
+          ([name, names]) =>
+            `export const ${name} = [\n${names.map((item) => `  ...${item},`).join('\n')}\n] as const`,
+        )
+        .join('\n\n')
+      console.log(`  DirectPropAMM ABI at ${commit.slice(0, 7)}`)
+      return [
+        {
+          content: `${base}\n\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify(artifact.abi)} as const\n\n${grouped}\n\nexport const all = [\n${groups.map(([name]) => `  ...${name},`).join('\n')}\n] as const\n`,
+          path: output,
+        },
+        {
+          content: `// Generated with \`pnpm gen:tempo-abis\`. Do not modify manually.\n// Source: tempoxyz/propAMM@${commit}\n\nexport const directPropAmm = ${JSON.stringify({ abi: artifact.abi, bytecode: artifact.bytecode.object })} as const\n\nexport const mockOracle = ${JSON.stringify({ abi: oracle.abi, bytecode: oracle.bytecode.object })} as const\n`,
+          path: contractsOutput,
+        },
+      ]
+    },
+  }
+
+  function prepareCheckout() {
+    const configured = process.env.PROPAMM_CONTRACTS_PATH
+    if (configured) {
+      validateCheckout(configured)
+      return configured
+    }
+    const cache = Path.join(Os.tmpdir(), 'viem-tempo-abis', 'propAmm')
+    const path = Path.join(cache, commit)
+    if (Fs.existsSync(path)) {
+      validateCheckout(path)
+      return path
+    }
+    Fs.mkdirSync(cache, { recursive: true })
+    const temporaryPath = Fs.mkdtempSync(Path.join(cache, `${commit}.`))
+    try {
+      execFileSync('git', ['init', '--quiet'], { cwd: temporaryPath })
+      execFileSync('git', ['remote', 'add', 'origin', repository], {
+        cwd: temporaryPath,
+      })
+      execFileSync('git', ['fetch', '--depth', '1', 'origin', commit], {
+        cwd: temporaryPath,
+        stdio: 'inherit',
+      })
+      execFileSync('git', ['checkout', '--detach', '--quiet', 'FETCH_HEAD'], {
+        cwd: temporaryPath,
+      })
+      execFileSync(
+        'git',
+        ['submodule', 'update', '--init', '--depth', '1', '--quiet'],
+        {
+          cwd: temporaryPath,
+        },
+      )
+      validateCheckout(temporaryPath)
+      Fs.renameSync(temporaryPath, path)
+      return path
+    } catch (error) {
+      Fs.rmSync(temporaryPath, { force: true, recursive: true })
+      throw error
+    }
+  }
+
+  function validateCheckout(checkout: string) {
+    const status = execFileSync('git', ['status', '--porcelain'], {
+      cwd: checkout,
+      encoding: 'utf8',
+    }).trim()
+    if (status) throw new Error('The propAMM checkout must be clean.')
+    const head = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: checkout,
+      encoding: 'utf8',
+    }).trim()
+    if (head !== commit)
+      throw new Error(
+        `The propAMM checkout must be at ${commit}, received ${head}.`,
+      )
+    const uninitialized = execFileSync(
+      'git',
+      ['submodule', 'status', '--recursive'],
+      {
+        cwd: checkout,
+        encoding: 'utf8',
+      },
+    )
+      .split('\n')
+      .some((line) => line.startsWith('-'))
+    if (uninitialized)
+      throw new Error('The propAMM checkout has uninitialized submodules.')
+  }
+}
 
 function tempoAdapter(): SourceAdapter {
   type GitHubContent = {
@@ -929,7 +1078,12 @@ const context: AdapterContext = {
     return generated.get(path) ?? Fs.readFileSync(path, 'utf8')
   },
 }
-for (const adapter of adapters) {
+const source = process.argv[2]
+if (source && !adapters.some((adapter) => adapter.name === source))
+  throw new Error(`Unknown ABI source: ${source}.`)
+for (const adapter of adapters.filter(
+  (adapter) => !source || adapter.name === source,
+)) {
   const files = await adapter.generate(context)
   for (const file of files) generated.set(file.path, file.content)
   console.log(`✓ Generated ${adapter.name} artifacts`)
