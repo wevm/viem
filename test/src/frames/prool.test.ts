@@ -15,7 +15,7 @@ const client = getClient()
 
 test('starts a funded development chain', async () => {
   expect(await client.request({ method: 'web3_clientVersion' })).toContain(
-    'Nethermind/',
+    'reth/',
   )
   expect(await getChainId(client)).toMatchInlineSnapshot('8141')
   expect(await getBlockNumber(client)).toMatchInlineSnapshot('0n')

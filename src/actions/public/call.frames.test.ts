@@ -7,8 +7,14 @@ const client = getClient({ account: accounts[0].address })
 
 test('default', async () => {
   const result = await call(client, {
+    signatures: [{ scheme: 'secp256k1' }],
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        stateGas: 0n,
+        mode: 'verify',
+      },
     ],
   })
 
@@ -27,13 +33,27 @@ test('args: signatures', async () => {
   })
 
   const transaction = {
+    blobVersionedHashes: [],
+    maxFeePerBlobGas: 0n,
     chainId: chain.id,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
-      { gas: 50_000n, mode: 'sender', to: accounts[1].address, value: 1n },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        stateGas: 0n,
+        mode: 'verify',
+      },
+      {
+        executionGas: 50_000n,
+        stateGas: 0n,
+        mode: 'sender',
+        to: accounts[1].address,
+        value: 1n,
+      },
       {
         data: '0xdeadbeef',
-        gas: 50_000n,
+        executionGas: 50_000n,
+        stateGas: 0n,
         mode: 'sender',
         to: '0x0000000000000000000000000000000000000004',
       },
@@ -65,9 +85,9 @@ test('args: signatures', async () => {
   await expect(
     call(client, {
       ...parameters,
-      frames: [{ gas: 50_000n, mode: 255 }],
+      frames: [{ executionGas: 50_000n, stateGas: 0n, mode: 255 }],
     }),
-  ).rejects.toThrow('frame mode must be DEFAULT, VERIFY, SENDER, or POST_TX')
+  ).rejects.toMatchObject({ cause: { code: -32602 } })
 
   expect(await getBalance(client, { address: accounts[1].address })).toBe(
     balance,
@@ -75,4 +95,19 @@ test('args: signatures', async () => {
   expect(
     await getTransactionCount(client, { address: accounts[0].address }),
   ).toBe(nonce)
+})
+
+test('rejects EOA verification without a signature placeholder', async () => {
+  await expect(
+    call(client, {
+      frames: [
+        {
+          flags: 'approveExecutionAndPayment',
+          executionGas: 50_000n,
+          stateGas: 0n,
+          mode: 'verify',
+        },
+      ],
+    }),
+  ).rejects.toThrow('EIP-8141 VERIFY frame failed')
 })

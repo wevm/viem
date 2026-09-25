@@ -455,7 +455,8 @@ export async function prepareTransactionRequest<
     if (
       parameters.includes('gas') &&
       frames?.some(
-        (frame) => frame.gas === undefined || frame.stateGas === undefined,
+        (frame) =>
+          frame.executionGas === undefined || frame.stateGas === undefined,
       )
     )
       return true
@@ -508,7 +509,8 @@ export async function prepareTransactionRequest<
               ? {
                   frames: frames.map((frame, index) => ({
                     ...frame,
-                    gas: frame.gas ?? filledFrames?.[index]?.gas,
+                    executionGas:
+                      frame.executionGas ?? filledFrames?.[index]?.executionGas,
                     stateGas: frame.stateGas ?? filledFrames?.[index]?.stateGas,
                   })),
                 }
@@ -562,7 +564,8 @@ export async function prepareTransactionRequest<
             parameters.includes('gas') &&
             frames.some(
               (frame) =>
-                frame.gas === undefined || frame.stateGas === undefined,
+                frame.executionGas === undefined ||
+                frame.stateGas === undefined,
             )
           )
             throw e
@@ -747,11 +750,12 @@ export async function prepareTransactionRequest<
   if (
     parameters.includes('gas') &&
     request.frames?.some(
-      (frame) => frame.gas === undefined || frame.stateGas === undefined,
+      (frame) =>
+        frame.executionGas === undefined || frame.stateGas === undefined,
     )
   )
     throw new BaseError(
-      'Provide gas and stateGas for every frame, or use a node that supports filling frame gas limits.',
+      'Provide executionGas and stateGas for every frame, or use a node that supports filling frame gas limits.',
     )
 
   if (parameters.includes('gas') && !frames && typeof gas === 'undefined')

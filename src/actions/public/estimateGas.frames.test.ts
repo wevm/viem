@@ -7,10 +7,11 @@ const client = getClient({ account: accounts[0].address })
 
 test('default', async () => {
   const result = await estimateGas(client, {
+    signatures: [{ scheme: 'secp256k1' }],
     frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
   })
 
-  expect(result).toMatchInlineSnapshot(`12575n`)
+  expect(result).toMatchInlineSnapshot(`15375n`)
 })
 
 test('args: signatures', async () => {
@@ -21,13 +22,27 @@ test('args: signatures', async () => {
   })
 
   const transaction = {
+    blobVersionedHashes: [],
+    maxFeePerBlobGas: 0n,
     chainId: chain.id,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
-      { gas: 50_000n, mode: 'sender', to: accounts[1].address, value: 1n },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        stateGas: 0n,
+        mode: 'verify',
+      },
+      {
+        executionGas: 50_000n,
+        stateGas: 0n,
+        mode: 'sender',
+        to: accounts[1].address,
+        value: 1n,
+      },
       {
         data: '0xdeadbeef',
-        gas: 50_000n,
+        executionGas: 50_000n,
+        stateGas: 0n,
         mode: 'sender',
         to: '0x0000000000000000000000000000000000000004',
       },
@@ -55,9 +70,9 @@ test('args: signatures', async () => {
   await expect(
     estimateGas(client, {
       ...parameters,
-      frames: [{ gas: 50_000n, mode: 255 }],
+      frames: [{ executionGas: 50_000n, stateGas: 0n, mode: 255 }],
     }),
-  ).rejects.toThrow('frame mode must be DEFAULT, VERIFY, SENDER, or POST_TX')
+  ).rejects.toMatchObject({ cause: { code: -32602 } })
 
   expect(await getBalance(client, { address: accounts[1].address })).toBe(
     balance,

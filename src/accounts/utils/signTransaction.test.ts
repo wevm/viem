@@ -530,7 +530,11 @@ describe('eip8141', () => {
   const transaction = {
     chainId: 8141,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        mode: 'verify',
+      },
     ],
     sender: account.address,
     signatures: [{ scheme: 'secp256k1' }],
@@ -551,7 +555,10 @@ describe('eip8141', () => {
           ...parsed,
           nonce: BigInt(parsed.nonce ?? 0),
         }),
-        signature: Signature.toHex(entry.signature),
+        signature:
+          typeof entry.signature === 'string'
+            ? entry.signature
+            : Signature.toHex(entry.signature),
       }),
     ).toBe(account.address)
     expect(transaction.signatures[0]).not.toHaveProperty('signature')

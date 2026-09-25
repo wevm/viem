@@ -19,8 +19,17 @@ test('sends and reads a frame transaction', async () => {
   const transaction = {
     chainId: chain.id,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
-      { gas: 50_000n, mode: 'sender', to: accounts[1].address, value: 1n },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        mode: 'verify',
+      },
+      {
+        executionGas: 50_000n,
+        mode: 'sender',
+        to: accounts[1].address,
+        value: 1n,
+      },
     ],
     maxFeePerGas: 10_000_000_000n,
     maxPriorityFeePerGas: 1_000_000_000n,
@@ -61,16 +70,16 @@ test('sends and reads a frame transaction', async () => {
       "frames": [
         {
           "data": "0x",
+          "executionGas": 50000n,
           "flags": 3,
-          "gas": 50000n,
           "mode": 1,
           "stateGas": 0n,
           "value": 0n,
         },
         {
           "data": "0x",
+          "executionGas": 50000n,
           "flags": 0,
-          "gas": 50000n,
           "mode": 2,
           "stateGas": 0n,
           "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -78,9 +87,8 @@ test('sends and reads a frame transaction', async () => {
         },
       ],
       "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "gas": 100000n,
+      "gas": undefined,
       "hash": "0xe70f44501a0e0f01b8ae1b1481dd5a3b0607e704d304a737474ca8dd254a7513",
-      "input": "0x",
       "maxFeePerBlobGas": 0n,
       "maxFeePerGas": 10000000000n,
       "maxPriorityFeePerGas": 1000000000n,
@@ -100,7 +108,7 @@ test('sends and reads a frame transaction', async () => {
       "transactionIndex": 0,
       "type": "eip8141",
       "typeHex": "0x6",
-      "value": 0n,
+      "value": undefined,
     }
   `)
   const {
@@ -112,6 +120,14 @@ test('sends and reads a frame transaction', async () => {
   } = receipt
   expect({
     ...receipt_,
+    frameReceipts: receipt_.frameReceipts?.map(({ logs, ...frame }) => ({
+      ...frame,
+      logs: logs.map(({ address, data, topics }) => ({
+        address,
+        data,
+        topics,
+      })),
+    })),
     logs: logs.map(
       ({
         blockHash: _blockHash,
@@ -122,17 +138,21 @@ test('sends and reads a frame transaction', async () => {
     ),
   }).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": 1n,
+      "blobGasUsed": 0n,
       "contractAddress": null,
       "cumulativeGasUsed": 25910n,
       "frameReceipts": [
         {
+          "executionGasUsed": 100n,
           "gasUsed": 100n,
           "logs": [],
           "stateGasUsed": 0n,
           "status": "success",
         },
         {
-          "gasUsed": 2600n,
+          "executionGasUsed": 3000n,
+          "gasUsed": 3000n,
           "logs": [
             {
               "address": "0xfffffffffffffffffffffffffffffffffffffffe",
@@ -168,7 +188,7 @@ test('sends and reads a frame transaction', async () => {
       "logsBloom": "0x00000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000800000000002000000100000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002000000200008000000000000000000002000000000000000000000400000000000000000000000000000000001000000000000000000000000000000",
       "payer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "status": "success",
-      "to": null,
+      "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "transactionHash": "0xe70f44501a0e0f01b8ae1b1481dd5a3b0607e704d304a737474ca8dd254a7513",
       "transactionIndex": 0,
       "type": "eip8141",
@@ -182,10 +202,14 @@ test('rolls back an atomic batch and skips the remaining frames', async () => {
   const transaction = {
     chainId: chain.id,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        mode: 'verify',
+      },
       {
         flags: 'atomicBatch',
-        gas: 50_000n,
+        executionGas: 50_000n,
         mode: 'sender',
         to: accounts[1].address,
         value: 1n,
@@ -194,11 +218,16 @@ test('rolls back an atomic batch and skips the remaining frames', async () => {
       {
         data: '0x0000000000000000',
         flags: 'atomicBatch',
-        gas: 50_000n,
+        executionGas: 50_000n,
         mode: 'sender',
         to: '0x0000000000000000000000000000000000008141',
       },
-      { gas: 50_000n, mode: 'sender', to: accounts[1].address, value: 2n },
+      {
+        executionGas: 50_000n,
+        mode: 'sender',
+        to: accounts[1].address,
+        value: 2n,
+      },
     ],
     maxFeePerGas: 10_000_000_000n,
     maxPriorityFeePerGas: 1_000_000_000n,
@@ -224,6 +253,14 @@ test('rolls back an atomic batch and skips the remaining frames', async () => {
   } = receipt
   expect({
     ...receipt_,
+    frameReceipts: receipt_.frameReceipts?.map(({ logs, ...frame }) => ({
+      ...frame,
+      logs: logs.map(({ address, data, topics }) => ({
+        address,
+        data,
+        topics,
+      })),
+    })),
     logs: logs.map(
       ({
         blockHash: _blockHash,
@@ -234,28 +271,34 @@ test('rolls back an atomic batch and skips the remaining frames', async () => {
     ),
   }).toMatchInlineSnapshot(`
     {
+      "blobGasPrice": 1n,
+      "blobGasUsed": 0n,
       "contractAddress": null,
-      "cumulativeGasUsed": 35116n,
+      "cumulativeGasUsed": 35916n,
       "frameReceipts": [
         {
+          "executionGasUsed": 100n,
           "gasUsed": 100n,
           "logs": [],
           "stateGasUsed": 0n,
           "status": "success",
         },
         {
-          "gasUsed": 2600n,
+          "executionGasUsed": 3000n,
+          "gasUsed": 3000n,
           "logs": [],
           "stateGasUsed": 0n,
           "status": "success",
         },
         {
-          "gasUsed": 2656n,
+          "executionGasUsed": 3056n,
+          "gasUsed": 3056n,
           "logs": [],
           "stateGasUsed": 0n,
           "status": "reverted",
         },
         {
+          "executionGasUsed": 0n,
           "gasUsed": 0n,
           "logs": [],
           "stateGasUsed": 0n,
@@ -263,12 +306,12 @@ test('rolls back an atomic batch and skips the remaining frames', async () => {
         },
       ],
       "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "gasUsed": 35116n,
+      "gasUsed": 35916n,
       "logs": [],
       "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "payer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "status": "reverted",
-      "to": null,
+      "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "transactionHash": "0xddfcff41dbe7f79808fee93270aa99923efb8cd30de70a007efd676c0807c729",
       "transactionIndex": 0,
       "type": "eip8141",

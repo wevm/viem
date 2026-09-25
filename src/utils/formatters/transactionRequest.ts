@@ -76,11 +76,11 @@ export function formatTransactionRequest(
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
   if (typeof request.frames !== 'undefined') {
     rpcRequest.frames = request.frames.map((frame) => {
-      const { executionGasLimit, stateGasLimit, ...rest } = Frame.toRpc(frame)
+      const { executionGas, stateGas, ...rest } = Frame.toRpc(frame)
       return {
         ...rest,
-        ...(frame.gas === undefined ? {} : { executionGasLimit }),
-        ...(frame.stateGas === undefined ? {} : { stateGasLimit }),
+        ...(frame.executionGas === undefined ? {} : { executionGas }),
+        ...(frame.stateGas === undefined ? {} : { stateGas }),
       }
     })
     rpcRequest.type = rpcTransactionType.eip8141
