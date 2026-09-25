@@ -19,7 +19,7 @@ These recipes assume you have [set up a Tempo client](/tempo). Hold a supported 
 
 ### Source Funds for a Transaction
 
-Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with `requireFunds`. 
+Use [`sendTransaction`](/docs/actions/wallet/sendTransaction) with `requireFunds`.
 
 This example uses pathUSD to fund a 50 OUSD transfer without an explicit input cap. The required balance and slippage limit still constrain how much the source can consume.
 
@@ -98,7 +98,7 @@ await client.sendTransaction({
 
 ### Use with Actions
 
-Tempo write actions accept `requireFunds`. For actions with an exact input, the action can infer the requirement's `token` and `amount`. 
+Tempo write actions accept `requireFunds`. For actions with an exact input, the action can infer the requirement's `token` and `amount`.
 
 This transfer funds the required OUSD balance before sending it.
 
@@ -145,10 +145,10 @@ const vault = '0x...' // Earn vault with PathUSD as its underlying token.
 
 await client.token.transferSync({
   amount: parseUnits('100', 6),
-  requireFunds: [{ 
-    slippageBps: 100, 
+  requireFunds: [{
+    slippageBps: 100,
     sources: [FundingSource.earn({ source, vault })], // [!code hl]
-  }], 
+  }],
   to: '0x...',
   token: Addresses.pathUsd,
 })
