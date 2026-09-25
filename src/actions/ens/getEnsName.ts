@@ -19,6 +19,7 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
+import { normalize } from '../../ens/index.js'
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
@@ -131,10 +132,20 @@ export async function getEnsName<chain extends Chain | undefined>(
 
     const [name] = await readContractAction(readContractParameters)
 
+    if (!isNormalized(name)) return null
+
     return name || null
   } catch (err) {
     if (strict) throw err
     if (isNullUniversalResolverError(err)) return null
     throw err
+  }
+}
+
+function isNormalized(name: string) {
+  try {
+    return name === normalize(name)
+  } catch {
+    return
   }
 }
