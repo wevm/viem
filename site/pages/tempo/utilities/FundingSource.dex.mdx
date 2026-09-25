@@ -1,0 +1,56 @@
+# `FundingSource.dex`
+
+Creates a native DEX funding source that exchanges an input token for the required output token. The helper supplies the native DEX funding source address and encodes its arguments.
+
+:::warning
+This API is experimental and requires a TIP-1120-enabled node for funding execution.
+:::
+
+## Usage
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+
+const source = FundingSource.dex({
+  maxAmountIn: parseUnits('30', 6),
+  tokenIn: Addresses.alphaUsd,
+})
+```
+
+## Parameters
+
+### tokenIn
+
+- **Type:** `Address`
+
+Input token to exchange. The funding requirement specifies the output token and required balance.
+
+```ts twoslash
+import { Addresses, FundingSource } from 'viem/tempo'
+
+FundingSource.dex({
+  tokenIn: Addresses.alphaUsd, // [!code focus]
+})
+```
+
+### maxAmountIn (optional)
+
+- **Type:** `bigint`
+- **Default:** `2n ** 256n - 1n`
+
+Maximum input consumed per source invocation, in input-token base units. Zero permits no input. Omission leaves this cap unlimited; policy and slippage limits still apply.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+
+FundingSource.dex({
+  maxAmountIn: parseUnits('30', 6), // [!code focus]
+  tokenIn: Addresses.alphaUsd,
+})
+```
+
+## Return Type
+
+`FundingSource.Source`, containing the native DEX source address as `to` and ABI-encoded arguments as `data`.

@@ -2465,6 +2465,22 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Funding',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/funding' },
+                {
+                  text: 'Discovering Funds',
+                  link: '/tempo/guides/funding/discover',
+                },
+                {
+                  text: 'Source Funds for Transactions',
+                  link: '/tempo/guides/funding/source',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Multisig',
               collapsed: true,
               items: [
@@ -3407,6 +3423,15 @@ export default defineConfig({
                   text: 'validate',
                   link: '/tempo/utilities/TempoAddress.validate',
                 },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'FundingSource',
+              collapsed: true,
+              items: [
+                { text: 'dex', link: '/tempo/utilities/FundingSource.dex' },
+                { text: 'earn', link: '/tempo/utilities/FundingSource.earn' },
               ],
             },
             {

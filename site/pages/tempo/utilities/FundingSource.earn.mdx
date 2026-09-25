@@ -1,0 +1,96 @@
+# `FundingSource.earn`
+
+Creates a funding source that redeems shares from an Earn vault. Supply the deployed funding source address and vault; the source selects its configured engine adapter when funding executes. Withdrawals must be synchronous.
+
+:::warning
+This API is experimental and requires a TIP-1120-enabled node for funding execution.
+:::
+
+## Usage
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { FundingSource } from 'viem/tempo'
+
+const source = FundingSource.earn({
+  maxValueIn: parseUnits('50', 6),
+  source: '0x1234567890123456789012345678901234567890',
+  vault: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+})
+```
+
+The addresses above are placeholders. Use the funding source and Earn vault deployed on your network.
+
+## Parameters
+
+### source
+
+- **Type:** `Address`
+
+Deployed Earn funding source address. This address becomes the returned source's `to` field.
+
+```ts twoslash
+import { FundingSource } from 'viem/tempo'
+
+FundingSource.earn({
+  source: '0x1234567890123456789012345678901234567890', // [!code focus]
+  vault: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+})
+```
+
+### vault
+
+- **Type:** `Address`
+
+Earn vault whose shares are redeemed. Use the EarnVault address, not the underlying ERC-4626 venue.
+
+```ts twoslash
+import { FundingSource } from 'viem/tempo'
+
+FundingSource.earn({
+  source: '0x1234567890123456789012345678901234567890',
+  vault: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd', // [!code focus]
+})
+```
+
+### maxAmountIn (optional)
+
+- **Type:** `bigint`
+- **Default:** `2n ** 256n - 1n`
+
+Maximum EarnShares consumed per invocation, in share base units. Zero permits no shares; omission leaves this cap unlimited.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { FundingSource } from 'viem/tempo'
+
+FundingSource.earn({
+  maxAmountIn: parseUnits('50', 6), // [!code focus]
+  source: '0x1234567890123456789012345678901234567890',
+  vault: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+})
+```
+
+### maxValueIn (optional)
+
+- **Type:** `bigint`
+- **Default:** `2n ** 256n - 1n`
+
+Maximum gross underlying-token value consumed per invocation, before exit fees. Use the underlying token’s decimals, even when funding a different output token. Zero permits no value; omission leaves this cap unlimited.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { FundingSource } from 'viem/tempo'
+
+FundingSource.earn({
+  maxValueIn: parseUnits('50', 6), // [!code focus]
+  source: '0x1234567890123456789012345678901234567890',
+  vault: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+})
+```
+
+When both caps are supplied, both apply. Omitted caps still respect the funding requirement's slippage budget and any policy limits.
+
+## Return Type
+
+`FundingSource.Source`, containing the supplied source address as `to` and ABI-encoded vault and caps as `data`.

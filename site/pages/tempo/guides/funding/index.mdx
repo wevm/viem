@@ -1,0 +1,30 @@
+---
+description: Discover available funds and source token balances for Tempo transactions.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Funding
+
+## Overview
+
+Funding requirements let a transaction use tokens or Earn shares to supply the balance its calls need. You can select sources directly or discover available sources before sending the transaction.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node. Use source addresses deployed on that network.
+:::
+
+<Cards>
+  <Card
+    icon="lucide:search"
+    title="Discovering Funds"
+    description="Find available sources, optionally verified against a funding policy."
+    to="/tempo/guides/funding/discover"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Source Funds for Transactions"
+    description="Fund transactions from tokens or Earn vaults, with owner or access key authorization."
+    to="/tempo/guides/funding/source"
+  />
+</Cards>

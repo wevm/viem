@@ -1,0 +1,103 @@
+---
+title: Discovering Funds
+description: Find available funding sources for a Tempo transaction.
+---
+
+# Discovering Funds
+
+## Overview
+
+[`funding.discover`](/tempo/actions/funding.discover) inspects configured sources for an account and returns a funding requirement. Pass that result directly as `requireFunds: [discovery]` when sending a transaction.
+
+Discovery is read-only. It does not redeem shares, swap tokens, or reserve liquidity. Execution checks availability again.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node. Use source addresses deployed on that network.
+:::
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo). Discovery uses the client's account by default; pass `account` to inspect another account or when the client has none.
+
+### Discover from Sources
+
+Use [`funding.discover`](/tempo/actions/funding.discover) with source configurations describing the sources to search. Owner-authorized funding needs no stored policy. The returned requirement can be passed directly to the transaction.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await client.funding.discover({
+  amount: parseUnits('50', 6),
+  slippageBps: 100,
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })], // [!code hl]
+  token: Addresses.pathUsd,
+})
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [discovery], // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+### Discover Against a Funding Policy
+
+Provide `policyId` and `rules` to discover sources and verify the rules against the policy's current commitment. Reuse the rules returned by policy creation or its latest update.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { policyId, rules } = await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+
+const discovery = await client.funding.discover({
+  amount: parseUnits('50', 6),
+  policyId, // [!code hl]
+  rules, // [!code hl]
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The result includes the verified `rules` and policy slippage limit. Pass it to a transaction using an access key authorized for that policy. See [funding with an access key](/tempo/guides/funding/source#fund-with-an-access-key) for authorization and payment.
+
+For an installed access key, obtain its policy ID with [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId). The policy stores a rules hash; obtain the full rules from creation or update events, or an indexer.
+
+## Best Practices
+
+- Discover close to execution. Balances and liquidity can change afterward.
+- Treat `availableAmount` as advisory. Viem omits it from transaction encoding.
+- Pass rules as decoded objects or ABI-encoded hex. Owner-authorized transactions omit discovery rules from execution.
+- Refresh rules after a policy update. Discovery with a policy ID rejects rules that no longer match its commitment.
+
+## See More
+
+- [Source Funds for Transactions](/tempo/guides/funding/source)
+- [Discover API](/tempo/actions/funding.discover)
+- [Create a Funding Policy](/tempo/actions/funding.createPolicy)
