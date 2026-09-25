@@ -53,7 +53,7 @@ Use a token map when the client uses one chain. This route redeems Earn shares, 
 
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
-import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
 import { store } from './store'
 
 export const client = createClient({
@@ -61,7 +61,7 @@ export const client = createClient({
   transport: withFunding(http(), {
     store,
     getRoute({ token }) {
-      const routes: Record<string, Funding.handleRequest.Route> = {
+      const routes = {
         [Addresses.pathUsd]: {
           slippageBps: 100,
           sources: [
@@ -72,6 +72,7 @@ export const client = createClient({
         },
       }
 
+      if (token !== Addresses.pathUsd) return undefined
       return routes[token]
     },
   }),
@@ -84,7 +85,7 @@ Nest token routes under their chain ID when the configuration serves multiple ch
 
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
-import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
 import { store } from './store'
 
 export const client = createClient({
@@ -92,7 +93,7 @@ export const client = createClient({
   transport: withFunding(http(), {
     store,
     getRoute({ chainId, token }) {
-      const routes: Record<number, Record<string, Funding.handleRequest.Route>> = {
+      const routes = {
         42431: {
           [Addresses.pathUsd]: {
             slippageBps: 100,
@@ -105,7 +106,8 @@ export const client = createClient({
         },
       }
 
-      return routes[chainId]?.[token]
+      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+      return routes[chainId][token]
     },
   }),
 })
@@ -117,7 +119,7 @@ Use `transaction.from` to select account-specific routes. This is the funding ac
 
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
-import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
 import { store } from './store'
 
 export const client = createClient({
@@ -127,7 +129,7 @@ export const client = createClient({
     getRoute({ chainId, token, transaction }) {
       if (!transaction.from) return undefined
 
-      const routes: Record<string, Record<number, Record<string, Funding.handleRequest.Route>>> = {
+      const routes = {
         '0x1111111111111111111111111111111111111111': {
           42431: {
             [Addresses.pathUsd]: {
@@ -142,7 +144,9 @@ export const client = createClient({
         },
       }
 
-      return routes[transaction.from]?.[chainId]?.[token]
+      if (transaction.from !== '0x1111111111111111111111111111111111111111') return undefined
+      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+      return routes[transaction.from][chainId][token]
     },
   }),
 })
@@ -167,25 +171,21 @@ await client.token.transferSync({
 
 #### Choose Tokens
 
-For generic transactions, supply the target balances. Raw calls are not automatically inspected to infer requirements. Omit `sources` to use the configured route.
+Specify the token to fund. The transfer action supplies the amount. Omit `sources` to use the configured route.
 
 :::code-group
 
 ```ts [example.ts]
 import { parseUnits } from 'viem'
-import { Actions, Addresses } from 'viem/tempo'
+import { Addresses } from 'viem/tempo'
 import { client } from './viem.config'
 
-await client.sendTransaction({
-  calls: [
-    Actions.token.transfer.call({
-      amount: parseUnits('50', 6),
-      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-      token: Addresses.pathUsd,
-    }),
-  ],
-  // Supply the balance target; the transport discovers the sources.
-  requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Infer the required amount from the transfer.
+  requireFunds: [{ token: Addresses.pathUsd }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
 })
 ```
 
