@@ -72,7 +72,6 @@ export const client = createClient({
         },
       }
 
-      if (token !== Addresses.pathUsd) return undefined
       return routes[token]
     },
   }),
@@ -106,8 +105,7 @@ export const client = createClient({
         },
       }
 
-      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
-      return routes[chainId][token]
+      return routes[chainId]?.[token]
     },
   }),
 })
@@ -144,9 +142,7 @@ export const client = createClient({
         },
       }
 
-      if (transaction.from !== '0x1111111111111111111111111111111111111111') return undefined
-      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
-      return routes[transaction.from][chainId][token]
+      return routes[transaction.from]?.[chainId]?.[token]
     },
   }),
 })
