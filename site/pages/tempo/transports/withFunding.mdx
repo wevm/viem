@@ -37,7 +37,9 @@ Downstream transport supporting `eth_fillTransaction` and the funding discovery 
 
 ### parameters.getRoute
 
-- **Type:** `({ chainId, token }) => Route | undefined | Promise<Route | undefined>`
+- **Type:** `({ chainId, token, transaction }) => Route | undefined | Promise<Route | undefined>`
+
+`transaction` is the unsigned RPC request. Use `transaction.from` to select routes for the funding account; it contains an address, not a local signer.
 
 Optional callback returning ordered source configurations and `slippageBps` for a chain and output token. The token address is checksummed. Return `undefined` to reject discovery for that pair. Explicit sources bypass the callback.
 
@@ -61,6 +63,29 @@ withFunding(http(), {
 Explicit transaction slippage takes precedence over the route default. If both are omitted, slippage is zero. Each requirement has its own aggregate tolerance. Known tokens are discovery inputs, not a guarantee of balances, liquidity, or deployed funding support.
 
 The transport passes the client's configured chain ID to the handler. The handler uses the explicit request-option chain ID or the transaction's chain ID and rejects conflicts. When neither is supplied, it defaults to Tempo mainnet (4217). Discovery and filling receive the resolved chain ID in request options.
+
+### parameters.store
+
+- **Type:** `Store.Store`
+
+Optional store for funding policy rules. Defaults to an in-memory store per transport. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
+
+```ts
+import { http } from 'viem'
+import { Store, withFunding } from 'viem/tempo'
+
+withFunding(http(), { store: Store.memory() })
+```
+
+## Access Key Funding
+
+Access key transactions use the key's funding policy, not `getRoute`. The handler resolves installed keys and signed key authorizations with existing or inline policies, then inserts verified `policyRules`. Explicit sources and input caps remain unchanged.
+
+`createPolicy`, `setPolicyRules`, and inline access key authorization register rules with the handler through `funding_registerPolicyRules`. Supplied rules are also cached after verification against the current commitment. Configure persistent handler storage when rules must survive restarts. The same registration method works with a remote relay.
+
+If the store does not contain the current rules, supply `policyRules` explicitly. The handler does not scan event history. Expired, revoked, or policy-less keys cannot use owner routes.
+
+The node validates authorization signatures, permissions, and spending limits during filling and execution. Policy changes between filling and execution can invalidate the transaction's rules. Discovery does not reserve funds.
 
 ## Behavior
 
