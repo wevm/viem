@@ -10,7 +10,7 @@ description: Fund Tempo transactions from token balances and Earn vaults.
 `requireFunds` specifies token balances to satisfy before a transaction executes its calls. Existing balances count toward each requirement. Sources run in order to supply the shortfall. Funding and application calls revert together if either fails.
 
 :::warning
-**Experimental.** Transaction funding requires a TIP-1120-enabled node. Use source addresses deployed on that network.
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
 :::
 
 ## Recipes
@@ -33,6 +33,7 @@ import { client } from './viem.config'
 const ousd = '0x...' // Output token address.
 
 await client.sendTransaction({
+  // These calls execute only after the required balance is available.
   calls: [
     Actions.token.transfer.call({
       token: ousd,
@@ -40,6 +41,7 @@ await client.sendTransaction({
       amount: parseUnits('50', 6),
     }),
   ],
+  // Existing output tokens count toward this balance; source only the shortfall.
   requireFunds: [{ // [!code hl]
     token: ousd, // [!code hl]
     amount: parseUnits('50', 6), // [!code hl]
@@ -56,7 +58,7 @@ await client.sendTransaction({
 
 #### Cap Source Inputs
 
-This example sources up to 30 pathUSD, then uses USDC.e for the remaining OUSD shortfall.
+Set `maxAmountIn` to cap the input consumed. If the capped source cannot satisfy the required balance, the transaction reverts.
 
 :::code-group
 
@@ -66,9 +68,9 @@ import { Addresses, Actions, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
 const ousd = '0x...' // Output token address.
-const usdcE = '0x...' // Second input token address.
 
 await client.sendTransaction({
+  // These calls execute only after the required balance is available.
   calls: [
     Actions.token.transfer.call({
       token: ousd,
@@ -83,8 +85,52 @@ await client.sendTransaction({
     sources: [
       FundingSource.dex({ // [!code focus]
         tokenIn: Addresses.pathUsd, // [!code focus]
+        maxAmountIn: parseUnits('51', 6), // [!code focus]
+      }), // [!code focus]
+    ],
+  }],
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
+
+#### Multiple Sources
+
+This example sources up to 30 pathUSD, then uses USDC.e for the remaining OUSD shortfall.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, Actions, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const ousd = '0x...' // Output token address.
+const usdcE = '0x...' // Second input token address.
+
+await client.sendTransaction({
+  // These calls execute only after the required balance is available.
+  calls: [
+    Actions.token.transfer.call({
+      token: ousd,
+      to: '0x...',
+      amount: parseUnits('50', 6),
+    }),
+  ],
+  requireFunds: [{
+    token: ousd,
+    amount: parseUnits('50', 6),
+    slippageBps: 100,
+    sources: [
+      // Spend at most 30 pathUSD before trying the next source.
+      FundingSource.dex({ // [!code focus]
+        tokenIn: Addresses.pathUsd, // [!code focus]
         maxAmountIn: parseUnits('30', 6), // [!code focus]
       }), // [!code focus]
+      // Use USDC.e only for the remaining OUSD shortfall.
       FundingSource.dex({ tokenIn: usdcE }), // [!code focus]
     ],
   }],
@@ -115,6 +161,7 @@ await client.token.transferSync({
   token: ousd,
   to: '0x...',
   amount: parseUnits('50', 6),
+  // The transfer action infers the required token and amount.
   requireFunds: [{ // [!code hl]
     slippageBps: 100, // [!code hl]
     sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })], // [!code hl]
@@ -147,6 +194,7 @@ await client.token.transferSync({
   amount: parseUnits('100', 6),
   requireFunds: [{
     slippageBps: 100,
+    // Redeem only the shares needed to supply the missing PathUSD.
     sources: [FundingSource.earn({ source, vault })], // [!code hl]
   }],
   to: '0x...',
@@ -176,8 +224,8 @@ const source = '0x...' // Deployed Earn funding source.
 const vault = '0x...' // Earn vault with PathUSD as its underlying token.
 
 await client.token.transferSync({
-  amount: parseUnits('100', 6),
-  requireFunds: [{ // [!code focus]
+  amount: parseUnits('50', 6),
+  requireFunds: [{
     slippageBps: 100,
     sources: [
       FundingSource.earn({
@@ -185,7 +233,6 @@ await client.token.transferSync({
         source,
         vault,
       }),
-      FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
     ],
   }],
   to: '0x...',
@@ -199,6 +246,45 @@ await client.token.transferSync({
 :::
 
 `maxValueIn` caps gross underlying-token value before exit fees, in underlying-token base units. `maxAmountIn` optionally caps EarnShare base units. Both limits apply per source invocation; zero disables input and omission leaves that cap unlimited. Slippage applies across all sources in the requirement.
+
+#### Multiple Sources
+
+Redeem up to 50 PathUSD worth of EarnShares, then use AlphaUSD through the native DEX for the remaining shortfall.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...' // Deployed Earn funding source.
+const vault = '0x...' // Earn vault with PathUSD as its underlying token.
+
+await client.token.transferSync({
+  amount: parseUnits('100', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [ // [!code focus]
+      // Limit the gross underlying value redeemed from the vault. // [!code focus]
+      FundingSource.earn({ // [!code focus]
+        maxValueIn: parseUnits('50', 6), // [!code focus]
+        source, // [!code focus]
+        vault, // [!code focus]
+      }), // [!code focus]
+      // Cover the shortfall after redemption, including any exit fees. // [!code focus]
+      FundingSource.dex({ tokenIn: Addresses.alphaUsd }), // [!code focus]
+    ], // [!code focus]
+  }],
+  to: '0x...',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+:::
 
 ### Fund with an Access Key
 
@@ -216,6 +302,7 @@ const accessKey = Account.fromP256(generatePrivateKey(), {
   access: client.account,
 })
 
+// Keep the returned rules to prove which source permissions the policy commits to.
 const { policyId, rules } = await client.funding.createPolicySync({
   admins: [client.account.address],
   rules: {
@@ -226,6 +313,7 @@ const { policyId, rules } = await client.funding.createPolicySync({
   },
 })
 
+// Sign permission to fund with this policy and spend at most 50 PathUSD.
 const keyAuthorization = await client.accessKey.signAuthorization({
   accessKey,
   fundingPolicy: policyId,
@@ -235,6 +323,7 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 await client.token.transferSync({
   account: accessKey,
   amount: parseUnits('50', 6),
+  // Install the key and fund the payment in the same transaction.
   keyAuthorization, // [!code hl]
   requireFunds: [{ // [!code hl]
     rules, // [!code hl]

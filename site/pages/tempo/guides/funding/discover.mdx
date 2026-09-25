@@ -12,7 +12,7 @@ description: Find available funding sources for a Tempo transaction.
 Discovery is read-only. It does not redeem shares, swap tokens, or reserve liquidity. Execution checks availability again.
 
 :::warning
-**Experimental.** Transaction funding requires a TIP-1120-enabled node. Use source addresses deployed on that network.
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
 :::
 
 ## Recipes
@@ -30,12 +30,13 @@ import { parseUnits } from 'viem'
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
-const discovery = await client.funding.discover({
-  amount: parseUnits('50', 6),
-  slippageBps: 100,
-  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })], // [!code hl]
-  token: Addresses.pathUsd,
-})
+// Inspect available funds without swapping, redeeming, or reserving them. // [!code focus]
+const discovery = await client.funding.discover({ // [!code focus]
+  amount: parseUnits('50', 6), // [!code focus]
+  slippageBps: 100, // [!code focus]
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })], // [!code focus]
+  token: Addresses.pathUsd, // [!code focus]
+}) // [!code focus]
 
 await client.token.transferSync({
   amount: parseUnits('50', 6),
@@ -61,6 +62,7 @@ import { parseUnits } from 'viem'
 import { Addresses, FundingSource } from 'viem/tempo'
 import { client } from './viem.config'
 
+// Create a policy and retain its full rules for later verification.
 const { policyId, rules } = await client.funding.createPolicySync({
   admins: [client.account.address],
   rules: {
@@ -71,6 +73,7 @@ const { policyId, rules } = await client.funding.createPolicySync({
   },
 })
 
+// Verify the rules against the current policy hash, then discover permitted funds.
 const discovery = await client.funding.discover({
   amount: parseUnits('50', 6),
   policyId, // [!code hl]
