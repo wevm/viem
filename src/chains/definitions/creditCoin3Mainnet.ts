@@ -17,5 +17,11 @@ export const creditCoin3Mainnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://creditcoin.blockscout.com/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xC78dA4A773fF9B94Fff3540ea16e4713C8AAa94a',
+      blockCreated: 4_353_395,
+    },
+  },
   testnet: false,
 })

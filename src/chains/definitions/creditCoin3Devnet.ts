@@ -17,5 +17,11 @@ export const creditCoin3Devnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://creditcoin3-dev.subscan.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xC78dA4A773fF9B94Fff3540ea16e4713C8AAa94a',
+      blockCreated: 16_291_899,
+    },
+  },
   testnet: true,
 })
