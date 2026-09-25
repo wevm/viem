@@ -30,13 +30,13 @@ const discovery = await client.funding.discover({
 
 For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
 
-When a policy ID is supplied, the result includes the verified `rules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
+When a policy ID is supplied, the result includes the verified `policyRules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
 
 ## Recipes
 
 ### Discover Against a Funding Policy
 
-Pass `policyId` and `rules` to verify the rules against the policy's current commitment. Use the rules returned by policy creation or its latest update.
+Pass `policyId` and `policyRules` to verify the rules against the policy's current commitment. Use the rules returned by policy creation or its latest update.
 
 ```ts
 import { parseUnits } from 'viem'
@@ -46,10 +46,10 @@ import { client } from './viem.config'
 const discovery = await client.funding.discover({
   amount: parseUnits('50', 6),
   policyId, // [!code focus]
-  rules, // [!code focus]
+  policyRules: rules, // [!code focus]
   token: Addresses.pathUsd,
 })
-// @log: { token: '0x...', amount: 50000000n, rules: { ... }, slippageBps: 100, sources: [...] }
+// @log: { token: '0x...', amount: 50000000n, policyRules: { ... }, slippageBps: 100, sources: [...] }
 ```
 
 ## Return Type
@@ -58,7 +58,7 @@ const discovery = await client.funding.discover({
 type ReturnType = {
   token: Address
   amount: bigint
-  rules?: FundingPolicy.Rules | Hex
+  policyRules?: FundingPolicy.Rules | Hex
   slippageBps: number
   sources: {
     to: Address
@@ -89,7 +89,7 @@ Target output balance in token base units.
 
 Funding policy ID whose current commitment must match the supplied rules. Omit it and supply `sources` and `slippageBps` to discover without reading a stored policy.
 
-### rules (policy discovery)
+### policyRules (policy discovery)
 
 - **Type:** `Hex | FundingPolicy.Rules`
 

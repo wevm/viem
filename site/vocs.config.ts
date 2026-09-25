@@ -3369,6 +3369,11 @@ export default defineConfig({
           items: [
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'withFunding',
+              link: '/tempo/transports/withFunding',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'withMultisig',
               link: '/tempo/transports/withMultisig',
             },
@@ -3422,6 +3427,17 @@ export default defineConfig({
                 {
                   text: 'validate',
                   link: '/tempo/utilities/TempoAddress.validate',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Funding',
+              collapsed: true,
+              items: [
+                {
+                  text: 'handleRequest',
+                  link: '/tempo/utilities/Funding.handleRequest',
                 },
               ],
             },

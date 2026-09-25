@@ -1,0 +1,49 @@
+# `Funding.handleRequest`
+
+Resolves owner-authorized funding requirements through configured discovery routes before forwarding `eth_fillTransaction` to the downstream handler.
+
+## Usage
+
+```ts
+import { Addresses, Funding, FundingSource } from 'viem/tempo'
+import { client } from './client'
+
+const handleRequest = Funding.handleRequest(
+  (request, options) => client.request(request, options),
+  {
+    getRoute: ({ chainId, token }) => {
+      if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+      return {
+        slippageBps: 100,
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }
+    },
+  },
+)
+```
+
+## Parameters
+
+### next
+
+- **Type:** `Funding.handleRequest.Handler`
+
+Downstream handler used for discovery calls and transaction filling. Unrelated requests pass through unchanged. Request options and additional fill parameters are retained.
+
+### parameters.getRoute
+
+- **Type:** `({ chainId, token }) => Route | undefined | Promise<Route | undefined>`
+
+Optional callback resolving source configurations for the chain ID and checksummed output token. Return `undefined` when no route is available. Async callbacks can load configuration from a store.
+
+When omitted, the handler uses known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`withFunding`](/tempo/transports/withFunding) for default selection and slippage precedence.
+
+The handler infers the chain from the transaction or accepts `handleRequest(request, { chainId })`. Conflicts are rejected. Without either value, it defaults to Tempo mainnet (4217). All discovery and fill requests forward the resolved chain ID to `next`.
+
+## RPC Requests
+
+`eth_fillTransaction` accepts normal unsigned Tempo fields and `requireFunds` entries with explicit `token` and `amount`. Entries may omit `sources` to request discovery. Quantities use RPC hex encoding; RPC sources use `{ target, data }`.
+
+The handler forwards complete requirements to the node. The response retains the node's `{ raw, tx, capabilities? }` shape.
+
+Signed transactions cannot be filled. Explicit sources remain unchanged, including empty source arrays. Raw transaction submission and other RPC methods pass through.
