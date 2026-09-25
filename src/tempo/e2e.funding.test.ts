@@ -1,7 +1,17 @@
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import { RpcResponse } from 'ox'
 import { TxEnvelopeTempo } from 'ox/tempo'
-import { assert, beforeAll, describe, expect, test } from 'vitest'
+import {
+  assert,
+  beforeAll,
+  describe,
+  expect,
+  onTestFinished,
+  test,
+} from 'vitest'
 import { accounts, getClient, http } from '~test/tempo/config.js'
 import { deployEarnStack } from '~test/tempo/earn.js'
+import { createHttpServer } from '~test/utils.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   call,
@@ -14,7 +24,7 @@ import {
   signTransaction,
 } from '../actions/index.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
-import { custom, parseEventLogs, parseUnits } from '../index.js'
+import { parseEventLogs, parseUnits } from '../index.js'
 import {
   Abis,
   Account,
@@ -3196,14 +3206,9 @@ describe('withFunding', () => {
 
     test('with relay', async () => {
       const { account, accessKey } = await setupAccessKey()
-      const store = Store.memory()
-      const node = getClient()
-      const handler = Funding.handleRequest(
-        (request, options) => node.request(request as never, options),
-        { store },
-      )
+      const { store, url } = await setupRelay()
       const client = getClient({
-        transport: withRelay(http(), custom({ request: handler })),
+        transport: withRelay(http(), http(url)),
       })
       const { policyId, rules, rulesHash } =
         await Actions.funding.createPolicySync(client, {
@@ -3334,14 +3339,9 @@ describe('withFunding', () => {
 
     test('with relay and inline policy', async () => {
       const { account, accessKey } = await setupAccessKey()
-      const store = Store.memory()
-      const node = getClient()
-      const handler = Funding.handleRequest(
-        (request, options) => node.request(request as never, options),
-        { store },
-      )
+      const { store, url } = await setupRelay()
       const client = getClient({
-        transport: withRelay(http(), custom({ request: handler })),
+        transport: withRelay(http(), http(url)),
       })
       const keyAuthorization = await Actions.accessKey.signAuthorization(
         client,
@@ -3629,13 +3629,9 @@ describe('withFunding', () => {
             },
           },
         )
-      const node = getClient()
-      const handler = Funding.handleRequest(
-        (request, options) => node.request(request as never, options),
-        { policyId, store },
-      )
+      const { url } = await setupRelay({ policyId, store })
       const client = getClient({
-        transport: withRelay(http(), custom({ request: handler })),
+        transport: withRelay(http(), http(url)),
       })
       const keyAuthorization = await Actions.accessKey.signAuthorization(
         client,
@@ -4022,4 +4018,26 @@ async function setupAccount() {
     token: Addresses.alphaUsd,
   })
   return account
+}
+
+async function setupRelay(
+  parameters: Funding.handleRequest.Parameters = {},
+) {
+  const store = parameters.store ?? Store.memory()
+  const node = getClient()
+  const handler = Funding.handleRequest(
+    (request, options) => node.request(request as never, options),
+    { ...parameters, store },
+  )
+  const server = await createHttpServer(
+    createRequestListener(async (request) => {
+      const body = await request.json()
+      const result = await handler(body)
+      return Response.json(
+        RpcResponse.from({ id: body.id, jsonrpc: body.jsonrpc, result }),
+      )
+    }),
+  )
+  onTestFinished(server.close)
+  return { store, url: server.url }
 }
