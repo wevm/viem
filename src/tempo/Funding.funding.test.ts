@@ -39,6 +39,97 @@ beforeAll(async () => {
 })
 
 describe('handleRequest', () => {
+  test('fills the default policy without changing authorization fields', async () => {
+    const { policyId } = await Actions.funding.createPolicySync(client, {
+      account: accounts[0],
+      admins: [accounts[0].address],
+      rules: { maxSlippageBps: 0, sources: {} },
+    })
+    const handler = Funding.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { policyId },
+    )
+    const authorization = KeyAuthorization.toRpcUnsigned({
+      account: accounts[0].address,
+      address: accounts[1].address,
+      chainId: 1337n,
+      expiry: 4_000_000_000,
+      limits: [{ token: Addresses.pathUsd, limit: 50_000_000n, period: 3600 }],
+      scopes: [{ address: Addresses.pathUsd, selector: '0xa9059cbb' }],
+      type: 'secp256k1',
+      witness: `0x${'11'.repeat(32)}`,
+    })
+    const result = (await handler({
+      method: 'eth_fillKeyAuthorization',
+      params: [
+        {
+          account: accounts[0].address,
+          keyAuthorization: { ...authorization, fundingPolicy: true },
+        },
+      ],
+    })) as Funding.RpcSchema[1]['ReturnType']
+    expect(result).toMatchInlineSnapshot(
+      {
+        keyAuthorization: { fundingPolicy: expect.any(String) },
+      },
+      `
+      {
+        "keyAuthorization": {
+          "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "allowedCalls": [
+            {
+              "selectorRules": [
+                {
+                  "selector": "0xa9059cbb",
+                },
+              ],
+              "target": "0x20c0000000000000000000000000000000000000",
+            },
+          ],
+          "chainId": "0x539",
+          "expiry": "0xee6b2800",
+          "fundingPolicy": Any<String>,
+          "keyId": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+          "keyType": "secp256k1",
+          "limits": [
+            {
+              "limit": "0x2faf080",
+              "period": "0xe10",
+              "token": "0x20c0000000000000000000000000000000000000",
+            },
+          ],
+          "witness": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        },
+      }
+    `,
+    )
+    expect(BigInt(result.keyAuthorization.fundingPolicy as `0x${string}`)).toBe(
+      policyId,
+    )
+
+    // Concrete policies bypass default selection, including inline policies.
+    const explicit = { ...authorization, fundingPolicy: '0x123' as const }
+    expect(
+      await handler({
+        method: 'eth_fillKeyAuthorization',
+        params: [{ account: accounts[0].address, keyAuthorization: explicit }],
+      }),
+    ).toEqual({ keyAuthorization: explicit })
+    const inline = {
+      ...authorization,
+      fundingPolicy: FundingPolicy.toRpc({
+        admins: [accounts[0].address],
+        rules: { maxSlippageBps: 0, sources: {} },
+      }),
+    }
+    expect(
+      await handler({
+        method: 'eth_fillKeyAuthorization',
+        params: [{ account: accounts[0].address, keyAuthorization: inline }],
+      }),
+    ).toEqual({ keyAuthorization: inline })
+  })
+
   test('registers rules by chain and hash without granting policy authority', async () => {
     const store = Store.memory()
     const handler = Funding.handleRequest(
@@ -185,6 +276,92 @@ describe('handleRequest', () => {
 })
 
 describe('behavior', () => {
+  test('rejects invalid default policy requests', async () => {
+    const authorization = {
+      ...KeyAuthorization.toRpcUnsigned({
+        address: accounts[1].address,
+        chainId: 1337n,
+        type: 'secp256k1',
+      }),
+      fundingPolicy: true,
+    }
+    const results = []
+    for (const failure of [
+      'missing default',
+      'zero default',
+      'unknown default',
+      'signed',
+      'owner',
+      'chain',
+      'missing authorization',
+    ] as const) {
+      const handler = Funding.handleRequest(
+        (request, options) => client.request(request as never, options),
+        {
+          policyId:
+            failure === 'missing default'
+              ? undefined
+              : failure === 'zero default'
+                ? 0n
+                : 0xffffffffffffffffn,
+        },
+      )
+      const keyAuthorization = {
+        ...authorization,
+        ...(failure === 'signed' ? { signature: {} } : {}),
+        ...(failure === 'owner' ? { account: accounts[1].address } : {}),
+      }
+      const result = await handler(
+        {
+          method: 'eth_fillKeyAuthorization',
+          params: [
+            {
+              account: accounts[0].address,
+              keyAuthorization:
+                failure === 'missing authorization'
+                  ? undefined
+                  : keyAuthorization,
+            },
+          ],
+        },
+        { chainId: failure === 'chain' ? 1 : 1337 },
+      ).catch((error) => error)
+      results.push({ failure, result })
+    }
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "failure": "missing default",
+          "result": [RpcResponse.InvalidParamsError: \`fundingPolicy: true\` requires a configured nonzero uint64 \`policyId\`.],
+        },
+        {
+          "failure": "zero default",
+          "result": [RpcResponse.InvalidParamsError: \`fundingPolicy: true\` requires a configured nonzero uint64 \`policyId\`.],
+        },
+        {
+          "failure": "unknown default",
+          "result": [RpcResponse.InvalidParamsError: Default funding policy 18446744073709551615 does not exist on chain 1337.],
+        },
+        {
+          "failure": "signed",
+          "result": [RpcResponse.InvalidParamsError: Cannot fill an already signed key authorization.],
+        },
+        {
+          "failure": "owner",
+          "result": [RpcResponse.InvalidParamsError: \`keyAuthorization.account\` must match the requested owner account.],
+        },
+        {
+          "failure": "chain",
+          "result": [RpcResponse.InvalidParamsError: The key authorization chain must match the request chain.],
+        },
+        {
+          "failure": "missing authorization",
+          "result": [RpcResponse.InvalidParamsError: Expected an owner \`account\` and unsigned \`keyAuthorization\`.],
+        },
+      ]
+    `)
+  })
+
   test('rejects malformed rule registrations', async () => {
     const handler = Funding.handleRequest((request, options) =>
       client.request(request as never, options),

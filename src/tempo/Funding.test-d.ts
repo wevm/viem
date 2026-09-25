@@ -4,6 +4,7 @@ import {
   Addresses,
   Funding,
   FundingSource,
+  Store,
   type Transaction,
   withFunding,
 } from 'viem/tempo'
@@ -40,6 +41,7 @@ test('token-only action requirement', () => {
 test('transport metadata', () => {
   const client = getClient({
     transport: withFunding(http(), {
+      store: Store.memory(),
       getRoute: ({ token }) => {
         if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
           return {
@@ -50,7 +52,7 @@ test('transport metadata', () => {
     }),
   })
   // getClient deliberately erases the transport type; verify the wrapper directly.
-  const transport = withFunding(http(), {})({})
+  const transport = withFunding(http(), { store: Store.memory() })({})
   expectTypeOf(transport.value!.funding).toEqualTypeOf<true>()
   expectTypeOf(transport.config.type).toEqualTypeOf<'http'>()
   expectTypeOf(client.request).toBeFunction()
@@ -67,7 +69,7 @@ test('getRoute callback', () => {
       return { sources: [FundingSource.dex({ tokenIn: token })] }
     },
   })
-  withFunding(http())
+  withFunding(http(), { store: Store.memory() })
 })
 
 test('rule registration RPC', () => {
@@ -77,4 +79,11 @@ test('rule registration RPC', () => {
     params: [{ chainId: '0x539', rules: '0x' }],
   })
   expectTypeOf(result).toEqualTypeOf<Promise<{ rulesHash: `0x${string}` }>>()
+})
+
+test('withFunding requires a store', () => {
+  // @ts-expect-error A funding store is required.
+  withFunding(http())
+  // @ts-expect-error Parameters must include a funding store.
+  withFunding(http(), {})
 })

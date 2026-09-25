@@ -2004,7 +2004,9 @@ describe('funding source: earn', () => {
 })
 
 describe('withFunding', () => {
-  const client = getClient({ transport: withFunding(http()) })
+  const client = getClient({
+    transport: withFunding(http(), { store: Store.memory() }),
+  })
 
   beforeAll(async () => {
     await Actions.token.transferSync(client, {
@@ -2541,6 +2543,7 @@ describe('withFunding', () => {
     })
     const routedClient = getClient({
       transport: withFunding(http(), {
+        store: Store.memory(),
         getRoute: async ({ chainId, token }) => {
           if (chainId !== 1337) return undefined
           if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
@@ -2654,6 +2657,7 @@ describe('withFunding', () => {
     })
     const earnClient = getClient({
       transport: withFunding(http(), {
+        store: Store.memory(),
         getRoute: ({ token }) => {
           if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
             return {
@@ -3370,6 +3374,288 @@ describe('withFunding', () => {
       ).toEqual(FundingPolicy.encode(rules))
 
       // The first payment installs the key and inline policy using registered rules.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with default policy', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const { policyId, rules, rulesHash } =
+        await Actions.funding.createPolicySync(
+          getClient({ transport: withFunding(http(), { store }) }),
+          {
+            account,
+            admins: [account.address],
+            feePayer: accounts[1],
+            rules: {
+              maxSlippageBps: 0,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+        )
+      const client = getClient({
+        transport: withFunding(http(), { policyId, store }),
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: true,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      expect(keyAuthorization.fundingPolicy).toBe(policyId)
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // The owner signs the resolved policy ID before the first funded payment.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with relay and default policy', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const { policyId, rules, rulesHash } =
+        await Actions.funding.createPolicySync(
+          getClient({ transport: withFunding(http(), { store }) }),
+          {
+            account,
+            admins: [account.address],
+            feePayer: accounts[1],
+            rules: {
+              maxSlippageBps: 0,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+        )
+      const node = getClient()
+      const handler = Funding.handleRequest(
+        (request, options) => node.request(request as never, options),
+        { policyId, store },
+      )
+      const client = getClient({
+        transport: withRelay(http(), custom({ request: handler })),
+      })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: true,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      expect(keyAuthorization.fundingPolicy).toBe(policyId)
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // The owner signs the resolved policy ID before the first funded payment.
       const { receipt: firstReceipt } = await Actions.token.transferSync(
         client,
         {

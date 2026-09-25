@@ -24,6 +24,10 @@ Wrap your transport with [`withFunding`](/tempo/transports/withFunding). These g
 // [!include ~/snippets/tempo/funding.config.ts:setup]
 ```
 
+:::warning[Persist funding policy rules]
+A long-lived persistent store is highly recommended so registered policy rules remain available across restarts. These examples import your store from `./store`; it must implement the `Store.Store` interface.
+:::
+
 ## Fund a Transfer
 
 Set `requireFunds: true` to automatically source assets to fund the transfer. If the account has less than 50 PathUSD, Viem finds other supported tokens in the account to swap for the missing amount before sending the payment.

@@ -9,11 +9,12 @@ import { createClient, http, parseUnits } from 'viem'
 import { tempo } from 'viem/chains'
 import { Addresses, tempoActions, withFunding } from 'viem/tempo'
 import { account } from './account'
+import { store } from './store'
 
 const client = createClient({
   account,
   chain: tempo,
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 }).extend(tempoActions())
 
 // The transfer supplies the token and amount; the transport discovers sources.
@@ -29,13 +30,7 @@ The account must hold a fee token or use a fee payer. Funding supplies applicati
 
 ## Parameters
 
-### transport
-
-- **Type:** `Transport`
-
-Downstream transport supporting `eth_fillTransaction` and the funding discovery contract. For sponsorship, wrap the relay transport with `withFunding` so discovery runs before sponsor signing.
-
-### parameters.getRoute
+### getRoute
 
 - **Type:** `({ chainId, token, transaction }) => Route | undefined | Promise<Route | undefined>`
 
@@ -48,8 +43,10 @@ By default, mainnet and testnet use Viem's known tokens with the same currency a
 ```ts
 import { http } from 'viem'
 import { Addresses, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 withFunding(http(), {
+  store,
   getRoute: async ({ chainId, token }) => {
     if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
     return {
@@ -64,28 +61,35 @@ Explicit transaction slippage takes precedence over the route default. If both a
 
 The transport passes the client's configured chain ID to the handler. The handler uses the explicit request-option chain ID or the transaction's chain ID and rejects conflicts. When neither is supplied, it defaults to Tempo mainnet (4217). Discovery and filling receive the resolved chain ID in request options.
 
-### parameters.store
+### policyId
 
-- **Type:** `Store.Store`
+- **Type:** `bigint`
 
-Optional store for funding policy rules. Defaults to an in-memory store per transport. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
+Default policy selected when key authorization specifies `fundingPolicy: true`. The handler checks that the policy exists on the requested chain. Explicit policy IDs and inline policies bypass default selection.
 
 ```ts
 import { http } from 'viem'
-import { Store, withFunding } from 'viem/tempo'
+import { withFunding } from 'viem/tempo'
+import { store } from './store'
 
-withFunding(http(), { store: Store.memory() })
+withFunding(http(), { policyId: 1n, store })
 ```
 
-## Access Key Funding
+The policy must already exist, and its current rules must be registered for automatic funding. Its administrators can update the rules that apply to attached access keys.
 
-Access key transactions use the key's funding policy, not `getRoute`. The handler resolves installed keys and signed key authorizations with existing or inline policies, then inserts verified `policyRules`. Explicit sources and input caps remain unchanged.
+### store
 
-`createPolicy`, `setPolicyRules`, and inline access key authorization register rules with the handler through `funding_registerPolicyRules`. Supplied rules are also cached after verification against the current commitment. Configure persistent handler storage when rules must survive restarts. The same registration method works with a remote relay.
+- **Type:** `Store.Store`
 
-If the store does not contain the current rules, supply `policyRules` explicitly. The handler does not scan event history. Expired, revoked, or policy-less keys cannot use owner routes.
+Required store for funding policy rules. Use a long-lived persistent store to retain rules across restarts. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
 
-The node validates authorization signatures, permissions, and spending limits during filling and execution. Policy changes between filling and execution can invalidate the transaction's rules. Discovery does not reserve funds.
+```ts
+import { http } from 'viem'
+import { withFunding } from 'viem/tempo'
+import { store } from './store'
+
+withFunding(http(), { store })
+```
 
 ## Behavior
 

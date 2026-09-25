@@ -1,5 +1,10 @@
 import * as Hex from 'ox/Hex'
-import { FundingPolicy, type FundingRequirement } from 'ox/tempo'
+import * as RpcResponse from 'ox/RpcResponse'
+import {
+  FundingPolicy,
+  type FundingRequirement,
+  KeyAuthorization,
+} from 'ox/tempo'
 import { getChainId } from '../../actions/public/getChainId.js'
 import type { Client } from '../../clients/createClient.js'
 import type { BaseError } from '../../errors/base.js'
@@ -97,4 +102,67 @@ export async function registerPolicyRules(
     )
       throw error
   }
+}
+
+/** Resolves only the policy ID, preserving the owner's unsigned authorization fields. */
+export async function resolvePolicyId(
+  client: Client,
+  parameters: {
+    account: `0x${string}`
+    authorization: KeyAuthorization.Unsigned
+  },
+): Promise<bigint> {
+  const authorization = KeyAuthorization.toRpcUnsigned(parameters.authorization)
+  const result = await client.request<RpcSchema[1]>({
+    method: 'eth_fillKeyAuthorization',
+    params: [
+      {
+        account: parameters.account,
+        keyAuthorization: { ...authorization, fundingPolicy: true },
+      },
+    ],
+  })
+  if (
+    !result?.keyAuthorization ||
+    result.keyAuthorization.signature !== undefined
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        '`eth_fillKeyAuthorization` must return an unsigned `keyAuthorization`.',
+    })
+  const policyId = result.keyAuthorization.fundingPolicy
+  if (
+    typeof policyId !== 'string' ||
+    !Hex.validate(policyId) ||
+    policyId === '0x' ||
+    BigInt(policyId) <= 0n ||
+    BigInt(policyId) > 0xffffffffffffffffn
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        '`eth_fillKeyAuthorization` must resolve `fundingPolicy` to a nonzero uint64 policy ID.',
+    })
+  const filled = (() => {
+    try {
+      return KeyAuthorization.fromRpcUnsigned(result.keyAuthorization)
+    } catch {
+      throw new RpcResponse.InvalidParamsError({
+        message:
+          '`eth_fillKeyAuthorization` returned invalid authorization fields.',
+      })
+    }
+  })()
+  const normalized = KeyAuthorization.toRpcUnsigned(filled)
+  for (const field of new Set([
+    ...Object.keys(authorization),
+    ...Object.keys(normalized),
+  ])) {
+    if (field === 'fundingPolicy') continue
+    const key = field as keyof typeof authorization
+    if (JSON.stringify(authorization[key]) !== JSON.stringify(normalized[key]))
+      throw new RpcResponse.InvalidParamsError({
+        message: `\`eth_fillKeyAuthorization\` changed \`keyAuthorization.${field}\`.`,
+      })
+  }
+  return BigInt(policyId)
 }

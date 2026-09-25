@@ -1,4 +1,4 @@
-import type { KeyAuthorization } from 'ox/tempo'
+import type { FundingPolicy, KeyAuthorization } from 'ox/tempo'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
@@ -96,8 +96,9 @@ test('behavior: rejects non-root coordinated owners', async () => {
   await client.accessKey.signAuthorization({ hash: '0x', owner: accessKey })
 })
 
-test('fundingPolicy accepts an ID or inline policy', async () => {
+test('fundingPolicy accepts a default, ID, or inline policy', async () => {
   for (const fundingPolicy of [
+    true as const,
     1n,
     { admins: [owner.address], rules: { maxSlippageBps: 100, sources: {} } },
   ]) {
@@ -112,4 +113,15 @@ test('fundingPolicy accepts an ID or inline policy', async () => {
       accessKey,
     }),
   ).toEqualTypeOf<bigint>()
+})
+
+test('prepared funding policy is concrete', async () => {
+  const prepared = await client.accessKey.prepareAuthorization({
+    account: owner,
+    accessKey,
+    fundingPolicy: true,
+  })
+  expectTypeOf(prepared.fundingPolicy).toEqualTypeOf<
+    FundingPolicy.Authorization | undefined
+  >()
 })

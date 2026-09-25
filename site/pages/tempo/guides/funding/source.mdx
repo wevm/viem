@@ -54,11 +54,12 @@ Use a token map when the client uses one chain. This route redeems Earn shares, 
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
 import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  testnet: true,
   transport: withFunding(http(), {
+    store,
     getRoute({ token }) {
       const routes: Record<string, Funding.handleRequest.Route> = {
         [Addresses.pathUsd]: {
@@ -84,11 +85,12 @@ Nest token routes under their chain ID when the configuration serves multiple ch
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
 import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  testnet: true,
   transport: withFunding(http(), {
+    store,
     getRoute({ chainId, token }) {
       const routes: Record<number, Record<string, Funding.handleRequest.Route>> = {
         42431: {
@@ -116,11 +118,12 @@ Use `transaction.from` to select account-specific routes. This is the funding ac
 ```ts [viem.config.ts]
 import { http, parseUnits } from 'viem'
 import { Account, Addresses, createClient, type Funding, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  testnet: true,
   transport: withFunding(http(), {
+    store,
     getRoute({ chainId, token, transaction }) {
       if (!transaction.from) return undefined
 
@@ -246,10 +249,11 @@ await client.token.transferSync({
 ```ts [viem.config.ts]
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 })
 ```
 
@@ -331,7 +335,57 @@ await client.token.transferSync({
 
 Authorize the access key with a funding policy and a spending limit for the payment token. An inline policy creates a new policy when the key is installed; use `fundingPolicy: policyId` to bind an existing policy.
 
-#### Inline Policy
+#### Use a Global Policy
+
+Create a policy with [`funding.createPolicy`](/tempo/actions/funding.createPolicy), configure its ID on the `withFunding` transport, then use `fundingPolicy: true` when authorizing a key. The handler resolves the policy ID before signing and supplies its registered rules for the payment.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const accessKey = Account.fromP256(generatePrivateKey(), { access: client.account })
+
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+  // Use the global policy. // [!code hl]
+  fundingPolicy: true, // [!code hl]
+  limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+})
+
+await client.token.transferSync({
+  account: accessKey,
+  amount: parseUnits('50', 6),
+  keyAuthorization,
+  // Fund the payment using sources from the global policy. // [!code hl]
+  requireFunds: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+import { http } from 'viem'
+import { Account, Addresses, createClient, FundingSource, withFunding } from 'viem/tempo'
+import { store } from './store'
+
+const account = Account.fromSecp256k1('0x...')
+const policyId = 123n // [!code hl]
+
+export const client = createClient({
+  account,
+  transport: withFunding(http(), { policyId, store }), // [!code hl]
+})
+```
+
+:::
+
+The default policy's administrators can change funding rules for all attached keys. Choose a policy whose administrators you trust; each key retains its own spending limits.
+
+#### Create an Inline Policy
 
 :::code-group
 
@@ -374,18 +428,19 @@ await client.token.transferSync({
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 })
 ```
 
 :::
 
-#### Policy ID
+#### Use an Existing Policy
 
-Create a policy once and reuse its ID across access keys. `createPolicySync` registers its rules with the funding handler, so subsequent payments can use `requireFunds: true`.
+Create a policy once with [`funding.createPolicySync`](/tempo/actions/funding.createPolicy) and reuse its ID across access keys. The action registers its rules with the funding handler, so subsequent payments can use `requireFunds: true`.
 
 :::code-group
 
@@ -430,10 +485,11 @@ await client.token.transferSync({
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 })
 ```
 

@@ -35,7 +35,9 @@ import {
 } from './Transport.js'
 
 describe('withFunding', () => {
-  const client = getClient({ transport: withFunding(http()) })
+  const client = getClient({
+    transport: withFunding(http(), { store: Store.memory() }),
+  })
 
   test('passes unrelated RPC methods through and retains transport metadata', async () => {
     expect(client.transport).toMatchInlineSnapshot(
@@ -64,6 +66,7 @@ describe('withFunding', () => {
   test('propagates getRoute errors', async () => {
     const client = getClient({
       transport: withFunding(http(), {
+        store: Store.memory(),
         getRoute: async () => {
           throw new Error('Route configuration unavailable.')
         },

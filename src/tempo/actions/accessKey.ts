@@ -129,8 +129,8 @@ export namespace authorize {
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
-    /** Existing funding policy ID or inline policy for delegated funding. */
-    fundingPolicy?: FundingPolicy.Authorization | undefined
+    /** Existing policy ID, inline policy, or `true` to select the funding handler's default policy. */
+    fundingPolicy?: true | FundingPolicy.Authorization | undefined
     /** Spending limits per token. */
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
@@ -1132,6 +1132,32 @@ export async function prepareAuthorization<
       )
     return { config: account.config }
   })()
+  const fundingPolicy = await (async () => {
+    if (parameters.fundingPolicy !== true) return parameters.fundingPolicy
+    const { accessKeyAddress, keyType: type } = resolveAccessKey(
+      parameters.accessKey,
+    )
+    return funding.resolvePolicyId(client, {
+      account: parsed.address,
+      authorization: {
+        address: accessKeyAddress,
+        chainId: BigInt(chainId),
+        type,
+        ...(parsed.source === 'accessKey' || parsed.source === 'multisig'
+          ? { account: parsed.address }
+          : {}),
+        ...(parameters.admin
+          ? { isAdmin: true }
+          : {
+              expiry: parameters.expiry,
+              limits: parameters.limits,
+              scopes: parameters.scopes,
+            }),
+        witness: parameters.witness,
+      } as KeyAuthorization.Unsigned,
+    })
+  })()
+
   if (typeof parameters.fundingPolicy === 'object')
     await funding.registerPolicyRules(client, {
       chainId,
@@ -1142,6 +1168,7 @@ export async function prepareAuthorization<
     parsed as never,
     {
       ...parameters,
+      fundingPolicy,
       chainId: BigInt(chainId),
       key: parameters.accessKey,
     },
@@ -1156,6 +1183,7 @@ export async function prepareAuthorization<
       : authorizationSignPayload
   return {
     ...parameters,
+    fundingPolicy,
     account: parsed,
     chainId,
     multisig: multisigState,
@@ -1181,8 +1209,8 @@ export namespace prepareAuthorization {
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
-    /** Existing funding policy ID or inline policy for delegated funding. */
-    fundingPolicy?: FundingPolicy.Authorization | undefined
+    /** Existing policy ID, inline policy, or `true` to select the funding handler's default policy. */
+    fundingPolicy?: true | FundingPolicy.Authorization | undefined
     /** Spending limits per token. */
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
@@ -1205,9 +1233,14 @@ export namespace prepareAuthorization {
   }
 
   export type ReturnValue = Compute<
-    Omit<Parameters<Account | undefined>, 'account' | 'chainId'> & {
+    Omit<
+      Parameters<Account | undefined>,
+      'account' | 'chainId' | 'fundingPolicy'
+    > & {
       account: Account
       chainId: number
+      /** Resolved policy included in the signing payload. */
+      fundingPolicy?: FundingPolicy.Authorization | undefined
       multisig: signKeyAuthorization.Parameters['multisig']
       /** Payload that the authorizing account or multisig owners sign. */
       signPayload: Hex

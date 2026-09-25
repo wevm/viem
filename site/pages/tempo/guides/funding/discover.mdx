@@ -83,18 +83,18 @@ await client.token.transferSync({
 ```ts [viem.config.ts]
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  testnet: true,
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 })
 ```
 :::
 
 ### Discover Against a Funding Policy
 
-Provide `policyId` and `policyRules` to discover sources and verify the rules against the policy's current commitment. Reuse the rules returned by policy creation or its latest update.
+Provide `policyId` and `policyRules` to discover sources and verify the rules against the policy's current commitment. Reuse the rules returned by [`funding.createPolicySync`](/tempo/actions/funding.createPolicy) or the latest policy update.
 
 :::code-group
 
@@ -126,11 +126,11 @@ const discovery = await client.funding.discover({
 ```ts [viem.config.ts]
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
+import { store } from './store'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  testnet: true,
-  transport: withFunding(http()),
+  transport: withFunding(http(), { store }),
 })
 ```
 

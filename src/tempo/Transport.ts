@@ -94,8 +94,10 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  * ```ts
  * import { http } from 'viem'
  * import { Addresses, FundingSource, withFunding } from 'viem/tempo'
+ * import { store } from './store'
  *
  * const transport = withFunding(http(), {
+ *   store,
  *   getRoute: ({ chainId, token }) => {
  *     if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
  *     return {
@@ -112,7 +114,7 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  */
 export function withFunding<transport extends Transport>(
   transport: transport,
-  parameters: withFunding.Parameters = {},
+  parameters: withFunding.Parameters,
 ): withFunding.ReturnValue<transport> {
   return ((options: Parameters<Transport>[0]) => {
     const value = transport(options)
@@ -139,7 +141,10 @@ export function withFunding<transport extends Transport>(
 
 export declare namespace withFunding {
   /** Owner discovery routes. */
-  export type Parameters = Funding.handleRequest.Parameters
+  export type Parameters = Funding.handleRequest.Parameters & {
+    /** Store for funding policy rules. */
+    store: NonNullable<Funding.handleRequest.Parameters['store']>
+  }
   /** Wrapped transport retaining its original metadata. */
   export type ReturnValue<transport extends Transport = Transport> =
     transport extends Transport<infer type, infer attributes, infer request>
@@ -239,6 +244,7 @@ export function withRelay(
       async request({ method, params }, options) {
         if (
           method === 'eth_fillTransaction' ||
+          method === 'eth_fillKeyAuthorization' ||
           method === 'funding_registerPolicyRules'
         )
           return transport_relay.request({ method, params }, options) as never

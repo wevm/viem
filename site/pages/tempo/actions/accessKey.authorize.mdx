@@ -354,9 +354,11 @@ Unix timestamp when the key expires.
 
 ### fundingPolicy (optional)
 
-- **Type:** `bigint | FundingPolicy.Inline`
+- **Type:** `true | bigint | FundingPolicy.Inline`
 
-Existing funding policy ID or an inline `{ admins, rules }` policy to create when the key is installed. Funding transactions using this key must supply the current encoded rules in each requirement's `rules`.
+Use an existing policy ID, an inline `{ admins, rules }` policy, or `true` to select the funding handler's configured `policyId`. The default is resolved before signing; explicit IDs and inline policies are unchanged.
+
+The policy's administrators can change its rules for all attached access keys. `withFunding` supplies current registered `policyRules` when filling payments.
 
 See [access key funding](/tempo/guides/funding/source#fund-with-an-access-key) for a complete example.
 

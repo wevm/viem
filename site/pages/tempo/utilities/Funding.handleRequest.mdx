@@ -24,13 +24,7 @@ const handleRequest = Funding.handleRequest(
 
 ## Parameters
 
-### next
-
-- **Type:** `Funding.handleRequest.Handler`
-
-Downstream handler used for discovery calls and transaction filling. Unrelated requests pass through unchanged. Request options and additional fill parameters are retained.
-
-### parameters.getRoute
+### getRoute
 
 - **Type:** `({ chainId, token, transaction }) => Route | undefined | Promise<Route | undefined>`
 
@@ -42,45 +36,16 @@ When omitted, the handler uses known same-currency Native DEX inputs on Tempo ma
 
 The handler infers the chain from the transaction or accepts `handleRequest(request, { chainId })`. Conflicts are rejected. Without either value, it defaults to Tempo mainnet (4217). All discovery and fill requests forward the resolved chain ID to `next`.
 
-### parameters.store
+### policyId
+
+- **Type:** `bigint`
+
+Existing default policy for `fundingPolicy: true`. The handler verifies that it exists on the selected chain before returning its ID. Explicit IDs and inline policies remain unchanged.
+
+### store
 
 - **Type:** `Store.Store`
 
 Optional rules store, defaulting to memory. With `withFunding`, policy creation, policy updates, and inline key authorization populate this store. Installed keys use their current onchain policy; new keys use their signed authorization's policy. Supplied and cached rules must match the current commitment before use.
 
 Cache entries are scoped by chain, policy contract, and rules hash. Supply `policyRules` when the store does not contain the current rules. See [access key funding](/tempo/transports/withFunding#access-key-funding).
-
-## RPC Requests
-
-`eth_fillTransaction` accepts normal unsigned Tempo fields and `requireFunds` entries with explicit `token` and `amount`. Entries may omit `sources` to request discovery. Quantities use RPC hex encoding; RPC sources use `{ target, data }`.
-
-The handler forwards complete requirements to the node. The response retains the node's `{ raw, tx, capabilities? }` shape.
-
-Signed transactions cannot be filled. Explicit sources remain unchanged, including empty source arrays. Raw transaction submission and other RPC methods pass through.
-
-## Rules Registration
-
-`funding_registerPolicyRules` retains complete rules for later access key funding. The handler computes the hash and stores canonical rules under the chain, funding policy address, and hash. Registering the same rules again is idempotent.
-
-```ts
-import { Addresses, Funding, FundingPolicy, FundingSource } from 'viem/tempo'
-
-const { rulesHash } = await client.request<Funding.RpcSchema[0]>({
-  method: 'funding_registerPolicyRules',
-  params: [{
-    chainId: '0x1079',
-    rules: FundingPolicy.encode({
-      maxSlippageBps: 100,
-      sources: {
-        [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-      },
-    }),
-  }],
-})
-```
-
-Policy creation, policy updates, and inline key authorization register rules through this RPC method. The actions work with a local `withFunding` handler or a remote relay implementing the same method. The store remains on the handler.
-
-Registration grants no authority. When filling an access key transaction, the handler reads its authorized policy and verifies the stored rules against the current onchain hash. Missing rules require explicit `policyRules`; no event history is scanned.
-
-Node-only transports that do not support registration still support explicit funding requirements. Other registration errors stop submission. A remote relay should enforce request-size limits and access controls appropriate to its storage service.

@@ -19,9 +19,10 @@ import type {
   PublicRpcSchema,
 } from '../types/eip1193.js'
 import type { Hex } from '../types/misc.js'
+import type { UnionOmit } from '../types/utils.js'
 import * as Addresses from './Addresses.js'
 import { getFundingPolicyId, getMetadata } from './actions/accessKey.js'
-import { discover, getPolicy } from './actions/funding.js'
+import { discover, getPolicy, policyExists } from './actions/funding.js'
 import type { FundingRequirementIntent } from './internal/funding.js'
 import * as Store from './Store.js'
 import type { TransactionRequestTempo, TransactionRpc } from './Transaction.js'
@@ -41,6 +42,21 @@ export type RpcSchema = [
     Method: 'funding_registerPolicyRules'
     Parameters: [{ chainId: Hex; rules: Hex }]
     ReturnType: { rulesHash: Hex }
+  },
+  {
+    Method: 'eth_fillKeyAuthorization'
+    Parameters: [
+      {
+        account: Address
+        keyAuthorization: UnionOmit<
+          KeyAuthorization.UnsignedRpc,
+          'fundingPolicy'
+        > & {
+          fundingPolicy?: true | FundingPolicy.Rpc | undefined
+        }
+      },
+    ]
+    ReturnType: { keyAuthorization: KeyAuthorization.UnsignedRpc }
   },
 ]
 
@@ -73,6 +89,95 @@ export function handleRequest(
   const store = parameters.store ?? Store.memory()
 
   return async (request, options) => {
+    if (request.method === 'eth_fillKeyAuthorization') {
+      const [input] = (request.params ?? []) as RpcSchema[1]['Parameters']
+      if (
+        !input ||
+        request.params?.length !== 1 ||
+        !Address_.validate(input.account) ||
+        !input.keyAuthorization
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Expected an owner `account` and unsigned `keyAuthorization`.',
+        })
+      const authorization = input.keyAuthorization
+      if (authorization.signature !== undefined)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Cannot fill an already signed key authorization.',
+        })
+      if (
+        authorization.account &&
+        !Address_.isEqual(authorization.account, input.account)
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            '`keyAuthorization.account` must match the requested owner account.',
+        })
+      // Validate the unsigned fields without passing unresolved intent to the codec.
+      const decoded = (() => {
+        try {
+          const { fundingPolicy, ...rest } = authorization
+          const decoded = KeyAuthorization.fromRpcUnsigned({
+            ...rest,
+            ...(fundingPolicy !== true && fundingPolicy !== undefined
+              ? { fundingPolicy }
+              : {}),
+          })
+          KeyAuthorization.getSignPayload(decoded)
+          return decoded
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              '`keyAuthorization` contains invalid unsigned authorization fields.',
+          })
+        }
+      })()
+      if (authorization.fundingPolicy !== true)
+        return { keyAuthorization: authorization }
+
+      const chainId =
+        options?.chainId ??
+        (decoded.chainId === 0n ? 4217 : Number(decoded.chainId))
+      if (
+        !Number.isSafeInteger(chainId) ||
+        chainId <= 0 ||
+        (decoded.chainId !== 0n && decoded.chainId !== BigInt(chainId))
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message: 'The key authorization chain must match the request chain.',
+        })
+      const policyId = parameters.policyId
+      if (
+        policyId === undefined ||
+        policyId <= 0n ||
+        policyId > 0xffffffffffffffffn
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            '`fundingPolicy: true` requires a configured nonzero uint64 `policyId`.',
+        })
+      const client = createClient({
+        transport: custom({
+          request: ({ method, params }, requestOptions) =>
+            next(
+              { method, params },
+              { ...requestOptions, ...options, chainId },
+            ),
+        }),
+      })
+      if (!(await policyExists(client, { policyId })))
+        throw new RpcResponse.InvalidParamsError({
+          message: `Default funding policy ${policyId} does not exist on chain ${chainId}.`,
+        })
+      return {
+        keyAuthorization: {
+          ...authorization,
+          fundingPolicy: Hex_.fromNumber(policyId),
+        },
+      }
+    }
+
     if (request.method === 'funding_registerPolicyRules') {
       const [parameters] = (request.params ?? []) as RpcSchema[0]['Parameters']
       if (!parameters || request.params?.length !== 1)
@@ -376,6 +481,8 @@ export declare namespace handleRequest {
 
   /** Funding discovery and policy rules storage. */
   export type Parameters = {
+    /** Default policy selected only for `fundingPolicy: true`. */
+    policyId?: bigint | undefined
     /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
     store?: Store.Store | undefined
     /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
