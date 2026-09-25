@@ -93,3 +93,25 @@ test('single game (no interval data)', async () => {
   expect(result.timestamp).toBeUndefined()
   spy.mockRestore()
 })
+
+test('latest game at exactly l2BlockNumber', async () => {
+  const now = Math.floor(Date.now() / 1000)
+  const game = {
+    metadata: '0x' as `0x${string}`,
+    rootClaim:
+      '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
+    extraData: '0x' as `0x${string}`,
+    usesSuperRoots: false,
+  }
+  const spy = vi.spyOn(getGamesModule, 'getGames').mockResolvedValueOnce([
+    { ...game, index: 1n, timestamp: BigInt(now - 60), l2BlockNumber: 1000n },
+    { ...game, index: 0n, timestamp: BigInt(now - 3660), l2BlockNumber: 500n },
+  ])
+  const result = await getTimeToNextGame(client, {
+    l2BlockNumber: 1000n,
+    targetChain: optimism,
+  })
+  expect(result.seconds).toBe(0)
+  expect(result.timestamp).toBeUndefined()
+  spy.mockRestore()
+})
