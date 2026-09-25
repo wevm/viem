@@ -15,7 +15,7 @@ import type { Hex } from '../../types/misc.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
-import type { FundingRequirementIntent } from './requireFunds.js'
+import type { FundingRequirementIntent } from './funding.js'
 import type { InferredFundingRequirement } from './types.js'
 
 /**

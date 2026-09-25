@@ -43,6 +43,7 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import * as Hardfork from '../Hardfork.js'
+import * as funding from '../internal/funding.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -1131,6 +1132,12 @@ export async function prepareAuthorization<
       )
     return { config: account.config }
   })()
+  if (typeof parameters.fundingPolicy === 'object')
+    await funding.registerPolicyRules(client, {
+      chainId,
+      rules: parameters.fundingPolicy.rules,
+    })
+
   const authorizationSignPayload = getKeyAuthorizationSignPayload(
     parsed as never,
     {

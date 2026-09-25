@@ -10,7 +10,7 @@ import type {
   UnionPick,
 } from '../../types/utils.js'
 import type { TransactionRequestTempo } from '../Transaction.js'
-import type { FundingRequirementIntent } from './requireFunds.js'
+import type { FundingRequirementIntent } from './funding.js'
 
 /**
  * Selects a TIP20 token by `token`, which is either a TIP20 token id or a

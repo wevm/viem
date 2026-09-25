@@ -1,11 +1,15 @@
 import type { Address } from 'abitype'
 import * as Address_ from 'ox/Address'
+import * as Hex_ from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
+  FundingPolicy,
   FundingRequirement,
   FundingSource,
+  KeyAuthorization,
   type TransactionRequest,
 } from 'ox/tempo'
+import { getBlock } from '../actions/public/getBlock.js'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import type { Tokens } from '../tokens/defineToken.js'
@@ -14,9 +18,12 @@ import type {
   EIP1193RequestOptions,
   PublicRpcSchema,
 } from '../types/eip1193.js'
+import type { Hex } from '../types/misc.js'
 import * as Addresses from './Addresses.js'
-import { discover } from './actions/funding.js'
-import type { FundingRequirementIntent } from './internal/requireFunds.js'
+import { getFundingPolicyId, getMetadata } from './actions/accessKey.js'
+import { discover, getPolicy } from './actions/funding.js'
+import type { FundingRequirementIntent } from './internal/funding.js'
+import * as Store from './Store.js'
 import type { TransactionRequestTempo, TransactionRpc } from './Transaction.js'
 
 /** An unsigned funding requirement whose sources may be discovered by a relay. */
@@ -28,9 +35,18 @@ export type RequirementRpc = Omit<FundingRequirement.Rpc, 'sources'> & {
   sources?: FundingRequirement.Rpc['sources'] | undefined
 }
 
+/** Funding relay RPC methods. */
+export type RpcSchema = [
+  {
+    Method: 'funding_registerPolicyRules'
+    Parameters: [{ chainId: Hex; rules: Hex }]
+    ReturnType: { rulesHash: Hex }
+  },
+]
+
 /**
- * Resolves owner-authorized funding sources before downstream transaction filling.
- * Explicit sources are preserved. Automatic inference and access key resolution are not supported.
+ * Resolves funding sources and access key policy rules before transaction filling.
+ * Explicit sources are preserved; omitted access key rules are loaded and verified.
  *
  * @example
  * ```ts
@@ -47,14 +63,52 @@ export type RequirementRpc = Omit<FundingRequirement.Rpc, 'sources'> & {
  * ```
  *
  * @param next - Downstream RPC handler.
- * @param parameters - Owner discovery routes.
+ * @param parameters - Discovery routes and policy rules storage.
  * @returns The funding-aware RPC handler.
  */
 export function handleRequest(
   next: handleRequest.Handler,
   parameters: handleRequest.Parameters = {},
 ): handleRequest.Handler {
+  const store = parameters.store ?? Store.memory()
+
   return async (request, options) => {
+    if (request.method === 'funding_registerPolicyRules') {
+      const [parameters] = (request.params ?? []) as RpcSchema[0]['Parameters']
+      if (!parameters || request.params?.length !== 1)
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Expected one parameter containing `chainId` and encoded `rules`.',
+        })
+      const chainId = Number(parameters.chainId)
+      if (
+        !Hex_.validate(parameters.chainId) ||
+        !Number.isSafeInteger(chainId) ||
+        chainId <= 0 ||
+        (options?.chainId !== undefined && options.chainId !== chainId)
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Registration requires a valid `chainId` matching the request chain.',
+        })
+      const rules = (() => {
+        try {
+          return FundingPolicy.decode(parameters.rules)
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              '`rules` must contain canonical ABI-encoded funding policy rules.',
+          })
+        }
+      })()
+      const rulesHash = FundingPolicy.hash(rules)
+      await store.setItem(
+        `funding:${chainId}:${Addresses.fundingPolicy.toLowerCase()}:rules:${rulesHash.toLowerCase()}`,
+        FundingPolicy.encode(rules),
+      )
+      return { rulesHash }
+    }
+
     if (request.method !== 'eth_fillTransaction') return next(request, options)
 
     const [transaction, ...rest] = (request.params ?? []) as [
@@ -118,6 +172,79 @@ export function handleRequest(
       }),
     })
 
+    const policy = await (async () => {
+      // A key authorization can also accompany an owner transaction. Only keyId
+      // identifies delegated execution; the node validates its signed authority.
+      if (!transaction.keyId) return undefined
+      if (!transaction.from)
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'Access key funding requires the transaction sender (`from`).',
+        })
+
+      const block = await getBlock(client)
+      const metadata = await getMetadata(client, {
+        account: transaction.from,
+        accessKey: transaction.keyId,
+        blockNumber: block.number,
+      })
+      if (metadata.isRevoked)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'The funding access key is revoked.',
+        })
+
+      const authorization = transaction.keyAuthorization
+        ? KeyAuthorization.fromRpc(transaction.keyAuthorization)
+        : undefined
+      if (
+        authorization &&
+        (!Address_.isEqual(authorization.address, transaction.keyId) ||
+          (authorization.account &&
+            !Address_.isEqual(authorization.account, transaction.from)) ||
+          (authorization.chainId !== 0n &&
+            authorization.chainId !== BigInt(chainId)))
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            '`keyAuthorization` must match the funding account, access key, and chain.',
+        })
+
+      const installed = Address_.isEqual(metadata.address, transaction.keyId)
+      if (!installed && !authorization)
+        throw new RpcResponse.InvalidParamsError({
+          message:
+            'The funding access key is not installed; supply `keyAuthorization`.',
+        })
+      const expiry = installed ? metadata.expiry : authorization?.expiry
+      if (expiry != null && BigInt(expiry) <= block.timestamp)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'The funding access key has expired.',
+        })
+
+      const policy = installed
+        ? await getFundingPolicyId(client, {
+            account: transaction.from,
+            accessKey: transaction.keyId,
+            blockNumber: block.number,
+          })
+        : authorization?.fundingPolicy
+      if (policy === undefined || policy === 0n)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'The access key has no funding policy.',
+        })
+      if (typeof policy === 'object')
+        return {
+          rulesHash: FundingPolicy.hash(policy.rules),
+          rules: FundingPolicy.encode(policy.rules),
+          blockNumber: block.number,
+        }
+      const { rulesHash } = await getPolicy(client, {
+        policyId: policy,
+        blockNumber: block.number,
+      })
+      return { rulesHash, policyId: policy, blockNumber: block.number }
+    })()
+
     const requireFunds: FundingRequirement.Rpc[] = []
 
     for (const requirement of transaction.requireFunds) {
@@ -140,20 +267,47 @@ export function handleRequest(
         sources: requirement.sources ?? [],
       })
 
-      if (requirement.sources !== undefined) {
-        requireFunds.push(FundingRequirement.toRpc(decoded))
-        continue
-      }
+      if (transaction.multisigSimulation && requirement.sources === undefined)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Multisig funding requires explicit sources.',
+        })
 
+      const policyRules = policy
+        ? await resolvePolicyRules({
+            ...policy,
+            chainId,
+            rules: decoded.policyRules ?? policy.rules,
+            store,
+          })
+        : undefined
+      const rules = policyRules ? FundingPolicy.decode(policyRules) : undefined
+      const sources =
+        rules &&
+        Object.entries(rules.sources).find(([token]) =>
+          Address_.isEqual(token as Address, decoded.token),
+        )?.[1]
+      if (rules && !sources)
+        throw new RpcResponse.InvalidParamsError({
+          message: `The funding policy does not allow output token ${decoded.token}.`,
+        })
       if (
-        transaction.keyId ||
-        transaction.keyAuthorization ||
-        transaction.multisigSimulation
+        rules &&
+        decoded.slippageBps !== undefined &&
+        decoded.slippageBps > rules.maxSlippageBps
       )
         throw new RpcResponse.InvalidParamsError({
-          message:
-            'Access key and multisig funding require explicit sources until policy resolution is supported.',
+          message: '`slippageBps` exceeds the funding policy maximum.',
         })
+
+      if (requirement.sources !== undefined) {
+        requireFunds.push(
+          FundingRequirement.toRpc({
+            ...decoded,
+            ...(policyRules ? { policyRules } : {}),
+          }),
+        )
+        continue
+      }
 
       if (!transaction.from)
         throw new RpcResponse.InvalidParamsError({
@@ -161,10 +315,14 @@ export function handleRequest(
             'Funding discovery requires the transaction sender (`from`).',
         })
 
-      const route = await (parameters.getRoute ?? defaultRoute)({
-        chainId,
-        token: Address_.checksum(decoded.token),
-      })
+      const route =
+        rules && sources
+          ? { slippageBps: rules.maxSlippageBps, sources }
+          : await (parameters.getRoute ?? defaultRoute)({
+              chainId,
+              token: Address_.checksum(decoded.token),
+              transaction,
+            })
       if (!route)
         throw new RpcResponse.InvalidParamsError({
           message: `No funding route configured for ${requirement.token}.`,
@@ -181,6 +339,7 @@ export function handleRequest(
       requireFunds.push(
         FundingRequirement.toRpc({
           ...decoded,
+          ...(policyRules ? { policyRules } : {}),
           slippageBps: discovery.slippageBps,
           sources: discovery.sources.map(({ to, data }) => ({ to, data })),
         }),
@@ -215,8 +374,10 @@ export declare namespace handleRequest {
     sources: readonly FundingSource.Source[]
   }
 
-  /** Owner-authorized discovery configuration. */
+  /** Funding discovery and policy rules storage. */
   export type Parameters = {
+    /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
+    store?: Store.Store | undefined
     /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
     getRoute?:
       | ((context: {
@@ -224,6 +385,8 @@ export declare namespace handleRequest {
           chainId: number
           /** Checksummed output token address. */
           token: Address
+          /** Unsigned RPC transaction. Read `from` for the funding account address. */
+          transaction: Readonly<Transaction>
         }) => Route | undefined | Promise<Route | undefined>)
       | undefined
   }
@@ -249,6 +412,34 @@ export declare namespace handleRequest {
     /** Filled Tempo transaction. */
     tx: TransactionRpc
   }
+}
+
+/** Loads canonical rules matching the current commitment, never a cached policy ID. */
+async function resolvePolicyRules(parameters: {
+  chainId: number
+  rules?: Hex | undefined
+  rulesHash: Hex
+  store: Store.Store
+}): Promise<Hex> {
+  const { chainId, rulesHash, store } = parameters
+  const key = `funding:${chainId}:${Addresses.fundingPolicy.toLowerCase()}:rules:${rulesHash.toLowerCase()}`
+  const rules = parameters.rules ?? (await store.getItem(key))
+  if (rules !== undefined && rules !== null) {
+    const decoded = FundingPolicy.decode(rules as Hex)
+    if (FundingPolicy.hash(decoded).toLowerCase() !== rulesHash.toLowerCase())
+      throw new RpcResponse.InvalidParamsError({
+        message:
+          'Funding policy rules do not match the current onchain commitment.',
+      })
+    const encoded = FundingPolicy.encode(decoded)
+    await store.setItem(key, encoded)
+    return encoded
+  }
+
+  throw new RpcResponse.InvalidParamsError({
+    message:
+      'Funding policy rules are not in the store; supply `policyRules` explicitly.',
+  })
 }
 
 /** Selects known parity inputs without assuming that they have balances or liquidity. @internal */

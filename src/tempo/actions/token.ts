@@ -44,7 +44,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { fundingErrors } from '../internal/fundingErrors.js'
+import { fundingErrors } from '../internal/funding.js'
 import type {
   GetAccountParameter,
   InferredWriteParameters,

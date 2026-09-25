@@ -1,5 +1,20 @@
-import type { Hex } from 'ox'
+import * as Hex from 'ox/Hex'
 import { FundingPolicy, type FundingRequirement } from 'ox/tempo'
+import { getChainId } from '../../actions/public/getChainId.js'
+import type { Client } from '../../clients/createClient.js'
+import type { BaseError } from '../../errors/base.js'
+import * as Abis from '../Abis.js'
+import type { RpcSchema } from '../Funding.js'
+
+export const fundingErrors = [
+  ...Abis.accountKeychain,
+  ...Abis.earnFundingSource,
+  ...Abis.fundingPolicy,
+  ...Abis.fundingSource,
+  ...Abis.stablecoinDex,
+  ...Abis.tip20Funder,
+  ...Abis.tip403Registry,
+].filter((item) => item.type === 'error')
 
 export type FundingRequirementInput<quantity = bigint, index = number> = Omit<
   FundingRequirement.FundingRequirement<quantity, index>,
@@ -49,4 +64,37 @@ export function normalizeRequireFunds<quantity, index>(
           : FundingPolicy.encode(policyRules),
     }
   })
+}
+
+/** Registers rule content with a local handler or remote relay before submission. */
+export async function registerPolicyRules(
+  client: Client,
+  parameters: {
+    chainId?: number | undefined
+    rules: FundingPolicy.Rules
+  },
+) {
+  const { rules } = parameters
+  const chainId =
+    parameters.chainId ?? client.chain?.id ?? (await getChainId(client))
+  try {
+    await client.request<RpcSchema[0]>({
+      method: 'funding_registerPolicyRules',
+      params: [
+        {
+          chainId: Hex.fromNumber(chainId),
+          rules: FundingPolicy.encode(rules),
+        },
+      ],
+    })
+  } catch (error) {
+    // Ordinary node transports do not provide relay storage. Other failures must
+    // stop submission so callers know the rules were not registered.
+    const name = (error as BaseError).name
+    if (
+      name !== 'MethodNotFoundRpcError' &&
+      name !== 'MethodNotSupportedRpcError'
+    )
+      throw error
+  }
 }

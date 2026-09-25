@@ -27,7 +27,7 @@ import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
-import { normalizeRequireFunds } from './internal/requireFunds.js'
+import { normalizeRequireFunds } from './internal/funding.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -297,10 +297,17 @@ export const chainConfig = {
 
       if (
         request.requireFunds?.some(
-          (requirement) => requirement.sources === undefined,
+          (requirement) =>
+            requirement.sources === undefined ||
+            ((client.transport.funding || client.transport.type === 'relay') &&
+              (request.account ?? client.account)?.source === 'accessKey' &&
+              requirement.policyRules === undefined),
         )
       ) {
-        const result = await fillTransaction(client, request as never)
+        const result = await fillTransaction(client, {
+          ...request,
+          chainId: request.chainId ?? request.chain?.id ?? client.chain?.id,
+        } as never)
         const filled =
           result.transaction as unknown as Transaction.TransactionTempo
         return {

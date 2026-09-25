@@ -14,16 +14,19 @@ import {
   signTransaction,
 } from '../actions/index.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
-import { parseEventLogs, parseUnits } from '../index.js'
+import { custom, parseEventLogs, parseUnits } from '../index.js'
 import {
   Abis,
   Account,
   Actions,
   Addresses,
+  Funding,
   FundingPolicy,
   FundingSource,
+  Store,
   Tick,
   withFunding,
+  withRelay,
 } from './index.js'
 import * as Transaction from './Transaction.js'
 
@@ -2777,6 +2780,834 @@ describe('withFunding', () => {
       }
     `)
   })
+
+  describe('access keys', () => {
+    test('with existing policy', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const client = getClient({
+        transport: withFunding(http(), { store }),
+      })
+      const { policyId, rules, rulesHash } =
+        await Actions.funding.createPolicySync(client, {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: policyId,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // Both payments use registered rules; the second reuses the installed key.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with inline policy', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const client = getClient({
+        transport: withFunding(http(), { store }),
+      })
+      const { rules, rulesHash } = await Actions.funding.createPolicySync(
+        client,
+        {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      )
+      await store.removeItem(
+        `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+      )
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: { admins: [account.address], rules },
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // Both payments use registered rules; the second reuses the installed key.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with installed key', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const client = getClient({
+        transport: withFunding(http(), { store }),
+      })
+      const { policyId, rules, rulesHash } =
+        await Actions.funding.createPolicySync(client, {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: policyId,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+      await sendTransactionSync(client, {
+        account,
+        feePayer: accounts[1],
+        keyAuthorization,
+      })
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // Both payments use registered rules; the second reuses the installed key.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with relay', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const node = getClient()
+      const handler = Funding.handleRequest(
+        (request, options) => node.request(request as never, options),
+        { store },
+      )
+      const client = getClient({
+        transport: withRelay(http(), custom({ request: handler })),
+      })
+      const { policyId, rules, rulesHash } =
+        await Actions.funding.createPolicySync(client, {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: policyId,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // Both payments use registered rules; the second reuses the installed key.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('with relay and inline policy', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const node = getClient()
+      const handler = Funding.handleRequest(
+        (request, options) => node.request(request as never, options),
+        { store },
+      )
+      const client = getClient({
+        transport: withRelay(http(), custom({ request: handler })),
+      })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: {
+            admins: [account.address],
+            rules: {
+              maxSlippageBps: 0,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+
+      assert(typeof keyAuthorization.fundingPolicy === 'object')
+      const { rules } = keyAuthorization.fundingPolicy
+      const rulesHash = FundingPolicy.hash(rules)
+
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toEqual(FundingPolicy.encode(rules))
+
+      // The first payment installs the key and inline policy using registered rules.
+      const { receipt: firstReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          keyAuthorization,
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(firstReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const firstTransaction = await getTransaction(client, {
+        hash: firstReceipt.transactionHash,
+      })
+      expect(firstTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+
+      // Reuse the installed key without resubmitting its authorization.
+      const { receipt: secondReceipt } = await Actions.token.transferSync(
+        client,
+        {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        },
+      )
+      expect(secondReceipt.status).toMatchInlineSnapshot(`"success"`)
+      const secondTransaction = await getTransaction(client, {
+        hash: secondReceipt.transactionHash,
+      })
+      expect(secondTransaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "slippageBps": 0,
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000017d7840",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+      expect(
+        await store.getItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        ),
+      ).toBe(FundingPolicy.encode(rules))
+      expect(
+        await Actions.accessKey.getRemainingLimit(client, {
+          account: account.address,
+          accessKey,
+          token: Addresses.pathUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "periodEnd": 0n,
+          "remaining": 0n,
+        }
+      `)
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 450000000n,
+          "decimals": 6,
+          "formatted": "450",
+        }
+      `)
+    })
+
+    test('fills omitted rules while preserving explicit sources and caps', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: {
+            admins: [account.address],
+            rules: {
+              maxSlippageBps: 0,
+              sources: {
+                [Addresses.pathUsd]: [
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+                ],
+              },
+            },
+          },
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('25', 6) }],
+        },
+      )
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        amount: parseUnits('25', 6),
+        feePayer: accounts[1],
+        keyAuthorization,
+        requireFunds: [
+          {
+            sources: [
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('10', 6),
+              }),
+              FundingSource.dex({
+                tokenIn: Addresses.alphaUsd,
+                maxAmountIn: parseUnits('15', 6),
+              }),
+            ],
+          },
+        ],
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.requireFunds).toMatchInlineSnapshot(`
+        [
+          {
+            "amount": 25000000n,
+            "policyRules": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000020c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000011200000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000004000000000000000000000000020c0000000000000000000000000000000000001ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+            "sources": [
+              {
+                "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000989680",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+              {
+                "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000e4e1c0",
+                "to": "0x1120000000000000000000000000000000000001",
+              },
+            ],
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ]
+      `)
+    })
+
+    test('uses updated policy rules even with a warm cache', async () => {
+      const { account, accessKey } = await setupAccessKey()
+      const { policyId } = await Actions.funding.createPolicySync(client, {
+        account,
+        admins: [account.address],
+        feePayer: accounts[1],
+        rules: {
+          maxSlippageBps: 0,
+          sources: {
+            [Addresses.pathUsd]: [
+              FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+            ],
+          },
+        },
+      })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: policyId,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+      await Actions.token.transferSync(client, {
+        account: accessKey,
+        amount: parseUnits('25', 6),
+        feePayer: accounts[1],
+        keyAuthorization,
+        requireFunds: true,
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      const { rules } = await Actions.funding.setPolicyRulesSync(client, {
+        account,
+        feePayer: accounts[1],
+        policyId,
+        rules: {
+          maxSlippageBps: 0,
+          sources: {
+            [Addresses.pathUsd]: [
+              FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+            ],
+          },
+        },
+      })
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        amount: parseUnits('25', 6),
+        feePayer: accounts[1],
+        requireFunds: true,
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.requireFunds?.[0]?.policyRules).toBe(
+        FundingPolicy.encode(rules),
+      )
+      expect(
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.betaUsd,
+        }),
+      ).toMatchInlineSnapshot(`
+        {
+          "amount": 475000000n,
+          "decimals": 6,
+          "formatted": "475",
+        }
+      `)
+    })
+  })
+
   describe('behavior', () => {
     test('rejects inferred funding when transferring from another account', async () => {
       await expect(

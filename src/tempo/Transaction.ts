@@ -48,7 +48,7 @@ import {
   type FundingRequirementInput,
   type FundingRequirementIntent,
   normalizeRequireFunds,
-} from './internal/requireFunds.js'
+} from './internal/funding.js'
 import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<

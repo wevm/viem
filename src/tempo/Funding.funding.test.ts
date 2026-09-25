@@ -1,7 +1,15 @@
-import { FundingRequirement } from 'ox/tempo'
+import { FundingRequirement, KeyAuthorization } from 'ox/tempo'
 import { parseUnits } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions, Addresses, Funding, FundingSource } from 'viem/tempo'
+import {
+  Account,
+  Actions,
+  Addresses,
+  Funding,
+  FundingPolicy,
+  FundingSource,
+  Store,
+} from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 
@@ -31,6 +39,40 @@ beforeAll(async () => {
 })
 
 describe('handleRequest', () => {
+  test('registers rules by chain and hash without granting policy authority', async () => {
+    const store = Store.memory()
+    const handler = Funding.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { store },
+    )
+    const rules = FundingPolicy.encode({ maxSlippageBps: 100, sources: {} })
+    const result = (await handler({
+      method: 'funding_registerPolicyRules',
+      params: [{ chainId: '0x539', rules }],
+    })) as { rulesHash: `0x${string}` }
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "rulesHash": "0x7846a084481e81b28e65d2c2163c18e2a07ff86b3a52836cac307fb04e7a8c18",
+      }
+    `)
+    expect(
+      await handler({
+        method: 'funding_registerPolicyRules',
+        params: [{ chainId: '0x539', rules }],
+      }),
+    ).toEqual(result)
+    expect(
+      await store.getItem(
+        `funding:1337:${Addresses.fundingPolicy}:rules:${result.rulesHash}`,
+      ),
+    ).toEqual(rules)
+    expect(
+      await store.getItem(
+        `funding:4217:${Addresses.fundingPolicy}:rules:${result.rulesHash}`,
+      ),
+    ).toBeNull()
+  })
+
   test.each([undefined, '0x539'] as const)(
     'fills an unsigned RPC funding requirement with chainId %s',
     async (chainId) => {
@@ -45,8 +87,10 @@ describe('handleRequest', () => {
         (request, options) => client.request(request as never, options),
         chainId === undefined
           ? {
-              getRoute: ({ chainId }) =>
-                chainId === 4217
+              getRoute: ({ chainId, transaction }) =>
+                chainId === 4217 &&
+                transaction.from === account.address &&
+                transaction.calls?.[0]?.to === accounts[1].address
                   ? {
                       sources: [
                         FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
@@ -141,6 +185,172 @@ describe('handleRequest', () => {
 })
 
 describe('behavior', () => {
+  test('rejects malformed rule registrations', async () => {
+    const handler = Funding.handleRequest((request, options) =>
+      client.request(request as never, options),
+    )
+    const results = []
+    for (const params of [
+      [],
+      [{ chainId: '0x0', rules: '0x' }],
+      [{ chainId: '0x539', rules: '0x' }],
+      [{ chainId: '0x1', rules: '0x' }],
+    ])
+      results.push(
+        await handler(
+          {
+            method: 'funding_registerPolicyRules',
+            params,
+          },
+          { chainId: 1337 },
+        ).catch((error) => error),
+      )
+    expect(results).toMatchInlineSnapshot(`
+      [
+        [RpcResponse.InvalidParamsError: Expected one parameter containing \`chainId\` and encoded \`rules\`.],
+        [RpcResponse.InvalidParamsError: Registration requires a valid \`chainId\` matching the request chain.],
+        [RpcResponse.InvalidParamsError: \`rules\` must contain canonical ABI-encoded funding policy rules.],
+        [RpcResponse.InvalidParamsError: Registration requires a valid \`chainId\` matching the request chain.],
+      ]
+    `)
+  })
+
+  test('rejects invalid delegated funding', async () => {
+    const results = []
+    for (const failure of [
+      'missing policy',
+      'expired',
+      'wrong key',
+      'wrong account',
+      'wrong chain',
+      'output',
+      'slippage',
+      'tampered rules',
+      'tampered cache',
+      'missing rules',
+    ] as const) {
+      const account = await setupAccount()
+      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+        access: account,
+      })
+      const { policyId, rulesHash, rules } =
+        await Actions.funding.createPolicySync(client, {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        })
+      const authorization = await Actions.accessKey.signAuthorization(client, {
+        account,
+        accessKey,
+        ...(failure === 'missing policy' ? {} : { fundingPolicy: policyId }),
+        ...(failure === 'expired' ? { expiry: 1 } : {}),
+      })
+      const store = Store.memory()
+      await store.setItem(
+        `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        FundingPolicy.encode(rules),
+      )
+      const tampered = FundingPolicy.encode({ maxSlippageBps: 1, sources: {} })
+      if (failure === 'tampered cache')
+        await store.setItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+          tampered,
+        )
+      if (failure === 'missing rules')
+        await store.removeItem(
+          `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
+        )
+      const handler = Funding.handleRequest(
+        (request, options) => client.request(request as never, options),
+        { store },
+      )
+      const result = await handler({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            chainId: '0x539',
+            from: account.address,
+            keyId:
+              failure === 'wrong key'
+                ? accounts[1].address
+                : accessKey.accessKeyAddress,
+            keyAuthorization: {
+              ...KeyAuthorization.toRpc(authorization),
+              ...(failure === 'wrong account'
+                ? { account: accounts[1].address }
+                : {}),
+              ...(failure === 'wrong chain' ? { chainId: '0x1' } : {}),
+            },
+            requireFunds: [
+              {
+                token:
+                  failure === 'output' ? Addresses.betaUsd : Addresses.pathUsd,
+                amount: '0x1',
+                ...(failure === 'slippage' ? { slippageBps: '0x1' } : {}),
+                ...(failure === 'tampered rules'
+                  ? { policyRules: tampered }
+                  : {}),
+              },
+            ],
+          },
+        ],
+      }).catch((error) => error)
+      results.push({ failure, result })
+    }
+    expect(results).toMatchInlineSnapshot(`
+      [
+        {
+          "failure": "missing policy",
+          "result": [RpcResponse.InvalidParamsError: The access key has no funding policy.],
+        },
+        {
+          "failure": "expired",
+          "result": [RpcResponse.InvalidParamsError: The funding access key has expired.],
+        },
+        {
+          "failure": "wrong key",
+          "result": [RpcResponse.InvalidParamsError: \`keyAuthorization\` must match the funding account, access key, and chain.],
+        },
+        {
+          "failure": "wrong account",
+          "result": [RpcResponse.InvalidParamsError: \`keyAuthorization\` must match the funding account, access key, and chain.],
+        },
+        {
+          "failure": "wrong chain",
+          "result": [RpcResponse.InvalidParamsError: \`keyAuthorization\` must match the funding account, access key, and chain.],
+        },
+        {
+          "failure": "output",
+          "result": [RpcResponse.InvalidParamsError: The funding policy does not allow output token 0x20c0000000000000000000000000000000000002.],
+        },
+        {
+          "failure": "slippage",
+          "result": [RpcResponse.InvalidParamsError: \`slippageBps\` exceeds the funding policy maximum.],
+        },
+        {
+          "failure": "tampered rules",
+          "result": [RpcResponse.InvalidParamsError: Funding policy rules do not match the current onchain commitment.],
+        },
+        {
+          "failure": "tampered cache",
+          "result": [RpcResponse.InvalidParamsError: Funding policy rules do not match the current onchain commitment.],
+        },
+        {
+          "failure": "missing rules",
+          "result": [RpcResponse.InvalidParamsError: Funding policy rules are not in the store; supply \`policyRules\` explicitly.],
+        },
+      ]
+    `)
+  })
+
   test.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])(
     'rejects invalid chain id %s',
     async (chainId) => {
@@ -236,7 +446,7 @@ describe('behavior', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.InvalidParamsError: Access key and multisig funding require explicit sources until policy resolution is supported.]`,
+      `[RpcResponse.InvalidParamsError: The funding access key is not installed; supply \`keyAuthorization\`.]`,
     )
   })
 

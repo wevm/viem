@@ -14,7 +14,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account, MultisigAccount } from './Account.js'
-import { normalizeRequireFunds } from './internal/requireFunds.js'
+import { normalizeRequireFunds } from './internal/funding.js'
 import {
   isTempo,
   type Transaction,

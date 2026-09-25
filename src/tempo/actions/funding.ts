@@ -20,7 +20,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { fundingErrors } from '../internal/fundingErrors.js'
+import * as funding from '../internal/funding.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -89,6 +89,12 @@ export namespace createPolicy {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { admins, rules, ...rest } = parameters
+
+    await funding.registerPolicyRules(client, {
+      chainId: parameters.chain?.id,
+      rules,
+    })
+
     return action(client, {
       ...rest,
       ...call({ admins, rules }),
@@ -104,7 +110,7 @@ export namespace createPolicy {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'createPolicy',
       args: [
         args.admins,
@@ -124,7 +130,7 @@ export namespace createPolicy {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       eventName: 'PolicyCreated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -224,7 +230,7 @@ export namespace getPolicy {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'getPolicy',
       args: [args.policyId],
     })
@@ -265,7 +271,7 @@ export namespace policyExists {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'policyExists',
       args: [args.policyId],
     })
@@ -303,7 +309,7 @@ export namespace policyIdCounter {
   export function call() {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'policyIdCounter',
       args: [],
     })
@@ -353,6 +359,12 @@ export namespace setPolicyRules {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { policyId, rules, ...rest } = parameters
+
+    await funding.registerPolicyRules(client, {
+      chainId: parameters.chain?.id,
+      rules,
+    })
+
     return action(client, {
       ...rest,
       ...call({ policyId, rules }),
@@ -368,7 +380,7 @@ export namespace setPolicyRules {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'setRules',
       args: [
         args.policyId,
@@ -388,7 +400,7 @@ export namespace setPolicyRules {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       eventName: 'PolicyRulesUpdated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -511,7 +523,7 @@ export namespace setPolicyAdmins {
   export function call(args: Args) {
     return defineCall({
       address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       functionName: 'setAdmins',
       args: [args.policyId, args.admins],
     })
@@ -525,7 +537,7 @@ export namespace setPolicyAdmins {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: [...Abis.fundingPolicy, ...fundingErrors],
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
       eventName: 'PolicyAdminsUpdated',
       logs: logs.filter((log) =>
         isAddressEqual(log.address, Addresses.fundingPolicy),
@@ -623,7 +635,7 @@ export async function discover<
     policyId === undefined
       ? await readContract(client, {
           ...parameters,
-          abi: [...Abis.fundingDiscovery, ...fundingErrors],
+          abi: [...Abis.fundingDiscovery, ...funding.fundingErrors],
           address: Addresses.fundingDiscovery,
           functionName: 'discover',
           args: [
@@ -636,7 +648,7 @@ export async function discover<
         })
       : await readContract(client, {
           ...parameters,
-          abi: [...Abis.fundingDiscovery, ...fundingErrors],
+          abi: [...Abis.fundingDiscovery, ...funding.fundingErrors],
           address: Addresses.fundingDiscovery,
           functionName: 'discover',
           args: [
@@ -730,7 +742,7 @@ export namespace discover {
         address: Addresses.fundingDiscovery,
         abi: [
           getAbiItem({
-            abi: [...Abis.fundingDiscovery, ...fundingErrors],
+            abi: [...Abis.fundingDiscovery, ...funding.fundingErrors],
             name: 'discover',
             args: parameters,
           }),
@@ -752,7 +764,7 @@ export namespace discover {
       address: Addresses.fundingDiscovery,
       abi: [
         getAbiItem({
-          abi: [...Abis.fundingDiscovery, ...fundingErrors],
+          abi: [...Abis.fundingDiscovery, ...funding.fundingErrors],
           name: 'discover',
           args: parameters,
         }),

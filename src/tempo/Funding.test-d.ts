@@ -58,11 +58,23 @@ test('transport metadata', () => {
 
 test('getRoute callback', () => {
   Funding.handleRequest(getClient().request as Funding.handleRequest.Handler, {
-    getRoute: async ({ chainId, token }) => {
+    getRoute: async ({ chainId, token, transaction }) => {
       expectTypeOf(chainId).toEqualTypeOf<number>()
       expectTypeOf(token).toEqualTypeOf<`0x${string}`>()
+      expectTypeOf(transaction).toEqualTypeOf<
+        Readonly<Funding.handleRequest.Transaction>
+      >()
       return { sources: [FundingSource.dex({ tokenIn: token })] }
     },
   })
   withFunding(http())
+})
+
+test('rule registration RPC', () => {
+  const client = getClient()
+  const result = client.request<Funding.RpcSchema[0]>({
+    method: 'funding_registerPolicyRules',
+    params: [{ chainId: '0x539', rules: '0x' }],
+  })
+  expectTypeOf(result).toEqualTypeOf<Promise<{ rulesHash: `0x${string}` }>>()
 })

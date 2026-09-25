@@ -237,7 +237,10 @@ export function withRelay(
       key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
-        if (method === 'eth_fillTransaction')
+        if (
+          method === 'eth_fillTransaction' ||
+          method === 'funding_registerPolicyRules'
+        )
           return transport_relay.request({ method, params }, options) as never
 
         if (
