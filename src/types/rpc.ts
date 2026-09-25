@@ -91,7 +91,7 @@ export type RpcTransactionRequest = OneOf<
       Quantity,
       Index,
       '0x6',
-      PartialBy<RpcFrame, 'executionGasLimit' | 'stateGasLimit'>,
+      PartialBy<RpcFrame, 'executionGas' | 'stateGas'>,
       RpcFrameSignature
     >
 >

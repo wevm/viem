@@ -6,10 +6,11 @@ const client = getClient({ account: accounts[0].address })
 
 test('default', async () => {
   const result = await estimateGas(client, {
+    signatures: [{ scheme: 'secp256k1' }],
     frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
   })
 
-  expect(result).toMatchInlineSnapshot(`12575n`)
+  expect(result).toMatchInlineSnapshot(`15375n`)
 })
 
 test.todo('args: signatures')

@@ -47,11 +47,11 @@ describe('eip8141', () => {
     frames: [
       {
         flags: 'approveExecutionAndPayment',
-        gas: 50_000n,
+        executionGas: 50_000n,
         mode: 'verify',
       },
       {
-        gas: 50_000n,
+        executionGas: 50_000n,
         mode: 'sender',
         to: accounts[1].address,
         value: 1n,

@@ -28,7 +28,11 @@ test('frame transaction requests compose with public actions', () => {
   const request = {
     chainId: 8141,
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        mode: 'verify',
+      },
     ],
     nonce: 0,
     signatures: [{ scheme: 'secp256k1' }],
@@ -89,11 +93,11 @@ test('frame transaction response narrows by type', () => {
   >()
 })
 
-test('RPC frames retain wire field names and numeric discriminants', () => {
+test('RPC frames retain wire field names and hex discriminants', () => {
   type Request = Extract<RpcTransactionRequest, { type?: '0x6' | undefined }>
   type Transaction = Extract<RpcTransaction, { type: '0x6' }>
   expectTypeOf<Request['frames']>().toEqualTypeOf<
-    readonly PartialBy<RpcFrame, 'executionGasLimit' | 'stateGasLimit'>[]
+    readonly PartialBy<RpcFrame, 'executionGas' | 'stateGas'>[]
   >()
   expectTypeOf<Request['signatures']>().toEqualTypeOf<
     readonly RpcFrameSignature[] | undefined
@@ -103,8 +107,10 @@ test('RPC frames retain wire field names and numeric discriminants', () => {
     readonly RpcFrameSignature[]
   >()
   expectTypeOf<Transaction['chainId']>().toEqualTypeOf<Hex>()
-  expectTypeOf<RpcFrame['executionGasLimit']>().toEqualTypeOf<Hex>()
-  expectTypeOf<RpcFrameSignature['scheme']>().toEqualTypeOf<0 | 1 | 2>()
+  expectTypeOf<RpcFrame['executionGas']>().toEqualTypeOf<Hex>()
+  expectTypeOf<RpcFrameSignature['scheme']>().toEqualTypeOf<
+    '0x0' | '0x1' | '0x2'
+  >()
   expectTypeOf<RpcTransactionReceipt['frameReceipts']>().toEqualTypeOf<
     readonly RpcFrameReceipt[] | undefined
   >()

@@ -6,8 +6,13 @@ const client = getClient({ account: accounts[0].address })
 
 test('default', async () => {
   const result = await call(client, {
+    signatures: [{ scheme: 'secp256k1' }],
     frames: [
-      { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+      {
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        mode: 'verify',
+      },
     ],
   })
 
@@ -18,4 +23,17 @@ test('default', async () => {
   `)
 })
 
-test.todo('args: signatures')
+test('rejects EOA verification without a signature placeholder', async () => {
+  await expect(
+    call(client, {
+      frames: [
+        {
+          flags: 'approveExecutionAndPayment',
+          executionGas: 50_000n,
+          stateGas: 0n,
+          mode: 'verify',
+        },
+      ],
+    }),
+  ).rejects.toThrow('EIP-8141 VERIFY frame failed')
+})

@@ -185,6 +185,7 @@ test('eip8141 frame receipts', () => {
     formatTransactionReceipt({
       frameReceipts: [
         {
+          gasUsed: '0x526c',
           executionGasUsed: '0x5208',
           logs: [
             {
@@ -194,10 +195,22 @@ test('eip8141 frame receipts', () => {
             },
           ],
           stateGasUsed: '0x64',
-          status: 1,
+          status: '0x1',
         },
-        { executionGasUsed: '0x100', logs: [], stateGasUsed: '0x0', status: 0 },
-        { executionGasUsed: '0x0', logs: [], stateGasUsed: '0x0', status: 2 },
+        {
+          gasUsed: '0x100',
+          executionGasUsed: '0x100',
+          logs: [],
+          stateGasUsed: '0x0',
+          status: '0x0',
+        },
+        {
+          gasUsed: '0x0',
+          executionGasUsed: '0x0',
+          logs: [],
+          stateGasUsed: '0x0',
+          status: '0x2',
+        },
       ],
       payer: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
       status: '0x1',
@@ -211,7 +224,8 @@ test('eip8141 frame receipts', () => {
       "effectiveGasPrice": null,
       "frameReceipts": [
         {
-          "gasUsed": 21000n,
+          "executionGasUsed": 21000n,
+          "gasUsed": 21100n,
           "logs": [
             {
               "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -225,12 +239,14 @@ test('eip8141 frame receipts', () => {
           "status": "success",
         },
         {
+          "executionGasUsed": 256n,
           "gasUsed": 256n,
           "logs": [],
           "stateGasUsed": 0n,
           "status": "reverted",
         },
         {
+          "executionGasUsed": 0n,
           "gasUsed": 0n,
           "logs": [],
           "stateGasUsed": 0n,

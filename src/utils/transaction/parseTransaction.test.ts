@@ -39,16 +39,16 @@ describe('eip8141', () => {
         "frames": [
           {
             "data": "0x",
+            "executionGas": 50000n,
             "flags": 3,
-            "gas": 50000n,
             "mode": 1,
             "stateGas": 0n,
             "value": 0n,
           },
           {
             "data": "0x",
+            "executionGas": 50000n,
             "flags": 0,
-            "gas": 50000n,
             "mode": 2,
             "stateGas": 0n,
             "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
