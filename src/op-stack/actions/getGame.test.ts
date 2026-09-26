@@ -1,8 +1,9 @@
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { reset } from '../../actions/index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { getGame } from './getGame.js'
+import * as getGamesModule from './getGames.js'
 
 const client = anvilMainnet.getClient()
 
@@ -57,4 +58,26 @@ test('args: address', async () => {
   expect(game).toHaveProperty('rootClaim')
   expect(game).toHaveProperty('extraData')
   expect(game).toHaveProperty('usesSuperRoots', false)
+})
+
+test('behavior: returns a game at exactly l2BlockNumber', async () => {
+  const spy = vi.spyOn(getGamesModule, 'getGames').mockResolvedValueOnce([
+    {
+      index: 1n,
+      metadata: '0x' as `0x${string}`,
+      timestamp: 1n,
+      rootClaim:
+        '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
+      extraData: '0x' as `0x${string}`,
+      l2BlockNumber: 1000n,
+      usesSuperRoots: false,
+    },
+  ])
+  const game = await getGame(client, {
+    targetChain: optimism,
+    l2BlockNumber: 1000n,
+  })
+  expect(game.l2BlockNumber).toBe(1000n)
+  expect(game.index).toBe(1n)
+  spy.mockRestore()
 })
