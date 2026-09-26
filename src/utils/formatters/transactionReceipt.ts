@@ -3,8 +3,11 @@ import type {
   Chain,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
-import type { RpcTransactionReceipt } from '../../types/rpc.js'
-import type { TransactionReceipt } from '../../types/transaction.js'
+import type { RpcFrameReceipt, RpcTransactionReceipt } from '../../types/rpc.js'
+import type {
+  FrameReceipt,
+  TransactionReceipt,
+} from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 
@@ -23,6 +26,13 @@ export type FormattedTransactionReceipt<
 export const receiptStatuses = {
   '0x0': 'reverted',
   '0x1': 'success',
+} as const
+
+/** EIP-8141 per-frame statuses. `0x2` marks a frame skipped by a failed atomic batch. */
+export const frameReceiptStatuses = {
+  '0x0': 'reverted',
+  '0x1': 'success',
+  '0x2': 'skipped',
 } as const
 
 export type FormatTransactionReceiptErrorType = ErrorType
@@ -70,7 +80,27 @@ export function formatTransactionReceipt(
   if (transactionReceipt.blobGasUsed)
     receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed)
 
+  if (transactionReceipt.payer) receipt.payer = transactionReceipt.payer
+  if (transactionReceipt.frameReceipts)
+    receipt.frameReceipts =
+      transactionReceipt.frameReceipts.map(formatFrameReceipt)
+
   return receipt
+}
+
+function formatFrameReceipt(frameReceipt: RpcFrameReceipt): FrameReceipt {
+  return {
+    status: frameReceiptStatuses[frameReceipt.status] ?? 'reverted',
+    gasUsed: BigInt(frameReceipt.gasUsed),
+    stateGasUsed: frameReceipt.stateGasUsed
+      ? BigInt(frameReceipt.stateGasUsed)
+      : 0n,
+    logs: frameReceipt.logs
+      ? frameReceipt.logs.map(
+          (log) => formatLog(log) as FrameReceipt['logs'][number],
+        )
+      : [],
+  }
 }
 
 export type DefineTransactionReceiptErrorType =

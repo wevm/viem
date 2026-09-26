@@ -38,7 +38,10 @@ export type SignTransactionParameters<
   GetAccountParameter<account> &
   GetChainParameter<chain, chainOverride>
 
-export type SignTransactionReturnType = SignTransactionReturnType_
+export type SignTransactionReturnType = Exclude<
+  SignTransactionReturnType_,
+  `0x06${string}`
+>
 
 export type SignTransactionErrorType = SignTransactionErrorType_
 
@@ -91,5 +94,8 @@ export async function signTransaction<
   args: SignTransactionParameters<chain, account, chainOverride>,
 ): Promise<SignTransactionReturnType> {
   if (isEIP712Transaction(args)) return signEip712Transaction(client, args)
-  return await signTransaction_(client, args as any)
+  return (await signTransaction_(
+    client,
+    args as any,
+  )) as SignTransactionReturnType
 }

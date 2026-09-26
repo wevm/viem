@@ -1,0 +1,12 @@
+{
+  "name": "example-frame-transactions",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "viem": "file:../../src"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.0.3"
+  }
+}

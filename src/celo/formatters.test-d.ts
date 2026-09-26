@@ -59,6 +59,7 @@ describe('smoke', () => {
       | 'eip1559'
       | 'eip4844'
       | 'eip7702'
+      | 'eip8141'
       | 'cip42'
       | 'cip64'
       | 'deposit'

@@ -12,16 +12,22 @@ import type { Log } from './log.js'
 import type { Hex } from './misc.js'
 import type { Proof } from './proof.js'
 import type {
+  Frame,
+  FrameLimits,
+  FrameReceipt,
+  FrameSignature,
   TransactionEIP1559,
   TransactionEIP2930,
   TransactionEIP4844,
   TransactionEIP7702,
+  TransactionEIP8141,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
   TransactionRequestEIP7702,
+  TransactionRequestEIP8141,
   TransactionRequestLegacy,
 } from './transaction.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
@@ -35,7 +41,21 @@ export type TransactionType =
   | '0x2'
   | '0x3'
   | '0x4'
+  | '0x6'
   | (string & {})
+
+/** EIP-8141 frame receipt status: `0x0` failure, `0x1` success, `0x2` skipped. */
+export type FrameStatus = '0x0' | '0x1' | '0x2'
+
+export type RpcFrame = Omit<Frame, 'limits' | 'mode' | 'flags' | 'value'> & {
+  mode: Quantity
+  flags: Quantity
+  limits: FrameLimits<Quantity>
+  value?: Quantity | undefined
+}
+export type RpcFrameSignature = Omit<FrameSignature, 'scheme'> & {
+  scheme: Quantity
+}
 
 export type RpcAuthorization = {
   /** Address of the contract to set as code for the Authority. */
@@ -64,12 +84,11 @@ export type RpcFeeHistory = FeeHistory<Quantity>
 export type RpcFeeValues = FeeValues<Quantity>
 export type RpcLog = Log<Quantity, Index>
 export type RpcProof = Proof<Quantity, Index>
-export type RpcTransactionReceipt = TransactionReceipt<
-  Quantity,
-  Index,
-  Status,
-  TransactionType
->
+export type RpcFrameReceipt = FrameReceipt<Quantity, Index, FrameStatus>
+export type RpcTransactionReceipt = Omit<
+  TransactionReceipt<Quantity, Index, Status, TransactionType>,
+  'frameReceipts'
+> & { frameReceipts?: RpcFrameReceipt[] | undefined }
 export type RpcTransactionRequest = OneOf<
   | TransactionRequestLegacy<Quantity, Index, '0x0'>
   | TransactionRequestEIP2930<Quantity, Index, '0x1'>
@@ -79,6 +98,13 @@ export type RpcTransactionRequest = OneOf<
       TransactionRequestEIP7702<Quantity, Index, '0x4'>,
       'authorizationList'
     > & { authorizationList?: RpcAuthorizationList | undefined })
+  | (Omit<
+      TransactionRequestEIP8141<Quantity, Index, '0x6'>,
+      'frames' | 'signatures'
+    > & {
+      frames: readonly RpcFrame[]
+      signatures?: readonly RpcFrameSignature[] | undefined
+    })
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
@@ -103,6 +129,13 @@ export type RpcTransaction<pending extends boolean = boolean> = OneOf<
       > & { authorizationList?: RpcAuthorizationList | undefined },
       'yParity'
     >
+  | (Omit<
+      TransactionEIP8141<Quantity, Index, pending, '0x6'>,
+      'typeHex' | 'frames' | 'signatures'
+    > & {
+      frames: readonly RpcFrame[]
+      signatures: readonly RpcFrameSignature[]
+    })
 >
 
 type SuccessResult<result> = {
