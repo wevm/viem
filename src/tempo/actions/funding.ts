@@ -202,412 +202,6 @@ export namespace createPolicySync {
 }
 
 /**
- * Gets a funding policy's administrators and current rules hash.
- * The full rules are not stored in policy state.
- *
- * @param client - Client.
- * @param parameters - Policy ID and optional block selection.
- * @returns The administrators and rules hash.
- */
-export async function getPolicy<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getPolicy.Parameters,
-): Promise<getPolicy.ReturnValue> {
-  const { policyId, ...rest } = parameters
-  return readContract(client, { ...rest, ...getPolicy.call({ policyId }) })
-}
-
-export namespace getPolicy {
-  export type Args = { /** Policy ID. */ policyId: bigint }
-  export type Parameters = ReadParameters & Args
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.fundingPolicy,
-    'getPolicy',
-    never
-  >
-  export type ErrorType = BaseErrorType
-
-  /**
-   * Defines the `getPolicy` call.
-   *
-   * @param args - Policy ID.
-   * @returns The contract call.
-   */
-  export function call(args: Args) {
-    return defineCall({
-      address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      functionName: 'getPolicy',
-      args: [args.policyId],
-    })
-  }
-}
-
-/**
- * Checks whether a funding policy ID exists.
- *
- * @param client - Client.
- * @param parameters - Policy ID and optional block selection.
- * @returns Whether the policy exists.
- */
-export async function policyExists<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: policyExists.Parameters,
-): Promise<policyExists.ReturnValue> {
-  const { policyId, ...rest } = parameters
-  return readContract(client, { ...rest, ...policyExists.call({ policyId }) })
-}
-
-export namespace policyExists {
-  export type Args = { /** Policy ID. */ policyId: bigint }
-  export type Parameters = ReadParameters & Args
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.fundingPolicy,
-    'policyExists',
-    never
-  >
-  export type ErrorType = BaseErrorType
-
-  /**
-   * Defines the `policyExists` call.
-   *
-   * @param args - Policy ID.
-   * @returns The contract call.
-   */
-  export function call(args: Args) {
-    return defineCall({
-      address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      functionName: 'policyExists',
-      args: [args.policyId],
-    })
-  }
-}
-
-/**
- * Gets the next funding policy ID. The next successful creation consumes this ID.
- *
- * @param client - Client.
- * @param parameters - Optional block selection.
- * @returns The next policy ID.
- */
-export async function policyIdCounter<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: policyIdCounter.Parameters = {},
-): Promise<policyIdCounter.ReturnValue> {
-  return readContract(client, { ...parameters, ...policyIdCounter.call() })
-}
-
-export namespace policyIdCounter {
-  export type Parameters = ReadParameters
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.fundingPolicy,
-    'policyIdCounter',
-    never
-  >
-  export type ErrorType = BaseErrorType
-
-  /**
-   * Defines the `policyIdCounter` call.
-   *
-   * @returns The contract call.
-   */
-  export function call() {
-    return defineCall({
-      address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      functionName: 'policyIdCounter',
-      args: [],
-    })
-  }
-}
-
-/**
- * Replaces a funding policy's rules. The caller must be a current administrator.
- * This changes the rules hash, invalidating earlier rules bytes for discovery.
- *
- * @param client - Client.
- * @param parameters - Policy ID and replacement rules.
- * @returns The transaction hash.
- */
-export async function setPolicyRules<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: setPolicyRules.Parameters<chain, account>,
-): Promise<setPolicyRules.ReturnValue> {
-  return setPolicyRules.inner(writeContract, client, parameters)
-}
-
-export namespace setPolicyRules {
-  export type Args = {
-    /** Policy ID. */
-    policyId: bigint
-    /** Replacement rules. */
-    rules: FundingPolicy.Rules
-  }
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = WriteContractReturnType
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { policyId, rules, ...rest } = parameters
-
-    await funding.registerPolicyRules(client, {
-      chainId: parameters.chain?.id,
-      rules,
-    })
-
-    return action(client, {
-      ...rest,
-      ...call({ policyId, rules }),
-    } as never) as never
-  }
-
-  /**
-   * Defines the `setPolicyRules` call with canonical route order.
-   *
-   * @param args - Policy ID and replacement rules.
-   * @returns The contract call.
-   */
-  export function call(args: Args) {
-    return defineCall({
-      address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      functionName: 'setRules',
-      args: [
-        args.policyId,
-        {
-          maxSlippageBps: args.rules.maxSlippageBps,
-          routes: FundingPolicy.toRoutes(args.rules),
-        },
-      ],
-    })
-  }
-
-  /**
-   * Extracts `PolicyRulesUpdated` from funding policy logs.
-   *
-   * @param logs - Transaction logs.
-   * @returns The rules update event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      eventName: 'PolicyRulesUpdated',
-      logs: logs.filter((log) =>
-        isAddressEqual(log.address, Addresses.fundingPolicy),
-      ),
-      strict: true,
-    })
-    if (!log) throw new Error('`PolicyRulesUpdated` event not found.')
-    return {
-      ...log,
-      args: {
-        ...log.args,
-        rules: {
-          maxSlippageBps: log.args.rules.maxSlippageBps,
-          sources: Object.fromEntries(
-            log.args.rules.routes.map(({ token, sources }) => [
-              token,
-              sources.map(({ target, data }) => ({ to: target, data })),
-            ]),
-          ),
-        } satisfies FundingPolicy.Rules,
-      },
-    }
-  }
-}
-
-/**
- * Replaces funding policy rules and returns the updated commitment.
- *
- * @param client - Client.
- * @param parameters - Policy ID and replacement rules.
- * @returns The rules update event and transaction receipt.
- */
-export async function setPolicyRulesSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: setPolicyRulesSync.Parameters<chain, account>,
-): Promise<setPolicyRulesSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await setPolicyRules.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  if ((receipt as TransactionReceipt).status === 'pending')
-    return { receipt } as never
-  return { ...setPolicyRules.extractEvent(receipt.logs).args, receipt } as never
-}
-
-export namespace setPolicyRulesSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = setPolicyRules.Parameters<chain, account>
-  /** Updated policy rules and transaction receipt. */
-  export type ReturnValue = {
-    /** Funding policy identifier. */
-    policyId: bigint
-    /** Account that created or updated the policy. */
-    updater: Address
-    /** Hash of the policy rules committed onchain. */
-    rulesHash: Hex
-    /** Complete decoded rules for discovery and access key funding. */
-    rules: FundingPolicy.Rules
-    /** Transaction receipt. */
-    receipt: TransactionReceipt
-  }
-  export type ErrorType = BaseErrorType
-}
-
-/**
- * Replaces a funding policy's administrators without changing its rules hash.
- * The caller must be a current administrator.
- *
- * @param client - Client.
- * @param parameters - Policy ID and replacement administrators.
- * @returns The transaction hash.
- */
-export async function setPolicyAdmins<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: setPolicyAdmins.Parameters<chain, account>,
-): Promise<setPolicyAdmins.ReturnValue> {
-  return setPolicyAdmins.inner(writeContract, client, parameters)
-}
-
-export namespace setPolicyAdmins {
-  export type Args = {
-    /** Replacement policy administrators. */
-    admins: readonly Address[]
-    /** Policy ID. */
-    policyId: bigint
-  }
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-  export type ReturnValue = WriteContractReturnType
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { admins, policyId, ...rest } = parameters
-    return action(client, {
-      ...rest,
-      ...call({ admins, policyId }),
-    } as never) as never
-  }
-
-  /**
-   * Defines the `setPolicyAdmins` call.
-   *
-   * @param args - Policy ID and replacement administrators.
-   * @returns The contract call.
-   */
-  export function call(args: Args) {
-    return defineCall({
-      address: Addresses.fundingPolicy,
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      functionName: 'setAdmins',
-      args: [args.policyId, args.admins],
-    })
-  }
-
-  /**
-   * Extracts `PolicyAdminsUpdated` from funding policy logs.
-   *
-   * @param logs - Transaction logs.
-   * @returns The administrator update event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
-      eventName: 'PolicyAdminsUpdated',
-      logs: logs.filter((log) =>
-        isAddressEqual(log.address, Addresses.fundingPolicy),
-      ),
-      strict: true,
-    })
-    if (!log) throw new Error('`PolicyAdminsUpdated` event not found.')
-    return log
-  }
-}
-
-/**
- * Replaces funding policy administrators and returns the emitted update.
- *
- * @param client - Client.
- * @param parameters - Policy ID and replacement administrators.
- * @returns The administrator update event and transaction receipt.
- */
-export async function setPolicyAdminsSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: setPolicyAdminsSync.Parameters<chain, account>,
-): Promise<setPolicyAdminsSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await setPolicyAdmins.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  if ((receipt as TransactionReceipt).status === 'pending')
-    return { receipt } as never
-  return {
-    ...setPolicyAdmins.extractEvent(receipt.logs).args,
-    receipt,
-  } as never
-}
-
-export namespace setPolicyAdminsSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = setPolicyAdmins.Parameters<chain, account>
-  /** Updated policy administrators and transaction receipt. */
-  export type ReturnValue = {
-    /** Funding policy identifier. */
-    policyId: bigint
-    /** Account that created or updated the policy. */
-    updater: Address
-    /** Replacement policy administrators. */
-    admins: readonly Address[]
-    /** Transaction receipt. */
-    receipt: TransactionReceipt
-  }
-  export type ErrorType = BaseErrorType
-}
-
-/**
  * Finds available funding sources from source configurations or verified policy rules.
  * Defaults to the client account. Discovery reserves no funds and does not guarantee execution-time availability.
  *
@@ -790,4 +384,410 @@ export namespace discover {
       args: parameters,
     })
   }
+}
+
+/**
+ * Gets a funding policy's administrators and current rules hash.
+ * The full rules are not stored in policy state.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and optional block selection.
+ * @returns The administrators and rules hash.
+ */
+export async function getPolicy<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPolicy.Parameters,
+): Promise<getPolicy.ReturnValue> {
+  const { policyId, ...rest } = parameters
+  return readContract(client, { ...rest, ...getPolicy.call({ policyId }) })
+}
+
+export namespace getPolicy {
+  export type Args = { /** Policy ID. */ policyId: bigint }
+  export type Parameters = ReadParameters & Args
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.fundingPolicy,
+    'getPolicy',
+    never
+  >
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines the `getPolicy` call.
+   *
+   * @param args - Policy ID.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    return defineCall({
+      address: Addresses.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      functionName: 'getPolicy',
+      args: [args.policyId],
+    })
+  }
+}
+
+/**
+ * Checks whether a funding policy ID exists.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and optional block selection.
+ * @returns Whether the policy exists.
+ */
+export async function policyExists<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: policyExists.Parameters,
+): Promise<policyExists.ReturnValue> {
+  const { policyId, ...rest } = parameters
+  return readContract(client, { ...rest, ...policyExists.call({ policyId }) })
+}
+
+export namespace policyExists {
+  export type Args = { /** Policy ID. */ policyId: bigint }
+  export type Parameters = ReadParameters & Args
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.fundingPolicy,
+    'policyExists',
+    never
+  >
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines the `policyExists` call.
+   *
+   * @param args - Policy ID.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    return defineCall({
+      address: Addresses.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      functionName: 'policyExists',
+      args: [args.policyId],
+    })
+  }
+}
+
+/**
+ * Gets the next funding policy ID. The next successful creation consumes this ID.
+ *
+ * @param client - Client.
+ * @param parameters - Optional block selection.
+ * @returns The next policy ID.
+ */
+export async function policyIdCounter<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: policyIdCounter.Parameters = {},
+): Promise<policyIdCounter.ReturnValue> {
+  return readContract(client, { ...parameters, ...policyIdCounter.call() })
+}
+
+export namespace policyIdCounter {
+  export type Parameters = ReadParameters
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.fundingPolicy,
+    'policyIdCounter',
+    never
+  >
+  export type ErrorType = BaseErrorType
+
+  /**
+   * Defines the `policyIdCounter` call.
+   *
+   * @returns The contract call.
+   */
+  export function call() {
+    return defineCall({
+      address: Addresses.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      functionName: 'policyIdCounter',
+      args: [],
+    })
+  }
+}
+
+/**
+ * Replaces a funding policy's administrators without changing its rules hash.
+ * The caller must be a current administrator.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and replacement administrators.
+ * @returns The transaction hash.
+ */
+export async function setPolicyAdmins<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: setPolicyAdmins.Parameters<chain, account>,
+): Promise<setPolicyAdmins.ReturnValue> {
+  return setPolicyAdmins.inner(writeContract, client, parameters)
+}
+
+export namespace setPolicyAdmins {
+  export type Args = {
+    /** Replacement policy administrators. */
+    admins: readonly Address[]
+    /** Policy ID. */
+    policyId: bigint
+  }
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = WriteContractReturnType
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { admins, policyId, ...rest } = parameters
+    return action(client, {
+      ...rest,
+      ...call({ admins, policyId }),
+    } as never) as never
+  }
+
+  /**
+   * Defines the `setPolicyAdmins` call.
+   *
+   * @param args - Policy ID and replacement administrators.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    return defineCall({
+      address: Addresses.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      functionName: 'setAdmins',
+      args: [args.policyId, args.admins],
+    })
+  }
+
+  /**
+   * Extracts `PolicyAdminsUpdated` from funding policy logs.
+   *
+   * @param logs - Transaction logs.
+   * @returns The administrator update event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      eventName: 'PolicyAdminsUpdated',
+      logs: logs.filter((log) =>
+        isAddressEqual(log.address, Addresses.fundingPolicy),
+      ),
+      strict: true,
+    })
+    if (!log) throw new Error('`PolicyAdminsUpdated` event not found.')
+    return log
+  }
+}
+
+/**
+ * Replaces funding policy administrators and returns the emitted update.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and replacement administrators.
+ * @returns The administrator update event and transaction receipt.
+ */
+export async function setPolicyAdminsSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: setPolicyAdminsSync.Parameters<chain, account>,
+): Promise<setPolicyAdminsSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await setPolicyAdmins.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
+  return {
+    ...setPolicyAdmins.extractEvent(receipt.logs).args,
+    receipt,
+  } as never
+}
+
+export namespace setPolicyAdminsSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = setPolicyAdmins.Parameters<chain, account>
+  /** Updated policy administrators and transaction receipt. */
+  export type ReturnValue = {
+    /** Funding policy identifier. */
+    policyId: bigint
+    /** Account that created or updated the policy. */
+    updater: Address
+    /** Replacement policy administrators. */
+    admins: readonly Address[]
+    /** Transaction receipt. */
+    receipt: TransactionReceipt
+  }
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Replaces a funding policy's rules. The caller must be a current administrator.
+ * This changes the rules hash, invalidating earlier rules bytes for discovery.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and replacement rules.
+ * @returns The transaction hash.
+ */
+export async function setPolicyRules<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: setPolicyRules.Parameters<chain, account>,
+): Promise<setPolicyRules.ReturnValue> {
+  return setPolicyRules.inner(writeContract, client, parameters)
+}
+
+export namespace setPolicyRules {
+  export type Args = {
+    /** Policy ID. */
+    policyId: bigint
+    /** Replacement rules. */
+    rules: FundingPolicy.Rules
+  }
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+  export type ReturnValue = WriteContractReturnType
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { policyId, rules, ...rest } = parameters
+
+    await funding.registerPolicyRules(client, {
+      chainId: parameters.chain?.id,
+      rules,
+    })
+
+    return action(client, {
+      ...rest,
+      ...call({ policyId, rules }),
+    } as never) as never
+  }
+
+  /**
+   * Defines the `setPolicyRules` call with canonical route order.
+   *
+   * @param args - Policy ID and replacement rules.
+   * @returns The contract call.
+   */
+  export function call(args: Args) {
+    return defineCall({
+      address: Addresses.fundingPolicy,
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      functionName: 'setRules',
+      args: [
+        args.policyId,
+        {
+          maxSlippageBps: args.rules.maxSlippageBps,
+          routes: FundingPolicy.toRoutes(args.rules),
+        },
+      ],
+    })
+  }
+
+  /**
+   * Extracts `PolicyRulesUpdated` from funding policy logs.
+   *
+   * @param logs - Transaction logs.
+   * @returns The rules update event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: [...Abis.fundingPolicy, ...funding.fundingErrors],
+      eventName: 'PolicyRulesUpdated',
+      logs: logs.filter((log) =>
+        isAddressEqual(log.address, Addresses.fundingPolicy),
+      ),
+      strict: true,
+    })
+    if (!log) throw new Error('`PolicyRulesUpdated` event not found.')
+    return {
+      ...log,
+      args: {
+        ...log.args,
+        rules: {
+          maxSlippageBps: log.args.rules.maxSlippageBps,
+          sources: Object.fromEntries(
+            log.args.rules.routes.map(({ token, sources }) => [
+              token,
+              sources.map(({ target, data }) => ({ to: target, data })),
+            ]),
+          ),
+        } satisfies FundingPolicy.Rules,
+      },
+    }
+  }
+}
+
+/**
+ * Replaces funding policy rules and returns the updated commitment.
+ *
+ * @param client - Client.
+ * @param parameters - Policy ID and replacement rules.
+ * @returns The rules update event and transaction receipt.
+ */
+export async function setPolicyRulesSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: setPolicyRulesSync.Parameters<chain, account>,
+): Promise<setPolicyRulesSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await setPolicyRules.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
+  return { ...setPolicyRules.extractEvent(receipt.logs).args, receipt } as never
+}
+
+export namespace setPolicyRulesSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = setPolicyRules.Parameters<chain, account>
+  /** Updated policy rules and transaction receipt. */
+  export type ReturnValue = {
+    /** Funding policy identifier. */
+    policyId: bigint
+    /** Account that created or updated the policy. */
+    updater: Address
+    /** Hash of the policy rules committed onchain. */
+    rulesHash: Hex
+    /** Complete decoded rules for discovery and access key funding. */
+    rules: FundingPolicy.Rules
+    /** Transaction receipt. */
+    receipt: TransactionReceipt
+  }
+  export type ErrorType = BaseErrorType
 }
