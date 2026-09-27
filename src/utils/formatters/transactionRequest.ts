@@ -72,7 +72,10 @@ export function formatTransactionRequest(
       )
     else rpcRequest.blobs = request.blobs
   }
-  if (typeof request.chainId !== 'undefined')
+  if (
+    (request.type === 'eip8141' || request.frames !== undefined) &&
+    typeof request.chainId !== 'undefined'
+  )
     rpcRequest.chainId = numberToHex(request.chainId)
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
   if (typeof request.frames !== 'undefined') {

@@ -477,3 +477,9 @@ test('eip8141 explicit zero gas', () => {
     type: '0x6',
   })
 })
+
+test('omits chain ID for non-frame requests', () => {
+  expect(formatTransactionRequest({ chainId: 1, type: 'eip1559' })).toEqual({
+    type: '0x2',
+  })
+})
