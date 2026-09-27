@@ -1,4 +1,4 @@
-import { TxEnvelopeEip8141 } from 'ox'
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
