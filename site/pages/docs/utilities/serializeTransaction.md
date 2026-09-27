@@ -60,7 +60,9 @@ EIP-8141 is a draft. This example serializes an unsigned transaction with explic
 
 Frame transactions use the `signatures` array. Passing the separate `signature` argument or outer fields such as `to`, `value`, and `accessList` throws. An explicit `type` takes precedence over inference; incompatible fields also throw.
 
-The canonical signing hash excludes witnesses whose `payload` is empty. Use Ox's [`TxEnvelopeEip8141.getSignPayload`](https://github.com/wevm/ox/blob/ox%400.14.47/src/core/TxEnvelopeEip8141.ts) when signing entries manually. Hashing a populated serialized envelope with `keccak256` does not produce that signing hash.
+The canonical signing hash excludes witnesses whose `payload` is empty. Use Ox's [`TxEnvelopeEip8141.getSignPayload`](https://github.com/wevm/ox/blob/ox%400.14.47/src/core/TxEnvelopeEip8141.ts) when signing entries manually.
+
+Hashing a serialized envelope with `keccak256` does not produce that signing hash when it contains populated witnesses with empty payloads or a blob sidecar wrapper.
 
 Blob transactions accept `blobVersionedHashes` and PeerDAS `sidecars` containing `blobs`, `commitments`, and `cellProofs`. This wrapper differs from EIP-4844's array of blob sidecars.
 

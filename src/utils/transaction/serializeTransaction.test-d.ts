@@ -1,13 +1,17 @@
 import {
+  type ChainSerializers,
   type Frame,
   type FrameSignature,
   getSerializedTransactionType,
   getTransactionType,
   type Hex,
   parseTransaction,
+  type RecoverTransactionAddressErrorType,
+  type SerializeTransactionErrorType,
   serializeTransaction,
   type TransactionSerializable,
   type TransactionSerializableEIP8141,
+  type TransactionSerializableGeneric,
   type TransactionSerializedEIP8141,
 } from 'viem'
 import { expectTypeOf, test } from 'vitest'
@@ -67,4 +71,46 @@ test('eip8141', () => {
   serializeTransaction({ ...transaction, chainId: 1n })
   // @ts-expect-error EIP-4844 sidecars do not match the PeerDAS wrapper
   serializeTransaction({ ...transaction, sidecars: [] })
+})
+
+test('generic and custom-chain serializers preserve frame signatures', () => {
+  const transaction = {
+    chainId: 1,
+    frames: [{}],
+    sender: '0x0000000000000000000000000000000000000001',
+    signatures: [{ scheme: 'arbitrary', signature: '0xaabb' }],
+  } as const satisfies TransactionSerializableGeneric
+  expectTypeOf(transaction).toExtend<TransactionSerializableGeneric>()
+  type Serializers = ChainSerializers<{
+    transactionRequest: {
+      type: 'transactionRequest'
+      format: (transaction: { custom?: Hex | undefined }) => {
+        custom?: Hex | undefined
+      }
+    }
+  }>
+  type Input = Parameters<NonNullable<Serializers['transaction']>>[0]
+  expectTypeOf<Input['signatures']>().toEqualTypeOf<
+    readonly FrameSignature[] | undefined
+  >()
+  expectTypeOf(transaction).toExtend<Input>()
+})
+
+test('named frame errors are present in public error unions', () => {
+  expectTypeOf<
+    Extract<
+      SerializeTransactionErrorType,
+      {
+        name: 'SerializeTransaction.InvalidTypeError'
+      }
+    >
+  >().not.toBeNever()
+  expectTypeOf<
+    Extract<
+      RecoverTransactionAddressErrorType,
+      {
+        name: 'RecoverTransactionAddress.UnsupportedTransactionTypeError'
+      }
+    >
+  >().not.toBeNever()
 })

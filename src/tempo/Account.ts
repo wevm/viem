@@ -17,7 +17,7 @@ import type {
   Account as viem_Account,
 } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
-import type { TransactionSerializable } from '../types/transaction.js'
+import type { SignTransactionSerializer } from '../accounts/utils/signTransaction.js'
 import type { OneOf, RequiredBy } from '../types/utils.js'
 import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
@@ -30,8 +30,8 @@ import { parseApproval } from './multisig/Signature.js'
 import * as Transaction from './Transaction.js'
 
 export type Account_base<source extends string = string> = RequiredBy<
-  LocalAccount<source>,
-  'sign' | 'signAuthorization' | 'signTransaction'
+  Omit<LocalAccount<source>, 'signTransaction'>,
+  'sign' | 'signAuthorization'
 > & {
   /** Key type. */
   keyType: SignatureEnvelope.Type
@@ -40,7 +40,7 @@ export type Account_base<source extends string = string> = RequiredBy<
   /** Sign transaction fn. */
   signTransaction: <
     serializer extends
-      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
+      SignTransactionSerializer = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,

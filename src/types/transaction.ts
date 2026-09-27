@@ -321,6 +321,7 @@ export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
 export type TransactionSerializedEIP7702 = `0x04${string}`
+/** An RLP-encoded EIP-8141 transaction prefixed with transaction type 0x06. */
 export type TransactionSerializedEIP8141 = `0x06${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
@@ -468,5 +469,7 @@ export type TransactionSerializableGeneric<
     | TransactionSerializableEIP8141['sidecars']
     | false
     | undefined
+  /** Frame signature entries, including unsigned placeholders. */
+  signatures?: readonly FrameSignature[] | undefined
   type?: string | undefined
 }

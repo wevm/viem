@@ -151,12 +151,16 @@ test('eip8141 has no single recoverable signer', async () => {
     '0x06f84d010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0'
   await expect(
     recoverTransactionAddress({ serializedTransaction }),
-  ).rejects.toThrow(
-    'Cannot recover a single signer from an EIP-8141 transaction.',
+  ).rejects.toThrowError(
+    expect.objectContaining({
+      name: 'RecoverTransactionAddress.UnsupportedTransactionTypeError',
+    }),
   )
   await expect(
     recoverTransactionAddress({ serializedTransaction, signature: '0x' }),
-  ).rejects.toThrow(
-    'Cannot recover a single signer from an EIP-8141 transaction.',
+  ).rejects.toThrowError(
+    expect.objectContaining({
+      name: 'RecoverTransactionAddress.UnsupportedTransactionTypeError',
+    }),
   )
 })

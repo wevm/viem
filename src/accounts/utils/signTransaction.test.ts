@@ -507,18 +507,22 @@ describe('legacy', () => {
 test.each(['eip8141', undefined] as const)(
   'rejects ordinary signing of frame transactions: %s',
   async (type) => {
+    const transaction = {
+      chainId: 1,
+      frames: [{}],
+      sender: accounts[0].address,
+      type,
+    }
     await expect(
       signTransaction({
         privateKey: accounts[0].privateKey,
-        transaction: {
-          chainId: 1,
-          frames: [{}],
-          sender: accounts[0].address,
-          type,
-        },
+        // @ts-expect-error runtime guard for untyped callers
+        transaction,
       }),
-    ).rejects.toThrow(
-      'EIP-8141 transactions require signing the entries in the signatures array.',
+    ).rejects.toThrowError(
+      expect.objectContaining({
+        name: 'SignTransaction.UnsupportedTransactionTypeError',
+      }),
     )
   },
 )

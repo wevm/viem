@@ -1,6 +1,6 @@
-import { BaseError, type BaseErrorType } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hex, Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerialized,
@@ -10,16 +10,12 @@ import {
   keccak256,
 } from '../../utils/hash/keccak256.js'
 import type { GetTransactionType } from '../../utils/transaction/getTransactionType.js'
-import {
-  type SerializeTransactionFn,
-  serializeTransaction,
-} from '../../utils/transaction/serializeTransaction.js'
+import { serializeTransaction } from '../../utils/transaction/serializeTransaction.js'
 
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTransactionParameters<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends SignTransactionSerializer = SignTransactionSerializer,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = {
   privateKey: Hex
@@ -28,20 +24,18 @@ export type SignTransactionParameters<
 }
 
 export type SignTransactionReturnType<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends SignTransactionSerializer = SignTransactionSerializer,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = TransactionSerialized<GetTransactionType<transaction>>
 
 export type SignTransactionErrorType =
-  | BaseErrorType
+  | UnsupportedTransactionTypeError
   | Keccak256ErrorType
   | SignErrorType
   | ErrorType
 
 export async function signTransaction<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends SignTransactionSerializer = SignTransactionSerializer,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 >(
   parameters: SignTransactionParameters<serializer, transaction>,
@@ -54,15 +48,10 @@ export async function signTransaction<
 
   if (
     serializer === serializeTransaction &&
-    (transaction.type === 'eip8141' ||
+    ((transaction as TransactionSerializable).type === 'eip8141' ||
       (!transaction.type && transaction.frames !== undefined))
   )
-    throw new BaseError(
-      'EIP-8141 transactions require signing the entries in the signatures array.',
-      {
-        name: 'SignTransaction.UnsupportedTransactionTypeError',
-      },
-    )
+    throw new UnsupportedTransactionTypeError()
 
   const signableTransaction = (() => {
     // For EIP-4844 Transactions, we want to sign the transaction payload body (tx_payload_body) without the sidecars (ie. without the network wrapper).
@@ -84,3 +73,20 @@ export async function signTransaction<
     signature,
   )) as SignTransactionReturnType<serializer, transaction>
 }
+
+/** EIP-8141 transactions require signing the entries in the signatures array. */
+export class UnsupportedTransactionTypeError extends BaseError {
+  override readonly name = 'SignTransaction.UnsupportedTransactionTypeError'
+
+  constructor() {
+    super(
+      'EIP-8141 transactions require signing the entries in the signatures array.',
+    )
+  }
+}
+
+/** Serializer for transactions with an outer ECDSA signature. */
+export type SignTransactionSerializer = (
+  transaction: Exclude<TransactionSerializable, { frames: readonly unknown[] }>,
+  signature?: Signature | undefined,
+) => Hex | Promise<Hex>

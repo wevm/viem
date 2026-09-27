@@ -197,3 +197,16 @@ test('const: 8141 attributes with explicit type', () => {
     getTransactionType({ frames: [], type: '0x7e' }),
   ).toEqualTypeOf<'0x7e'>()
 })
+
+test('8141 attributes with optional explicit type', () => {
+  const transaction: { frames: readonly []; type?: 'eip1559' | undefined } = {
+    frames: [],
+  }
+  expectTypeOf(getTransactionType(transaction)).toEqualTypeOf<
+    'eip1559' | 'eip8141'
+  >()
+  const custom: { frames: readonly []; type?: '0x7e' | undefined } = {
+    frames: [],
+  }
+  expectTypeOf(getTransactionType(custom)).toEqualTypeOf<'0x7e' | 'eip8141'>()
+})

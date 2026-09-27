@@ -6,6 +6,7 @@ import {
   serializeTransaction,
   sliceHex,
 } from 'viem'
+import { Transaction as TempoTransaction } from 'viem/tempo'
 import { assertType, describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { accounts } from '~test/constants.js'
@@ -62,6 +63,22 @@ describe('eip8141', () => {
     sender: accounts[0].address,
     signatures: [{ scheme: 'secp256k1' }],
   } satisfies TransactionSerializableEIP8141
+
+  test.each(['eip8141', undefined] as const)(
+    'Tempo serialization preserves frame signatures: %s',
+    async (type) => {
+      for (const signatures of [
+        transaction.signatures,
+        [{ scheme: 'arbitrary', signature: '0xaabb' }] as const,
+      ]) {
+        const envelope = { ...transaction, signatures, type }
+        expect(TempoTransaction.getType(envelope)).toBe('eip8141')
+        expect(await TempoTransaction.serialize(envelope)).toBe(
+          serializeTransaction(envelope),
+        )
+      }
+    },
+  )
 
   test('unsigned', () => {
     expect(serializeTransaction(transaction)).toMatchInlineSnapshot(
@@ -142,7 +159,48 @@ describe('eip8141', () => {
         // @ts-expect-error frames are not part of EIP-1559
         { ...transaction, type: 'eip1559' },
       ),
-    ).toThrow('Frame transaction fields require type "eip8141".')
+    ).toThrowError(
+      expect.objectContaining({
+        name: 'SerializeTransaction.InvalidTypeError',
+      }),
+    )
+  })
+
+  test('invalid PeerDAS sidecars', () => {
+    const commitment = `0xc0${'00'.repeat(47)}` as const
+    const sidecars = {
+      blobs: [`0x${'00'.repeat(131_072)}` as const],
+      cellProofs: Array.from({ length: 128 }, () => commitment),
+      commitments: [commitment],
+    }
+    const envelope = {
+      ...transaction,
+      blobVersionedHashes: commitmentsToVersionedHashes({
+        commitments: [commitment],
+      }),
+      maxFeePerBlobGas: 1n,
+    }
+    expect(() =>
+      serializeTransaction({
+        ...envelope,
+        sidecars: { ...sidecars, cellProofs: [] },
+      }),
+    ).toThrow('PeerDAS sidecar counts do not match blob hashes.')
+    expect(() =>
+      serializeTransaction({
+        ...envelope,
+        sidecars: { ...sidecars, blobs: ['0x00'] },
+      }),
+    ).toThrow('Invalid blob size or commitment.')
+    expect(() =>
+      serializeTransaction({
+        ...envelope,
+        sidecars: {
+          ...sidecars,
+          cellProofs: sidecars.cellProofs.map(() => '0x00' as const),
+        },
+      }),
+    ).toThrow('Cell proofs must contain 48 bytes.')
   })
 
   test('PeerDAS wrapper', () => {
