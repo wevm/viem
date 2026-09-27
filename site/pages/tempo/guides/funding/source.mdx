@@ -43,7 +43,7 @@ await client.token.transferSync({
 
 Use `getRoute` on the `withFunding` transport to choose sources and slippage for each output token.
 
-The callback replaces the default route lookup for owner and access key requests. Access key routes must satisfy the key's current funding policy. Returning `undefined` rejects discovery for that request.
+The callback replaces the default route lookup. Returning `undefined` rejects discovery for that request.
 
 These examples use testnet tokens. Replace the Earn source and vault placeholders with deployed addresses; the vault must hold PathUSD.
 
@@ -491,11 +491,7 @@ export const client = createClient({
 
 :::
 
-You can supply `policyRules` as a decoded object or ABI-encoded hex when the current rules are not in the store. The handler verifies supplied rules against the policy's current hash.
-
-A configured `getRoute` supplies omitted sources; otherwise, discovery uses the policy sources. During discovery, slippage uses the transaction value, then the route value, then the policy maximum. The selected value cannot exceed the policy maximum.
-
-Inline key authorization supplies the initial rules to the store. Later transactions using that store do not need to repeat `policyRules`, provided the cached rules match the current onchain commitment.
+You can supply `policyRules` as a decoded object or ABI-encoded hex when the current rules are not in the store. The handler verifies supplied rules against the policy’s current hash. Omitted `slippageBps` uses the policy maximum; an explicit value cannot exceed it.
 
 The signed `keyAuthorization` installs the key in the payment transaction. Funding and payment revert together, but key installation can persist after a payment revert. An inline funding policy can also persist.
 

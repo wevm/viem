@@ -38,9 +38,7 @@ The account must hold a fee token or use a fee payer. Funding supplies applicati
 
 Optional callback returning ordered source configurations and `slippageBps` for a chain and output token. The token address is checksummed. Return `undefined` to reject discovery for that pair. Explicit sources bypass the callback.
 
-For access keys, the callback also supplies omitted sources, subject to the key's current policy restrictions on sources, order, caps, and slippage. Without a callback, access keys use the policy's sources.
-
-For owner requests without a callback, mainnet and testnet use Viem's known tokens with the same currency as the output, excluding the output itself. Localnet uses PathUSD, AlphaUSD, BetaUSD, and ThetaUSD. Inputs have no source-specific cap. Unknown output tokens and other chains, including Zones, require a custom callback.
+By default, mainnet and testnet use Viem's known tokens with the same currency as the output, excluding the output itself. Localnet uses PathUSD, AlphaUSD, BetaUSD, and ThetaUSD. Inputs have no source-specific cap. Unknown output tokens and other chains, including Zones, require a custom callback.
 
 ```ts
 import { http } from 'viem'
@@ -59,9 +57,7 @@ withFunding(http(), {
 })
 ```
 
-During discovery, explicit transaction slippage takes precedence over the route default. If both are omitted, access keys use the policy maximum and owner requests use zero. The selected slippage cannot exceed the access key policy maximum.
-
-Each requirement has its own aggregate tolerance. Known tokens are discovery inputs, not a guarantee of balances, liquidity, or deployed funding support.
+Explicit transaction slippage takes precedence over the route default. If both are omitted, slippage is zero. Each requirement has its own aggregate tolerance. Known tokens are discovery inputs, not a guarantee of balances, liquidity, or deployed funding support.
 
 The transport passes the client's configured chain ID to the handler. The handler uses the explicit request-option chain ID or the transaction's chain ID and rejects conflicts. When neither is supplied, it defaults to Tempo mainnet (4217). Discovery and filling receive the resolved chain ID in request options.
 
@@ -86,8 +82,6 @@ The policy must already exist, and its current rules must be registered for auto
 - **Type:** `Store.Store`
 
 Required store for funding policy rules. Use a long-lived persistent store to retain rules across restarts. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
-
-Inline key authorization supplies the initial rules. Later transactions can reuse the same store without repeating `policyRules`. If the current rules are missing, supply them explicitly.
 
 ```ts
 import { http } from 'viem'

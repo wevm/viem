@@ -32,9 +32,7 @@ const handleRequest = Funding.handleRequest(
 
 Optional callback resolving source configurations for the chain ID and checksummed output token. Return `undefined` when no route is available. Async callbacks can load configuration from a store.
 
-The callback supplies omitted sources for both owner and access key requests. Explicit sources, including `[]`, bypass it. Access key routes remain subject to the policy restrictions.
-
-Without a callback, access keys use their policy sources, and owner requests use known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`withFunding`](/tempo/transports/withFunding) for default selection and slippage precedence.
+When omitted, the handler uses known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`withFunding`](/tempo/transports/withFunding) for default selection and slippage precedence.
 
 The handler infers the chain from the transaction or accepts `handleRequest(request, { chainId })`. Conflicts are rejected. Without either value, it defaults to Tempo mainnet (4217). All discovery and fill requests forward the resolved chain ID to `next`.
 
