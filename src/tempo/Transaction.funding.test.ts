@@ -24,6 +24,49 @@ describe('getType', () => {
 })
 
 describe('formatTransactionRequest', () => {
+  test('preserves omitted sources for JSON-RPC wallets', () => {
+    expect(
+      Formatters.formatTransactionRequest(
+        { requireFunds: [{ token, amount: 50n }] },
+        'sendTransaction',
+      ),
+    ).toMatchInlineSnapshot(`
+      {
+        "calls": [
+          {
+            "data": "0x",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": "0x",
+          },
+        ],
+        "data": undefined,
+        "requireFunds": [
+          {
+            "amount": "0x32",
+            "token": "0x20c0000000000000000000000000000000000000",
+          },
+        ],
+        "to": undefined,
+        "type": "0x76",
+        "value": undefined,
+      }
+    `)
+  })
+
+  test.each(['estimateGas', 'call', 'signTransaction'])(
+    'rejects unresolved sources for %s',
+    (action) => {
+      expect(() =>
+        Formatters.formatTransactionRequest(
+          { requireFunds: [{ token, amount: 50n }] },
+          action,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Resolve omitted funding sources with \`eth_fillTransaction\` before estimating or signing.]`,
+      )
+    },
+  )
+
   test('encodes complete requirements and explicit zero slippage', () => {
     const formatted = Formatters.formatTransactionRequest({
       requireFunds: [requirement],
@@ -33,7 +76,7 @@ describe('formatTransactionRequest', () => {
       FundingRequirement.toRpc(requirement),
     ])
     expect(formatted.requireFunds?.[0]?.sources?.[0]).toEqual({
-      target: Addresses.dexFundingSource,
+      to: Addresses.dexFundingSource,
       data: requirement.sources[0]?.data,
     })
   })

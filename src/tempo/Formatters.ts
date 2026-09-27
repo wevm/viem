@@ -159,7 +159,13 @@ export function formatTransactionRequest(
   const unresolved = requireFunds?.some(
     (requirement) => requirement.sources === undefined,
   )
-  if (unresolved && action && action !== 'fillTransaction')
+  // JSON-RPC wallets resolve funding before signing, just like local accounts.
+  if (
+    unresolved &&
+    action &&
+    action !== 'fillTransaction' &&
+    action !== 'sendTransaction'
+  )
     throw new Error(
       'Resolve omitted funding sources with `eth_fillTransaction` before estimating or signing.',
     )
