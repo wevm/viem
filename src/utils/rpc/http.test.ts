@@ -1,15 +1,13 @@
 import type { IncomingHttpHeaders } from 'node:http'
-import { describe, expect, test, vi } from 'vitest'
+import { json } from 'node:stream/consumers'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
-import { getBlockNumber, mine } from '../../actions/index.js'
 import { keccak256 } from '../../index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
 import { getHttpRpcClient, parseUrl } from './http.js'
-
-const client = anvilMainnet.getClient()
 
 describe('request', () => {
   test('valid request', async () => {
@@ -104,12 +102,21 @@ describe('request', () => {
   })
 
   test('parallel requests', async () => {
-    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
-
-    await wait(500)
-
-    await mine(client, { blocks: 100 })
-    const blockNumber = await getBlockNumber(client)
+    const blockNumber = 100n
+    const server = await createHttpServer(async (request, response) => {
+      type Request = { id: number; params: readonly [`0x${string}`, boolean] }
+      const { id, params } = (await json(request)) as Request
+      // Stagger responses to exercise concurrent requests without a fork RPC.
+      await wait(Number(BigInt(params[0]) % 10n))
+      response.setHeader('Content-Type', 'application/json')
+      response.end(
+        JSON.stringify({ id, jsonrpc: '2.0', result: { number: params[0] } }),
+      )
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const rpcClient = getHttpRpcClient(server.url)
 
     const response = await Promise.all(
       Array.from({ length: 50 }).map(async (_, i) => {
@@ -126,7 +133,6 @@ describe('request', () => {
         numberToHex(blockNumber - BigInt(i)),
       ),
     )
-    await wait(500)
   })
 
   test('no application/json header', async () => {
