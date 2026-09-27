@@ -377,19 +377,40 @@ export async function prepareTransactionRequest<
   }
 
   const frames = request.frames
-  if (
+  const signed =
     frames &&
-    parameters.some((parameter) =>
-      ['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce'].includes(
-        parameter,
-      ),
-    ) &&
     request.signatures?.some(
       (entry) =>
         (!entry.payload || entry.payload === '0x') &&
         entry.signature !== undefined &&
         entry.signature !== '0x',
     )
+  if (
+    signed &&
+    parameters.some((parameter) => {
+      switch (parameter) {
+        case 'blobVersionedHashes':
+          return (
+            !!request.blobs && !!request.kzg && !request.blobVersionedHashes
+          )
+        case 'chainId':
+          return request.chainId === undefined
+        case 'fees':
+          return (
+            request.maxFeePerGas === undefined ||
+            request.maxPriorityFeePerGas === undefined
+          )
+        case 'gas':
+          return frames?.some(
+            (frame) =>
+              frame.executionGas === undefined || frame.stateGas === undefined,
+          )
+        case 'nonce':
+          return nonce === undefined
+        default:
+          return false
+      }
+    })
   )
     throw new BaseError(
       'Signed frame transactions must be sent with sendRawTransaction.',
@@ -671,7 +692,10 @@ export async function prepareTransactionRequest<
   ) {
     const commitments = blobsToCommitments({ blobs, kzg })
 
-    if (parameters.includes('blobVersionedHashes')) {
+    if (
+      parameters.includes('blobVersionedHashes') &&
+      (!signed || request.blobVersionedHashes === undefined)
+    ) {
       const versionedHashes = commitmentsToVersionedHashes({
         commitments,
         to: 'hex',
@@ -797,7 +821,7 @@ export async function prepareTransactionRequest<
       },
     )
 
-  if (frames && account)
+  if (frames && account && !(signed && 'sender' in request))
     request = { ...request, sender: account.address } as typeof request
 
   assertRequest(request as AssertRequestParameters)

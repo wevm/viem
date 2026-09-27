@@ -1,4 +1,11 @@
-import { defineChain, http, parseTransaction, toBlobs } from 'viem'
+import {
+  defineChain,
+  http,
+  parseTransaction,
+  serializeTransaction,
+  type TransactionSerializableEIP8141,
+  toBlobs,
+} from 'viem'
 import { prepareTransactionRequest } from 'viem/actions'
 import { expect, test } from 'vitest'
 import { accounts, chain, getClient } from '~test/frames/config.js'
@@ -168,3 +175,58 @@ test.each([true, false])(
     expect(result).toHaveProperty('sender', accounts[0].address)
   },
 )
+
+test('preserves a fully prepared signed frame transaction', async () => {
+  const prepared = await prepareTransactionRequest(client, request)
+  const serialized = await accounts[0].signTransaction(
+    prepared as TransactionSerializableEIP8141,
+  )
+  const transaction = parseTransaction(serialized)
+  if (transaction.type !== 'eip8141')
+    throw new Error('Expected a frame transaction.')
+  const { sidecars: _sidecars, ...parsed } = transaction
+
+  const { from: _, ...result } = await prepareTransactionRequest(client, parsed)
+  expect(serializeTransaction(result as TransactionSerializableEIP8141)).toBe(
+    serialized,
+  )
+
+  const { from: _otherFrom, ...withOtherAccount } =
+    await prepareTransactionRequest(getClient({ account: accounts[1] }), parsed)
+  expect(
+    serializeTransaction(withOtherAccount as TransactionSerializableEIP8141),
+  ).toBe(serialized)
+
+  for (const field of [
+    'chainId',
+    'nonce',
+    'maxFeePerGas',
+    'maxPriorityFeePerGas',
+  ] as const)
+    await expect(
+      prepareTransactionRequest(client, { ...parsed, [field]: undefined }),
+    ).rejects.toThrow(
+      'Signed frame transactions must be sent with sendRawTransaction.',
+    )
+
+  for (const field of ['executionGas', 'stateGas'] as const)
+    await expect(
+      prepareTransactionRequest(client, {
+        ...parsed,
+        frames: parsed.frames.map((frame) => ({
+          ...frame,
+          [field]: undefined,
+        })),
+      }),
+    ).rejects.toThrow(
+      'Signed frame transactions must be sent with sendRawTransaction.',
+    )
+
+  const unchanged = await prepareTransactionRequest(client, {
+    ...parsed,
+    blobs: toBlobs({ data: '0x1234' }),
+    kzg,
+    parameters: ['blobVersionedHashes'],
+  } as never)
+  expect(unchanged.blobVersionedHashes).toEqual(parsed.blobVersionedHashes)
+})
