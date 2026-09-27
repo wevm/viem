@@ -8,6 +8,7 @@ import { accounts } from '~test/constants.js'
 import { blobData, kzg } from '~test/kzg.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
+import { serializeTransaction as serializeTransactionOpStack } from '../../op-stack/serializers.js'
 import type {
   TransactionSerializable,
   TransactionSerializableBase,
@@ -536,8 +537,25 @@ describe('eip8141', () => {
     signatures: [{ scheme: 'secp256k1' }],
   } as const
 
-  test.each(['eip8141', undefined] as const)('signs: %s', async (type) => {
-    const serialized = await account.signTransaction({ ...transaction, type })
+  test.each(
+    (['eip8141', undefined] as const).flatMap((type) =>
+      ([undefined, '0x'] as const).flatMap((signature) =>
+        [undefined, serializeTransactionOpStack].map((serializer) => ({
+          type,
+          signature,
+          serializer,
+        })),
+      ),
+    ),
+  )('signs: %j', async ({ type, signature, serializer }) => {
+    const serialized = await account.signTransaction(
+      {
+        ...transaction,
+        type,
+        signatures: [{ scheme: 'secp256k1', signature }] as const,
+      },
+      { serializer },
+    )
     const parsed = parseTransaction(serialized)
     if (parsed.type !== 'eip8141')
       throw new Error('Expected a frame transaction.')

@@ -47,8 +47,8 @@ import type {
   ExactPartial,
   IsNever,
   Prettify,
+  RequiredBy,
   UnionOmit,
-  UnionRequiredBy,
 } from '../../types/utils.js'
 import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
@@ -105,6 +105,18 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
+
+type PrepareTransactionRequestRequired<
+  request,
+  keys extends keyof request,
+> = request extends unknown
+  ? RequiredBy<
+      request,
+      request extends { frames: readonly unknown[] }
+        ? Exclude<keys, 'gas'>
+        : keys
+    >
+  : never
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -202,7 +214,7 @@ export type PrepareTransactionRequestReturnType<
     { type?: _transactionType extends string ? _transactionType : undefined }
   >,
 > = Prettify<
-  UnionRequiredBy<
+  PrepareTransactionRequestRequired<
     Extract<
       UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
         (_derivedChain extends Chain
@@ -321,23 +333,6 @@ export async function prepareTransactionRequest<
     parameters,
   } = request
 
-  const frames = request.frames
-  if (
-    frames &&
-    parameters.some((parameter) =>
-      ['chainId', 'fees', 'gas', 'nonce'].includes(parameter),
-    ) &&
-    request.signatures?.some(
-      (entry) =>
-        (!entry.payload || entry.payload === '0x') &&
-        entry.signature !== undefined &&
-        entry.signature !== '0x',
-    )
-  )
-    throw new BaseError(
-      'Signed frame transactions must be sent with sendRawTransaction.',
-    )
-
   const prepareTransactionRequest = (() => {
     if (typeof chain?.prepareTransactionRequest === 'function')
       return {
@@ -380,6 +375,25 @@ export async function prepareTransactionRequest<
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
   }
+
+  const frames = request.frames
+  if (
+    frames &&
+    parameters.some((parameter) =>
+      ['blobVersionedHashes', 'chainId', 'fees', 'gas', 'nonce'].includes(
+        parameter,
+      ),
+    ) &&
+    request.signatures?.some(
+      (entry) =>
+        (!entry.payload || entry.payload === '0x') &&
+        entry.signature !== undefined &&
+        entry.signature !== '0x',
+    )
+  )
+    throw new BaseError(
+      'Signed frame transactions must be sent with sendRawTransaction.',
+    )
 
   if (
     parameters.includes('nonce') &&
@@ -459,7 +473,11 @@ export async function prepareTransactionRequest<
       )
     )
       return true
-    if (parameters.includes('gas') && typeof request.gas !== 'bigint')
+    if (
+      parameters.includes('gas') &&
+      !frames &&
+      typeof request.gas !== 'bigint'
+    )
       return true
     return false
   })()
@@ -470,7 +488,46 @@ export async function prepareTransactionRequest<
         fillTransaction,
         'fillTransaction',
       )({ ...request, nonce } as FillTransactionParameters)
+        .catch((e) => {
+          if (
+            frames &&
+            parameters.includes('gas') &&
+            frames.some(
+              (frame) =>
+                frame.executionGas === undefined ||
+                frame.stateGas === undefined,
+            )
+          )
+            throw e
+          const error = e as FillTransactionErrorType
+
+          if (error.name !== 'TransactionExecutionError') return undefined
+
+          const nonceMismatch = error.walk?.(
+            (error) => error instanceof FeePayerNonceMismatchError,
+          )
+          if (nonceMismatch) throw e
+
+          const executionReverted = error.walk?.((e) => {
+            const error = e as BaseError
+            return error.name === 'ExecutionRevertedError'
+          })
+          if (executionReverted) throw e
+
+          const unsupported = error.walk?.((e) => {
+            const error = e as BaseError
+            return (
+              error.name === 'MethodNotFoundRpcError' ||
+              error.name === 'MethodNotSupportedRpcError' ||
+              error.message?.includes('eth_fillTransaction is not available')
+            )
+          })
+          if (unsupported) supportsFillTransaction.set(client.uid, false)
+
+          return undefined
+        })
         .then((result) => {
+          if (!result) return request
           const {
             chainId,
             from,
@@ -555,43 +612,6 @@ export async function prepareTransactionRequest<
               ? { _capabilities: result.capabilities }
               : {}),
           }
-        })
-        .catch((e) => {
-          if (
-            frames &&
-            parameters.includes('gas') &&
-            frames.some(
-              (frame) =>
-                frame.gas === undefined || frame.stateGas === undefined,
-            )
-          )
-            throw e
-          const error = e as FillTransactionErrorType
-
-          if (error.name !== 'TransactionExecutionError') return request
-
-          const nonceMismatch = error.walk?.(
-            (error) => error instanceof FeePayerNonceMismatchError,
-          )
-          if (nonceMismatch) throw e
-
-          const executionReverted = error.walk?.((e) => {
-            const error = e as BaseError
-            return error.name === 'ExecutionRevertedError'
-          })
-          if (executionReverted) throw e
-
-          const unsupported = error.walk?.((e) => {
-            const error = e as BaseError
-            return (
-              error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError' ||
-              error.message?.includes('eth_fillTransaction is not available')
-            )
-          })
-          if (unsupported) supportsFillTransaction.set(client.uid, false)
-
-          return request
         })
     : request
 

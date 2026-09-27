@@ -2554,3 +2554,109 @@ describe('behavior: attemptFill', () => {
     ).toEqual(autoSwapCalls)
   })
 })
+
+describe('eip8141', () => {
+  const request = {
+    chainId: 1,
+    nonce: 0,
+    maxFeePerGas: 10n,
+    maxPriorityFeePerGas: 1n,
+    frames: [
+      {
+        mode: 'verify',
+        flags: 'approveExecutionAndPayment',
+        executionGas: 50_000n,
+        stateGas: 0n,
+      },
+    ],
+    signatures: [{ scheme: 'secp256k1' }],
+  } as const
+
+  test('does not fill a fully prepared frame transaction', async () => {
+    const fill = vi.spyOn(fillTransaction, 'fillTransaction').mockRejectedValue(
+      new TransactionExecutionError(new BaseError('Execution reverted'), {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+      }),
+    )
+    const result = await prepareTransactionRequest(client, request)
+    expect(fill).not.toHaveBeenCalled()
+    expect(result.frames).toEqual(request.frames)
+    expect(result.gas).toBeUndefined()
+  })
+
+  test('rejects filling blob hashes on signed frames', async () => {
+    await expect(
+      prepareTransactionRequest(client, {
+        ...request,
+        blobs: toBlobs({ data: '0x1234' }),
+        kzg,
+        parameters: ['blobVersionedHashes'],
+        signatures: [
+          { scheme: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
+        ] as const,
+      } as never),
+    ).rejects.toThrow(
+      'Signed frame transactions must be sent with sendRawTransaction.',
+    )
+  })
+
+  test.each([true, false])(
+    'rejects mismatched frame counts with gas supplied: %s',
+    async (hasGas) => {
+      vi.spyOn(fillTransaction, 'fillTransaction').mockResolvedValue({
+        transaction: { ...request, frames: [], nonce: 1 },
+      } as any)
+      await expect(
+        prepareTransactionRequest(client, {
+          ...request,
+          nonce: undefined,
+          frames: hasGas ? request.frames : [{ mode: 'verify' }],
+        }),
+      ).rejects.toThrow('The node returned an unexpected number of frames.')
+    },
+  )
+
+  test.each([true, false])(
+    'preserves frames from the pre-fill hook with input frames: %s',
+    async (hasFrames) => {
+      const frames = [
+        { mode: 'sender', to: targetAccount.address, value: 42n },
+      ] as const
+      const fill = vi
+        .spyOn(fillTransaction, 'fillTransaction')
+        .mockResolvedValue({
+          transaction: {
+            ...request,
+            frames: [{ ...frames[0], executionGas: 30_000n, stateGas: 0n }],
+          },
+        } as any)
+      const result = await prepareTransactionRequest(client, {
+        chainId: request.chainId,
+        nonce: request.nonce,
+        maxFeePerGas: request.maxFeePerGas,
+        maxPriorityFeePerGas: request.maxPriorityFeePerGas,
+        account: sourceAccount.address,
+        ...(hasFrames
+          ? { frames: request.frames, signatures: request.signatures }
+          : {}),
+        chain: defineChain({
+          ...client.chain,
+          prepareTransactionRequest: async (parameters) => ({
+            ...request,
+            account: parameters.account,
+            chain: parameters.chain,
+            frames,
+          }),
+        }),
+      })
+      expect(fill).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ frames }),
+      )
+      expect(result.frames).toEqual([
+        { ...frames[0], executionGas: 30_000n, stateGas: 0n },
+      ])
+      expect(result).toHaveProperty('sender', sourceAccount.address)
+    },
+  )
+})

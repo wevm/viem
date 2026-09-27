@@ -56,9 +56,8 @@ export async function signTransaction<
   } = parameters
 
   if (
-    serializer === serializeTransaction &&
-    (transaction.type === 'eip8141' ||
-      (!transaction.type && transaction.frames !== undefined))
+    transaction.type === 'eip8141' ||
+    (!transaction.type && transaction.frames !== undefined)
   ) {
     const {
       from: _from,
@@ -76,7 +75,7 @@ export async function signTransaction<
       (entry.scheme !== 'secp256k1' && entry.scheme !== 1) ||
       (entry.signer && entry.signer.toLowerCase() !== address.toLowerCase()) ||
       (entry.payload && entry.payload !== '0x') ||
-      entry.signature
+      (entry.signature !== undefined && entry.signature !== '0x')
     )
       throw new BaseError(
         'Expected an unsigned secp256k1 entry for the transaction sender at signature index 0.',
@@ -98,11 +97,12 @@ export async function signTransaction<
     const signature = await sign({
       hash: TxEnvelopeEip8141.getSignPayload({
         ...envelope,
+        signatures: [{ ...entry, signature: undefined }, ...rest],
         nonce: BigInt(envelope.nonce ?? 0),
       }),
       privateKey,
     })
-    return serializeTransaction({
+    return (await serializer({
       ...envelope,
       signatures: [
         {
@@ -115,7 +115,7 @@ export async function signTransaction<
         },
         ...rest,
       ],
-    }) as SignTransactionReturnType<serializer, transaction>
+    })) as SignTransactionReturnType<serializer, transaction>
   }
 
   const signableTransaction = (() => {
