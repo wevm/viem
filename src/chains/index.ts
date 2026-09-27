@@ -355,6 +355,7 @@ export { klaytn } from './definitions/klaytn.js'
 /** @deprecated Use `kairos` instead. */
 export { klaytnBaobab } from './definitions/klaytnBaobab.js'
 export { koi } from './definitions/koi.js'
+export { kortana } from './definitions/kortana.js'
 export { kroma } from './definitions/kroma.js'
 export { kromaSepolia } from './definitions/kromaSepolia.js'
 export { krown } from './definitions/krown.js'
