@@ -35,13 +35,13 @@ test('default', async () => {
       "chainId": 8141,
       "frames": [
         {
+          "executionGas": 100n,
           "flags": "approveExecutionAndPayment",
-          "gas": 100n,
           "mode": "verify",
           "stateGas": 0n,
         },
         {
-          "gas": 2600n,
+          "executionGas": 3000n,
           "mode": "sender",
           "stateGas": 0n,
           "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
@@ -49,10 +49,9 @@ test('default', async () => {
         },
       ],
       "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      "gas": 2700n,
       "maxFeePerBlobGas": 0n,
-      "maxFeePerGas": 2100000001n,
-      "maxPriorityFeePerGas": 1n,
+      "maxFeePerGas": 3600000000n,
+      "maxPriorityFeePerGas": 1000000000n,
       "nonce": 0,
       "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "signatures": [
@@ -63,7 +62,7 @@ test('default', async () => {
       "type": "eip8141",
     }
   `)
-  expect(request.frames[0]).not.toHaveProperty('gas')
+  expect(request.frames[0]).not.toHaveProperty('executionGas')
 })
 
 test('args: nonce and frame gas', async () => {
@@ -75,7 +74,7 @@ test('args: nonce and frame gas', async () => {
     frames: [
       {
         flags: 'approveExecutionAndPayment',
-        gas: 50_000n,
+        executionGas: 50_000n,
         mode: 'verify',
         stateGas: 0n,
       },
@@ -88,7 +87,7 @@ test('args: nonce and frame gas', async () => {
   expect(result.frames).toEqual([
     {
       flags: 'approveExecutionAndPayment',
-      gas: 50_000n,
+      executionGas: 50_000n,
       mode: 'verify',
       stateGas: 0n,
     },

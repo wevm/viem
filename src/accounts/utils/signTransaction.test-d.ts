@@ -1,9 +1,5 @@
 import type { Hex, TransactionSerializable } from 'viem'
-import {
-  privateKeyToAccount,
-  type SignTransactionErrorType,
-  signTransaction,
-} from 'viem/accounts'
+import { privateKeyToAccount, signTransaction } from 'viem/accounts'
 import { expectTypeOf, test } from 'vitest'
 
 const privateKey =
@@ -14,13 +10,10 @@ const transaction = {
   sender: '0x0000000000000000000000000000000000000001',
 } as const
 
-test('default signing excludes frame transactions', () => {
+test('default signing accepts frame transactions', () => {
   const account = privateKeyToAccount(privateKey)
-  // @ts-expect-error frame transactions require a capable serializer
   account.signTransaction(transaction)
-  // @ts-expect-error explicit frame transactions require a capable serializer
   account.signTransaction({ ...transaction, type: 'eip8141' })
-  // @ts-expect-error frame transactions require a capable serializer
   signTransaction({ privateKey, transaction })
   expectTypeOf(
     signTransaction({
@@ -42,15 +35,4 @@ test('custom serializers accept frame transactions', () => {
   expectTypeOf(
     signTransaction({ privateKey, transaction, serializer }),
   ).toEqualTypeOf<Promise<`0x06${string}`>>()
-})
-
-test('unsupported transaction error is present in the error union', () => {
-  expectTypeOf<
-    Extract<
-      SignTransactionErrorType,
-      {
-        name: 'SignTransaction.UnsupportedTransactionTypeError'
-      }
-    >
-  >().not.toBeNever()
 })

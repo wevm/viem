@@ -4,11 +4,12 @@ import type { SmartAccount } from '../account-abstraction/accounts/types.js'
 import type { HDKey } from '../types/account.js'
 import type { AuthorizationRequest } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
+import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
 import type { OneOf, Prettify } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
+import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { SignAuthorizationReturnType } from './utils/signAuthorization.js'
-import type { SignTransactionSerializer } from './utils/signTransaction.js'
 
 export type Account<address extends Address = Address> = OneOf<
   JsonRpcAccount<address> | LocalAccount<string, address> | SmartAccount
@@ -31,7 +32,8 @@ export type CustomSource = {
     | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
-    serializer extends SignTransactionSerializer = SignTransactionSerializer,
+    serializer extends
+      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
