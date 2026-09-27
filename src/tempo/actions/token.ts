@@ -3638,7 +3638,12 @@ export async function transferSync<
     .filter(
       (log) =>
         log.address.toLowerCase() === address.toLowerCase() &&
-        log.args.to?.toLowerCase() === parameters.to.toLowerCase() &&
+        (log.args.to?.toLowerCase() === parameters.to.toLowerCase() ||
+          // Receive policies escrow blocked transfers in the guard.
+          (log.args.to?.toLowerCase() ===
+            Addresses.receivePolicyGuard.toLowerCase() &&
+            log.args.from?.toLowerCase() ===
+              (parameters.from ?? receipt.from).toLowerCase())) &&
         log.args.amount === internal_Token.toBaseUnits(amount, decimals),
     )
     .reverse()
