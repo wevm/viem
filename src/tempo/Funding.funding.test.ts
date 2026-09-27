@@ -242,7 +242,7 @@ describe('handleRequest', () => {
               "sources": [
                 {
                   "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002ebae40",
-                  "to": "0x1120000000000000000000000000000000000001",
+                  "target": "0x1120000000000000000000000000000000000001",
                 },
               ],
               "token": "0x20c0000000000000000000000000000000000000",
@@ -280,8 +280,8 @@ describe('behavior', () => {
     { token: '0x1234' },
     { amount: 'not-a-quantity' },
     { slippageBps: '0x2711' },
-    { sources: [{ to: '0x1234', data: '0x' }] },
-    { sources: [{ to: Addresses.dexFundingSource, data: 'invalid' }] },
+    { sources: [{ target: '0x1234', data: '0x' }] },
+    { sources: [{ target: Addresses.dexFundingSource, data: 'invalid' }] },
   ])('rejects malformed requirement %j', async (invalid) => {
     const handler = Funding.handleRequest((request, options) =>
       client.request(request as never, options),
@@ -300,7 +300,7 @@ describe('behavior', () => {
         ],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.InvalidParamsError: Invalid funding requirement: check \`token\`, \`amount\`, \`slippageBps\`, \`policyRules\`, and source \`to\` and \`data\` fields.]`,
+      `[RpcResponse.InvalidParamsError: Invalid funding requirement: check \`token\`, \`amount\`, \`slippageBps\`, \`policyRules\`, and source \`target\` and \`data\` fields.]`,
     )
   })
 

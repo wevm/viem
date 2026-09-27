@@ -390,7 +390,7 @@ export function handleRequest(
         } catch {
           throw new RpcResponse.InvalidParamsError({
             message:
-              'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `to` and `data` fields.',
+              'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `target` and `data` fields.',
           })
         }
       })()
