@@ -1,7 +1,8 @@
-import { parseTransaction } from 'viem'
+import { defineChain, http, parseTransaction, toBlobs } from 'viem'
 import { prepareTransactionRequest } from 'viem/actions'
 import { expect, test } from 'vitest'
 import { accounts, chain, getClient } from '~test/frames/config.js'
+import { kzg } from '~test/kzg.js'
 
 const client = getClient({ account: accounts[0] })
 
@@ -106,4 +107,64 @@ test('rejects already signed transactions', async () => {
   ).rejects.toThrow(
     'Signed frame transactions must be sent with sendRawTransaction.',
   )
+
+  await expect(
+    prepareTransactionRequest(client, {
+      ...request,
+      blobs: toBlobs({ data: '0x1234' }),
+      kzg,
+      parameters: ['blobVersionedHashes'],
+      signatures: parsed.signatures,
+    } as never),
+  ).rejects.toThrow(
+    'Signed frame transactions must be sent with sendRawTransaction.',
+  )
 })
+
+test('does not fill a fully prepared frame transaction', async () => {
+  let requests = 0
+  const client = getClient({
+    account: accounts[0],
+    transport: http(chain.rpcUrls.default.http[0], {
+      onFetchRequest() {
+        requests++
+      },
+    }),
+  })
+
+  const prepared = await prepareTransactionRequest(client, request)
+  expect(requests).toBeGreaterThan(0)
+  requests = 0
+
+  const result = await prepareTransactionRequest(client, prepared)
+  expect(requests).toBe(0)
+  expect(result.frames).toEqual(prepared.frames)
+  expect(result.gas).toBeUndefined()
+})
+
+test.each([true, false])(
+  'preserves pre-fill hook frames with input frames: %s',
+  async (hasFrames) => {
+    const frames = [
+      request.frames[0],
+      { ...request.frames[1], value: 42n },
+    ] as const
+    const result = await prepareTransactionRequest(client, {
+      ...(hasFrames ? request : {}),
+      chain: defineChain({
+        ...chain,
+        prepareTransactionRequest: async (parameters) => ({
+          account: parameters.account,
+          chain: parameters.chain,
+          frames,
+          signatures: request.signatures,
+        }),
+      }),
+    })
+    expect(result.frames).toEqual([
+      { ...frames[0], executionGas: 100n, stateGas: 0n },
+      { ...frames[1], executionGas: 3000n, stateGas: 0n },
+    ])
+    expect(result).toHaveProperty('sender', accounts[0].address)
+  },
+)
