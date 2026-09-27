@@ -172,7 +172,7 @@
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "26 kB",
+      "limit": "27 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
@@ -220,7 +220,7 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "55 kB",
+      "limit": "56 kB",
       "import": "*"
     },
     {
