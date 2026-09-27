@@ -367,10 +367,19 @@ export function handleRequest(
           message: '`sources` must be an array when supplied.',
         })
 
-      const decoded = FundingRequirement.fromRpc({
-        ...requirement,
-        sources: requirement.sources ?? [],
-      })
+      const decoded = (() => {
+        try {
+          return FundingRequirement.fromRpc({
+            ...requirement,
+            sources: requirement.sources ?? [],
+          })
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `target` and `data` fields.',
+          })
+        }
+      })()
 
       if (transaction.multisigSimulation && requirement.sources === undefined)
         throw new RpcResponse.InvalidParamsError({

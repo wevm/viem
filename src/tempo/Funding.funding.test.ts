@@ -276,6 +276,34 @@ describe('handleRequest', () => {
 })
 
 describe('behavior', () => {
+  test.each([
+    { token: '0x1234' },
+    { amount: 'not-a-quantity' },
+    { slippageBps: '0x2711' },
+    { sources: [{ target: '0x1234', data: '0x' }] },
+    { sources: [{ target: Addresses.dexFundingSource, data: 'invalid' }] },
+  ])('rejects malformed requirement %j', async (invalid) => {
+    const handler = Funding.handleRequest((request, options) =>
+      client.request(request as never, options),
+    )
+    await expect(
+      handler({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            chainId: '0x539',
+            from: accounts[0].address,
+            requireFunds: [
+              { token: Addresses.pathUsd, amount: '0x1', ...invalid },
+            ],
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Invalid funding requirement: check \`token\`, \`amount\`, \`slippageBps\`, \`policyRules\`, and source \`target\` and \`data\` fields.]`,
+    )
+  })
+
   test('rejects invalid default policy requests', async () => {
     const authorization = {
       ...KeyAuthorization.toRpcUnsigned({
