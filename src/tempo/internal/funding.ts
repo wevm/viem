@@ -11,7 +11,7 @@ import type { BaseError } from '../../errors/base.js'
 import * as Abis from '../Abis.js'
 import type { RpcSchema } from '../Funding.js'
 
-export const fundingErrors = [
+export const fundingErrors = /*#__PURE__*/ [
   ...Abis.accountKeychain,
   ...Abis.earnFundingSource,
   ...Abis.fundingPolicy,
