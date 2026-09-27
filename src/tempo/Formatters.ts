@@ -117,6 +117,10 @@ export function formatTransactionRequest(
       'A local owner account is required to approve a multisig transaction.',
     )
 
+  // The sender does not commit to the local fee payer's token.
+  if (action === 'signTransaction' && typeof request.feePayer === 'object')
+    request.feePayer = true
+
   // If the request is not a Tempo transaction, route to Viem formatter.
   if (!isTempo(request))
     return viem_formatTransactionRequest(
@@ -230,7 +234,9 @@ export function formatTransactionRequest(
       ? {
           feePayer:
             typeof request.feePayer === 'object'
-              ? parseAccount(request.feePayer)
+              ? action
+                ? true
+                : parseAccount(request.feePayer)
               : request.feePayer,
         }
       : {}),

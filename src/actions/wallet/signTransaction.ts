@@ -168,7 +168,7 @@ export async function signTransaction<
       { serializer: client.chain?.serializers?.transaction },
     ) as Promise<SignTransactionReturnType<request>>
 
-  return await client.request(
+  const serializedTransaction = await client.request(
     {
       method: 'eth_signTransaction',
       params: [
@@ -187,4 +187,14 @@ export async function signTransaction<
     },
     { retryCount: 0 },
   )
+  const transactionEnvelope = (chain ?? client.chain)?.serializers
+    ?.transactionEnvelope
+  return (
+    transactionEnvelope
+      ? await transactionEnvelope({
+          serializedTransaction,
+          transaction: { ...transaction, account, chainId } as never,
+        })
+      : serializedTransaction
+  ) as SignTransactionReturnType<request>
 }

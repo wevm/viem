@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -72,6 +71,7 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from './sendRawTransactionSync.js'
+import { signTransaction } from './signTransaction.js'
 
 const supportsWalletNamespace = new LruMap<boolean>(128)
 
@@ -250,6 +250,41 @@ export async function sendTransactionSync<
             currentChainId: chainId,
             chain,
           })
+      }
+
+      if (
+        account &&
+        chain?.serializers?.transactionEnvelope &&
+        'feePayer' in rest &&
+        typeof rest.feePayer === 'object' &&
+        rest.feePayer !== null &&
+        'type' in rest.feePayer &&
+        rest.feePayer.type === 'local'
+      ) {
+        const request = await getAction(
+          client,
+          prepareTransactionRequest,
+          'prepareTransactionRequest',
+        )({
+          ...parameters,
+          account,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          to,
+        } as never)
+        const serializedTransaction = await getAction(
+          client,
+          signTransaction,
+          'signTransaction',
+        )(request as never)
+        return (await getAction(
+          client,
+          sendRawTransactionSync,
+          'sendRawTransactionSync',
+        )({
+          serializedTransaction,
+          throwOnReceiptRevert,
+          timeout: parameters.timeout,
+        })) as never
       }
 
       const chainFormat = client.chain?.formatters?.transactionRequest?.format

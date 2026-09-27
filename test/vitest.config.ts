@@ -105,7 +105,7 @@ export default defineConfig({
           globalSetup: [join(__dirname, './src/tempo/setup.global.funding.ts')],
           env: {
             VITE_TEMPO_ENV: 'localnet',
-            VITE_TEMPO_PORT: '9546',
+            VITE_TEMPO_PORT: process.env.VITE_TEMPO_PORT ?? '9546',
           },
           retry: 0,
           sequence: { groupOrder: 2 },

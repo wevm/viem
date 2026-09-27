@@ -140,6 +140,7 @@ export type TransactionRequestTempo<
     accessList?: AccessList | undefined
     calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
+    /** Local fee payer or relay sponsorship. JSON-RPC senders with a local fee payer must support `eth_signTransaction`. */
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
     hash?: Hex.Hex | undefined

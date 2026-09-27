@@ -6,12 +6,14 @@ import {
   type MultisigSimulation,
   SignatureEnvelope,
   type TokenId,
+  TxEnvelopeTempo,
 } from 'ox/tempo'
 import { fillTransaction } from '../actions/public/fillTransaction.js'
 import { getCode } from '../actions/public/getCode.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
+import type { Account as viem_Account } from '../types/account.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
@@ -340,7 +342,53 @@ export const chainConfig = {
   serializers: {
     transaction: serializeTransaction,
     async transactionEnvelope({ serializedTransaction, transaction }) {
-      const request = transaction as Transaction.TransactionSerializableTempo
+      const request =
+        transaction as Transaction.TransactionSerializableTempo & {
+          account?: viem_Account | undefined
+          feePayer?: Account | true | undefined
+        }
+      if (
+        request.account?.type === 'json-rpc' &&
+        typeof request.feePayer === 'object'
+      ) {
+        const signed = TxEnvelopeTempo.deserialize(
+          serializedTransaction as never,
+        )
+        if (!signed.signature || signed.feePayerSignature !== null)
+          throw new Error(
+            'Expected a sender-signed sponsored Tempo transaction.',
+          )
+        const expected = TxEnvelopeTempo.deserialize(
+          (await Transaction.serialize({
+            ...request,
+            feePayer: true,
+          })) as never,
+        )
+        const payload = TxEnvelopeTempo.getSignPayload(signed)
+        if (payload !== TxEnvelopeTempo.getSignPayload(expected))
+          throw new Error(
+            'Wallet signed a different transaction than requested.',
+          )
+        if (
+          (signed.from &&
+            !isAddressEqual(signed.from, request.account.address)) ||
+          !SignatureEnvelope.verify(signed.signature, {
+            address: request.account.address,
+            payload,
+          })
+        )
+          throw new Error(
+            'Wallet transaction signature does not match the sender.',
+          )
+        return await Transaction.serialize({
+          ...Transaction.deserialize(
+            serializedTransaction as Transaction.TransactionSerializedFeePayer,
+          ),
+          feePayer: request.feePayer,
+          feeToken: request.feeToken,
+          from: request.account.address,
+        } as never)
+      }
       if (!request.multisigSimulation) return serializedTransaction
       try {
         SignatureEnvelope.deserialize(serializedTransaction)
