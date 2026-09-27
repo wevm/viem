@@ -45,7 +45,11 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { fundingErrors } from '../internal/funding.js'
+import {
+  assertRequireFunds,
+  fundingErrors,
+  normalizeRequireFunds,
+} from '../internal/funding.js'
 import type {
   GetAccountParameter,
   InferredWriteParameters,
@@ -585,6 +589,9 @@ export namespace burn {
         amount: internal_Token.toBaseUnits(amount, decimals),
       }),
       ...call,
+      ...(parameters.requireFunds
+        ? { abi: [...Abis.tip20, ...fundingErrors] }
+        : {}),
     } as never)) as never
   }
 
@@ -3562,7 +3569,19 @@ export namespace transfer {
         data: encodeFunctionData(call),
         to: call.address,
       } as never)
-      return (transaction as unknown as TransactionTempo).requireFunds
+      const filled = (transaction as unknown as TransactionTempo).requireFunds
+      const account = parameters.account ?? client.account
+      assertRequireFunds(
+        normalizeRequireFunds(
+          inferred,
+          Boolean(
+            account &&
+              (typeof account === 'string' || account.source !== 'accessKey'),
+          ),
+        )!,
+        filled,
+      )
+      return filled
     })()
     return simulateContract(client, {
       ...request,

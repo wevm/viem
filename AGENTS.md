@@ -169,6 +169,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.
+- **Resolve test entrypoints to source files**; directory aliases can load stale `module` or `main` build output from package manifests.
 - **Import public APIs from package entrypoints in tests**; use aliases for public exports.
   - Use entrypoints such as `'viem'`, `'viem/actions'`, `'viem/tempo'`, and `'viem/node'`.
   - Avoid relative imports for public surface tests.

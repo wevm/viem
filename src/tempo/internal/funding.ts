@@ -1,3 +1,4 @@
+import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
@@ -69,6 +70,46 @@ export function normalizeRequireFunds<quantity, index>(
           : FundingPolicy.encode(policyRules),
     }
   })
+}
+
+/** Rejects relay changes to caller-specified funding fields. */
+export function assertRequireFunds(
+  requirements: readonly FundingRequirementIntent[],
+  filled: readonly FundingRequirementInput[] | undefined,
+) {
+  if (!filled || filled.length !== requirements.length)
+    throw new RpcResponse.InvalidParamsError({
+      message: '`eth_fillTransaction` changed the funding requirements.',
+    })
+
+  const normalized = normalizeRequireFunds(requirements)!
+  const resolved = normalizeRequireFunds(filled)!
+  for (const [index, requirement] of normalized.entries()) {
+    const result = resolved[index]
+    if (
+      !result ||
+      !Address.isEqual(requirement.token, result.token) ||
+      requirement.amount !== result.amount ||
+      (requirement.slippageBps !== undefined &&
+        requirement.slippageBps !== (result.slippageBps ?? 0)) ||
+      (requirement.policyRules !== undefined &&
+        requirement.policyRules.toLowerCase() !==
+          result.policyRules?.toLowerCase()) ||
+      (requirement.sources !== undefined &&
+        (requirement.sources.length !== result.sources.length ||
+          requirement.sources.some((source, index) => {
+            const filled = result.sources[index]
+            return (
+              !filled ||
+              !Address.isEqual(source.to, filled.to) ||
+              source.data.toLowerCase() !== filled.data.toLowerCase()
+            )
+          })))
+    )
+      throw new RpcResponse.InvalidParamsError({
+        message: `\`eth_fillTransaction\` changed \`requireFunds[${index}]\`.`,
+      })
+  }
 }
 
 /** Registers rule content with a local handler or remote relay before submission. */

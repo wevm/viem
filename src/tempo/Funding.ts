@@ -298,9 +298,23 @@ export function handleRequest(
           message: 'The funding access key is revoked.',
         })
 
-      const authorization = transaction.keyAuthorization
-        ? KeyAuthorization.fromRpc(transaction.keyAuthorization)
-        : undefined
+      const authorization = (() => {
+        if (!transaction.keyAuthorization) return undefined
+        try {
+          const authorization = KeyAuthorization.fromRpc(
+            transaction.keyAuthorization,
+          )
+          Address_.assert(authorization.address, { strict: false })
+          if (authorization.account)
+            Address_.assert(authorization.account, { strict: false })
+          KeyAuthorization.getSignPayload(authorization)
+          return authorization
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Invalid signed `keyAuthorization`.',
+          })
+        }
+      })()
       if (
         authorization &&
         (!Address_.isEqual(authorization.address, transaction.keyId) ||

@@ -11,6 +11,10 @@ export default defineConfig({
       { find: '~contracts', replacement: join(__dirname, '../contracts') },
       { find: '~test', replacement: join(__dirname, './src') },
       { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
+      {
+        find: /^viem\/tempo$/,
+        replacement: join(__dirname, '../src/tempo/index.ts'),
+      },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
     benchmark: {

@@ -420,6 +420,43 @@ describe('behavior', () => {
     `)
   })
 
+  test.each([{ keyId: '0x1234' }, { signature: '0x1234' }])(
+    'rejects malformed signed key authorizations %j',
+    async (invalid) => {
+      const account = await setupAccount()
+      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+        access: account,
+      })
+      const authorization = await Actions.accessKey.signAuthorization(client, {
+        account,
+        accessKey,
+        fundingPolicy: 1n,
+      })
+      const handler = Funding.handleRequest((request, options) =>
+        client.request(request as never, options),
+      )
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              chainId: '0x539',
+              from: account.address,
+              keyId: accessKey.accessKeyAddress,
+              keyAuthorization: {
+                ...KeyAuthorization.toRpc(authorization),
+                ...invalid,
+              },
+              requireFunds: [{ token: Addresses.pathUsd, amount: '0x1' }],
+            },
+          ],
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Invalid signed \`keyAuthorization\`.]`,
+      )
+    },
+  )
+
   test('rejects invalid delegated funding', async () => {
     const results = []
     for (const failure of [

@@ -436,6 +436,116 @@ describe('Actions.token.transferSync', () => {
   })
 })
 
+describe('funding error decoding', () => {
+  test.each(['burn', 'sell'] as const)(
+    '%s decodes insufficient funding',
+    async (action) => {
+      const account = Account.fromSecp256k1(generatePrivateKey())
+      const parameters = {
+        account,
+        feePayer: accounts[1],
+        requireFunds: [{ sources: [] }],
+      }
+      const result = await (action === 'burn'
+        ? Actions.token.burn(client, {
+            ...parameters,
+            amount: 1n,
+            token: Addresses.pathUsd,
+          })
+        : Actions.dex.sell(client, {
+            ...parameters,
+            amountIn: 1n,
+            minAmountOut: 0n,
+            tokenIn: Addresses.pathUsd,
+            tokenOut: Addresses.alphaUsd,
+          })
+      ).catch((error) =>
+        error.walk(
+          (error: unknown) => error instanceof ContractFunctionRevertedError,
+        ),
+      )
+      expect(result).toBeInstanceOf(ContractFunctionRevertedError)
+      expect(result.data).toMatchInlineSnapshot(`
+      {
+        "abiItem": {
+          "inputs": [
+            {
+              "name": "required",
+              "type": "uint256",
+            },
+            {
+              "name": "available",
+              "type": "uint256",
+            },
+          ],
+          "name": "InsufficientFunding",
+          "type": "error",
+        },
+        "args": [
+          1n,
+          0n,
+        ],
+        "errorName": "InsufficientFunding",
+      }
+    `)
+    },
+  )
+})
+
+describe('relay funding integrity', () => {
+  test.each(['prepare', 'simulate'] as const)(
+    '%s rejects a changed funding amount over HTTP',
+    async (action) => {
+      const account = await setupAccount()
+      const handler = Funding.handleRequest(
+        (request, options) => client.request(request as never, options),
+        {
+          getRoute: () => ({
+            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+          }),
+        },
+      )
+      const server = await createHttpServer(
+        createRequestListener(async (request) => {
+          const body = await request.json()
+          const result = (await handler(body)) as {
+            tx: { requireFunds: { amount: string }[] }
+          }
+          if (body.method === 'eth_fillTransaction')
+            result.tx.requireFunds[0]!.amount = '0x2'
+          return Response.json(
+            RpcResponse.from({ id: body.id, jsonrpc: body.jsonrpc, result }),
+          )
+        }),
+      )
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const relay = getClient({
+        transport: withRelay(http(), http(server.url)),
+      })
+      const parameters = {
+        account,
+        feePayer: accounts[1],
+        requireFunds: [{ amount: 1n, token: Addresses.pathUsd }],
+      } as const
+      await expect(
+        action === 'prepare'
+          ? prepareTransactionRequest(relay, {
+              ...parameters,
+              calls: [{ to: recipient }],
+            })
+          : Actions.token.transfer.simulate(relay, {
+              ...parameters,
+              amount: 1n,
+              to: recipient,
+              token: Addresses.pathUsd,
+            }),
+      ).rejects.toThrow('changed `requireFunds[0]`')
+    },
+  )
+})
+
 describe('Actions.token.burnSync', () => {
   test('infers the burned token and amount', async () => {
     const account = Account.fromSecp256k1(generatePrivateKey())
