@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Address_ from 'ox/Address'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
@@ -10,24 +11,195 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import type { createClient } from '../../clients/createClient.js'
-import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import * as Abis from '../Abis.js'
-import * as Addresses from '../Addresses.js'
-import { getConfigCommitment } from '../actions/multisig.js'
-import * as ConfigStore from '../multisig/Config.js'
-import * as OperationStore from '../multisig/Operation.js'
-import type * as Relay from '../Relay.js'
-import type * as Store from '../Store.js'
-import * as Transaction from '../Transaction.js'
+import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
+import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
+import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
+import * as Abis from '../../Abis.js'
+import * as Addresses from '../../Addresses.js'
+import { getConfigCommitment } from '../../actions/multisig.js'
+import * as ConfigStore from '../../multisig/Config.js'
+import * as OperationStore from '../../multisig/Operation.js'
+import type * as Relay from '../../Relay.js'
+import type * as Store from '../../Store.js'
+import * as Transaction from '../../Transaction.js'
 
 const submissionTtl = 30_000
 const pollingInterval = 100
 
+/** Creates middleware for multisig approval coordination. @internal */
+export function create(
+  options: Relay.multisig.Options,
+): Relay.multisig.ReturnType {
+  if (!options.store.compareAndSet)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Multisig coordination requires a store with atomic `compareAndSet`.',
+    })
+  return Object.assign(
+    (next: Relay.handleRequest.Handler): Relay.handleRequest.Handler =>
+      async (request, requestOptions_) => {
+        const requestOptions = await resolveRequestOptions({
+          request,
+          requestOptions: requestOptions_,
+          store: options.store,
+        })
+        const client = createClient({
+          transport: custom({
+            request: ({ method, params }, options) =>
+              next({ method, params }, { ...requestOptions, ...options }),
+          }),
+        })
+
+        if (request.method === 'multisig_getConfig') {
+          const value = request.params?.[0]
+          const address =
+            value && typeof value === 'object' && 'address' in value
+              ? value.address
+              : undefined
+          if (
+            typeof address !== 'string' ||
+            !Address_.validate(address) ||
+            Hex.toBigInt(address) === 0n
+          )
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Expected a multisig account address.',
+            })
+          const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+          const commitment = await getConfigCommitment(client, {
+            account: address,
+            blockNumber,
+          })
+          const config = await ConfigStore.read(options.store, {
+            address,
+            commitment,
+          })
+          if (!config) return null
+          return MultisigConfig.toRpc(config)
+        }
+
+        if (request.method === 'multisig_getOperation') {
+          const hash = request.params?.[0]
+          if (typeof hash !== 'string' || !Hash.validate(hash))
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Expected a multisig operation hash.',
+            })
+          const operation = await OperationStore.read(options.store, hash)
+          return operation ? MultisigOperation.toRpc(operation) : null
+        }
+
+        if (request.method === 'multisig_approveKeyAuthorization')
+          return await approveKeyAuthorization({
+            client,
+            request,
+            store: options.store,
+          })
+
+        if (
+          request.method === 'eth_getTransactionByHash' ||
+          request.method === 'eth_getTransactionReceipt'
+        ) {
+          const hash = request.params?.[0]
+          if (typeof hash !== 'string' || !Hash.validate(hash))
+            return await next(request, requestOptions)
+          const operation = await OperationStore.read(options.store, hash)
+          if (!operation || operation.type !== 'transaction')
+            return await next(request, requestOptions)
+          if (request.method === 'eth_getTransactionReceipt') {
+            if (operation.status === 'pending') return null
+            const transactionHash = await getSubmittedTransactionHash(
+              options.store,
+              operation,
+            )
+            if (!transactionHash) return null
+            const receipt = await next(
+              {
+                ...request,
+                params: [transactionHash],
+              },
+              requestOptions,
+            )
+            if (!receipt || typeof receipt !== 'object') return receipt
+            const success =
+              operation.status === 'submitting'
+                ? await completeSubmission(
+                    options.store,
+                    operation,
+                    transactionHash,
+                  )
+                : operation
+            return {
+              ...receipt,
+              multisig: MultisigOperation.toRpc(success),
+            }
+          }
+          if (operation.status === 'pending')
+            return await toTransaction(client, operation)
+          const transactionHash = await getSubmittedTransactionHash(
+            options.store,
+            operation,
+          )
+          if (!transactionHash) return await toTransaction(client, operation)
+          const transaction = await next(
+            {
+              ...request,
+              params: [transactionHash],
+            },
+            requestOptions,
+          )
+          if (!transaction || typeof transaction !== 'object')
+            return await toTransaction(client, operation)
+          const success =
+            operation.status === 'submitting'
+              ? await completeSubmission(
+                  options.store,
+                  operation,
+                  transactionHash,
+                )
+              : operation
+          return {
+            ...transaction,
+            multisig: MultisigOperation.toRpc(success),
+          }
+        }
+
+        if (
+          request.method !== 'eth_sendRawTransaction' &&
+          request.method !== 'eth_sendRawTransactionSync' &&
+          request.method !== 'multisig_approveRawTransaction' &&
+          request.method !== 'multisig_approveRawTransactionSync'
+        )
+          return await next(request, requestOptions)
+
+        const standard =
+          request.method === 'eth_sendRawTransaction' ||
+          request.method === 'eth_sendRawTransactionSync'
+        const serialized = request.params?.[0]
+        if (!isSerializedTempoTransaction(serialized)) {
+          if (standard) return await next(request, requestOptions)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Expected a serialized Tempo multisig transaction.',
+          })
+        }
+
+        return await submit({
+          client,
+          method: request.method,
+          next,
+          request,
+          requestOptions,
+          serialized,
+          store: options.store,
+        })
+      },
+    { multisig: true as const },
+  )
+}
+
 /** Collects approvals and submits a transaction after quorum. @internal */
-export async function submit(options: submit.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function submit(options: submit.Options) {
   const transaction = (() => {
     try {
       return deserialize(options.serialized)
@@ -329,7 +501,7 @@ export async function submit(options: submit.Options) {
   return await submittedResult(options, success)
 }
 
-export declare namespace submit {
+declare namespace submit {
   /** Options for {@link submit}. */
   export type Options = {
     /** Client used to validate configs. */
@@ -354,7 +526,8 @@ export declare namespace submit {
 }
 
 /** Collects approvals for a multisig key authorization. @internal */
-export async function approveKeyAuthorization(
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function approveKeyAuthorization(
   options: approveKeyAuthorization.Options,
 ) {
   const value = options.request.params?.[0]
@@ -541,7 +714,7 @@ export async function approveKeyAuthorization(
   return MultisigOperation.toRpc(operation)
 }
 
-export declare namespace approveKeyAuthorization {
+declare namespace approveKeyAuthorization {
   /** Options for {@link approveKeyAuthorization}. */
   export type Options = {
     /** Client used to validate configs. */
@@ -781,7 +954,7 @@ function pendingResult(
 }
 
 /** Marks a transaction as successful after a lookup proves that it was submitted. */
-export async function completeSubmission(
+async function completeSubmission(
   store: Store.Atomic,
   operation: MultisigOperation.TransactionOperation,
   transactionHash: Hex.Hex,
@@ -872,7 +1045,7 @@ function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
 }
 
 /** Returns a synthetic transaction while the downstream transaction is unavailable. */
-export async function toTransaction(
+async function toTransaction(
   client: ReturnType<typeof createClient>,
   operation: MultisigOperation.TransactionOperation,
 ) {
@@ -929,7 +1102,7 @@ export async function toTransaction(
 }
 
 /** Returns the persisted transaction hash for a submitting or successful operation. */
-export async function getSubmittedTransactionHash(
+async function getSubmittedTransactionHash(
   store: Store.Store,
   operation: MultisigOperation.TransactionOperation,
 ) {
@@ -1028,7 +1201,7 @@ function getTransactionHash(result: unknown): Hex.Hex {
 }
 
 /** Resolves and validates the chain used by a handled request. */
-export async function resolveRequestOptions(options: {
+async function resolveRequestOptions(options: {
   request: Relay.handleRequest.Request
   requestOptions?: Relay.handleRequest.RequestOptions | undefined
   store: Store.Store
@@ -1158,7 +1331,7 @@ function parseChainId(value: unknown) {
 }
 
 /** Checks whether a value is a serialized Tempo transaction. */
-export function isSerializedTempoTransaction(value: unknown): value is Hex.Hex {
+function isSerializedTempoTransaction(value: unknown): value is Hex.Hex {
   return (
     typeof value === 'string' &&
     (value.startsWith('0x76') || value.startsWith('0x78'))
