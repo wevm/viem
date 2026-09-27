@@ -520,7 +520,7 @@ export function toYParitySignatureArray(
 }
 
 /** Frame transaction fields require type "eip8141". */
-export class InvalidTypeError extends BaseError {
+class InvalidTypeError extends BaseError {
   override readonly name = 'SerializeTransaction.InvalidTypeError'
 
   constructor() {

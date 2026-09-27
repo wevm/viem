@@ -62,7 +62,7 @@ export async function recoverTransactionAddress(
 }
 
 /** Cannot recover a single signer from an EIP-8141 transaction. */
-export class UnsupportedTransactionTypeError extends BaseError {
+class UnsupportedTransactionTypeError extends BaseError {
   override readonly name =
     'RecoverTransactionAddress.UnsupportedTransactionTypeError'
 
