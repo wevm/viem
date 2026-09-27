@@ -185,11 +185,17 @@ export namespace createPolicySync {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = createPolicy.Parameters<chain, account>
+  /** Created policy, committed rules, and transaction receipt. */
   export type ReturnValue = {
+    /** Funding policy identifier. */
     policyId: bigint
+    /** Account that created or updated the policy. */
     updater: Address
+    /** Hash of the policy rules committed onchain. */
     rulesHash: Hex
+    /** Complete decoded rules for discovery and access key funding. */
     rules: FundingPolicy.Rules
+    /** Transaction receipt. */
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType
@@ -455,11 +461,17 @@ export namespace setPolicyRulesSync {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = setPolicyRules.Parameters<chain, account>
+  /** Updated policy rules and transaction receipt. */
   export type ReturnValue = {
+    /** Funding policy identifier. */
     policyId: bigint
+    /** Account that created or updated the policy. */
     updater: Address
+    /** Hash of the policy rules committed onchain. */
     rulesHash: Hex
+    /** Complete decoded rules for discovery and access key funding. */
     rules: FundingPolicy.Rules
+    /** Transaction receipt. */
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType
@@ -581,10 +593,15 @@ export namespace setPolicyAdminsSync {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = setPolicyAdmins.Parameters<chain, account>
+  /** Updated policy administrators and transaction receipt. */
   export type ReturnValue = {
+    /** Funding policy identifier. */
     policyId: bigint
+    /** Account that created or updated the policy. */
     updater: Address
+    /** Replacement policy administrators. */
     admins: readonly Address[]
+    /** Transaction receipt. */
     receipt: TransactionReceipt
   }
   export type ErrorType = BaseErrorType

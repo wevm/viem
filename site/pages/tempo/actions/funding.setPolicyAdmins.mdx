@@ -24,17 +24,17 @@ const { admins, receipt } = await client.funding.setPolicyAdminsSync({
 
 :::
 
-The asynchronous `setAdmins` variant returns a transaction hash. Use `Actions.funding.setPolicyAdmins.extractEvent(receipt.logs)` to read its update event.
+The asynchronous `setPolicyAdmins` variant returns a transaction hash. Use `Actions.funding.setPolicyAdmins.extractEvent(receipt.logs)` to read its update event.
 
 ## Return Type
 
-### setAdmins
+### setPolicyAdmins
 
 ```ts
 type ReturnType = Hash
 ```
 
-### setAdminsSync
+### setPolicyAdminsSync
 
 ```ts
 type ReturnType = {

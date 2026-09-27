@@ -30,17 +30,17 @@ const { rulesHash, receipt } = await client.funding.setPolicyRulesSync({
 
 :::
 
-The asynchronous `setRules` variant returns a transaction hash. Use `Actions.funding.setPolicyRules.extractEvent(receipt.logs)` to read the updated rules from its event.
+The asynchronous `setPolicyRules` variant returns a transaction hash. Use `Actions.funding.setPolicyRules.extractEvent(receipt.logs)` to read the updated rules from its event.
 
 ## Return Type
 
-### setRules
+### setPolicyRules
 
 ```ts
 type ReturnType = Hash
 ```
 
-### setRulesSync
+### setPolicyRulesSync
 
 ```ts
 type ReturnType = {
