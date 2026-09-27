@@ -3,8 +3,9 @@ import { Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import { GenericContainer, Wait } from 'testcontainers'
 
-export const image = 'ghcr.io/wevm/reth:sha-0acab10e8123'
-export const revision = '0acab10e8123f0bd406bf8edc465ee6c059a9e42'
+export const image =
+  'ghcr.io/paradigmxyz/reth:16d6069793a8b7ccc83dee467fe4b86891818a2e'
+export const revision = '16d6069793a8b7ccc83dee467fe4b86891818a2e'
 
 export const port = Number(import.meta.env.VITE_FRAMES_PORT ?? 10545)
 export const rpcUrl = `http://localhost:${port}/${Number(import.meta.env.VITEST_POOL_ID ?? 1)}`
@@ -14,7 +15,6 @@ export function createServer() {
     instance: TestContainers.Instance.testcontainer({
       container: () =>
         new GenericContainer(image)
-          .withPlatform('linux/amd64')
           .withCopyFilesToContainer([
             {
               source: fileURLToPath(
