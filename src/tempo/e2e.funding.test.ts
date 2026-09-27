@@ -2041,6 +2041,82 @@ describe('withFunding', () => {
       })
   })
 
+  test('simulates a transfer with automatic funding', async () => {
+    const account = await setupAccount()
+    const result = await Actions.token.transfer.simulate(client, {
+      account,
+      amount: parseUnits('50', 6),
+      feePayer: accounts[1],
+      requireFunds: true,
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+
+    expect(result.result).toBe(true)
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000n,
+        "decimals": 6,
+        "formatted": "100",
+      }
+    `)
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.pathUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 0n,
+        "decimals": 6,
+        "formatted": "0",
+      }
+    `)
+  })
+
+  test('simulates a transfer with omitted sources', async () => {
+    const account = await setupAccount()
+    const result = await Actions.token.transfer.simulate(client, {
+      account,
+      amount: parseUnits('50', 6),
+      feePayer: accounts[1],
+      requireFunds: [{ token: Addresses.pathUsd }],
+      to: recipient,
+      token: Addresses.pathUsd,
+    })
+
+    expect(result.result).toBe(true)
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 100000000n,
+        "decimals": 6,
+        "formatted": "100",
+      }
+    `)
+    expect(
+      await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.pathUsd,
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "amount": 0n,
+        "decimals": 6,
+        "formatted": "0",
+      }
+    `)
+  })
+
   test('default', async () => {
     const account = await setupAccount()
     const result = await Actions.token.transferSync(client, {

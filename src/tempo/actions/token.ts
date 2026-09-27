@@ -4,6 +4,7 @@ import { TokenId, TokenRole } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
+import { fillTransaction } from '../../actions/public/fillTransaction.js'
 import {
   type MulticallParameters,
   type MulticallReturnType,
@@ -63,7 +64,7 @@ import {
   resolveToken,
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
-import type { TransactionReceipt } from '../Transaction.js'
+import type { TransactionReceipt, TransactionTempo } from '../Transaction.js'
 
 /**
  * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -181,7 +182,8 @@ export namespace approve {
 
   /**
    * Simulates an approval of a spender. `amount.decimals` is inferred from
-   * the client's declared `tokens` when omitted.
+   * the client's declared `tokens` when omitted. Omitted funding sources are
+   * resolved before simulation.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3527,7 +3529,8 @@ export namespace transfer {
 
   /**
    * Simulates a transfer of TIP20 tokens. `amount.decimals` is inferred from
-   * the client's declared `tokens` when omitted.
+   * the client's declared `tokens` when omitted. Omitted funding sources are
+   * resolved before simulation.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3545,12 +3548,26 @@ export namespace transfer {
       'transfer' | 'transferFrom' | 'transferWithMemo' | 'transferFromWithMemo'
     >
   > {
+    const call = transfer.call(client, parameters as never)
+    const inferred = inferTransferFunding(client, parameters)
+    const request = pickWriteParameters({
+      ...parameters,
+      requireFunds: inferred,
+    })
+    const requireFunds = await (async () => {
+      if (!inferred?.some((requirement) => requirement.sources === undefined))
+        return inferred
+      const { transaction } = await fillTransaction(client, {
+        ...request,
+        data: encodeFunctionData(call),
+        to: call.address,
+      } as never)
+      return (transaction as unknown as TransactionTempo).requireFunds
+    })()
     return simulateContract(client, {
-      ...pickWriteParameters({
-        ...parameters,
-        requireFunds: inferTransferFunding(client, parameters),
-      }),
-      ...transfer.call(client, parameters as never),
+      ...request,
+      ...call,
+      requireFunds,
     } as never) as never
   }
 
