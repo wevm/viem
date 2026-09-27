@@ -1,7 +1,3 @@
-import * as Blobs from 'ox/Blobs'
-import * as Frame from 'ox/Frame'
-import * as FrameSignature from 'ox/FrameSignature'
-import * as Hex_ from 'ox/Hex'
 import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
@@ -178,13 +174,7 @@ export function serializeTransaction<
 type SerializeTransactionEIP8141ErrorType =
   | AssertTransactionEIP8141ErrorType
   | BaseErrorType
-  | TxEnvelopeEip8141.InvalidError
-  | FrameSignature.toTuple.ErrorType
-  | Hex_.assert.ErrorType
-  | Blobs.commitmentToVersionedHash.ErrorType
-  | ConcatHexErrorType
-  | NumberToHexErrorType
-  | ToRlpErrorType
+  | TxEnvelopeEip8141.serialize.ErrorType
   | ErrorType
 
 function serializeTransactionEIP8141(
@@ -198,87 +188,10 @@ function serializeTransactionEIP8141(
 
   assertTransactionEIP8141(transaction)
 
-  const {
-    chainId,
-    nonce,
-    sender,
-    frames,
-    signatures,
-    maxPriorityFeePerGas,
-    maxFeePerGas,
-    maxFeePerBlobGas,
-    blobVersionedHashes = [],
-    sidecars,
-  } = transaction
-  const body = [
-    chainId ? numberToHex(chainId) : '0x',
-    nonce ? numberToHex(nonce) : '0x',
-    sender,
-    frames.map((frame) => {
-      const mode =
-        typeof frame.mode === 'string' ? Frame.modes[frame.mode] : frame.mode
-      const flags =
-        typeof frame.flags === 'string' ? Frame.flags[frame.flags] : frame.flags
-      return [
-        mode ? numberToHex(mode) : '0x',
-        flags ? numberToHex(flags) : '0x',
-        frame.to ?? '0x',
-        [
-          frame.gas ? numberToHex(frame.gas) : '0x',
-          frame.stateGas ? numberToHex(frame.stateGas) : '0x',
-        ],
-        frame.value ? numberToHex(frame.value) : '0x',
-        frame.data ?? '0x',
-      ]
-    }),
-    (signatures ?? []).map((entry) => FrameSignature.toTuple(entry)),
-    [
-      maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
-      maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
-      maxFeePerBlobGas ? numberToHex(maxFeePerBlobGas) : '0x',
-    ],
-    blobVersionedHashes,
-  ] as const
-
-  if (sidecars) {
-    const { blobs, commitments, cellProofs } = sidecars
-    if (
-      blobVersionedHashes.length === 0 ||
-      blobs.length !== blobVersionedHashes.length ||
-      commitments.length !== blobVersionedHashes.length ||
-      cellProofs.length !== blobVersionedHashes.length * 128
-    )
-      throw new TxEnvelopeEip8141.InvalidError(
-        'PeerDAS sidecar counts do not match blob hashes.',
-      )
-    for (const [index, blob] of blobs.entries()) {
-      Hex_.assert(blob, { strict: true })
-      const commitment = commitments[index]!
-      Hex_.assert(commitment, { strict: true })
-      if (
-        blob.length !== 2 + Blobs.bytesPerBlob * 2 ||
-        commitment.length !== 98 ||
-        Blobs.commitmentToVersionedHash(commitment).toLowerCase() !==
-          blobVersionedHashes[index]!.toLowerCase()
-      )
-        throw new TxEnvelopeEip8141.InvalidError(
-          'Invalid blob size or commitment.',
-        )
-    }
-    for (const proof of cellProofs) {
-      Hex_.assert(proof, { strict: true })
-      if (proof.length !== 98)
-        throw new TxEnvelopeEip8141.InvalidError(
-          'Cell proofs must contain 48 bytes.',
-        )
-    }
-    return concatHex([
-      '0x06',
-      toRlp([body, '0x01', blobs, commitments, cellProofs]),
-    ]) as TransactionSerializedEIP8141
-  }
-
-  return concatHex(['0x06', toRlp(body)]) as TransactionSerializedEIP8141
+  return TxEnvelopeEip8141.serialize({
+    ...transaction,
+    nonce: BigInt(transaction.nonce ?? 0),
+  })
 }
 
 type SerializeTransactionEIP7702ErrorType =
