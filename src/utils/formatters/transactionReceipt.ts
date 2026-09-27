@@ -1,4 +1,4 @@
-import { FrameReceipt } from 'ox'
+import * as FrameReceipt from 'ox/FrameReceipt'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   Chain,

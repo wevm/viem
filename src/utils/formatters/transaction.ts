@@ -1,4 +1,5 @@
-import { Frame, FrameSignature } from 'ox'
+import * as Frame from 'ox/Frame'
+import * as FrameSignature from 'ox/FrameSignature'
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorizationList } from '../../types/authorization.js'
 import type { BlockTag } from '../../types/block.js'
