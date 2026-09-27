@@ -21,7 +21,25 @@ const exists = await client.funding.policyExists({ policyId: 1n })
 
 :::
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const exists = await Actions.funding.policyExists(client, { policyId: 1n })
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = boolean

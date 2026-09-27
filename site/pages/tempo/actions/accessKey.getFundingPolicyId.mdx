@@ -24,7 +24,28 @@ const policyId = await client.accessKey.getFundingPolicyId({
 
 :::
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const policyId = await Actions.accessKey.getFundingPolicyId(client, {
+  account: client.account.address,
+  accessKey: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+})
+// @log: 1n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = bigint

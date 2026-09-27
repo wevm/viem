@@ -32,7 +32,33 @@ const { policyId, rulesHash } = await client.funding.createPolicySync({
 
 The asynchronous `createPolicy` variant returns a transaction hash. Use `Actions.funding.createPolicy.extractEvent(receipt.logs)` to read the ID and rules from its receipt.
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { policyId, rulesHash } = await Actions.funding.createPolicySync(client, {
+  admins: [client.account.address],
+  rules: {
+    maxSlippageBps: 100,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+// @log: { policyId: 1n, rulesHash: '0x...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ### createPolicy
 

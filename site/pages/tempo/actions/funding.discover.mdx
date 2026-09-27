@@ -32,6 +32,30 @@ For owner-authorized or access key funding, pass `requireFunds: [discovery]` to 
 
 When a policy ID is supplied, the result includes the verified `policyRules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
 
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { Actions, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const discovery = await Actions.funding.discover(client, {
+  amount: parseUnits('50', 6),
+  slippageBps: 100,
+  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+  token: Addresses.pathUsd,
+})
+// @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ## Recipes
 
 ### Discover Against a Funding Policy
@@ -52,7 +76,7 @@ const discovery = await client.funding.discover({
 // @log: { token: '0x...', amount: 50000000n, policyRules: { ... }, slippageBps: 100, sources: [...] }
 ```
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {

@@ -32,7 +32,33 @@ const { rulesHash, receipt } = await client.funding.setPolicyRulesSync({
 
 The asynchronous `setPolicyRules` variant returns a transaction hash. Use `Actions.funding.setPolicyRules.extractEvent(receipt.logs)` to read the updated rules from its event.
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { rulesHash, receipt } = await Actions.funding.setPolicyRulesSync(client, {
+  policyId: 1n,
+  rules: {
+    maxSlippageBps: 50,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+})
+// @log: { rulesHash: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ### setPolicyRules
 

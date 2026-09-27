@@ -21,7 +21,25 @@ const nextPolicyId = await client.funding.policyIdCounter()
 
 :::
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const nextPolicyId = await Actions.funding.policyIdCounter(client)
+// @log: 1n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = bigint

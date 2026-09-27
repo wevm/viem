@@ -21,7 +21,25 @@ const policy = await client.funding.getPolicy({ policyId: 1n })
 
 :::
 
-## Return Type
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const policy = await Actions.funding.getPolicy(client, { policyId: 1n })
+// @log: { admins: ['0x...'], rulesHash: '0x...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
