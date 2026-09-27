@@ -75,6 +75,11 @@ export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 /** @experimental */
 export * as Multisig from './Multisig.js'
 export * as P256 from './P256.js'
+/**
+ * Composable relay request handlers alongside the Tempo (Execution) RPC.
+ * @experimental
+ */
+export * as Relay from './Relay.js'
 /** @experimental */
 export * as Scopes from './Scopes.js'
 /** @experimental */

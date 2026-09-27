@@ -121,6 +121,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
@@ -243,8 +244,11 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 ### Prose
 
+- **Keep paragraphs concise**; aim for 30–40 words, with no more than 3 paragraphs per section. Split longer sections under additional headings.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
+- **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.
+- **Prebundle Mermaid for docs development**; keep `mermaid` in `site/vite.config.ts`'s `optimizeDeps.include`. Use `pnpm docs:dev`, since `vocs dev` ignores that config.
 
 ### Headings
 

@@ -36,6 +36,7 @@ test('exports tempo', () => {
       "KeyAuthorizationManager",
       "Multisig",
       "P256",
+      "Relay",
       "Scopes",
       "Selectors",
       "Store",

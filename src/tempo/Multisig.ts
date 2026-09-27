@@ -14,7 +14,6 @@ import {
 import { getBlockNumber } from '../actions/public/getBlockNumber.js'
 import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
-import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import { decodeFunctionData } from '../utils/abi/decodeFunctionData.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import * as Abis from './Abis.js'
@@ -22,6 +21,7 @@ import * as Addresses from './Addresses.js'
 import { getConfigCommitment } from './actions/multisig.js'
 import * as ConfigStore from './multisig/Config.js'
 import * as OperationStore from './multisig/Operation.js'
+import type * as Relay from './Relay.js'
 import type * as Store from './Store.js'
 import * as Transaction from './Transaction.js'
 
@@ -202,24 +202,13 @@ export function handleRequest(
 
 export declare namespace handleRequest {
   /** RPC request handler. */
-  export type Handler = (
-    request: Request,
-    options?: RequestOptions | undefined,
-  ) => Promise<unknown>
+  export type Handler = Relay.handleRequest.Handler
 
   /** RPC request passed to a handler. */
-  export type Request = {
-    /** RPC method name. */
-    method: string
-    /** RPC method parameters. */
-    params?: readonly unknown[] | undefined
-  }
+  export type Request = Relay.handleRequest.Request
 
   /** Options for one handled request. */
-  export type RequestOptions = EIP1193RequestOptions & {
-    /** Chain selected by the caller or inferred from the multisig request. */
-    chainId?: number | undefined
-  }
+  export type RequestOptions = Relay.handleRequest.RequestOptions
 
   /** Parameters for {@link handleRequest}. */
   export type Parameters = {

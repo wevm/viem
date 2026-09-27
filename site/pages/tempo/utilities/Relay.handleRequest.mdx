@@ -1,0 +1,172 @@
+---
+description: Compose Tempo relay plugins around a downstream RPC request handler.
+---
+
+# Relay.handleRequest
+
+## Overview
+
+[`Relay.handleRequest`](#relayhandlerequest-1) composes plugins around a downstream
+handler for the **Tempo (Execution) RPC**. Requests enter plugins in array order,
+and responses return in reverse. Plugins can transform, answer, forward, or
+reject requests.
+
+The handler accepts an RPC method and parameters and returns the method's result.
+It is not an HTTP listener or a JSON-RPC envelope serializer: the application owns
+HTTP handling, request IDs, batching, authentication, and error serialization.
+
+## Recipes
+
+### Forward Requests to the Execution RPC
+
+Omit plugins to forward requests directly. An empty plugin list has the same effect.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+
+const rpc = http('https://rpc.tempo.xyz')({})
+const handle = Relay.handleRequest(rpc.request) // [!code focus]
+
+const chainId = await handle({ method: 'eth_chainId' })
+// @log: '0x1079'
+```
+
+### Handle a Method Locally
+
+A plugin can answer a relay-specific method without sending it to the execution RPC. Other
+methods continue to the next handler.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+
+const rpc = http('https://rpc.tempo.xyz')({})
+const handle = Relay.handleRequest(rpc.request, {
+  plugins: [ // [!code focus]
+    (next) => async (request, options) => { // [!code focus]
+      if (request.method === 'relay_status') return { ready: true } // [!code focus]
+      return next(request, options) // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+
+const status = await handle({ method: 'relay_status' })
+// @log: { ready: true }
+```
+
+### Select a Chain per Request
+
+Pass `chainId` when a route selects the chain. Relay preserves request options
+but does not infer or validate the chain. Forward options to `next` so downstream
+handlers retain chain selection, retries, and cancellation.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+
+const mainnet = http('https://rpc.tempo.xyz')({})
+const testnet = http('https://rpc.moderato.tempo.xyz')({})
+const handle = Relay.handleRequest((request, options) => {
+  if (options?.chainId === 4217) return mainnet.request(request, options) // [!code focus]
+  if (options?.chainId === 42431) return testnet.request(request, options) // [!code focus]
+  throw new Error('Unsupported chain')
+})
+
+const chainId = await handle({ method: 'eth_chainId' }, { chainId: 4217 }) // [!code focus]
+// @log: '0x1079'
+```
+
+## `Relay.handleRequest`
+
+Creates an RPC request handler by composing relay plugins around a downstream handler.
+
+### Usage
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+
+const rpc = http('https://rpc.tempo.xyz')({})
+const handle = Relay.handleRequest(rpc.request, {
+  plugins: [],
+})
+```
+
+### Parameters
+
+#### next
+
+- **Type:** `Relay.handleRequest.Handler`
+
+The downstream handler. It receives a request and optional per-request options
+and returns a promise for the RPC result.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+const rpc = http('https://rpc.tempo.xyz')({})
+// ---cut---
+const handle = Relay.handleRequest(
+  rpc.request, // [!code focus]
+)
+```
+
+#### options.plugins
+
+- **Type:** `readonly Relay.Plugin[]`
+- **Default:** `[]`
+
+Plugins run in array order: `[a, b]` produces `a(b(next))`. Factories run once
+during composition, not per request. The array stays unchanged. Without plugins,
+the downstream handler is returned directly.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+const rpc = http('https://rpc.tempo.xyz')({})
+// ---cut---
+const handle = Relay.handleRequest(rpc.request, {
+  plugins: [ // [!code focus]
+    (next) => async (request, options) => { // [!code focus]
+      if (request.method === 'relay_status') return { ready: true } // [!code focus]
+      return next(request, options) // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+### Return Value
+
+`Relay.handleRequest.Handler`
+
+The composed handler accepts a `method` and optional readonly `params`. Its
+per-request options extend `EIP1193RequestOptions` with an optional numeric
+`chainId`, preserving retries, deduplication, and cancellation settings. It returns
+a promise for the RPC result.
+
+The composer introduces no error classes. Errors thrown while composing plugins
+or handling requests propagate unchanged unless a plugin handles them.
+
+## `Relay.Plugin`
+
+Middleware that wraps the next relay request handler.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const status: Relay.Plugin = (next) => async (request, options) => {
+  if (request.method === 'relay_status') return { ready: true }
+  return next(request, options)
+}
+```
+
+### Return Value
+
+`Relay.handleRequest.Handler`
+
+A plugin takes the remaining handler pipeline as `next` and returns its own
+handler. Call `next(request, options)` to continue through the remaining plugins
+and downstream handler, or return a result to answer locally.

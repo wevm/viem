@@ -3374,8 +3374,22 @@ export default defineConfig({
           ],
         },
         {
+          text: 'Relay',
+          items: [{ text: 'Overview', link: '/tempo/relay' }],
+        },
+        {
           text: 'Utilities',
           items: [
+            {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                {
+                  text: 'handleRequest',
+                  link: '/tempo/utilities/Relay.handleRequest',
+                },
+              ],
+            },
             {
               text: 'Store',
               collapsed: true,
