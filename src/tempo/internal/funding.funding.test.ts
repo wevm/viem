@@ -75,7 +75,7 @@ test('rejects reordered requirements', () => {
 test.each([
   { sources: [] },
   { sources: [source, source] },
-  { sources: [{ ...source, to: Addresses.fundingDiscovery }] },
+  { sources: [{ ...source, target: Addresses.fundingDiscovery }] },
   { sources: [{ ...source, data: '0x1234' }] },
   { policyRules: '0x5678' },
   { policyRules: undefined },

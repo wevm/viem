@@ -12,7 +12,7 @@ describe('discover.call', () => {
       maxSlippageBps: 100,
       sources: {
         [Addresses.pathUsd]: [
-          { to: Addresses.dexFundingSource, data: '0x1234' },
+          { target: Addresses.dexFundingSource, data: '0x1234' },
         ],
       },
     } as const
@@ -34,7 +34,7 @@ describe('discover.call', () => {
       account: '0x0000000000000000000000000000000000000001',
       amount: 50_000_000n,
       slippageBps: 100,
-      sources: [{ to: Addresses.dexFundingSource, data: '0x1234' }],
+      sources: [{ target: Addresses.dexFundingSource, data: '0x1234' }],
       token: Addresses.pathUsd,
     })
 
@@ -116,7 +116,7 @@ describe('discover', () => {
       [AccountNotFoundError: Could not find an Account to execute with this Action.
       Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-      Version: viem@2.56.8]
+      Version: viem@x.y.z]
     `)
   })
 })

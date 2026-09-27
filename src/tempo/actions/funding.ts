@@ -147,7 +147,7 @@ export namespace createPolicy {
           sources: Object.fromEntries(
             log.args.rules.routes.map(({ token, sources }) => [
               token,
-              sources.map(({ target, data }) => ({ to: target, data })),
+              sources.map(({ target, data }) => ({ target, data })),
             ]),
           ),
         } satisfies FundingPolicy.Rules,
@@ -254,7 +254,7 @@ export async function discover<
             parameters.token,
             parameters.amount,
             parameters.slippageBps,
-            parameters.sources.map(({ to, data }) => ({ target: to, data })),
+            parameters.sources.map(({ target, data }) => ({ target, data })),
           ],
         })
       : await readContract(client, {
@@ -275,10 +275,6 @@ export async function discover<
   return {
     ...discovery,
     ...(policyId === undefined ? {} : { policyRules }),
-    sources: discovery.sources.map(({ target, ...source }) => ({
-      ...source,
-      to: target,
-    })),
   }
 }
 
@@ -325,7 +321,7 @@ export namespace discover {
     /** Ordered sources usable directly in a funding requirement. */
     sources: readonly {
       /** Funding source address. */
-      to: Address
+      target: Address
       /** Source-specific request data. */
       data: Hex
       /** Advisory available output in token base units. */
@@ -347,7 +343,7 @@ export namespace discover {
         args.token,
         args.amount,
         args.slippageBps,
-        args.sources.map(({ to, data }) => ({ target: to, data })),
+        args.sources.map(({ target, data }) => ({ target, data })),
       ] as const
       return defineCall({
         address: Addresses.fundingDiscovery,
@@ -738,7 +734,7 @@ export namespace setPolicyRules {
           sources: Object.fromEntries(
             log.args.rules.routes.map(({ token, sources }) => [
               token,
-              sources.map(({ target, data }) => ({ to: target, data })),
+              sources.map(({ target, data }) => ({ target, data })),
             ]),
           ),
         } satisfies FundingPolicy.Rules,

@@ -469,7 +469,10 @@ export function handleRequest(
           ...decoded,
           ...(policyRules ? { policyRules } : {}),
           slippageBps: discovery.slippageBps,
-          sources: discovery.sources.map(({ to, data }) => ({ to, data })),
+          sources: discovery.sources.map(({ target, data }) => ({
+            target,
+            data,
+          })),
         }),
       )
     }

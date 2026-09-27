@@ -19,7 +19,7 @@ const discovery = await client.funding.discover({
   sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
   token: Addresses.pathUsd,
 })
-// @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
+// @log: { token: '0x...', amount: 50000000n, sources: [{ target: '0x...', data: '0x...', availableAmount: 50000000n }] }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -28,7 +28,7 @@ const discovery = await client.funding.discover({
 
 :::
 
-For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `to` and `data`; `availableAmount` is advisory and is not signed or sent.
+For owner-authorized or access key funding, pass `requireFunds: [discovery]` to a Tempo transaction. The transaction encoder uses each source's `target` and `data`; `availableAmount` is advisory and is not signed or sent.
 
 When a policy ID is supplied, the result includes the verified `policyRules`. Viem encodes them for access key execution and omits them for owner-authorized execution.
 
@@ -47,7 +47,7 @@ const discovery = await Actions.funding.discover(client, {
   sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
   token: Addresses.pathUsd,
 })
-// @log: { token: '0x...', amount: 50000000n, sources: [{ to: '0x...', data: '0x...', availableAmount: 50000000n }] }
+// @log: { token: '0x...', amount: 50000000n, sources: [{ target: '0x...', data: '0x...', availableAmount: 50000000n }] }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -85,7 +85,7 @@ type ReturnType = {
   policyRules?: FundingPolicy.Rules | Hex
   slippageBps: number
   sources: {
-    to: Address
+    target: Address
     data: Hex
     availableAmount: bigint
   }[]
@@ -129,7 +129,7 @@ Maximum aggregate slippage in basis points. Required without `policyId`.
 
 - **Type:** `readonly FundingSource.Source[]`
 
-Ordered source configurations for the requested token. Required without `policyId`. Each entry contains `to` and configuration `data`, such as `FundingSource.dex({ tokenIn })`.
+Ordered source configurations for the requested token. Required without `policyId`. Each entry contains `target` and configuration `data`, such as `FundingSource.dex({ tokenIn })`.
 
 ### token
 

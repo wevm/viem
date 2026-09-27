@@ -67,7 +67,10 @@ describe('discover', () => {
       expect(discovery.policyRules).toEqual(storedPolicy ? rules : undefined)
       expect(discovery.sources).toHaveLength(1)
       expect(
-        isAddressEqual(discovery.sources[0]!.to, Addresses.dexFundingSource),
+        isAddressEqual(
+          discovery.sources[0]!.target,
+          Addresses.dexFundingSource,
+        ),
       ).toBe(true)
       expect(discovery.sources[0]?.availableAmount).toBeGreaterThan(0n)
       const overridden = await actions.funding.discover(
@@ -227,7 +230,7 @@ describe('discover', () => {
     const invalidRules = {
       maxSlippageBps: 100,
       sources: {
-        [Addresses.pathUsd]: [{ to: recipient, data: '0x' }],
+        [Addresses.pathUsd]: [{ target: recipient, data: '0x' }],
       },
     } as const
     const { policyId } = await actions.funding.createPolicySync(client, {

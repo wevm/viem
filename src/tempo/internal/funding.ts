@@ -101,7 +101,7 @@ export function assertRequireFunds(
             const filled = result.sources[index]
             return (
               !filled ||
-              !Address.isEqual(source.to, filled.to) ||
+              !Address.isEqual(source.target, filled.target) ||
               source.data.toLowerCase() !== filled.data.toLowerCase()
             )
           })))

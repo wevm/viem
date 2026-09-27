@@ -27,7 +27,7 @@ The addresses above are placeholders. Use the funding source and Earn vault depl
 
 - **Type:** `Address`
 
-Deployed Earn funding source address. This address becomes the returned source's `to` field.
+Deployed Earn funding source address. This address becomes the returned source's `target` field.
 
 ```ts twoslash
 import { FundingSource } from 'viem/tempo'
@@ -93,4 +93,4 @@ When both caps are supplied, both apply. Omitted caps still respect the funding 
 
 ## Return Type
 
-`FundingSource.Source`, containing the supplied source address as `to` and ABI-encoded vault and caps as `data`.
+`FundingSource.Source`, containing the supplied source address as `target` and ABI-encoded vault and caps as `data`.
