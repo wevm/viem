@@ -158,6 +158,20 @@ always use the relay for coordination.
 
 ## Migration
 
+Replace the `experimental_multisig` client option with a local multisig plugin:
+
+```diff
+-import { createClient } from 'viem/tempo'
++import { createClient, http, Relay, withRelay } from 'viem/tempo'
+
+ createClient({
+-  experimental_multisig: { store },
++  transport: withRelay(http(), {
++    plugins: [Relay.multisig({ store })],
++  }),
+ })
+```
+
 Replace `withMultisig` with a local multisig plugin:
 
 ```diff

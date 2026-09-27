@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added Fetch-based relays and multisig plugins, replacing experimental `Multisig.handleRequest` and `withMultisig` APIs.
+Added Fetch-based relays and multisig plugins, replacing `Multisig.handleRequest`, `withMultisig`, and the `experimental_multisig` client option.
 
 ```ts
 const relay = Relay.create({

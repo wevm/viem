@@ -873,9 +873,10 @@ describe('stateless', () => {
 describe('stateful', () => {
   const client = createClient({
     chain: tempoLocalnet,
-    experimental_multisig: true,
     tokens: tempo.tokens,
-    transport: tempo.http(),
+    transport: withRelay(tempo.http(), {
+      plugins: [Relay.multisig({ store: Store.memory() })],
+    }),
   })
 
   test('behavior: rejects unknown and invalid config lookups', async () => {
@@ -921,9 +922,10 @@ describe('stateful', () => {
     )
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport: tempo.http(),
+      transport: withRelay(tempo.http(), {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await expect(
@@ -2721,9 +2723,10 @@ describe('stateful', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -2791,9 +2794,10 @@ describe('stateful', () => {
     const store = Store.memory()
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport: tempo.http(),
+      transport: withRelay(tempo.http(), {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
     const submissionId = `0x${'cc'.repeat(32)}` as const
 
@@ -2895,9 +2899,10 @@ describe('stateful', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -2972,9 +2977,10 @@ describe('stateful', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -3066,9 +3072,10 @@ describe('stateful', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -3158,9 +3165,10 @@ describe('stateful', () => {
     }
     const client = createClient({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {

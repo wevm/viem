@@ -7,9 +7,8 @@ description: Gets a coordinated multisig operation by its operation hash.
 Gets the current state of a coordinated multisig transaction or key authorization. The action
 returns `null` when the operation hash is unknown.
 
-Configure the client with [`experimental_multisig`](/tempo) or
-[`withRelay`](/tempo/transports/withRelay) for local coordination. Use
-[`withRelay`](/tempo/transports/withRelay) to read operations coordinated by a relay.
+Configure the client with [`withRelay`](/tempo/transports/withRelay) to read operations
+coordinated by a local multisig plugin or a remote relay.
 
 ## Usage
 
@@ -24,11 +23,13 @@ const operation = await client.multisig.getOperation({
 ```
 
 ```ts [viem.config.ts] filename="viem.config.ts"
-import { createClient } from 'viem/tempo'
+import { createClient, http, Relay, withRelay } from 'viem/tempo'
 import { store } from './store.db'
 
 export const client = createClient({
-  experimental_multisig: { store },
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store })],
+  }),
 })
 ```
 
