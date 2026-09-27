@@ -45,9 +45,9 @@ import type {
 } from '../../types/transaction.js'
 import type {
   ExactPartial,
+  ExactRequired,
   IsNever,
   Prettify,
-  RequiredBy,
   UnionOmit,
 } from '../../types/utils.js'
 import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
@@ -109,14 +109,9 @@ type ParameterTypeToParameters<
 type PrepareTransactionRequestRequired<
   request,
   keys extends keyof request,
-> = request extends unknown
-  ? RequiredBy<
-      request,
-      request extends { frames: readonly unknown[] }
-        ? Exclude<keys, 'gas'>
-        : keys
-    >
-  : never
+> = request extends { frames: readonly unknown[] }
+  ? request & ExactRequired<Pick<request, Exclude<keys, 'gas'>>>
+  : request & ExactRequired<Pick<request, keys>>
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
