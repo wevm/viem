@@ -9,7 +9,7 @@ export default function () {
   return setup({
     benchErrorOnThresholdExceeded: true,
     formatCmd: 'pnpm check',
-    tsconfig: resolve(__dirname, './tsconfig.json'),
+    tsconfig: resolve(__dirname, './tsconfig.bench.json'),
   })
 }
 
