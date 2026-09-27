@@ -1,5 +1,11 @@
-import type { EIP1193RequestOptions } from 'viem'
-import { type Multisig, Relay } from 'viem/tempo'
+import {
+  createClient,
+  createClientResolver,
+  type EIP1193RequestOptions,
+  http,
+} from 'viem'
+import { tempo, tempoModerato } from 'viem/chains'
+import { Relay } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 test('handleRequest contextually types plugins and downstream handlers', () => {
@@ -55,8 +61,39 @@ test('handleRequest accepts readonly plugins and exact optional properties', () 
   handle({ method: 'eth_chainId' }, { chainId: '0x1069' })
 })
 
-test('Multisig retains its shared request type aliases', () => {
-  expectTypeOf<Multisig.handleRequest.Handler>().toEqualTypeOf<Relay.handleRequest.Handler>()
-  expectTypeOf<Multisig.handleRequest.Request>().toEqualTypeOf<Relay.handleRequest.Request>()
-  expectTypeOf<Multisig.handleRequest.RequestOptions>().toEqualTypeOf<Relay.handleRequest.RequestOptions>()
+test('create infers client and resolver chains', () => {
+  const client = createClient({ chain: tempo, transport: http() })
+  const relay = Relay.create({ client })
+  expectTypeOf(relay).toEqualTypeOf<Relay.create.ReturnType<typeof tempo.id>>()
+  relay.request({ method: 'eth_chainId' })
+  relay.fetch(new Request('https://relay.example'))
+  // @ts-expect-error The single client has a different chain.
+  relay.request({ method: 'eth_chainId' }, { chainId: tempoModerato.id })
+  const resolver = createClientResolver({
+    chains: [tempo, tempoModerato],
+    transport: () => http(),
+  })
+  const multichain = Relay.create({ getClient: resolver.getClient })
+  expectTypeOf(multichain).toEqualTypeOf<
+    Relay.create.ReturnType<typeof tempo.id | typeof tempoModerato.id>
+  >()
+  multichain.request({ method: 'eth_chainId' }, { chainId: tempoModerato.id })
+  // @ts-expect-error The resolver does not configure this chain.
+  multichain.fetch(new Request('https://relay.example'), { chainId: 1 })
+  // @ts-expect-error Client selection is required.
+  Relay.create({})
+  // @ts-expect-error Only one client selection strategy is allowed.
+  Relay.create({ client, getClient: resolver.getClient })
+  // @ts-expect-error Single clients must have a configured chain.
+  Relay.create({ client: createClient({ transport: http() }) })
+})
+
+test('create contextually types inline client resolvers', () => {
+  const relay = Relay.create({
+    getClient({ chainId }) {
+      expectTypeOf(chainId).toEqualTypeOf<number>()
+      return createClient({ chain: tempo, transport: http() })
+    },
+  })
+  expectTypeOf(relay).toEqualTypeOf<Relay.create.ReturnType<number>>()
 })

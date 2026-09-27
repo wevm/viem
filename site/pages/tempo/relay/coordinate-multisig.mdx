@@ -1,0 +1,84 @@
+# Coordinate Multisig Approvals
+
+## Overview
+
+The [`Relay.multisig`](/tempo/relay/plugins/multisig) plugin stores owner approvals
+until their combined weight reaches the account's threshold. The relay submits
+the completed transaction; the chain enforces the account's authorization rules.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo) and a
+[relay with shared atomic storage](/tempo/relay/run). Fund the multisig account
+before submitting transfers.
+
+### Submit Independent Approvals
+
+```ts twoslash
+import { http } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { Account, createClient, withRelay } from 'viem/tempo'
+
+const owner1 = Account.fromSecp256k1(generatePrivateKey())
+const owner2 = Account.fromSecp256k1(generatePrivateKey())
+const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner1, owner2],
+  threshold: 2,
+})
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+
+const pending = await client.sendTransactionSync({
+  account,
+  calls: [{ to: account.address, data: '0x' }],
+  owner: owner1, // [!code focus]
+})
+
+const receipt = await client.sendTransactionSync({
+  account,
+  hash: pending.transactionHash, // [!code focus]
+  owner: owner2, // [!code focus]
+})
+```
+
+In an application, each owner signs from their own client. They share the account
+configuration and operation hash, and connect to the same relay. Each owner must
+review the operation before approving it.
+
+### Look Up an Operation
+
+```ts twoslash
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+
+const operation = await client.multisig.getOperation({
+  hash: '0x0000000000000000000000000000000000000000000000000000000000000000', // [!code focus]
+})
+```
+
+Before quorum, the operation hash identifies pending state in the relay. After
+submission, transaction and receipt lookups by that hash resolve to the submitted
+transaction. Missing operations return `null`.
+
+## Best Practices
+
+Use a shared persistent store with atomic `compareAndSet`. Incomplete operations
+expire after 30 days without an approval or submission update. Successful
+operations remain available until the store removes them.
+
+Relay availability and retention affect coordination. They do not replace the
+chain's signature checks. Public config lookups expose cached owner addresses
+and weights.
+
+## See More
+
+- [Multisig Plugin](/tempo/relay/plugins/multisig)
+- [`Store`](/tempo/utilities/Store)

@@ -4,7 +4,7 @@ import {
   MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
-import { Account, Multisig, Store, Transaction } from 'viem/tempo'
+import { Account, Relay, Store, Transaction } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import { nativeMultisigFactory } from './Addresses.js'
 import * as Operation from './multisig/Operation.js'
@@ -27,9 +27,9 @@ const approval = SignatureEnvelope.from({
 const serializedApproval = SignatureEnvelope.serialize(approval)
 
 test('behavior: resolves the chain from a Tempo transaction', async () => {
-  const handle = Multisig.handleRequest(
+  const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { store: Store.memory() },
+    { plugins: [Relay.multisig({ store: Store.memory() })] },
   )
   const transaction = await Transaction.serialize({
     calls: [],
@@ -45,11 +45,11 @@ test('behavior: resolves the chain from a Tempo transaction', async () => {
 })
 
 test('behavior: resolves the chain from a key authorization', async () => {
-  const handle = Multisig.handleRequest(
+  const handle = Relay.handleRequest(
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { store: Store.memory() },
+    { plugins: [Relay.multisig({ store: Store.memory() })] },
   )
   const keyAuthorization = KeyAuthorization.from(
     {
@@ -110,9 +110,9 @@ test('behavior: resolves the chain from a stored transaction operation', async (
       weight: 1,
     }),
   )
-  const handle = Multisig.handleRequest(
+  const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { store },
+    { plugins: [Relay.multisig({ store })] },
   )
 
   await expect(
@@ -153,11 +153,11 @@ test('behavior: resolves the chain from a stored key authorization operation', a
       weight: 0,
     }),
   )
-  const handle = Multisig.handleRequest(
+  const handle = Relay.handleRequest(
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { store },
+    { plugins: [Relay.multisig({ store })] },
   )
 
   await expect(
@@ -174,8 +174,8 @@ test('behavior: resolves the chain from a stored key authorization operation', a
 })
 
 test('error: rejects conflicting chain ids', async () => {
-  const handle = Multisig.handleRequest(async () => null, {
-    store: Store.memory(),
+  const handle = Relay.handleRequest(async () => null, {
+    plugins: [Relay.multisig({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({
     calls: [],

@@ -3364,11 +3364,6 @@ export default defineConfig({
           text: 'Transports',
           items: [
             {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'withMultisig',
-              link: '/tempo/transports/withMultisig',
-            },
-            {
               text: 'withRelay',
               link: '/tempo/transports/withRelay',
             },
@@ -3376,7 +3371,21 @@ export default defineConfig({
         },
         {
           text: 'Relay',
-          items: [{ text: 'Overview', link: '/tempo/relay' }],
+          items: [
+            { text: 'Overview', link: '/tempo/relay' },
+            { text: 'Connect to a Relay', link: '/tempo/relay/connect' },
+            { text: 'Run a Relay', link: '/tempo/relay/run' },
+            {
+              text: 'Coordinate Multisig Approvals',
+              link: '/tempo/relay/coordinate-multisig',
+            },
+            {
+              text: 'Plugins',
+              items: [
+                { text: 'Multisig', link: '/tempo/relay/plugins/multisig' },
+              ],
+            },
+          ],
         },
         {
           text: 'Utilities',
@@ -3385,6 +3394,7 @@ export default defineConfig({
               text: 'Relay',
               collapsed: true,
               items: [
+                { text: 'create', link: '/tempo/utilities/Relay.create' },
                 {
                   text: 'handleRequest',
                   link: '/tempo/utilities/Relay.handleRequest',
@@ -3432,21 +3442,6 @@ export default defineConfig({
                 {
                   text: 'validate',
                   link: '/tempo/utilities/TempoAddress.validate',
-                },
-              ],
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/utilities/Multisig',
-                },
-                {
-                  text: 'handleRequest',
-                  link: '/tempo/utilities/Multisig.handleRequest',
                 },
               ],
             },

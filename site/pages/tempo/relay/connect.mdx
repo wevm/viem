@@ -1,0 +1,63 @@
+# Connect to a Relay
+
+## Overview
+
+[`withRelay`](/tempo/transports/withRelay) connects a Viem client to a remote
+relay or applies plugins directly to its transport. Choose remote coordination
+when independent owners need to share an approval mailbox.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Connect to a Remote Relay
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
+})
+```
+
+Transaction preparation, multisig approvals, and coordination reads use the relay.
+Transaction and receipt lookups first query the execution node, then check the
+relay's operation store when no transaction is found. Other calls use the node.
+
+Fee sponsorship depends on the remote service. The default `sign-only` policy
+requests a fee-payer signature and broadcasts eligible transactions through the
+node; `sign-and-broadcast` delegates both to the relay. Multisig submissions use
+the relay's coordination path under either policy.
+
+### Coordinate in the Application
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  }),
+})
+```
+
+Local mode runs plugins directly, preserves the underlying transport, and does
+not enable fee sponsorship. An empty plugin list does not advertise multisig
+support unless the underlying transport already provides it.
+
+## Best Practices
+
+A process-local store cannot coordinate independent applications. Use a remote
+relay backed by shared persistent storage, or supply the same atomic store to
+each local coordinator. Keep sponsorship policy options in remote mode.
+
+## See More
+
+- [Run a Relay](/tempo/relay/run)
+- [Coordinate Multisig Approvals](/tempo/relay/coordinate-multisig)

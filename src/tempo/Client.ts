@@ -25,8 +25,9 @@ import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
+import * as Relay from './Relay.js'
 import * as Store from './Store.js'
-import { withMultisig } from './Transport.js'
+import { withRelay } from './Transport.js'
 
 /**
  * Configuration for a Tempo {@link Client}.
@@ -200,12 +201,15 @@ export function createClient<
       : baseChain
   const transport_ = transport ?? http()
   const resolvedTransport = experimental_multisig
-    ? withMultisig(
-        transport_,
-        experimental_multisig === true
-          ? { store: Store.memory() }
-          : experimental_multisig,
-      )
+    ? withRelay(transport_, {
+        plugins: [
+          Relay.multisig(
+            experimental_multisig === true
+              ? { store: Store.memory() }
+              : experimental_multisig,
+          ),
+        ],
+      })
     : transport_
   return createClient_({
     ...rest,

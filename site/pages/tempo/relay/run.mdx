@@ -1,0 +1,87 @@
+# Run a Relay
+
+## Overview
+
+Use [`Relay.create`](/tempo/utilities/Relay.create) to expose Tempo RPC over the
+Fetch API. The application hosts the endpoint and supplies its upstream client.
+Add [`Relay.multisig`](/tempo/relay/plugins/multisig) for approval coordination.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Export a Fetch Handler
+
+The same `Request` and `Response` contract works in Cloudflare Workers and other
+Fetch-based runtimes. Client construction performs no upstream request until a
+call reaches the handler.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+})
+
+export default { fetch: relay.fetch } // [!code focus]
+```
+
+### Coordinate Approvals in One Process
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+})
+
+export default { fetch: relay.fetch }
+```
+
+Memory storage is suitable for local development. Independent processes and
+Worker isolates must share a persistent [atomic store](/tempo/utilities/Store).
+The multisig plugin does not provide fee sponsorship.
+
+### Select a Chain for an Endpoint
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { tempo, tempoModerato } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const { getClient } = createClientResolver({
+  chains: [tempo, tempoModerato],
+  transport: () => http(),
+})
+const relay = Relay.create({ getClient })
+
+export default {
+  fetch(request: Request) {
+    const chainId = new URL(request.url).pathname === '/testnet'
+      ? tempoModerato.id
+      : tempo.id
+    return relay.fetch(request, { chainId }) // [!code focus]
+  },
+}
+```
+
+For binding-dependent clients or stores, construct the relay inside the platform's
+request handler using the current bindings. Keep durable coordination state in
+the store, so rebuilding the relay does not lose approvals.
+
+## Best Practices
+
+Enforce authentication, request limits, and CORS in the hosting application.
+Use an upstream execution client, rather than a client pointing back to the same
+relay. Independent relay instances must use the same atomic storage.
+
+## See More
+
+- [Connect to a Relay](/tempo/relay/connect)
+- [Coordinate Multisig Approvals](/tempo/relay/coordinate-multisig)
+- [`Relay.create`](/tempo/utilities/Relay.create)
