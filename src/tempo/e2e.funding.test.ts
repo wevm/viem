@@ -8,6 +8,7 @@ import {
   expect,
   onTestFinished,
   test,
+  vi,
 } from 'vitest'
 import { accounts, getClient, http } from '~test/tempo/config.js'
 import { deployEarnStack } from '~test/tempo/earn.js'
@@ -24,7 +25,7 @@ import {
   signTransaction,
 } from '../actions/index.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
-import { parseEventLogs, parseUnits } from '../index.js'
+import { getAddress, parseEventLogs, parseUnits } from '../index.js'
 import {
   Abis,
   Account,
@@ -2982,6 +2983,222 @@ describe('withFunding', () => {
   })
 
   describe('access keys', () => {
+    test.each([
+      'policy defaults',
+      'custom route',
+      'custom route without slippage',
+      'explicit slippage',
+      'explicit sources',
+      'empty sources',
+    ] as const)('resolves access key defaults with %s', async (mode) => {
+      const { account, accessKey } = await setupAccessKey()
+      const store = Store.memory()
+      const getRoute = vi.fn(async () => ({
+        slippageBps:
+          mode === 'custom route without slippage'
+            ? undefined
+            : mode === 'explicit slippage'
+              ? 101
+              : 50,
+        sources: [FundingSource.dex({ tokenIn: Addresses.betaUsd })],
+      }))
+      const fundingClient = getClient({
+        transport: withFunding(http(), {
+          store,
+          ...(mode === 'policy defaults' ? {} : { getRoute }),
+        }),
+      })
+      const rules = {
+        maxSlippageBps: 100,
+        sources: {
+          [Addresses.pathUsd]: [
+            FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+            FundingSource.dex({ tokenIn: Addresses.betaUsd }),
+          ],
+        },
+      }
+      // Use a separate transport so the tested rules store starts empty.
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          fundingPolicy: { admins: [account.address], rules },
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('100', 6) }],
+        },
+      )
+      const cacheKey = `funding:1337:${Addresses.fundingPolicy}:rules:${FundingPolicy.hash(rules)}`
+      expect(await store.getItem(cacheKey)).toBeNull()
+      const sources =
+        mode === 'empty sources'
+          ? []
+          : mode === 'explicit sources'
+            ? [
+                FundingSource.dex({
+                  tokenIn: Addresses.alphaUsd,
+                  maxAmountIn: parseUnits('25', 6),
+                }),
+              ]
+            : undefined
+      if (mode === 'empty sources')
+        await Actions.token.mintSync(client, {
+          account: accounts[0],
+          amount: parseUnits('50', 6),
+          to: account.address,
+          token: Addresses.pathUsd,
+        })
+
+      for (const first of [true, false]) {
+        const { receipt } = await Actions.token.transferSync(fundingClient, {
+          account: accessKey,
+          amount: parseUnits('25', 6),
+          feePayer: accounts[1],
+          ...(first ? { keyAuthorization } : {}),
+          requireFunds: [
+            {
+              ...(sources ? { sources } : {}),
+              ...(mode === 'explicit slippage' ? { slippageBps: 25 } : {}),
+            },
+          ],
+          to: recipient,
+          token: Addresses.pathUsd,
+        })
+        expect(receipt.status).toBe('success')
+        const transaction = await getTransaction(fundingClient, {
+          hash: receipt.transactionHash,
+        })
+        const requirement = transaction.requireFunds?.[0]
+        expect(requirement?.policyRules).toBe(FundingPolicy.encode(rules))
+        expect(await store.getItem(cacheKey)).toBe(FundingPolicy.encode(rules))
+        if (sources) {
+          expect(requirement?.sources).toEqual(sources)
+          expect(getRoute).not.toHaveBeenCalled()
+        } else {
+          expect(requirement?.slippageBps).toBe(
+            mode === 'explicit slippage'
+              ? 25
+              : mode === 'custom route'
+                ? 50
+                : 100,
+          )
+          if (mode === 'policy defaults')
+            expect(getRoute).not.toHaveBeenCalled()
+          else
+            expect(getRoute).toHaveBeenLastCalledWith({
+              chainId: 1337,
+              token: getAddress(Addresses.pathUsd),
+              transaction: expect.objectContaining({
+                from: account.address,
+                keyId: accessKey.accessKeyAddress,
+              }),
+            })
+        }
+      }
+      for (const token of [Addresses.alphaUsd, Addresses.betaUsd] as const) {
+        const used =
+          mode === 'empty sources'
+            ? undefined
+            : mode === 'policy defaults' || mode === 'explicit sources'
+              ? Addresses.alphaUsd
+              : Addresses.betaUsd
+        expect(
+          (
+            await Actions.token.getBalance(client, {
+              account: account.address,
+              token,
+            })
+          ).amount,
+        ).toBe(parseUnits(token === used ? '450' : '500', 6))
+      }
+
+      await store.removeItem(cacheKey)
+      await expect(
+        Actions.token.transferSync(fundingClient, {
+          account: accessKey,
+          amount: parseUnits('1', 6),
+          feePayer: accounts[1],
+          requireFunds: true,
+          to: recipient,
+          token: Addresses.pathUsd,
+        }),
+      ).rejects.toThrow('Funding policy rules are not in the store')
+    })
+
+    test.each([
+      ['missing route', 'No funding route configured'],
+      ['slippage', '`slippageBps` exceeds the funding policy maximum'],
+      ['source', 'FundingNotAuthorized'],
+      ['cap', 'FundingNotAuthorized'],
+      ['order', 'FundingNotAuthorized'],
+    ] as const)(
+      'rejects custom access key route: %s',
+      async (failure, message) => {
+        const { account, accessKey } = await setupAccessKey()
+        const alpha = FundingSource.dex({
+          tokenIn: Addresses.alphaUsd,
+          maxAmountIn: parseUnits('10', 6),
+        })
+        const beta = FundingSource.dex({ tokenIn: Addresses.betaUsd })
+        const keyAuthorization = await Actions.accessKey.signAuthorization(
+          client,
+          {
+            account,
+            accessKey,
+            fundingPolicy: {
+              admins: [account.address],
+              rules: {
+                maxSlippageBps: 100,
+                sources: { [Addresses.pathUsd]: [alpha, beta] },
+              },
+            },
+          },
+        )
+        const fundingClient = getClient({
+          transport: withFunding(http(), {
+            store: Store.memory(),
+            getRoute: () =>
+              failure === 'missing route'
+                ? undefined
+                : {
+                    slippageBps: failure === 'slippage' ? 101 : 0,
+                    sources:
+                      failure === 'source'
+                        ? [FundingSource.dex({ tokenIn: Addresses.thetaUsd })]
+                        : failure === 'cap'
+                          ? [FundingSource.dex({ tokenIn: Addresses.alphaUsd })]
+                          : failure === 'order'
+                            ? [
+                                FundingSource.dex({
+                                  tokenIn: Addresses.betaUsd,
+                                  maxAmountIn: parseUnits('15', 6),
+                                }),
+                                alpha,
+                              ]
+                            : [alpha, beta],
+                  },
+          }),
+        })
+        if (failure === 'source')
+          await Actions.token.mintSync(client, {
+            account: accounts[0],
+            amount: parseUnits('50', 6),
+            to: account.address,
+            token: Addresses.thetaUsd,
+          })
+        await expect(
+          Actions.token.transferSync(fundingClient, {
+            account: accessKey,
+            amount: parseUnits('25', 6),
+            feePayer: accounts[1],
+            keyAuthorization,
+            requireFunds: true,
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ).rejects.toThrow(message)
+      },
+    )
+
     test('with existing policy', async () => {
       const { account, accessKey } = await setupAccessKey()
       const store = Store.memory()

@@ -443,23 +443,31 @@ export function handleRequest(
             'Funding discovery requires the transaction sender (`from`).',
         })
 
-      const route =
-        rules && sources
+      const route = parameters.getRoute
+        ? await parameters.getRoute({
+            chainId,
+            token: Address_.checksum(decoded.token),
+            transaction,
+          })
+        : rules && sources
           ? { slippageBps: rules.maxSlippageBps, sources }
-          : await (parameters.getRoute ?? defaultRoute)({
-              chainId,
-              token: Address_.checksum(decoded.token),
-              transaction,
-            })
+          : defaultRoute({ chainId, token: decoded.token })
       if (!route)
         throw new RpcResponse.InvalidParamsError({
           message: `No funding route configured for ${requirement.token}.`,
         })
 
+      const slippageBps =
+        decoded.slippageBps ?? route.slippageBps ?? rules?.maxSlippageBps ?? 0
+      if (rules && slippageBps > rules.maxSlippageBps)
+        throw new RpcResponse.InvalidParamsError({
+          message: '`slippageBps` exceeds the funding policy maximum.',
+        })
+
       const discovery = await discover(client, {
         account: transaction.from,
         amount: decoded.amount,
-        slippageBps: decoded.slippageBps ?? route.slippageBps ?? 0,
+        slippageBps,
         sources: route.sources,
         token: decoded.token,
       })
@@ -499,7 +507,7 @@ export declare namespace handleRequest {
 
   /** Ordered configurations and aggregate slippage for one output token. */
   export type Route = {
-    /** Aggregate slippage in basis points. Defaults to zero. */
+    /** Aggregate slippage in basis points. Defaults to the policy maximum for access keys or zero for owners. */
     slippageBps?: number | undefined
     /** Ordered source configurations, not execution data from another request. */
     sources: readonly FundingSource.Source[]
@@ -511,7 +519,7 @@ export declare namespace handleRequest {
     policyId?: bigint | undefined
     /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
     store?: Store.Store | undefined
-    /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
+    /** Resolves omitted sources for owner and access key requests, subject to policy restrictions. Defaults to policy sources for access keys or known same-currency DEX inputs. */
     getRoute?:
       | ((context: {
           /** Chain selected for discovery and transaction filling. */
