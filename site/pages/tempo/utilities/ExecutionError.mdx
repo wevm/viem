@@ -4,7 +4,54 @@ description: Decode Tempo precompile reverts into readable execution errors.
 
 # ExecutionError
 
+## Overview
+
 Decode reverts from the Tempo precompiles in `Abis.core` and format their messages. Unknown errors retain their original message without the `execution reverted:` prefix.
+
+## Recipes
+
+### Decode a Revert
+
+Pass the error from a failed call to `ExecutionError.from`. The decorated copy
+retains the original properties and adds decoded fields when revert data is known.
+
+```ts twoslash
+import { ExecutionError } from 'viem/tempo'
+
+const error = ExecutionError.from({ // [!code focus]
+  data: '0x82b42900',
+  message: 'execution reverted',
+})
+
+// [!code focus:start]
+error.errorName
+// @log: 'Unauthorized'
+error.message
+// @log: 'Unauthorized.'
+// [!code focus:end]
+```
+
+### Serialize Error Metadata
+
+Use `ExecutionError.serialize` to select JSON-safe execution metadata without
+the original stack, cause, custom properties, or decoded arguments.
+
+```ts twoslash
+import { ExecutionError } from 'viem/tempo'
+
+const error = ExecutionError.from('0x82b42900')
+const metadata = ExecutionError.serialize(error) // [!code focus]
+
+// [!code focus:start]
+metadata
+// @log: {
+// @log:   errorName: 'Unauthorized',
+// @log:   abiItem: { type: 'error', name: 'Unauthorized', inputs: [] },
+// @log:   message: 'Unauthorized.',
+// @log:   data: '0x82b42900',
+// @log: }
+// [!code focus:end]
+```
 
 ## `from`
 

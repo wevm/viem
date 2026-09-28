@@ -53,6 +53,15 @@ The relay never selects the resolver's first chain as a default.
 
 Creates handlers sharing one plugin pipeline.
 
+### Usage
+
+```ts twoslash
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({ client })
+```
+
 ### Parameters
 
 #### options.client
@@ -126,9 +135,10 @@ resolver when fetching a remote token list.
 
 ```ts twoslash
 import { Addresses, createClient, Relay } from 'viem/tempo'
+const client = createClient()
 // ---cut---
 const relay = Relay.create({
-  client: createClient(),
+  client,
   resolveTokens: () => [Addresses.pathUsd], // [!code focus]
   plugins: [Relay.feeToken()],
 })
