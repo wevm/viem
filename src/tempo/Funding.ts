@@ -405,6 +405,7 @@ export function handleRequest(
             ...policy,
             chainId,
             rules: decoded.policyRules ?? policy.rules,
+            defaultRules: parameters.policyRules,
             store,
           })
         : undefined
@@ -509,6 +510,8 @@ export declare namespace handleRequest {
   export type Parameters = {
     /** Default policy selected only for `fundingPolicy: true`. */
     policyId?: bigint | undefined
+    /** Fallback rules when neither the request nor the store supplies them. Verified against the current onchain commitment before use. */
+    policyRules?: FundingPolicy.Rules | undefined
     /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
     store?: Store.Store | undefined
     /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
@@ -551,12 +554,18 @@ export declare namespace handleRequest {
 async function resolvePolicyRules(parameters: {
   chainId: number
   rules?: Hex | undefined
+  defaultRules?: FundingPolicy.Rules | undefined
   rulesHash: Hex
   store: Store.Store
 }): Promise<Hex> {
   const { chainId, rulesHash, store } = parameters
   const key = `funding:${chainId}:${Addresses.fundingPolicy.toLowerCase()}:rules:${rulesHash.toLowerCase()}`
-  const rules = parameters.rules ?? (await store.getItem(key))
+  const rules =
+    parameters.rules ??
+    (await store.getItem(key)) ??
+    (parameters.defaultRules
+      ? FundingPolicy.encode(parameters.defaultRules)
+      : undefined)
   if (rules !== undefined && rules !== null) {
     const decoded = FundingPolicy.decode(rules as Hex)
     if (FundingPolicy.hash(decoded).toLowerCase() !== rulesHash.toLowerCase())

@@ -75,7 +75,31 @@ import { store } from './store'
 withFunding(http(), { policyId: 1n, store })
 ```
 
-The policy must already exist, and its current rules must be registered for automatic funding. Its administrators can update the rules that apply to attached access keys.
+The policy must already exist. Supply its current rules through `policyRules` or register them in the store for automatic funding. Its administrators can update the rules that apply to attached access keys.
+
+### policyRules
+
+- **Type:** `FundingPolicy.Rules`
+
+Fallback policy rules for access-key funding when the request and store do not supply them. The handler verifies their hash against the policy's current onchain commitment before using and caching them. A mismatch rejects the request.
+
+```ts
+import { http } from 'viem'
+import { Addresses, FundingSource, Store, withFunding } from 'viem/tempo'
+
+withFunding(http(), {
+  policyId: 1n,
+  policyRules: {
+    maxSlippageBps: 0,
+    sources: {
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+    },
+  },
+  store: Store.memory(),
+})
+```
+
+Request-supplied rules take precedence, followed by registered rules matching the current commitment, then configured rules. Update the configured rules or register new rules when the policy changes. This option does not create a policy or change owner funding routes.
 
 ### store
 

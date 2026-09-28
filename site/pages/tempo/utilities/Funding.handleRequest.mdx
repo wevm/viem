@@ -42,6 +42,12 @@ The handler infers the chain from the transaction or accepts `handleRequest(requ
 
 Existing default policy for `fundingPolicy: true`. The handler verifies that it exists on the selected chain before returning its ID. Explicit IDs and inline policies remain unchanged.
 
+### policyRules
+
+- **Type:** `FundingPolicy.Rules`
+
+Fallback rules when neither the request nor the store supplies them. The handler checks them against the policy's current onchain commitment before use. See [`withFunding`](/tempo/transports/withFunding#policyrules) for configuration and precedence.
+
 ### store
 
 - **Type:** `Store.Store`

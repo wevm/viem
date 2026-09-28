@@ -9,9 +9,10 @@ import {
   FundingPolicy,
   FundingSource,
   Store,
+  withFunding,
 } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, getClient, http } from '~test/tempo/config.js'
 
 const client = getClient()
 
@@ -454,6 +455,82 @@ describe('behavior', () => {
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `[RpcResponse.InvalidParamsError: Invalid signed \`keyAuthorization\`.]`,
       )
+    },
+  )
+
+  test.each(['configured', 'registered', 'inline', 'mismatch'] as const)(
+    'uses %s policy rules when the transport is configured with rules',
+    async (mode) => {
+      const account = await setupAccount()
+      const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+        access: account,
+      })
+      const rules = {
+        maxSlippageBps: 0,
+        sources: {
+          [Addresses.pathUsd]: [
+            FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+          ],
+        },
+      }
+      const { policyId } = await Actions.funding.createPolicySync(client, {
+        account,
+        admins: [account.address],
+        feePayer: accounts[1],
+        rules,
+      })
+      const funded = getClient({
+        transport: withFunding(http(), {
+          policyId,
+          policyRules:
+            mode === 'configured' ? rules : { ...rules, maxSlippageBps: 1 },
+          store: Store.memory(),
+        }),
+      })
+      if (mode === 'registered')
+        await Actions.funding.setPolicyRulesSync(funded, {
+          account,
+          feePayer: accounts[1],
+          policyId,
+          rules,
+        })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        funded,
+        {
+          account,
+          accessKey,
+          fundingPolicy: true,
+        },
+      )
+      expect(keyAuthorization.fundingPolicy).toBe(policyId)
+      const transfer = Actions.token.transferSync(funded, {
+        account: accessKey,
+        feePayer: accounts[1],
+        keyAuthorization,
+        token: Addresses.pathUsd,
+        to: accounts[0].address,
+        amount: 1n,
+        requireFunds: [
+          {
+            token: Addresses.pathUsd,
+            amount: 1n,
+            ...(mode === 'inline' ? { policyRules: rules } : {}),
+          },
+        ],
+      })
+      if (mode === 'mismatch') {
+        await expect(transfer).rejects.toThrow(
+          'Funding policy rules do not match the current onchain commitment.',
+        )
+        return
+      }
+      const { receipt } = await transfer
+      expect(receipt.status).toBe('success')
+      const balance = await Actions.token.getBalance(client, {
+        account: account.address,
+        token: Addresses.alphaUsd,
+      })
+      expect(balance.formatted).toBe('99.999999')
     },
   )
 
