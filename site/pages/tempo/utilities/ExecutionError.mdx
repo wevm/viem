@@ -81,4 +81,4 @@ The execution metadata without `args`. Original properties and decoded arguments
 
 Message templates cover every error name in `Abis.core`. Placeholders such as `{0}` refer to decoded arguments by position.
 
-For repository maintenance, run `pnpm check:tempo-execution-errors` after updating the ABIs or templates. The check reports missing messages, unknown error names, and placeholders absent from every ABI signature for an error. CI and `pnpm gen:tempo-abis` also run this check against the checked-in ABIs.
+For repository maintenance, run `bun scripts/checkTempoErrors.ts` after updating the ABIs or templates. The check reports missing messages, unknown error names, and placeholders absent from every ABI signature for an error. `pnpm gen:tempo-abis` also runs this check against the checked-in ABIs.
