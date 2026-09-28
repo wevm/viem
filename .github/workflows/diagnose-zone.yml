@@ -1,5 +1,8 @@
 name: Diagnose Zone
-on: workflow_dispatch
+on:
+  push:
+    branches: [jxom/fix-main-ci-zone]
+  workflow_dispatch:
 jobs:
   zone:
     runs-on: ubuntu-latest
