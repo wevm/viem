@@ -130,3 +130,11 @@ test('eip2930', () => {
     type: 'eip2930',
   })
 })
+
+test('frame requests accept PeerDAS sidecars', () => {
+  sendTransaction(walletClient, {
+    frames: [{ mode: 'sender' }],
+    blobVersionedHashes: ['0x01'],
+    sidecars: { blobs: ['0x'], commitments: ['0x'], cellProofs: ['0x'] },
+  })
+})

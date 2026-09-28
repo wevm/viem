@@ -352,6 +352,8 @@ export type TransactionRequestEIP8141<
     blobVersionedHashes?: readonly Hex[] | undefined
     /** Frames in execution order. */
     frames: readonly frame[]
+    /** PeerDAS blob sidecars included in the network wrapper. */
+    sidecars?: TransactionSerializableEIP8141['sidecars'] | undefined
     /** Signature entries, including unsigned placeholders. */
     signatures?: readonly signature[] | undefined
   }
