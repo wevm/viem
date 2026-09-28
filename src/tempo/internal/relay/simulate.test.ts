@@ -1,4 +1,4 @@
-import { createClient } from 'viem'
+import { createClient, parseUnits } from 'viem'
 import { fillTransaction } from 'viem/actions'
 import { Actions, Relay, withRelay } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
@@ -206,4 +206,143 @@ test.each([
     ],
   })
   expect(capabilities?.fee).toMatchObject({ amount, formatted })
+})
+
+test.each([undefined, false])(
+  'returns transfer capabilities through Fetch, balanceDiffs: %s',
+  async (balanceDiffs) => {
+    const relay = Relay.create({ client: caller, plugins: [Relay.simulate()] })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: userAccount.address,
+              feeToken: Tempo.addresses.alphaUsd,
+              calls: [
+                {
+                  to: Tempo.addresses.alphaUsd,
+                  data: Actions.token.transfer.call(caller, {
+                    token: Tempo.addresses.alphaUsd,
+                    to: recipient.address,
+                    amount: parseUnits('100', 6),
+                  }).data,
+                },
+              ],
+              capabilities: { balanceDiffs },
+            },
+          ],
+        }),
+      }),
+    )
+    const { result, error } = await response.json()
+    expect(error).toBeUndefined()
+    expect(result.capabilities.fee).toMatchObject({
+      decimals: 6,
+      symbol: 'AlphaUSD',
+    })
+    expect(BigInt(result.capabilities.fee.amount)).toBeGreaterThan(0n)
+    expect(Number(result.capabilities.fee.formatted)).toBeGreaterThan(0)
+    if (balanceDiffs === false)
+      expect(result.capabilities.balanceDiffs).toBeUndefined()
+    else
+      expect(result.capabilities.balanceDiffs[userAccount.address]).toEqual([
+        {
+          address: Tempo.addresses.alphaUsd,
+          decimals: 6,
+          direction: 'outgoing',
+          formatted: '100',
+          name: 'AlphaUSD',
+          recipients: [recipient.address],
+          symbol: 'AlphaUSD',
+          value: '0x5f5e100',
+        },
+      ])
+  },
+)
+
+test('reports the exact deficit for a partially funded transfer', async () => {
+  const { token } = await Actions.token.createSync(caller, {
+    account: userAccount,
+    admin: userAccount.address,
+    name: 'Deficit USD',
+    symbol: 'DEF',
+    currency: 'USD',
+    quoteToken: Tempo.addresses.alphaUsd,
+  })
+  await Actions.token.grantRolesSync(caller, {
+    account: userAccount,
+    token,
+    roles: ['issuer'],
+    to: userAccount.address,
+  })
+  await Actions.token.mintSync(caller, {
+    account: userAccount,
+    token,
+    to: userAccount.address,
+    amount: parseUnits('40', 6),
+  })
+  const relay = Relay.create({ client: caller, plugins: [Relay.simulate()] })
+  for (const errors of [undefined, false, true]) {
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: userAccount.address,
+              feeToken: Tempo.addresses.alphaUsd,
+              calls: [
+                {
+                  to: token,
+                  data: Actions.token.transfer.call(caller, {
+                    token,
+                    to: recipient.address,
+                    amount: parseUnits('100', 6),
+                  }).data,
+                },
+              ],
+              capabilities: { errors },
+            },
+          ],
+        }),
+      }),
+    )
+    const { result, error } = await response.json()
+    if (!errors) {
+      expect(result).toBeUndefined()
+      expect(error).toMatchObject({ code: 3 })
+      continue
+    }
+    expect(error).toBeUndefined()
+    expect(result.capabilities.error.errorName).toBe('InsufficientBalance')
+    const { token: deficitToken, ...insufficientFunds } =
+      result.capabilities.insufficientFunds
+    expect(deficitToken.toLowerCase()).toBe(token.toLowerCase())
+    expect(insufficientFunds).toMatchInlineSnapshot(`
+      {
+        "amount": "0x3938700",
+        "decimals": 6,
+        "formatted": "60",
+        "symbol": "DEF",
+      }
+    `)
+  }
+  expect(
+    (
+      await Actions.token.getBalance(caller, {
+        account: userAccount.address,
+        token,
+      })
+    ).amount,
+  ).toBe(parseUnits('40', 6))
 })

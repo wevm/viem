@@ -92,7 +92,7 @@ export async function formatError(
       capabilities: {
         balanceDiffs: senderDiffs,
         error: ExecutionError.serialize(revert),
-        requireFunds: metadata
+        insufficientFunds: metadata
           ? {
               amount: Hex.fromNumber(deficit) as `0x${string}`,
               decimals: metadata.decimals,

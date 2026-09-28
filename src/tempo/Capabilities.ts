@@ -41,7 +41,7 @@ export type FillTransactionCapabilities = {
         symbol: string
       }
     | undefined
-  requireFunds?:
+  insufficientFunds?:
     | {
         amount: Hex
         decimals: number

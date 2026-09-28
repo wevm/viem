@@ -3117,7 +3117,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
     await server.close()
   })
 
-  test('behavior: returns requireFunds on InsufficientBalance when errors capability is enabled', async () => {
+  test('behavior: returns insufficientFunds on InsufficientBalance when errors capability is enabled', async () => {
     const sender = Tempo.accounts[10]!
 
     const result = await fillTransaction(client, {
@@ -3162,7 +3162,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
           "errorName": "InsufficientBalance",
           "message": "Insufficient balance. Required: 100000000, available: 0.",
         },
-        "requireFunds": {
+        "insufficientFunds": {
           "amount": "0x5f5e100",
           "decimals": 6,
           "formatted": "100",
@@ -3390,9 +3390,9 @@ describe.skipIf(nodeEnv !== 'localnet')(
       )
       expect(capabilities?.sponsored).toBe(false)
 
-      // Should NOT have requireFunds — autoSwap should handle it.
+      // Auto swap covers the missing funds.
       expect(
-        (capabilities as Record<string, unknown>)?.requireFunds,
+        (capabilities as Record<string, unknown>)?.insufficientFunds,
       ).toBeUndefined()
     })
   },
