@@ -120,7 +120,7 @@ new Elysia()
   .listen(3000)
 ```
 
-```ts [Next.js]
+```ts twoslash [Next.js]
 import { createClient, Relay } from 'viem/tempo'
 
 const client = createClient()
@@ -129,7 +129,7 @@ const relay = Relay.create({
   plugins: [Relay.simulate(), Relay.feeToken()],
 })
 
-export const POST = (request: Request) => relay.fetch(request)
+export const POST = relay.fetch
 ```
 
 :::
