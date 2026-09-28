@@ -103,12 +103,7 @@ test('cached metadata preserves bigint fields', async () => {
     transport: withRelay(Tempo.http(), {
       resolveTokens: () => [Tempo.addresses.alphaUsd],
 
-      plugins: [
-        Relay.feeToken({
-          store,
-        }),
-        Relay.simulate({ store }),
-      ],
+      plugins: [Relay.feeToken(), Relay.simulate({ store })],
     }),
   })
   const first = await fillTransaction(client, {

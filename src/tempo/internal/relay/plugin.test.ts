@@ -391,7 +391,7 @@ test.each(['none', 'accept', 'reject'] as const)(
                 validate: () => sponsorship === 'accept',
               }),
             ]),
-        Relay.feeToken({ store: Store.memory() }),
+        Relay.feeToken(),
         Relay.simulate({ store: Store.memory() }),
       ],
     })

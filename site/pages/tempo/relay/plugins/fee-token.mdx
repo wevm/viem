@@ -176,20 +176,6 @@ import { Relay } from 'viem/tempo'
 const plugin = Relay.feeToken()
 ```
 
-### Parameters
-
-#### options.store
-
-- **Type:** `Store.Store`
-
-Deprecated. Preferences, candidate balances, and virtual recipients are read together in one deployless `eth_call`. The store option is retained for compatibility.
-
-```ts twoslash
-import { Relay, Store } from 'viem/tempo'
-// ---cut---
-Relay.feeToken({ store: Store.memory() }) // [!code focus]
-```
-
 ### Return Value
 
 `Relay.Plugin`
@@ -200,5 +186,5 @@ A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
 
 | Error | Description |
 | --- | --- |
-| `Error` | The token resolver or store fails. |
+| `Error` | The token resolver fails. |
 | `RpcRequestError` | The selected token cannot pay for the transaction. |

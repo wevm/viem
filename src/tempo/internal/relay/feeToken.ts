@@ -9,7 +9,7 @@ import * as Preflight from './preflight.js'
 import * as Utils from './utils.js'
 import { extractCalls, getVirtualAddressTargets } from './virtualAddress.js'
 
-export function create(_options: Relay.feeToken.Options): Relay.Plugin {
+export function create(): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       const { request } = context

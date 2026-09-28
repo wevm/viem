@@ -396,19 +396,10 @@ export declare namespace feePayer {
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.feeToken()
  * ```
- * @param options - Fee-token options.
  * @returns A fee-token relay plugin.
  */
-export function feeToken(options: feeToken.Options = {}): Plugin {
-  return FeeToken.create(options)
-}
-
-export declare namespace feeToken {
-  /** Fee-token selection configuration. */
-  export type Options = {
-    /** @deprecated Preferences and balances are now read together without caching. */
-    store?: Store.Store | undefined
-  }
+export function feeToken(): Plugin {
+  return FeeToken.create()
 }
 
 /**
