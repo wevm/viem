@@ -30,6 +30,7 @@ test('exports tempo', () => {
       "Chain",
       "createClient",
       "tempoActions",
+      "ExecutionError",
       "Expiry",
       "Formatters",
       "Hardfork",
