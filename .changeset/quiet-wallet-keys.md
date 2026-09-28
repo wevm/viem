@@ -1,8 +1,8 @@
 ---
-"viem": major
+"viem": minor
 ---
 
-Unified access key authorization results into `{ rootAddress, keyAuthorization, hash }`, with `hash` undefined for wallet authorization.
+`viem/tempo`: Unified access key authorization results into `{ rootAddress, keyAuthorization, hash }`, with `hash` undefined for wallet authorization.
 
 ```diff
 - const hash = await client.accessKey.authorize({ accessKey, expiry })
