@@ -73,171 +73,6 @@ await client.sendTransactionSync({
 
 :::
 
-### Global Configuration
-
-Use `getRoute` on the `Relay.funding` plugin to choose sources and slippage for each output token.
-
-The callback replaces the default route lookup. Returning `undefined` rejects discovery for that request.
-
-These examples use testnet tokens. Replace the Earn source and vault placeholders with deployed addresses; the vault must hold PathUSD.
-
-#### Configure Sources by Token
-
-Use a token map when the client uses one chain. This route redeems Earn shares, then uses AlphaUSD for the remaining shortfall.
-
-```ts [viem.config.ts]
-import { http, parseUnits } from 'viem'
-import {
-  Account,
-  Addresses,
-  createClient,
-  FundingSource,
-  Relay,
-  withRelay,
-} from 'viem/tempo'
-import { store } from './store'
-
-export const client = createClient({
-  account: Account.fromSecp256k1('0x...'),
-  transport: withRelay(http(), {
-    plugins: [
-      Relay.funding({
-        store,
-        getRoute({ token }) {
-          const routes = {
-            [Addresses.pathUsd]: {
-              slippageBps: 100,
-              sources: [
-                // Attempt to redeem vault shares before AlphaUSD.
-                FundingSource.earn({ source: '0x...', vault: '0x...' }),
-                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
-              ],
-            },
-          }
-
-          return routes[token]
-        },
-      }),
-    ],
-  }),
-})
-```
-
-#### Configure by Chain
-
-Nest token routes under their chain ID when the configuration serves multiple chains. An unconfigured chain or token returns `undefined`.
-
-```ts [viem.config.ts]
-import { http, parseUnits } from 'viem'
-import {
-  Account,
-  Addresses,
-  createClient,
-  FundingSource,
-  Relay,
-  withRelay,
-} from 'viem/tempo'
-import { store } from './store'
-
-export const client = createClient({
-  account: Account.fromSecp256k1('0x...'),
-  transport: withRelay(http(), {
-    plugins: [
-      Relay.funding({
-        store,
-        getRoute({ chainId, token }) {
-          const routes = {
-            42431: {
-              [Addresses.pathUsd]: {
-                slippageBps: 100,
-                sources: [
-                  // Redeem at most 30 PathUSD of share value before using the DEX.
-                  FundingSource.earn({
-                    maxValueIn: parseUnits('30', 6),
-                    source: '0x...',
-                    vault: '0x...',
-                  }),
-                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
-                ],
-              },
-            },
-          }
-
-          return routes[chainId]?.[token]
-        },
-      }),
-    ],
-  }),
-})
-```
-
-#### Configure by Account
-
-Use `transaction.from` to select account-specific routes. This is the funding account's address, including when an access key signs the transaction. Access key funding follows its policy rather than this owner-route callback.
-
-```ts [viem.config.ts]
-import { http, parseUnits } from 'viem'
-import {
-  Account,
-  Addresses,
-  createClient,
-  FundingSource,
-  Relay,
-  withRelay,
-} from 'viem/tempo'
-import { store } from './store'
-
-export const client = createClient({
-  account: Account.fromSecp256k1('0x...'),
-  transport: withRelay(http(), {
-    plugins: [
-      Relay.funding({
-        store,
-        getRoute({ chainId, token, transaction }) {
-          if (!transaction.from) return undefined
-
-          const routes = {
-            '0x1111111111111111111111111111111111111111': {
-              42431: {
-                [Addresses.pathUsd]: {
-                  slippageBps: 100,
-                  sources: [
-                    // Redeem at most 30 PathUSD of share value before using the DEX.
-                    FundingSource.earn({
-                      maxValueIn: parseUnits('30', 6),
-                      source: '0x...',
-                      vault: '0x...',
-                    }),
-                    FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
-                  ],
-                },
-              },
-            },
-          }
-
-          return routes[transaction.from]?.[chainId]?.[token]
-        },
-      }),
-    ],
-  }),
-})
-```
-
-Use an account configured in the map. The transfer stays the same for each configuration:
-
-```ts [example.ts]
-import { parseUnits } from 'viem'
-import { Addresses } from 'viem/tempo'
-import { client } from './viem.config'
-
-await client.token.transferSync({
-  amount: parseUnits('50', 6),
-  requireFunds: true,
-  to: '0x8888888888888888888888888888888888888888',
-  token: Addresses.pathUsd,
-})
-```
-
 ### Per-Transaction Configuration
 
 #### Choose Tokens
@@ -581,6 +416,150 @@ You can supply `policyRules` as a decoded object or ABI-encoded hex when the cur
 The signed `keyAuthorization` installs the key in the payment transaction. Funding and payment revert together, but key installation can persist after a payment revert. An inline funding policy can also persist.
 
 For an installed key, read its policy with [`accessKey.getFundingPolicyId`](/tempo/actions/accessKey.getFundingPolicyId). You can [discover against that policy](/tempo/guides/funding/discover#discover-against-a-funding-policy) and pass `requireFunds: [discovery]`.
+
+### Global/Shared Configuration
+
+Use `getRoute` on the `Relay.funding` plugin to choose sources and slippage for each output token.
+
+The callback replaces the default route lookup. Returning `undefined` rejects discovery for that request.
+
+These examples use testnet tokens. Replace the Earn source and vault placeholders with deployed addresses; the vault must hold PathUSD.
+
+#### Configure Sources by Token
+
+Use a token map when the client uses one chain. This route redeems Earn shares, then uses AlphaUSD for the remaining shortfall.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, Relay, withRelay } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.funding({
+        store,
+        getRoute({ token }) { // [!code hl]
+          const routes = { // [!code hl]
+            [Addresses.pathUsd]: { // [!code hl]
+              slippageBps: 100, // [!code hl]
+              sources: [ // [!code hl]
+                // Attempt to redeem vault shares before AlphaUSD. // [!code hl]
+                FundingSource.earn({ source: '0x...', vault: '0x...' }), // [!code hl]
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }), // [!code hl]
+              ], // [!code hl]
+            }, // [!code hl]
+          } // [!code hl]
+          // [!code hl]
+          return routes[token] // [!code hl]
+        }, // [!code hl]
+      }),
+    ],
+  }),
+})
+```
+
+#### Configure by Chain
+
+Nest token routes under their chain ID when the configuration serves multiple chains. An unconfigured chain or token returns `undefined`.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, Relay, withRelay } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.funding({
+        store,
+        getRoute({ chainId, token }) { // [!code hl]
+          const routes = { // [!code hl]
+            42431: { // [!code hl]
+              [Addresses.pathUsd]: { // [!code hl]
+                slippageBps: 100, // [!code hl]
+                sources: [ // [!code hl]
+                  // Redeem at most 30 PathUSD of share value before using the DEX. // [!code hl]
+                  FundingSource.earn({ // [!code hl]
+                    maxValueIn: parseUnits('30', 6), // [!code hl]
+                    source: '0x...', // [!code hl]
+                    vault: '0x...', // [!code hl]
+                  }), // [!code hl]
+                  FundingSource.dex({ tokenIn: Addresses.alphaUsd }), // [!code hl]
+                ], // [!code hl]
+              }, // [!code hl]
+            }, // [!code hl]
+          } // [!code hl]
+          // [!code hl]
+          return routes[chainId]?.[token] // [!code hl]
+        }, // [!code hl]
+      }),
+    ],
+  }),
+})
+```
+
+#### Configure by Account
+
+Use `transaction.from` to select account-specific routes. This is the funding account's address, including when an access key signs the transaction. Access key funding follows its policy rather than this owner-route callback.
+
+```ts [viem.config.ts]
+import { http, parseUnits } from 'viem'
+import { Account, Addresses, createClient, FundingSource, Relay, withRelay } from 'viem/tempo'
+import { store } from './store'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.funding({
+        store,
+        getRoute({ chainId, token, transaction }) { // [!code hl]
+          if (!transaction.from) return undefined // [!code hl]
+          // [!code hl]
+          const routes = { // [!code hl]
+            '0x1111111111111111111111111111111111111111': { // [!code hl]
+              42431: { // [!code hl]
+                [Addresses.pathUsd]: { // [!code hl]
+                  slippageBps: 100, // [!code hl]
+                  sources: [ // [!code hl]
+                    // Redeem at most 30 PathUSD of share value before using the DEX. // [!code hl]
+                    FundingSource.earn({ // [!code hl]
+                      maxValueIn: parseUnits('30', 6), // [!code hl]
+                      source: '0x...', // [!code hl]
+                      vault: '0x...', // [!code hl]
+                    }), // [!code hl]
+                    FundingSource.dex({ tokenIn: Addresses.alphaUsd }), // [!code hl]
+                  ], // [!code hl]
+                }, // [!code hl]
+              }, // [!code hl]
+            }, // [!code hl]
+          } // [!code hl]
+          // [!code hl]
+          return routes[transaction.from]?.[chainId]?.[token] // [!code hl]
+        }, // [!code hl]
+      }),
+    ],
+  }),
+})
+```
+
+Use an account configured in the map. The transfer stays the same for each configuration:
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: true,
+  to: '0x8888888888888888888888888888888888888888',
+  token: Addresses.pathUsd,
+})
+```
 
 ## See More
 
