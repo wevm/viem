@@ -1,8 +1,9 @@
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { describe, expect, test } from 'vitest'
 import type { FrameSignature, Frame as FrameType } from '../../types/frame.js'
 import type { Hex } from '../../types/misc.js'
 import * as Frame from '../Frame.js'
-import { getHash, resolve, signFrame, type Transaction } from './transaction.js'
+import { resolve, signFrame, type Transaction } from './transaction.js'
 
 const gas = { executionGas: 50_000n, stateGas: 0n }
 
@@ -134,44 +135,64 @@ describe('resolve', () => {
   })
 })
 
-describe('getHash', () => {
+describe('signFrame', () => {
   test.each([
     'chainId',
     'nonce',
     'maxFeePerGas',
     'maxPriorityFeePerGas',
-  ] as const)('requires %s', (field) => {
-    expect(() => getHash({ ...transaction(), [field]: undefined })).toThrow(
-      'Prepare the transaction',
-    )
+  ] as const)('requires %s', async (field) => {
+    const prepared = transaction([Frame.from(() => ({ frame: { ...gas } }))])
+
+    await expect(
+      signFrame(prepared.frames[0]!, { ...prepared, [field]: undefined }),
+    ).rejects.toThrow('Prepare the transaction')
   })
 
   test.each(['executionGas', 'stateGas'] as const)(
     'requires frame %s',
-    (field) => {
-      expect(() =>
-        getHash(transaction([{ ...gas, [field]: undefined }])),
-      ).toThrow('Prepare the transaction')
+    async (field) => {
+      const prepared = transaction([
+        Frame.from(() => ({ frame: { ...gas, [field]: undefined } })),
+      ])
+
+      await expect(signFrame(prepared.frames[0]!, prepared)).rejects.toThrow(
+        'Prepare the transaction',
+      )
     },
   )
 
-  test('witness bytes do not change the canonical hash', () => {
-    const prepared = {
-      ...transaction([{ ...gas }]),
-      signatures: [{ scheme: 'arbitrary' as const, signature: '0x' as const }],
-    }
+  test('witness bytes do not change the canonical hash', async () => {
+    const hashes: Hex[] = []
+    const prepared = transaction([
+      Frame.from(() => ({
+        frame: { ...gas },
+        signatures: [
+          {
+            scheme: 'arbitrary',
+            async sign({ hash }) {
+              hashes.push(hash)
+              return '0xaabb'
+            },
+          },
+        ],
+      })),
+    ])
+    const signed = await signFrame(prepared.frames[0]!, prepared)
+    const result = resolve({ ...prepared, frames: [signed] })
 
-    expect(
-      getHash({
-        ...prepared,
-        signatures: [{ scheme: 'arbitrary', signature: '0xaabb' }],
+    expect(hashes).toEqual([
+      TxEnvelopeEip8141.getSignPayload({
+        ...result,
+        nonce: BigInt(result.nonce!),
       }),
-    ).toBe(getHash(prepared))
-    expect(getHash({ ...prepared, nonce: 1 })).not.toBe(getHash(prepared))
+    ])
+    expect(result.signatures?.[0]?.signature).toBe('0xaabb')
+    expect(() => resolve({ ...result, nonce: 1 })).toThrow(
+      'transaction changed',
+    )
   })
-})
 
-describe('signFrame', () => {
   test('signs entries sequentially with allocated indices and one hash', async () => {
     const events: string[] = []
     const hashes: Hex[] = []
@@ -197,7 +218,11 @@ describe('signFrame', () => {
     const result = resolve({ ...prepared, frames: [signed] })
 
     expect(events).toEqual(['start:0', 'end:0', 'start:1', 'end:1'])
-    expect(hashes).toEqual([getHash(prepared), getHash(prepared)])
+    const hash = TxEnvelopeEip8141.getSignPayload({
+      ...prepared,
+      nonce: BigInt(prepared.nonce!),
+    })
+    expect(hashes).toEqual([hash, hash])
     expect(result.signatures?.map(({ signature }) => signature)).toEqual([
       '0xaa',
       '0xbb',

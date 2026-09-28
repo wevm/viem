@@ -196,7 +196,7 @@ export function resolve<
   return result
 }
 
-export function getHash(transaction: Transaction) {
+function getHash(transaction: Transaction) {
   if (
     transaction.chainId === undefined ||
     transaction.nonce === undefined ||
