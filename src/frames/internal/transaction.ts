@@ -224,6 +224,7 @@ function getHash(transaction: Transaction) {
 export async function signFrame(
   frame: Frame,
   transaction: Transaction,
+  { payloadsOnly = false }: { payloadsOnly?: boolean | undefined } = {},
 ): Promise<Frame> {
   const state = (frame as SigningFrame)[signing]
   const frameIndex = transaction.frames.indexOf(frame)
@@ -232,16 +233,66 @@ export async function signFrame(
       'Expected a signing frame from the prepared transaction.',
     )
 
-  const resolved = resolve(transaction)
-  const hash = getHash(resolved)
-  if (state.signedSignatures) return frame
+  let resolved = resolve(transaction)
+  getHash(resolved)
+  if (state.hash) return frame
 
   const prepared = (resolved.frames[frameIndex] as SigningFrame)[signing]!
     .prepared!
   const entries = structuredClone(prepared.signatures.map(toSignature))
-  const signedSignatures: FrameSignature[] = []
+  const signedSignatures = [...(state.signedSignatures ?? entries)]
 
+  // Explicit payload witnesses are committed by the canonical transaction hash.
+  if (!state.signedSignatures)
+    for (const [index, entry] of prepared.signatures.entries()) {
+      if (!entry.payload || entry.payload === '0x') continue
+      const signature = await entry.sign({
+        hash: entry.payload,
+        signatureIndex: prepared.signatureIndex + index,
+        transaction: resolved,
+      })
+      if (signature === undefined || signature === null)
+        throw new BaseError('Signature signing must return a signature value.')
+      signedSignatures[index] = FrameSignature_ox.from({
+        ...entries[index]!,
+        signature,
+      } as FrameSignature)
+    }
+
+  const partial: SigningFrame = {
+    ...resolved.frames[frameIndex],
+    [signing]: { ...state, prepared, signedSignatures },
+  }
+  resolved = resolve({
+    ...resolved,
+    frames: resolved.frames.map((frame, index) =>
+      index === frameIndex ? partial : frame,
+    ),
+  })
+  if (payloadsOnly) return partial
+
+  const canonical = prepared.signatures.some(
+    (entry) => !entry.payload || entry.payload === '0x',
+  )
+  if (
+    canonical &&
+    resolved.frames.some((frame) => {
+      const state = (frame as SigningFrame)[signing]
+      return (
+        !state?.signedSignatures &&
+        state?.prepared?.signatures.some(
+          (entry) => entry.payload && entry.payload !== '0x',
+        )
+      )
+    })
+  )
+    throw new BaseError(
+      'Sign explicit-payload frames before transaction-hash frames.',
+    )
+
+  const hash = getHash(resolved)
   for (const [index, entry] of prepared.signatures.entries()) {
+    if (entry.payload && entry.payload !== '0x') continue
     const signature = await entry.sign({
       hash,
       signatureIndex: prepared.signatureIndex + index,
@@ -249,18 +300,20 @@ export async function signFrame(
     })
     if (signature === undefined || signature === null)
       throw new BaseError('Signature signing must return a signature value.')
-
-    signedSignatures.push(
-      FrameSignature_ox.from({
-        ...entries[index]!,
-        signature,
-      } as FrameSignature),
-    )
+    signedSignatures[index] = FrameSignature_ox.from({
+      ...entries[index]!,
+      signature,
+    } as FrameSignature)
   }
 
   return {
-    ...resolved.frames[frameIndex],
-    [signing]: { ...state, prepared, hash, signedSignatures },
+    ...partial,
+    [signing]: {
+      ...state,
+      prepared,
+      ...(canonical ? { hash } : {}),
+      signedSignatures,
+    },
   } as SigningFrame
 }
 

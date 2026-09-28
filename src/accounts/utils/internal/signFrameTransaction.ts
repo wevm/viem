@@ -18,19 +18,22 @@ export async function signFrameTransaction(
 ) {
   transaction = resolve(transaction)
 
-  const frames: Frame[] = []
-  for (const frame of transaction.frames)
-    frames.push(
-      (frame as SigningFrame)[signing]
-        ? await signFrame(frame, transaction)
-        : frame,
-    )
+  for (const payloadsOnly of [true, false]) {
+    const frames: Frame[] = []
+    for (const frame of transaction.frames)
+      frames.push(
+        (frame as SigningFrame)[signing]
+          ? await signFrame(frame, transaction, { payloadsOnly })
+          : frame,
+      )
+    transaction = resolve({ ...transaction, frames })
+  }
 
   const {
     from: _from,
     gas: _gas,
     ...envelope
-  } = resolve({ ...transaction, frames }) as TransactionSerializableEIP8141 & {
+  } = transaction as TransactionSerializableEIP8141 & {
     from?: string | undefined
     gas?: bigint | undefined
   }

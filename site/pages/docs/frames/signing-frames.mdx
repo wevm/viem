@@ -71,3 +71,5 @@ Finalize all participants and transaction fields before signing. Modifying the t
   <Card icon="lucide:book-open" title="Sign Reference" description="Explicit signing parameters and errors." to="/docs/frames/sign" />
   <Card icon="lucide:book-open" title="Building Frames" description="Declare frame preparation and signature callbacks." to="/docs/frames/building-frames" />
 </Cards>
+
+When signing individual frames with custom payloads, sign those frames before frames that sign the canonical transaction hash. Transaction-level signing handles this order automatically.

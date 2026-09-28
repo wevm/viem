@@ -1,4 +1,7 @@
+import * as Signature_ox from 'ox/Signature'
 import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import { parseTransaction, recoverAddress } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import type { FrameSignature, Frame as FrameType } from '../../types/frame.js'
 import type { Hex } from '../../types/misc.js'
@@ -146,6 +149,89 @@ describe('resolve', () => {
 })
 
 describe('signFrame', () => {
+  test('signs explicit payloads before canonical signatures', async () => {
+    const account = privateKeyToAccount(
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    )
+    const payload = `0x${'11'.repeat(32)}` as Hex
+    const request = transaction([
+      Frame.verify({ account, ...gas }),
+      Frame.from(() => ({
+        frame: { mode: 'default', ...gas },
+        signatures: [
+          {
+            scheme: 'secp256k1',
+            signer: account.address,
+            payload,
+            sign: account.sign,
+          },
+        ],
+      })),
+    ])
+    const parsed = parseTransaction(
+      await account.signTransaction({ ...request, sender: account.address }),
+    )
+    if (parsed.type !== 'eip8141')
+      throw new Error('Expected frame transaction.')
+    for (const [index, entry] of parsed.signatures!.entries()) {
+      if (entry.scheme !== 'secp256k1' || !entry.signature)
+        throw new Error('Expected signature.')
+      expect(
+        await recoverAddress({
+          hash:
+            index === 0
+              ? TxEnvelopeEip8141.getSignPayload({
+                  ...parsed,
+                  nonce: BigInt(parsed.nonce ?? 0),
+                })
+              : payload,
+          signature:
+            typeof entry.signature === 'string'
+              ? entry.signature
+              : Signature_ox.toHex(entry.signature),
+        }),
+      ).toBe(account.address)
+    }
+  })
+
+  test('requires explicit payload witnesses before manual canonical signing', async () => {
+    const prepared = transaction([
+      Frame.from(() => ({
+        frame: { ...gas },
+        signatures: [{ scheme: 'arbitrary', sign: async () => '0xaa' }],
+      })),
+      Frame.from(() => ({
+        frame: { ...gas },
+        signatures: [
+          {
+            scheme: 'arbitrary',
+            payload: `0x${'11'.repeat(32)}`,
+            sign: async () => '0xbb',
+          },
+        ],
+      })),
+    ])
+    await expect(signFrame(prepared.frames[0]!, prepared)).rejects.toThrow(
+      'Sign explicit-payload frames before transaction-hash frames.',
+    )
+    const explicit = await signFrame(prepared.frames[1]!, prepared)
+    const ready = resolve({
+      ...prepared,
+      frames: [prepared.frames[0]!, explicit],
+    })
+    const canonical = await signFrame(ready.frames[0]!, ready)
+    expect(
+      resolve({ ...ready, frames: [canonical, explicit] }).signatures?.map(
+        ({ signature }) => signature,
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "0xaa",
+        "0xbb",
+      ]
+    `)
+  })
+
   test.each([
     'chainId',
     'nonce',

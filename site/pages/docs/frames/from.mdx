@@ -109,6 +109,6 @@ The callback type accepted by `Frame.from`. It receives a readonly array of peer
 
 A signature declaration paired with a `sign` callback. `scheme`, `signer`, and optional `payload` describe the entry. Supported schemes are `secp256k1`, `p256`, and `arbitrary`; signer requirements depend on the scheme.
 
-`sign({ hash, signatureIndex, transaction })` returns a promise of signature bytes or a supported signature object. `hash` is the canonical transaction signing hash. If the entry specifies a custom `payload`, the callback is responsible for signing that payload. The callback receives its own global index, so no separate signature array needs to be aligned.
+`sign({ hash, signatureIndex, transaction })` returns a promise of signature bytes or a supported signature object. `hash` is the entry’s nonempty custom `payload`, or the canonical transaction signing hash when no custom payload is provided. Explicit payload signatures are finalized before the canonical hash is computed. The callback receives its own global index, so no separate signature array needs to be aligned.
 
 Declare signatures through helpers rather than also supplying a transaction-level signature array. Signing and preparation errors propagate to the caller.
