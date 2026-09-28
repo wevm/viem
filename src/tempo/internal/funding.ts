@@ -99,7 +99,14 @@ export function assertRequireFunds(
   intent: true | readonly FundingRequirementIntent[] | undefined,
   filled: readonly FundingRequirement.FundingRequirement[] | undefined,
 ) {
-  if (intent === true || intent === undefined) return
+  if (intent === undefined) return
+  if (intent === true) {
+    if (filled === undefined)
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Funding relay omitted inferred funding requirements.',
+      })
+    return
+  }
   if (intent.length !== filled?.length)
     throw new RpcResponse.InvalidParamsError({
       message: 'Funding relay changed the number of funding requirements.',

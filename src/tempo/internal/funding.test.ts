@@ -23,6 +23,14 @@ describe('assertRequireFunds', () => {
     }).not.toThrow()
   })
 
+  test('rejects omitted automatic funding requirements', () => {
+    expect(() =>
+      assertRequireFunds(true, undefined),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Funding relay omitted inferred funding requirements.]`,
+    )
+  })
+
   test('compares canonical fields regardless of hex casing or source property order', () => {
     expect(() =>
       assertRequireFunds(
