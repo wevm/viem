@@ -9,6 +9,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import { resolve } from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
@@ -102,6 +103,8 @@ export async function createAccessList<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   args: CreateAccessListParameters<chain>,
 ): Promise<CreateAccessListReturnType> {
+  args = resolve(args)
+
   const {
     account: account_ = client.account,
     blockNumber,
