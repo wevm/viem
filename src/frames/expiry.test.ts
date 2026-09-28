@@ -14,25 +14,34 @@ describe('expiry', () => {
     ['1d', 1_800_086_400n],
     ['1w', 1_800_604_800n],
     ['1.5h', 1_800_005_400n],
-  ] as const)('resolves duration %s once', (duration, expected) => {
-    vi.useFakeTimers()
-    vi.setSystemTime(1_800_000_000_500)
-    const helper = Frame.expiry(duration)
-    vi.setSystemTime(1_800_100_000_500)
+    ['1y', 1_831_536_000n],
+    ['1y', 1_866_974_400n, '2028-02-29T12:00:00Z'],
+    ['4y', 1_961_668_800n, '2028-02-29T12:00:00Z'],
+  ] as const)(
+    'resolves duration %s once',
+    (duration, expected, start: string | number = 1_800_000_000_500) => {
+      vi.useFakeTimers()
+      vi.setSystemTime(start)
+      const helper = Frame.expiry(duration)
+      vi.setSystemTime(1_800_100_000_500)
 
-    const resolveDeadline = () =>
-      BigInt(resolve({ frames: [helper] }).frames[0]!.data!)
-    expect(resolveDeadline()).toBe(expected)
-    vi.advanceTimersByTime(60_000)
-    expect(resolveDeadline()).toBe(expected)
-  })
+      const resolveDeadline = () =>
+        BigInt(resolve({ frames: [helper] }).frames[0]!.data!)
+      expect(resolveDeadline()).toBe(expected)
+      vi.advanceTimersByTime(60_000)
+      expect(resolveDeadline()).toBe(expected)
+    },
+  )
 
   test.each([
     '',
     '1',
     '-1h',
     '1ms',
-    '1y',
+    '1mo',
+    '0.5y',
+    '999999999999999999999y',
+    '999999999y',
     '1h30m',
     '1 day',
     'Infinityh',

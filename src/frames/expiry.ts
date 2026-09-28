@@ -19,10 +19,33 @@ import * as internal from './internal/transaction.js'
  * @param deadline - A Unix timestamp in seconds, ISO date string, or duration relative to the current time.
  * @returns An expiry verifier that must be the first frame.
  */
-export function expiry(deadline: number | bigint | string): Frame {
+export function expiry(
+  deadline:
+    | number
+    | bigint
+    | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
+    | (string & {}),
+): Frame {
   if (typeof deadline === 'string') {
-    const match = /^(\d+(?:\.\d+)?)(s|m|h|d|w)$/.exec(deadline)
-    if (match) {
+    const match = /^(\d+(?:\.\d+)?)(s|m|h|d|w|y)$/.exec(deadline)
+    if (match && match[2] === 'y') {
+      const months = Number(match[1]!) * 12
+      if (
+        !Number.isSafeInteger(Number(match[1]!)) ||
+        !Number.isSafeInteger(months)
+      )
+        throw new BaseError('Expiry years must be safe whole numbers.')
+
+      const date = new Date()
+      const day = date.getUTCDate()
+      date.setUTCDate(1)
+      date.setUTCMonth(date.getUTCMonth() + months)
+
+      const end = new Date(date)
+      end.setUTCMonth(end.getUTCMonth() + 1, 0)
+      date.setUTCDate(Math.min(day, end.getUTCDate()))
+      deadline = Math.floor(date.getTime() / 1000)
+    } else if (match) {
       const units = { s: 1, m: 60, h: 3600, d: 86400, w: 604800 }
       const seconds = Number(match[1]!) * units[match[2]! as keyof typeof units]
       if (!Number.isSafeInteger(seconds))
