@@ -429,3 +429,49 @@ test.each([null, [], 'call', 1])(
     })
   },
 )
+
+test('replaces a supplied signature and records local sponsorship', async () => {
+  const account = privateKeyToAccount(
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+  )
+  const client = createClient({
+    chain: tempoLocalnet,
+    transport: http('http://127.0.0.1:1', { retryCount: 0 }),
+  })
+  const transaction = {
+    from: account.address,
+    chainId: tempoLocalnet.id,
+    nonce: '0x0',
+    gas: '0x186a0',
+    maxFeePerGas: '0x1',
+    maxPriorityFeePerGas: '0x0',
+    feeToken: Addresses.pathUsd,
+    calls: [{ to: account.address, value: '0x0' }],
+    feePayer: true,
+    feePayerSignature: { r: '0x1', s: '0x2', yParity: '0x0' },
+  }
+  const request = { method: 'eth_fillTransaction', params: [transaction] }
+  const relay = Relay.create({
+    client,
+    plugins: [
+      Relay.feePayer({
+        account,
+        onSponsored: () => {
+          throw new Error('Recording unavailable')
+        },
+      }),
+    ],
+  })
+  await expect(relay.request(request)).rejects.toMatchObject({
+    code: -32603,
+    message: 'Internal error',
+  })
+
+  const sponsored = Relay.create({
+    client,
+    plugins: [Relay.feePayer({ account })],
+  })
+  const result = (await sponsored.request(request)) as Relay.Plugin.FillResult
+  expect(result.tx.feePayerSignature).toBeDefined()
+  expect(Signature.fromRpc(result.tx.feePayerSignature as never).r).not.toBe(1n)
+})

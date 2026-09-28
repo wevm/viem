@@ -195,7 +195,6 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         typeof parameters.feePayer === 'string' ||
         parameters.feePayer === false ||
         !result.capabilities?.sponsored ||
-        result.tx.feePayerSignature ||
         (typeof parameters.multisigSimulation === 'object' &&
           parameters.multisigSimulation !== null)
       )

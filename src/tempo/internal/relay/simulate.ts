@@ -173,7 +173,7 @@ export declare namespace simulateAndParseDiffs {
   }
 }
 
-/** Builds a complete preview within the metadata lookup budget. */
+/** Builds a complete preview within the metadata lookup budget. @internal */
 export async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,

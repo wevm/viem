@@ -1,5 +1,6 @@
+import { RpcResponse } from 'ox'
 import { describe, expect, test } from 'vitest'
-import { normalizeFillTransactionRequest } from './utils.js'
+import { normalizeFillTransactionRequest, toRpcError } from './utils.js'
 
 describe('normalizeFillTransactionRequest', () => {
   test.each([null, undefined, [], 'call', 1, true])(
@@ -40,6 +41,31 @@ describe('normalizeFillTransactionRequest', () => {
     })
     expect(normalizeFillTransactionRequest({ calls: [{ value }] })).toEqual({
       calls: [{ value: expected }],
+    })
+  })
+})
+
+describe('toRpcError', () => {
+  test('preserves the original RPC error class through wrappers', () => {
+    const error = new RpcResponse.InvalidParamsError({
+      message: 'Conflicting chain ids.',
+    })
+    expect(toRpcError(error)).toBe(error)
+    expect(toRpcError(new Error('Request failed', { cause: error }))).toBe(
+      error,
+    )
+  })
+
+  test('normalizes expired transactions even when already an RPC error', () => {
+    const error = new RpcResponse.InternalError({
+      message: 'Revm error: transaction expired',
+    })
+    expect(toRpcError(error)).toBeInstanceOf(
+      RpcResponse.TransactionRejectedError,
+    )
+    expect(toRpcError(error)).toMatchObject({
+      message: 'Transaction expired.',
+      data: { code: 'transaction_expired' },
     })
   })
 })

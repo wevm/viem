@@ -128,11 +128,14 @@ export function toRpcError(error: unknown): RpcResponse.BaseError {
       typeof candidate.code === 'number' &&
       typeof candidate.message === 'string'
     )
-      deepest = {
-        code: candidate.code,
-        message: candidate.message,
-        data: candidate.data,
-      }
+      deepest =
+        current instanceof RpcResponse.BaseError
+          ? current
+          : {
+              code: candidate.code,
+              message: candidate.message,
+              data: candidate.data,
+            }
     current = candidate.cause
   }
   if (!deepest)
@@ -148,7 +151,9 @@ export function toRpcError(error: unknown): RpcResponse.BaseError {
       message: 'Transaction expired.',
       data: { code: 'transaction_expired' },
     })
-  return new RpcResponse.BaseError(deepest)
+  return deepest instanceof RpcResponse.BaseError
+    ? deepest
+    : new RpcResponse.BaseError(deepest)
 }
 
 /** Preserves envelope inputs omitted by the node, including calls and chain ID. Filled fields take precedence; legacy calls are normalized separately. */

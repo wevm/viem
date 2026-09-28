@@ -56,6 +56,7 @@ export async function getDefaultTokens(
   })
 }
 
+/** Resolves a funded fee-token candidate. @internal */
 export async function resolveFeeToken(
   client: Client,
   options: resolveFeeToken.Options,

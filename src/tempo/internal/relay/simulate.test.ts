@@ -238,6 +238,7 @@ test.each([undefined, false])(
               calls: [
                 {
                   to: Tempo.addresses.alphaUsd,
+                  value: '0x0',
                   data: Actions.token.transfer.call(caller, {
                     token: Tempo.addresses.alphaUsd,
                     to: recipient.address,
