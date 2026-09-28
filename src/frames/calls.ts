@@ -53,9 +53,10 @@ export function calls<const batch extends readonly unknown[]>(
 
       return {
         ...frame,
-        ...(data !== undefined
-          ? { data: dataSuffix ? concat([data, dataSuffix]) : data }
+        ...(data !== undefined || dataSuffix !== undefined
+          ? { data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data }
           : {}),
+        ...(dataSuffix !== undefined ? { [internal.dataSuffix]: true } : {}),
         ...(index < batch.length - 1 ? { flags: 'atomicBatch' as const } : {}),
         mode: 'sender',
       }

@@ -23,6 +23,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
 import {
+  applyDataSuffix,
   type SigningFrame,
   signing,
 } from '../../frames/internal/transaction.js'
@@ -106,7 +107,10 @@ export type SendTransactionSyncParameters<
   GetTransactionRequestKzgParameter<request> & {
     /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
-    /** Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`. */
+    /**
+     * Data to append to calldata, including sender frames. Takes precedence over `client.dataSuffix`.
+     * Per-call suffixes take precedence. Signed frames are not modified.
+     */
     dataSuffix?: Hex | undefined
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined
@@ -195,6 +199,13 @@ export async function sendTransactionSync<
   parameters = prepareFrames(
     parameters,
     parameters.account === undefined ? client.account : parameters.account,
+  )
+  parameters = applyDataSuffix(
+    parameters,
+    parameters.dataSuffix ??
+      (typeof client.dataSuffix === 'string'
+        ? client.dataSuffix
+        : client.dataSuffix?.value),
   )
 
   const {

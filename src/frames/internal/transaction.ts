@@ -5,10 +5,14 @@ import type { Frame, FrameSignature } from '../../types/frame.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializableEIP8141 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import { concat } from '../../utils/data/concat.js'
 
 export const expiryVerifier = '0x0000000000000000000000000000000000008141'
 
 export const signing = Symbol('frameSigning')
+
+/** Marks explicit or applied suffixes to preserve overrides and prevent duplicate appends. */
+export const dataSuffix = Symbol('frameDataSuffix')
 
 export type Signature = UnionOmit<FrameSignature, 'signature'> & {
   /** Signs this entry after transaction preparation is complete. */
@@ -39,6 +43,7 @@ export type Definition = (parameters: {
     }
 
 export type SigningFrame = Frame & {
+  [dataSuffix]?: boolean | undefined
   [signing]?:
     | {
         prepare: Definition
@@ -55,6 +60,37 @@ export type SigningFrame = Frame & {
 }
 
 export type Transaction = TransactionSerializableEIP8141
+
+export function applyDataSuffix<
+  transaction extends {
+    frames?: readonly Frame[] | undefined
+    signatures?: readonly FrameSignature[] | undefined
+  },
+>(transaction: transaction, suffix: Hex | undefined): transaction {
+  if (!suffix || !transaction.frames) return transaction
+  if (
+    transaction.frames.some(
+      (frame) => (frame as SigningFrame)[signing]?.hash,
+    ) ||
+    transaction.signatures?.some(
+      (entry) => entry.signature && entry.signature !== '0x',
+    )
+  )
+    return transaction
+
+  return {
+    ...transaction,
+    frames: transaction.frames.map((frame: SigningFrame) =>
+      (frame.mode === 'sender' || frame.mode === 2) && !frame[dataSuffix]
+        ? {
+            ...frame,
+            data: concat([frame.data ?? '0x', suffix]),
+            [dataSuffix]: true,
+          }
+        : frame,
+    ),
+  }
+}
 
 export function resolve<
   transaction extends {

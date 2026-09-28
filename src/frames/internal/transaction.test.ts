@@ -6,7 +6,12 @@ import { describe, expect, test } from 'vitest'
 import type { FrameSignature, Frame as FrameType } from '../../types/frame.js'
 import type { Hex } from '../../types/misc.js'
 import * as Frame from '../Frame.js'
-import { resolve, signFrame, type Transaction } from './transaction.js'
+import {
+  applyDataSuffix,
+  resolve,
+  signFrame,
+  type Transaction,
+} from './transaction.js'
 
 const gas = { executionGas: 50_000n, stateGas: 0n }
 
@@ -363,5 +368,60 @@ describe('signFrame', () => {
     await expect(signFrame(prepared.frames[0]!, prepared)).rejects.toThrow(
       'Expected a signing frame',
     )
+  })
+})
+
+describe('applyDataSuffix', () => {
+  test('appends once to sender frames and preserves per-call overrides', () => {
+    const request = resolve({
+      frames: [
+        Frame.calls([
+          { data: '0x12' },
+          { data: '0x34', dataSuffix: '0xab' },
+          { data: '0x56', dataSuffix: '0x' },
+          { dataSuffix: '0xcd' },
+        ]),
+        { mode: 2, data: '0x78' },
+        { mode: 'verify', data: '0x90' },
+        { mode: 'default', data: '0x11' },
+        { mode: 'sender' },
+      ] as const,
+    })
+    const result = applyDataSuffix(request, '0xbeef')
+    expect(
+      result.frames.map((frame: FrameType) => frame.data),
+    ).toMatchInlineSnapshot(`
+      [
+        "0x12beef",
+        "0x34ab",
+        "0x56",
+        "0xcd",
+        "0x78beef",
+        "0x90",
+        "0x11",
+        "0xbeef",
+      ]
+    `)
+    expect(applyDataSuffix(result, '0xbeef')).toEqual(result)
+    expect(request.frames[0]?.data).toBe('0x12')
+  })
+
+  test('preserves signed requests', async () => {
+    const account = privateKeyToAccount(`0x${'01'.repeat(32)}`)
+    const request = transaction([
+      Frame.verify({ account, ...gas }),
+      { mode: 'sender', data: '0x12', ...gas },
+    ])
+    request.sender = account.address
+    const frame = await signFrame(request.frames[0]!, request)
+    const signed = resolve({ ...request, frames: [frame, request.frames[1]!] })
+    expect(applyDataSuffix(signed, '0xbeef')).toBe(signed)
+    const explicit = {
+      frames: [{ mode: 'sender' as const }],
+      signatures: [
+        { scheme: 'arbitrary' as const, signature: '0xab' as const },
+      ],
+    }
+    expect(applyDataSuffix(explicit, '0xbeef')).toBe(explicit)
   })
 })

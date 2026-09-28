@@ -9,6 +9,29 @@ const client = createWalletClient({
 
 describe('frame rpc requests', () => {
   test.each([sendTransaction, sendTransactionSync])(
+    'applies client suffixes to explicit sender frames',
+    async (send) => {
+      await expect(
+        send(
+          { ...client, dataSuffix: '0xbeef' },
+          {
+            chain: null,
+            frames: [
+              {
+                mode: 'verify',
+                flags: 'approveExecutionAndPayment',
+                data: '0x12',
+              },
+              { mode: 'sender', data: '0x34' },
+            ],
+            signatures: [{ scheme: 'secp256k1' }],
+          },
+        ),
+      ).rejects.toThrow('"data":"0x34beef"')
+    },
+  )
+
+  test.each([sendTransaction, sendTransactionSync])(
     'preserves blob hashes in failed RPC requests',
     async (send) => {
       const hash = `0x01${'00'.repeat(31)}` as const

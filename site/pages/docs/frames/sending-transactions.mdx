@@ -86,6 +86,11 @@ console.log(receipt.frameReceipts) // [!code focus]
 A receipt's outer status alone does not establish that every call succeeded.
 :::
 
+For Frame Transactions, action-level or client-level `dataSuffix` is appended to each
+sender frame before gas estimation and signing. A per-call `dataSuffix` overrides
+that default, including `'0x'` to disable it. Verification frames and already-signed
+transactions are unchanged.
+
 ## Best Practices
 
 Keep dependent calls in the same atomic group. Use the frame receipt status to distinguish successful, reverted, and skipped frames. An expiry verifier failure invalidates the transaction; it is not an ordinary failed call.

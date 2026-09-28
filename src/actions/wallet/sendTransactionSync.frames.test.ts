@@ -3,6 +3,7 @@ import { nonceManager as sharedNonceManager } from 'viem'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import {
   getBalance,
+  getTransaction,
   getTransactionCount,
   prepareTransactionRequest,
   sendRawTransactionSync,
@@ -27,11 +28,16 @@ const request = {
 
 describe('frames: Frame', () => {
   test.each(['sendTransaction', 'sendTransactionSync'] as const)(
-    'ignores outer data suffixes: %s',
+    'applies outer data suffixes to calls: %s',
     async (action) => {
       const suffixed = { ...client, dataSuffix: '0xdeadbeef' as const }
       const request = {
-        frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+        frames: [
+          Frame.calls([
+            { to: accounts[1].address, value: 1n },
+            { to: accounts[1].address, data: '0x12', dataSuffix: '0xab' },
+          ]),
+        ],
         dataSuffix: '0xcafe' as const,
       }
       const receipt =
@@ -41,6 +47,18 @@ describe('frames: Frame', () => {
               hash: await sendTransaction(suffixed, request),
             })
       expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(
+        transaction.frames?.map((frame) => frame.data),
+      ).toMatchInlineSnapshot(`
+        [
+          "0x",
+          "0xcafe",
+          "0x12ab",
+        ]
+      `)
     },
   )
 
