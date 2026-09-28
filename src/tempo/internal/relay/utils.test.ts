@@ -4,6 +4,7 @@ import { tempo } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
 import {
   formatFillTransactionRequest,
+  mergeCallsFromRequest,
   normalizeFillTransactionRequest,
   toRpcError,
 } from './utils.js'
@@ -26,7 +27,8 @@ describe('formatFillTransactionRequest', () => {
         type: '0x76',
         nonceKey: '0xff',
         feePayer: true,
-        ...(signed ? { feeToken, feePayerSignature: signature } : {}),
+        feeToken,
+        ...(signed ? { feePayerSignature: signature } : {}),
       })
       expect(request.feeToken).toBe(feeToken)
       expect(
@@ -37,6 +39,39 @@ describe('formatFillTransactionRequest', () => {
 })
 
 describe('normalizeFillTransactionRequest', () => {
+  test('preserves empty calls without synthesizing a legacy call', () => {
+    expect(normalizeFillTransactionRequest({ calls: [] })).toEqual({
+      calls: [],
+    })
+    expect(mergeCallsFromRequest({}, { calls: [] })).toEqual({ calls: [] })
+    expect(mergeCallsFromRequest({ calls: [] }, { calls: [] })).toEqual({
+      calls: [],
+    })
+  })
+
+  test.each([1, false, {}, [], 'recipient', '0x1234'])(
+    'rejects malformed targets in calls and legacy transactions: %s',
+    (to) => {
+      for (const transaction of [{ to }, { calls: [{ to }] }])
+        expect(() => normalizeFillTransactionRequest(transaction)).toThrowError(
+          expect.objectContaining({
+            code: -32602,
+            message: 'Invalid transaction call target.',
+          }),
+        )
+    },
+  )
+
+  test.each([null, undefined])(
+    'preserves contract creation targets: %s',
+    (to) => {
+      expect(
+        normalizeFillTransactionRequest({ calls: [{ to, data: '0x6000' }] })
+          .calls,
+      ).toEqual([{ to, data: '0x6000', value: undefined }])
+    },
+  )
+
   test.each([null, undefined, [], 'call', 1, true])(
     'rejects malformed call entries: %s',
     (call) => {

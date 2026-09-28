@@ -104,19 +104,23 @@ export function compose(
             client = createClient({
               chain: { ...tempo, ...upstream?.chain, id },
               batch: { multicall: { deployless: true } },
-              transport: custom(
-                {
-                  request: async (request, options) => {
-                    const child = await execute(index + 1, request, {
-                      ...state.options,
-                      ...options,
-                      chainId: id,
-                    })
-                    return child.state.result
+              transport: (config) => {
+                const transport = custom(
+                  {
+                    request: async (request, options) => {
+                      const child = await execute(index + 1, request, {
+                        ...state.options,
+                        ...options,
+                        chainId: id,
+                      })
+                      return child.state.result
+                    },
                   },
-                },
-                { retryCount: 0 },
-              ),
+                  { retryCount: 0 },
+                )(config)
+                // Forward request options without adding a retry loop around downstream I/O.
+                return { ...transport, request: transport.config.request }
+              },
             })
             clients.set(id, client)
             return client
@@ -139,7 +143,20 @@ export function compose(
       }
       const dispatch = async (index: number): Promise<void> => {
         if (index === plugins.length) {
-          state.result = await downstream(state.request, state.options)
+          const parameters = state.request.params?.[0] as
+            | Record<string, unknown>
+            | undefined
+          // The node must estimate unsigned sponsorship independently of the sender's fee-token balance.
+          const request =
+            state.request.method === 'eth_fillTransaction' &&
+            parameters?.feePayer === true &&
+            !parameters.feePayerSignature
+              ? {
+                  ...state.request,
+                  params: [{ ...parameters, feeToken: undefined }],
+                }
+              : state.request
+          state.result = await downstream(request, state.options)
           return
         }
         const plugin = plugins[index]!
@@ -320,12 +337,8 @@ export async function fill(
   client: Client,
   transaction: Record<string, unknown>,
   options: Relay.handleRequest.RequestOptions = {},
-  { preserveFeeToken = false }: { preserveFeeToken?: boolean } = {},
 ): Promise<Result> {
   const formatted = Utils.formatFillTransactionRequest(client, transaction)
-  // Remote relays need the requested token before choosing and signing sponsorship.
-  if (preserveFeeToken && transaction.feeToken !== undefined)
-    formatted.feeToken = transaction.feeToken
   const result = (await client.request(
     {
       method: 'eth_fillTransaction',

@@ -102,7 +102,7 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  * - `'sign-and-broadcast'`: Relay co-signs and broadcasts the transaction directly
  *
  * Local plugin options wrap the default transport directly, preserving its attributes.
- * Local mode does not enable fee sponsorship.
+ * Local mode enables fee sponsorship only when a `Relay.feePayer` plugin is configured.
  *
  * @param defaultTransport - The default transport to use.
  * @param relayTransport - The remote relay transport or local plugin options.

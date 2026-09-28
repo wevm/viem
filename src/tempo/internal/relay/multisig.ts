@@ -50,7 +50,7 @@ export function create(
       const next: Relay.handleRequest.Handler = async (request, options) => {
         return context
           .getClient(options?.chainId)
-          .request(request as never, { ...options, retryCount: 0 })
+          .request(request as never, options)
       }
       const client = createClient({
         transport: custom(

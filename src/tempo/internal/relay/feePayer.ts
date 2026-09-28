@@ -124,8 +124,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           : await Request.fill(
               fillClient,
               transaction,
-              { ...requestOptions, retryCount: 0 },
-              { preserveFeeToken: !!external },
+              external ? { ...requestOptions, retryCount: 0 } : requestOptions,
             )
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
@@ -136,7 +135,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         !filled.feePayerSignature
       )
         filled.gas += 20_000n
-      if (token && filled.feeToken == null)
+      if (token && (!external || filled.feeToken == null))
         Object.assign(filled, { feeToken: token })
 
       const sponsored =

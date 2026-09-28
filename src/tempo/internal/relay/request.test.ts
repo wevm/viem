@@ -9,6 +9,36 @@ import { Addresses, Relay, Store, VirtualAddress } from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
 
+test.each([1, false, {}, [], 'recipient', '0x1234'])(
+  'rejects malformed call targets through Fetch: %s',
+  async (to) => {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http('http://127.0.0.1:1', { retryCount: 0 }),
+      }),
+      plugins: [Relay.feeToken()],
+    })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [{ calls: [{ to }] }],
+        }),
+      }),
+    )
+    expect(await response.json()).toEqual({
+      jsonrpc: '2.0',
+      id: 1,
+      error: { code: -32602, message: 'Invalid transaction call target.' },
+    })
+  },
+)
+
 test('preserves the requested fee token through an external relay', async () => {
   const account = privateKeyToAccount(
     '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -143,6 +173,10 @@ test.each(
         { retryCount, retryDelay: 0 },
       ),
     ).rejects.toMatchObject({ code: -32603 })
+    // The first request must consume the entire downstream retry budget.
+    await expect(
+      relay.request({ method: 'eth_blockNumber' }, { retryCount: 0 }),
+    ).rejects.toMatchObject({ code: -32602 })
   },
 )
 

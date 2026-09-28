@@ -35,6 +35,59 @@ beforeAll(async () => {
   })
 })
 
+test.each(
+  ['requested', 'configured'].flatMap((selection) =>
+    [false, true].map((feeTokenFirst) => ({ selection, feeTokenFirst })),
+  ),
+)(
+  'preserves the $selection token through an unprepared local sponsorship fill, feeTokenFirst: $feeTokenFirst',
+  async ({ selection, feeTokenFirst }) => {
+    const plugins = [
+      Relay.feePayer({
+        account: feePayerAccount,
+        ...(selection === 'configured'
+          ? { feeToken: Tempo.addresses.alphaUsd }
+          : {}),
+      }),
+      Relay.feeToken(),
+    ]
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.addresses.pathUsd],
+      plugins: feeTokenFirst ? plugins.toReversed() : plugins,
+    })
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          from: userAccount.address,
+          ...(selection === 'requested'
+            ? { feeToken: Tempo.addresses.alphaUsd }
+            : {}),
+          calls: [
+            Actions.token.transfer.call(caller, {
+              token: Tempo.addresses.alphaUsd,
+              to: recipient.address,
+              amount: 1n,
+            }),
+          ],
+        },
+      ],
+    })) as Relay.Plugin.FillResult
+    const transaction = Utils.normalizeTempoTransaction(result.tx)
+    expect(transaction.feeToken?.toLowerCase()).toBe(
+      Tempo.addresses.alphaUsd.toLowerCase(),
+    )
+    const receipt = await sendRawTransactionSync(caller, {
+      serializedTransaction: await userAccount.signTransaction(
+        transaction as never,
+      ),
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  },
+)
+
 test.each([true, false])('sponsorship accepted: %s', async (accepted) => {
   const client = createClient({
     chain: Tempo.chain,

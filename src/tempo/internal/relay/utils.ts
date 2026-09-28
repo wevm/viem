@@ -1,4 +1,4 @@
-import { Hex, RpcResponse } from 'ox'
+import { Address, Hex, RpcResponse } from 'ox'
 import {
   Transaction as core_Transaction,
   KeyAuthorization,
@@ -22,18 +22,14 @@ export function formatFillTransactionRequest(
   client: Client,
   value: Record<string, unknown>,
 ) {
-  if (value.type === '0x76') {
-    const request = { ...value }
-    if (request.feePayer === true && !request.feePayerSignature)
-      delete request.feeToken
-    return request
-  }
+  if (value.type === '0x76') return { ...value }
   const format = client.chain?.formatters?.transactionRequest?.format
   if (!format) return value
-  return format({ ...value } as never, 'fillTransaction') as Record<
-    string,
-    unknown
-  >
+  return {
+    ...format({ ...value } as never, 'fillTransaction'),
+    // Keep the selected token until the request leaves the plugin pipeline.
+    ...(value.feeToken !== undefined ? { feeToken: value.feeToken } : {}),
+  } as Record<string, unknown>
 }
 
 export function normalizeFillTransactionRequest(
@@ -42,7 +38,7 @@ export function normalizeFillTransactionRequest(
   const { to, data, value, ...rest } = tx
   const keyAuthorization = normalizeKeyAuthorization(tx.keyAuthorization)
   const withKeyAuthorization = keyAuthorization ? { keyAuthorization } : {}
-  if (Array.isArray(tx.calls) && tx.calls.length > 0)
+  if (Array.isArray(tx.calls))
     return {
       ...tx,
       ...withKeyAuthorization,
@@ -51,9 +47,11 @@ export function normalizeFillTransactionRequest(
           throw new RpcResponse.InvalidParamsError({
             message: 'Expected a transaction call object.',
           })
+        assertCallTarget(call.to)
         return { ...call, value: normalizeFillValue(call.value) }
       }),
     }
+  assertCallTarget(to)
   const call = {
     ...(typeof to !== 'undefined' ? { to } : {}),
     ...(typeof data !== 'undefined' ? { data } : {}),
@@ -76,6 +74,14 @@ function normalizeKeyAuthorization(value: unknown) {
   const isInternal =
     typeof signature.signature === 'object' && signature.signature !== null
   return isInternal ? KeyAuthorization.toRpc(value as never) : value
+}
+
+function assertCallTarget(to: unknown) {
+  if (to === undefined || to === null) return
+  if (typeof to !== 'string' || !Address.validate(to, { strict: false }))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Invalid transaction call target.',
+    })
 }
 
 function normalizeFillValue(value: unknown) {
@@ -172,7 +178,7 @@ export function mergeCallsFromRequest(
   if (Array.isArray(resultCalls) && resultCalls.length > 0) return merged
 
   const reqCalls = request.calls
-  if (Array.isArray(reqCalls) && reqCalls.length > 0) {
+  if (Array.isArray(reqCalls)) {
     merged.calls = reqCalls
     return merged
   }
