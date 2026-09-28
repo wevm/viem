@@ -20,14 +20,28 @@ For example, if an account lacks enough PathUSD for a payment, the transaction c
 
 ### Set Up a Client
 
-Configure [`Relay.funding`](/tempo/relay/plugins/funding). These guides share this configuration.
+[`Relay.funding`](/tempo/relay/plugins/funding) is a relay plugin that infers the token balances a transaction needs and discovers sources to cover shortfalls. Run it locally with [`withRelay`](/tempo/transports/withRelay), or connect to a [remote relay](/tempo/guides/relay/run) configured with the plugin.
 
-```ts [viem.config.ts]
+:::code-group
+
+```ts [viem.config.ts (Local Relay)]
 // [!include ~/snippets/tempo/funding.config.ts:setup]
 ```
 
-:::warning[Persist funding policy rules]
-A long-lived persistent store is highly recommended so registered policy rules remain available across restarts. These examples import your store from `./store`; it must implement the `Store.Store` interface.
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Account, createClient, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  account: Account.fromSecp256k1('0x...'),
+  transport: withRelay(http(), http('/relay')),
+})
+```
+
+:::
+
+:::info[Funding policy storage]
+Funding policies store a hash of their rules onchain, reducing onchain storage costs. The relay's [store](/tempo/utilities/Store) retains the full rules so it can retrieve them for access-key funding and verify them against the hash. Persistent storage keeps those rules available across relay restarts.
 :::
 
 ### Fund a Transfer
@@ -55,14 +69,40 @@ await client.token.transferSync({
 
 :::
 
-:::info
-You can also specify tokens to source from.
+#### Choose Funding Sources
 
-```ts
-requireFunds: [{ token: Addresses.pathUsd }]
+List [`FundingSource.earn`](/tempo/utilities/FundingSource.earn) before [`FundingSource.dex`](/tempo/utilities/FundingSource.dex) to redeem Earn shares before swapping tokens. This example redeems up to 30 PathUSD of underlying value, then covers the remaining shortfall with AlphaUSD.
+
+Replace `source` and `vault` with deployed addresses. The Earn vault must hold PathUSD.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...'
+const vault = '0x...'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [
+      FundingSource.earn({ maxValueIn: parseUnits('30', 6), source, vault }),
+      FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+    ],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
 ```
 
-In the example above, this sources 50 PathUSD.
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
 :::
 
 ## See More
