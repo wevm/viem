@@ -11,7 +11,6 @@ import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Abis from '../../Abis.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
-import type * as Funding from '../../Funding.js'
 import type * as Relay from '../../Relay.js'
 import { simulateFunding } from '../funding.js'
 import type * as Store from './cache.js'
@@ -57,7 +56,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
               transaction: {
                 ...result.tx,
                 from: parameters.from,
-              } as Funding.handleRequest.Transaction,
+              } as Relay.funding.Transaction,
               feeToken,
               gas: transaction.gas,
               maxFeePerGas: transaction.maxFeePerGas,
@@ -118,7 +117,7 @@ declare namespace simulate {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
-    transaction?: Funding.handleRequest.Transaction | undefined
+    transaction?: Relay.funding.Transaction | undefined
   }
 }
 
@@ -195,7 +194,7 @@ export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
-    transaction?: Funding.handleRequest.Transaction | undefined
+    transaction?: Relay.funding.Transaction | undefined
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined

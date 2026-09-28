@@ -24,7 +24,6 @@ import * as OperationStore from '../../multisig/Operation.js'
 import type * as Relay from '../../Relay.js'
 import type * as Store from '../../Store.js'
 import * as Transaction from '../../Transaction.js'
-import * as Plugin from './plugin.js'
 
 const submissionTtl = 30_000
 const pollingInterval = 100
@@ -38,7 +37,8 @@ export function create(
       message:
         'Multisig coordination requires a store with atomic `compareAndSet`.',
     })
-  return Plugin.multisig({
+  return {
+    transport: { multisig: true },
     async handleRequest(context, forward) {
       const { request, options: requestOptions_ } = context
       const requestOptions = await resolveRequestOptions({
@@ -201,7 +201,7 @@ export function create(
         store: options.store,
       })
     },
-  })
+  }
 }
 
 /** Collects approvals and submits a transaction after quorum. @internal */

@@ -12,7 +12,7 @@ import {
   Account,
   Actions,
   Addresses,
-  Funding,
+  type Funding,
   FundingPolicy,
   FundingSource,
   Relay,
@@ -47,16 +47,16 @@ beforeAll(async () => {
     })
 })
 
-describe('handleRequest', () => {
+describe('Relay.funding', () => {
   test('fills the default policy without changing authorization fields', async () => {
     const { policyId } = await Actions.funding.createPolicySync(client, {
       account: accounts[0],
       admins: [accounts[0].address],
       rules: { maxSlippageBps: 0, sources: {} },
     })
-    const handler = Funding.handleRequest(
+    const handler = Relay.handleRequest(
       (request, options) => client.request(request as never, options),
-      { policyId },
+      { plugins: [Relay.funding({ policyId })] },
     )
     const authorization = KeyAuthorization.toRpcUnsigned({
       account: accounts[0].address,
@@ -141,9 +141,9 @@ describe('handleRequest', () => {
 
   test('registers rules by chain and hash without granting policy authority', async () => {
     const store = Store.memory()
-    const handler = Funding.handleRequest(
+    const handler = Relay.handleRequest(
       (request, options) => client.request(request as never, options),
-      { store },
+      { plugins: [Relay.funding({ store })] },
     )
     const rules = FundingPolicy.encode({ maxSlippageBps: 100, sources: {} })
     const result = (await handler({
@@ -183,22 +183,30 @@ describe('handleRequest', () => {
         to: account.address,
         token: Addresses.pathUsd,
       })
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => client.request(request as never, options),
-        chainId === undefined
-          ? {
-              getRoute: ({ chainId, transaction }) =>
-                chainId === 4217 &&
-                transaction.from === account.address &&
-                transaction.calls?.[0]?.to === accounts[1].address
-                  ? {
-                      sources: [
-                        FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
-                      ],
-                    }
-                  : undefined,
-            }
-          : {},
+        {
+          plugins: [
+            Relay.funding(
+              chainId === undefined
+                ? {
+                    getRoute: ({ chainId, transaction }) =>
+                      chainId === 4217 &&
+                      transaction.from === account.address &&
+                      transaction.calls?.[0]?.to === accounts[1].address
+                        ? {
+                            sources: [
+                              FundingSource.dex({
+                                tokenIn: Addresses.alphaUsd,
+                              }),
+                            ],
+                          }
+                        : undefined,
+                  }
+                : {},
+            ),
+          ],
+        },
       )
       const result = (await handler({
         method: 'eth_fillTransaction',
@@ -210,7 +218,7 @@ describe('handleRequest', () => {
             requireFunds: [{ amount: '0x2faf080', token: Addresses.pathUsd }],
           },
         ],
-      })) as Funding.handleRequest.Result
+      })) as Relay.Plugin.FillResult
       expect(result).toMatchInlineSnapshot(
         {
           raw: expect.any(String),
@@ -280,8 +288,9 @@ describe('handleRequest', () => {
   )
 
   test('passes unrelated RPC requests through', async () => {
-    const handler = Funding.handleRequest((request, options) =>
-      client.request(request as never, options),
+    const handler = Relay.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { plugins: [Relay.funding()] },
     )
     expect(await handler({ method: 'eth_chainId' })).toMatchInlineSnapshot(
       '"0x539"',
@@ -594,8 +603,9 @@ describe('behavior', () => {
     { sources: [{ target: '0x1234', data: '0x' }] },
     { sources: [{ target: Addresses.dexFundingSource, data: 'invalid' }] },
   ])('rejects malformed requirement %j', async (invalid) => {
-    const handler = Funding.handleRequest((request, options) =>
-      client.request(request as never, options),
+    const handler = Relay.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { plugins: [Relay.funding()] },
     )
     await expect(
       handler({
@@ -634,15 +644,19 @@ describe('behavior', () => {
       'chain',
       'missing authorization',
     ] as const) {
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => client.request(request as never, options),
         {
-          policyId:
-            failure === 'missing default'
-              ? undefined
-              : failure === 'zero default'
-                ? 0n
-                : 0xffffffffffffffffn,
+          plugins: [
+            Relay.funding({
+              policyId:
+                failure === 'missing default'
+                  ? undefined
+                  : failure === 'zero default'
+                    ? 0n
+                    : 0xffffffffffffffffn,
+            }),
+          ],
         },
       )
       const keyAuthorization = {
@@ -702,8 +716,9 @@ describe('behavior', () => {
   })
 
   test('rejects malformed rule registrations', async () => {
-    const handler = Funding.handleRequest((request, options) =>
-      client.request(request as never, options),
+    const handler = Relay.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { plugins: [Relay.funding()] },
     )
     const results = []
     for (const params of [
@@ -743,8 +758,9 @@ describe('behavior', () => {
         accessKey,
         fundingPolicy: 1n,
       })
-      const handler = Funding.handleRequest((request, options) =>
-        client.request(request as never, options),
+      const handler = Relay.handleRequest(
+        (request, options) => client.request(request as never, options),
+        { plugins: [Relay.funding()] },
       )
       await expect(
         handler({
@@ -901,9 +917,9 @@ describe('behavior', () => {
         await store.removeItem(
           `funding:1337:${Addresses.fundingPolicy}:rules:${rulesHash}`,
         )
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => client.request(request as never, options),
-        { store },
+        { plugins: [Relay.funding({ store })] },
       )
       const result = await handler({
         method: 'eth_fillTransaction',
@@ -987,8 +1003,9 @@ describe('behavior', () => {
   test.each([0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1])(
     'rejects invalid chain id %s',
     async (chainId) => {
-      const handler = Funding.handleRequest((request, options) =>
-        getClient().request(request as never, options),
+      const handler = Relay.handleRequest(
+        (request, options) => getClient().request(request as never, options),
+        { plugins: [Relay.funding()] },
       )
       await expect(
         handler(
@@ -1010,8 +1027,9 @@ describe('behavior', () => {
   )
 
   test('requires a custom route on other chains', async () => {
-    const handler = Funding.handleRequest((request, options) =>
-      getClient().request(request as never, options),
+    const handler = Relay.handleRequest(
+      (request, options) => getClient().request(request as never, options),
+      { plugins: [Relay.funding()] },
     )
     await expect(
       handler(
@@ -1032,8 +1050,9 @@ describe('behavior', () => {
   })
 
   test('rejects conflicting chain ids', async () => {
-    const handler = Funding.handleRequest(
-      getClient().request as Funding.handleRequest.Handler,
+    const handler = Relay.handleRequest(
+      getClient().request as Relay.handleRequest.Handler,
+      { plugins: [Relay.funding()] },
     )
     await expect(
       handler(
@@ -1055,16 +1074,20 @@ describe('behavior', () => {
   })
 
   test('rejects unresolved access key funding without using owner routes', async () => {
-    const handler = Funding.handleRequest(
+    const handler = Relay.handleRequest(
       (request, options) => getClient().request(request as never, options),
       {
-        getRoute: ({ token }) => {
-          if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
-            return {
-              sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-            }
-          return undefined
-        },
+        plugins: [
+          Relay.funding({
+            getRoute: ({ token }) => {
+              if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+                return {
+                  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+                }
+              return undefined
+            },
+          }),
+        ],
       },
     )
     await expect(
@@ -1085,9 +1108,9 @@ describe('behavior', () => {
 
   test('rejects missing senders and signed requests before filling', async () => {
     const next = getClient().request
-    const handler = Funding.handleRequest(
+    const handler = Relay.handleRequest(
       (request, options) => next(request as never, options),
-      {},
+      { plugins: [Relay.funding({})] },
     )
     await expect(
       handler({
@@ -1147,12 +1170,16 @@ describe('behavior', () => {
             },
           },
         }
-        const handler = Funding.handleRequest(
+        const handler = Relay.handleRequest(
           (request, options) => client.request(request as never, options),
           {
-            getRoute: () => ({
-              sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-            }),
+            plugins: [
+              Relay.funding({
+                getRoute: () => ({
+                  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+                }),
+              }),
+            ],
           },
         )
         const result = await handler({
@@ -1211,12 +1238,12 @@ describe('behavior', () => {
   describe('transaction funding inference', () => {
     test('simulates swaps whose wallet debit can depend on internal DEX balances', async () => {
       const methods: string[] = []
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => {
           methods.push(request.method)
           return client.request(request as never, options)
         },
-        { getRoute: () => ({ sources: [] }) },
+        { plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })] },
       )
       await handler({
         method: 'eth_fillTransaction',
@@ -1244,12 +1271,12 @@ describe('behavior', () => {
       'skips simulation only for fully recognized batches (unknown call: %s)',
       async (unknown) => {
         const methods: string[] = []
-        const handler = Funding.handleRequest(
+        const handler = Relay.handleRequest(
           (request, options) => {
             methods.push(request.method)
             return client.request(request as never, options)
           },
-          { getRoute: () => ({ sources: [] }) },
+          { plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })] },
         )
         const result = (await handler({
           method: 'eth_fillTransaction',
@@ -1288,7 +1315,7 @@ describe('behavior', () => {
               requireFunds: true,
             }),
           ],
-        })) as Funding.handleRequest.Result
+        })) as Relay.Plugin.FillResult
         expect(result.tx.requireFunds).toMatchObject([
           { token: Addresses.pathUsd, amount: '0x64' },
         ])
@@ -1297,8 +1324,9 @@ describe('behavior', () => {
       },
     )
 
-    const handler = Funding.handleRequest((request, options) =>
-      client.request(request as never, options),
+    const handler = Relay.handleRequest(
+      (request, options) => client.request(request as never, options),
+      { plugins: [Relay.funding()] },
     )
 
     test.each([
@@ -1326,7 +1354,7 @@ describe('behavior', () => {
               requireFunds: [requirement],
             },
           ],
-        })) as Funding.handleRequest.Result
+        })) as Relay.Plugin.FillResult
         expect(result.tx.requireFunds).toEqual([
           {
             token:
@@ -1357,12 +1385,14 @@ describe('behavior', () => {
             requireFunds: [{ sources: [] }],
           },
         ],
-      })) as Funding.handleRequest.Result
-      expect(result.tx.requireFunds?.[0]).toMatchObject({
-        token: Addresses.pathUsd,
-        amount: '0x0',
-        sources: [],
-      })
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toMatchObject([
+        {
+          token: Addresses.pathUsd,
+          amount: '0x0',
+          sources: [],
+        },
+      ])
     })
 
     test('matches partial batch entries by token and preserves their order', async () => {
@@ -1393,7 +1423,7 @@ describe('behavior', () => {
             ],
           },
         ],
-      })) as Funding.handleRequest.Result
+      })) as Relay.Plugin.FillResult
       expect(result.tx.requireFunds).toMatchObject([
         { token: Addresses.alphaUsd, amount: '0x4b', sources: [] },
         { token: Addresses.pathUsd, amount: '0x0', sources: [] },
@@ -1429,12 +1459,14 @@ describe('behavior', () => {
             requireFunds: [{ sources: [] }],
           },
         ],
-      })) as Funding.handleRequest.Result
-      expect(result.tx.requireFunds?.[0]).toMatchObject({
-        token: Addresses.pathUsd,
-        amount: '0x7d',
-        sources: [],
-      })
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toMatchObject([
+        {
+          token: Addresses.pathUsd,
+          amount: '0x7d',
+          sources: [],
+        },
+      ])
     })
 
     test('sources only the shortfall from an inferred total balance', async () => {
@@ -1546,10 +1578,14 @@ describe('behavior', () => {
 
     test('propagates the node funding error when the configured route has no sources', async () => {
       const account = await setupAccount()
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => client.request(request as never, options),
         {
-          getRoute: () => ({ sources: [] }),
+          plugins: [
+            Relay.funding({
+              getRoute: () => ({ sources: [] }),
+            }),
+          ],
         },
       )
       await expect(

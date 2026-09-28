@@ -16,7 +16,7 @@ export default defineConfig({
         replacement: join(__dirname, '../src/tempo/index.ts'),
       },
       {
-        find: /^viem\/(actions|accounts|chains|utils|tempo\/chains)$/,
+        find: /^viem\/(actions|accounts|chains|tokens|utils|tempo\/chains)$/,
         replacement: join(__dirname, '../src/$1/index.ts'),
       },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },

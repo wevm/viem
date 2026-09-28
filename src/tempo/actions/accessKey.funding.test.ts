@@ -5,7 +5,7 @@ import { custom } from '../../clients/transports/custom.js'
 import {
   Account,
   Addresses,
-  Funding,
+  type Funding,
   FundingPolicy,
   FundingSource,
   Relay,
@@ -112,9 +112,9 @@ describe('behavior', () => {
       admins: [accounts[0].address],
       rules: { maxSlippageBps: 0, sources: {} },
     })
-    const handler = Funding.handleRequest(
+    const handler = Relay.handleRequest(
       (request, options) => client.request(request as never, options),
-      { policyId },
+      { plugins: [Relay.funding({ policyId })] },
     )
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: accounts[0],

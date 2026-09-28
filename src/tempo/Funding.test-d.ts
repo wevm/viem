@@ -3,7 +3,7 @@ import { fillTransaction, sendTransactionSync } from 'viem/actions'
 import {
   Actions,
   Addresses,
-  Funding,
+  type Funding,
   FundingSource,
   Relay,
   Store,
@@ -67,15 +67,19 @@ test('transport metadata', () => {
 })
 
 test('getRoute callback', () => {
-  Funding.handleRequest(getClient().request as Funding.handleRequest.Handler, {
-    getRoute: async ({ chainId, token, transaction }) => {
-      expectTypeOf(chainId).toEqualTypeOf<number>()
-      expectTypeOf(token).toEqualTypeOf<`0x${string}`>()
-      expectTypeOf(transaction).toEqualTypeOf<
-        Readonly<Funding.handleRequest.Transaction>
-      >()
-      return { sources: [FundingSource.dex({ tokenIn: token })] }
-    },
+  Relay.handleRequest(getClient().request as Relay.handleRequest.Handler, {
+    plugins: [
+      Relay.funding({
+        getRoute: async ({ chainId, token, transaction }) => {
+          expectTypeOf(chainId).toEqualTypeOf<number>()
+          expectTypeOf(token).toEqualTypeOf<`0x${string}`>()
+          expectTypeOf(transaction).toEqualTypeOf<
+            Readonly<Relay.funding.Transaction>
+          >()
+          return { sources: [FundingSource.dex({ tokenIn: token })] }
+        },
+      }),
+    ],
   })
   withRelay(http(), { plugins: [Relay.funding({ store: Store.memory() })] })
 })

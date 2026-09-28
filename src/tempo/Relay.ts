@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { FundingPolicy, FundingSource, TransactionRequest } from 'ox/tempo'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
@@ -13,6 +14,7 @@ import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
 import type * as Store from './Store.js'
+import type { TransactionRequestTempo, TransactionRpc } from './Transaction.js'
 
 /**
  * Creates a relay with RPC and Fetch handlers backed by a client or chain resolver.
@@ -251,6 +253,8 @@ export declare namespace handleRequest {
 
 /** Hooks extending relay request processing and filled transaction responses. */
 export type Plugin = {
+  /** Metadata merged into local transport attributes in plugin order. Later values take precedence. */
+  transport?: Readonly<Record<string, unknown>> | undefined
   /** Processes an RPC request. Await next(), then read or replace context.result. */
   handleRequest?:
     | ((context: Plugin.Context, next: () => Promise<void>) => Promise<unknown>)
@@ -307,8 +311,6 @@ export declare namespace Plugin {
   }
 }
 
-declare const multisigBrand: unique symbol
-
 /**
  * Coordinates native multisig approvals using shared atomic storage.
  *
@@ -339,7 +341,9 @@ export declare namespace multisig {
     store: Store.Atomic
   }
   /** Middleware advertising native multisig coordination. */
-  export type ReturnType = Plugin & { readonly [multisigBrand]: true }
+  export type ReturnType = Omit<Plugin, 'transport'> & {
+    transport: { multisig: true }
+  }
 }
 
 /**
@@ -409,8 +413,6 @@ export declare namespace feeToken {
   }
 }
 
-declare const fundingBrand: unique symbol
-
 /**
  * Infers token requirements and resolves funding sources before filling, calling, or estimating a transaction.
  *
@@ -436,10 +438,50 @@ export function funding(options: funding.Options = {}): funding.ReturnType {
 }
 
 export declare namespace funding {
+  /** Ordered configurations and aggregate slippage for one output token. */
+  export type Route = {
+    /** Aggregate slippage in basis points. Defaults to zero. */
+    slippageBps?: number | undefined
+    /** Ordered source configurations, not execution data from another request. */
+    sources: readonly FundingSource.Source[]
+  }
+
   /** Funding discovery and policy rules storage. */
-  export type Options = Funding_.handleRequest.Parameters
+  export type Options = {
+    /** Additional TIP-20 output tokens to seed when inferring requirements. The shared relay token resolver supplies known candidates. */
+    tokens?: readonly Address[] | undefined
+    /** Default policy selected only for `fundingPolicy: true`. */
+    policyId?: bigint | undefined
+    /** Fallback rules when neither the request nor the store supplies them. Verified against the current onchain commitment before use. */
+    policyRules?: FundingPolicy.Rules | undefined
+    /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
+    store?: Store.Store | undefined
+    /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
+    getRoute?:
+      | ((context: {
+          /** Chain selected for discovery and transaction filling. */
+          chainId: number
+          /** Checksummed output token address. */
+          token: Address
+          /** Unsigned RPC transaction. Read `from` for the funding account address. */
+          transaction: Readonly<Transaction>
+        }) => Route | undefined | Promise<Route | undefined>)
+      | undefined
+  }
+
+  /** Unsigned RPC transaction fields used by funding resolution. */
+  export type Transaction = Omit<TransactionRequest.Rpc, 'requireFunds'> &
+    Partial<Pick<TransactionRpc, 'feePayerSignature' | 'signature'>> &
+    Pick<TransactionRequestTempo, 'signatures'> & {
+      /** Access key used to execute the transaction. */
+      keyId?: Address | undefined
+      /** Funding requirements to resolve before filling. Set true to infer them from simulation. */
+      requireFunds?: true | readonly Funding_.RequirementRpc[] | undefined
+    }
   /** Middleware advertising funding resolution. */
-  export type ReturnType = Plugin & { readonly [fundingBrand]: true }
+  export type ReturnType = Omit<Plugin, 'transport'> & {
+    transport: { funding: true }
+  }
 }
 
 /**

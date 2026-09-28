@@ -3531,17 +3531,6 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
-              text: 'Funding',
-              collapsed: true,
-              items: [
-                {
-                  text: 'handleRequest',
-                  link: '/tempo/utilities/Funding.handleRequest',
-                },
-              ],
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
               text: 'FundingSource',
               collapsed: true,
               items: [

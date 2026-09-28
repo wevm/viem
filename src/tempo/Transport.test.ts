@@ -129,6 +129,27 @@ describe('withRelay local plugins', () => {
     expect(nested.transport.name).toBe(underlying.transport.name)
   })
 
+  test('merges custom plugin transport metadata in order', async () => {
+    const client = getClient({
+      transport: withRelay(http(), {
+        plugins: [
+          { transport: { service: 'first', version: 1 } },
+          { ...Relay.funding() },
+          { ...Relay.multisig({ store: Store.memory() }) },
+          { transport: { service: 'second' } },
+        ],
+      }),
+    })
+    expect(client.transport).toMatchObject({
+      type: 'http',
+      service: 'second',
+      version: 1,
+      funding: true,
+      multisig: true,
+    })
+    expect(await client.request({ method: 'eth_chainId' })).toBe('0x539')
+  })
+
   test('error: non-atomic store', () => {
     const store = Store.from({
       getItem: async () => null,

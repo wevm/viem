@@ -15,13 +15,13 @@ import * as Funding from '../../Funding.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from '../../Store.js'
 import * as internal from '../funding.js'
-import * as Plugin from './plugin.js'
 
 export function create(
   parameters: Relay.funding.Options = {},
 ): Relay.funding.ReturnType {
   const configuredStore = parameters.store ?? Store.memory()
-  return Plugin.funding({
+  return {
+    transport: { funding: true },
     async handleRequest(relay, next) {
       const { request, options } = relay
       const store = relay.getStore(configuredStore)!
@@ -153,7 +153,7 @@ export function create(
         return next()
 
       const [transaction, ...rest] = (request.params ?? []) as [
-        Funding.handleRequest.Transaction,
+        Relay.funding.Transaction,
         ...unknown[],
       ]
 
@@ -555,7 +555,7 @@ export function create(
           relay.result = { ...result, tx: { ...result.tx, requireFunds } }
       }
     },
-  })
+  }
 }
 
 /** Loads canonical rules matching the current commitment, never a cached policy ID. */

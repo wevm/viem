@@ -20,6 +20,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type * as Funding from '../Funding.js'
+import type * as Relay from '../Relay.js'
 
 const balance = 2n ** 96n
 const insufficientBalance = /*#__PURE__*/ AbiError.fromAbi(
@@ -121,7 +122,7 @@ export function assertRequireFunds(
 
 /** Preserves single-action funding defaults, including zero amounts without transfer logs. */
 export function getDefaults(
-  transaction: Pick<Funding.handleRequest.Transaction, 'calls' | 'to' | 'data'>,
+  transaction: Pick<Relay.funding.Transaction, 'calls' | 'to' | 'data'>,
 ) {
   const calls = transaction.calls?.length
     ? transaction.calls
@@ -177,7 +178,7 @@ export async function infer(
     tokens:
       | readonly Address.Address[]
       | (() => Promise<readonly Address.Address[]>)
-    transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
+    transaction: Omit<Relay.funding.Transaction, 'signatures'>
   } & SimulationContext,
 ): Promise<readonly Pick<FundingRequirement.Rpc, 'token' | 'amount'>[]> {
   const { transaction } = options
@@ -429,7 +430,7 @@ export async function resolvePolicyId(
 export async function simulateFunding(
   client: Client,
   options: {
-    transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
+    transaction: Omit<Relay.funding.Transaction, 'signatures'>
   } & SimulationContext,
 ) {
   const {

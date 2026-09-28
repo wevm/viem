@@ -30,7 +30,6 @@ import {
   Account,
   Actions,
   Addresses,
-  Funding,
   FundingPolicy,
   FundingSource,
   Relay,
@@ -835,12 +834,16 @@ describe('relay funding integrity', () => {
     '%s handles relay-filled funding over HTTP',
     async (action) => {
       const account = await setupAccount()
-      const handler = Funding.handleRequest(
+      const handler = Relay.handleRequest(
         (request, options) => client.request(request as never, options),
         {
-          getRoute: () => ({
-            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-          }),
+          plugins: [
+            Relay.funding({
+              getRoute: () => ({
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              }),
+            }),
+          ],
         },
       )
       const server = await createHttpServer(
@@ -4630,12 +4633,12 @@ async function setupAccount() {
   return account
 }
 
-async function setupRelay(parameters: Funding.handleRequest.Parameters = {}) {
+async function setupRelay(parameters: Relay.funding.Options = {}) {
   const store = parameters.store ?? Store.memory()
   const node = getClient()
-  const handler = Funding.handleRequest(
+  const handler = Relay.handleRequest(
     (request, options) => node.request(request as never, options),
-    { ...parameters, store },
+    { plugins: [Relay.funding({ ...parameters, store })] },
   )
   const server = await createHttpServer(
     createRequestListener(async (request) => {
