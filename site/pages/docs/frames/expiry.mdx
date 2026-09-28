@@ -16,7 +16,7 @@ description: Require a transaction deadline with expiry.
 import { calls, expiry } from 'viem/frames'
 
 const frames = [
-  expiry(Math.floor(Date.now() / 1000) + 60), // [!code focus]
+  expiry('1m'), // [!code focus]
   calls([{ value: 1n }]),
 ]
 ```
@@ -37,9 +37,15 @@ const frame = expiry(1_900_000_000) // [!code focus]
 
 #### deadline
 
-- **Type:** `number | bigint`
+- **Type:** `number | bigint | string`
 
-An unsigned 64-bit Unix timestamp in seconds. Numbers must be safe integers; use bigint for larger values. Do not pass milliseconds or a `Date`.
+A duration string such as `'1h'` or `'1d'`, or an unsigned 64-bit Unix timestamp in seconds. Duration strings support `s`, `m`, `h`, `d`, and `w`; fractional values must resolve to whole seconds.
+
+ISO date strings are also accepted: `expiry('2027-01-01')` uses midnight UTC, and `expiry('2027-01-01T12:00:00+02:00')` uses the specified offset. Date-times require `Z` or an explicit offset. Dates use JavaScript's `Date.parse` semantics; milliseconds are rounded down to seconds.
+
+Durations are resolved when `expiry()` is called and remain fixed during preparation.
+
+Numbers must be safe integers; use bigint for larger values. Do not pass milliseconds or a `Date`.
 
 ```ts twoslash
 import { expiry } from 'viem/frames'
@@ -57,5 +63,5 @@ An unresolved verification frame targeting `0x0000000000000000000000000000000000
 
 | Error | Condition |
 | --- | --- |
-| `BaseError` | A numeric deadline is not a safe integer, or the expiry frame is duplicated or misplaced during preparation. |
+| `BaseError` | A date string is invalid or lacks a required timezone, a duration is invalid or does not resolve to safe whole seconds, a numeric deadline is not a safe integer, or the expiry frame is duplicated or misplaced during preparation. |
 | `IntegerOutOfRangeError` | The deadline is outside the unsigned 64-bit range when encoded during preparation. |
