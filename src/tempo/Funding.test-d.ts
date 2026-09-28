@@ -5,9 +5,10 @@ import {
   Addresses,
   Funding,
   FundingSource,
+  Relay,
   Store,
   type Transaction,
-  withFunding,
+  withRelay,
 } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
@@ -41,19 +42,25 @@ test('token-only action requirement', () => {
 
 test('transport metadata', () => {
   const client = getClient({
-    transport: withFunding(http(), {
-      store: Store.memory(),
-      getRoute: ({ token }) => {
-        if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
-          return {
-            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-          }
-        return undefined
-      },
+    transport: withRelay(http(), {
+      plugins: [
+        Relay.funding({
+          store: Store.memory(),
+          getRoute: ({ token }) => {
+            if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+              return {
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              }
+            return undefined
+          },
+        }),
+      ],
     }),
   })
   // getClient deliberately erases the transport type; verify the wrapper directly.
-  const transport = withFunding(http(), { store: Store.memory() })({})
+  const transport = withRelay(http(), {
+    plugins: [Relay.funding({ store: Store.memory() })],
+  })({})
   expectTypeOf(transport.value!.funding).toEqualTypeOf<true>()
   expectTypeOf(transport.config.type).toEqualTypeOf<'http'>()
   expectTypeOf(client.request).toBeFunction()
@@ -70,7 +77,7 @@ test('getRoute callback', () => {
       return { sources: [FundingSource.dex({ tokenIn: token })] }
     },
   })
-  withFunding(http(), { store: Store.memory() })
+  withRelay(http(), { plugins: [Relay.funding({ store: Store.memory() })] })
 })
 
 test('rule registration RPC', () => {
@@ -82,11 +89,9 @@ test('rule registration RPC', () => {
   expectTypeOf(result).toEqualTypeOf<Promise<{ rulesHash: `0x${string}` }>>()
 })
 
-test('withFunding requires a store', () => {
-  // @ts-expect-error A funding store is required.
-  withFunding(http())
-  // @ts-expect-error Parameters must include a funding store.
-  withFunding(http(), {})
+test('funding uses an optional rules store', () => {
+  withRelay(http(), { plugins: [Relay.funding()] })
+  withRelay(http(), { plugins: [Relay.funding({})] })
 })
 
 test('generic transaction funding inference', () => {
@@ -103,7 +108,11 @@ test('generic transaction funding inference', () => {
   } as const
   void fillTransaction(getClient(), request)
   void sendTransactionSync(getClient(), request)
-  withFunding(http(), { store: Store.memory(), tokens: [Addresses.pathUsd] })
+  withRelay(http(), {
+    plugins: [
+      Relay.funding({ store: Store.memory(), tokens: [Addresses.pathUsd] }),
+    ],
+  })
 })
 
 test('partial generic requirements remain unsigned intent', () => {

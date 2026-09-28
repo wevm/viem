@@ -1,4 +1,4 @@
-# `withFunding`
+# `Relay.funding`
 
 Infers requested token balances and discovers omitted funding sources before filling a transaction with gas, fees, and a nonce.
 
@@ -7,14 +7,14 @@ Infers requested token balances and discovers omitted funding sources before fil
 ```ts
 import { createClient, http, parseUnits } from 'viem'
 import { tempo } from 'viem/chains'
-import { Addresses, tempoActions, withFunding } from 'viem/tempo'
+import { Addresses, tempoActions, Relay, withRelay } from 'viem/tempo'
 import { account } from './account'
 import { store } from './store'
 
 const client = createClient({
   account,
   chain: tempo,
-  transport: withFunding(http(), { store }),
+  transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
 }).extend(tempoActions())
 
 // Infer the required balance and discover sources before signing.
@@ -27,6 +27,34 @@ await client.token.transferSync({
 ```
 
 The account must hold a fee token or use a fee payer. Funding supplies application balances, not transaction fees.
+
+## Compose with Other Plugins
+
+Funding works independently. Add `feePayer` for sponsorship, `feeToken` for fee-token selection, or `simulate` for a preview that includes funding source execution.
+
+```ts
+import { http } from 'viem'
+import { Relay, Store, withRelay } from 'viem/tempo'
+import { sponsor } from './sponsor'
+
+const store = Store.memory()
+const transport = withRelay(http(), {
+  plugins: [
+    Relay.funding({ store }),
+    Relay.feePayer({ account: sponsor }),
+    Relay.feeToken({ store }),
+    Relay.simulate({ store }),
+  ],
+  resolveTokens: async (chainId) => [
+    '0x20c0000000000000000000000000000000000000',
+    '0x20c0000000000000000000000000000000000001',
+  ],
+})
+```
+
+Place funding before fee-payer sponsorship so it resolves requirements even for fully prepared transactions. Place multisig coordination first when needed. The shared `resolveTokens` callback runs at most once per request and chain, even when fee selection and funding inference both need it. Sharing a store also shares cached token metadata between fee selection and simulation.
+
+Known transfer and burn calls skip inference simulation and token resolution. An owner transfer with omitted sources needs one discovery `eth_call` followed by the requested RPC. Explicit requirements and sources skip discovery too. `simulate` adds a separate preview of the final funded transaction; inference uses temporary balances and cannot substitute for that preview.
 
 ## Parameters
 
@@ -42,18 +70,22 @@ By default, mainnet and testnet use Viem's known tokens with the same currency a
 
 ```ts
 import { http } from 'viem'
-import { Addresses, FundingSource, withFunding } from 'viem/tempo'
+import { Addresses, FundingSource, Relay, withRelay } from 'viem/tempo'
 import { store } from './store'
 
-withFunding(http(), {
-  store,
-  getRoute: async ({ chainId, token }) => {
-    if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
-    return {
-      slippageBps: 100,
-      sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-    }
-  },
+withRelay(http(), {
+  plugins: [
+    Relay.funding({
+      store,
+      getRoute: async ({ chainId, token }) => {
+        if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
+        return {
+          slippageBps: 100,
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+        }
+      },
+    }),
+  ],
 })
 ```
 
@@ -69,10 +101,10 @@ Default policy selected when key authorization specifies `fundingPolicy: true`. 
 
 ```ts
 import { http } from 'viem'
-import { withFunding } from 'viem/tempo'
+import { Relay, withRelay } from 'viem/tempo'
 import { store } from './store'
 
-withFunding(http(), { policyId: 1n, store })
+withRelay(http(), { plugins: [Relay.funding({ policyId: 1n, store })] })
 ```
 
 The policy must already exist. Supply its current rules through `policyRules` or register them in the store for automatic funding. Its administrators can update the rules that apply to attached access keys.
@@ -85,17 +117,23 @@ Fallback policy rules for access-key funding when the request and store do not s
 
 ```ts
 import { http } from 'viem'
-import { Addresses, FundingSource, Store, withFunding } from 'viem/tempo'
+import { Addresses, FundingSource, Store, Relay, withRelay } from 'viem/tempo'
 
-withFunding(http(), {
-  policyId: 1n,
-  policyRules: {
-    maxSlippageBps: 0,
-    sources: {
-      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-    },
-  },
-  store: Store.memory(),
+withRelay(http(), {
+  plugins: [
+    Relay.funding({
+      policyId: 1n,
+      policyRules: {
+        maxSlippageBps: 0,
+        sources: {
+          [Addresses.pathUsd]: [
+            FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+          ],
+        },
+      },
+      store: Store.memory(),
+    }),
+  ],
 })
 ```
 
@@ -105,32 +143,36 @@ Request-supplied rules take precedence, followed by registered rules matching th
 
 - **Type:** `Store.Store`
 
-Required store for funding policy rules. Use a long-lived persistent store to retain rules across restarts. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
+Optional store for funding policy rules. Defaults to an in-memory store. Use a long-lived persistent store to retain rules across restarts. Rules are keyed by chain, policy contract, and rules hash; each request still reads the policy's current commitment.
 
 ```ts
 import { http } from 'viem'
-import { withFunding } from 'viem/tempo'
+import { Relay, withRelay } from 'viem/tempo'
 import { store } from './store'
 
-withFunding(http(), { store })
+withRelay(http(), { plugins: [Relay.funding({ store })] })
 ```
 
 ### tokens
 
 - **Type:** `readonly Address[]`
 
-Additional TIP-20 output tokens to include in the first inference simulation. Viem also includes its known TIP-20 addresses. Missing tokens can be discovered through insufficient-balance retries. This option does not configure funding sources or grant access-key permissions.
+Additional TIP-20 output tokens to include in the first inference simulation. The shared `resolveTokens` callback supplies additional candidates, defaulting to known tokens on the selected chain. Missing tokens can be discovered through insufficient-balance retries. This option does not configure funding sources or grant access-key permissions.
 
 ```ts twoslash
 import { http } from 'viem'
-import { Store, withFunding } from 'viem/tempo'
+import { Store, Relay, withRelay } from 'viem/tempo'
 
 const store = Store.memory()
 // ---cut---
 
-withFunding(http(), {
-  store,
-  tokens: ['0x20c0000000000000000000000000000000000004'], // [!code focus]
+withRelay(http(), {
+  plugins: [
+    Relay.funding({
+      store,
+      tokens: ['0x20c0000000000000000000000000000000000004'], // [!code focus]
+    }),
+  ],
 })
 ```
 
@@ -162,4 +204,4 @@ Inference is intended for fixed-amount TIP-20 operations. Supply explicit token 
 
 ## Return Value
 
-The original transport type and metadata, with a `funding: true` marker. The wrapper uses [`Funding.handleRequest`](/tempo/utilities/Funding.handleRequest), which can also run in a server relay.
+A relay plugin for `withRelay`, `Relay.create`, or `Relay.handleRequest`. Local `withRelay` transports retain their original metadata and advertise `funding: true`.

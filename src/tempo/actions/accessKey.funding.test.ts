@@ -8,8 +8,9 @@ import {
   Funding,
   FundingPolicy,
   FundingSource,
+  Relay,
   Store,
-  withFunding,
+  withRelay,
 } from '../index.js'
 import * as actions from './index.js'
 
@@ -27,7 +28,9 @@ describe('authorizeSync', () => {
     })
     const { receipt } = await actions.accessKey.authorizeSync(
       getClient({
-        transport: withFunding(http(), { policyId, store: Store.memory() }),
+        transport: withRelay(http(), {
+          plugins: [Relay.funding({ policyId, store: Store.memory() })],
+        }),
       }),
       { account: accounts[0], accessKey, fundingPolicy: true },
     )

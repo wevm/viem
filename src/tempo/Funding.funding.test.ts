@@ -15,8 +15,9 @@ import {
   Funding,
   FundingPolicy,
   FundingSource,
+  Relay,
   Store,
-  withFunding,
+  withRelay,
 } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { accounts, getClient, http } from '~test/tempo/config.js'
@@ -214,61 +215,66 @@ describe('handleRequest', () => {
         {
           raw: expect.any(String),
           tx: {
+            from: expect.any(String),
             gas: expect.any(String),
             hash: expect.any(String),
             maxFeePerGas: expect.any(String),
           },
         },
         `
-      {
-        "raw": Any<String>,
-        "tx": {
-          "aaAuthorizationList": [],
-          "accessList": [],
-          "calls": [
-            {
-              "data": null,
-              "input": "0x",
-              "to": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
-              "value": "0x0",
-            },
-          ],
-          "chainId": "0x539",
-          "feePayerSignature": null,
-          "feeToken": null,
-          "gas": Any<String>,
-          "hash": Any<String>,
-          "keyAuthorization": null,
-          "maxFeePerGas": Any<String>,
-          "maxPriorityFeePerGas": "0x0",
-          "nonce": "0x0",
-          "nonceKey": "0x0",
-          "requireFunds": [
-            {
-              "amount": "0x2faf080",
-              "slippageBps": "0x0",
-              "sources": [
-                {
-                  "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002ebae40",
-                  "target": "0x1120000000000000000000000000000000000001",
-                },
-              ],
-              "token": "0x20c0000000000000000000000000000000000000",
-            },
-          ],
-          "signature": {
-            "r": "0x840cfc572845f5786e702984c2a582528cad4b49b2a10b9db1be7fca90058565",
-            "s": "0x25e7109ceb98168d95b09b18bbf6b685130e0562f233877d492b94eee0c5b6d1",
-            "type": "secp256k1",
-            "v": "0x0",
-            "yParity": "0x0",
+        {
+          "capabilities": {
+            "sponsored": false,
           },
-          "type": "0x76",
-          "validAfter": null,
-          "validBefore": null,
-        },
-      }
-    `,
+          "raw": Any<String>,
+          "tx": {
+            "aaAuthorizationList": [],
+            "accessList": [],
+            "authorizationList": [],
+            "blockHash": undefined,
+            "blockNumber": null,
+            "calls": [
+              {
+                "data": "0x",
+                "to": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+                "value": undefined,
+              },
+            ],
+            "chainId": "0x539",
+            "from": Any<String>,
+            "gas": Any<String>,
+            "hash": Any<String>,
+            "input": undefined,
+            "maxFeePerGas": Any<String>,
+            "maxPriorityFeePerGas": "0x0",
+            "nonce": "0x0",
+            "nonceKey": "0x0",
+            "requireFunds": [
+              {
+                "amount": "0x2faf080",
+                "slippageBps": "0x0",
+                "sources": [
+                  {
+                    "data": "0x00000000000000000000000020c00000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000002ebae40",
+                    "target": "0x1120000000000000000000000000000000000001",
+                  },
+                ],
+                "token": "0x20c0000000000000000000000000000000000000",
+              },
+            ],
+            "signature": {
+              "r": "0x840cfc572845f5786e702984c2a582528cad4b49b2a10b9db1be7fca90058565",
+              "s": "0x25e7109ceb98168d95b09b18bbf6b685130e0562f233877d492b94eee0c5b6d1",
+              "type": "secp256k1",
+              "yParity": "0x0",
+            },
+            "to": undefined,
+            "transactionIndex": null,
+            "type": "0x76",
+            "value": "0x0",
+          },
+        }
+      `,
       )
     },
   )
@@ -284,6 +290,303 @@ describe('handleRequest', () => {
 })
 
 describe('behavior', () => {
+  describe('relay plugins', () => {
+    test('infers a transfer with only discovery and one fill', async () => {
+      const methods: string[] = []
+      const handle = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })],
+          resolveTokens: () => {
+            throw new Error('Known transfers do not need token candidates.')
+          },
+        },
+      )
+      const result = (await handle({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 10n,
+                to: accounts[1].address,
+              }),
+            ],
+            requireFunds: true,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toMatchObject([
+        { token: Addresses.pathUsd, amount: '0xa', sources: [] },
+      ])
+      expect(methods).toEqual(['eth_call', 'eth_fillTransaction'])
+    })
+
+    test('forwards complete requirements without discovery or simulation', async () => {
+      const methods: string[] = []
+      const handle = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        { plugins: [Relay.funding()] },
+      )
+      const requireFunds = [
+        { token: Addresses.pathUsd, amount: 10n, sources: [] },
+      ] as const
+      const result = (await handle({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 10n,
+                to: accounts[1].address,
+              }),
+            ],
+            requireFunds,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toEqual(
+        requireFunds.map(FundingRequirement.toRpc),
+      )
+      expect(methods).toEqual(['eth_fillTransaction'])
+    })
+
+    test('keeps empty inferred requirements resolved in the fill result', async () => {
+      const relay = Relay.create({
+        client,
+        plugins: [Relay.funding()],
+      })
+      const result = (await relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              {
+                to: Addresses.pathUsd,
+                data: encodeFunctionData({
+                  abi: Abis.tip20,
+                  functionName: 'balanceOf',
+                  args: [accounts[0].address],
+                }),
+              },
+            ],
+            requireFunds: true,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toEqual([])
+    })
+
+    test('shares token resolution between fee selection and inference', async () => {
+      const methods: string[] = []
+      const downstream: Relay.handleRequest.Handler = (request, options) => {
+        methods.push(request.method)
+        return client.request(request as never, options)
+      }
+      const handle = Relay.handleRequest(downstream, {
+        plugins: [
+          Relay.feeToken(),
+          Relay.funding({ getRoute: () => ({ sources: [] }) }),
+        ],
+        resolveTokens: async (chainId) => {
+          const chain = await downstream({ method: 'eth_chainId' })
+          if (Number(chain) !== chainId) throw new Error('Unexpected chain')
+          return [Addresses.pathUsd, Addresses.alphaUsd]
+        },
+      })
+      const result = (await handle({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.dex.sell.call({
+                tokenIn: Addresses.alphaUsd,
+                tokenOut: Addresses.pathUsd,
+                amountIn: 100n,
+                minAmountOut: 0n,
+              }),
+            ],
+            requireFunds: true,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toMatchObject([
+        { token: Addresses.alphaUsd, amount: '0x64', sources: [] },
+      ])
+      expect(methods.filter((method) => method === 'eth_chainId')).toHaveLength(
+        1,
+      )
+      expect(
+        methods.filter((method) => method === 'tempo_simulateV1'),
+      ).toHaveLength(1)
+      expect(
+        methods.filter((method) => method === 'eth_fillTransaction'),
+      ).toHaveLength(1)
+    })
+
+    test('resolves funding before sponsoring a fully prepared transaction', async () => {
+      const methods: string[] = []
+      const handle = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          plugins: [
+            Relay.funding({ getRoute: () => ({ sources: [] }) }),
+            Relay.feePayer({ account: accounts[0] }),
+          ],
+        },
+      )
+      const result = (await handle({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 10n,
+                to: accounts[1].address,
+              }),
+            ],
+            gas: 1_000_000n,
+            maxFeePerGas: 1_000_000_000n,
+            maxPriorityFeePerGas: 0n,
+            nonce: 0n,
+            feeToken: Addresses.pathUsd,
+            feePayer: true,
+            requireFunds: true,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.requireFunds).toMatchObject([
+        {
+          token: '0x20C0000000000000000000000000000000000000',
+          amount: '0xa',
+          sources: [],
+        },
+      ])
+      expect(result.tx.feePayerSignature).toBeDefined()
+      expect(methods).toEqual(['eth_call'])
+    })
+
+    test('composes sponsorship, fee selection, funding, and a funded preview', async () => {
+      const sender = Account.fromSecp256k1(generatePrivateKey())
+      await Actions.token.transferSync(client, {
+        account: accounts[0],
+        token: Addresses.alphaUsd,
+        amount: 1_000_000n,
+        to: sender.address,
+      })
+      const methods: string[] = []
+      const store = Store.memory()
+      const handle = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          resolveTokens: () => [Addresses.pathUsd, Addresses.alphaUsd],
+          plugins: [
+            Relay.funding({
+              store,
+              getRoute: () => ({
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              }),
+            }),
+            Relay.feePayer({ account: accounts[0] }),
+            Relay.feeToken({ store }),
+            Relay.simulate({ store }),
+          ],
+        },
+      )
+      const result = (await handle({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: sender.address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 1_000_000n,
+                to: accounts[1].address,
+              }),
+            ],
+            requireFunds: true,
+            feePayer: true,
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(result.tx.feePayerSignature).toBeDefined()
+      expect(result.capabilities).toMatchObject({
+        sponsored: true,
+        balanceDiffs: {
+          [sender.address]: [
+            expect.objectContaining({
+              address: Addresses.alphaUsd,
+              direction: 'outgoing',
+              value: '0xf4240',
+            }),
+          ],
+        },
+      })
+      expect(
+        methods.filter((method) => method === 'eth_fillTransaction'),
+      ).toHaveLength(1)
+      expect(
+        methods.filter((method) => method === 'tempo_simulateV1'),
+      ).toHaveLength(1)
+      expect(methods).not.toContain('eth_chainId')
+      const receipt = await sendTransactionSync(
+        getClient({
+          transport: withRelay(http(), {
+            plugins: [
+              Relay.funding({
+                getRoute: () => ({
+                  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+                }),
+              }),
+              Relay.feePayer({ account: accounts[0] }),
+            ],
+          }),
+        }),
+        {
+          account: sender,
+          feePayer: true,
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              amount: 1_000_000n,
+              to: accounts[1].address,
+            }),
+          ],
+          requireFunds: true,
+        },
+      )
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+    })
+  })
+
   test.each([
     { token: '0x1234' },
     { amount: 'not-a-quantity' },
@@ -487,11 +790,15 @@ describe('behavior', () => {
         rules,
       })
       const funded = getClient({
-        transport: withFunding(http(), {
-          policyId,
-          policyRules:
-            mode === 'configured' ? rules : { ...rules, maxSlippageBps: 1 },
-          store: Store.memory(),
+        transport: withRelay(http(), {
+          plugins: [
+            Relay.funding({
+              policyId,
+              policyRules:
+                mode === 'configured' ? rules : { ...rules, maxSlippageBps: 1 },
+              store: Store.memory(),
+            }),
+          ],
         }),
       })
       if (mode === 'registered')
@@ -1139,11 +1446,15 @@ describe('behavior', () => {
         amount: parseUnits('40', 6),
       })
       const funded = getClient({
-        transport: withFunding(http(), {
-          store: Store.memory(),
-          getRoute: () => ({
-            sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-          }),
+        transport: withRelay(http(), {
+          plugins: [
+            Relay.funding({
+              store: Store.memory(),
+              getRoute: () => ({
+                sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+              }),
+            }),
+          ],
         }),
       })
       const recipient = Account.fromSecp256k1(generatePrivateKey()).address
@@ -1182,7 +1493,7 @@ describe('behavior', () => {
       ).toBe(parseUnits('100', 6))
     })
 
-    test('fills and sends an inferred batch through withFunding', async () => {
+    test('fills and sends an inferred batch through Relay.funding', async () => {
       const account = await setupAccount()
       await Actions.token.mintSync(client, {
         account: accounts[0],
@@ -1191,7 +1502,9 @@ describe('behavior', () => {
         token: Addresses.pathUsd,
       })
       const fundedClient = getClient({
-        transport: withFunding(http(), { store: Store.memory() }),
+        transport: withRelay(http(), {
+          plugins: [Relay.funding({ store: Store.memory() })],
+        }),
       })
       const recipient = Account.fromSecp256k1(generatePrivateKey()).address
       const receipt = await sendTransactionSync(fundedClient, {

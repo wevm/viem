@@ -52,7 +52,6 @@ test('exports tempo', () => {
       "http",
       "walletNamespaceCompat",
       "withFeePayer",
-      "withFunding",
       "withRelay",
       "WebAuthnP256",
       "WebCryptoP256",

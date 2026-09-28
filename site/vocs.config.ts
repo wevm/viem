@@ -3430,11 +3430,6 @@ export default defineConfig({
           text: 'Transports',
           items: [
             {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'withFunding',
-              link: '/tempo/transports/withFunding',
-            },
-            {
               text: 'withRelay',
               link: '/tempo/transports/withRelay',
             },
@@ -3459,9 +3454,9 @@ export default defineConfig({
                   link: '/tempo/relay/plugins/multisig',
                 },
                 {
-                  badge: { text: '🚧', variant: 'warning' },
-                  disabled: true,
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Funding',
+                  link: '/tempo/relay/plugins/funding',
                 },
                 {
                   badge: { text: '🚧', variant: 'warning' },

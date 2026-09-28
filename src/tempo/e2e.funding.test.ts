@@ -33,9 +33,9 @@ import {
   Funding,
   FundingPolicy,
   FundingSource,
+  Relay,
   Store,
   Tick,
-  withFunding,
   withRelay,
 } from './index.js'
 import * as Transaction from './Transaction.js'
@@ -832,7 +832,7 @@ describe('relay funding integrity', () => {
   )
 
   test.each(['prepare', 'simulate'] as const)(
-    '%s accepts relay-filled funding over HTTP',
+    '%s handles relay-filled funding over HTTP',
     async (action) => {
       const account = await setupAccount()
       const handler = Funding.handleRequest(
@@ -868,23 +868,25 @@ describe('relay funding integrity', () => {
         feePayer: accounts[1],
         requireFunds: [{ amount: 1n, token: Addresses.pathUsd }],
       } as const
-      await expect(
-        action === 'prepare'
-          ? prepareTransactionRequest(relay, {
-              ...parameters,
-              calls: [{ to: recipient }],
-            })
-          : Actions.token.transfer.simulate(relay, {
-              ...parameters,
-              amount: 1n,
-              to: recipient,
-              token: Addresses.pathUsd,
-            }),
-      ).resolves.toMatchObject(
-        action === 'prepare'
-          ? { requireFunds: [{ amount: 2n }] }
-          : { result: true, request: { requireFunds: [{ amount: 1n }] } },
-      )
+      if (action === 'prepare')
+        await expect(
+          prepareTransactionRequest(relay, {
+            ...parameters,
+            calls: [{ to: recipient }],
+          }),
+        ).rejects.toThrow('Funding relay changed `requireFunds[0].amount`.')
+      else
+        await expect(
+          Actions.token.transfer.simulate(relay, {
+            ...parameters,
+            amount: 1n,
+            to: recipient,
+            token: Addresses.pathUsd,
+          }),
+        ).resolves.toMatchObject({
+          result: true,
+          request: { requireFunds: [{ amount: 1n }] },
+        })
     },
   )
 })
@@ -2518,9 +2520,11 @@ describe('funding source: earn', () => {
   })
 })
 
-describe('withFunding', () => {
+describe('Relay.funding', () => {
   const client = getClient({
-    transport: withFunding(http(), { store: Store.memory() }),
+    transport: withRelay(http(), {
+      plugins: [Relay.funding({ store: Store.memory() })],
+    }),
   })
 
   beforeAll(async () => {
@@ -2875,6 +2879,9 @@ describe('withFunding', () => {
       },
       `
       {
+        "capabilities": {
+          "sponsored": false,
+        },
         "raw": Any<String>,
         "transaction": {
           "accessList": [],
@@ -2883,18 +2890,17 @@ describe('withFunding', () => {
             {
               "data": "0x",
               "to": "0x8888888888888888888888888888888888888888",
-              "value": 0n,
+              "value": undefined,
             },
           ],
           "chainId": 1337,
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": null,
           "from": Any<String>,
           "gas": Any<BigInt>,
           "gasPrice": undefined,
           "hash": Any<String>,
-          "keyAuthorization": null,
+          "input": undefined,
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": Any<BigInt>,
           "maxPriorityFeePerGas": 0n,
@@ -2922,11 +2928,9 @@ describe('withFunding', () => {
             },
             "type": "secp256k1",
           },
-          "to": null,
+          "to": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
         },
       }
@@ -3002,6 +3006,9 @@ describe('withFunding', () => {
       },
       `
       {
+        "_capabilities": {
+          "sponsored": false,
+        },
         "account": {
           "address": Any<String>,
           "keyType": "secp256k1",
@@ -3133,22 +3140,26 @@ describe('withFunding', () => {
       type: 'sell',
     })
     const routedClient = getClient({
-      transport: withFunding(http(), {
-        store: Store.memory(),
-        getRoute: async ({ chainId, token }) => {
-          if (chainId !== 1337) return undefined
-          if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
-            return {
-              slippageBps: 100,
-              sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
-            }
-          if (token.toLowerCase() === Addresses.betaUsd.toLowerCase())
-            return {
-              slippageBps: 50,
-              sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
-            }
-          return undefined
-        },
+      transport: withRelay(http(), {
+        plugins: [
+          Relay.funding({
+            store: Store.memory(),
+            getRoute: async ({ chainId, token }) => {
+              if (chainId !== 1337) return undefined
+              if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+                return {
+                  slippageBps: 100,
+                  sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+                }
+              if (token.toLowerCase() === Addresses.betaUsd.toLowerCase())
+                return {
+                  slippageBps: 50,
+                  sources: [FundingSource.dex({ tokenIn: Addresses.pathUsd })],
+                }
+              return undefined
+            },
+          }),
+        ],
       }),
     })
     const result = await fillTransaction(routedClient, {
@@ -3169,6 +3180,9 @@ describe('withFunding', () => {
       },
       `
       {
+        "capabilities": {
+          "sponsored": false,
+        },
         "raw": Any<String>,
         "transaction": {
           "accessList": [],
@@ -3177,18 +3191,17 @@ describe('withFunding', () => {
             {
               "data": "0x",
               "to": "0x8888888888888888888888888888888888888888",
-              "value": 0n,
+              "value": undefined,
             },
           ],
           "chainId": 1337,
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": null,
           "from": Any<String>,
           "gas": Any<BigInt>,
           "gasPrice": undefined,
           "hash": Any<String>,
-          "keyAuthorization": null,
+          "input": undefined,
           "maxFeePerBlobGas": undefined,
           "maxFeePerGas": Any<BigInt>,
           "maxPriorityFeePerGas": 0n,
@@ -3216,11 +3229,9 @@ describe('withFunding', () => {
             },
             "type": "secp256k1",
           },
-          "to": null,
+          "to": undefined,
           "type": "tempo",
           "typeHex": "0x76",
-          "validAfter": null,
-          "validBefore": null,
           "value": 0n,
         },
       }
@@ -3247,20 +3258,24 @@ describe('withFunding', () => {
       vault: stack.adapter,
     })
     const earnClient = getClient({
-      transport: withFunding(http(), {
-        store: Store.memory(),
-        getRoute: ({ token }) => {
-          if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
-            return {
-              sources: [
-                FundingSource.earn({
-                  source: stack.fundingSource,
-                  vault: stack.adapter,
-                }),
-              ],
-            }
-          return undefined
-        },
+      transport: withRelay(http(), {
+        plugins: [
+          Relay.funding({
+            store: Store.memory(),
+            getRoute: ({ token }) => {
+              if (token.toLowerCase() === Addresses.pathUsd.toLowerCase())
+                return {
+                  sources: [
+                    FundingSource.earn({
+                      source: stack.fundingSource,
+                      vault: stack.adapter,
+                    }),
+                  ],
+                }
+              return undefined
+            },
+          }),
+        ],
       }),
     })
     const result = await Actions.token.transferSync(earnClient, {
@@ -3381,7 +3396,7 @@ describe('withFunding', () => {
       const { account, accessKey } = await setupAccessKey()
       const store = Store.memory()
       const client = getClient({
-        transport: withFunding(http(), { store }),
+        transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
       })
       const { policyId, rules, rulesHash } =
         await Actions.funding.createPolicySync(client, {
@@ -3514,7 +3529,7 @@ describe('withFunding', () => {
       const { account, accessKey } = await setupAccessKey()
       const store = Store.memory()
       const client = getClient({
-        transport: withFunding(http(), { store }),
+        transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
       })
       const { rules, rulesHash } = await Actions.funding.createPolicySync(
         client,
@@ -3652,7 +3667,7 @@ describe('withFunding', () => {
       const { account, accessKey } = await setupAccessKey()
       const store = Store.memory()
       const client = getClient({
-        transport: withFunding(http(), { store }),
+        transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
       })
       const { policyId, rules, rulesHash } =
         await Actions.funding.createPolicySync(client, {
@@ -4056,7 +4071,11 @@ describe('withFunding', () => {
       const store = Store.memory()
       const { policyId, rules, rulesHash } =
         await Actions.funding.createPolicySync(
-          getClient({ transport: withFunding(http(), { store }) }),
+          getClient({
+            transport: withRelay(http(), {
+              plugins: [Relay.funding({ store })],
+            }),
+          }),
           {
             account,
             admins: [account.address],
@@ -4072,7 +4091,9 @@ describe('withFunding', () => {
           },
         )
       const client = getClient({
-        transport: withFunding(http(), { policyId, store }),
+        transport: withRelay(http(), {
+          plugins: [Relay.funding({ policyId, store })],
+        }),
       })
 
       const keyAuthorization = await Actions.accessKey.signAuthorization(
@@ -4195,7 +4216,11 @@ describe('withFunding', () => {
       const store = Store.memory()
       const { policyId, rules, rulesHash } =
         await Actions.funding.createPolicySync(
-          getClient({ transport: withFunding(http(), { store }) }),
+          getClient({
+            transport: withRelay(http(), {
+              plugins: [Relay.funding({ store })],
+            }),
+          }),
           {
             account,
             admins: [account.address],

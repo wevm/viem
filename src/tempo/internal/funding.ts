@@ -174,7 +174,9 @@ export type SimulationContext = {
 export async function infer(
   client: Client,
   options: {
-    tokens: readonly Address.Address[]
+    tokens:
+      | readonly Address.Address[]
+      | (() => Promise<readonly Address.Address[]>)
     transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
   } & SimulationContext,
 ): Promise<readonly Pick<FundingRequirement.Rpc, 'token' | 'amount'>[]> {
@@ -241,7 +243,9 @@ export async function infer(
   )
 
   const balances = new Map<Address.Address, bigint>()
-  for (const token of options.tokens)
+  for (const token of typeof options.tokens === 'function'
+    ? await options.tokens()
+    : options.tokens)
     balances.set(Address.checksum(token), balance)
 
   const failures = new Set<string>()
@@ -422,7 +426,7 @@ export async function resolvePolicyId(
 }
 
 /** Simulates the complete Tempo batch without charging transaction fees. */
-async function simulateFunding(
+export async function simulateFunding(
   client: Client,
   options: {
     transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
@@ -447,6 +451,12 @@ async function simulateFunding(
     Parameters: readonly [unknown, NonNullable<SimulationContext['block']>]
     ReturnType: {
       blocks: readonly { parentHash: Hex.Hex; calls: readonly Simulation[] }[]
+      tokenMetadata?:
+        | Record<
+            Address.Address,
+            { name: string; symbol: string; currency: string }
+          >
+        | undefined
     }
   }>({
     method: 'tempo_simulateV1',
@@ -474,6 +484,7 @@ async function simulateFunding(
           },
         ],
         validation: false,
+        traceTransfers: true,
       },
       blockParameter ?? 'latest',
     ],
@@ -487,7 +498,11 @@ async function simulateFunding(
       message: 'Funding simulation returned no transaction result.',
     })
 
-  return { ...result, blockHash: block.parentHash }
+  return {
+    ...result,
+    blockHash: block.parentHash,
+    tokenMetadata: response.tokenMetadata,
+  }
 }
 
 type Simulation = {

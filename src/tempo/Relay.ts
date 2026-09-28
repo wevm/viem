@@ -4,8 +4,10 @@ import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import type * as Funding_ from './Funding.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
+import * as Funding from './internal/relay/funding.js'
 import * as Multisig from './internal/relay/multisig.js'
 import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
@@ -405,6 +407,39 @@ export declare namespace feeToken {
     /** Store for cached user fee-token preferences. */
     store?: Store.Store | undefined
   }
+}
+
+declare const fundingBrand: unique symbol
+
+/**
+ * Infers token requirements and resolves funding sources before filling, calling, or estimating a transaction.
+ *
+ * No other plugins are required. Add feePayer for sponsorship, feeToken for fee-token
+ * selection, and simulate for a funded execution preview. Place funding before
+ * feePayer so prepared transactions resolve funding before sponsorship.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Relay, withRelay } from 'viem/tempo'
+ *
+ * const transport = withRelay(http(), {
+ *   plugins: [Relay.funding()],
+ * })
+ * ```
+ * @param options - Discovery routes and policy rules storage.
+ * @returns A funding relay plugin.
+ * @experimental
+ */
+export function funding(options: funding.Options = {}): funding.ReturnType {
+  return Funding.create(options)
+}
+
+export declare namespace funding {
+  /** Funding discovery and policy rules storage. */
+  export type Options = Funding_.handleRequest.Parameters
+  /** Middleware advertising funding resolution. */
+  export type ReturnType = Plugin & { readonly [fundingBrand]: true }
 }
 
 /**

@@ -6,11 +6,14 @@ import { zeroAddress } from '../../../constants/address.js'
 import type { Call } from '../../../types/calls.js'
 import type { Log } from '../../../types/log.js'
 import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
+import { formatLog } from '../../../utils/formatters/log.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Abis from '../../Abis.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
+import type * as Funding from '../../Funding.js'
 import type * as Relay from '../../Relay.js'
+import { simulateFunding } from '../funding.js'
 import type * as Store from './cache.js'
 import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
@@ -51,6 +54,10 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
           ? await simulateAndParseDiffs(context.client, {
               account: parameters.from as Address | undefined,
               calls: extractCalls(transaction),
+              transaction: {
+                ...result.tx,
+                from: parameters.from,
+              } as Funding.handleRequest.Transaction,
               feeToken,
               gas: transaction.gas,
               maxFeePerGas: transaction.maxFeePerGas,
@@ -71,7 +78,19 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
 
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function simulate(client: Client, options: simulate.Options) {
-  const { account, calls } = options
+  const { account, calls, transaction } = options
+  if (
+    Array.isArray(transaction?.requireFunds) &&
+    transaction.requireFunds.length
+  ) {
+    const result = await simulateFunding(client, { transaction })
+    if (result.status !== '0x1')
+      throw new Error(result.error?.message ?? 'Funded simulation reverted.')
+    return {
+      results: [{ ...result, logs: result.logs.map((log) => formatLog(log)) }],
+      tokenMetadata: result.tokenMetadata,
+    }
+  }
   try {
     return await Actions.simulate.simulateCalls(client, {
       ...(account ? { account } : {}),
@@ -99,6 +118,7 @@ declare namespace simulate {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
+    transaction?: Funding.handleRequest.Transaction | undefined
   }
 }
 
@@ -106,13 +126,23 @@ export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
 ) {
-  const { account, calls, feeToken, gas, store, maxFeePerGas, signal } = options
+  const {
+    account,
+    calls,
+    feeToken,
+    gas,
+    store,
+    maxFeePerGas,
+    signal,
+    transaction,
+  } = options
   signal?.throwIfAborted()
 
   try {
     const { results, tokenMetadata } = await simulate(client, {
       account: account === zeroAddress ? undefined : account,
       calls,
+      transaction,
     })
 
     signal?.throwIfAborted()
@@ -165,6 +195,7 @@ export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
+    transaction?: Funding.handleRequest.Transaction | undefined
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined

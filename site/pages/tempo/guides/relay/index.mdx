@@ -21,7 +21,7 @@ flowchart LR
     feePayer[Sponsorship]
     feeToken[Best Fee Tokens]
     simulate[Balance Diffs]
-    funding["🚧 Funding"]
+    funding[Funding]
     accessKeyState["🚧 Access Key State"]
     multisig ~~~ simulate ~~~ accessKeyState
     feePayer ~~~ feeToken ~~~ funding
@@ -40,7 +40,7 @@ balance changes, and coordinate multisig approvals. The transaction plugins shar
 the same middleware contract as custom plugins. Requests enter plugins in array
 order, and responses return in reverse order.
 
-Funding and access-key state plugins are planned.
+Use [Funding](/tempo/relay/plugins/funding) to infer required token balances and discover sources. The access-key state plugin is planned.
 
 <Cards>
   <Card

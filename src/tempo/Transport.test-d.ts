@@ -19,14 +19,17 @@ test('local relay preserves transport attributes, capabilities, and RPC schemas'
   >()
   // @ts-expect-error Empty plugins do not advertise multisig.
   plain.transport.multisig
+  // @ts-expect-error Empty plugins do not advertise funding.
+  plain.transport.funding
   // @ts-expect-error RPC parameters are preserved.
   request({ method: 'example_echo', params: ['1'] })
   const local = createClient({
     transport: withRelay(transport, {
-      plugins: [Relay.multisig({ store: Store.memory() })],
+      plugins: [Relay.multisig({ store: Store.memory() }), Relay.funding()],
     }),
   })
   expectTypeOf(local.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(local.transport.funding).toEqualTypeOf<true>()
   expectTypeOf(local.transport.type).toEqualTypeOf<'http'>()
   const nested = createClient({
     transport: withRelay(withRelay(http(), http('https://relay.example')), {}),

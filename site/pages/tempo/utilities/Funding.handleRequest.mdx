@@ -2,6 +2,8 @@
 
 Infers token balance requirements, resolves funding sources and access key policy rules, then forwards `eth_fillTransaction`, `eth_call`, or `eth_estimateGas` to the downstream handler.
 
+For composed relays, use [`Relay.funding`](/tempo/relay/plugins/funding) in the relay's `plugins` array. This handler composes that plugin around a downstream RPC handler.
+
 ## Usage
 
 ```ts
@@ -32,7 +34,7 @@ const handleRequest = Funding.handleRequest(
 
 Optional callback resolving source configurations for the chain ID and checksummed output token. Return `undefined` when no route is available. Async callbacks can load configuration from a store.
 
-When omitted, the handler uses known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`withFunding`](/tempo/transports/withFunding) for default selection and slippage precedence.
+When omitted, the handler uses known same-currency Native DEX inputs on Tempo mainnet, testnet, and localnet. See [`Relay.funding`](/tempo/relay/plugins/funding) for default selection and slippage precedence.
 
 The handler infers the chain from the transaction or accepts `handleRequest(request, { chainId })`. Conflicts are rejected. Without either value, it defaults to Tempo mainnet (4217). All discovery and fill requests forward the resolved chain ID to `next`.
 
@@ -46,21 +48,21 @@ Existing default policy for `fundingPolicy: true`. The handler verifies that it 
 
 - **Type:** `FundingPolicy.Rules`
 
-Fallback rules when neither the request nor the store supplies them. The handler checks them against the policy's current onchain commitment before use. See [`withFunding`](/tempo/transports/withFunding#policyrules) for configuration and precedence.
+Fallback rules when neither the request nor the store supplies them. The handler checks them against the policy's current onchain commitment before use. See [`Relay.funding`](/tempo/relay/plugins/funding#policyrules) for configuration and precedence.
 
 ### store
 
 - **Type:** `Store.Store`
 
-Optional rules store, defaulting to memory. With `withFunding`, policy creation, policy updates, and inline key authorization populate this store. Installed keys use their current onchain policy; new keys use their signed authorization's policy. Supplied and cached rules must match the current commitment before use.
+Optional rules store, defaulting to memory. With `Relay.funding`, policy creation, policy updates, and inline key authorization populate this store. Installed keys use their current onchain policy; new keys use their signed authorization's policy. Supplied and cached rules must match the current commitment before use.
 
-Cache entries are scoped by chain, policy contract, and rules hash. Supply `policyRules` when the store does not contain the current rules. See [access key funding](/tempo/transports/withFunding#access-key-funding).
+Cache entries are scoped by chain, policy contract, and rules hash. Supply `policyRules` when the store does not contain the current rules. See [access key funding](/tempo/relay/plugins/funding#access-key-funding).
 
 ### tokens
 
 - **Type:** `readonly Address[]`
 
-Additional TIP-20 output tokens to seed when the unsigned transaction specifies `requireFunds: true` or partial requirements that need simulation. Known TIP-20 addresses are included automatically. Inference retries insufficient balances before passing concrete requirements to source discovery. See [inference behavior and limitations](/tempo/transports/withFunding#behavior).
+Additional TIP-20 output tokens to seed when the unsigned transaction specifies `requireFunds: true` or partial requirements that need simulation. Known TIP-20 addresses for the selected chain are included automatically. Inference retries insufficient balances before passing concrete requirements to source discovery. See [inference behavior and limitations](/tempo/relay/plugins/funding#behavior).
 
 ```ts twoslash
 import { http } from 'viem'

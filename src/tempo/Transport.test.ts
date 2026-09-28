@@ -26,16 +26,13 @@ import { custom } from '../clients/transports/custom.js'
 import * as Account_ from './Account.js'
 import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction_ from './Transaction.js'
-import {
-  walletNamespaceCompat,
-  withFeePayer,
-  withFunding,
-  withRelay,
-} from './Transport.js'
+import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
-describe('withFunding', () => {
+describe('Relay.funding', () => {
   const client = getClient({
-    transport: withFunding(http(), { store: Store.memory() }),
+    transport: withRelay(http(), {
+      plugins: [Relay.funding({ store: Store.memory() })],
+    }),
   })
 
   test('passes unrelated RPC methods through and retains transport metadata', async () => {
@@ -62,13 +59,17 @@ describe('withFunding', () => {
     ).toMatchInlineSnapshot(`"0x539"`)
   })
 
-  test('propagates getRoute errors', async () => {
+  test('reports getRoute failures as relay errors', async () => {
     const client = getClient({
-      transport: withFunding(http(), {
-        store: Store.memory(),
-        getRoute: async () => {
-          throw new Error('Route configuration unavailable.')
-        },
+      transport: withRelay(http(), {
+        plugins: [
+          Relay.funding({
+            store: Store.memory(),
+            getRoute: async () => {
+              throw new Error('Route configuration unavailable.')
+            },
+          }),
+        ],
       }),
     })
     await expect(
@@ -88,7 +89,7 @@ describe('withFunding', () => {
         ],
       } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Route configuration unavailable.]`,
+      `[RpcResponse.InternalError: Internal error]`,
     )
   })
 })

@@ -23,7 +23,7 @@ import {
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
-import * as Funding from './Funding.js'
+import type * as Funding from './Funding.js'
 import * as Plugin_ from './internal/relay/plugin.js'
 import * as Request_ from './internal/relay/request.js'
 import type * as Relay_ from './Relay.js'
@@ -90,128 +90,6 @@ export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type, { multisig: true }>
 
 /**
- * Infers requested token balances and resolves omitted funding sources for transaction fills, calls, and gas estimates.
- *
- * @example
- * ```ts
- * import { http } from 'viem'
- * import { Addresses, FundingSource, withFunding } from 'viem/tempo'
- * import { store } from './store'
- *
- * const transport = withFunding(http(), {
- *   store,
- *   getRoute: ({ chainId, token }) => {
- *     if (chainId !== 42431 || token !== Addresses.pathUsd) return undefined
- *     return {
- *       sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
- *     }
- *   },
- * })
- * ```
- *
- * @param transport - Transport to wrap.
- * @param parameters - Owner discovery routes.
- * @returns The funding-aware transport.
- * @experimental
- */
-export function withFunding<transport extends Transport>(
-  transport: transport,
-  parameters: withFunding.Parameters,
-): withFunding.ReturnValue<transport> {
-  return ((options: Parameters<Transport>[0]) => {
-    const value = transport(options)
-    const request = Funding.handleRequest(
-      (request, requestOptions) =>
-        value.request(request as never, requestOptions),
-      parameters,
-    )
-
-    return {
-      ...value,
-      request: ((
-        args: Funding.handleRequest.Request,
-        requestOptions: Parameters<Funding.handleRequest.Handler>[1],
-      ) =>
-        request(args, {
-          ...requestOptions,
-          chainId: requestOptions?.chainId ?? options.chain?.id,
-        })) as typeof value.request,
-      value: { ...value.value, funding: true },
-    }
-  }) as withFunding.ReturnValue<transport>
-}
-
-export declare namespace withFunding {
-  /** Owner discovery routes. */
-  export type Parameters = Funding.handleRequest.Parameters & {
-    /** Store for funding policy rules. */
-    store: NonNullable<Funding.handleRequest.Parameters['store']>
-  }
-  /** Wrapped transport retaining its original metadata. */
-  export type ReturnValue<transport extends Transport = Transport> =
-    transport extends Transport<infer type, infer attributes, infer request>
-      ? Transport<type, attributes & { funding: true }, request>
-      : never
-}
-
-/**
- * Wraps a transport with native multisig request handling.
- *
- * @example
- * ```ts
- * import { http, Store, withMultisig } from 'viem/tempo'
- *
- * const transport = withMultisig(http(), {
- *   store: Store.memory(),
- * })
- * ```
- *
- * @param transport - Transport to wrap.
- * @param parameters - Multisig request handler parameters.
- * @returns The wrapped transport.
- * @experimental
- */
-export function withMultisig<transport extends Transport>(
-  transport: transport,
-  parameters: withMultisig.Parameters,
-): withMultisig.ReturnValue<transport> {
-  return ((options: Parameters<Transport>[0]) => {
-    const value = transport(options)
-    return {
-      ...value,
-      request: Multisig.handleRequest(
-        (request, requestOptions) =>
-          value.request(request as never, requestOptions),
-        parameters,
-      ) as typeof value.request,
-      value: { ...value.value, multisig: true },
-    }
-  }) as withMultisig.ReturnValue<transport>
-}
-
-export declare namespace withMultisig {
-  /** Multisig transport parameters. */
-  export type Parameters = Multisig.handleRequest.Parameters
-
-  /** Multisig transport return type. */
-  export type ReturnValue<transport extends Transport = Transport> =
-    transport extends Transport<
-      infer type,
-      infer rpcAttributes,
-      infer eip1193RequestFn
-    >
-      ? Transport<
-          type,
-          rpcAttributes & {
-            /** Whether the transport coordinates native multisig approvals. */
-            multisig: true
-          },
-          eip1193RequestFn
-        >
-      : never
-}
-
-/**
  * Creates a relay transport that routes requests between
  * the default transport or the relay transport.
  * Calls and gas estimates with funding requirements are routed to the relay.
@@ -269,6 +147,9 @@ export function withRelay(
           })) as typeof transport.request,
         value: {
           ...transport.value,
+          ...(relayTransport.plugins?.some(Plugin_.isFunding)
+            ? { funding: true }
+            : {}),
           ...(relayTransport.plugins?.some(Plugin_.isMultisig)
             ? { multisig: true }
             : {}),
@@ -441,7 +322,10 @@ export declare namespace withRelay {
         attributes &
           (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
             ? {}
-            : { multisig: true }),
+            : { multisig: true }) &
+          (Extract<plugins[number], Relay_.funding.ReturnType> extends never
+            ? {}
+            : { funding: true }),
         request
       >
     : never
