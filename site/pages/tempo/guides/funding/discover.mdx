@@ -112,8 +112,8 @@ const { policyId, rules } = await client.funding.createPolicySync({
 // Verify the rules against the current policy hash, then discover permitted funds.
 const discovery = await client.funding.discover({
   amount: parseUnits('50', 6),
-  policyId, // [!code focus]
-  policyRules: rules, // [!code focus]
+  policyId, // [!code hl]
+  policyRules: rules, // [!code hl]
   token: Addresses.pathUsd,
 })
 ```

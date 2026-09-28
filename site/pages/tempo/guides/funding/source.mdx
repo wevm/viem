@@ -24,8 +24,8 @@ import { client } from './viem.config'
 
 await client.token.transferSync({
   amount: parseUnits('50', 6),
-  // Source funds required for the transfer. // [!code focus]
-  requireFunds: true, // [!code focus]
+  // Source funds required for the transfer. // [!code hl]
+  requireFunds: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: Addresses.pathUsd,
 })
@@ -422,8 +422,8 @@ const accessKey = Account.fromP256(generatePrivateKey(), { access: client.accoun
 
 const keyAuthorization = await client.accessKey.signAuthorization({
   accessKey,
-  // Use the global policy. // [!code focus]
-  fundingPolicy: true, // [!code focus]
+  // Use the global policy. // [!code hl]
+  fundingPolicy: true, // [!code hl]
   limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
 })
 
@@ -431,8 +431,8 @@ await client.token.transferSync({
   account: accessKey,
   amount: parseUnits('50', 6),
   keyAuthorization,
-  // Fund the payment using sources from the global policy. // [!code focus]
-  requireFunds: true, // [!code focus]
+  // Fund the payment using sources from the global policy. // [!code hl]
+  requireFunds: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: Addresses.pathUsd,
 })
@@ -451,13 +451,13 @@ import {
 import { store } from './store'
 
 const account = Account.fromSecp256k1('0x...')
-const policyId = 123n // [!code focus]
+const policyId = 123n // [!code hl]
 
 export const client = createClient({
   account,
   transport: withRelay(http(), {
     plugins: [Relay.funding({ policyId, store })],
-  }), // [!code focus]
+  }), // [!code hl]
 })
 ```
 
@@ -497,9 +497,9 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 await client.token.transferSync({
   account: accessKey,
   amount: parseUnits('50', 6),
-  // Create the policy, install the key, and fund the payment in one transaction. // [!code focus]
-  keyAuthorization, // [!code focus]
-  requireFunds: true, // [!code focus]
+  // Create the policy, install the key, and fund the payment in one transaction. // [!code hl]
+  keyAuthorization, // [!code hl]
+  requireFunds: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: Addresses.pathUsd,
 })
@@ -548,7 +548,7 @@ const accessKey = Account.fromP256(generatePrivateKey(), {
 // Bind this key to the existing policy without creating another policy.
 const keyAuthorization = await client.accessKey.signAuthorization({
   accessKey,
-  fundingPolicy: policyId, // [!code focus]
+  fundingPolicy: policyId, // [!code hl]
   limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
 })
 
