@@ -320,13 +320,16 @@ export async function fill(
   client: Client,
   transaction: Record<string, unknown>,
   options: Relay.handleRequest.RequestOptions = {},
+  { preserveFeeToken = false }: { preserveFeeToken?: boolean } = {},
 ): Promise<Result> {
+  const formatted = Utils.formatFillTransactionRequest(client, transaction)
+  // Remote relays need the requested token before choosing and signing sponsorship.
+  if (preserveFeeToken && transaction.feeToken !== undefined)
+    formatted.feeToken = transaction.feeToken
   const result = (await client.request(
     {
       method: 'eth_fillTransaction',
-      params: [
-        Utils.formatFillTransactionRequest(client, transaction) as never,
-      ],
+      params: [formatted as never],
     },
     options,
   )) as unknown as Result

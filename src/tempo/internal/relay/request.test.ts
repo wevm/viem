@@ -1,11 +1,72 @@
 import { createServer } from 'node:http'
-import { Signature } from 'ox'
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import { Secp256k1, Signature } from 'ox'
+import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoLocalnet } from 'viem/chains'
 import { Addresses, Relay, Store, VirtualAddress } from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
+
+test('preserves the requested fee token through an external relay', async () => {
+  const account = privateKeyToAccount(
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+  )
+  const client = createClient({
+    chain: tempoLocalnet,
+    transport: http('http://127.0.0.1:1', { retryCount: 0 }),
+  })
+  const upstream = Relay.create({
+    client,
+    resolveTokens: () => [Addresses.pathUsd],
+    plugins: [Relay.feePayer({ account })],
+  })
+  const server = await createHttpServer(createRequestListener(upstream.fetch))
+  onTestFinished(() => server.close())
+  const relay = Relay.create({
+    client,
+    plugins: [
+      Relay.feePayer({
+        allowedFeePayers: [server.url],
+        internal_allowUnsafeUrls: true,
+      }),
+    ],
+  })
+  const feeToken = '0x20c0000000000000000000000000000000000001'
+  const result = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [
+      {
+        type: '0x76',
+        from: account.address,
+        chainId: tempoLocalnet.id,
+        nonce: '0x0',
+        gas: '0x186a0',
+        maxFeePerGas: '0x1',
+        maxPriorityFeePerGas: '0x0',
+        calls: [{ to: account.address, value: '0x0' }],
+        feePayer: server.url,
+        feeToken,
+      },
+    ],
+  })) as Relay.Plugin.FillResult
+  const transaction = core_Transaction.fromRpc(
+    result.tx as core_Transaction.Rpc,
+  )!
+  const envelope = TxEnvelopeTempo.from(
+    transaction as TxEnvelopeTempo.TxEnvelopeTempo,
+  )
+  expect(transaction.feeToken).toBe(feeToken)
+  expect(
+    Secp256k1.recoverAddress({
+      payload: TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
+        sender: account.address,
+      }),
+      signature: envelope.feePayerSignature!,
+    }),
+  ).toBe(account.address.toLowerCase())
+})
 
 test.each(
   ['transaction', 'feePayer', 'multisig'].flatMap((mode) =>

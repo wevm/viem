@@ -121,10 +121,12 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const result: Request.Result =
         prepared && !external
           ? { tx: transaction }
-          : await Request.fill(fillClient, transaction, {
-              ...requestOptions,
-              retryCount: 0,
-            })
+          : await Request.fill(
+              fillClient,
+              transaction,
+              { ...requestOptions, retryCount: 0 },
+              { preserveFeeToken: !!external },
+            )
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
