@@ -648,7 +648,7 @@ describe('Actions.token.transferSync', () => {
 })
 
 describe('funding error decoding', () => {
-  test.each(['burn', 'sell'] as const)(
+  test.each(['burn', 'transfer', 'sell'] as const)(
     '%s propagates insufficient funding',
     async (action) => {
       const account = Account.fromSecp256k1(generatePrivateKey())
@@ -663,49 +663,30 @@ describe('funding error decoding', () => {
             amount: 1n,
             token: Addresses.pathUsd,
           })
-        : Actions.dex.sell(client, {
-            ...parameters,
-            amountIn: 1n,
-            minAmountOut: 0n,
-            tokenIn: Addresses.pathUsd,
-            tokenOut: Addresses.alphaUsd,
-          })
+        : action === 'transfer'
+          ? Actions.token.transfer(client, {
+              ...parameters,
+              amount: 1n,
+              to: recipient,
+              token: Addresses.pathUsd,
+            })
+          : Actions.dex.sell(client, {
+              ...parameters,
+              amountIn: 1n,
+              minAmountOut: 0n,
+              tokenIn: Addresses.pathUsd,
+              tokenOut: Addresses.alphaUsd,
+            })
       ).catch((error) =>
         error.walk(
           (error: unknown) => error instanceof ContractFunctionRevertedError,
         ),
       )
       expect(result).toBeInstanceOf(ContractFunctionRevertedError)
-      if (action === 'sell') {
-        expect(result.data).toBeUndefined()
-        expect(result.raw).toMatchInlineSnapshot(
-          `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
-        )
-        return
-      }
-      expect(result.data).toMatchInlineSnapshot(`
-      {
-        "abiItem": {
-          "inputs": [
-            {
-              "name": "required",
-              "type": "uint256",
-            },
-            {
-              "name": "available",
-              "type": "uint256",
-            },
-          ],
-          "name": "InsufficientFunding",
-          "type": "error",
-        },
-        "args": [
-          1n,
-          0n,
-        ],
-        "errorName": "InsufficientFunding",
-      }
-    `)
+      expect(result.data).toBeUndefined()
+      expect(result.raw).toMatchInlineSnapshot(
+        `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+      )
     },
   )
 })

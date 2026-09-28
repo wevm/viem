@@ -44,7 +44,6 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { fundingErrors } from '../internal/funding.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -576,9 +575,6 @@ export namespace burn {
     return (await action(client, {
       ...rest,
       ...call,
-      ...(parameters.requireFunds
-        ? { abi: [...Abis.tip20, ...fundingErrors] }
-        : {}),
     } as never)) as never
   }
 
@@ -3442,9 +3438,6 @@ export namespace transfer {
     return (await action(client, {
       ...parameters,
       ...transfer.call(client, parameters as never),
-      ...(parameters.requireFunds
-        ? { abi: [...Abis.tip20, ...fundingErrors] }
-        : {}),
     } as never)) as never
   }
 
