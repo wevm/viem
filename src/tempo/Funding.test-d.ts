@@ -1,4 +1,5 @@
 import { http } from 'viem'
+import { fillTransaction, sendTransactionSync } from 'viem/actions'
 import {
   Actions,
   Addresses,
@@ -86,4 +87,42 @@ test('withFunding requires a store', () => {
   withFunding(http())
   // @ts-expect-error Parameters must include a funding store.
   withFunding(http(), {})
+})
+
+test('generic transaction funding inference', () => {
+  const request = {
+    account: accounts[0],
+    calls: [
+      Actions.token.transfer.call({
+        token: Addresses.pathUsd,
+        amount: 50n,
+        to: accounts[1].address,
+      }),
+    ],
+    requireFunds: true,
+  } as const
+  void fillTransaction(getClient(), request)
+  void sendTransactionSync(getClient(), request)
+  withFunding(http(), { store: Store.memory(), tokens: [Addresses.pathUsd] })
+})
+
+test('partial generic requirements remain unsigned intent', () => {
+  const requireFunds = [
+    { sources: [] },
+    { token: Addresses.pathUsd },
+    { amount: 0n },
+  ] as const
+  expectTypeOf<(typeof requireFunds)[number]>().toExtend<Funding.Requirement>()
+  expectTypeOf<(typeof requireFunds)[number]>().not.toExtend<
+    NonNullable<
+      Transaction.TransactionSerializableTempo['requireFunds']
+    >[number]
+  >()
+  const request = {
+    account: accounts[0],
+    to: accounts[1].address,
+    requireFunds,
+  } as const
+  void fillTransaction(getClient(), request)
+  void sendTransactionSync(getClient(), request)
 })

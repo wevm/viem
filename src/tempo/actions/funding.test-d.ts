@@ -8,7 +8,10 @@ import { type createPolicySync, discover } from './funding.js'
 test('discover', () => {
   const account = '0x0000000000000000000000000000000000000001'
   expectTypeOf<discover.ReturnValue>().toExtend<
-    NonNullable<Transaction.TransactionRequestTempo['requireFunds']>[number]
+    Exclude<
+      NonNullable<Transaction.TransactionRequestTempo['requireFunds']>,
+      true
+    >[number]
   >()
 
   discover.call({

@@ -1,4 +1,5 @@
 import {
+  Actions,
   Addresses,
   FundingPolicy,
   FundingRequirement,
@@ -24,6 +25,90 @@ describe('getType', () => {
 })
 
 describe('formatTransactionRequest', () => {
+  test.each([
+    Actions.token.transfer.call({
+      token,
+      amount: 50n,
+      to: Addresses.alphaUsd,
+      memo: `0x${'00'.repeat(32)}`,
+    }),
+    Actions.token.burn.call({ token, amount: 50n }),
+    Actions.token.burn.call({
+      token,
+      amount: 50n,
+      memo: `0x${'00'.repeat(32)}`,
+    }),
+    Actions.dex.sell.call({
+      tokenIn: token,
+      tokenOut: Addresses.alphaUsd,
+      amountIn: 50n,
+      minAmountOut: 0n,
+    }),
+  ])('resolves known calldata defaults ($functionName)', (call) => {
+    expect(
+      Formatters.formatTransactionRequest(
+        {
+          calls: [call],
+          requireFunds: [{ sources: [] }],
+        },
+        'call',
+      ).requireFunds,
+    ).toEqual([
+      {
+        token: expect.stringMatching(
+          /^0x20c0000000000000000000000000000000000000$/i,
+        ),
+        amount: '0x32',
+        sources: [],
+      },
+    ])
+  })
+
+  test('preserves partial fields for relay resolution', () => {
+    const formatted = Formatters.formatTransactionRequest(
+      {
+        calls: [
+          {
+            to: '0x9999999999999999999999999999999999999999',
+            data: '0x12345678',
+          },
+        ],
+        requireFunds: [{ sources: [] }, { token, amount: 0n }],
+      },
+      'fillTransaction',
+    )
+    expect(JSON.parse(JSON.stringify(formatted.requireFunds))).toEqual([
+      { sources: [] },
+      { token, amount: '0x0' },
+    ])
+  })
+
+  test.each([0n, 50n])(
+    'resolves transfer defaults without a relay (%s)',
+    (amount) => {
+      const formatted = Formatters.formatTransactionRequest(
+        {
+          calls: [
+            Actions.token.transfer.call({
+              token,
+              amount,
+              to: Addresses.alphaUsd,
+            }),
+          ],
+          requireFunds: [
+            { sources: [] },
+            { token: Addresses.betaUsd, amount: 0n, sources: [] },
+          ],
+        },
+        'call',
+      )
+      expect(formatted.requireFunds).toEqual([
+        { token, amount: amount === 0n ? '0x0' : '0x32', sources: [] },
+        { token: Addresses.betaUsd, amount: '0x0', sources: [] },
+      ])
+    },
+  )
+
   test('preserves omitted sources for JSON-RPC wallets', () => {
     expect(
       Formatters.formatTransactionRequest(
@@ -62,7 +147,7 @@ describe('formatTransactionRequest', () => {
           action,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Resolve omitted funding sources with \`eth_fillTransaction\` before estimating or signing.]`,
+        `[Error: Resolve omitted funding fields with \`eth_fillTransaction\` before estimating or signing.]`,
       )
     },
   )
@@ -75,7 +160,11 @@ describe('formatTransactionRequest', () => {
     expect(formatted.requireFunds).toEqual([
       FundingRequirement.toRpc(requirement),
     ])
-    expect(formatted.requireFunds?.[0]?.sources?.[0]).toEqual({
+    expect(
+      (formatted.requireFunds === true
+        ? undefined
+        : formatted.requireFunds)?.[0]?.sources?.[0],
+    ).toEqual({
       target: Addresses.dexFundingSource,
       data: requirement.sources[0]?.data,
     })
@@ -146,4 +235,16 @@ describe('behavior', () => {
       expect(input).not.toHaveProperty('rules')
     },
   )
+})
+
+test('formats automatic requirements only before filling or wallet submission', () => {
+  for (const action of ['fillTransaction', 'sendTransaction'])
+    expect(
+      Formatters.formatTransactionRequest({ requireFunds: true }, action)
+        .requireFunds,
+    ).toBe(true)
+  for (const action of ['estimateGas', 'signTransaction', 'call'])
+    expect(() =>
+      Formatters.formatTransactionRequest({ requireFunds: true }, action),
+    ).toThrow('before estimating or signing')
 })

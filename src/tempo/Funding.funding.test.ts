@@ -1,7 +1,13 @@
-import { FundingRequirement, KeyAuthorization } from 'ox/tempo'
-import { parseUnits } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
 import {
+  FundingRequirement,
+  KeyAuthorization,
+  TransactionRequest,
+} from 'ox/tempo'
+import { encodeFunctionData, parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { getTransaction, sendTransactionSync } from 'viem/actions'
+import {
+  Abis,
   Account,
   Actions,
   Addresses,
@@ -769,7 +775,7 @@ describe('behavior', () => {
     )
   })
 
-  test('rejects inference and signed requests before filling', async () => {
+  test('rejects missing senders and signed requests before filling', async () => {
     const next = getClient().request
     const handler = Funding.handleRequest(
       (request, options) => next(request as never, options),
@@ -781,7 +787,7 @@ describe('behavior', () => {
         params: [{ requireFunds: true }],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.InvalidParamsError: Supply \`requireFunds\` with explicit \`token\` and \`amount\`; automatic inference is not supported yet.]`,
+      `[RpcResponse.InvalidParamsError: Funding inference requires the transaction sender (\`from\`).]`,
     )
     await expect(
       handler({
@@ -815,3 +821,364 @@ async function setupAccount() {
   })
   return account
 }
+
+describe('transaction funding inference', () => {
+  test('simulates swaps whose wallet debit can depend on internal DEX balances', async () => {
+    const methods: string[] = []
+    const handler = Funding.handleRequest(
+      (request, options) => {
+        methods.push(request.method)
+        return client.request(request as never, options)
+      },
+      { getRoute: () => ({ sources: [] }) },
+    )
+    await handler({
+      method: 'eth_fillTransaction',
+      params: [
+        TransactionRequest.toRpc({
+          from: accounts[0].address,
+          chainId: 1337,
+          calls: [
+            Actions.dex.sell.call({
+              tokenIn: Addresses.alphaUsd,
+              tokenOut: Addresses.pathUsd,
+              amountIn: 100n,
+              minAmountOut: 0n,
+            }),
+          ],
+          requireFunds: true,
+        }),
+      ],
+    })
+    expect(methods).toContain('tempo_simulateV1')
+    expect(methods).toContain('eth_fillTransaction')
+  })
+
+  test.each([false, true])(
+    'skips simulation only for fully recognized batches (unknown call: %s)',
+    async (unknown) => {
+      const methods: string[] = []
+      const handler = Funding.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        { getRoute: () => ({ sources: [] }) },
+      )
+      const result = (await handler({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 100n,
+                to: accounts[0].address,
+              }),
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 20n,
+                to: accounts[1].address,
+              }),
+              Actions.token.burn.call({
+                token: Addresses.pathUsd,
+                amount: 30n,
+              }),
+              ...(unknown
+                ? ([
+                    {
+                      to: Addresses.pathUsd,
+                      data: encodeFunctionData({
+                        abi: Abis.tip20,
+                        functionName: 'balanceOf',
+                        args: [accounts[0].address],
+                      }),
+                    },
+                  ] as const)
+                : []),
+            ],
+            requireFunds: true,
+          }),
+        ],
+      })) as Funding.handleRequest.Result
+      expect(result.tx.requireFunds).toMatchObject([
+        { token: Addresses.pathUsd, amount: '0x64' },
+      ])
+      expect(methods.includes('tempo_simulateV1')).toBe(unknown)
+      expect(methods).toContain('eth_fillTransaction')
+    },
+  )
+
+  const handler = Funding.handleRequest((request, options) =>
+    client.request(request as never, options),
+  )
+
+  test.each([
+    { sources: [] },
+    { token: Addresses.betaUsd, sources: [] },
+    { amount: '0x0', sources: [] },
+  ] satisfies Funding.RequirementRpc[])(
+    'resolves raw RPC partial requirements and preserves overrides (%j)',
+    async (requirement) => {
+      const result = (await handler({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            ...TransactionRequest.toRpc({
+              from: accounts[0].address,
+              chainId: 1337,
+              calls: [
+                Actions.token.transfer.call({
+                  token: Addresses.pathUsd,
+                  amount: 50n,
+                  to: accounts[1].address,
+                }),
+              ],
+            }),
+            requireFunds: [requirement],
+          },
+        ],
+      })) as Funding.handleRequest.Result
+      expect(result.tx.requireFunds).toEqual([
+        {
+          token: 'token' in requirement ? requirement.token : Addresses.pathUsd,
+          amount: 'amount' in requirement ? requirement.amount : '0x32',
+          sources: [],
+        },
+      ])
+    },
+  )
+
+  test('resolves a zero transfer without requiring transfer logs', async () => {
+    const result = (await handler({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          ...TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount: 0n,
+                to: accounts[1].address,
+              }),
+            ],
+          }),
+          requireFunds: [{ sources: [] }],
+        },
+      ],
+    })) as Funding.handleRequest.Result
+    expect(result.tx.requireFunds?.[0]).toMatchObject({
+      token: Addresses.pathUsd,
+      amount: '0x0',
+      sources: [],
+    })
+  })
+
+  test('matches partial batch entries by token and preserves their order', async () => {
+    const transaction = TransactionRequest.toRpc({
+      from: accounts[0].address,
+      chainId: 1337,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          amount: 50n,
+          to: accounts[1].address,
+        }),
+        Actions.token.transfer.call({
+          token: Addresses.alphaUsd,
+          amount: 75n,
+          to: accounts[1].address,
+        }),
+      ],
+    })
+    const result = (await handler({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          ...transaction,
+          requireFunds: [
+            { token: Addresses.alphaUsd, sources: [] },
+            { token: Addresses.pathUsd, amount: '0x0', sources: [] },
+          ],
+        },
+      ],
+    })) as Funding.handleRequest.Result
+    expect(result.tx.requireFunds).toMatchObject([
+      { token: Addresses.alphaUsd, amount: '0x4b', sources: [] },
+      { token: Addresses.pathUsd, amount: '0x0', sources: [] },
+    ])
+    for (const requirement of [
+      { sources: [] },
+      { token: Addresses.betaUsd, sources: [] },
+    ])
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [{ ...transaction, requireFunds: [requirement] }],
+        }),
+      ).rejects.toThrow('Cannot unambiguously infer the funding requirement')
+  })
+
+  test('infers a missing token and amount from a single-token batch', async () => {
+    const result = (await handler({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          ...TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls: [50n, 75n].map((amount) =>
+              Actions.token.transfer.call({
+                token: Addresses.pathUsd,
+                amount,
+                to: accounts[1].address,
+              }),
+            ),
+          }),
+          requireFunds: [{ sources: [] }],
+        },
+      ],
+    })) as Funding.handleRequest.Result
+    expect(result.tx.requireFunds?.[0]).toMatchObject({
+      token: Addresses.pathUsd,
+      amount: '0x7d',
+      sources: [],
+    })
+  })
+
+  test('sources only the shortfall from an inferred total balance', async () => {
+    const account = await setupAccount()
+    await Actions.token.mintSync(client, {
+      account: accounts[0],
+      token: Addresses.pathUsd,
+      to: account.address,
+      amount: parseUnits('40', 6),
+    })
+    const funded = getClient({
+      transport: withFunding(http(), {
+        store: Store.memory(),
+        getRoute: () => ({
+          sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+        }),
+      }),
+    })
+    const recipient = Account.fromSecp256k1(generatePrivateKey()).address
+    const receipt = await sendTransactionSync(funded, {
+      account,
+      feePayer: accounts[1],
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('100', 6),
+        }),
+      ],
+      requireFunds: true,
+    })
+    expect(receipt.status).toBe('success')
+    const transaction = await getTransaction(funded, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.requireFunds?.[0]?.amount).toBe(parseUnits('100', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('40', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('100', 6))
+  })
+
+  test('fills and sends an inferred batch through withFunding', async () => {
+    const account = await setupAccount()
+    await Actions.token.mintSync(client, {
+      account: accounts[0],
+      amount: parseUnits('1', 6),
+      to: account.address,
+      token: Addresses.pathUsd,
+    })
+    const fundedClient = getClient({
+      transport: withFunding(http(), { store: Store.memory() }),
+    })
+    const recipient = Account.fromSecp256k1(generatePrivateKey()).address
+    const receipt = await sendTransactionSync(fundedClient, {
+      account,
+      feePayer: accounts[1],
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('20', 6),
+        }),
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('30', 6),
+        }),
+      ],
+      requireFunds: true,
+    })
+    expect(receipt.status).toBe('success')
+    const transaction = await getTransaction(fundedClient, {
+      hash: receipt.transactionHash,
+    })
+    expect(
+      transaction.requireFunds?.map(({ token, amount }) => ({
+        token: token.toLowerCase(),
+        amount,
+      })),
+    ).toEqual([{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }])
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('50', 6))
+  })
+
+  test('propagates the node funding error when the configured route has no sources', async () => {
+    const account = await setupAccount()
+    const handler = Funding.handleRequest(
+      (request, options) => client.request(request as never, options),
+      {
+        getRoute: () => ({ sources: [] }),
+      },
+    )
+    await expect(
+      handler({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            ...TransactionRequest.toRpc({
+              from: account.address,
+              chainId: 1337,
+              calls: [
+                Actions.token.transfer.call({
+                  token: Addresses.pathUsd,
+                  to: accounts[1].address,
+                  amount: 100n,
+                }),
+              ],
+            }),
+            requireFunds: true,
+          },
+        ],
+      }),
+    ).rejects.toThrow('InsufficientFunding')
+  })
+})

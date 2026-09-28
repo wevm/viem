@@ -39,6 +39,40 @@ await client.token.transferSync({
 
 ## Recipes
 
+### Infer Requirements for a Transaction
+
+Set `requireFunds: true` on [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) to infer the token balances needed by the whole batch. The funding transport reads recognized transfer and burn calls directly. Other batches use simulation with known TIP-20 tokens and insufficient-balance retries. It then discovers funding sources.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.sendTransactionSync({
+  calls: [
+    Actions.token.transfer.call({
+      amount: parseUnits('20', 6),
+      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+      token: Addresses.pathUsd,
+    }),
+    Actions.token.transfer.call({
+      amount: parseUnits('30', 6),
+      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+      token: Addresses.pathUsd,
+    }),
+  ],
+  requireFunds: true,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+:::
+
 ### Global Configuration
 
 Use `getRoute` on the `withFunding` transport to choose sources and slippage for each output token.
@@ -167,7 +201,7 @@ await client.token.transferSync({
 
 #### Choose Tokens
 
-Specify the token to fund. The transfer action supplies the amount. Omit `sources` to use the configured route.
+Specify the token to fund.
 
 :::code-group
 
@@ -482,7 +516,6 @@ await client.token.transferSync({
 import { http } from 'viem'
 import { Account, createClient, withFunding } from 'viem/tempo'
 import { store } from './store'
-
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
   transport: withFunding(http(), { store }),

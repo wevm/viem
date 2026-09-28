@@ -147,8 +147,9 @@ export type TransactionRequestTempo<
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
-    /** Token balances to satisfy before calls execute. */
+    /** Token balances to satisfy before calls execute. Set true or omit individual token and amount fields to infer requirements through a funding relay. */
     requireFunds?:
+      | true
       | readonly FundingRequirementIntent<quantity, index>[]
       | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined

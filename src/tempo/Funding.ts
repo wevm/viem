@@ -23,18 +23,15 @@ import type { UnionOmit } from '../types/utils.js'
 import * as Addresses from './Addresses.js'
 import { getFundingPolicyId, getMetadata } from './actions/accessKey.js'
 import { discover, getPolicy, policyExists } from './actions/funding.js'
-import type { FundingRequirementIntent } from './internal/funding.js'
+import * as internal from './internal/funding.js'
 import * as Store from './Store.js'
 import type { TransactionRequestTempo, TransactionRpc } from './Transaction.js'
 
-/** An unsigned funding requirement whose sources may be discovered by a relay. */
-export type Requirement = FundingRequirementIntent
+/** An unsigned funding requirement whose omitted fields are resolved before signing. */
+export type Requirement = internal.FundingRequirementIntent
 
 /** Funding intent at the unsigned RPC boundary. */
-export type RequirementRpc = Omit<FundingRequirement.Rpc, 'sources'> & {
-  /** Omission requests discovery; an empty array is explicit. */
-  sources?: FundingRequirement.Rpc['sources'] | undefined
-}
+export type RequirementRpc = FundingRequirement.RequestRpc
 
 /** Funding relay RPC methods. */
 export type RpcSchema = [
@@ -61,7 +58,7 @@ export type RpcSchema = [
 ]
 
 /**
- * Resolves funding sources and access key policy rules before transaction filling.
+ * Infers requested token balances and resolves funding sources and access key policy rules before transaction filling.
  * Explicit sources are preserved; omitted access key rules are loaded and verified.
  *
  * @example
@@ -228,10 +225,13 @@ export function handleRequest(
     )
       return next(request, options)
 
-    if (!Array.isArray(transaction.requireFunds))
+    if (
+      transaction.requireFunds !== true &&
+      !Array.isArray(transaction.requireFunds)
+    )
       throw new RpcResponse.InvalidParamsError({
         message:
-          'Supply `requireFunds` with explicit `token` and `amount`; automatic inference is not supported yet.',
+          'Supply `requireFunds: true` or explicit `token` and `amount` requirements.',
       })
 
     if (
@@ -364,27 +364,92 @@ export function handleRequest(
       return { rulesHash, policyId: policy, blockNumber: block.number }
     })()
 
+    const intent = transaction.requireFunds
+    if (intent !== true)
+      for (const requirement of intent) {
+        if (
+          !requirement ||
+          typeof requirement !== 'object' ||
+          Array.isArray(requirement)
+        )
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Each funding requirement must be an object.',
+          })
+
+        if (
+          requirement.sources !== undefined &&
+          !Array.isArray(requirement.sources)
+        )
+          throw new RpcResponse.InvalidParamsError({
+            message: '`sources` must be an array when supplied.',
+          })
+
+        try {
+          FundingRequirement.fromRpcRequest(requirement)
+        } catch {
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `target` and `data` fields.',
+          })
+        }
+      }
+
+    const requirements = await (async () => {
+      if (
+        intent !== true &&
+        intent.every(
+          (requirement) =>
+            requirement.token !== undefined && requirement.amount !== undefined,
+        )
+      )
+        return intent
+      const defaults =
+        intent === true ? undefined : internal.getDefaults(transaction)
+      const inferred = defaults
+        ? [{ token: defaults.token, amount: Hex_.fromNumber(defaults.amount) }]
+        : await internal.infer(client, {
+            tokens: [
+              ...(parameters.tokens ?? []),
+              ...tokens.tempo.flatMap((token) =>
+                Object.values(token.addresses),
+              ),
+            ],
+            transaction,
+          })
+      if (intent === true) return inferred
+      return intent.map((requirement) => {
+        if (requirement.token !== undefined && requirement.amount !== undefined)
+          return requirement
+        const target = defaults
+          ? inferred[0]
+          : requirement.token === undefined
+            ? inferred.length === 1
+              ? inferred[0]
+              : undefined
+            : inferred.find((target) =>
+                Address_.isEqual(target.token, requirement.token!),
+              )
+        if (!target)
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'Cannot unambiguously infer the funding requirement; specify `token` and `amount` explicitly.',
+          })
+        return {
+          ...requirement,
+          token: requirement.token ?? target.token,
+          amount: requirement.amount ?? target.amount,
+        }
+      })
+    })()
     const requireFunds: FundingRequirement.Rpc[] = []
 
-    for (const requirement of transaction.requireFunds) {
-      if (!requirement || typeof requirement !== 'object')
-        throw new RpcResponse.InvalidParamsError({
-          message:
-            'Each funding requirement must specify `token` and `amount`.',
-        })
-
-      if (
-        requirement.sources !== undefined &&
-        !Array.isArray(requirement.sources)
-      )
-        throw new RpcResponse.InvalidParamsError({
-          message: '`sources` must be an array when supplied.',
-        })
-
+    for (const requirement of requirements) {
       const decoded = (() => {
         try {
           return FundingRequirement.fromRpc({
             ...requirement,
+            token: requirement.token!,
+            amount: requirement.amount!,
             sources: requirement.sources ?? [],
           })
         } catch {
@@ -508,6 +573,8 @@ export declare namespace handleRequest {
 
   /** Funding discovery and policy rules storage. */
   export type Parameters = {
+    /** Additional TIP-20 output tokens to seed when inferring requirements. Known TIP-20 tokens are included automatically. */
+    tokens?: readonly Address[] | undefined
     /** Default policy selected only for `fundingPolicy: true`. */
     policyId?: bigint | undefined
     /** Fallback rules when neither the request nor the store supplies them. Verified against the current onchain commitment before use. */
@@ -533,7 +600,7 @@ export declare namespace handleRequest {
     Pick<TransactionRequestTempo, 'signatures'> & {
       /** Access key used to execute the transaction. */
       keyId?: Address | undefined
-      /** Funding requirements to resolve before filling. */
+      /** Funding requirements to resolve before filling. Set true to infer them from simulation. */
       requireFunds?: true | readonly RequirementRpc[] | undefined
     }
 

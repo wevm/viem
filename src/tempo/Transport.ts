@@ -88,7 +88,7 @@ export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type, { multisig: true }>
 
 /**
- * Resolves omitted funding sources before filling a transaction.
+ * Infers requested token balances and resolves omitted funding sources before filling a transaction.
  *
  * @example
  * ```ts

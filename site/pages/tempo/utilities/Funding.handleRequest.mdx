@@ -1,6 +1,6 @@
 # `Funding.handleRequest`
 
-Resolves funding sources and access key policy rules before forwarding `eth_fillTransaction` to the downstream handler.
+Infers token balance requirements, resolves funding sources and access key policy rules, then forwards `eth_fillTransaction` to the downstream handler.
 
 ## Usage
 
@@ -55,3 +55,20 @@ Fallback rules when neither the request nor the store supplies them. The handler
 Optional rules store, defaulting to memory. With `withFunding`, policy creation, policy updates, and inline key authorization populate this store. Installed keys use their current onchain policy; new keys use their signed authorization's policy. Supplied and cached rules must match the current commitment before use.
 
 Cache entries are scoped by chain, policy contract, and rules hash. Supply `policyRules` when the store does not contain the current rules. See [access key funding](/tempo/transports/withFunding#access-key-funding).
+
+### tokens
+
+- **Type:** `readonly Address[]`
+
+Additional TIP-20 output tokens to seed when the unsigned transaction specifies `requireFunds: true` or partial requirements that need simulation. Known TIP-20 addresses are included automatically. Inference retries insufficient balances before passing concrete requirements to source discovery. See [inference behavior and limitations](/tempo/transports/withFunding#behavior).
+
+```ts twoslash
+import { http } from 'viem'
+import { Funding } from 'viem/tempo'
+
+const { request } = http('https://your-node.example')({})
+// ---cut---
+Funding.handleRequest(request, {
+  tokens: ['0x20c0000000000000000000000000000000000004'], // [!code focus]
+})
+```

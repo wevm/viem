@@ -1,6 +1,6 @@
 # `withFunding`
 
-Discovers omitted funding sources before filling a transaction with gas, fees, and a nonce.
+Infers requested token balances and discovers omitted funding sources before filling a transaction with gas, fees, and a nonce.
 
 ## Usage
 
@@ -17,7 +17,7 @@ const client = createClient({
   transport: withFunding(http(), { store }),
 }).extend(tempoActions())
 
-// The transfer supplies the token and amount; the transport discovers sources.
+// Infer the required balance and discover sources before signing.
 await client.token.transferSync({
   amount: parseUnits('50', 6),
   requireFunds: true,
@@ -115,9 +115,42 @@ import { store } from './store'
 withFunding(http(), { store })
 ```
 
+### tokens
+
+- **Type:** `readonly Address[]`
+
+Additional TIP-20 output tokens to include in the first inference simulation. Viem also includes its known TIP-20 addresses. Missing tokens can be discovered through insufficient-balance retries. This option does not configure funding sources or grant access-key permissions.
+
+```ts twoslash
+import { http } from 'viem'
+import { Store, withFunding } from 'viem/tempo'
+
+const store = Store.memory()
+// ---cut---
+
+withFunding(http(), {
+  store,
+  tokens: ['0x20c0000000000000000000000000000000000004'], // [!code focus]
+})
+```
+
 ## Behavior
 
-Token transfers, burns, and exact-input DEX sells accept `requireFunds: true`. These actions infer the spent token and amount before calling the transport. Generic transactions still need explicit token and amount requirements.
+Set `requireFunds: true` to infer requirements from the transaction calls. Partial entries such as `{ sources }` or `{ token, sources }` are also supported.
+
+Omitted token and amount fields are resolved from recognized single-transfer, burn, or exact-input DEX calldata when possible, including zero amounts. For `true`, recognized transfer and burn batches also skip simulation. Other calls use simulation, including swaps that may spend internal DEX balances.
+
+Explicit fields always take precedence. When simulation finds multiple tokens, each partial entry must specify its token. A missing or ambiguous match fails; supply both `token` and `amount` to resolve it.
+
+When simulation is needed, the transport runs the complete batch with temporary sender balances for known and configured TIP-20 tokens. If a TIP-20 reports an insufficient balance, the transport adds or increases that token's override and retries from the same block state. Discovery stops after 16 attempts, a repeated failure without execution progress, or an unrelated error.
+
+Successful simulation logs determine each token's peak cumulative outflow minus inflow. Sending 100 tokens, receiving 90 back, then sending 20 requires a starting balance of 100, even though net spending is only 30. Each inferred amount is a total target balance; funding sources supply the shortfall after existing funds.
+
+Inference stops at the first successful simulation. The transport then discovers sources and forwards the concrete requirements for normal transaction filling. Simulations do not change onchain state.
+
+:::warning
+Inference is intended for fixed-amount TIP-20 operations. Supply explicit token and amount requirements for balance-dependent calls, including “spend everything,” or when simulation cannot infer the intended operation. Missing approvals, permissions, funding routes, and source liquidity still cause failure. Multisig transactions require explicit requirements and sources.
+:::
 
 - Omitted `requireFunds` and `[]` perform no automatic funding.
 - Omitted `sources` use the output token's configured route. A missing route fails.

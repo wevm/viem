@@ -17,7 +17,7 @@ With the [funding-enabled client](/tempo/guides/funding#set-up-a-client), transa
 
 ## Preview Automatic Funding
 
-`fillTransaction` uses the same default routes or `getRoute` configuration as sending. It returns concrete funding requirements without signing or broadcasting. Generic transactions need explicit token and amount targets.
+[`fillTransaction`](/docs/actions/public/fillTransaction) uses the same default routes or `getRoute` configuration as sending. Set `requireFunds: true` to infer token balances from the complete transaction and return concrete requirements without signing or broadcasting.
 
 :::code-group
 
@@ -35,7 +35,7 @@ const { transaction } = await client.fillTransaction({
       token: Addresses.pathUsd,
     }),
   ],
-  requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+  requireFunds: true,
 })
 
 // Inspect the concrete source inputs selected by withFunding.

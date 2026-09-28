@@ -45,14 +45,9 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import {
-  assertRequireFunds,
-  fundingErrors,
-  normalizeRequireFunds,
-} from '../internal/funding.js'
+import { fundingErrors } from '../internal/funding.js'
 import type {
   GetAccountParameter,
-  InferredWriteParameters,
   ReadParameters,
   TokenParameter,
   TokenParameters,
@@ -62,7 +57,6 @@ import {
   type CallParameters,
   defineCall,
   findDeclaredToken,
-  inferRequireFunds,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,
@@ -186,8 +180,7 @@ export namespace approve {
 
   /**
    * Simulates an approval of a spender. `amount.decimals` is inferred from
-   * the client's declared `tokens` when omitted. Omitted funding sources are
-   * resolved before simulation.
+   * the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -562,7 +555,7 @@ export namespace burn {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = InferredWriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -581,13 +574,8 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { amount, memo, token, ...rest } = parameters
     const call = burn.call(client, { amount, memo, token } as never)
-    const { address, decimals } = resolveToken(client, { token })
     return (await action(client, {
       ...rest,
-      requireFunds: inferRequireFunds(parameters.requireFunds, {
-        token: address,
-        amount: internal_Token.toBaseUnits(amount, decimals),
-      }),
       ...call,
       ...(parameters.requireFunds
         ? { abi: [...Abis.tip20, ...fundingErrors] }
@@ -3437,7 +3425,7 @@ export namespace transfer {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = InferredWriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -3454,7 +3442,6 @@ export namespace transfer {
   ): Promise<ReturnType<action>> {
     return (await action(client, {
       ...parameters,
-      requireFunds: inferTransferFunding(client, parameters),
       ...transfer.call(client, parameters as never),
       ...(parameters.requireFunds
         ? { abi: [...Abis.tip20, ...fundingErrors] }
@@ -3526,17 +3513,14 @@ export namespace transfer {
     parameters: transfer.Parameters<chain, account>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
-      ...pickWriteParameters({
-        ...parameters,
-        requireFunds: inferTransferFunding(client, parameters),
-      }),
+      ...pickWriteParameters(parameters),
       ...transfer.call(client, parameters as never),
     } as never)
   }
 
   /**
    * Simulates a transfer of TIP20 tokens. `amount.decimals` is inferred from
-   * the client's declared `tokens` when omitted. Omitted funding sources are
+   * the client's declared `tokens` when omitted. Omitted funding fields are
    * resolved before simulation.
    *
    * @param client - Client.
@@ -3556,32 +3540,25 @@ export namespace transfer {
     >
   > {
     const call = transfer.call(client, parameters as never)
-    const inferred = inferTransferFunding(client, parameters)
-    const request = pickWriteParameters({
-      ...parameters,
-      requireFunds: inferred,
-    })
+    const request = pickWriteParameters(parameters)
+    const intent = parameters.requireFunds
     const requireFunds = await (async () => {
-      if (!inferred?.some((requirement) => requirement.sources === undefined))
-        return inferred
+      if (
+        intent !== true &&
+        !intent?.some(
+          (requirement) =>
+            requirement.token === undefined ||
+            requirement.amount === undefined ||
+            requirement.sources === undefined,
+        )
+      )
+        return intent
       const { transaction } = await fillTransaction(client, {
         ...request,
         data: encodeFunctionData(call),
         to: call.address,
       } as never)
-      const filled = (transaction as unknown as TransactionTempo).requireFunds
-      const account = parameters.account ?? client.account
-      assertRequireFunds(
-        normalizeRequireFunds(
-          inferred,
-          Boolean(
-            account &&
-              (typeof account === 'string' || account.source !== 'accessKey'),
-          ),
-        )!,
-        filled,
-      )
-      return filled
+      return (transaction as unknown as TransactionTempo).requireFunds
     })()
     return simulateContract(client, {
       ...request,
@@ -4909,31 +4886,4 @@ export declare namespace watchUpdateQuoteToken {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
-}
-
-function inferTransferFunding<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: transfer.Parameters<chain, account>,
-) {
-  const { amount, from, requireFunds, token } = parameters
-  if (requireFunds === undefined) return undefined
-  if (
-    from !== undefined &&
-    (requireFunds === true ||
-      requireFunds.some(
-        (requirement) =>
-          requirement.token === undefined || requirement.amount === undefined,
-      ))
-  )
-    throw new Error(
-      'When `from` is set, specify `token` and `amount` in each `requireFunds` entry; funding targets the transaction sender, not `from`.',
-    )
-  const { address, decimals } = resolveToken(client, { token })
-  return inferRequireFunds(requireFunds, {
-    token: address,
-    amount: internal_Token.toBaseUnits(amount, decimals),
-  })
 }

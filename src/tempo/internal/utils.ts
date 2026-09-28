@@ -15,8 +15,6 @@ import type { Hex } from '../../types/misc.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
-import type { FundingRequirementIntent } from './funding.js'
-import type { InferredFundingRequirement } from './types.js'
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which is
@@ -286,19 +284,6 @@ export function defineCall<
     data: encodeFunctionData(call as never),
     to: call.address,
   } as const
-}
-
-/** Fills omitted requirement fields from an action's exact input. @internal */
-export function inferRequireFunds(
-  requirements: true | readonly InferredFundingRequirement[] | undefined,
-  input: { token: Address; amount: bigint },
-): readonly FundingRequirementIntent[] | undefined {
-  if (requirements === true) return [{ ...input }]
-  return requirements?.map((requirement) => ({
-    ...requirement,
-    token: requirement.token ?? input.token,
-    amount: requirement.amount ?? input.amount,
-  }))
 }
 
 /**

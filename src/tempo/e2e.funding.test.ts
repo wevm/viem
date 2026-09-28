@@ -493,8 +493,120 @@ describe('funding error decoding', () => {
 })
 
 describe('relay funding integrity', () => {
+  test.each([true, [{ token: Addresses.pathUsd }]] as const)(
+    'infers a generic batch through HTTP for new and installed access keys (%j)',
+    async (requireFunds) => {
+      const { account, accessKey } = await setupAccessKey()
+      const { url } = await setupRelay()
+      const relay = getClient({ transport: withRelay(http(), http(url)) })
+      const { policyId, rules } = await Actions.funding.createPolicySync(
+        relay,
+        {
+          account,
+          admins: [account.address],
+          feePayer: accounts[1],
+          rules: {
+            maxSlippageBps: 0,
+            sources: {
+              [Addresses.pathUsd]: [
+                FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+              ],
+            },
+          },
+        },
+      )
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        relay,
+        {
+          account,
+          accessKey,
+          fundingPolicy: policyId,
+          limits: [{ token: Addresses.pathUsd, limit: parseUnits('50', 6) }],
+        },
+      )
+      for (const authorization of [keyAuthorization, undefined]) {
+        const receipt = await sendTransactionSync(relay, {
+          account: accessKey,
+          feePayer: accounts[1],
+          keyAuthorization: authorization,
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              to: recipient,
+              amount: parseUnits('10', 6),
+            }),
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              to: recipient,
+              amount: parseUnits('15', 6),
+            }),
+          ],
+          requireFunds,
+        })
+        expect(receipt.status).toBe('success')
+        const transaction = await getTransaction(relay, {
+          hash: receipt.transactionHash,
+        })
+        expect(transaction.requireFunds).toMatchObject([
+          {
+            token: Addresses.pathUsd,
+            amount: parseUnits('25', 6),
+            policyRules: FundingPolicy.encode(rules),
+            sources: [{ target: Addresses.dexFundingSource }],
+          },
+        ])
+      }
+      expect(
+        (
+          await Actions.accessKey.getRemainingLimit(client, {
+            account: account.address,
+            accessKey,
+            token: Addresses.pathUsd,
+          })
+        ).remaining,
+      ).toBe(0n)
+      expect(
+        (
+          await Actions.token.getBalance(client, {
+            account: account.address,
+            token: Addresses.alphaUsd,
+          })
+        ).amount,
+      ).toBe(parseUnits('450', 6))
+
+      await expect(
+        prepareTransactionRequest(relay, {
+          account: accessKey,
+          feePayer: accounts[1],
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              to: recipient,
+              amount: 1n,
+            }),
+          ],
+          requireFunds: true,
+        }),
+      ).rejects.toThrow('SpendingLimitExceeded')
+      await expect(
+        prepareTransactionRequest(relay, {
+          account: accessKey,
+          feePayer: accounts[1],
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.betaUsd,
+              to: recipient,
+              amount: 1n,
+            }),
+          ],
+          requireFunds: true,
+        }),
+      ).rejects.toThrow('policy')
+    },
+  )
+
   test.each(['prepare', 'simulate'] as const)(
-    '%s rejects a changed funding amount over HTTP',
+    '%s accepts relay-filled funding over HTTP',
     async (action) => {
       const account = await setupAccount()
       const handler = Funding.handleRequest(
@@ -508,11 +620,9 @@ describe('relay funding integrity', () => {
       const server = await createHttpServer(
         createRequestListener(async (request) => {
           const body = await request.json()
-          const result = (await handler(body)) as {
-            tx: { requireFunds: { amount: string }[] }
-          }
           if (body.method === 'eth_fillTransaction')
-            result.tx.requireFunds[0]!.amount = '0x2'
+            body.params[0].requireFunds[0].amount = '0x2'
+          const result = await handler(body)
           return Response.json(
             RpcResponse.from({ id: body.id, jsonrpc: body.jsonrpc, result }),
           )
@@ -541,7 +651,11 @@ describe('relay funding integrity', () => {
               to: recipient,
               token: Addresses.pathUsd,
             }),
-      ).rejects.toThrow('changed `requireFunds[0]`')
+      ).resolves.toMatchObject(
+        action === 'prepare'
+          ? { requireFunds: [{ amount: 2n }] }
+          : { result: true, request: { requireFunds: [{ amount: 2n }] } },
+      )
     },
   )
 })
@@ -4079,14 +4193,18 @@ describe('withFunding', () => {
   describe('behavior', () => {
     test('rejects inferred funding when transferring from another account', async () => {
       await expect(
-        Actions.token.transferSync(client, {
-          account: accounts[0],
-          amount: parseUnits('1', 6),
-          from: accounts[1].address,
-          requireFunds: true,
-          to: recipient,
-          token: Addresses.pathUsd,
-        }),
+        Actions.token
+          .transferSync(client, {
+            account: accounts[0],
+            amount: parseUnits('1', 6),
+            from: accounts[1].address,
+            requireFunds: [{ sources: [] }],
+            to: recipient,
+            token: Addresses.pathUsd,
+          })
+          .catch((error) => {
+            throw new Error(error.details ?? error.shortMessage)
+          }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `[Error: When \`from\` is set, specify \`token\` and \`amount\` in each \`requireFunds\` entry; funding targets the transaction sender, not \`from\`.]`,
       )
@@ -4216,10 +4334,23 @@ async function setupRelay(parameters: Funding.handleRequest.Parameters = {}) {
   const server = await createHttpServer(
     createRequestListener(async (request) => {
       const body = await request.json()
-      const result = await handler(body)
-      return Response.json(
-        RpcResponse.from({ id: body.id, jsonrpc: body.jsonrpc, result }),
-      )
+      try {
+        const result = await handler(body)
+        return Response.json(
+          RpcResponse.from({ id: body.id, jsonrpc: body.jsonrpc, result }),
+        )
+      } catch (error) {
+        return Response.json(
+          RpcResponse.from({
+            id: body.id,
+            jsonrpc: body.jsonrpc,
+            error: {
+              code: -32603,
+              message: error instanceof Error ? error.message : String(error),
+            },
+          }),
+        )
+      }
     }),
   )
   onTestFinished(async () => {
