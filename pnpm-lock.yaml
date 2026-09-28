@@ -5557,9 +5557,9 @@ packages:
 
   ox@https://pkg.pr.new/ox@1089162d:
     resolution: {integrity: sha512-XSXOOa7saEtPvMwpKMfrVh8TPhPoc3mrmq9ZuyVPA0Kug7UHI18ZaQdXNAFmwMMqBfSvw620W8kA7OyZAsJT2A==, tarball: https://pkg.pr.new/ox@1089162d}
-    version: 0.14.52-66bdbf2.0
+    version: 0.14.48-1089162.0
     peerDependencies:
-      typescript: ^5.9.3
+      typescript: '>=5.4.0'
     peerDependenciesMeta:
       typescript:
         optional: true
