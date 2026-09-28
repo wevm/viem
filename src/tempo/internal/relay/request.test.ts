@@ -23,7 +23,9 @@ test('preserves the requested fee token through an external relay', async () => 
     plugins: [Relay.feePayer({ account })],
   })
   const server = await createHttpServer(createRequestListener(upstream.fetch))
-  onTestFinished(() => server.close())
+  onTestFinished(async () => {
+    await server.close()
+  })
   const relay = Relay.create({
     client,
     plugins: [
