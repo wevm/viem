@@ -285,23 +285,14 @@ describe('frames: explicit', () => {
   })
 
   test('does not fill a fully prepared frame transaction', async () => {
-    let requests = 0
-    const client = getClient({
+    const prepared = await prepareTransactionRequest(client, request)
+    const offline = getClient({
       account: accounts[0],
-      transport: http(chain.rpcUrls.default.http[0], {
-        onFetchRequest() {
-          requests++
-        },
-      }),
+      transport: http('http://127.0.0.1:1', { retryCount: 0 }),
     })
 
-    const prepared = await prepareTransactionRequest(client, request)
-    expect(requests).toBeGreaterThan(0)
-    requests = 0
-
-    const result = await prepareTransactionRequest(client, prepared)
-    expect(requests).toBe(0)
-    expect(result.frames).toEqual(prepared.frames)
+    const result = await prepareTransactionRequest(offline, prepared)
+    expect(result).toEqual(prepared)
     expect(result.gas).toBeUndefined()
   })
 
