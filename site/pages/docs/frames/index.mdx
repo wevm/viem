@@ -17,7 +17,7 @@ A frame is one step in a transaction. Frames run in order to verify authorizatio
 gas payment, and execute calls. You can combine several contract interactions in one
 transaction and group dependent calls so they either all succeed or revert together.
 
-The following transaction expires after 60 seconds and groups two transfers atomically.
+The following transaction expires after one day and groups two transfers atomically.
 Use a client connected to an EIP-8141-enabled node.
 
 :::code-group
@@ -28,7 +28,7 @@ import { client } from './viem.config'
 
 const receipt = await client.sendTransactionSync({
   frames: [
-    expiry(Math.floor(Date.now() / 1000) + 60),
+    expiry('1d'),
     calls([
       { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n },
       { to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', value: 2n },

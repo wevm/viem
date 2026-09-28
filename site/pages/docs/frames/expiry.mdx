@@ -16,7 +16,7 @@ description: Require a transaction deadline with expiry.
 import { calls, expiry } from 'viem/frames'
 
 const frames = [
-  expiry('1m'), // [!code focus]
+  expiry('1d'), // [!code focus]
   calls([{ value: 1n }]),
 ]
 ```
