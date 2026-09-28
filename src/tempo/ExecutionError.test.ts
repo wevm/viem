@@ -205,12 +205,15 @@ describe('from', () => {
     expect(result.errorName).toBe('InsufficientBalance')
   })
 
-  test('fallback: extracts error name from human-readable revert message', () => {
-    const error = new Error('execution reverted: Unauthorized(something)')
-    const result = ExecutionError.from(error)
-    expect(result.errorName).toBe('unknown')
-    expect(result.message).toBe('Unauthorized.')
-  })
+  test.each(['Unauthorized()', 'Unauthorized(something)'])(
+    'fallback: extracts %s from a human-readable revert message',
+    (message) => {
+      const error = new Error(`execution reverted: ${message}`)
+      const result = ExecutionError.from(error)
+      expect(result.errorName).toBe('unknown')
+      expect(result.message).toBe('Unauthorized.')
+    },
+  )
 
   test('fallback: uses details property', () => {
     const error = Object.assign(new Error('ignored'), {

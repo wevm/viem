@@ -1,5 +1,5 @@
 import type { Address, Hex } from 'viem'
-import { ExecutionError } from 'viem/tempo'
+import { type Capabilities, ExecutionError } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 test('narrows decoded arguments by error name', () => {
@@ -43,4 +43,18 @@ test('omits decoded arguments from RPC errors', () => {
   expectTypeOf(error).toEqualTypeOf<ExecutionError.Rpc>()
   // @ts-expect-error RPC errors omit decoded arguments.
   error.args
+})
+
+test('fill error capabilities use the serialized execution error type', () => {
+  expectTypeOf<
+    NonNullable<Capabilities.FillTransactionCapabilities['error']>
+  >().toEqualTypeOf<ExecutionError.Rpc>()
+  const capability: Capabilities.FillTransactionCapabilities = {
+    error: ExecutionError.serialize(ExecutionError.from('0x82b42900')),
+  }
+  if (capability.error?.errorName === 'Unauthorized') {
+    expectTypeOf(capability.error.data).toEqualTypeOf<Hex>()
+    // @ts-expect-error Serialized capabilities omit decoded arguments.
+    capability.error.args
+  }
 })

@@ -380,7 +380,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
   }
 
   // Fallback: extract error name from human-readable revert message.
-  const nameMatch = /:\s*(\w+)\(\w+/.exec(raw)
+  const nameMatch = /:\s*(\w+)\(/.exec(raw)
   const errorName = nameMatch?.[1]
   if (errorName && errorName in messages)
     return {
