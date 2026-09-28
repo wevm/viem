@@ -66,7 +66,7 @@ export namespace createPolicy {
   export type Args = {
     /** Accounts permitted to update this policy. */
     admins: readonly Address[]
-    /** Source routes and maximum aggregate slippage. */
+    /** Source routes, maximum aggregate slippage, and optional source ordering. */
     rules: FundingPolicy.Rules
   }
 
@@ -115,6 +115,7 @@ export namespace createPolicy {
       args: [
         args.admins,
         {
+          enforceOrder: args.rules.enforceOrder ?? false,
           maxSlippageBps: args.rules.maxSlippageBps,
           routes: FundingPolicy.toRoutes(args.rules),
         },
@@ -143,6 +144,7 @@ export namespace createPolicy {
       args: {
         ...log.args,
         rules: {
+          enforceOrder: log.args.rules.enforceOrder,
           maxSlippageBps: log.args.rules.maxSlippageBps,
           sources: Object.fromEntries(
             log.args.rules.routes.map(({ token, sources }) => [
@@ -702,6 +704,7 @@ export namespace setPolicyRules {
       args: [
         args.policyId,
         {
+          enforceOrder: args.rules.enforceOrder ?? false,
           maxSlippageBps: args.rules.maxSlippageBps,
           routes: FundingPolicy.toRoutes(args.rules),
         },
@@ -730,6 +733,7 @@ export namespace setPolicyRules {
       args: {
         ...log.args,
         rules: {
+          enforceOrder: log.args.rules.enforceOrder,
           maxSlippageBps: log.args.rules.maxSlippageBps,
           sources: Object.fromEntries(
             log.args.rules.routes.map(({ token, sources }) => [

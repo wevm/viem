@@ -14,6 +14,7 @@ const key = Account.fromP256(
 const inline = {
   admins: ['0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' as const],
   rules: {
+    enforceOrder: false,
     maxSlippageBps: 100,
     sources: {
       [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
@@ -22,36 +23,37 @@ const inline = {
 }
 
 describe('signKeyAuthorization', () => {
-  test.each([1n, inline])(
-    'preserves and signs policy %#',
-    async (fundingPolicy) => {
-      const parameters = { chainId: 1337n, fundingPolicy }
-      const direct = await owner.signKeyAuthorization(key, parameters)
-      const standalone = await Account.signKeyAuthorization(owner, {
-        ...parameters,
-        key,
-      })
-      expect(standalone).toEqual(direct)
-      expect(direct.fundingPolicy).toEqual(fundingPolicy)
-      const payload = KeyAuthorization.getSignPayload(direct)
-      expect(
-        Account.getKeyAuthorizationSignPayload(owner, { ...parameters, key }),
-      ).toBe(payload)
-      expect(
-        SignatureEnvelope.verify(direct.signature, {
-          payload,
-          address: owner.address,
-        }),
-      ).toBe(true)
-      expect(
-        KeyAuthorization.getSignPayload({ ...direct, fundingPolicy: 2n }),
-      ).not.toBe(payload)
-      expect(
-        KeyAuthorization.deserialize(KeyAuthorization.serialize(direct))
-          .fundingPolicy,
-      ).toEqual(fundingPolicy)
-    },
-  )
+  test.each([
+    1n,
+    inline,
+    { ...inline, rules: { ...inline.rules, enforceOrder: true } },
+  ])('preserves and signs policy %#', async (fundingPolicy) => {
+    const parameters = { chainId: 1337n, fundingPolicy }
+    const direct = await owner.signKeyAuthorization(key, parameters)
+    const standalone = await Account.signKeyAuthorization(owner, {
+      ...parameters,
+      key,
+    })
+    expect(standalone).toEqual(direct)
+    expect(direct.fundingPolicy).toEqual(fundingPolicy)
+    const payload = KeyAuthorization.getSignPayload(direct)
+    expect(
+      Account.getKeyAuthorizationSignPayload(owner, { ...parameters, key }),
+    ).toBe(payload)
+    expect(
+      SignatureEnvelope.verify(direct.signature, {
+        payload,
+        address: owner.address,
+      }),
+    ).toBe(true)
+    expect(
+      KeyAuthorization.getSignPayload({ ...direct, fundingPolicy: 2n }),
+    ).not.toBe(payload)
+    expect(
+      KeyAuthorization.deserialize(KeyAuthorization.serialize(direct))
+        .fundingPolicy,
+    ).toEqual(fundingPolicy)
+  })
 })
 
 describe('KeyAuthorizationManager.memory', () => {

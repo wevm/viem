@@ -151,7 +151,7 @@ describe('handleRequest', () => {
     })) as { rulesHash: `0x${string}` }
     expect(result).toMatchInlineSnapshot(`
       {
-        "rulesHash": "0x7846a084481e81b28e65d2c2163c18e2a07ff86b3a52836cac307fb04e7a8c18",
+        "rulesHash": "0xd5a13181d1d1e6b81d9f5f2709cd532384c7c5e45ae9305ba897c13e16385c27",
       }
     `)
     expect(

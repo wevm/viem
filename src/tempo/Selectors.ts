@@ -238,7 +238,7 @@ export const tip20 = {
 export const tip403Registry = {
   compoundPolicyData: '0xb6266019',
   createCompoundPolicy: '0x5da414ee',
-  createPolicy: '0xca5d55f6',
+  createPolicy: '0x259ebb11',
   createPolicyWithAccounts: '0xa2d3044f',
   isAuthorized: '0x55a1179e',
   isAuthorizedMintRecipient: '0xb389e305',
@@ -326,7 +326,7 @@ export const fundingPolicy = {
   policyExists: '0x330f5637',
   policyIdCounter: '0x3cc32f9c',
   setAdmins: '0xf6a19689',
-  setRules: '0x52dda7d2',
+  setRules: '0x11842cbc',
 } as const satisfies FunctionSelectors<typeof Abis.fundingPolicy>
 
 export const fundingDiscovery = {

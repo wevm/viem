@@ -6,7 +6,7 @@ export default async function () {
     port: 9546,
     instance: TestContainers.Instance.tempo({
       image:
-        'ghcr.io/tempoxyz/tempo@sha256:49eebda642ba540f6fcfd505e2e16ee7c5570612ce7b348772a095ef51e9ae96',
+        'ghcr.io/tempoxyz/tempo@sha256:3278079c06f6b3c1dd30e27d2d2b031fe83d802bded3c86f87362c3fbab9f652',
       port: 9546,
       blockTime: '50ms',
     }),

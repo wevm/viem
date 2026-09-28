@@ -4574,6 +4574,7 @@ export const zoneVerifier = [
   },
 ] as const
 
+// Source: tempoxyz/tempo@6e27f81905ecaf71dccaf239fd50aec402642441/crates/contracts/abi/IFundingPolicy.json
 export const fundingPolicy = [
   {
     type: 'function',
@@ -4603,6 +4604,7 @@ export const fundingPolicy = [
               },
             ],
           },
+          { name: 'enforceOrder', type: 'bool', internalType: 'bool' },
         ],
       },
     ],
@@ -4678,6 +4680,7 @@ export const fundingPolicy = [
               },
             ],
           },
+          { name: 'enforceOrder', type: 'bool', internalType: 'bool' },
         ],
       },
     ],
@@ -4755,6 +4758,7 @@ export const fundingPolicy = [
               },
             ],
           },
+          { name: 'enforceOrder', type: 'bool', internalType: 'bool' },
         ],
       },
     ],
@@ -4806,6 +4810,7 @@ export const fundingPolicy = [
               },
             ],
           },
+          { name: 'enforceOrder', type: 'bool', internalType: 'bool' },
         ],
       },
     ],

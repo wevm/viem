@@ -203,10 +203,15 @@ describe('serialize', () => {
 })
 
 describe('behavior', () => {
-  test.each(['decoded', 'encoded'] as const)(
-    'normalizes %s rules before RPC formatting and signing',
-    async (type) => {
+  test.each(
+    ['decoded', 'encoded'].flatMap((type) =>
+      [undefined, false, true].map((enforceOrder) => ({ type, enforceOrder })),
+    ),
+  )(
+    'normalizes $type rules with enforceOrder=$enforceOrder before RPC formatting and signing',
+    async ({ type, enforceOrder }) => {
       const rules = {
+        enforceOrder,
         maxSlippageBps: 100,
         sources: { [token]: [FundingSource.dex({ tokenIn: token })] },
       }

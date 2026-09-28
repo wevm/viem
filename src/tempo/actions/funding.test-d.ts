@@ -3,7 +3,12 @@ import { type FundingPolicy, tempoActions } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import * as Addresses from '../Addresses.js'
 import type { Transaction } from '../index.js'
-import { type createPolicySync, discover } from './funding.js'
+import {
+  createPolicy,
+  type createPolicySync,
+  discover,
+  setPolicyRules,
+} from './funding.js'
 
 test('discover', () => {
   const account = '0x0000000000000000000000000000000000000001'
@@ -87,4 +92,24 @@ test('createPolicySync', () => {
     createPolicySync.ReturnValue['rules']
   >().toEqualTypeOf<FundingPolicy.Rules>()
   expectTypeOf<createPolicySync.ReturnValue>().not.toHaveProperty('policyRules')
+})
+
+test('policy source ordering', () => {
+  expectTypeOf<FundingPolicy.Rules['enforceOrder']>().toEqualTypeOf<
+    boolean | undefined
+  >()
+  for (const enforceOrder of [undefined, false, true]) {
+    const rules = { enforceOrder, maxSlippageBps: 100, sources: {} }
+    createPolicy.call({ admins: [Addresses.pathUsd], rules })
+    setPolicyRules.call({ policyId: 1n, rules })
+  }
+  createPolicy.call({
+    admins: [],
+    rules: {
+      // @ts-expect-error Source ordering must be a boolean.
+      enforceOrder: 'true',
+      maxSlippageBps: 100,
+      sources: {},
+    },
+  })
 })

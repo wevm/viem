@@ -1,31 +1,40 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (p256) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
 
-Error: SpendingLimitExceeded()
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (secp256k1) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
 
-Error: SpendingLimitExceeded()
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (webAuthn) 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
 
-Error: SpendingLimitExceeded()
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
 Version: viem@2.56.9]
 `;
@@ -39,41 +48,53 @@ Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: input 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x7fb703f1
 
-Error: FundingNotAuthorized(address source)
-                           (0x1120000000000000000000000000000000000001)
+Unable to decode signature "0x7fb703f1" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x7fb703f1.
 
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: limit 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
 
-Error: SpendingLimitExceeded()
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: missing 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
 
-Error: InvalidPolicyData()
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: output 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x94403b70
 
-Error: TokenNotAllowed(address token)
-                      (0x20C0000000000000000000000000000000000002)
+Unable to decode signature "0x94403b70" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x94403b70.
 
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllowed { token: 0x20c0000000000000000000000000000000000002 })
 Version: viem@2.56.9]
 `;
@@ -87,41 +108,53 @@ Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: slippage 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x6521424e
 
-Error: InvalidFundingContext()
+Unable to decode signature "0x6521424e" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x6521424e.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: TIP20 funding error: InvalidFundingContext(InvalidFundingContext)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects invalid delegated funding: tampered 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
 
-Error: InvalidPolicyData()
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > rejects sources supplied in reverse policy order 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x7fb703f1
 
-Error: FundingNotAuthorized(address source)
-                           (0x1120000000000000000000000000000000000001)
+Unable to decode signature "0x7fb703f1" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x7fb703f1.
 
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
 Version: viem@2.56.9]
 `;
 
 exports[`behavior: access key > requires current rules after updates, including when the balance is already sufficient 1`] = `
-[ContractFunctionRevertedError: The contract function "transfer" reverted.
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
 
-Error: InvalidPolicyData()
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
 
-
+Docs: https://viem.sh/docs/contract/decodeErrorResult
 Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
 Version: viem@2.56.9]
 `;

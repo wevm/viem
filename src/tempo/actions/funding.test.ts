@@ -1,10 +1,22 @@
 import { FundingPolicy } from 'ox/tempo'
-import { createClient, http } from 'viem'
+import {
+  createClient,
+  encodeAbiParameters,
+  http,
+  parseAbi,
+  parseAbiParameters,
+  toEventSelector,
+} from 'viem'
 import { describe, expect, test } from 'vitest'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { discover, setPolicyAdmins, setPolicyRules } from './funding.js'
+import {
+  createPolicy,
+  discover,
+  setPolicyAdmins,
+  setPolicyRules,
+} from './funding.js'
 
 describe('discover.call', () => {
   test('encodes decoded policy rules', () => {
@@ -98,7 +110,7 @@ describe('setPolicyRules.call', () => {
       decodeFunctionData({ abi: Abis.fundingPolicy, data: call.data }),
     ).toEqual({
       functionName: 'setRules',
-      args: [1n, { maxSlippageBps: 100, routes: [] }],
+      args: [1n, { enforceOrder: false, maxSlippageBps: 100, routes: [] }],
     })
   })
 })
@@ -120,3 +132,84 @@ describe('discover', () => {
     `)
   })
 })
+
+for (const [enforceOrder, expected] of [
+  [undefined, false],
+  [false, false],
+  [true, true],
+] as const) {
+  test(`policy calls preserve enforceOrder (${enforceOrder})`, () => {
+    const rules = { enforceOrder, maxSlippageBps: 100, sources: {} }
+    const abi = parseAbi([
+      'function createPolicy(address[] admins, (uint16 maxSlippageBps, (address token, (address target, bytes data)[] sources)[] routes, bool enforceOrder) rules) returns (uint64)',
+      'function setRules(uint64 policyId, (uint16 maxSlippageBps, (address token, (address target, bytes data)[] sources)[] routes, bool enforceOrder) rules)',
+    ])
+    expect(
+      decodeFunctionData({
+        abi,
+        data: createPolicy.call({ admins: [Addresses.pathUsd], rules }).data,
+      }),
+    ).toEqual({
+      functionName: 'createPolicy',
+      args: [
+        ['0x20C0000000000000000000000000000000000000'],
+        { maxSlippageBps: 100, routes: [], enforceOrder: expected },
+      ],
+    })
+    expect(
+      decodeFunctionData({
+        abi,
+        data: setPolicyRules.call({ policyId: 1n, rules }).data,
+      }),
+    ).toEqual({
+      functionName: 'setRules',
+      args: [1n, { maxSlippageBps: 100, routes: [], enforceOrder: expected }],
+    })
+  })
+}
+
+for (const [eventName, action] of [
+  ['PolicyCreated', createPolicy],
+  ['PolicyRulesUpdated', setPolicyRules],
+] as const) {
+  test.each([false, true])(
+    `${eventName} preserves enforceOrder (%s)`,
+    (enforceOrder) => {
+      const abi = parseAbi([
+        'event PolicyCreated(uint64 indexed policyId, address indexed updater, bytes32 rulesHash, (uint16 maxSlippageBps, (address token, (address target, bytes data)[] sources)[] routes, bool enforceOrder) rules)',
+        'event PolicyRulesUpdated(uint64 indexed policyId, address indexed updater, bytes32 rulesHash, (uint16 maxSlippageBps, (address token, (address target, bytes data)[] sources)[] routes, bool enforceOrder) rules)',
+      ])
+      const rulesHash = `0x${'11'.repeat(32)}` as const
+      const event = action.extractEvent([
+        {
+          address: Addresses.fundingPolicy,
+          blockHash: null,
+          blockNumber: null,
+          data: encodeAbiParameters(
+            parseAbiParameters(
+              'bytes32, (uint16 maxSlippageBps, (address token, (address target, bytes data)[] sources)[] routes, bool enforceOrder)',
+            ),
+            [rulesHash, { maxSlippageBps: 100, routes: [], enforceOrder }],
+          ),
+          logIndex: null,
+          removed: false,
+          topics: [
+            toEventSelector(abi[eventName === 'PolicyCreated' ? 0 : 1]),
+            encodeAbiParameters(parseAbiParameters('uint64'), [1n]),
+            encodeAbiParameters(parseAbiParameters('address'), [
+              Addresses.pathUsd,
+            ]),
+          ],
+          transactionHash: null,
+          transactionIndex: null,
+        },
+      ])
+      expect(event.args).toEqual({
+        policyId: 1n,
+        updater: '0x20C0000000000000000000000000000000000000',
+        rulesHash,
+        rules: { enforceOrder, maxSlippageBps: 100, sources: {} },
+      })
+    },
+  )
+}
