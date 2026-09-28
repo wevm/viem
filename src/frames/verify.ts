@@ -3,6 +3,7 @@ import type { PrivateKeyAccount } from '../accounts/types.js'
 import { BaseError } from '../errors/base.js'
 import type { Frame } from '../types/frame.js'
 import { from } from './Frame.js'
+import * as internal from './internal/transaction.js'
 
 /**
  * Creates execution approval for a default account, including payment unless another frame approves payment.
@@ -17,11 +18,15 @@ export function verify({
   Frame,
   'executionGas' | 'stateGas'
 >): Frame {
-  return from(({ frames }) => {
+  const prepare: internal.Definition = ({ frames }) => {
     const hasPayer = frames.some(
       (candidate) =>
-        candidate.flags === 'approvePayment' ||
-        candidate.flags === Frame_ox.flags.approvePayment,
+        (candidate as internal.SigningFrame)[internal.signing]?.prepare !==
+          prepare &&
+        (candidate.flags === 'approvePayment' ||
+          candidate.flags === 'approveExecutionAndPayment' ||
+          (typeof candidate.flags === 'number' &&
+            (candidate.flags & Frame_ox.flags.approvePayment) !== 0)),
     )
 
     return {
@@ -46,5 +51,7 @@ export function verify({
         },
       ],
     }
-  })
+  }
+
+  return from(prepare)
 }
