@@ -49,7 +49,7 @@ test.each(
       }),
       plugins:
         mode === 'transaction'
-          ? [Relay.simulate(), Relay.autoSwap(), Relay.feeToken()]
+          ? [Relay.simulate(), Relay.feeToken()]
           : mode === 'feePayer'
             ? [
                 Relay.feePayer({

@@ -100,7 +100,6 @@ test('create contextually types inline client resolvers', () => {
 
 test('transaction plugins expose typed policies and caches', () => {
   const plugins: readonly Relay.Plugin[] = [
-    Relay.autoSwap({ slippage: 0.02 }),
     Relay.feeToken({
       resolveTokens: (chainId) => {
         expectTypeOf(chainId).toEqualTypeOf<number>()
@@ -122,8 +121,6 @@ test('transaction plugins expose typed policies and caches', () => {
     }),
   ]
   Relay.handleRequest(async () => null, { plugins })
-  // @ts-expect-error Slippage is a numeric fraction.
-  Relay.autoSwap({ slippage: '5%' })
   // @ts-expect-error A policy must return a supported verdict.
   Relay.feePayer({ validate: () => 'allow' })
   // @ts-expect-error Tokens must be addresses.

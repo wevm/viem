@@ -3392,7 +3392,6 @@ export default defineConfig({
                   text: 'Fee Payer',
                   link: '/tempo/relay/plugins/fee-payer',
                 },
-                { text: 'Auto Swap', link: '/tempo/relay/plugins/auto-swap' },
                 { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
                 { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {

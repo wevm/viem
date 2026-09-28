@@ -19,12 +19,11 @@ flowchart LR
     direction TB
     multisig[Multisig]
     feePayer[Sponsorship]
-    autoSwap[Auto Swap]
     feeToken[Best Fee Tokens]
     simulate[Balance Diffs]
     funding["🚧 Funding"]
     accessKeyState["🚧 Access Key State"]
-    multisig ~~~ autoSwap ~~~ simulate ~~~ accessKeyState
+    multisig ~~~ simulate ~~~ accessKeyState
     feePayer ~~~ feeToken ~~~ funding
   end
   relay --> rpc["Tempo (Execution) RPC"]
@@ -49,12 +48,6 @@ Funding and access-key state plugins are planned.
     title="Fee Payer"
     description="Sponsor transaction fees with a local account or an external relay."
     to="/tempo/relay/plugins/fee-payer"
-  />
-  <Card
-    icon="lucide:arrow-left-right"
-    title="Auto Swap"
-    description="Swap tokens the sender holds to cover a missing transaction balance."
-    to="/tempo/relay/plugins/auto-swap"
   />
   <Card
     icon="lucide:coins"

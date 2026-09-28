@@ -4,7 +4,6 @@ import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
-import type { Call } from '../../../types/calls.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
@@ -19,7 +18,6 @@ export const tokens = Symbol('relay.tokens')
 const resolveClient = Symbol('relay.client')
 const processing = Symbol('relay.processing')
 export const deferred = Symbol('relay.deferred')
-export const swap = Symbol('relay.swap')
 const pending = Symbol('relay.pending')
 const tokenLists = Symbol('relay.tokenLists')
 const stores = Symbol('relay.stores')
@@ -50,9 +48,6 @@ export type Handler = Relay.handleRequest.Handler & {
 
 export type Result = {
   [pending]?: readonly (() => Promise<Partial<Result>>)[] | undefined
-  [swap]?:
-    | { calls: readonly Call[]; tokenIn: Address; tokenOut: Address }
-    | undefined
   tx: Record<string, unknown>
   capabilities?: Record<string, unknown> | undefined
   sponsor?: unknown
@@ -285,7 +280,7 @@ export function enrich(
 }
 
 async function resolve(result: Result): Promise<Result> {
-  const { [pending]: tasks, [swap]: _, ...base } = result
+  const { [pending]: tasks, ...base } = result
   if (!tasks) return base
   for (const patch of await Promise.all(tasks.map((task) => task()))) {
     const capabilities = { ...base.capabilities, ...patch.capabilities }

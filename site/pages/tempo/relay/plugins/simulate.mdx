@@ -78,9 +78,7 @@ export const client = createClient({
 :::
 
 `balanceDiffs` groups incoming transfers, outgoing transfers, and uncovered
-approvals by account and token. When combined with
-[Auto Swap](/tempo/relay/plugins/auto-swap), swap movements are reported separately
-in `capabilities.autoSwap`.
+approvals by account and token.
 
 ### Estimate Fees Without Balance Diffs
 
@@ -205,8 +203,7 @@ export const client = createClient({
 
 `insufficientFunds` reports the missing amount when token metadata is available.
 Optimistic balance diffs on a failed fill depend on the execution node and can
-be empty. If Auto Swap resolves the deficit, the response contains `autoSwap`
-instead of `insufficientFunds`.
+be empty.
 
 ### Handle Execution Errors
 

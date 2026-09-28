@@ -8,11 +8,9 @@ import type { Log } from '../../../types/log.js'
 import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Abis from '../../Abis.js'
-import * as Addresses from '../../Addresses.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
 import type * as Relay from '../../Relay.js'
-import { extractSwapFromCapabilities } from './autoSwap.js'
 import type * as Store from './cache.js'
 import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
@@ -53,9 +51,6 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
             ? await simulateAndParseDiffs(context.client, {
                 account: parameters.from as Address | undefined,
                 calls: extractCalls(transaction),
-                swap:
-                  result[Request.swap] ??
-                  extractSwapFromCapabilities(result.capabilities?.autoSwap),
                 feeToken,
                 gas: transaction.gas,
                 maxFeePerGas: transaction.maxFeePerGas,
@@ -113,7 +108,7 @@ export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
 ) {
-  const { account, calls, swap, feeToken, gas, store, maxFeePerGas } = options
+  const { account, calls, feeToken, gas, store, maxFeePerGas } = options
 
   try {
     const { results, tokenMetadata } = await simulate(client, {
@@ -128,29 +123,12 @@ export async function simulateAndParseDiffs(
     }[])
       if (result.logs) logs.push(...result.logs)
 
-    // Attribute approvals to the injected calls, not just their token and spender.
-    const swapCallCount =
-      swap?.calls.length &&
-      swap.calls.every(
-        (call, index) =>
-          call.to?.toLowerCase() === calls[index]?.to?.toLowerCase() &&
-          call.data?.toLowerCase() === calls[index]?.data?.toLowerCase() &&
-          BigInt(call.value ?? 0) === BigInt(calls[index]?.value ?? 0),
-      )
-        ? swap.calls.length
-        : 0
-    const approvalLogs = results.flatMap((result, index) =>
-      index < swapCallCount ? [] : (result.logs ?? []),
-    )
-
     // Build per-token balance diffs relative to the sender.
     const balanceDiffs = account
       ? await buildBalanceDiffs(client, {
           account,
-          approvalLogs,
           store,
           logs,
-          swap,
           tokenMetadata: tokenMetadata as never,
         })
       : {}
@@ -177,9 +155,6 @@ export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
-    swap?:
-      | { calls: readonly Call[]; tokenIn: Address; tokenOut: Address }
-      | undefined
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined
@@ -192,11 +167,8 @@ export async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,
 ) {
-  const { account, store, logs, swap, tokenMetadata } = options
+  const { account, store, logs, tokenMetadata } = options
   const accountLower = account.toLowerCase()
-  const dexLower = Addresses.stablecoinDex.toLowerCase()
-  const swapTokenIn = swap?.tokenIn.toLowerCase()
-  const swapTokenOut = swap?.tokenOut.toLowerCase()
 
   const transferLogs = parseEventLogs({
     abi: [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
@@ -206,7 +178,7 @@ export async function buildBalanceDiffs(
   const approvalLogs = parseEventLogs({
     abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     eventName: 'Approval',
-    logs: options.approvalLogs,
+    logs,
   })
 
   // Track net movement per token: incoming vs outgoing.
@@ -224,22 +196,6 @@ export async function buildBalanceDiffs(
     const token = log.address.toLowerCase()
     const fromLower = log.args.from.toLowerCase()
     const toLower = log.args.to.toLowerCase()
-
-    // Skip swap-related transfers (reported in capabilities.autoSwap instead).
-    if (swap) {
-      if (
-        token === swapTokenIn &&
-        fromLower === accountLower &&
-        toLower === dexLower
-      )
-        continue
-      if (
-        token === swapTokenOut &&
-        fromLower === dexLower &&
-        toLower === accountLower
-      )
-        continue
-    }
 
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
@@ -345,10 +301,8 @@ export async function buildBalanceDiffs(
 export declare namespace buildBalanceDiffs {
   type Options = {
     account: Address
-    approvalLogs: Log[]
     store?: Store.Store | undefined
     logs: Log[]
-    swap?: { tokenIn: Address; tokenOut: Address } | undefined
     tokenMetadata: Record<
       Address,
       { name: string; symbol: string; currency: string }

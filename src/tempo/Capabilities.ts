@@ -23,14 +23,6 @@ export type FillTransactionRequestCapabilities = {
 }
 
 export type FillTransactionCapabilities = {
-  autoSwap?:
-    | {
-        calls: readonly { to: Address; data: Hex; value?: Hex | undefined }[]
-        maxIn: SwapAmount
-        minOut: SwapAmount
-        slippage: number
-      }
-    | undefined
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
   error?: ExecutionError.Rpc | undefined
   fee?:
@@ -70,14 +62,5 @@ export type BalanceDiff = {
   name: string
   recipients: readonly Address[]
   symbol: string
-  value: Hex
-}
-
-export type SwapAmount = {
-  decimals: number
-  formatted: string
-  name: string
-  symbol: string
-  token: Address
   value: Hex
 }

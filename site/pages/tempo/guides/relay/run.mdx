@@ -176,12 +176,6 @@ Independent processes and Worker isolates must share a persistent
     to="/tempo/relay/plugins/fee-payer"
   />
   <Card
-    icon="lucide:arrow-left-right"
-    title="Auto Swap"
-    description="Swap tokens the sender holds to cover a missing transaction balance."
-    to="/tempo/relay/plugins/auto-swap"
-  />
-  <Card
     icon="lucide:coins"
     title="Fee Token"
     description="Choose a funded fee token using the sender's preference and balances."
@@ -201,7 +195,7 @@ Independent processes and Worker isolates must share a persistent
   />
 </Cards>
 
-To enable sponsorship, Auto Swap, fee-token selection, and simulation together,
+To enable sponsorship, fee-token selection, and simulation together,
 list those plugins explicitly. Add multisig when you also need approval coordination:
 
 ```ts twoslash
@@ -216,7 +210,6 @@ const relay = Relay.create({
     Relay.multisig({ store: Store.memory() }), // [!code focus]
     Relay.simulate(), // [!code focus]
     Relay.feePayer({ account: privateKeyToAccount('0x...') }), // [!code focus]
-    Relay.autoSwap(), // [!code focus]
     Relay.feeToken(), // [!code focus]
   ], // [!code focus]
 })

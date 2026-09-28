@@ -3,7 +3,6 @@ import * as RpcResponse from 'ox/RpcResponse'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import * as AutoSwap from './internal/relay/autoSwap.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
@@ -286,36 +285,9 @@ export declare namespace multisig {
 }
 
 /**
- * Adds swaps to fill requests when a token balance is insufficient.
- * Fails the fill if swap metadata cannot be loaded.
- *
- * @example
- * ```ts
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.autoSwap({ slippage: 0.05 })
- * ```
- * @param options - Slippage tolerance and optional metadata store.
- * @returns An auto-swap relay plugin.
- */
-export function autoSwap(options: autoSwap.Options = {}): Plugin {
-  return AutoSwap.create(options)
-}
-
-export declare namespace autoSwap {
-  /** Automatic swap configuration. */
-  export type Options = {
-    /** Slippage tolerance as a fraction. @default 0.05 */
-    slippage?: number | undefined
-    /** Store for cached metadata. Omit to read metadata for each request. */
-    store?: Store.Store | undefined
-  }
-}
-
-/**
  * Sponsors transactions with a local account or an external fee-payer relay.
  *
  * Place multisig before this plugin and fee-token selection after it.
- * For local sponsorship, place auto-swap after it; for external relay retries, place auto-swap before it.
  *
  * @example
  * ```ts

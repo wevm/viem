@@ -85,7 +85,6 @@ test.each(['direct', 'custom'] as const)(
       caller.request(request as never)
     const plugins = [
       Relay.simulate(),
-      Relay.autoSwap(),
       Relay.feePayer({ account: feePayerAccount }),
       ...(mode === 'custom'
         ? [
@@ -146,13 +145,12 @@ test.each(['direct', 'custom'] as const)(
 )
 
 test.each(
-  Array.from({ length: 16 }, (_, mask) =>
+  Array.from({ length: 8 }, (_, mask) =>
     [false, true].map((reverse) => ({ mask, reverse })),
   ).flat(),
 )('enabled plugins $mask, reversed $reverse', async ({ mask, reverse }) => {
   const plugins = [
     Relay.feePayer({ account: feePayerAccount }),
-    Relay.autoSwap(),
     Relay.feeToken({
       resolveTokens: () => localnetTokens,
     }),
@@ -178,8 +176,8 @@ test.each(
   expect(result.transaction.gas).toBeGreaterThan(0n)
   if (mask !== 0) expect(result.capabilities?.sponsored).toBe(Boolean(mask & 1))
   expect(Boolean(result.transaction.feePayerSignature)).toBe(Boolean(mask & 1))
-  expect(Boolean(result.capabilities?.fee)).toBe(Boolean(mask & 8))
-  expect(Boolean(result.capabilities?.balanceDiffs)).toBe(Boolean(mask & 8))
+  expect(Boolean(result.capabilities?.fee)).toBe(Boolean(mask & 4))
+  expect(Boolean(result.capabilities?.balanceDiffs)).toBe(Boolean(mask & 4))
 })
 
 test('built-in plugins preserve unrelated requests and request options', async () => {
@@ -189,12 +187,7 @@ test('built-in plugins preserve unrelated requests and request options', async (
   const handle = Relay.handleRequest(
     async (request, options) => ({ request, options }),
     {
-      plugins: [
-        Relay.feePayer(),
-        Relay.autoSwap(),
-        Relay.feeToken(),
-        Relay.simulate(),
-      ],
+      plugins: [Relay.feePayer(), Relay.feeToken(), Relay.simulate()],
     },
   )
   expect(await handle(request, options)).toEqual({ request, options })
@@ -222,7 +215,6 @@ test.each(['0x76', '0x78'] as const)(
   'malformed Tempo envelope %s returns invalid params',
   async (serialized) => {
     for (const plugin of [
-      Relay.autoSwap(),
       Relay.feePayer(),
       Relay.feeToken(),
       Relay.simulate(),
@@ -321,7 +313,6 @@ test('custom middleware receives completed downstream enrichment', async () => {
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
       plugins: [
-        Relay.autoSwap(),
         (next) => async (request, options) => {
           const result = await next(request, options)
           if (request.method !== 'eth_fillTransaction') return result
