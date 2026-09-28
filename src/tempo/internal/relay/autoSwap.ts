@@ -6,9 +6,9 @@ import type { Call } from '../../../types/calls.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Addresses from '../../Addresses.js'
 import * as Actions from '../../actions/index.js'
+import * as ExecutionError from '../../ExecutionError.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
-import * as ExecutionError from './executionError.js'
 import {
   getDefaultTokens,
   resolveFeeToken,
@@ -222,8 +222,8 @@ export async function fill(client: Client, options: fill.Options) {
   } catch (error) {
     if (!(error instanceof Error)) throw error
 
-    const revert = ExecutionError.parse(error)
-    if (revert?.errorName !== 'InsufficientBalance') throw error
+    const revert = ExecutionError.from(error)
+    if (revert.errorName !== 'InsufficientBalance' || !revert.args) throw error
 
     const [available, required, token] = revert.args
     if (

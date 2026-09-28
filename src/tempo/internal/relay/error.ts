@@ -3,8 +3,8 @@ import { Hex } from 'ox'
 import type { Client } from '../../../clients/createClient.js'
 import { zeroAddress } from '../../../constants/address.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import * as ExecutionError from '../../ExecutionError.js'
 import type * as Store from './cache.js'
-import * as ExecutionError from './executionError.js'
 import { resolveTokenMetadata } from './feeToken.js'
 import { simulateAndParseDiffs } from './simulate.js'
 import * as Utils from './utils.js'
@@ -16,7 +16,7 @@ export async function formatError(
   client: Client,
   simulateStore?: Store.Store,
 ) {
-  const revert = ExecutionError.parse(error)
+  const revert = ExecutionError.from(error)
 
   const stub = {
     from: parameters.from,
@@ -28,9 +28,8 @@ export async function formatError(
     maxPriorityFeePerGas: '0x0',
   }
 
-  if (revert?.errorName === 'InsufficientBalance') {
-    const args = revert.args as [bigint, bigint, Address]
-    const [available, required, token] = args
+  if (revert.errorName === 'InsufficientBalance' && revert.args?.length === 3) {
+    const [available, required, token] = revert.args
 
     const normalized = Utils.normalizeFillTransactionRequest(parameters)
 

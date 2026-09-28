@@ -1,0 +1,84 @@
+---
+description: Decode Tempo precompile reverts into readable execution errors.
+---
+
+# ExecutionError
+
+Decode reverts from the Tempo precompiles in `Abis.core` and format their messages. Unknown errors retain their original message without the `execution reverted:` prefix.
+
+## `from`
+
+Decorates a copy of an error with decoded execution fields and a readable message. The input remains unchanged.
+
+### Usage
+
+```ts
+import { ExecutionError } from 'viem/tempo'
+
+const error = ExecutionError.from({
+  data: '0x82b42900',
+  message: 'execution reverted',
+})
+error.errorName // 'Unauthorized'
+error.message // 'Unauthorized.'
+```
+
+You can also pass a four-byte selector or complete ABI-encoded revert data:
+
+```ts
+import { ExecutionError } from 'viem/tempo'
+
+const error = ExecutionError.from('0x82b42900')
+error.message // 'Unauthorized.'
+```
+
+### Parameters
+
+#### error
+
+- **Type:** `Error | Hex | { data?: Hex; message: string }`
+
+An error instance or a plain object with a message and optional revert data. Error instances can also contain revert data in a nested `cause` or `error`, or a Viem error's `walk` result. When decoding fails, the message comes from `details`, `shortMessage`, or `message`, in that order.
+
+### Return Value
+
+`ExecutionError.from.ReturnType`
+
+Error objects retain their prototype, stack, cause, and custom properties. Known errors contain `errorName`, `abiItem`, `args`, `data`, and `message`. Unknown errors receive `errorName: 'unknown'` and a fallback `message`.
+
+Hex input produces a plain object with `data`. Selector-only input has no decoded arguments; message placeholders such as `{0}` remain uninterpolated when arguments are required.
+
+## `serialize`
+
+Selects execution metadata for JSON serialization. Original error properties, including stack, cause, and custom fields, are omitted along with decoded arguments.
+
+### Usage
+
+```ts
+import { ExecutionError } from 'viem/tempo'
+
+const error = ExecutionError.from(new Error('execution reverted: failed'))
+const rpc = ExecutionError.serialize(error)
+JSON.stringify(rpc)
+// '{"errorName":"unknown","message":"failed"}'
+```
+
+### Parameters
+
+#### preimage
+
+- **Type:** `ExecutionError.ExecutionError`
+
+An error returned by `ExecutionError.from`.
+
+### Return Value
+
+`ExecutionError.Rpc`
+
+The execution metadata without `args`. Original properties and decoded arguments remain available on the decorated error.
+
+## `messages`
+
+Message templates cover every error name in `Abis.core`. Placeholders such as `{0}` refer to decoded arguments by position.
+
+For repository maintenance, run `pnpm check:tempo-execution-errors` after updating the ABIs or templates. The check reports missing messages, unknown error names, and placeholders absent from every ABI signature for an error. CI and `pnpm gen:tempo-abis` also run this check against the checked-in ABIs.

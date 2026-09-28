@@ -3418,6 +3418,10 @@ export default defineConfig({
           text: 'Utilities',
           items: [
             {
+              text: 'ExecutionError',
+              link: '/tempo/utilities/ExecutionError',
+            },
+            {
               text: 'Relay',
               collapsed: true,
               items: [

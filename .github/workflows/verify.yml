@@ -40,6 +40,9 @@ jobs:
       - name: Check repo
         run: pnpm check:repo
 
+      - name: Check Tempo execution errors
+        run: pnpm check:tempo-execution-errors
+
       - name: Check code
         run: pnpm biome check
 

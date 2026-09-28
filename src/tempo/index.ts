@@ -67,6 +67,8 @@ export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+/** Decodes Tempo precompile reverts into readable execution errors. */
+export * as ExecutionError from './ExecutionError.js'
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
