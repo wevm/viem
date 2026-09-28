@@ -77,8 +77,9 @@ export const client = createClient({
 
 :::
 
-`balanceDiffs` groups incoming transfers, outgoing transfers, and uncovered
-approvals by account and token.
+`balanceDiffs` groups net token transfers and final approval exposure by account.
+Outgoing amounts include approval exposure. Incoming funds use a separate entry
+for the same token, so they do not cancel outgoing approval exposure.
 
 ### Estimate Fees Without Balance Diffs
 

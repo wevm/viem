@@ -40,10 +40,13 @@ export function normalizeFillTransactionRequest(
     return {
       ...tx,
       ...withKeyAuthorization,
-      calls: tx.calls.map((call) => ({
-        ...call,
-        value: normalizeFillValue(call.value),
-      })),
+      calls: tx.calls.map((call) => {
+        if (!call || typeof call !== 'object' || Array.isArray(call))
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Expected a transaction call object.',
+          })
+        return { ...call, value: normalizeFillValue(call.value) }
+      }),
     }
   const call = {
     ...(typeof to !== 'undefined' ? { to } : {}),

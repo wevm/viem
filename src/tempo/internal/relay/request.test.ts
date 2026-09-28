@@ -3,8 +3,9 @@ import { Signature } from 'ox'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoLocalnet } from 'viem/chains'
-import { Addresses, Relay, Store } from 'viem/tempo'
+import { Addresses, Relay, Store, VirtualAddress } from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
+import { createHttpServer } from '~test/utils.js'
 
 test.each(
   ['transaction', 'feePayer', 'multisig'].flatMap((mode) =>
@@ -302,3 +303,129 @@ test('simulation middleware rejects malformed fill quantities before forwarding'
     ),
   ).rejects.toMatchObject({ code: -32602 })
 })
+
+test('keeps a sponsored fill when optional virtual-address metadata is unavailable', async () => {
+  const account = privateKeyToAccount(`0x${'0'.repeat(63)}1`)
+  const target = VirtualAddress.from({
+    masterId: '0x00000001',
+    userTag: '0x000000000001',
+  })
+  const relay = Relay.create({
+    client: createClient({
+      chain: tempoLocalnet,
+      transport: http('http://127.0.0.1:1', { retryCount: 0, timeout: 500 }),
+    }),
+    plugins: [Relay.feePayer({ account })],
+  })
+  const result = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [
+      {
+        from: account.address,
+        chainId: tempoLocalnet.id,
+        nonce: '0x0',
+        gas: '0x186a0',
+        maxFeePerGas: '0x1',
+        maxPriorityFeePerGas: '0x0',
+        feeToken: Addresses.pathUsd,
+        calls: [{ to: target }],
+        feePayer: true,
+      },
+    ],
+  })) as Relay.Plugin.FillResult
+  expect(result.tx.feePayerSignature).toBeDefined()
+  expect(result.capabilities?.sponsored).toBe(true)
+  expect(result.capabilities?.virtualAddresses).toBeUndefined()
+})
+
+test.each(['tempo_simulateV1', 'eth_simulateV1', 'eth_call'])(
+  'propagates cancellation during %s',
+  async (method) => {
+    const started = Promise.withResolvers<void>()
+    const controller = new AbortController()
+    const server = await createHttpServer(async (request, response) => {
+      let raw = ''
+      for await (const chunk of request) raw += chunk
+      const body = JSON.parse(raw)
+      if (body.method === method) {
+        started.resolve()
+        return
+      }
+      response.setHeader('Content-Type', 'application/json')
+      response.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: body.id,
+          error: { code: -32601, message: 'Method not found' },
+        }),
+      )
+    })
+    try {
+      const account = privateKeyToAccount(`0x${'0'.repeat(63)}1`)
+      const relay = Relay.create({
+        client: createClient({
+          chain: tempoLocalnet,
+          transport: http(server.url, { retryCount: 0 }),
+        }),
+        plugins: [Relay.feePayer({ account }), Relay.simulate()],
+      })
+      const pending = relay.request(
+        {
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: account.address,
+              chainId: tempoLocalnet.id,
+              nonce: '0x0',
+              gas: '0x186a0',
+              maxFeePerGas: '0x1',
+              maxPriorityFeePerGas: '0x0',
+              feeToken: Addresses.pathUsd,
+              calls: [{ to: account.address }],
+              feePayer: true,
+              capabilities: { balanceDiffs: method !== 'eth_call' },
+            },
+          ],
+        },
+        { signal: controller.signal, retryCount: 0 },
+      )
+      const rejected = expect(pending).rejects.toMatchObject({
+        name: 'AbortError',
+      })
+      await started.promise
+      controller.abort()
+      await rejected
+    } finally {
+      controller.abort()
+      await server.close()
+    }
+  },
+)
+
+test.each([null, [], 'call', 1])(
+  'reports malformed call %s as invalid params through Fetch',
+  async (call) => {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http('http://127.0.0.1:1', { retryCount: 0 }),
+      }),
+      plugins: [Relay.simulate()],
+    })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [{ calls: [call] }],
+        }),
+      }),
+    )
+    expect(await response.json()).toMatchObject({
+      error: { code: -32602, message: 'Expected a transaction call object.' },
+    })
+  },
+)

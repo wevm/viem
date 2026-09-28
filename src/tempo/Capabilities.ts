@@ -54,6 +54,7 @@ export type FillTransactionCapabilities = {
   virtualAddresses?: Readonly<Record<Address, Address | null>> | undefined
 }
 
+/** A token balance preview. Incoming funds and outgoing approval exposure can produce separate entries for the same token. */
 export type BalanceDiff = {
   address: Address
   decimals: number

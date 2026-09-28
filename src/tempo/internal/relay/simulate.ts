@@ -42,6 +42,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
     async afterFill(result, context) {
       const parameters = context.request.params![0] as Record<string, unknown>
       const store = context.getStore(options.store)
+      const signal = context.options.signal
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
       const simulation =
@@ -54,15 +55,15 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
               gas: transaction.gas,
               maxFeePerGas: transaction.maxFeePerGas,
               store,
+              signal,
             })
           : await computeFee(context.client, {
               feeToken,
               gas: transaction.gas,
               maxFeePerGas: transaction.maxFeePerGas,
               store,
-            })
-              .catch(() => undefined)
-              .then((fee) => ({ balanceDiffs: undefined, fee }))
+              signal,
+            }).then((fee) => ({ balanceDiffs: undefined, fee }))
       return { capabilities: simulation }
     },
   }
@@ -105,13 +106,16 @@ export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
 ) {
-  const { account, calls, feeToken, gas, store, maxFeePerGas } = options
+  const { account, calls, feeToken, gas, store, maxFeePerGas, signal } = options
+  signal?.throwIfAborted()
 
   try {
     const { results, tokenMetadata } = await simulate(client, {
       account: account === zeroAddress ? undefined : account,
       calls,
     })
+
+    signal?.throwIfAborted()
 
     // Collect all logs across all call results.
     const logs: (typeof results)[number]['logs'] = []
@@ -125,6 +129,7 @@ export async function simulateAndParseDiffs(
       ? await buildBalanceDiffs(client, {
           account,
           store,
+          signal,
           logs,
           tokenMetadata: tokenMetadata as never,
         })
@@ -135,15 +140,23 @@ export async function simulateAndParseDiffs(
       feeToken,
       gas,
       store,
+      signal,
       maxFeePerGas,
       tokenMetadata: tokenMetadata as never,
-    }).catch(() => undefined)
+    })
 
     return { balanceDiffs, fee }
   } catch {
+    signal?.throwIfAborted()
     // Simulation failures should not block the fill response —
     // return empty diffs with fee computed from transaction fields.
-    const fee = await computeFee(client, { feeToken, gas, store, maxFeePerGas })
+    const fee = await computeFee(client, {
+      feeToken,
+      gas,
+      store,
+      maxFeePerGas,
+      signal,
+    })
     return { balanceDiffs: undefined, fee }
   }
 }
@@ -155,6 +168,7 @@ export declare namespace simulateAndParseDiffs {
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined
+    signal?: AbortSignal | undefined
     maxFeePerGas?: bigint | undefined
   }
 }
@@ -164,7 +178,8 @@ export async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,
 ) {
-  const { account, store, logs, tokenMetadata } = options
+  const { account, store, logs, tokenMetadata, signal } = options
+  signal?.throwIfAborted()
   const accountLower = account.toLowerCase()
 
   const transferLogs = parseEventLogs({
@@ -184,6 +199,7 @@ export async function buildBalanceDiffs(
     {
       incoming: bigint
       outgoing: bigint
+      approved: bigint
       recipients: Set<Address>
       token: Address
     }
@@ -197,6 +213,7 @@ export async function buildBalanceDiffs(
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
       outgoing: 0n,
+      approved: 0n,
       recipients: new Set<Address>(),
       token: log.address,
     }
@@ -226,10 +243,11 @@ export async function buildBalanceDiffs(
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
       outgoing: 0n,
+      approved: 0n,
       recipients: new Set<Address>(),
       token: log.address,
     }
-    entry.outgoing += log.args.amount
+    entry.approved += log.args.amount
     entry.recipients.add(log.args.spender)
     tokenMap.set(token, entry)
   }
@@ -240,7 +258,7 @@ export async function buildBalanceDiffs(
       e.outgoing > e.incoming
         ? e.outgoing - e.incoming
         : e.incoming - e.outgoing
-    return net > 0n
+    return net > 0n || e.approved > 0n
   })
   if (entries.length === 0) return {}
   // Omit an unavailable preview rather than returning a partial set of movements.
@@ -263,33 +281,47 @@ export async function buildBalanceDiffs(
             store,
           })
           metadataMap.set(entry.token.toLowerCase(), metadata)
-        } catch {}
+        } catch {
+          signal?.throwIfAborted()
+        }
       }
     }),
   )
+  signal?.throwIfAborted()
   if (metadataMap.size !== entries.length) return undefined
 
   // Build the diff array for this account.
   const diffs: Capabilities.BalanceDiff[] = []
   for (const entry of entries) {
-    const net =
-      entry.outgoing > entry.incoming
-        ? entry.outgoing - entry.incoming
-        : entry.incoming - entry.outgoing
-
-    const direction = entry.outgoing > entry.incoming ? 'outgoing' : 'incoming'
+    const incoming =
+      entry.incoming > entry.outgoing ? entry.incoming - entry.outgoing : 0n
+    const outgoing =
+      (entry.outgoing > entry.incoming ? entry.outgoing - entry.incoming : 0n) +
+      entry.approved
     const meta = metadataMap.get(entry.token.toLowerCase())!
     const decimals = meta.decimals
-    diffs.push({
+    const metadata = {
       address: entry.token,
       decimals,
-      direction,
-      formatted: formatUnits(net, decimals),
       name: meta.name,
       symbol: meta.symbol,
-      recipients: [...entry.recipients] as Address[],
-      value: Hex.fromNumber(net) as `0x${string}`,
-    })
+    }
+    if (incoming > 0n)
+      diffs.push({
+        ...metadata,
+        direction: 'incoming',
+        formatted: formatUnits(incoming, decimals),
+        recipients: [],
+        value: Hex.fromNumber(incoming),
+      })
+    if (outgoing > 0n)
+      diffs.push({
+        ...metadata,
+        direction: 'outgoing',
+        formatted: formatUnits(outgoing, decimals),
+        recipients: [...entry.recipients],
+        value: Hex.fromNumber(outgoing),
+      })
   }
 
   return { [account]: diffs }
@@ -299,6 +331,7 @@ export declare namespace buildBalanceDiffs {
   type Options = {
     account: Address
     store?: Store.Store | undefined
+    signal?: AbortSignal | undefined
     logs: Log[]
     tokenMetadata: Record<
       Address,
@@ -309,7 +342,8 @@ export declare namespace buildBalanceDiffs {
 
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function computeFee(client: Client, options: computeFee.Options) {
-  const { feeToken, gas, store, maxFeePerGas, tokenMetadata } = options
+  const { feeToken, gas, store, maxFeePerGas, tokenMetadata, signal } = options
+  signal?.throwIfAborted()
   if (!feeToken || !gas || !maxFeePerGas) return undefined
 
   try {
@@ -318,6 +352,7 @@ async function computeFee(client: Client, options: computeFee.Options) {
       tokenMetadata,
       store,
     })
+    signal?.throwIfAborted()
     const raw = gas * maxFeePerGas
     const scale = 10n ** BigInt(Math.max(0, 18 - metadata.decimals))
     const amount = (raw + scale - 1n) / scale
@@ -328,6 +363,7 @@ async function computeFee(client: Client, options: computeFee.Options) {
       symbol: metadata.symbol,
     }
   } catch {
+    signal?.throwIfAborted()
     return undefined
   }
 }
@@ -337,6 +373,7 @@ declare namespace computeFee {
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined
+    signal?: AbortSignal | undefined
     maxFeePerGas?: bigint | undefined
     tokenMetadata?:
       | Record<Address, { name: string; symbol: string; currency: string }>

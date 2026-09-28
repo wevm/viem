@@ -468,3 +468,47 @@ describe('metadata', () => {
     ).toMatchInlineSnapshot('undefined')
   })
 })
+
+test.each([50n, 100n, 200n])(
+  'keeps incoming funds separate from approval exposure: %s',
+  async (amount) => {
+    const logs = [
+      {
+        address: Tempo.addresses.alphaUsd,
+        data: encodeAbiParameters([{ type: 'uint256' }], [amount]),
+        topics: encodeEventTopics({
+          abi: Abis.tip20,
+          eventName: 'Transfer',
+          args: { from: recipient.address, to: userAccount.address },
+        }),
+      },
+      {
+        address: Tempo.addresses.alphaUsd,
+        data: encodeAbiParameters([{ type: 'uint256' }], [100n]),
+        topics: encodeEventTopics({
+          abi: Abis.tip20,
+          eventName: 'Approval',
+          args: { owner: userAccount.address, spender: recipient.address },
+        }),
+      },
+    ]
+    const result = await buildBalanceDiffs(caller, {
+      account: userAccount.address,
+      logs: logs.map((log) => ({
+        ...log,
+        topics: log.topics as Log['topics'],
+        blockHash: null,
+        blockNumber: null,
+        logIndex: null,
+        transactionHash: null,
+        transactionIndex: null,
+        removed: false,
+      })),
+      tokenMetadata: {},
+    })
+    expect(result?.[userAccount.address]).toMatchObject([
+      { direction: 'incoming', value: Hex.fromNumber(amount) },
+      { direction: 'outgoing', value: '0x64', recipients: [recipient.address] },
+    ])
+  },
+)

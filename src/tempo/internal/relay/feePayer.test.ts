@@ -629,3 +629,124 @@ test('preserves the synchronous broadcast timeout after signing', async () => {
   })
   expect(receipt).toMatchObject({ status: '0x1' })
 })
+
+test('does not sign a cached sponsored fill that skipped validation', async () => {
+  const { transaction } = await fillTransaction(caller, {
+    account: userAccount,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      {
+        handleRequest: async () => ({
+          tx: Utils.formatTempoTransaction(transaction as never),
+          capabilities: { sponsored: true },
+        }),
+      },
+      Relay.feePayer({ account: feePayerAccount, validate: () => false }),
+    ],
+  })
+  const result = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [{ from: userAccount.address }],
+  })) as Request.Result
+  expect(result.tx.feePayerSignature).toBeUndefined()
+})
+
+test('refuses to sign a transaction changed after sponsorship validation', async () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      {
+        async handleRequest(context, next) {
+          await next()
+          if (context.request.method !== 'eth_fillTransaction') return
+          const result = context.result as Request.Result
+          context.result = { ...result, tx: { ...result.tx, nonce: '0xffff' } }
+        },
+      },
+      Relay.feePayer({ account: feePayerAccount, validate: () => true }),
+    ],
+  })
+  await expect(
+    relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          from: userAccount.address,
+          feeToken: Tempo.addresses.alphaUsd,
+          calls: [
+            Actions.token.transfer.call(caller, {
+              token: Tempo.addresses.alphaUsd,
+              to: recipient.address,
+              amount: 1n,
+            }),
+          ],
+        },
+      ],
+    }),
+  ).rejects.toMatchObject({
+    code: -32602,
+    message: 'Sponsored transaction changed after validation.',
+  })
+})
+
+test.each([0, 3])(
+  'external sponsorship does not retry with request retryCount: %s',
+  async (retryCount) => {
+    const failures = [{ code: -32603, message: 'Temporarily unavailable' }]
+    const server = await createHttpServer((request, response) => {
+      request.resume()
+      response.setHeader('Content-Type', 'application/json')
+      response.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          error: failures.shift() ?? {
+            code: -32602,
+            message: 'Repeated request',
+          },
+        }),
+      )
+    })
+    try {
+      const relay = Relay.create({
+        client: caller,
+        plugins: [
+          Relay.feePayer({
+            allowedFeePayers: [server.url],
+            internal_allowUnsafeUrls: true,
+          }),
+        ],
+      })
+      await expect(
+        relay.request(
+          {
+            method: 'eth_fillTransaction',
+            params: [
+              {
+                from: userAccount.address,
+                feeToken: Tempo.addresses.alphaUsd,
+                feePayer: server.url,
+              },
+            ],
+          },
+          { retryCount, retryDelay: 0 },
+        ),
+      ).rejects.toMatchObject({
+        code: -32603,
+        message: 'Temporarily unavailable',
+      })
+    } finally {
+      await server.close()
+    }
+  },
+)

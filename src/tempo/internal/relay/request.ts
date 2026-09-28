@@ -169,6 +169,7 @@ export function compose(
     const parameters = request.params?.[0] as Record<string, unknown>
     let root: Awaited<ReturnType<typeof execute>> | undefined
     try {
+      requestOptions.signal?.throwIfAborted()
       if (
         isFill &&
         (!parameters ||
@@ -241,9 +242,13 @@ export function compose(
         getVirtualAddressTargets(extractCalls(transaction)).length > 0
           ? resolveVirtualAddresses(root.contextAt(-1).client, {
               calls: extractCalls(transaction),
+            }).catch(() => {
+              requestOptions.signal?.throwIfAborted()
+              return undefined
             })
           : undefined,
       ])
+      requestOptions.signal?.throwIfAborted()
       const capabilities = { ...final.capabilities }
       const keys = new Set<string>()
       for (const patch of patches) {
@@ -269,6 +274,7 @@ export function compose(
         },
       }
     } catch (error) {
+      requestOptions.signal?.throwIfAborted()
       if (
         isFill &&
         isExecutionError(error) &&

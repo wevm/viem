@@ -2,6 +2,20 @@ import { describe, expect, test } from 'vitest'
 import { normalizeFillTransactionRequest } from './utils.js'
 
 describe('normalizeFillTransactionRequest', () => {
+  test.each([null, undefined, [], 'call', 1, true])(
+    'rejects malformed call entries: %s',
+    (call) => {
+      expect(() =>
+        normalizeFillTransactionRequest({ calls: [call] }),
+      ).toThrowError(
+        expect.objectContaining({
+          code: -32602,
+          message: 'Expected a transaction call object.',
+        }),
+      )
+    },
+  )
+
   test.each(['0xzz', '0x-1', '0x1.5', '0x1 ', '0x0g'])(
     'rejects malformed values in calls and legacy transactions: %s',
     (value) => {

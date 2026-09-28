@@ -10,6 +10,8 @@ import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feePayer.Options): Relay.Plugin {
+  // Bind signing permission to the middleware invocation and its validated payload.
+  const authorized = new WeakMap<Relay.Plugin.Context, Hex.Hex>()
   const allowedFeePayers = new Set(
     options.allowedFeePayers?.map((url) =>
       ExternalFeePayerUrl.normalize(url, {
@@ -110,17 +112,19 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const fillClient = external
         ? createClient({
             chain: client.chain,
-            transport: http(external, { fetchOptions: { redirect: 'error' } }),
+            transport: http(external, {
+              fetchOptions: { redirect: 'error' },
+              retryCount: 0,
+            }),
           })
         : client
       const result: Request.Result =
         prepared && !external
           ? { tx: transaction }
-          : await Request.fill(
-              fillClient,
-              transaction,
-              external ? requestOptions : { ...requestOptions, retryCount: 0 },
-            )
+          : await Request.fill(fillClient, transaction, {
+              ...requestOptions,
+              retryCount: 0,
+            })
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
@@ -158,6 +162,13 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       if (options.account && !external && !defer) {
         delete filled.signature
         if (!filled.from) filled.from = parameters.from as Address
+        authorized.set(
+          context,
+          TxEnvelopeTempo.getFeePayerSignPayload(
+            TxEnvelopeTempo.from(filled as never),
+            { sender: filled.from },
+          ),
+        )
       }
       return {
         ...result,
@@ -175,8 +186,11 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       }
     },
     async signTransaction(result, context) {
+      const approved = authorized.get(context)
+      authorized.delete(context)
       const parameters = context.request.params![0] as Record<string, unknown>
       if (
+        !approved ||
         !options.account ||
         typeof parameters.feePayer === 'string' ||
         parameters.feePayer === false ||
@@ -186,11 +200,20 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           parameters.multisigSimulation !== null)
       )
         return undefined
+      const transaction = Utils.normalizeTempoTransaction(result.tx)
+      const payload = TxEnvelopeTempo.getFeePayerSignPayload(
+        TxEnvelopeTempo.from(transaction as never),
+        { sender: (transaction.from ?? parameters.from) as Address },
+      )
+      if (payload !== approved)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Sponsored transaction changed after validation.',
+        })
       const signed = await sign({
         account: options.account,
         onSponsored: options.onSponsored,
         sender: parameters.from as Address | undefined,
-        transaction: Utils.normalizeTempoTransaction(result.tx),
+        transaction,
       })
       if (signed.sponsorshipDetails && context.options.response)
         context.options.response.sponsorship_details = signed.sponsorshipDetails
