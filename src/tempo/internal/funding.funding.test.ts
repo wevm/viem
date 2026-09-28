@@ -108,6 +108,77 @@ describe('infer', () => {
     },
   )
 
+  test.each([
+    { field: 'state', amount: 125n },
+    { field: 'state', amount: 0n },
+    { field: 'stateDiff', amount: 125n },
+    { field: 'stateDiff', amount: 0n },
+  ] as const)(
+    'preserves seeded balance overrides across retries ($field, $amount)',
+    async ({ field, amount }) => {
+      const slot = Hash.keccak256(
+        Hex.concat(
+          Hex.padLeft(account.address, 32),
+          Hex.fromNumber(9, { size: 32 }),
+        ),
+      )
+      const state =
+        field === 'state'
+          ? Object.fromEntries(
+              await Promise.all(
+                Array.from({ length: 9 }, async (_, index) => {
+                  const slot = Hex.fromNumber(index, { size: 32 })
+                  return [
+                    slot,
+                    await getStorageAt(client, {
+                      address: Addresses.alphaUsd,
+                      slot,
+                    }),
+                  ]
+                }),
+              ),
+            )
+          : {}
+      expect(
+        await infer(client, {
+          tokens: [Addresses.alphaUsd],
+          transaction: TransactionRequest.toRpc({
+            from: account.address,
+            calls: [
+              transfer(Addresses.betaUsd, 10n),
+              Actions.token.approve.call({
+                token: Addresses.alphaUsd,
+                spender: contract,
+                amount: 2n ** 128n - 1n,
+              }),
+              {
+                to: contract,
+                data: encodeFunctionData({
+                  ...FundingInference,
+                  functionName: 'sweep',
+                  args: [Addresses.alphaUsd],
+                }),
+              },
+            ],
+          }),
+          stateOverrides: {
+            [Addresses.alphaUsd]: {
+              [field]: {
+                ...state,
+                [slot]: Hex.fromNumber(amount, { size: 32 }),
+              },
+            },
+          },
+        }),
+      ).toEqual([
+        { token: getAddress(Addresses.betaUsd), amount: '0xa' },
+        ...(amount === 0n
+          ? []
+          : [{ token: getAddress(Addresses.alphaUsd), amount: '0x7d' }]),
+      ])
+    },
+  )
+
   test('preserves caller code overrides during inference', async () => {
     await expect(
       infer(client, {

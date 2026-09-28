@@ -243,20 +243,30 @@ export async function infer(
     Hex.concat(Hex.padLeft(from, 32), Hex.fromNumber(9, { size: 32 })),
   )
 
-  const balances = new Map<Address.Address, bigint>()
-  for (const token of typeof options.tokens === 'function'
-    ? await options.tokens()
-    : options.tokens)
-    balances.set(Address.checksum(token), balance)
-
-  const failures = new Set<string>()
-
   const overrides = Object.fromEntries(
     Object.entries(options.stateOverrides ?? {}).map(([address, override]) => [
       Address.checksum(address),
       override,
     ]),
   )
+  const balances = new Map<Address.Address, bigint>()
+  for (const token_ of typeof options.tokens === 'function'
+    ? await options.tokens()
+    : options.tokens) {
+    const token = Address.checksum(token_)
+    const override = overrides[token]
+    balances.set(
+      token,
+      BigInt(
+        override?.stateDiff?.[slot] ??
+          override?.state?.[slot] ??
+          (override?.state ? 0n : balance),
+      ),
+    )
+  }
+
+  const failures = new Set<string>()
+
   for (let attempt = 0; attempt < 16; attempt++) {
     const stateOverrides = { ...overrides }
     for (const [token, value] of balances) {
