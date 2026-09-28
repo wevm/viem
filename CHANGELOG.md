@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.12
+
+### Patch Changes
+
+- [#4930](https://github.com/wevm/viem/pull/4930) [`a2bbd49`](https://github.com/wevm/viem/commit/a2bbd49cebcc2e77034a12002ace6c0c01f9f171) Thanks [@jxom](https://github.com/jxom)! - Fixed declaration generation for inferred clients and chains that reference frame transaction and Tempo multisig types.
+
 ## 3.0.0-next.11
 
 ### Patch Changes
