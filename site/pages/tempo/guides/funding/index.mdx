@@ -16,7 +16,9 @@ For example, if an account lacks enough PathUSD for a payment, the transaction c
 **Experimental.** Transaction funding requires a TIP-1120-enabled node.
 :::
 
-## Set Up a Client
+## Recipes
+
+### Set Up a Client
 
 Configure [`Relay.funding`](/tempo/relay/plugins/funding). These guides share this configuration.
 
@@ -28,7 +30,7 @@ Configure [`Relay.funding`](/tempo/relay/plugins/funding). These guides share th
 A long-lived persistent store is highly recommended so registered policy rules remain available across restarts. These examples import your store from `./store`; it must implement the `Store.Store` interface.
 :::
 
-## Fund a Transfer
+### Fund a Transfer
 
 Set `requireFunds: true` to automatically source assets to fund the transfer. If the account has less than 50 PathUSD, Viem finds other supported tokens in the account to swap for the missing amount before sending the payment.
 
@@ -63,7 +65,7 @@ requireFunds: [{ token: Addresses.pathUsd }]
 In the example above, this sources 50 PathUSD.
 :::
 
-## Recipes
+## See More
 
 <Cards>
   <Card
