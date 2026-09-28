@@ -80,7 +80,9 @@ export async function signTransaction<
       from?: Hex | undefined
       gas?: bigint | undefined
     }
-    const [entry, ...rest] = envelope.signatures ?? []
+    const [entry, ...rest] = envelope.signatures ?? [
+      { scheme: 'secp256k1' as const },
+    ]
     const address = privateKeyToAddress(privateKey)
     if (
       envelope.sender.toLowerCase() !== address.toLowerCase() ||

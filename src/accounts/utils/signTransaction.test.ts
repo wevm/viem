@@ -507,25 +507,6 @@ describe('legacy', () => {
   })
 })
 
-test.each(['eip8141', undefined] as const)(
-  'rejects missing frame signature entries: %s',
-  async (type) => {
-    await expect(
-      signTransaction({
-        privateKey: accounts[0].privateKey,
-        transaction: {
-          chainId: 1,
-          frames: [{}],
-          sender: accounts[0].address,
-          type,
-        },
-      }),
-    ).rejects.toThrow(
-      'Expected an unsigned secp256k1 entry for the transaction sender at signature index 0.',
-    )
-  },
-)
-
 describe('eip8141', () => {
   const account = privateKeyToAccount(accounts[0].privateKey)
   const transaction = {
@@ -581,6 +562,35 @@ describe('eip8141', () => {
     ).toBe(account.address)
     expect(transaction.signatures[0]).not.toHaveProperty('signature')
   })
+
+  test.each(['eip8141', undefined] as const)(
+    'synthesizes the sender signature: %s',
+    async (type) => {
+      const { signatures: _, ...request } = transaction
+      const serialized = await account.signTransaction({ ...request, type })
+      const parsed = parseTransaction(serialized)
+      const entry = parsed.signatures?.[0]
+      if (
+        parsed.type !== 'eip8141' ||
+        entry?.scheme !== 'secp256k1' ||
+        !entry.signature
+      )
+        throw new Error('Expected a signed frame transaction.')
+      expect(
+        await recoverAddress({
+          hash: TxEnvelopeEip8141.getSignPayload({
+            ...parsed,
+            nonce: BigInt(parsed.nonce ?? 0),
+          }),
+          signature:
+            typeof entry.signature === 'string'
+              ? entry.signature
+              : Signature.toHex(entry.signature),
+        }),
+      ).toBe(account.address)
+      expect(request).not.toHaveProperty('signatures')
+    },
+  )
 
   test('preserves other entries', async () => {
     const entry = {
