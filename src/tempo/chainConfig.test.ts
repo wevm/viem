@@ -1,3 +1,5 @@
+import * as Http from 'node:http'
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
@@ -17,6 +19,7 @@ import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import {
   Account,
+  Actions,
   Addresses,
   KeyAuthorizationManager,
   P256,
@@ -30,6 +33,57 @@ const client = getClient({
 const maxUint256 = 2n ** 256n - 1n
 
 describe('prepareTransactionRequest', () => {
+  test('rejects relay changes to explicit funding amounts before signing', async () => {
+    const server = Http.createServer(
+      createRequestListener(async (request) => {
+        const { id, method, params } = await request.json()
+        const result = await (async () => {
+          if (method !== 'eth_fillTransaction')
+            return client.request({ method, params })
+          const filled = await client.request({
+            method: 'eth_fillTransaction',
+            params: [{ ...params[0], requireFunds: undefined }],
+          })
+          return {
+            ...filled,
+            tx: {
+              ...filled.tx,
+              requireFunds: [
+                { token: Addresses.pathUsd, amount: '0x2', sources: [] },
+              ],
+            },
+          }
+        })()
+        return Response.json({ id, jsonrpc: '2.0', result })
+      }),
+    )
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+    const { port } = server.address() as { port: number }
+    try {
+      const relayClient = createClient({
+        account: accounts[0],
+        chain: tempoLocalnet,
+        transport: http(`http://127.0.0.1:${port}`),
+      })
+      await expect(
+        prepareTransactionRequest(relayClient, {
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              amount: 1n,
+              to: accounts[1].address,
+            }),
+          ],
+          requireFunds: [{ token: Addresses.pathUsd, amount: 1n }],
+        }),
+      ).rejects.toThrow('Funding relay changed `requireFunds[0].amount`.')
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      )
+    }
+  })
+
   test('behavior: expiring nonces for feePayer transactions', async () => {
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([

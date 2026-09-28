@@ -4,11 +4,7 @@ import type * as BlockOverrides from 'ox/BlockOverrides'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
-import {
-  FundingPolicy,
-  type FundingRequirement,
-  KeyAuthorization,
-} from 'ox/tempo'
+import { FundingPolicy, FundingRequirement, KeyAuthorization } from 'ox/tempo'
 import { getChainId } from '../../actions/public/getChainId.js'
 import { getStorageAt } from '../../actions/public/getStorageAt.js'
 import type { Client } from '../../clients/createClient.js'
@@ -95,6 +91,32 @@ export function normalizeRequireFunds<quantity, index>(
           : FundingPolicy.encode(policyRules),
     }
   })
+}
+
+/** Rejects relay changes to explicitly supplied funding constraints. */
+export function assertRequireFunds(
+  intent: true | readonly FundingRequirementIntent[] | undefined,
+  filled: readonly FundingRequirement.FundingRequirement[] | undefined,
+) {
+  if (intent === true || intent === undefined) return
+  if (intent.length !== filled?.length)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Funding relay changed the number of funding requirements.',
+    })
+  for (const [index, requirement] of normalizeRequireFunds(intent)!.entries()) {
+    const expected = FundingRequirement.toRpcRequest(requirement)
+    const actual = FundingRequirement.toRpc(filled[index]!)
+    for (const field of Object.keys(expected) as (keyof typeof expected)[]) {
+      if (expected[field] === undefined) continue
+      if (
+        JSON.stringify(expected[field]).toLowerCase() !==
+        JSON.stringify(actual[field])?.toLowerCase()
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message: `Funding relay changed \`requireFunds[${index}].${field}\`.`,
+        })
+    }
+  }
 }
 
 /** Preserves single-action funding defaults, including zero amounts without transfer logs. */

@@ -27,7 +27,10 @@ import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
-import { normalizeRequireFunds } from './internal/funding.js'
+import {
+  assertRequireFunds,
+  normalizeRequireFunds,
+} from './internal/funding.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -313,6 +316,7 @@ export const chainConfig = {
         } as never)
         const filled =
           result.transaction as unknown as Transaction.TransactionTempo
+        assertRequireFunds(request.requireFunds, filled.requireFunds)
         return {
           ...request,
           chainId: filled.chainId,
