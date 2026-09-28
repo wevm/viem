@@ -51,7 +51,8 @@ chain rules. Clients rely on it for service availability and persistence.
 
 Compose plugins to sponsor transactions, resolve fee tokens, add swaps, simulate
 balance changes, and coordinate multisig approvals. The transaction plugins share
-one fill workflow, so combining them does not repeat the fill for each plugin.
+the same middleware contract as custom plugins. Requests enter plugins in array
+order, and responses return in reverse order.
 
 Funding and access-key state plugins are planned.
 

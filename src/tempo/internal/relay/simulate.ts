@@ -11,8 +11,64 @@ import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
-import type * as Store from './cache.js'
+import type * as Relay from '../../Relay.js'
+import { extractSwapFromCapabilities } from './autoSwap.js'
+import * as Store from './cache.js'
+import { formatError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
+import * as Request from './request.js'
+import * as Utils from './utils.js'
+import { extractCalls } from './virtualAddress.js'
+
+export function create(options: Relay.simulate.Options): Relay.Plugin {
+  return (next) =>
+    Request.wrap(next, async (request, context) => {
+      if (request.method !== 'eth_fillTransaction')
+        return next(request, context.options)
+      const parameters = request.params![0] as Record<string, unknown>
+      const store = Store.scoped(options.cache)
+      const result: Request.Result = await Request.fill(
+        context.client,
+        Utils.normalizeFillTransactionRequest(parameters),
+      ).catch((error) => {
+        if (
+          error instanceof Error &&
+          (parameters.capabilities as Record<string, unknown> | undefined)
+            ?.errors === true
+        )
+          return formatError(error, parameters, context.client, store)
+        throw error
+      })
+      if (result.capabilities?.error) return result
+      const transaction = Utils.normalizeTempoTransaction(result.tx)
+      const feeToken = transaction.feeToken as Address | undefined
+      const simulation =
+        (parameters.capabilities as Record<string, unknown> | undefined)
+          ?.balanceDiffs !== false
+          ? await simulateAndParseDiffs(context.client, {
+              account: parameters.from as Address | undefined,
+              calls: extractCalls(transaction),
+              swap: extractSwapFromCapabilities(result.capabilities?.autoSwap),
+              feeToken,
+              gas: transaction.gas,
+              maxFeePerGas: transaction.maxFeePerGas,
+              store,
+            })
+          : {
+              balanceDiffs: undefined,
+              fee: await computeFee(context.client, {
+                feeToken,
+                gas: transaction.gas,
+                maxFeePerGas: transaction.maxFeePerGas,
+                store,
+              }).catch(() => undefined),
+            }
+      return {
+        ...result,
+        capabilities: { ...result.capabilities, ...simulation },
+      }
+    })
+}
 
 export async function simulate(client: Client, options: simulate.Options) {
   const { account, calls } = options

@@ -1,11 +1,142 @@
 import type { Address } from 'abitype'
 import { Hash, type Hex, RpcResponse, Signature } from 'ox'
-import { TxEnvelopeTempo } from 'ox/tempo'
+import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
 import type { LocalAccount } from '../../../accounts/types.js'
-import type { Client } from '../../../clients/createClient.js'
+import { type Client, createClient } from '../../../clients/createClient.js'
+import { http } from '../../../clients/transports/http.js'
+import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import { getDefaultTokens } from './feeToken.js'
+import * as Request from './request.js'
 
 import * as Utils from './utils.js'
+
+export function create(options: Relay.feePayer.Options): Relay.Plugin {
+  return (next: Request.Handler) =>
+    Request.wrap(next, async (request, context) => {
+      const { client, getClient, chainId, options: requestOptions } = context
+      const getTokens = (id: number) =>
+        (next[Request.tokens] ?? getDefaultTokens)(id, requestOptions.signal)
+      const record = (details: SponsorshipDetails | undefined) => {
+        if (details && requestOptions[Request.response])
+          requestOptions[Request.response].sponsorship_details = details
+      }
+      if (request.method !== 'eth_fillTransaction') {
+        if (!options.account) {
+          if (request.method === 'eth_signRawTransaction')
+            throw new RpcResponse.MethodNotFoundError({
+              message:
+                'eth_signRawTransaction requires a fee payer to be configured on the relay. Add `Relay.feePayer({ account })` to enable transaction sponsorship.',
+            })
+          return next(request, requestOptions)
+        }
+        const serialized = request.params?.[0]
+        if (
+          typeof serialized !== 'string' ||
+          !requestsRawSponsorship(serialized as Hex.Hex)
+        )
+          return next(request, requestOptions)
+        const result = await handleRawTransaction({
+          ...options,
+          account: options.account,
+          getClient,
+          getFeeToken: async (id) => (await getTokens(id))[0],
+          method: request.method as
+            | 'eth_signRawTransaction'
+            | 'eth_sendRawTransaction'
+            | 'eth_sendRawTransactionSync',
+          request,
+        })
+        record(result.sponsorshipDetails)
+        return result.result
+      }
+      const parameters = request.params![0] as Record<string, unknown>
+      const { feePayer: _, ...normalized } =
+        Utils.normalizeFillTransactionRequest(parameters)
+      const external =
+        typeof parameters.feePayer === 'string'
+          ? ExternalFeePayerUrl.normalize(parameters.feePayer, {
+              allowUnsafe: options.internal_allowUnsafeUrls ?? false,
+            })
+          : undefined
+      const wantsSponsorship =
+        (!!options.account || !!external) && parameters.feePayer !== false
+      const base = { ...normalized, chainId }
+      if (!wantsSponsorship) return Request.fill(client, base)
+      const token =
+        options.feeToken ??
+        (parameters.feeToken as Address | undefined) ??
+        (!options.validate || external
+          ? (await getTokens(chainId!))[0]
+          : undefined)
+      const transaction = {
+        ...base,
+        feePayer: true,
+        ...(token ? { feeToken: token } : {}),
+      }
+      const prepared = isPreparedTransaction(transaction)
+      const fillClient = external
+        ? createClient({
+            chain: client.chain,
+            transport: http(external, { fetchOptions: { redirect: 'error' } }),
+          })
+        : client
+      const result: Request.Result = prepared
+        ? { tx: transaction }
+        : await Request.fill(fillClient, transaction)
+      const filled = Utils.normalizeTempoTransaction(result.tx)
+      // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
+      if (!prepared && filled.gas && !filled.feePayerSignature)
+        filled.gas += 20_000n
+      if (token && filled.feeToken == null)
+        Object.assign(filled, { feeToken: token })
+      const sponsored =
+        external ||
+        !options.validate ||
+        (await shouldSponsor({
+          sender: parameters.from as Address | undefined,
+          transaction: filled,
+          validate: options.validate,
+        }))
+      if (!sponsored && !prepared) return Request.fill(client, base)
+      const defer =
+        typeof normalized.multisigSimulation === 'object' &&
+        normalized.multisigSimulation !== null
+      const signed =
+        sponsored &&
+        options.account &&
+        !external &&
+        !filled.feePayerSignature &&
+        !defer
+          ? await sign({
+              account: options.account,
+              onSponsored: options.onSponsored,
+              sender: parameters.from as Address | undefined,
+              transaction: filled,
+            })
+          : { transaction: filled, sponsorshipDetails: undefined }
+      record(signed.sponsorshipDetails)
+      const sponsor = sponsored
+        ? external
+          ? (result.capabilities?.sponsor ?? result.sponsor)
+          : options.account
+            ? getSponsor({ ...options, account: options.account })
+            : undefined
+        : undefined
+      return {
+        ...result,
+        ...(sponsor ? { sponsor } : {}),
+        tx: core_Transaction.toRpc(
+          signed.transaction as core_Transaction.Transaction,
+        ),
+        capabilities: {
+          ...result.capabilities,
+          sponsored: !!sponsor,
+          ...(sponsor ? { sponsor } : {}),
+        },
+      }
+    })
+}
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */
 export type Validate = (

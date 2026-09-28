@@ -1,14 +1,69 @@
 import type { Address } from 'abitype'
 import { Hex } from 'ox'
+import { Transaction as core_Transaction } from 'ox/tempo'
 import type { Client } from '../../../clients/createClient.js'
 import type { Call } from '../../../types/calls.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Addresses from '../../Addresses.js'
 import * as Actions from '../../actions/index.js'
-import type * as Store from './cache.js'
+import type * as Relay from '../../Relay.js'
+import * as Store from './cache.js'
 import * as ExecutionError from './executionError.js'
-import { resolveTokenMetadata } from './feeToken.js'
+import {
+  getDefaultTokens,
+  resolveFeeToken,
+  resolveTokenMetadata,
+} from './feeToken.js'
+import * as Request from './request.js'
 import * as Utils from './utils.js'
+
+export function create(options: Relay.autoSwap.Options): Relay.Plugin {
+  return (next: Request.Handler) =>
+    Request.wrap(next, async (request, context) => {
+      if (request.method !== 'eth_fillTransaction')
+        return next(request, context.options)
+      const transaction = Utils.normalizeFillTransactionRequest(
+        request.params![0] as Record<string, unknown>,
+      )
+      const store = Store.scoped(options.cache)
+      const autoSwap = { slippage: options.slippage ?? 0.05 }
+      const result = await fill(context.client, {
+        transaction,
+        autoSwap,
+        store,
+        feeToken: transaction.feeToken as Address | undefined,
+        resolveFeeToken: async (insufficientToken) =>
+          resolveFeeToken(context.client, {
+            account: transaction.from as Address | undefined,
+            store,
+            tokens: (
+              await (next[Request.tokens] ?? getDefaultTokens)(
+                context.chainId!,
+                context.options.signal,
+              )
+            ).filter(
+              (token) =>
+                token.toLowerCase() !== insufficientToken.toLowerCase(),
+            ),
+          }),
+      })
+      const metadata = await resolveAutoSwapMetadata(context.client, {
+        autoSwap,
+        store,
+        swap: result.swap,
+      })
+      return {
+        ...result.result,
+        tx: core_Transaction.toRpc(
+          result.transaction as core_Transaction.Transaction,
+        ),
+        capabilities: {
+          ...result.result.capabilities,
+          ...(metadata ? { autoSwap: metadata } : {}),
+        },
+      }
+    })
+}
 
 export async function fill(client: Client, options: fill.Options) {
   const { autoSwap, feeToken, store, transaction: request } = options
@@ -21,7 +76,6 @@ export async function fill(client: Client, options: fill.Options) {
 
   // Retry with swaps prepended when a funded source token can cover the missing balance.
   async function fillWithSwap(insufficientToken: Address, deficit: bigint) {
-    if (!autoSwap) return null
     const sourceToken =
       feeToken && feeToken.toLowerCase() !== insufficientToken.toLowerCase()
         ? feeToken
@@ -56,7 +110,7 @@ export async function fill(client: Client, options: fill.Options) {
       .capabilities?.sponsor as
       | { address: Address; name?: string; url?: string }
       | undefined
-    const mergedTx = mergeCallsFromRequest(
+    const mergedTx = Utils.mergeCallsFromRequest(
       result.tx as Record<string, unknown>,
       {
         ...request,
@@ -64,6 +118,7 @@ export async function fill(client: Client, options: fill.Options) {
       },
     )
     return {
+      result: result as unknown as Request.Result,
       transaction: Utils.normalizeTempoTransaction(mergedTx),
       sponsor,
       swap: {
@@ -82,13 +137,6 @@ export async function fill(client: Client, options: fill.Options) {
       method: 'eth_fillTransaction',
       params: [formatted as never],
     })
-    // Reserve extra intrinsic gas for larger sender and fee-payer signatures. An already-sponsored upstream result includes its own allowance.
-    if (
-      result.tx.gas &&
-      request.feePayer &&
-      !('feePayerSignature' in result.tx && result.tx.feePayerSignature)
-    )
-      result.tx.gas = Hex.fromNumber(BigInt(result.tx.gas) + 20_000n)
     const upstreamCapabilities = (
       result as { capabilities?: Record<string, unknown> }
     ).capabilities
@@ -115,13 +163,13 @@ export async function fill(client: Client, options: fill.Options) {
     // The chain's `eth_fillTransaction` doesn't echo back `calls`, so merge
     // them in from the original request before normalizing: otherwise the
     // typed envelope built for sponsorship signing throws CallsEmptyError.
-    const mergedTx = mergeCallsFromRequest(
+    const mergedTx = Utils.mergeCallsFromRequest(
       result.tx as Record<string, unknown>,
       request,
     )
 
     // Check pre-transaction fee balance: a fill can select a token the sender will acquire only during execution.
-    if (autoSwap && !swap) {
+    if (!swap) {
       const fromAddress = request.from as Address | undefined
       const resolvedFeeToken = ((mergedTx.feeToken as Address | undefined) ??
         feeToken) as Address | undefined
@@ -160,13 +208,13 @@ export async function fill(client: Client, options: fill.Options) {
     }
 
     return {
+      result: result as unknown as Request.Result,
       transaction: Utils.normalizeTempoTransaction(mergedTx),
       sponsor,
       ...(swap ? { swap } : {}),
     }
   } catch (error) {
     if (!(error instanceof Error)) throw error
-    if (!autoSwap) throw error
 
     const revert = ExecutionError.parse(error)
     if (revert?.errorName !== 'InsufficientBalance') throw error
@@ -190,7 +238,7 @@ export async function fill(client: Client, options: fill.Options) {
 
 export declare namespace fill {
   type Options = {
-    autoSwap?: { slippage: number } | undefined
+    autoSwap: { slippage: number }
     feeToken?: Address | undefined
     store?: Store.Store | undefined
     resolveFeeToken?:
@@ -205,7 +253,7 @@ export async function resolveAutoSwapMetadata(
   options: resolveAutoSwapMetadata.Options,
 ) {
   const { autoSwap, store, swap } = options
-  if (!autoSwap || !swap) return undefined
+  if (!swap) return undefined
   const [inMeta, outMeta] = await Promise.all([
     resolveTokenMetadata(client, { token: swap.tokenIn, store }).catch(
       () => undefined,
@@ -239,7 +287,7 @@ export async function resolveAutoSwapMetadata(
 
 export declare namespace resolveAutoSwapMetadata {
   type Options = {
-    autoSwap?: { slippage: number } | undefined
+    autoSwap: { slippage: number }
     store?: Store.Store | undefined
     swap?:
       | {
@@ -275,39 +323,6 @@ export function buildSwapCalls(
     { to: approve.to, data: approve.data, value: 0n },
     { to: buy.to, data: buy.data, value: 0n },
   ] as const
-}
-
-/** Preserves envelope inputs omitted by the node, including calls and chain ID. Filled fields take precedence; legacy calls are normalized separately. */
-export function mergeCallsFromRequest(
-  resultTx: Record<string, unknown>,
-  request: Record<string, unknown>,
-): Record<string, unknown> {
-  const merged: Record<string, unknown> = { ...request, ...resultTx }
-  const resultCalls = resultTx.calls
-  if (Array.isArray(resultCalls) && resultCalls.length > 0) return merged
-
-  const reqCalls = request.calls
-  if (Array.isArray(reqCalls) && reqCalls.length > 0) {
-    merged.calls = reqCalls
-    return merged
-  }
-
-  const { to, data, value } = request
-  if (
-    typeof to === 'undefined' &&
-    typeof data === 'undefined' &&
-    typeof value === 'undefined'
-  )
-    return merged
-
-  merged.calls = [
-    {
-      ...(typeof to !== 'undefined' ? { to } : {}),
-      ...(typeof data !== 'undefined' ? { data } : {}),
-      ...(typeof value !== 'undefined' ? { value } : {}),
-    },
-  ]
-  return merged
 }
 
 /** Preserves upstream auto-swap information so forwarding relays can report the injected swap and resolve its metadata. */

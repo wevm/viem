@@ -86,6 +86,12 @@ export async function relay(
             }) satisfies Relay.Plugin,
           ]
         : []),
+      ...(options.multisig ? [Relay.multisig(options.multisig)] : []),
+      ...(options.features === 'all' ? [Relay.simulate()] : []),
+      ...(options.autoSwap !== false &&
+      (options.autoSwap || options.features === 'all')
+        ? [Relay.autoSwap(options.autoSwap || {})]
+        : []),
       Relay.feePayer({
         ...options.feePayer,
         internal_allowUnsafeUrls: options.internal_allowUnsafeUrls,
@@ -98,12 +104,6 @@ export async function relay(
             }),
           ]
         : []),
-      ...(options.autoSwap !== false &&
-      (options.autoSwap || options.features === 'all')
-        ? [Relay.autoSwap(options.autoSwap || {})]
-        : []),
-      ...(options.features === 'all' ? [Relay.simulate()] : []),
-      ...(options.multisig ? [Relay.multisig(options.multisig)] : []),
     ],
   })
   const listener: Http.RequestListener = async (req, res) => {

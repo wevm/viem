@@ -84,6 +84,9 @@ export default defineConfig({
           name: 'tempo',
           exclude: [
             '**/*.multisig.test.ts',
+            process.env.VITE_TEMPO_MULTISIG === 'true'
+              ? 'src/tempo/Relay.test.ts'
+              : '',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
             'src/tempo/**/*.node-fuzz.test.ts',
@@ -102,7 +105,10 @@ export default defineConfig({
               extends: true,
               test: {
                 name: 'tempo-multisig',
-                include: ['src/tempo/**/*.multisig.test.ts'],
+                include: [
+                  'src/tempo/**/*.multisig.test.ts',
+                  'src/tempo/Relay.test.ts',
+                ],
                 setupFiles: [join(__dirname, './src/tempo/setup.ts')],
                 globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
                 retry: 0,

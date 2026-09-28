@@ -1,7 +1,71 @@
 import type { Address } from 'abitype'
+import { tempo, tempoModerato } from '../../../chains/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import * as Actions from '../../actions/index.js'
+import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
+import * as Request from './request.js'
+import * as Utils from './utils.js'
+
+export function create(options: Relay.feeToken.Options): Relay.Plugin {
+  return (next) =>
+    Object.assign(
+      Request.wrap(next, async (request, context) => {
+        if (request.method !== 'eth_fillTransaction')
+          return next(request, context.options)
+        const parameters = request.params![0] as Record<string, unknown>
+        const transaction = Utils.normalizeFillTransactionRequest(parameters)
+        const tokens = await resolveTokens(
+          context.chainId!,
+          context.options.signal,
+        )
+        const candidates = [
+          ...tokens,
+          ...callTargetTokens(transaction).filter(
+            (token) =>
+              !tokens.some(
+                (candidate) => candidate.toLowerCase() === token.toLowerCase(),
+              ),
+          ),
+        ]
+        const feeToken = transaction.feePayer
+          ? (transaction.feeToken ?? tokens[0])
+          : await resolveFeeToken(context.client, {
+              account: transaction.from as Address | undefined,
+              feeToken: transaction.feeToken as Address | undefined,
+              store: Store.scoped(options.cache),
+              tokens: candidates,
+            })
+        return Request.fill(context.client, {
+          ...transaction,
+          ...(feeToken ? { feeToken } : {}),
+        })
+      }),
+      { [Request.tokens]: resolveTokens },
+    )
+
+  async function resolveTokens(chainId: number, signal?: AbortSignal) {
+    if (options.resolveTokens) return options.resolveTokens(chainId)
+    return getDefaultTokens(chainId, signal, options.apiKey)
+  }
+}
+
+export async function getDefaultTokens(
+  chainId: number,
+  signal?: AbortSignal,
+  apiKey?: string,
+): Promise<readonly Address[]> {
+  if (chainId !== tempo.id && chainId !== tempoModerato.id) return []
+  const url = new URL('https://api.tempo.xyz/v1/tokenlist')
+  url.searchParams.set('chainId', String(chainId))
+  const response = await fetch(url, {
+    ...(signal ? { signal } : {}),
+    ...(apiKey ? { headers: { 'tempo-api-key': apiKey } } : {}),
+  })
+  if (response.status !== 200) return []
+  const body = (await response.json()) as { tokens: { address: Address }[] }
+  return body.tokens.map((token) => token.address)
+}
 
 export async function resolveFeeToken(
   client: Client,

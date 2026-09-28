@@ -61,6 +61,33 @@ Available plugins:
 - [`Relay.simulate`](/tempo/relay/plugins/simulate): reports balance changes and estimated fees.
 - [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum, and submits multisig transactions.
 
+When combining transaction plugins, use this order:
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [ // [!code focus]
+    Relay.multisig({ store: Store.memory() }), // [!code focus]
+    Relay.simulate(), // [!code focus]
+    Relay.feePayer({ account: privateKeyToAccount('0x...') }), // [!code focus]
+    Relay.autoSwap(), // [!code focus]
+    Relay.feeToken(), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+Multisig collects approvals before fee-payer signing. Simulation reports the final
+transaction. The local fee payer validates and signs after auto-swap finishes.
+When sponsorship is refused, fee-token selection runs again for the sender-paid fill.
+
+For an external fee-payer URL, place `autoSwap` before `feePayer` so failed fills
+from that relay can be retried with swaps.
+
 ### Select a Chain for an Endpoint
 
 ```ts twoslash

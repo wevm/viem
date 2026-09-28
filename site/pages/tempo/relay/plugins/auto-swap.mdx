@@ -22,7 +22,7 @@ import { Relay, withRelay } from 'viem/tempo'
 const client = createClient({
   chain: tempo,
   transport: withRelay(http(), {
-    plugins: [Relay.feeToken(), Relay.autoSwap(), Relay.simulate()], // [!code focus]
+    plugins: [Relay.simulate(), Relay.autoSwap(), Relay.feeToken()], // [!code focus]
   }),
 })
 ```
@@ -31,6 +31,11 @@ The sender needs a source-token balance, and the DEX needs liquidity for the
 swap. The plugin reports injected calls, maximum input, minimum output, and
 slippage in `capabilities.autoSwap`. Swap movements are excluded from the
 simulation's transfer balance changes.
+
+Place `autoSwap` before `feeToken` so retries select a fee token again. For a local
+sponsor, place `feePayer` before `autoSwap` to validate and sign the final candidate.
+For an external fee-payer URL, place `autoSwap` before `feePayer` to retry that relay's
+failed fills. Place `simulate` first to report the final calls after swaps.
 
 ## `Relay.autoSwap`
 

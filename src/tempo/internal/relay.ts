@@ -2,7 +2,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 import { BaseError } from '../../errors/base.js'
 import { RpcRequestError } from '../../errors/request.js'
 import type * as Relay from '../Relay.js'
-import * as Services from './relay/services.js'
+import * as Request_ from './relay/request.js'
 
 /** Adapts an RPC handler to the Fetch API without changing its method results. */
 export async function fetch(
@@ -77,7 +77,7 @@ export async function fetch(
         },
         {
           ...requestOptions,
-          [Services.response]: metadata,
+          [Request_.response]: metadata,
         } as Relay.handleRequest.RequestOptions,
       )
       if (id === undefined) return undefined

@@ -19,7 +19,7 @@ import { Addresses, Relay, withRelay } from 'viem/tempo'
 const client = createClient({
   chain: tempo,
   transport: withRelay(http(), {
-    plugins: [Relay.feeToken(), Relay.simulate()], // [!code focus]
+    plugins: [Relay.simulate(), Relay.feeToken()], // [!code focus]
   }),
 })
 const { capabilities } = await fillTransaction(client, {
@@ -78,6 +78,9 @@ await fillTransaction(client, {
 The plugin still computes fee metadata when the filled fee token is known.
 Simulation failures do not block a successful fill; unavailable balance changes
 are omitted.
+
+Place `simulate` before plugins that change the transaction so it reports the final
+calls and fee estimate when their responses return.
 
 ## `Relay.simulate`
 

@@ -6,11 +6,11 @@ Added Fetch-based relays with fee-payer, auto-swap, fee-token, simulation, and m
 
 ```ts
 const plugins = [
+  Relay.multisig({ store }),
+  Relay.simulate(),
   Relay.feePayer({ account }),
   Relay.autoSwap(),
   Relay.feeToken(),
-  Relay.simulate(),
-  Relay.multisig({ store }),
 ]
 
 const relay = Relay.create({ client, plugins })

@@ -3,9 +3,12 @@ import * as RpcResponse from 'ox/RpcResponse'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import type * as Sponsorship from './internal/relay/feePayer.js'
+import * as AutoSwap from './internal/relay/autoSwap.js'
+import * as Sponsorship from './internal/relay/feePayer.js'
+import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
-import * as Services from './internal/relay/services.js'
+import * as Request_ from './internal/relay/request.js'
+import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
 import type * as Store from './Store.js'
 
@@ -71,7 +74,7 @@ export function create(
     })
 
   const handle = handleRequest(
-    Services.withClient(
+    Request_.withClient(
       async (request, requestOptions) => {
         const { chainId, ...rest } = requestOptions ?? {}
         if (chainId === undefined)
@@ -196,12 +199,10 @@ export function handleRequest(
   options: handleRequest.Options = {},
 ): handleRequest.Handler {
   const plugins = options.plugins ?? []
-  const handler = plugins.some(Services.isPlugin)
-    ? Services.handleRequest(next, {
-        multisig: plugins.some((plugin) => plugin.multisig === true),
-      })
-    : next
-  return plugins.reduceRight((next, plugin) => plugin(next), handler)
+  return plugins.reduceRight(
+    (next, plugin) => Request_.inherit(next, plugin(next)),
+    next,
+  )
 }
 
 export declare namespace handleRequest {
@@ -294,7 +295,7 @@ export declare namespace multisig {
  * @returns An auto-swap relay plugin.
  */
 export function autoSwap(options: autoSwap.Options = {}): Plugin {
-  return Services.create('autoSwap', options)
+  return AutoSwap.create(options)
 }
 export declare namespace autoSwap {
   export type Options = {
@@ -308,6 +309,9 @@ export declare namespace autoSwap {
 /**
  * Sponsors transactions with a local account or an external fee-payer relay.
  *
+ * Place multisig before this plugin and fee-token selection after it.
+ * For local sponsorship, place auto-swap after it; for external relay retries, place auto-swap before it.
+ *
  * @example
  * ```ts
  * import { privateKeyToAccount } from 'viem/accounts'
@@ -318,7 +322,7 @@ export declare namespace autoSwap {
  * @returns A fee-payer relay plugin.
  */
 export function feePayer(options: feePayer.Options = {}): Plugin {
-  return Services.create('feePayer', options)
+  return Sponsorship.create(options)
 }
 export declare namespace feePayer {
   export type Options = {
@@ -355,7 +359,7 @@ export declare namespace feePayer {
  * @returns A fee-token relay plugin.
  */
 export function feeToken(options: feeToken.Options = {}): Plugin {
-  return Services.create('feeToken', options)
+  return FeeToken.create(options)
 }
 export declare namespace feeToken {
   export type Options = {
@@ -373,6 +377,8 @@ export declare namespace feeToken {
 /**
  * Adds balance changes, estimated fees, and execution errors to fill capabilities.
  *
+ * Place this plugin before transaction-modifying plugins to simulate their final result.
+ *
  * @example
  * ```ts
  * import { Relay } from 'viem/tempo'
@@ -382,7 +388,7 @@ export declare namespace feeToken {
  * @returns A simulation relay plugin.
  */
 export function simulate(options: simulate.Options = {}): Plugin {
-  return Services.create('simulate', options)
+  return Simulate.create(options)
 }
 export declare namespace simulate {
   export type Options = {

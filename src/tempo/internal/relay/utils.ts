@@ -129,3 +129,36 @@ export function toRpcError(error: unknown): RpcResponse.BaseError {
     })
   return new RpcResponse.BaseError(deepest)
 }
+
+/** Preserves envelope inputs omitted by the node, including calls and chain ID. Filled fields take precedence; legacy calls are normalized separately. */
+export function mergeCallsFromRequest(
+  resultTx: Record<string, unknown>,
+  request: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...request, ...resultTx }
+  const resultCalls = resultTx.calls
+  if (Array.isArray(resultCalls) && resultCalls.length > 0) return merged
+
+  const reqCalls = request.calls
+  if (Array.isArray(reqCalls) && reqCalls.length > 0) {
+    merged.calls = reqCalls
+    return merged
+  }
+
+  const { to, data, value } = request
+  if (
+    typeof to === 'undefined' &&
+    typeof data === 'undefined' &&
+    typeof value === 'undefined'
+  )
+    return merged
+
+  merged.calls = [
+    {
+      ...(typeof to !== 'undefined' ? { to } : {}),
+      ...(typeof data !== 'undefined' ? { data } : {}),
+      ...(typeof value !== 'undefined' ? { value } : {}),
+    },
+  ]
+  return merged
+}
