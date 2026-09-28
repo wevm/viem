@@ -3393,6 +3393,21 @@ export default defineConfig({
                   text: 'Multisig',
                   link: '/tempo/relay/plugins/multisig',
                 },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Fee Payer',
+                },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Funding',
+                },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Access Key State',
+                },
               ],
             },
           ],
