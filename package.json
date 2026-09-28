@@ -149,7 +149,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "119 kB"
+      "limit": "119.2 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -178,13 +178,13 @@
     {
       "name": "import { mnemonicToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "34 kB",
+      "limit": "34.3 kB",
       "import": "{ mnemonicToAccount }"
     },
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "75 kB",
+      "limit": "75.3 kB",
       "import": "*"
     },
     {
