@@ -92,14 +92,12 @@ describe('getContractAddress', () => {
         {
           "contract": {
             "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
-            "blockCreated": 0,
           },
           "id": 4217,
         },
         {
           "contract": {
             "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
-            "blockCreated": 0,
           },
           "id": 42431,
         },
