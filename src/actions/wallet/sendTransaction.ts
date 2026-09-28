@@ -121,6 +121,10 @@ export type SendTransactionErrorType =
 /**
  * Creates, signs, and sends a new transaction to the network.
  *
+ * For EIP-8141, pass `frames` containing explicit frames or `viem/frames` helpers.
+ * Put destinations, calldata, values, and gas budgets inside each frame.
+ * Provide `signatures` for explicit frames; signing helpers allocate their own entries.
+ *
  * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction
  * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions
  * - JSON-RPC Methods:
