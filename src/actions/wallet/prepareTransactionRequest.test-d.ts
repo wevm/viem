@@ -26,10 +26,10 @@ test('default', async () => {
   const result_1 = await prepareTransactionRequest(client, {})
   expectTypeOf(result_1.account).toEqualTypeOf<undefined>()
   expectTypeOf(result_1.chain).toEqualTypeOf<typeof anvilMainnet.chain>()
-  expectTypeOf(result_1.gas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_1.gas).toEqualTypeOf<bigint>()
   expectTypeOf(result_1.nonce).toEqualTypeOf<number>()
   expectTypeOf(result_1.type).toEqualTypeOf<
-    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | 'eip8141'
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702'
   >()
   if (result_1.type === 'legacy' || result_1.type === 'eip2930') {
     expectTypeOf(result_1.gas).toEqualTypeOf<bigint>()
@@ -206,7 +206,7 @@ test('args: parameters', async () => {
   const result_1 = await prepareTransactionRequest(client, {
     parameters: ['gas'],
   })
-  expectTypeOf(result_1.gas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_1.gas).toEqualTypeOf<bigint>()
   expectTypeOf(result_1.nonce).toEqualTypeOf<number | undefined>()
   expectTypeOf(result_1.gasPrice).toEqualTypeOf<bigint | undefined>()
   expectTypeOf(result_1.maxFeePerGas).toEqualTypeOf<bigint | undefined>()
@@ -214,19 +214,13 @@ test('args: parameters', async () => {
     bigint | undefined
   >()
   expectTypeOf(result_1.type).toEqualTypeOf<
-    | 'legacy'
-    | 'eip2930'
-    | 'eip1559'
-    | 'eip4844'
-    | 'eip7702'
-    | 'eip8141'
-    | undefined
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
   >()
 
   const result_2 = await prepareTransactionRequest(client, {
     parameters: ['gas', 'nonce'],
   })
-  expectTypeOf(result_2.gas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_2.gas).toEqualTypeOf<bigint>()
   expectTypeOf(result_2.nonce).toEqualTypeOf<number>()
   expectTypeOf(result_2.gasPrice).toEqualTypeOf<bigint | undefined>()
   expectTypeOf(result_2.maxFeePerGas).toEqualTypeOf<bigint | undefined>()
@@ -234,31 +228,19 @@ test('args: parameters', async () => {
     bigint | undefined
   >()
   expectTypeOf(result_2.type).toEqualTypeOf<
-    | 'legacy'
-    | 'eip2930'
-    | 'eip1559'
-    | 'eip4844'
-    | 'eip7702'
-    | 'eip8141'
-    | undefined
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
   >()
 
   const result_3 = await prepareTransactionRequest(client, {
     parameters: ['gas', 'nonce', 'fees'],
   })
-  expectTypeOf(result_3.gas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_3.gas).toEqualTypeOf<bigint>()
   expectTypeOf(result_3.nonce).toEqualTypeOf<number>()
   expectTypeOf(result_3.gasPrice).toEqualTypeOf<bigint>()
   expectTypeOf(result_3.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_3.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_3.type).toEqualTypeOf<
-    | 'legacy'
-    | 'eip2930'
-    | 'eip1559'
-    | 'eip4844'
-    | 'eip7702'
-    | 'eip8141'
-    | undefined
+    'legacy' | 'eip2930' | 'eip1559' | 'eip4844' | 'eip7702' | undefined
   >()
 })
 

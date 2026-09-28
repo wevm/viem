@@ -110,8 +110,11 @@ type ParameterTypeToParameters<
 type PrepareTransactionRequestRequired<
   request,
   keys extends keyof request,
+  input,
 > = request extends { frames: readonly unknown[] }
-  ? request & ExactRequired<Pick<request, Exclude<keys, 'gas'>>>
+  ? 'frames' extends keyof input
+    ? request & ExactRequired<Pick<request, Exclude<keys, 'gas'>>>
+    : never
   : request & ExactRequired<Pick<request, keys>>
 
 export type PrepareTransactionRequestRequest<
@@ -235,7 +238,8 @@ export type PrepareTransactionRequestReturnType<
       request['parameters'] extends readonly PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]
         : (typeof defaultParameters)[number]
-    >
+    >,
+    request
   > &
     (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
       // TODO(v3): Extract `prepareTransactionRequest` response into a named object of `{ capabilities, request }.
