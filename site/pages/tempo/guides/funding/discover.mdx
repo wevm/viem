@@ -26,7 +26,6 @@ import { parseUnits } from 'viem'
 import { Actions, Addresses } from 'viem/tempo'
 import { client } from './viem.config'
 
-// Discover sources and fill gas, fees, and nonce without sending the transaction.
 const { transaction } = await client.fillTransaction({
   calls: [
     Actions.token.transfer.call({
@@ -38,7 +37,6 @@ const { transaction } = await client.fillTransaction({
   requireFunds: true,
 })
 
-// Inspect the concrete source inputs selected by withFunding.
 console.log(transaction.requireFunds)
 ```
 
@@ -47,9 +45,6 @@ console.log(transaction.requireFunds)
 ```
 
 :::
-
-Discovery does not swap, redeem, or reserve funds. Balances and liquidity can change before execution. Transaction filling also estimates execution, so it can fail when the payment or fee balance is insufficient.
-
 
 ### Direct Discovery
 
