@@ -6,8 +6,10 @@ import {
   getTransactionCount,
   prepareTransactionRequest,
   sendRawTransactionSync,
+  sendTransaction,
   sendTransactionSync,
   signTransaction,
+  waitForTransactionReceipt,
 } from 'viem/actions'
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
@@ -24,6 +26,24 @@ const request = {
 } as const
 
 describe('frames: Frame', () => {
+  test.each(['sendTransaction', 'sendTransactionSync'] as const)(
+    'ignores outer data suffixes: %s',
+    async (action) => {
+      const suffixed = { ...client, dataSuffix: '0xdeadbeef' as const }
+      const request = {
+        frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+        dataSuffix: '0xcafe' as const,
+      }
+      const receipt =
+        action === 'sendTransactionSync'
+          ? await sendTransactionSync(suffixed, request)
+          : await waitForTransactionReceipt(client, {
+              hash: await sendTransaction(suffixed, request),
+            })
+      expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    },
+  )
+
   test('mixed signing', async () => {
     const owner = { ...accounts[0] }
     const prepared = await prepareTransactionRequest(client, {

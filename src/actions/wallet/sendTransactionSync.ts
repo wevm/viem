@@ -289,7 +289,8 @@ export async function sendTransactionSync<
           authorizationList,
           blobs,
           chainId,
-          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          data:
+            dataSuffix && !frames ? concat([data ?? '0x', dataSuffix]) : data,
           frames,
           gas,
           gasPrice,
@@ -415,7 +416,7 @@ export async function sendTransactionSync<
         authorizationList,
         blobs,
         chain,
-        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+        data: dataSuffix && !frames ? concat([data ?? '0x', dataSuffix]) : data,
         frames,
         gas,
         gasPrice,
