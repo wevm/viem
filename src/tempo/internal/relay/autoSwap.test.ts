@@ -297,3 +297,94 @@ test('records sponsorship only after a successful fill is retried with a fee-bal
   })
   expect(receipt.status).toBe('success')
 })
+
+test.each([
+  { gas: 1_000_000n, balance: 1n, amount: undefined },
+  { gas: 1_000_001n, balance: 1n, amount: '0x1' },
+  { gas: 1_000_001n, balance: 0n, amount: '0x2' },
+])(
+  'rounds fee funding up: gas $gas, balance $balance',
+  async ({ gas, balance, amount }) => {
+    const account = Tempo.accounts[balance === 0n ? 5 : 4]!
+    await Actions.faucet.fundSync(caller, { account, timeout: 60_000 })
+    const current = await Actions.token.getBalance(caller, {
+      account: account.address,
+      token,
+    })
+    if (current.amount < balance)
+      await Actions.token.mintSync(caller, {
+        account: feePayerAccount,
+        token,
+        to: account.address,
+        amount: balance - current.amount,
+      })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.autoSwap(),
+          Relay.feePayer({ account: feePayerAccount, feeToken: token }),
+          Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+        ],
+      }),
+    })
+    const { transaction, capabilities } = await fillTransaction(client, {
+      account: account.address,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+      gas,
+      nonce: 0,
+      maxFeePerGas: 1_000_000n,
+      maxPriorityFeePerGas: 0n,
+    })
+    expect(capabilities?.autoSwap?.minOut.value).toBe(amount)
+    expect(transaction.calls).toHaveLength(amount ? 3 : 1)
+  },
+)
+
+test.each([false, true])(
+  'fails the fill when swap metadata cannot be loaded, errors: %s',
+  async (errors) => {
+    const memory = Store.memory()
+    const store: Store.Store = {
+      ...memory,
+      async getItem(key) {
+        if (key.includes('tokenMetadata:') && key.endsWith(token.toLowerCase()))
+          throw new Error('Private metadata storage failure')
+        return memory.getItem(key)
+      },
+    }
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.autoSwap({ store })],
+    })
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            feeToken: Tempo.addresses.alphaUsd,
+            capabilities: { errors },
+            calls: [
+              Actions.token.transfer.call(caller, {
+                token,
+                to: recipient.address,
+                amount: parseUnits('5', 6),
+              }),
+            ],
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({
+      code: -32603,
+      message: 'Internal error',
+      data: { code: 'internal_error' },
+    })
+  },
+)

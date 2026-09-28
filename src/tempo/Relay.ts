@@ -287,6 +287,7 @@ export declare namespace multisig {
 
 /**
  * Adds swaps to fill requests when a token balance is insufficient.
+ * Fails the fill if swap metadata cannot be loaded.
  *
  * @example
  * ```ts

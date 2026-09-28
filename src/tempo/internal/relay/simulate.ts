@@ -14,7 +14,7 @@ import type * as Capabilities from '../../Capabilities.js'
 import type * as Relay from '../../Relay.js'
 import { extractSwapFromCapabilities } from './autoSwap.js'
 import type * as Store from './cache.js'
-import { formatError } from './error.js'
+import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
 import * as Plugin from './plugin.js'
 import * as Request from './request.js'
@@ -34,7 +34,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
         Utils.normalizeFillTransactionRequest(parameters),
       ).catch((error) => {
         if (
-          error instanceof Error &&
+          isExecutionError(error) &&
           (parameters.capabilities as Record<string, unknown> | undefined)
             ?.errors === true
         )
@@ -237,9 +237,19 @@ async function buildBalanceDiffs(
     tokenMap.set(token, entry)
   }
 
-  // Transfers do not identify allowance consumption, so retain approval exposure.
+  // Approvals replace allowances; retain the last event for each token and spender.
+  const approvals = new Map<string, (typeof approvalLogs)[number]>()
   for (const log of approvalLogs) {
     if (log.args.owner.toLowerCase() !== accountLower) continue
+    approvals.set(
+      `${log.address.toLowerCase()}:${log.args.spender.toLowerCase()}`,
+      log,
+    )
+  }
+
+  // Transfers do not identify allowance consumption, so retain final approval exposure.
+  for (const log of approvals.values()) {
+    if (log.args.amount === 0n) continue
     const token = log.address.toLowerCase()
 
     // Skip swap-related approvals (reported in capabilities.autoSwap instead).

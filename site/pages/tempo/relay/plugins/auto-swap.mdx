@@ -32,6 +32,9 @@ swap. The plugin reports injected calls, maximum input, minimum output, and
 slippage in `capabilities.autoSwap`. Swap movements are excluded from the
 simulation's transfer balance changes.
 
+If swap metadata cannot be loaded, the
+fill fails so injected calls are never returned without their swap disclosure.
+
 Place `autoSwap` before `feeToken` so retries select a fee token again. For a local
 sponsor, place `feePayer` before `autoSwap` to validate and sign the final candidate.
 For an external fee-payer URL, place `autoSwap` before `feePayer` to retry that relay's

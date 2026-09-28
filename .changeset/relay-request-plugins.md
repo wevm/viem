@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added Fetch-based relays with fee-payer, auto-swap, fee-token, simulation, and multisig plugins, replacing `Multisig.handleRequest`, `withMultisig`, and the `experimental_multisig` client option.
+Added Fetch-based relay plugins and signature-specific execution errors, replacing `Multisig.handleRequest`, `withMultisig`, and the `experimental_multisig` client option.
 
 ```ts
 const plugins = [

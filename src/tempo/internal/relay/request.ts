@@ -7,7 +7,7 @@ import { custom } from '../../../clients/transports/custom.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
-import { formatError } from './error.js'
+import { formatError, isExecutionError } from './error.js'
 import type { SponsorshipDetails } from './feePayer.js'
 import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
@@ -244,7 +244,7 @@ export function wrap(
       if (
         isFill &&
         client &&
-        error instanceof Error &&
+        isExecutionError(error) &&
         (parameters.capabilities as Record<string, unknown> | undefined)
           ?.errors === true
       )

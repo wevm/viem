@@ -192,9 +192,8 @@ async function fill(client: Client, options: fill.Options) {
           }).catch(() => undefined),
         ])
         if (metadata) {
-          const requiredFee =
-            (gas * maxFeePerGas) /
-            10n ** BigInt(Math.max(0, 18 - metadata.decimals))
+          const scale = 10n ** BigInt(Math.max(0, 18 - metadata.decimals))
+          const requiredFee = (gas * maxFeePerGas + scale - 1n) / scale
           if (balance < requiredFee) {
             // Preserve the successful fill when the additional fee-balance swap fails.
             const swapResult = await fillWithSwap(
@@ -256,14 +255,9 @@ async function resolveAutoSwapMetadata(
   const { autoSwap, store, swap } = options
   if (!swap) return undefined
   const [inMeta, outMeta] = await Promise.all([
-    resolveTokenMetadata(client, { token: swap.tokenIn, store }).catch(
-      () => undefined,
-    ),
-    resolveTokenMetadata(client, { token: swap.tokenOut, store }).catch(
-      () => undefined,
-    ),
+    resolveTokenMetadata(client, { token: swap.tokenIn, store }),
+    resolveTokenMetadata(client, { token: swap.tokenOut, store }),
   ])
-  if (!inMeta || !outMeta) return undefined
   return {
     calls: swap.calls.map((c) => ({ to: c.to, data: c.data })),
     slippage: autoSwap.slippage,

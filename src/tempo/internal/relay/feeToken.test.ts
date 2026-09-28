@@ -128,3 +128,36 @@ test('cached metadata preserves bigint fields', async () => {
   )
   expect(second.capabilities?.fee?.symbol).toBe('AlphaUSD')
 })
+
+test.each([false, true])(
+  'redacts token-list failures, simulate: %s',
+  async (simulate) => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        ...(simulate ? [Relay.simulate()] : []),
+        Relay.feeToken({
+          resolveTokens: () => {
+            throw new Error('Private token-list configuration')
+          },
+        }),
+      ],
+    })
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            to: recipient.address,
+            capabilities: { errors: true },
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({
+      code: -32603,
+      message: 'Internal error',
+      data: { code: 'internal_error' },
+    })
+  },
+)

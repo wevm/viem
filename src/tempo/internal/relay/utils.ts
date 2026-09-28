@@ -5,6 +5,7 @@ import {
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import type { Client } from '../../../clients/createClient.js'
+import { UnknownRpcError } from '../../../errors/rpc.js'
 
 export function resolveChainId(value: unknown) {
   if (typeof value === 'number') return value
@@ -116,6 +117,7 @@ export function toRpcError(error: unknown): RpcResponse.BaseError {
     seen.add(current)
     const candidate = current as Record<string, unknown>
     if (
+      !(current instanceof UnknownRpcError) &&
       typeof candidate.code === 'number' &&
       typeof candidate.message === 'string'
     )

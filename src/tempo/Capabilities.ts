@@ -18,7 +18,7 @@ export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
 export type FillTransactionRequestCapabilities = {
   /** Whether to include `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
-  /** Whether fill failures return error capabilities instead of throwing. */
+  /** Whether execution reverts return error capabilities instead of throwing. */
   errors?: boolean | undefined
 }
 

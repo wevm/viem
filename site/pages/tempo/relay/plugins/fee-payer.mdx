@@ -121,18 +121,29 @@ import { Addresses, Relay } from 'viem/tempo'
 Relay.feePayer({ feeToken: Addresses.pathUsd }) // [!code focus]
 ```
 
-#### options.validate
+#### options.internal_allowUnsafeUrls
 
-- **Type:** `(transaction) => Relay.feePayer.Validation | Promise<Relay.feePayer.Validation>`
+- **Type:** `boolean`
+- **Default:** `false`
 
-Checks the prepared transaction, including its chain ID. Return `false` or a named
-refusal: `billing_past_due`, `billing_required`, `fee_token_unsupported`,
-`spend_limit_exceeded`, or `tx_fee_limit_exceeded`.
+Allows HTTP and private external relay addresses for trusted local development.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
 // ---cut---
-Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
+Relay.feePayer({ internal_allowUnsafeUrls: true }) // [!code focus]
+```
+
+#### options.name
+
+- **Type:** `string`
+
+Display name included with the sponsor address in fill capabilities.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ name: 'Example Sponsor' }) // [!code focus]
 ```
 
 #### options.onSponsored
@@ -148,18 +159,6 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ onSponsored: () => ({ subsidized: false }) }) // [!code focus]
 ```
 
-#### options.name
-
-- **Type:** `string`
-
-Display name included with the sponsor address in fill capabilities.
-
-```ts twoslash
-import { Relay } from 'viem/tempo'
-// ---cut---
-Relay.feePayer({ name: 'Example Sponsor' }) // [!code focus]
-```
-
 #### options.url
 
 - **Type:** `string`
@@ -172,17 +171,18 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ url: 'https://example.com' }) // [!code focus]
 ```
 
-#### options.internal_allowUnsafeUrls
+#### options.validate
 
-- **Type:** `boolean`
-- **Default:** `false`
+- **Type:** `(transaction) => Relay.feePayer.Validation | Promise<Relay.feePayer.Validation>`
 
-Allows HTTP and private external relay addresses for trusted local development.
+Checks the prepared transaction, including its chain ID. Return `false` or a named
+refusal: `billing_past_due`, `billing_required`, `fee_token_unsupported`,
+`spend_limit_exceeded`, or `tx_fee_limit_exceeded`.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
 // ---cut---
-Relay.feePayer({ internal_allowUnsafeUrls: true }) // [!code focus]
+Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
 ```
 
 ### Return Value

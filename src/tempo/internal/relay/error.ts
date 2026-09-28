@@ -10,6 +10,35 @@ import { simulateAndParseDiffs } from './simulate.js'
 import * as Utils from './utils.js'
 import { extractCalls, resolveVirtualAddresses } from './virtualAddress.js'
 
+/** Distinguishes execution reverts from transport and plugin failures. */
+export function isExecutionError(error: unknown): error is Error {
+  if (!(error instanceof Error)) return false
+
+  const seen = new Set<unknown>()
+  const pending: unknown[] = [error]
+  while (pending.length) {
+    const current = pending.pop()
+    if (!current || typeof current !== 'object' || seen.has(current)) continue
+    seen.add(current)
+
+    const candidate = current as Record<string, unknown>
+    if (
+      candidate.code === 3 ||
+      candidate.name === 'UpstreamRevertError' ||
+      candidate.name === 'ExecutionRevertedError' ||
+      candidate.name === 'ContractFunctionRevertedError' ||
+      [candidate.message, candidate.details].some(
+        (message) =>
+          typeof message === 'string' && /^execution reverted\b/i.test(message),
+      )
+    )
+      return true
+
+    pending.push(candidate.cause, candidate.error)
+  }
+  return false
+}
+
 export async function formatError(
   error: Error,
   parameters: Record<string, unknown>,

@@ -337,26 +337,21 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
   })
 
-  test('behavior: missing from returns error capability when errors capability is enabled', async () => {
-    const result = await fillTransaction(client, {
-      calls: [
-        Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          to: recipient.address,
-          amount: 1n,
-        }),
-      ],
-      capabilities: { errors: true },
+  test('behavior: missing from remains an RPC error when errors capability is enabled', async () => {
+    await expect(
+      fillTransaction(client, {
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token: Tempo.addresses.alphaUsd,
+            to: recipient.address,
+            amount: 1n,
+          }),
+        ],
+        capabilities: { errors: true },
+      }),
+    ).rejects.toMatchObject({
+      cause: { code: -32602, details: 'unknown account' },
     })
-    expect(result.capabilities).toMatchInlineSnapshot(`
-      {
-        "error": {
-          "errorName": "unknown",
-          "message": "unknown account",
-        },
-        "sponsored": false,
-      }
-    `)
   })
 })
 

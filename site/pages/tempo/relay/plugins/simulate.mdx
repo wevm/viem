@@ -52,9 +52,12 @@ const { capabilities } = await fillTransaction(client, {
 })
 ```
 
-With `errors: true`, failed fills return a transaction stub and a decoded
+With `errors: true`, execution reverts return a transaction stub and a decoded
 `capabilities.error`. Insufficient balances also return `requireFunds` when token
 metadata is available. A failed fill is not a transaction ready to sign.
+
+Invalid requests and operational failures remain RPC errors. Unexpected callback
+and storage errors return `Internal error`.
 
 ### Skip Balance Simulation
 

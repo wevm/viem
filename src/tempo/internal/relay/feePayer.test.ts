@@ -383,37 +383,45 @@ test('cancelling a fill closes the external fee-payer request', async () => {
   }
 })
 
-test('a rejected asynchronous sponsorship record prevents returning the signed fill', async () => {
-  const relay = Relay.create({
-    client: caller,
-    plugins: [
-      Relay.simulate(),
-      Relay.feePayer({
-        account: feePayerAccount,
-        onSponsored: async () => {
-          await Actions.token.getBalance(caller, {
-            account: userAccount.address,
-            token: Tempo.addresses.alphaUsd,
-          })
-          throw new Error('Recording failed')
-        },
+test.each(['validate', 'onSponsored'] as const)(
+  'redacts failures in %s with error capabilities enabled',
+  async (hook) => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        Relay.simulate(),
+        Relay.feePayer({
+          account: feePayerAccount,
+          [hook]: async () => {
+            await Actions.token.getBalance(caller, {
+              account: userAccount.address,
+              token: Tempo.addresses.alphaUsd,
+            })
+            throw new Error('Recording failed')
+          },
+        }),
+        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+      ],
+    })
+    const response = await relay.fetch(
+      new globalThis.Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: userAccount.address,
+              to: recipient.address,
+              capabilities: { errors: true },
+            },
+          ],
+        }),
       }),
-      Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
-    ],
-  })
-  const response = await relay.fetch(
-    new globalThis.Request('https://relay.example', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_fillTransaction',
-        params: [{ from: userAccount.address, to: recipient.address }],
-      }),
-    }),
-  )
-  expect(await response.json()).toMatchInlineSnapshot(`
+    )
+    expect(await response.json()).toMatchInlineSnapshot(`
     {
       "error": {
         "code": -32603,
@@ -426,4 +434,5 @@ test('a rejected asynchronous sponsorship record prevents returning the signed f
       "jsonrpc": "2.0",
     }
   `)
-})
+  },
+)
