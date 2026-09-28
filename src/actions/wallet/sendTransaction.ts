@@ -187,6 +187,7 @@ export async function sendTransaction<
     chain = client.chain,
     accessList,
     authorizationList,
+    blobVersionedHashes,
     blobs,
     data,
     dataSuffix = typeof client.dataSuffix === 'string'
@@ -267,6 +268,7 @@ export async function sendTransaction<
           accessList,
           account,
           authorizationList,
+          blobVersionedHashes,
           blobs,
           chainId,
           data:
@@ -378,6 +380,7 @@ export async function sendTransaction<
         account,
         accessList,
         authorizationList,
+        blobVersionedHashes,
         blobs,
         chain,
         data: dataSuffix && !frames ? concat([data ?? '0x', dataSuffix]) : data,
