@@ -1,9 +1,9 @@
 import { Zone } from 'viem/tempo'
-import { tempoTestnet } from 'viem/tempo/chains'
+import { tempo, tempoDevnet, tempoModerato, tempoTestnet } from 'viem/chains'
 
 export const tempoChain = tempoTestnet
 export const tempoChains = [tempo, tempoDevnet, tempoModerato, tempoTestnet]
-export const customTempoChain = defineChain({
+export const customTempoChain = Chain.from({
   ...tempoTestnet,
   id: 123,
   name: 'Custom Tempo Chain',
@@ -11,7 +11,7 @@ export const customTempoChain = defineChain({
 
 export const zone = Zone.from({ id: 123, name: 'Custom Zone', sourceId: 1 })
 
-import { Client, http, publicActions, Token, webSocket } from 'viem'
+import { Chain, Client, http, publicActions, Token, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
 // Minimal token (no optional metadata): must satisfy `tokens` without

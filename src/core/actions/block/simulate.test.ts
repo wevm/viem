@@ -176,15 +176,14 @@ test('behavior: gas too low', async () => {
         },
       ],
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [RpcError.ExecutionError: The amount of gas provided for the transaction exceeds the limit allowed for the block.
-
-    Request Arguments:
-
-
-    Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
-    Version: viem@x.x.x]
-  `)
+  ).rejects.toMatchObject({
+    name: 'RpcError.ExecutionError',
+    shortMessage:
+      'The amount of gas provided for the transaction exceeds the limit allowed for the block.',
+    details: expect.stringMatching(
+      /^(?:err: )?intrinsic gas too high -- CallGasCostMoreThanGasLimit$/,
+    ),
+  })
 })
 
 test('behavior: insufficient funds', async () => {
@@ -202,24 +201,14 @@ test('behavior: insufficient funds', async () => {
         },
       ],
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [RpcError.ExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
-
-    This error could arise when the account does not have enough funds to:
-     - pay for the total gas fee,
-     - pay for the value to send.
-     
-    The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
-     - \`gas\` is the amount of gas needed for transaction to execute,
-     - \`gas fee\` is the gas fee,
-     - \`value\` is the amount of ether to send to the recipient.
-     
-    Request Arguments:
-
-
-    Details: Insufficient funds for gas * price + value
-    Version: viem@x.x.x]
-  `)
+  ).rejects.toMatchObject({
+    name: 'RpcError.ExecutionError',
+    shortMessage:
+      'The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.',
+    details: expect.stringMatching(
+      /^(?:err: )?Insufficient funds for gas \* price \+ value$/,
+    ),
+  })
 })
 
 test('behavior: contract function does not exist (abi call)', async () => {

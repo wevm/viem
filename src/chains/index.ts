@@ -579,3 +579,5 @@ export { zksyncSepoliaTestnet } from './definitions/zksyncSepoliaTestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+
+export type * from '../internal/inference.js'
