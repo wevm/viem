@@ -96,7 +96,7 @@ export async function signTransaction<
     if (
       envelope.frames.some(
         (frame) =>
-          ((typeof frame.flags === 'number' && (frame.flags & 1) !== 0) ||
+          ((typeof frame.flags === 'number' && (frame.flags & 2) !== 0) ||
             frame.flags === 'approveExecution' ||
             frame.flags === 'approveExecutionAndPayment') &&
           frame.to !== undefined &&

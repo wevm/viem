@@ -617,13 +617,33 @@ describe('eip8141', () => {
     },
   )
 
-  test('rejects another execution approver', async () => {
-    await expect(
-      account.signTransaction({
-        ...transaction,
-        frames: [{ ...transaction.frames[0], to: accounts[1].address }],
-      }),
-    ).rejects.toThrow('Execution approval must target the transaction sender.')
+  test.each([2, 3, 'approveExecution', 'approveExecutionAndPayment'] as const)(
+    'rejects another execution approver: %s',
+    async (flags) => {
+      await expect(
+        account.signTransaction({
+          ...transaction,
+          frames: [
+            { ...transaction.frames[0], flags, to: accounts[1].address },
+          ],
+        }),
+      ).rejects.toThrow(
+        'Execution approval must target the transaction sender.',
+      )
+    },
+  )
+
+  test('accepts numeric payment approval for another account', async () => {
+    const serialized = await account.signTransaction({
+      ...transaction,
+      frames: [
+        transaction.frames[0],
+        { mode: 'verify' as const, flags: 1, to: accounts[1].address },
+      ],
+    })
+    expect(
+      parseTransaction(serialized).frames?.[1]?.flags,
+    ).toMatchInlineSnapshot(`1`)
   })
 
   test('accepts numeric scheme and explicit signer', async () => {
