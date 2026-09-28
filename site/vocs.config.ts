@@ -243,6 +243,23 @@ export default defineConfig({
           { text: 'TypeScript', link: '/docs/typescript' },
           { text: 'Error Handling', link: '/docs/error-handling' },
           {
+            text: 'EIP-7702',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/eip7702' },
+              {
+                text: 'Contract Writes',
+                link: '/docs/eip7702/contract-writes',
+              },
+              {
+                text: 'Sending Transactions',
+                link: '/docs/eip7702/sending-transactions',
+              },
+            ],
+          },
+          { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
+          {
+            badge: { text: 'EXP', variant: 'warning' },
             text: 'Frame Transactions',
             collapsed: true,
             items: [
@@ -270,22 +287,6 @@ export default defineConfig({
               },
             ],
           },
-          {
-            text: 'EIP-7702',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/docs/eip7702' },
-              {
-                text: 'Contract Writes',
-                link: '/docs/eip7702/contract-writes',
-              },
-              {
-                text: 'Sending Transactions',
-                link: '/docs/eip7702/sending-transactions',
-              },
-            ],
-          },
-          { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
         ],
       },
       {
@@ -1042,6 +1043,7 @@ export default defineConfig({
         ],
       },
       {
+        badge: { text: 'EXP', variant: 'warning' },
         text: 'Frames',
         collapsed: true,
         items: [
