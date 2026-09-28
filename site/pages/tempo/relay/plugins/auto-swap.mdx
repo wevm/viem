@@ -1,4 +1,4 @@
-# Auto-Swap Plugin
+# Auto Swap Plugin
 
 ## Overview
 
@@ -8,27 +8,85 @@ missing amount, then retries the fill with approval and swap calls prepended.
 
 ## Recipes
 
+Choose a local relay to run plugins in your application, or connect to a remote
+relay at `/relay`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
 ### Fill a Transfer with Another Token
 
-Combine auto-swap with [`Relay.feeToken`](/tempo/relay/plugins/fee-token) to
+Combine Auto Swap with [`Relay.feeToken`](/tempo/relay/plugins/fee-token) to
 select a held token and [`Relay.simulate`](/tempo/relay/plugins/simulate) to
 preview the resulting balance changes.
 
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay, withRelay } from 'viem/tempo'
+:::code-group
 
-const client = createClient({
-  chain: tempo,
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { transaction, capabilities } = await fillTransaction(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.autoSwap
+// @log: {
+// @log:   calls: [
+// @log:     { to: '0x20c0000000000000000000000000000000000000', data: '0x095ea7b3...' },
+// @log:     { to: '0xdec0000000000000000000000000000000000000', data: '0x...' },
+// @log:   ],
+// @log:   maxIn: {
+// @log:     decimals: 6, formatted: '105', name: 'PathUSD', symbol: 'pathUSD',
+// @log:     token: '0x20c0000000000000000000000000000000000000', value: '0x6422c40',
+// @log:   },
+// @log:   minOut: {
+// @log:     decimals: 6, formatted: '100', name: 'Bridged USDC (Stargate)', symbol: 'USDC.e',
+// @log:     token: '0x20c000000000000000000000b9537d11c60e8b50', value: '0x5f5e100',
+// @log:   },
+// @log:   slippage: 0.05,
+// @log: }
+transaction.calls // Approval and DEX buy calls precede the requested transfer.
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
   transport: withRelay(http(), {
-    plugins: [Relay.simulate(), Relay.autoSwap(), Relay.feeToken()], // [!code focus]
+    plugins: [
+      Relay.simulate(),
+      Relay.autoSwap({ slippage: 0.05 }), // [!code focus]
+      Relay.feeToken(),
+    ],
   }),
 })
 ```
 
-The sender needs a source-token balance, and the DEX needs liquidity for the
-swap. The plugin reports injected calls, maximum input, minimum output, and
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+
+This example assumes the sender has no USDC.e and holds enough pathUSD for
+the swap and fees. The DEX needs liquidity. Calldata is abbreviated in the example
+response; the returned `calls` contain complete calldata. The plugin reports injected calls, maximum input, minimum output, and
 slippage in `capabilities.autoSwap`. Swap movements are excluded from the
 simulation's transfer balance changes.
 

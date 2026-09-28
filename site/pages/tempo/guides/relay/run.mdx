@@ -1,3 +1,5 @@
+import { Card, Cards } from 'vocs'
+
 # Run a Relay
 
 ## Overview
@@ -10,23 +12,134 @@ Add [`Relay.multisig`](/tempo/relay/plugins/multisig) for approval coordination.
 
 These recipes assume you have [set up a Tempo client](/tempo).
 
-### Export a Fetch Handler
+### Use a Server Framework
 
-The same `Request` and `Response` contract works in Cloudflare Workers and other
-Fetch-based runtimes. Client construction performs no upstream request until a
-call reaches the handler.
+Use the tab for your runtime or framework.
+Node.js and Express need a Fetch-to-Node adapter, such as
+`@remix-run/node-fetch-server`, installed in the hosting application.
 
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay } from 'viem/tempo'
+:::code-group
 
+```ts twoslash [Cloudflare Workers]
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
 const relay = Relay.create({
-  client: createClient({ chain: tempo, transport: http() }),
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
 })
 
-export default { fetch: relay.fetch } // [!code focus]
+export default {
+  fetch(request: Request) {
+    return relay.fetch(request) // [!code focus]
+  },
+}
 ```
+
+```ts [Bun]
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+Bun.serve({ fetch: relay.fetch })
+```
+
+```ts [Deno]
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+Deno.serve((request) => relay.fetch(request))
+```
+
+```ts [Node.js]
+import { createServer } from 'node:http'
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+createServer(createRequestListener(relay.fetch)).listen(3000)
+```
+
+```ts [Express]
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import express from 'express'
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+const app = express()
+app.use('/relay', createRequestListener(relay.fetch))
+app.listen(3000)
+```
+
+```ts [Hono]
+import { Hono } from 'hono'
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+const app = new Hono()
+app.post('/relay', (c) => relay.fetch(c.req.raw))
+export default app
+```
+
+```ts [Elysia]
+import { Elysia } from 'elysia'
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+new Elysia()
+  .post('/relay', ({ request }) => relay.fetch(request), { parse: 'none' })
+  .listen(3000)
+```
+
+```ts [Next.js]
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [Relay.simulate(), Relay.feeToken()],
+})
+
+export const POST = (request: Request) => relay.fetch(request)
+```
+
+:::
+
+Mount the Node adapter before middleware that consumes the request body.
+[Elysia disables its body parser](https://elysiajs.com/essential/life-cycle#skip-body-parsing)
+with `parse: 'none'` so the relay can read the request. The
+relay accepts JSON-RPC over `POST` with `Content-Type: application/json`;
+`GET` returns `405`. Apply CORS, preflight handling, and custom headers in your
+framework or around the Fetch handler.
 
 ### Add Plugins
 
@@ -53,15 +166,43 @@ Independent processes and Worker isolates must share a persistent
 [atomic store](/tempo/utilities/Store) so they can read and update the same approvals.
 :::
 
-Available plugins:
+#### Plugins
 
-- [`Relay.feePayer`](/tempo/relay/plugins/fee-payer): sponsors fills and signed transactions.
-- [`Relay.autoSwap`](/tempo/relay/plugins/auto-swap): adds swaps when a token balance is insufficient.
-- [`Relay.feeToken`](/tempo/relay/plugins/fee-token): selects fee tokens from preferences and balances.
-- [`Relay.simulate`](/tempo/relay/plugins/simulate): reports balance changes and estimated fees.
-- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum, and submits multisig transactions.
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Fee Payer"
+    description="Sponsor transaction fees with a local account or an external relay."
+    to="/tempo/relay/plugins/fee-payer"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Auto Swap"
+    description="Swap tokens the sender holds to cover a missing transaction balance."
+    to="/tempo/relay/plugins/auto-swap"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Fee Token"
+    description="Choose a funded fee token using the sender's preference and balances."
+    to="/tempo/relay/plugins/fee-token"
+  />
+  <Card
+    icon="lucide:scan"
+    title="Simulate"
+    description="Preview token balance changes and estimate fees before sending a transaction."
+    to="/tempo/relay/plugins/simulate"
+  />
+  <Card
+    icon="lucide:users"
+    title="Multisig"
+    description="Coordinate owner approvals and share pending multisig transactions."
+    to="/tempo/relay/plugins/multisig"
+  />
+</Cards>
 
-When combining transaction plugins, use this order:
+To enable sponsorship, Auto Swap, fee-token selection, and simulation together,
+list those plugins explicitly. Add multisig when you also need approval coordination:
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -81,13 +222,6 @@ const relay = Relay.create({
 })
 ```
 
-Multisig collects approvals before fee-payer signing. Simulation reports the final
-transaction. The local fee payer validates and signs after auto-swap finishes.
-When sponsorship is refused, fee-token selection runs again for the sender-paid fill.
-
-For an external fee-payer URL, place `autoSwap` before `feePayer` so failed fills
-from that relay can be retried with swaps.
-
 ### Select a Chain for an Endpoint
 
 ```ts twoslash
@@ -97,7 +231,9 @@ import { Relay } from 'viem/tempo'
 
 const { getClient } = createClientResolver({
   chains: [tempo, tempoModerato],
-  transport: () => http(),
+  transport: ({ chainId }) => http(chainId === tempo.id
+    ? 'https://rpc.tempo.xyz'
+    : 'https://rpc.moderato.tempo.xyz'),
 })
 const relay = Relay.create({ getClient })
 
@@ -111,9 +247,29 @@ export default {
 }
 ```
 
-For binding-dependent clients or stores, construct the relay inside the platform's
-request handler using the current bindings. Keep durable coordination state in
-the store, so rebuilding the relay does not lose approvals.
+### Inspect Incoming Requests
+
+Use a custom plugin before the built-in plugins to log or validate each incoming
+RPC request. Await asynchronous checks before forwarding to `next`.
+
+```ts twoslash
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({
+  client,
+  plugins: [
+    (next) => async (request, options) => { // [!code focus]
+      console.log('Processing request:', request.method) // [!code focus]
+      return next(request, options) // [!code focus]
+    }, // [!code focus]
+    Relay.simulate(),
+    Relay.feeToken(),
+  ],
+})
+
+export default { fetch: relay.fetch }
+```
 
 ## Best Practices
 

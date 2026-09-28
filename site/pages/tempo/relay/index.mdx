@@ -18,12 +18,14 @@ flowchart LR
   subgraph relay[Relay RPC]
     direction TB
     multisig[Multisig]
-    feePayer[Fee Payer]
-    autoSwap[Auto-Swap]
-    feeToken[Fee Token]
-    simulate[Simulate]
+    feePayer[Sponsorship]
+    autoSwap[Auto Swap]
+    feeToken[Best Fee Tokens]
+    simulate[Balance Diffs]
     funding["🚧 Funding"]
     accessKeyState["🚧 Access Key State"]
+    multisig ~~~ autoSwap ~~~ simulate ~~~ accessKeyState
+    feePayer ~~~ feeToken ~~~ funding
   end
   relay --> rpc["Tempo (Execution) RPC"]
 ```
@@ -31,21 +33,6 @@ flowchart LR
 The node behind the execution RPC executes transactions and enforces authorization.
 A Relay prepares transactions and coordinates offchain state; it cannot bypass
 chain rules. Clients rely on it for service availability and persistence.
-
-<Cards>
-  <Card
-    icon="lucide:workflow"
-    title="Run a Relay"
-    description="Host a Fetch endpoint with a Viem client and plugins."
-    to="/tempo/guides/relay/run"
-  />
-  <Card
-    icon="lucide:network"
-    title="Connect to a Relay"
-    description="Route client requests to a remote relay service."
-    to="/tempo/guides/relay/connect"
-  />
-</Cards>
 
 ## Plugins
 
@@ -58,33 +45,50 @@ Funding and access-key state plugins are planned.
 
 <Cards>
   <Card
-    icon="lucide:users"
-    title="Multisig"
-    description="Learn how a shared mailbox coordinates owner approvals."
-    to="/tempo/relay/plugins/multisig"
-  />
-  <Card
     icon="lucide:wallet"
     title="Fee Payer"
-    description="Sponsor transaction fees."
+    description="Sponsor transaction fees with a local account or an external relay."
     to="/tempo/relay/plugins/fee-payer"
   />
   <Card
     icon="lucide:arrow-left-right"
-    title="Auto-Swap"
-    description="Swap held tokens to cover a missing balance."
+    title="Auto Swap"
+    description="Swap tokens the sender holds to cover a missing transaction balance."
     to="/tempo/relay/plugins/auto-swap"
   />
   <Card
     icon="lucide:coins"
     title="Fee Token"
-    description="Select a fee token the sender holds."
+    description="Choose a funded fee token using the sender's preference and balances."
     to="/tempo/relay/plugins/fee-token"
   />
   <Card
     icon="lucide:scan"
     title="Simulate"
-    description="Preview balance changes and estimated fees."
+    description="Preview token balance changes and estimate fees before sending a transaction."
     to="/tempo/relay/plugins/simulate"
+  />
+  <Card
+    icon="lucide:users"
+    title="Multisig"
+    description="Coordinate owner approvals and share pending multisig transactions."
+    to="/tempo/relay/plugins/multisig"
+  />
+</Cards>
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:workflow"
+    title="Run a Relay"
+    description="Host a Fetch endpoint with plugins for transaction preparation and coordination."
+    to="/tempo/guides/relay/run"
+  />
+  <Card
+    icon="lucide:network"
+    title="Connect to a Relay"
+    description="Connect your client to a remote relay or run plugins in your application."
+    to="/tempo/guides/relay/connect"
   />
 </Cards>

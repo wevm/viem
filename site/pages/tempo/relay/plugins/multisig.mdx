@@ -8,18 +8,36 @@ Unrelated requests pass to the next plugin or execution client.
 
 ## Recipes
 
+Choose a local relay to run plugins in your application, or connect to a remote
+relay at `/relay`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
 ### Install the Plugin
 
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay, Store } from 'viem/tempo'
+:::code-group
 
-const relay = Relay.create({
-  client: createClient({ chain: tempo, transport: http() }),
-  plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  }),
 })
 ```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
 
 Memory storage is process-local. For independent owners or multiple relay
 instances, use the same persistent [atomic store](/tempo/utilities/Store).

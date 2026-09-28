@@ -28,6 +28,7 @@ matching operation lookup through the relay. Other lookups retain the default re
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, http, withRelay } from 'viem/tempo'
 
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   account: privateKeyToAccount('0x...'),
   testnet: true,
@@ -57,9 +58,7 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 #### Example Relay Service
 
-Below is an end-to-end example of a client/server relay setup.
-
-The server uses [`Relay.create`](/tempo/utilities/Relay.create) with the
+Connect to a relay configured with the
 [fee-payer plugin](/tempo/relay/plugins/fee-payer) to sponsor requests.
 
 :::code-group
@@ -68,6 +67,7 @@ The server uses [`Relay.create`](/tempo/utilities/Relay.create) with the
 import { privateKeyToAccount } from 'viem/accounts'
 import { createClient, http, withRelay } from 'viem/tempo'
 
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   account: privateKeyToAccount('0x...'),
   testnet: true,
@@ -81,22 +81,6 @@ const hash = await client.sendTransactionSync({
   feePayer: true,
   to: '0x0000000000000000000000000000000000000000',
 })
-```
-
-```ts twoslash [server.ts]
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
-import { Relay } from 'viem/tempo'
-
-const relay = Relay.create({
-  client: createClient({ chain: tempoModerato, transport: http() }),
-  plugins: [ // [!code focus]
-    Relay.feePayer({ account: privateKeyToAccount('0x...') }), // [!code focus]
-  ], // [!code focus]
-})
-
-export default { fetch: relay.fetch }
 ```
 
 :::

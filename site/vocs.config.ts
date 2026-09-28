@@ -3389,17 +3389,17 @@ export default defineConfig({
               text: 'Plugins',
               items: [
                 {
+                  text: 'Fee Payer',
+                  link: '/tempo/relay/plugins/fee-payer',
+                },
+                { text: 'Auto Swap', link: '/tempo/relay/plugins/auto-swap' },
+                { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
+                {
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'Multisig',
                   link: '/tempo/relay/plugins/multisig',
                 },
-                {
-                  text: 'Fee Payer',
-                  link: '/tempo/relay/plugins/fee-payer',
-                },
-                { text: 'Auto-Swap', link: '/tempo/relay/plugins/auto-swap' },
-                { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
-                { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {
                   badge: { text: '🚧', variant: 'warning' },
                   disabled: true,

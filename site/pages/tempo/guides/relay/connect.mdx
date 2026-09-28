@@ -1,3 +1,5 @@
+import { Card, Cards } from 'vocs'
+
 # Connect to a Relay
 
 ## Overview
@@ -12,25 +14,20 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Connect to a Remote Relay
 
+Pass a relay transport to `withRelay` to use a remote service for transaction
+preparation, fee sponsorship, and multisig coordination.
+
 ```ts twoslash
 import { createClient, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { withRelay } from 'viem/tempo'
 
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   chain: tempo,
   transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
 })
 ```
-
-Transaction preparation, multisig approvals, and coordination reads use the relay.
-Transaction and receipt lookups first query the execution node, then check the
-relay's operation store when no transaction is found. Other calls use the node.
-
-Fee sponsorship depends on the remote service. The default `sign-only` policy
-requests a fee-payer signature and broadcasts eligible transactions through the
-node; `sign-and-broadcast` delegates both to the relay. Multisig submissions use
-the relay's coordination path under either policy.
 
 ### Connect to a Local Relay
 
@@ -52,13 +49,38 @@ const client = createClient({
 
 Local mode preserves the underlying transport.
 
-Available plugins:
-
-- [`Relay.feePayer`](/tempo/relay/plugins/fee-payer): sponsors fills and signed transactions.
-- [`Relay.autoSwap`](/tempo/relay/plugins/auto-swap): adds swaps when a token balance is insufficient.
-- [`Relay.feeToken`](/tempo/relay/plugins/fee-token): selects fee tokens from preferences and balances.
-- [`Relay.simulate`](/tempo/relay/plugins/simulate): reports balance changes and estimated fees.
-- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum, and submits multisig transactions.
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Fee Payer"
+    description="Sponsor transaction fees with a local account or an external relay."
+    to="/tempo/relay/plugins/fee-payer"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Auto Swap"
+    description="Swap tokens the sender holds to cover a missing transaction balance."
+    to="/tempo/relay/plugins/auto-swap"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Fee Token"
+    description="Choose a funded fee token using the sender's preference and balances."
+    to="/tempo/relay/plugins/fee-token"
+  />
+  <Card
+    icon="lucide:scan"
+    title="Simulate"
+    description="Preview token balance changes and estimate fees before sending a transaction."
+    to="/tempo/relay/plugins/simulate"
+  />
+  <Card
+    icon="lucide:users"
+    title="Multisig"
+    description="Coordinate owner approvals and share pending multisig transactions."
+    to="/tempo/relay/plugins/multisig"
+  />
+</Cards>
 
 ## Best Practices
 

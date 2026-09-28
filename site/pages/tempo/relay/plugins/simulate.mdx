@@ -8,82 +8,275 @@ to `eth_simulateV1` when the Tempo method is unavailable.
 
 ## Recipes
 
-### Preview a Transaction
+Choose a local relay to run plugins in your application, or connect to a remote
+relay at `/relay`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
 
-```ts twoslash
-import { createClient, http } from 'viem'
+These examples use Tempo mainnet. Replace the sender and recipient with your
+addresses. The sender needs pathUSD for fees and enough USDC.e for successful
+transfers. [Filling a transaction](/docs/actions/public/fillTransaction) prepares
+it without signing or broadcasting it.
+
+### Preview Balance Diffs
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
 import { fillTransaction } from 'viem/actions'
-import { tempo } from 'viem/chains'
-import { Addresses, Relay, withRelay } from 'viem/tempo'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
 
-const client = createClient({
-  chain: tempo,
+const { capabilities } = await fillTransaction(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.balanceDiffs
+// @log: {
+// @log:   '0x1111111111111111111111111111111111111111': [{
+// @log:     address: '0x20c000000000000000000000b9537d11c60e8b50',
+// @log:     decimals: 6,
+// @log:     direction: 'outgoing',
+// @log:     formatted: '100',
+// @log:     name: 'Bridged USDC (Stargate)',
+// @log:     recipients: ['0x2222222222222222222222222222222222222222'],
+// @log:     symbol: 'USDC.e',
+// @log:     value: '0x5f5e100',
+// @log:   }],
+// @log: }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
   transport: withRelay(http(), {
-    plugins: [Relay.simulate(), Relay.feeToken()], // [!code focus]
+    plugins: [Relay.simulate()], // [!code focus]
   }),
 })
-const { capabilities } = await fillTransaction(client, {
-  account: '0x0000000000000000000000000000000000000001',
-  feeToken: Addresses.pathUsd,
-  calls: [],
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
 })
 ```
 
-`capabilities.balanceDiffs` groups outgoing transfers, incoming transfers, and
-uncovered approvals by account and token. `capabilities.fee` uses the filled
-gas limit and maximum fee per gas. Fee metadata requires a known fee token.
+:::
 
-### Return Execution Errors as Capabilities
+`balanceDiffs` groups incoming transfers, outgoing transfers, and uncovered
+approvals by account and token. When combined with
+[Auto Swap](/tempo/relay/plugins/auto-swap), swap movements are reported separately
+in `capabilities.autoSwap`.
 
-```ts twoslash
-import { createClient, http } from 'viem'
+### Estimate Fees Without Balance Diffs
+
+Set `balanceDiffs: false` to skip the post-fill simulation. The plugin still
+estimates fees from the filled gas limit, maximum fee per gas, and fee-token
+metadata. Actual fees depend on execution.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
 import { fillTransaction } from 'viem/actions'
-import { tempo } from 'viem/chains'
-import { Relay, withRelay } from 'viem/tempo'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
 
-const client = createClient({
-  chain: tempo,
-  transport: withRelay(http(), { plugins: [Relay.simulate()] }),
-})
 const { capabilities } = await fillTransaction(client, {
-  account: '0x0000000000000000000000000000000000000001',
-  calls: [],
-  capabilities: { errors: true }, // [!code focus]
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  capabilities: { balanceDiffs: false }, // [!code focus]
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.fee
+// @log: { amount: '0x6b86', decimals: 6, formatted: '0.027526', symbol: 'pathUSD' }
+capabilities?.balanceDiffs
+// @log: undefined
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
 })
 ```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+The fee above is an example; gas and fee estimates vary. Without the opt-out,
+`fee` and `balanceDiffs` are both included when their metadata is available.
+
+### Report Missing Funds
+
+If the sender holds 40 USDC.e and attempts to transfer 100, the deficit is
+60 USDC.e. Set `errors: true` to receive that deficit in the response instead of
+an RPC error. The sender still needs pathUSD to pay fees.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { capabilities } = await fillTransaction(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  capabilities: { errors: true }, // [!code focus]
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.insufficientFunds
+// @log: {
+// @log:   amount: '0x3938700',
+// @log:   decimals: 6,
+// @log:   formatted: '60',
+// @log:   token: '0x20c000000000000000000000b9537d11c60e8b50',
+// @log:   symbol: 'USDC.e',
+// @log: }
+capabilities?.error?.errorName
+// @log: 'InsufficientBalance'
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+`insufficientFunds` reports the missing amount when token metadata is available.
+Optimistic balance diffs on a failed fill depend on the execution node and can
+be empty. If Auto Swap resolves the deficit, the response contains `autoSwap`
+instead of `insufficientFunds`.
+
+### Handle Execution Errors
 
 With `errors: true`, execution reverts return a transaction stub and a decoded
-`capabilities.error`. Insufficient balances also return `requireFunds` when token
-metadata is available. A failed fill is not a transaction ready to sign.
+`capabilities.error`. Inspect its `errorName`, `message`, and, for known errors,
+`abiItem` and `data`. A failed fill is not a transaction ready to sign.
 
-Invalid requests and operational failures remain RPC errors. Unexpected callback
-and storage errors return `Internal error`.
+This example attempts to mint tokens without permission and inspects the decoded
+revert. The sender still needs pathUSD for fees.
 
-### Skip Balance Simulation
+:::code-group
 
-```ts twoslash
-import { createClient, http } from 'viem'
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
 import { fillTransaction } from 'viem/actions'
-import { tempo } from 'viem/chains'
-import { Relay, withRelay } from 'viem/tempo'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
 
-const client = createClient({
-  chain: tempo,
-  transport: withRelay(http(), { plugins: [Relay.simulate()] }),
+const { capabilities } = await fillTransaction(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  capabilities: { errors: true }, // [!code focus]
+  calls: [Actions.token.mint.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
 })
-await fillTransaction(client, {
-  account: '0x0000000000000000000000000000000000000001',
-  calls: [],
-  capabilities: { balanceDiffs: false }, // [!code focus]
+
+// [!code focus:start]
+console.error(capabilities?.error)
+// @log: {
+// @log:   errorName: 'Unauthorized',
+// @log:   abiItem: { type: 'error', name: 'Unauthorized', inputs: [] },
+// @log:   message: 'Unauthorized.',
+// @log:   data: '0x82b42900',
+// @log: }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
 })
 ```
 
-The plugin still computes fee metadata when the filled fee token is known.
-Simulation failures do not block a successful fill; unavailable balance changes
-are omitted.
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
 
-Place `simulate` before plugins that change the transaction so it reports the final
-calls and fee estimate when their responses return.
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+Omitting `errors` or setting it to `false` preserves RPC errors. Invalid requests
+and operational failures remain RPC errors in either mode. Unexpected callback
+and storage errors return `Internal error`.
+
+Simulation failures do not block a successful fill; unavailable balance changes
+are omitted. Place `simulate` before plugins that change the transaction so it
+reports their final calls and fee estimate.
 
 ## `Relay.simulate`
 

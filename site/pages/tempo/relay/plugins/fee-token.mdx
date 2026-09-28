@@ -8,15 +8,87 @@ preferred token has no balance, it selects the highest-balance candidate.
 
 ## Recipes
 
+Choose a local relay to run plugins in your application, or connect to a remote
+relay at `/relay`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
+### Select the Best Fee Token
+
+Omit `feeToken` from the request to resolve it automatically. Add
+[`Relay.simulate`](/tempo/relay/plugins/simulate) to include the fee estimate.
+This example assumes the sender holds USDC.e and has no funded preference or
+higher-balance candidate. Replace the sender and recipient addresses.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { transaction, capabilities } = await fillTransaction(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+transaction.feeToken
+// @log: '0x20c000000000000000000000b9537d11c60e8b50'
+capabilities?.fee
+// @log: { amount: '0x6b86', decimals: 6, formatted: '0.027526', symbol: 'USDC.e' }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.simulate(),
+      Relay.feeToken(), // [!code focus]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+The fee is illustrative. Selection follows this order:
+
+1. An explicit `feeToken` skips discovery. A local sponsor's configured token
+   overrides it on sponsored fills.
+2. A funded onchain preference wins, even when it is absent from the candidate list.
+3. Otherwise, select the candidate with the highest balance. TIP-20 call targets
+   are included, and candidate order breaks ties.
+4. If no candidate has a positive balance, leave fee-token selection to the
+   execution node.
+
 ### Select from Supported Tokens
 
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Addresses, Relay, withRelay } from 'viem/tempo'
+:::code-group
 
-const client = createClient({
-  chain: tempo,
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Addresses, createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
   transport: withRelay(http(), {
     plugins: [Relay.feeToken({
       resolveTokens: () => [Addresses.pathUsd], // [!code focus]
@@ -25,9 +97,84 @@ const client = createClient({
 })
 ```
 
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
 TIP-20 tokens targeted by the transaction's calls also become candidates for
 sender-paid fills. Candidate order breaks equal-balance ties. Guaranteed
 sponsorship skips sender-balance resolution; rejected sponsorship falls back to it.
+
+### Cache a Remote Token List
+
+To refresh candidates independently of Viem releases, supply a resolver that
+fetches the Tempo token list. This example caches its addresses for 60 seconds
+in the same [store](/tempo/utilities/Store) used for fee-token preferences.
+
+:::code-group
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import type { Address } from 'viem'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+
+const store = Store.memory()
+const plugin = Relay.feeToken({
+  store,
+  // [!code focus:start]
+  async resolveTokens(chainId) {
+    const key = `tokenList:${chainId}`
+    type Entry = { addresses: readonly Address[]; expiresAt: number }
+    const cached = await store.getItem(key)
+    if (cached) {
+      const entry = JSON.parse(cached) as Entry
+      if (entry.expiresAt > Date.now()) return entry.addresses
+    }
+
+    const response = await fetch(`https://tokenlist.tempo.xyz/list/${chainId}`)
+    if (!response.ok) throw new Error('Token list unavailable.')
+    type TokenList = { tokens: readonly { address: Address }[] }
+    const { tokens } = await response.json() as TokenList
+    const addresses = tokens.map((token) => token.address)
+    await store.setItem(key, JSON.stringify({
+      addresses,
+      expiresAt: Date.now() + 60_000,
+    }))
+    return addresses
+  },
+  // [!code focus:end]
+})
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [plugin], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
+
+This resolver replaces the bundled defaults. Plugin metadata caching and
+candidate-list caching have separate lifetimes; changing this expiration does
+not change the 60-second preference cache.
 
 ## `Relay.feeToken`
 
@@ -51,6 +198,9 @@ const plugin = Relay.feeToken()
 Returns candidate token addresses for a chain. The default makes no token-list
 API request and returns an empty list for chains absent from the set. Supply a
 resolver for local or custom networks, or to use your application's token list.
+Return addresses, rather than token metadata objects. If your resolver fetches a
+remote list, implement its caching and expiration inside the resolver; `store`
+does not cache candidate lists.
 
 ```ts twoslash
 import { Addresses, Relay } from 'viem/tempo'
