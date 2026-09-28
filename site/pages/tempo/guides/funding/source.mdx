@@ -524,8 +524,6 @@ export const client = createClient({
 
 :::
 
-Policy rules default to `enforceOrder: false`, allowing permitted sources in any order. Set `rules.enforceOrder: true` when signing an inline policy or creating a stored policy to require its source order.
-
 You can supply `policyRules` as a decoded object or ABI-encoded hex when the current rules are not in the store. The handler verifies supplied rules against the policy’s current hash. Omitted `slippageBps` uses the policy maximum; an explicit value cannot exceed it.
 
 The signed `keyAuthorization` installs the key in the payment transaction. Funding and payment revert together, but key installation can persist after a payment revert. An inline funding policy can also persist.
