@@ -54,7 +54,7 @@ test.each(
     const relay = Relay.create({
       client: caller,
       resolveTokens: () => [Tempo.addresses.pathUsd],
-      plugins: feeTokenFirst ? plugins.toReversed() : plugins,
+      plugins: feeTokenFirst ? [...plugins].reverse() : plugins,
     })
     const result = (await relay.request({
       method: 'eth_fillTransaction',
