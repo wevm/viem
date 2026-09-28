@@ -3388,7 +3388,11 @@ export default defineConfig({
             {
               text: 'Plugins',
               items: [
-                { text: 'Multisig', link: '/tempo/relay/plugins/multisig' },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Multisig',
+                  link: '/tempo/relay/plugins/multisig',
+                },
               ],
             },
           ],
