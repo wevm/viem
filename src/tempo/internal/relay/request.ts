@@ -22,17 +22,20 @@ export type Options = Relay.handleRequest.RequestOptions & {
     | { sponsorship_details?: SponsorshipDetails | undefined }
     | undefined
 }
+
 export type Handler = Relay.handleRequest.Handler & {
   [resolveClient]?: ((chainId: number) => { chain: { id: number } }) | undefined
   [tokens]?:
     | ((chainId: number, signal?: AbortSignal) => Promise<readonly Address[]>)
     | undefined
 }
+
 export type Result = {
   tx: Record<string, unknown>
   capabilities?: Record<string, unknown> | undefined
   sponsor?: unknown
 }
+
 export type Context = {
   client: Client
   getClient: (chainId?: number) => Client
@@ -53,6 +56,7 @@ export function inherit(next: Handler, handler: Handler): Handler {
     (key) => !(key in handler) && key in next,
   )
   if (keys.length === 0) return handler
+
   return Object.assign(
     (request: Relay.handleRequest.Request, options?: Options) =>
       handler(request, options),
@@ -75,10 +79,13 @@ export function wrap(
       request.method === 'eth_signRawTransaction' ||
       request.method === 'eth_sendRawTransaction' ||
       request.method === 'eth_sendRawTransactionSync'
+
     let client: Client | undefined
     const parameters = request.params?.[0] as Record<string, unknown>
+
     try {
       if (!isFill && !isRaw) return await next(request, options)
+
       if (
         isFill &&
         (!parameters ||
@@ -88,12 +95,14 @@ export function wrap(
         throw new RpcResponse.InvalidParamsError({
           message: 'Expected a transaction object.',
         })
+
       const bodyChainId =
         isRaw && Utils.isSerializedTempoTransaction(request.params?.[0])
           ? Transaction.deserialize(request.params[0]).chainId
           : isFill
             ? Utils.resolveChainId(parameters.chainId)
             : undefined
+
       if (
         bodyChainId !== undefined &&
         options.chainId !== undefined &&
@@ -102,22 +111,26 @@ export function wrap(
         throw new RpcResponse.InvalidParamsError({
           message: 'Conflicting chain ids.',
         })
+
       const chainId = options.chainId ?? bodyChainId
       const requestOptions: Options = {
         ...options,
         chainId,
         [processing]: true,
       }
+
       const getClient = (id = chainId): Client => {
         if (id === undefined || !Number.isSafeInteger(id) || id <= 0)
           throw new RpcResponse.InvalidParamsError({
             message: 'A chain ID is required to resolve the downstream client.',
           })
+
         const upstream = next[resolveClient]?.(id)
         if (upstream && upstream.chain.id !== id)
           throw new RpcResponse.InvalidParamsError({
             message: 'Conflicting chain ids.',
           })
+
         return createClient({
           chain: { ...tempo, ...upstream?.chain, id },
           batch: { multicall: { deployless: true } },
@@ -127,6 +140,7 @@ export function wrap(
           }),
         })
       }
+
       client = getClient()
       const result = await handle(request, {
         client,
@@ -135,8 +149,10 @@ export function wrap(
         options: requestOptions,
       })
       if (!isFill || !outer) return result
+
       const filled = result as Result
       if (filled.capabilities?.error) return filled
+
       const transaction = Utils.normalizeTempoTransaction(
         Utils.mergeCallsFromRequest(
           filled.tx,
@@ -147,6 +163,7 @@ export function wrap(
         calls: extractCalls(transaction),
       })
       const sponsor = filled.capabilities?.sponsor ?? filled.sponsor
+
       return {
         ...filled,
         tx: core_Transaction.toRpc(transaction as core_Transaction.Transaction),
@@ -158,6 +175,7 @@ export function wrap(
       }
     } catch (error) {
       if (!outer) throw error
+
       if (
         isFill &&
         client &&
@@ -166,6 +184,7 @@ export function wrap(
           ?.errors === true
       )
         return formatError(error, parameters, client)
+
       throw Utils.toRpcError(error)
     }
   })
@@ -184,6 +203,7 @@ export async function fill(
         : Utils.formatFillTransactionRequest(client, transaction)) as never,
     ],
   })) as unknown as Result
+
   const error = result.capabilities?.error as
     | { message?: string; errorName?: string; data?: `0x${string}` }
     | undefined
@@ -194,5 +214,6 @@ export async function fill(
     Object.assign(cause, { name: 'UpstreamRevertError', data: error.data })
     throw cause
   }
+
   return { ...result, tx: Utils.mergeCallsFromRequest(result.tx, transaction) }
 }

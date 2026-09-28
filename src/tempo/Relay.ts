@@ -297,6 +297,7 @@ export declare namespace multisig {
 export function autoSwap(options: autoSwap.Options = {}): Plugin {
   return AutoSwap.create(options)
 }
+
 export declare namespace autoSwap {
   export type Options = {
     /** Metadata cache. Omit to read metadata for each request. */
@@ -324,6 +325,7 @@ export declare namespace autoSwap {
 export function feePayer(options: feePayer.Options = {}): Plugin {
   return Sponsorship.create(options)
 }
+
 export declare namespace feePayer {
   export type Options = {
     /** Local sponsor. Omit when requests use an external fee-payer URL. */
@@ -361,6 +363,7 @@ export declare namespace feePayer {
 export function feeToken(options: feeToken.Options = {}): Plugin {
   return FeeToken.create(options)
 }
+
 export declare namespace feeToken {
   export type Options = {
     /** Tempo API key for the default verified-token resolver. */
@@ -390,6 +393,7 @@ export declare namespace feeToken {
 export function simulate(options: simulate.Options = {}): Plugin {
   return Simulate.create(options)
 }
+
 export declare namespace simulate {
   export type Options = {
     /** Metadata cache. Omit to read metadata for each request. */

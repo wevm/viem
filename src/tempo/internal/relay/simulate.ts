@@ -25,6 +25,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
     Request.wrap(next, async (request, context) => {
       if (request.method !== 'eth_fillTransaction')
         return next(request, context.options)
+
       const parameters = request.params![0] as Record<string, unknown>
       const store = Store.scoped(options.cache)
       const result: Request.Result = await Request.fill(
@@ -37,9 +38,11 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
             ?.errors === true
         )
           return formatError(error, parameters, context.client, store)
+
         throw error
       })
       if (result.capabilities?.error) return result
+
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
       const simulation =
@@ -63,6 +66,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
                 store,
               }).catch(() => undefined),
             }
+
       return {
         ...result,
         capabilities: { ...result.capabilities, ...simulation },

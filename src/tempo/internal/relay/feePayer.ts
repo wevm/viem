@@ -8,19 +8,21 @@ import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import { getDefaultTokens } from './feeToken.js'
 import * as Request from './request.js'
-
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feePayer.Options): Relay.Plugin {
   return (next: Request.Handler) =>
     Request.wrap(next, async (request, context) => {
       const { client, getClient, chainId, options: requestOptions } = context
+
       const getTokens = (id: number) =>
         (next[Request.tokens] ?? getDefaultTokens)(id, requestOptions.signal)
+
       const record = (details: SponsorshipDetails | undefined) => {
         if (details && requestOptions[Request.response])
           requestOptions[Request.response].sponsorship_details = details
       }
+
       if (request.method !== 'eth_fillTransaction') {
         if (!options.account) {
           if (request.method === 'eth_signRawTransaction')
@@ -28,14 +30,17 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
               message:
                 'eth_signRawTransaction requires a fee payer to be configured on the relay. Add `Relay.feePayer({ account })` to enable transaction sponsorship.',
             })
+
           return next(request, requestOptions)
         }
+
         const serialized = request.params?.[0]
         if (
           typeof serialized !== 'string' ||
           !requestsRawSponsorship(serialized as Hex.Hex)
         )
           return next(request, requestOptions)
+
         const result = await handleRawTransaction({
           ...options,
           account: options.account,
@@ -47,12 +52,15 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             | 'eth_sendRawTransactionSync',
           request,
         })
+
         record(result.sponsorshipDetails)
         return result.result
       }
+
       const parameters = request.params![0] as Record<string, unknown>
       const { feePayer: _, ...normalized } =
         Utils.normalizeFillTransactionRequest(parameters)
+
       const external =
         typeof parameters.feePayer === 'string'
           ? ExternalFeePayerUrl.normalize(parameters.feePayer, {
@@ -63,6 +71,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         (!!options.account || !!external) && parameters.feePayer !== false
       const base = { ...normalized, chainId }
       if (!wantsSponsorship) return Request.fill(client, base)
+
       const token =
         options.feeToken ??
         (parameters.feeToken as Address | undefined) ??
@@ -74,6 +83,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         feePayer: true,
         ...(token ? { feeToken: token } : {}),
       }
+
       const prepared = isPreparedTransaction(transaction)
       const fillClient = external
         ? createClient({
@@ -85,11 +95,13 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         ? { tx: transaction }
         : await Request.fill(fillClient, transaction)
       const filled = Utils.normalizeTempoTransaction(result.tx)
+
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
       if (!prepared && filled.gas && !filled.feePayerSignature)
         filled.gas += 20_000n
       if (token && filled.feeToken == null)
         Object.assign(filled, { feeToken: token })
+
       const sponsored =
         external ||
         !options.validate ||
@@ -99,6 +111,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           validate: options.validate,
         }))
       if (!sponsored && !prepared) return Request.fill(client, base)
+
       const defer =
         typeof normalized.multisigSimulation === 'object' &&
         normalized.multisigSimulation !== null
@@ -116,6 +129,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             })
           : { transaction: filled, sponsorshipDetails: undefined }
       record(signed.sponsorshipDetails)
+
       const sponsor = sponsored
         ? external
           ? (result.capabilities?.sponsor ?? result.sponsor)
@@ -123,6 +137,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             ? getSponsor({ ...options, account: options.account })
             : undefined
         : undefined
+
       return {
         ...result,
         ...(sponsor ? { sponsor } : {}),

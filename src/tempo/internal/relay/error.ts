@@ -58,6 +58,7 @@ export async function formatError(
       store: simulateStore,
     }).catch(() => undefined)
     const deficit = required - available
+
     return {
       tx: stub,
       capabilities: {

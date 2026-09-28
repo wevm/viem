@@ -32,6 +32,7 @@ export async function resolveVirtualAddresses(
       return addresses.map((address) => [address, master] as const)
     }),
   )
+
   return Object.fromEntries(entries.flat()) as Record<Address, Address | null>
 }
 
@@ -44,23 +45,28 @@ function getVirtualAddressTargets(calls: readonly Call[]): readonly Address[] {
       targets.add(address.toLowerCase() as Address)
     }
   }
+
   return [...targets]
 }
 
 function decodeTransferRecipient(data?: string): Address | undefined {
   if (!data) return undefined
+
   const selector = data.slice(0, 10).toLowerCase()
   if (!transferSelectors.has(selector)) return undefined
+
   try {
     const { args, functionName } = decodeFunctionData({
       abi: Abis.tip20,
       data: data as Hex.Hex,
     })
+
     if (
       (functionName === 'transfer' || functionName === 'transferWithMemo') &&
       typeof args[0] === 'string'
     )
       return args[0]
+
     if (
       (functionName === 'transferFrom' ||
         functionName === 'transferFromWithMemo') &&
@@ -68,6 +74,7 @@ function decodeTransferRecipient(data?: string): Address | undefined {
     )
       return args[1]
   } catch {}
+
   return undefined
 }
 
@@ -88,6 +95,7 @@ export function extractCalls(
       ...(c.data ? { data: c.data } : {}),
       ...(c.value ? { value: c.value } : {}),
     })) as readonly Call[]
+
   return [
     {
       ...(transaction.to ? { to: transaction.to as Address } : {}),

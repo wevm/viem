@@ -22,11 +22,13 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
     Request.wrap(next, async (request, context) => {
       if (request.method !== 'eth_fillTransaction')
         return next(request, context.options)
+
       const transaction = Utils.normalizeFillTransactionRequest(
         request.params![0] as Record<string, unknown>,
       )
       const store = Store.scoped(options.cache)
       const autoSwap = { slippage: options.slippage ?? 0.05 }
+
       const result = await fill(context.client, {
         transaction,
         autoSwap,
@@ -47,11 +49,13 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
             ),
           }),
       })
+
       const metadata = await resolveAutoSwapMetadata(context.client, {
         autoSwap,
         store,
         swap: result.swap,
       })
+
       return {
         ...result.result,
         tx: core_Transaction.toRpc(
