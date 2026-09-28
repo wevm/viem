@@ -12,8 +12,6 @@ This Action is only recommended to be used on chains with low block times and fa
 
 :::
 
-Pass `frames` to prepare, sign, and send an EIP-8141 transaction. The RPC must also support synchronous submission. Inspect `receipt.frameReceipts` and `receipt.payer`; the outer status alone does not establish that every frame succeeded. See [Frame Transactions](/docs/frames).
-
 ## Usage
 
 :::code-group

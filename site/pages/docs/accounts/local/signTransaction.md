@@ -2,10 +2,6 @@
 
 Signs a transaction with the Account's private key.
 
-## Frame Transactions
-
-Accepts EIP-8141 transactions with explicit `sender`, `frames`, and `signatures`. Supply the final chain ID, nonce, fee caps, and per-frame gas budgets. This account method does not fetch missing fields. Frame helpers invoke their own signing callbacks; use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest) first. See [Signing Frames](/docs/frames/signing-frames).
-
 ## Usage
 
 ```ts twoslash

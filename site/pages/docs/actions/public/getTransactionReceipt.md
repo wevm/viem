@@ -6,8 +6,6 @@ description: Returns the transaction receipt given a transaction hash.
 
 Returns the [Transaction Receipt](/docs/glossary/terms#transaction-receipt) given a [Transaction](/docs/glossary/terms#transaction) hash.
 
-EIP-8141 receipts include `payer` and `frameReceipts` in execution order. Frame results expose statuses such as `success`, `reverted`, and `skipped`. Inspect these results as well as the outer transaction status. See [Inspect Frame Results](/docs/frames/sending-transactions#inspect-frame-results).
-
 ## Usage
 
 :::code-group

@@ -6,8 +6,6 @@ description: Signs a transaction.
 
 Signs a transaction.
 
-For EIP-8141, prepare the request first with [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest). Frame helpers sign against the finalized transaction; already signed frames are preserved. Chain ID, nonce, fees, and both gas budgets for every frame must be known. See [Signing Frames](/docs/frames/signing-frames).
-
 ## Usage
 
 :::code-group

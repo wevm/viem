@@ -81,32 +81,6 @@ export const walletClient = createWalletClient({
 
 :::
 
-## Recipes
-
-### Frame Transactions
-
-Pass `frames` to send an EIP-8141 transaction. Put execution `to`, `data`, and `value` inside frames. With a private-key account, Viem can insert default-account verification, fill missing gas budgets, and invoke frame signing callbacks. See [Send Frame Transactions](/docs/frames/sending-transactions).
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { calls, verify } from 'viem/frames'
-import { client } from './viem.config'
-
-const result = await client.sendTransaction({
-  frames: [
-    verify({ account: client.account }),
-    calls([{ to: client.account.address, value: 1n }]),
-  ],
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/frames/viem.config.ts:setup]
-```
-
-:::
-
 ## Returns
 
 [`Hash`](/docs/glossary/types#hash)

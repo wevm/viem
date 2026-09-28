@@ -53,32 +53,6 @@ export const publicClient = createPublicClient({
 
 :::
 
-## Recipes
-
-### Frame Transactions
-
-Accepts EIP-8141 `frames` and `signatures`, including `Frame` helpers, and resolves them without signing. Missing per-frame gas budgets can be filled by a compatible RPC; explicit zero is preserved. This action returns the node's `raw` and `transaction` directly. Use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest) to preserve local signing callbacks and caller-supplied frame contents during gas population.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { calls, verify } from 'viem/frames'
-import { client } from './viem.config'
-
-const result = await client.fillTransaction({
-  frames: [
-    verify({ account: client.account }),
-    calls([{ to: client.account.address, value: 1n }]),
-  ],
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/frames/viem.config.ts:setup]
-```
-
-:::
-
 ## Returns
 
 An object with the following properties:

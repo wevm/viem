@@ -2,8 +2,6 @@
 
 Executes a new message call immediately without submitting a transaction to the network.
 
-Accepts EIP-8141 `frames` and `signatures`, including `Frame` helpers. Helpers are resolved without invoking signing callbacks. Supply a verification helper or explicit verification frame and signature declarations, and provide frame gas budgets or a prepared request. The result remains `{ data }`, not a frame receipt list. See [Prepare and Inspect](/docs/frames/simulating-inspecting-frames#prepare-and-inspect).
-
 ## Usage
 
 :::code-group

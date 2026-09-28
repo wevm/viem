@@ -3,8 +3,6 @@
 Estimates the gas necessary to complete a transaction without submitting it to the network.
 For a Local Account, `prepare` defaults to `true`; set `prepare: false` to estimate directly with `eth_estimateGas`.
 
-Accepts EIP-8141 `frames` and `signatures`, including `Frame` helpers. Estimation does not invoke signing callbacks. The return value is a single gas estimate; use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest) to populate individual `executionGas` and `stateGas` budgets. See [Signing Frames](/docs/frames/signing-frames).
-
 ## Usage
 
 :::code-group

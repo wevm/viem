@@ -6,8 +6,6 @@ description: Returns information about a transaction given a hash or block ident
 
 Returns information about a [Transaction](/docs/glossary/terms#transaction) given a hash or block identifier.
 
-EIP-8141 results use `type: 'eip8141'` and contain `frames` and `signatures`. Frame destinations use `to`, and frame gas budgets use `executionGas` and `stateGas`. See [Raw Frames](/docs/frames/raw-frames).
-
 ## Usage
 
 :::code-group

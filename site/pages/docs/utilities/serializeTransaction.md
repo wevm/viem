@@ -28,46 +28,6 @@ const serialized = serializeTransaction({
 })
 ```
 
-## Frame Transactions
-
-For helper-based preparation and signing, see [Signing Frames](/docs/frames/signing-frames).
-
-Use `frames` and an explicit `sender` to serialize an EIP-8141 envelope. Chain IDs and nonces use numbers; frame gas budgets, values, and fees use bigint.
-
-```ts twoslash
-import { serializeTransaction } from 'viem'
-
-const serialized = serializeTransaction({
-  chainId: 1,
-  frames: [
-    { flags: 'approveExecutionAndPayment', executionGas: 50_000n, stateGas: 0n, mode: 'verify' },
-    {
-      executionGas: 50_000n, stateGas: 0n,
-      mode: 'sender',
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      value: 1n,
-    },
-  ],
-  maxFeePerGas: 20_000_000_000n,
-  maxPriorityFeePerGas: 1_000_000_000n,
-  nonce: 0,
-  sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  signatures: [{ scheme: 'secp256k1' }],
-})
-```
-
-:::warning
-This example serializes an unsigned transaction with explicit gas budgets. Populate its signatures before sending.
-:::
-
-Frame transactions use the `signatures` array. Passing the separate `signature` argument or outer fields such as `to`, `value`, and `accessList` throws. An explicit `type` takes precedence over inference; incompatible fields also throw.
-
-The canonical signing hash excludes witnesses whose `payload` is empty. Use Ox's [`TxEnvelopeEip8141.getSignPayload`](https://github.com/wevm/ox/blob/ox%400.14.47/src/core/TxEnvelopeEip8141.ts) when signing entries manually.
-
-Hashing a serialized envelope with `keccak256` does not produce that signing hash when it contains populated witnesses with empty payloads or a blob sidecar wrapper.
-
-Blob transactions accept `blobVersionedHashes` and PeerDAS `sidecars` containing `blobs`, `commitments`, and `cellProofs`. This wrapper differs from EIP-4844's array of blob sidecars.
-
 ## Returns
 
 Returns a template `Hex` value based on transaction type:

@@ -114,32 +114,6 @@ export const walletClient = createWalletClient({
 
 :::
 
-## Recipes
-
-### Frame Transactions
-
-Pass `frames` to resolve helpers and allocate signature entries without signing. Viem inserts default-account verification for a private-key account if execution approval is absent. Frame gas filling requires `eth_fillTransaction`: Viem copies only missing `executionGas` and `stateGas` from the returned frames, preserves caller-supplied frame contents, and rejects a changed frame count. See [Signing Frames](/docs/frames/signing-frames).
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { calls, verify } from 'viem/frames'
-import { client } from './viem.config'
-
-const result = await client.prepareTransactionRequest({
-  frames: [
-    verify({ account: client.account }),
-    calls([{ to: client.account.address, value: 1n }]),
-  ],
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/frames/viem.config.ts:setup]
-```
-
-:::
-
 ## Returns
 
 [`TransactionRequest`](/docs/glossary/types#transactionrequest)
