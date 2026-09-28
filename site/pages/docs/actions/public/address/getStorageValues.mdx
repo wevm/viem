@@ -1,0 +1,32 @@
+# Get Storage Values [address.getStorageValues]
+
+Reads multiple storage slots across contract addresses in one `eth_getStorageValues` request. The RPC node must support this method.
+
+## Usage
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const values = await Actions.address.getStorageValues(client, {
+  requests: {
+    '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2': ['0x0', '0x1'],
+  },
+})
+// @log: { '0xfba3912ca04dd458c843e2ee08967fc04f3579c2': ['0x...', '0x...'] }
+```
+
+## Parameters
+
+### requests
+
+Contract addresses mapped to ordered lists of storage slot keys. Each returned array follows the requested slot order.
+
+### Block Selection
+
+Use `blockNumber`, `blockTag`, or `blockHash` to select the block. The default is the Client's `blockTag`, or `'latest'`. `requireCanonical` is available with `blockHash`.
+
+## Returns
+
+A mapping of addresses to storage values.

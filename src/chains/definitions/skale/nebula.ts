@@ -1,20 +1,16 @@
-import { defineChain } from '../../../utils/chain/defineChain.js'
+import * as Chain from '../../../core/Chain.js'
 
-export const skaleNebula = /*#__PURE__*/ defineChain({
+export const skaleNebula = /*#__PURE__*/ Chain.from({
   id: 1_482_601_649,
   name: 'SKALE Nebula Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.skalenodes.com/v1/green-giddy-denebola'],
-      webSocket: ['wss://mainnet.skalenodes.com/v1/ws/green-giddy-denebola'],
-    },
+    http: 'https://mainnet.skalenodes.com/v1/green-giddy-denebola',
+    ws: 'wss://mainnet.skalenodes.com/v1/ws/green-giddy-denebola',
   },
   blockExplorers: {
-    default: {
-      name: 'SKALE Explorer',
-      url: 'https://green-giddy-denebola.explorer.mainnet.skalenodes.com',
-    },
+    name: 'SKALE Explorer',
+    url: 'https://green-giddy-denebola.explorer.mainnet.skalenodes.com',
   },
   contracts: {
     multicall3: {

@@ -1,53 +1,58 @@
-import { privateKeyToAccount, toAccount } from 'viem/accounts'
-import { Account, MultisigConfig } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
-const owner = Account.fromSecp256k1(
-  '0x0000000000000000000000000000000000000000000000000000000000000001',
-)
+import * as viem_Account from '../core/Account.js'
+import * as Account from './Account.js'
 
-test('fromMultisig preserves config availability', () => {
-  const config = {
-    owners: [owner],
-  } satisfies Account.fromMultisig.Config
-  const initial = Account.fromMultisig(config)
-  const normalizedInitial = Account.fromMultisig({
-    address: 'infer',
-    ...MultisigConfig.from({
-      owners: [{ owner: owner.address, weight: 1 }],
-      threshold: 1,
-    }),
-  })
-  const current = Account.fromMultisig({
-    address: initial.address,
-    owners: [owner],
-    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    threshold: 1,
-    version: 1,
-  })
-  const addressOnly = Account.fromMultisig(initial.address)
+const privateKey =
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+const privateKey_p256 =
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 
-  expectTypeOf(initial.config).toEqualTypeOf<MultisigConfig.Config>()
-  expectTypeOf(normalizedInitial.config).toEqualTypeOf<MultisigConfig.Config>()
-  expectTypeOf(current.config).toEqualTypeOf<MultisigConfig.Config>()
-  expectTypeOf(addressOnly.config).toEqualTypeOf<undefined>()
+test('from: discriminates on `access`', () => {
+  const root = Account.fromSecp256k1(privateKey)
+  expectTypeOf(root).toEqualTypeOf<Account.RootAccount>()
+  expectTypeOf(root.source).toEqualTypeOf<'root'>()
+  expectTypeOf(root.signKeyAuthorization).toBeFunction()
+
+  const accessKey = Account.fromSecp256k1(privateKey_p256, { access: root })
+  expectTypeOf(accessKey).toEqualTypeOf<Account.AccessKeyAccount>()
+  expectTypeOf(accessKey.source).toEqualTypeOf<'accessKey'>()
+  expectTypeOf(accessKey.accessKeyAddress).toEqualTypeOf<`0x${string}`>()
 })
 
-test('fromMultisig distinguishes initial and current configs', () => {
-  Account.fromMultisig({ owners: [owner] })
-  Account.fromMultisig({ address: 'infer', owners: [owner] })
-  // @ts-expect-error Current configs require `salt`.
-  Account.fromMultisig({
-    address: owner.address,
-    owners: [owner],
+test('accounts satisfy the core local account shape', () => {
+  const root = Account.fromSecp256k1(privateKey)
+  expectTypeOf(root).toMatchTypeOf<viem_Account.Local>()
+  expectTypeOf(root).toMatchTypeOf<viem_Account.Account>()
+
+  const accessKey = Account.fromP256(privateKey_p256, { access: root })
+  expectTypeOf(accessKey).toMatchTypeOf<viem_Account.Local>()
+
+  const multisig = Account.fromMultisig({
+    owners: [{ owner: root.address, weight: 1 }],
     threshold: 1,
-    version: 1,
   })
-  // @ts-expect-error Address-only accounts use the string overload.
-  Account.fromMultisig({
-    address: owner.address,
-  })
+  expectTypeOf(multisig).toMatchTypeOf<viem_Account.Local>()
 })
+
+test('keyType is narrowed to signature envelope types', () => {
+  const account = Account.fromP256(privateKey_p256)
+  expectTypeOf(account.keyType).toEqualTypeOf<
+    'secp256k1' | 'p256' | 'webAuthn'
+  >()
+})
+
+test('Account union discriminates on `source`', () => {
+  const account = {} as Account.Account
+  if (account.source === 'accessKey') {
+    expectTypeOf(account.accessKeyAddress).toEqualTypeOf<`0x${string}`>()
+  }
+  if (account.source === 'root') {
+    expectTypeOf(account.signKeyAuthorization).toBeFunction()
+  }
+})
+
+const owner = Account.fromSecp256k1(privateKey)
 
 test('fromMultisig rejects non-root owner accounts', () => {
   const child = Account.fromMultisig({ owners: [owner] })
@@ -65,13 +70,15 @@ test('fromMultisig rejects non-root owner accounts', () => {
 })
 
 test('fromMultisig accepts primitive owner accounts', () => {
-  const ethereumOwner = privateKeyToAccount(`0x${'1'.repeat(64)}`)
+  const ethereumOwner = viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`)
   Account.fromMultisig({ owners: [owner, ethereumOwner, owner.address] })
   Account.fromMultisig({ owners: [{ owner: ethereumOwner, weight: 2 }] })
 })
 
 test('fromMultisig accepts custom local owners', () => {
-  const customOwner = toAccount(privateKeyToAccount(`0x${'1'.repeat(64)}`))
+  const customOwner = viem_Account.from(
+    viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`),
+  )
   Account.fromMultisig({ owners: [customOwner] })
   Account.fromMultisig({ owners: [{ owner: customOwner, weight: 2 }] })
 })

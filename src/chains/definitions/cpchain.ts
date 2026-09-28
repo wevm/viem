@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const cpchain = /*#__PURE__*/ defineChain({
+export const cpchain = /*#__PURE__*/ Chain.from({
   id: 86608,
   name: 'CpChain',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const cpchain = /*#__PURE__*/ defineChain({
     name: 'CpChain',
     symbol: 'CP',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.cpchain.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.cpchain.com' },
   blockExplorers: {
-    default: {
-      name: 'CpChain Explorer',
-      url: 'https://explorer.cpchain.com',
-    },
+    name: 'CpChain Explorer',
+    url: 'https://explorer.cpchain.com',
   },
   testnet: false,
 })

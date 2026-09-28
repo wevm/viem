@@ -1,6 +1,6 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `earn.validateExitSafePolicy`
+# Validate Earn Exit-Safe Policy [earn.validateExitSafePolicy]
 
 Verifies that an Earn share token uses an expected exit-safe TIP-403 policy and that every
 required member can receive transfers and mints.
@@ -28,6 +28,83 @@ await client.earn.validateExitSafePolicy({
     '0x0000000000000000000000000000000000000004',
   ],
   shareToken: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Screen a Vault Before Listing It
+
+Validate a third-party vault against its published policy record before showing it to users.
+Resolve the live share token with [`earn.getVault`](/tempo/actions/earn.getVault).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { shareToken } = await client.earn.getVault({ vault }) // [!code focus]
+const listable = await client.earn
+  .validateExitSafePolicy({
+    accessAdministrator: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+    policy: {
+      transferPolicyId: 3n,
+      senderPolicyId: 1n,
+      recipientPolicyId: 2n,
+      mintRecipientPolicyId: 2n,
+    },
+    requiredMembers: [vault],
+    shareToken, // [!code focus]
+  })
+  .then(() => true) // [!code focus]
+  .catch(() => false) // [!code focus]
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revalidate After Membership Changes
+
+Rerun validation after every [`policy.modifyWhitelist`](/tempo/actions/policy.modifyWhitelist)
+update to catch accidental removal of a protocol recipient, such as the vault itself.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+const shareToken = '0x20c0000000000000000000000000000000000001'
+const recipientPolicyId = 2n
+
+await client.policy.modifyWhitelistSync({ // [!code focus]
+  address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  allowed: false, // [!code focus]
+  policyId: recipientPolicyId,
+})
+
+await client.earn.validateExitSafePolicy({ // [!code focus]
+  accessAdministrator: client.account.address,
+  policy: {
+    transferPolicyId: 3n,
+    senderPolicyId: 1n,
+    recipientPolicyId,
+    mintRecipientPolicyId: recipientPolicyId,
+  },
+  requiredMembers: [vault], // [!code focus]
+  shareToken,
 })
 ```
 

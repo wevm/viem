@@ -1,20 +1,20 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 // src/chains/definitions/example.ts
-import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const botanix = /*#__PURE__*/ defineChain({
+export const botanix = /*#__PURE__*/ Chain.from({
   id: 3637,
   name: 'Botanix',
   nativeCurrency: { name: 'Bitcoin', symbol: 'BTC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.botanixlabs.com'],
-      webSocket: ['wss://rpc.botanixlabs.com/ws'],
-    },
+    http: 'https://rpc.botanixlabs.com',
+    ws: 'wss://rpc.botanixlabs.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Botanixscan',
-      url: 'https://botanixscan.io',
-    },
+    name: 'Botanixscan',
+    url: 'https://botanixscan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

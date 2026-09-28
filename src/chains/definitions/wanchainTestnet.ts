@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const wanchainTestnet = /*#__PURE__*/ defineChain({
+export const wanchainTestnet = /*#__PURE__*/ Chain.from({
   id: 999,
   name: 'Wanchain Testnet',
   nativeCurrency: { name: 'WANCHAIN', symbol: 'WANt', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://gwan-ssl.wandevs.org:46891'],
-    },
+    http: 'https://gwan-ssl.wandevs.org:46891',
   },
   blockExplorers: {
-    default: {
-      name: 'WanScanTest',
-      url: 'https://wanscan.org',
-    },
+    name: 'WanScanTest',
+    url: 'https://wanscan.org',
   },
   contracts: {
     multicall3: {

@@ -8,11 +8,11 @@ API is experimental.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
 const result = await client.earn.deployErc4626StackSync({
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   venue: '0x0000000000000000000000000000000000000003',
 })
 // @log: { engine: '0x...', vault: '0x...', earnShare: '0x...', fees: '0x...', receipts: { ... } }

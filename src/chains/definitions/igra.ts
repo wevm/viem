@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const igra = /*#__PURE__*/ defineChain({
+export const igra = /*#__PURE__*/ Chain.from({
   id: 38833,
   name: 'Igra Network',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const igra = /*#__PURE__*/ defineChain({
     symbol: 'iKAS',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.igralabs.com:8545'],
-    },
+    http: 'https://rpc.igralabs.com:8545',
   },
   blockExplorers: {
-    default: {
-      name: 'Igra Explorer',
-      url: 'https://explorer.igralabs.com',
-    },
+    name: 'Igra Explorer',
+    url: 'https://explorer.igralabs.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

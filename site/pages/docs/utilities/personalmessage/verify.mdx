@@ -1,0 +1,64 @@
+# PersonalMessage.verify
+
+Verifies that a personal ([EIP-191](https://eips.ethereum.org/EIPS/eip-191)) message was signed by the provided address (or public key).
+
+## Imports
+
+```ts
+import { PersonalMessage } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { PersonalMessage } from 'viem/utils'
+
+declare const address: `0x${string}`
+
+const valid = PersonalMessage.verify({
+  message: 'hello world',
+  address, // or `publicKey`
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function verify(
+  options: verify.Options,
+): boolean
+```
+
+## Parameters
+
+### options.message
+
+- **Type:** `SignableMessage`
+
+The message that was signed.
+
+### options.address
+
+- **Type:** `Address`
+
+Address to verify the message against. Mutually exclusive with `publicKey`.
+
+### options.publicKey
+
+- **Type:** `PublicKey`
+
+Public key to verify the message against. Mutually exclusive with `address`.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+
+Signature of the message.
+
+## Return Type
+
+Whether the message signature is valid.
+
+`boolean`

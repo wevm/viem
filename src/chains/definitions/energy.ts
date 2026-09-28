@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const energy = /*#__PURE__*/ defineChain({
+export const energy = /*#__PURE__*/ Chain.from({
   id: 246,
   name: 'Energy Mainnet',
   nativeCurrency: { name: 'EWT', symbol: 'EWT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.energyweb.org'],
-    },
+    http: 'https://rpc.energyweb.org',
   },
   blockExplorers: {
-    default: {
-      name: 'EnergyWeb Explorer',
-      url: 'https://explorer.energyweb.org',
-    },
+    name: 'EnergyWeb Explorer',
+    url: 'https://explorer.energyweb.org',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

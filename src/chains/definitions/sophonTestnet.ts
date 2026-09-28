@@ -1,8 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
 
-export const sophonTestnet = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const sophonTestnet = /*#__PURE__*/ Chain.from({
   blockTime: 200,
   id: 531_050_104,
   name: 'Sophon Testnet',
@@ -12,16 +10,12 @@ export const sophonTestnet = /*#__PURE__*/ defineChain({
     symbol: 'SOPH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.sophon.xyz'],
-      webSocket: ['wss://rpc.testnet.sophon.xyz/ws'],
-    },
+    http: 'https://rpc.testnet.sophon.xyz',
+    ws: 'wss://rpc.testnet.sophon.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Sophon Block Explorer',
-      url: 'https://explorer.testnet.sophon.xyz',
-    },
+    name: 'Sophon Block Explorer',
+    url: 'https://explorer.testnet.sophon.xyz',
   },
   contracts: {
     multicall3: {

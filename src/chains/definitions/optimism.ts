@@ -1,27 +1,25 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const optimism = /*#__PURE__*/ defineChain({
+export const optimism = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 10,
   name: 'OP Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.optimism.io'],
-    },
+    http: 'https://mainnet.optimism.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Optimism Explorer',
-      url: 'https://optimistic.etherscan.io',
-      apiUrl: 'https://api-optimistic.etherscan.io/api',
-    },
+    name: 'Optimism Explorer',
+    url: 'https://optimistic.etherscan.io',
+    apiUrl: 'https://api-optimistic.etherscan.io/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',

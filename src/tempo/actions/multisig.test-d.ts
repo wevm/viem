@@ -2,7 +2,7 @@ import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
   Actions,
-  createClient,
+  Client,
   type MultisigConfig,
   type MultisigOperation,
 } from 'viem/tempo'
@@ -12,23 +12,23 @@ const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
 const account = Account.fromMultisig({ address: 'infer', owners: [owner] })
-const client = createClient({
+const client = Client.create({
   chain: tempoLocalnet,
   experimental_multisig: true,
 })
 
 test('wallet actions expose multisig operations', async () => {
-  const hash = await client.sendTransaction({
+  const hash = await client.transaction.send({
     account,
     calls: [],
     owner,
   })
-  const receipt = await client.sendTransactionSync({
+  const receipt = await client.transaction.sendSync({
     account,
     hash,
     owner,
   })
-  const transaction = await client.getTransaction({ hash })
+  const transaction = await client.transaction.get({ hash })
   const config = await client.multisig.getConfig({ address: account.address })
   const operation = await client.multisig.getOperation({ hash })
 

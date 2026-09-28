@@ -45,7 +45,7 @@ const multisig = Account.fromMultisig({
 })
 
 // 2. Store the first owner approval with a relay fee payer.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer: true,
@@ -53,7 +53,7 @@ const pending = await client.sendTransactionSync({
 })
 
 // 3. Reach quorum and let the relay sponsor the final transaction.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_2,
@@ -61,10 +61,10 @@ const receipt = await client.sendTransactionSync({
 ```
 
 ```ts twoslash [relay.config.ts] filename="relay.config.ts"
-import { createClient, http, withRelay } from 'viem/tempo'
+import { Client, http, withRelay } from 'viem/tempo'
 
 // 1. Use the relay for coordination and fee sponsorship.
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), http('https://relay.example.com')),
 })
 ```
@@ -103,7 +103,7 @@ const multisig = Account.fromMultisig({
 })
 
 // 2. Store the first approval with the local fee payer.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer,
@@ -111,7 +111,7 @@ const pending = await client.sendTransactionSync({
 })
 
 // 3. Approve the fee-paid operation with the second owner.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: owner_2,

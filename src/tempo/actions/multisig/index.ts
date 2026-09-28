@@ -1,0 +1,5 @@
+export { getConfig } from './getConfig.js'
+export { getConfigCommitment } from './getConfigCommitment.js'
+export { getOperation } from './getOperation.js'
+export { updateConfig } from './updateConfig.js'
+export { updateConfigSync } from './updateConfigSync.js'

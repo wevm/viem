@@ -1,11 +1,6 @@
 import type { KeyAuthorization } from 'ox/tempo'
 import { tempoLocalnet } from 'viem/chains'
-import {
-  Account,
-  Actions,
-  createClient,
-  type MultisigOperation,
-} from 'viem/tempo'
+import { Account, Actions, Client, type MultisigOperation } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
@@ -19,7 +14,7 @@ const accessKey = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000002',
   { access: multisig },
 )
-const client = createClient({
+const client = Client.create({
   chain: tempoLocalnet,
   experimental_multisig: true,
 })

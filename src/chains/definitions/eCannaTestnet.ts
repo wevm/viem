@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const eCannaTestnet = /*#__PURE__*/ defineChain({
+export const eCannaTestnet = /*#__PURE__*/ Chain.from({
   id: 4112,
   name: 'E Canna Testnet',
   nativeCurrency: {
@@ -9,13 +9,11 @@ export const eCannaTestnet = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: { http: ['https://testnetrpc.ecnascan.com'] },
+    http: ['https://testnetrpc.ecnascan.com'],
   },
   blockExplorers: {
-    default: {
-      name: 'ECNA Scan Testnet',
-      url: 'https://testnetexplorer.ecnascan.com',
-    },
+    name: 'ECNA Scan Testnet',
+    url: 'https://testnetexplorer.ecnascan.com',
   },
   testnet: true,
 })

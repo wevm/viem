@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const berachainBepolia = /*#__PURE__*/ defineChain({
+export const berachainBepolia = /*#__PURE__*/ Chain.from({
   id: 80069,
   blockTime: 2_000,
   name: 'Berachain Bepolia',
@@ -10,19 +11,16 @@ export const berachainBepolia = /*#__PURE__*/ defineChain({
     symbol: 'BERA',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 0,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://bepolia.rpc.berachain.com'] },
-  },
+  rpcUrls: { http: 'https://bepolia.rpc.berachain.com' },
   blockExplorers: {
-    default: {
-      name: 'Berascan',
-      url: 'https://testnet.berascan.com',
-    },
+    name: 'Berascan',
+    url: 'https://testnet.berascan.com',
   },
   testnet: true,
 })

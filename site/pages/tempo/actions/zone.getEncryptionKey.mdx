@@ -1,6 +1,6 @@
-# `zone.getEncryptionKey`
+# Get Zone Encryption Key [zone.getEncryptionKey]
 
-Gets the active sequencer encryption key and its zero-based index from a zone portal. This action uses a parent Tempo chain client.
+Returns the active sequencer encryption key for a zone.
 
 ## Usage
 
@@ -15,6 +15,8 @@ const { keyIndex, publicKey } = await client.zone.getEncryptionKey({
 
 console.log('Key index:', keyIndex)
 console.log('Public key:', publicKey)
+// @log: Key index: 0n
+// @log: Public key: { prefix: 3, x: '0x57e8a1e347b0c8e8c14290499e1281f84eae5d1cdd10cc5eb4d92aca17c5c1d4' }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -23,32 +25,90 @@ console.log('Public key:', publicKey)
 
 :::
 
-The key count and public key are read in one deployless multicall snapshot, keeping the key paired with its index during rotation.
+## Recipes
+
+### Detect Key Rotation Before Submitting a Prepared Deposit
+
+Compare a prepared payload's `keyIndex` with the current key before broadcasting, and re-encrypt with [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit)'s `prepare` if the sequencer rotated keys.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const options = {
+  amount: 100_000_000n,
+  tempoRefundRecipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+} as const
+
+let prepared = await Actions.zone.encryptedDeposit.prepare(client, options)
+
+// Re-check the key once the batching window closes.
+const { keyIndex } = await client.zone.getEncryptionKey({ zoneId: 7 }) // [!code focus]
+if (keyIndex !== prepared.keyIndex) // [!code focus]
+  prepared = await Actions.zone.encryptedDeposit.prepare(client, options) // [!code focus]
+
+const hash = await client.zone.encryptedDeposit(prepared)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
 
 ## Return Type
 
 ```ts
 type ReturnType = {
+  /** Zero-based encryption key index. */
   keyIndex: bigint
+  /** Active sequencer encryption public key. */
   publicKey: {
-    // SEC1 compressed public key prefix.
+    /** SEC1 compressed public key prefix. */
     prefix: 2 | 3
+    /** Public key x-coordinate. */
     x: Hex
   }
 }
 ```
 
+The active encryption key and its zero-based index.
+
 ## Parameters
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+
+Block number to read the state from.
+
+### blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `'latest'`
+
+Block tag to read the state from.
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** the configured portal registry
+
+Zone portal address.
+
+### stateOverride (optional)
+
+- **Type:** `StateOverride`
+
+State override to apply.
 
 ### zoneId
 
 - **Type:** `number`
 
-Zone ID whose portal contains the encryption key.
-
-### portalAddress (optional)
-
-- **Type:** `Address`
-- **Default:** Resolved from the client chain and `zoneId`.
-
-Explicit zone portal address.
+Zone ID.

@@ -1,8 +1,8 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `token.getMetadata`
+# Get Token Metadata [token.getMetadata]
 
-Gets the metadata for a TIP-20 token, including name, symbol, logo URI, decimals, currency, and total supply.
+Gets TIP-20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
 
 ## Usage
 
@@ -12,21 +12,22 @@ Gets the metadata for a TIP-20 token, including name, symbol, logo URI, decimals
 import { client } from './viem.config'
 
 const metadata = await client.token.getMetadata({
-  token: '0x20c0000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
-console.log('Currency:', metadata.currency)
-// @log: Currency: USD
-console.log('Decimals:', metadata.decimals)
-// @log: Decimals: 18
-console.log('Name:', metadata.name)
-// @log: Name: United States Dollar
-console.log('Logo URI:', metadata.logoURI)
-// @log: Logo URI: https://example.com/token.svg
-console.log('Symbol:', metadata.symbol)
-// @log: Symbol: USD
-console.log('Total Supply:', metadata.totalSupply)
-// @log: Total Supply: 1000000000000000000000n
+console.log(metadata)
+// @log: {
+// @log:   currency: 'USD',
+// @log:   decimals: 6,
+// @log:   logoURI: '',
+// @log:   name: 'AlphaUSD',
+// @log:   paused: false,
+// @log:   quoteToken: '0x20C0000000000000000000000000000000000000',
+// @log:   supplyCap: 340282366920938463463374607431768211455n,
+// @log:   symbol: 'AlphaUSD',
+// @log:   totalSupply: 202914184810805067765n,
+// @log:   transferPolicyId: 1n,
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -35,19 +36,90 @@ console.log('Total Supply:', metadata.totalSupply)
 
 :::
 
-## Return Type
+## Recipes
+
+### Check Supply Headroom Before Minting
+
+Read `supplyCap` and `totalSupply` together to confirm an issuance fits under the cap before submitting [`token.mintSync`](/tempo/actions/token.mint), since mints that would exceed the cap revert.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'viem/utils'
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+const issuance = Value.from('250000', 6)
+
+const { supplyCap, totalSupply } = await client.token.getMetadata({ token }) // [!code focus]
+
+if (supplyCap !== undefined && supplyCap - totalSupply < issuance) // [!code focus]
+  throw new Error('issuance exceeds the supply cap')
+
+await client.token.mintSync({
+  amount: issuance,
+  to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+  token,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Screen a Token Before Accepting It at Checkout
+
+Check `paused`, `transferPolicyId`, and `currency` before quoting a customer-selected token at checkout: a paused token or an always-reject transfer policy cannot settle the payment.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+const accepted =
+  metadata.currency === 'USD' && // [!code focus]
+  !metadata.paused && // [!code focus]
+  metadata.transferPolicyId !== 0n // [!code focus]
+
+console.log(accepted ? `Accepting ${metadata.symbol}` : 'Payment method unavailable')
+// @log: Accepting AlphaUSD
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
 
 ```ts
 type ReturnType = {
+  /** Currency (e.g. "USD"). */
   currency: string
+  /** Decimals of the token. */
   decimals: number
+  /** Logo URI of the token. Empty string if unset or unsupported by the active Tempo hardfork. */
   logoURI: string
+  /** Name of the token. */
   name: string
+  /** Whether the token is paused. `undefined` for the default quote token (`0x20c0...0000`). */
   paused?: boolean
+  /** Quote token. `undefined` for the default quote token (`0x20c0...0000`). */
   quoteToken?: Address
+  /** Supply cap. `undefined` for the default quote token (`0x20c0...0000`). */
   supplyCap?: bigint
+  /** Symbol of the token. */
   symbol: string
+  /** Total supply of the token. */
   totalSupply: bigint
+  /** Transfer policy ID. 0="always-reject", 1="always-allow", >2=custom policy. `undefined` for the default quote token (`0x20c0...0000`). */
   transferPolicyId?: bigint
 }
 ```
@@ -56,11 +128,10 @@ type ReturnType = {
 
 ### token
 
-- **Type:** `string`
+- **Type:** `Address | bigint`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup) token name (resolving
-its `address` and metadata), a TIP-20 token id, or a token address. Metadata
-declared on the chain's `tokens` config is used when present; otherwise it is read
+Token to operate on: a TIP-20 token id or a contract address. Metadata (`name`,
+`symbol`, `decimals`) declared on the Client's `tokens` set overrides values read
 from the contract.
 
 <ReadParameters />

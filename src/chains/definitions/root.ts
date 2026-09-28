@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const root = /*#__PURE__*/ defineChain({
+export const root = /*#__PURE__*/ Chain.from({
   id: 7668,
   name: 'The Root Network',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const root = /*#__PURE__*/ defineChain({
     symbol: 'XRP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://root.rootnet.live/archive'],
-      webSocket: ['wss://root.rootnet.live/archive/ws'],
-    },
+    http: 'https://root.rootnet.live/archive',
+    ws: 'wss://root.rootnet.live/archive/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Rootscan',
-      url: 'https://rootscan.io',
-    },
+    name: 'Rootscan',
+    url: 'https://rootscan.io',
   },
   contracts: {
     multicall3: {

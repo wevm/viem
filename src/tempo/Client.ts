@@ -1,144 +1,63 @@
-import type { Address } from 'abitype'
-import type { TokenId } from 'ox/tempo'
+import type { Address, RpcSchema } from 'ox'
 
-import type { JsonRpcAccount } from '../accounts/types.js'
-import {
-  type Client as Client_,
-  type ClientConfig as ClientConfig_,
-  createClient as createClient_,
-} from '../clients/createClient.js'
-import {
-  type PublicActions,
-  publicActions,
-} from '../clients/decorators/public.js'
-import {
-  type WalletActions,
-  walletActions,
-} from '../clients/decorators/wallet.js'
-import type { Transport } from '../clients/transports/createTransport.js'
-import { http } from '../clients/transports/http.js'
-import type { ErrorType } from '../errors/utils.js'
+import type * as Account from '../core/Account.js'
+import type * as Chain from '../core/Chain.js'
+import * as viem_Client from '../core/Client.js'
+import type * as Token from '../core/Token.js'
+import type * as Transport from '../core/Transport.js'
+import { publicActions } from '../core/actions/decorators/public.js'
+import { walletActions } from '../core/actions/decorators/wallet.js'
 import { tokens as tokenSets } from '../tokens/sets.js'
-import type { Account } from '../types/account.js'
-import type { Chain } from '../types/chain.js'
-import type { RpcSchema } from '../types/eip1193.js'
-import type { Prettify } from '../types/utils.js'
-import { tempo, tempoTestnet } from './Chain.js'
-import { type Decorator, decorator as tempoActions } from './Decorator.js'
+import { tempo, tempoModerato } from './Chain.js'
+import { type Decorator, tempoActions } from './Decorator.js'
 import * as Store from './Store.js'
-import { withMultisig } from './Transport.js'
+import { http, withMultisig } from './Transport.js'
 
-/**
- * Configuration for a Tempo {@link Client}.
- *
- * Extends Viem's {@link ClientConfig} with Tempo-specific defaults: `chain`
- * and `transport` become optional, and a `testnet` flag is added to select
- * the Tempo testnet chain.
- */
-export type ClientConfig<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = Chain | undefined,
-  accountOrAddress extends Account | Address | undefined =
-    | Account
-    | Address
-    | undefined,
-  rpcSchema extends RpcSchema | undefined = undefined,
-> = Prettify<
-  Omit<
-    ClientConfig_<transport, chain, accountOrAddress, rpcSchema>,
-    'chain' | 'transport'
-  > & {
-    /**
-     * Chain for the Client.
-     *
-     * @default tempo (or `tempoTestnet` when `testnet` is truthy)
-     */
-    chain?: chain | Chain | undefined
-    /**
-     * Enables native multisig approval coordination. Pass `true` to use an
-     * in-memory store or provide a shared store.
-     *
-     * @default undefined
-     */
-    experimental_multisig?:
-      | true
-      | {
-          /** Store shared by multisig coordinators. */
-          store: Store.Atomic
-        }
-      | undefined
-    /**
-     * Default fee token for the Client. Extended onto the chain so it applies
-     * to every transaction sent with the Client.
-     */
-    feeToken?: TokenId.TokenIdOrAddress | undefined
-    /**
-     * Whether to use the Tempo testnet chain.
-     *
-     * Ignored when `chain` is provided.
-     *
-     * @default false
-     */
-    testnet?: boolean | undefined
-    /**
-     * The RPC transport.
-     *
-     * @default http()
-     */
-    transport?: transport | Transport | undefined
-  }
->
-
-/**
- * A Tempo {@link Client}: Viem's base Client decorated with
- * `publicActions`, `walletActions`, and `tempoActions`.
- */
+/** A Tempo {@link viem_Client.Client}: the base Client decorated with public, wallet, and Tempo actions. */
 export type Client<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-  rpcSchema extends RpcSchema | undefined = undefined,
-> = Prettify<
-  Client_<
-    transport,
-    chain,
-    account,
-    rpcSchema,
-    Omit<
-      PublicActions<transport, chain, account> & WalletActions<chain, account>,
-      'token'
-    > &
-      Decorator<chain, account>
-  >
+  chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+  account extends Account.Account | undefined = Account.Account | undefined,
+  transport extends Transport.Transport = Transport.Transport,
+  tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
+  schema extends RpcSchema.Generic = RpcSchema.Generic,
+> = viem_Client.Client<
+  chain,
+  account,
+  transport,
+  tokens,
+  schema,
+  Omit<
+    publicActions.Decorator<chain, account, tokens> &
+      walletActions.Decorator<chain, account, tokens>,
+    'token'
+  > &
+    Decorator<chain, account>
 >
 
-export type CreateClientErrorType = ErrorType
-
 /**
- * Creates a Tempo {@link Client}: an extension of Viem's `createClient`
- * decorated with `publicActions`, `walletActions`, and `tempoActions`.
+ * Creates a Tempo {@link Client}: the base Client decorated with
+ * `publicActions`, `walletActions`, and `tempoActions`.
  *
  * Defaults to the `tempo` mainnet chain and `http` transport, so a minimal
- * client can be created with `createClient()`. Pass `testnet` to use the
+ * client can be created with `Client.create()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
- * to set a default fee token for every transaction. Pass
- * `experimental_multisig` to coordinate multisig owner approvals.
+ * to set a default fee token for every transaction sent with the Client.
  *
  * @example
  * ```ts
- * import { createClient } from 'viem/tempo'
+ * import { Client } from 'viem/tempo'
  *
  * // Minimal client (tempo mainnet, http transport).
- * const client = createClient()
+ * const client = Client.create()
  * ```
  *
  * @example
  * ```ts
- * import { Account, createClient, http } from 'viem/tempo'
+ * import { Account, Client, http } from 'viem/tempo'
  *
  * // Testnet client with an account and custom transport.
- * const client = createClient({
- *   account: Account.fromSecp256k1('0x...'),
+ * const client = Client.create({
+ *   account: Account.fromSecp256k1('0x…'),
  *   testnet: true,
  *   transport: http('https://rpc.example.com'),
  * })
@@ -146,42 +65,37 @@ export type CreateClientErrorType = ErrorType
  *
  * @example
  * ```ts
- * import { createClient } from 'viem/tempo'
+ * import { Client } from 'viem/tempo'
  *
  * // Client with a default fee token.
- * const client = createClient({
+ * const client = Client.create({
  *   feeToken: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
  *
- * @example
- * ```ts
- * import { createClient } from 'viem/tempo'
- *
- * // Multisig coordination with a client-local in-memory store.
- * const client = createClient({
- *   experimental_multisig: true,
- * })
- * ```
- *
- * @param parameters - Parameters.
+ * @param options - Options.
  * @returns The Tempo Client.
  */
-export function createClient<
-  transport extends Transport = Transport,
-  chain extends Chain | undefined = typeof tempo,
-  accountOrAddress extends Account | Address | undefined = undefined,
-  rpcSchema extends RpcSchema | undefined = undefined,
+export function create<
+  chain extends Chain.Chain | undefined = typeof tempo,
+  accountOrAddress extends Account.Account | Address.Address | undefined =
+    undefined,
+  transport extends Transport.Transport = Transport.Transport,
+  const tokens extends Token.Tokens | undefined = typeof tokenSets.tempo,
+  schema extends RpcSchema.Schema = RpcSchema.Default,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema> = {},
+  options?: create.Options<chain, accountOrAddress, transport, tokens, schema>,
 ): Client<
-  transport,
   chain,
-  accountOrAddress extends Address
-    ? Prettify<JsonRpcAccount<accountOrAddress>>
+  accountOrAddress extends Address.Address
+    ? Account.JsonRpc<accountOrAddress>
     : accountOrAddress,
-  rpcSchema
-> {
+  transport,
+  tokens,
+  RpcSchema.ToGeneric<schema>
+>
+
+export function create(options: create.Options = {}): viem_Client.Client {
   const {
     chain,
     experimental_multisig,
@@ -190,13 +104,15 @@ export function createClient<
     tokens,
     transport,
     ...rest
-  } = parameters
-  const baseChain = chain ?? (testnet ? tempoTestnet : tempo)
+  } = options
+  const baseChain = (chain ?? (testnet ? tempoModerato : tempo)) as
+    | (Chain.Chain & {
+        extend?: (extended: { feeToken: unknown }) => Chain.Chain
+      })
+    | undefined
   const resolvedChain =
-    feeToken && typeof (baseChain as { extend?: unknown }).extend === 'function'
-      ? (baseChain as { extend: (e: { feeToken: unknown }) => Chain }).extend({
-          feeToken,
-        })
+    feeToken && typeof baseChain?.extend === 'function'
+      ? baseChain.extend({ feeToken })
       : baseChain
   const transport_ = transport ?? http()
   const resolvedTransport = experimental_multisig
@@ -207,13 +123,63 @@ export function createClient<
           : experimental_multisig,
       )
     : transport_
-  return createClient_({
-    ...rest,
-    chain: resolvedChain,
-    tokens: tokens ?? tokenSets.tempo,
-    transport: resolvedTransport,
-  } as ClientConfig_)
-    .extend(publicActions)
-    .extend(walletActions)
-    .extend(tempoActions()) as never
+  return viem_Client
+    .create({
+      ...rest,
+      chain: resolvedChain,
+      tokens: tokens ?? tokenSets.tempo,
+      transport: resolvedTransport,
+    } as viem_Client.create.Options)
+    .extend(publicActions())
+    .extend(walletActions())
+    .extend(tempoActions())
+}
+
+export declare namespace create {
+  /** Error type for {@link create}. */
+  type ErrorType = viem_Client.create.ErrorType
+
+  type Options<
+    chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+    accountOrAddress extends Account.Account | Address.Address | undefined =
+      | Account.Account
+      | Address.Address
+      | undefined,
+    transport extends Transport.Transport = Transport.Transport,
+    tokens extends Token.Tokens | undefined = Token.Tokens | undefined,
+    schema extends RpcSchema.Schema = RpcSchema.Default,
+  > = Omit<
+    viem_Client.create.Options<
+      chain,
+      accountOrAddress,
+      transport,
+      tokens,
+      schema
+    >,
+    'chain' | 'transport'
+  > & {
+    /**
+     * Chain for the Client.
+     * @default tempo (or `tempoModerato` when `testnet` is truthy)
+     */
+    chain?: chain | Chain.Chain | undefined
+    /** Enables native multisig approval coordination with a local or shared store. */
+    experimental_multisig?: true | { store: Store.Atomic } | undefined
+    /**
+     * Default fee token for the Client. Extended onto the chain so it applies
+     * to every transaction sent with the Client.
+     */
+    feeToken?: Address.Address | undefined
+    /**
+     * Whether to use the Tempo testnet chain. Ignored when `chain` is
+     * provided.
+     * @default false
+     */
+    testnet?: boolean | undefined
+    /**
+     * The RPC transport.
+     * @default http()
+     */
+    transport?: transport | Transport.Transport | undefined
+  }
 }

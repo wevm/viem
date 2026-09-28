@@ -1,20 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const reddio = /*#__PURE__*/ defineChain({
+export const reddio = /*#__PURE__*/ Chain.from({
   id: 50342,
   name: 'Reddio',
   nativeCurrency: { name: 'Reddio', symbol: 'RED', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.reddio.com/rpc'],
-    },
+    http: 'https://mainnet.reddio.com/rpc',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://reddio.cloud.blockscout.com',
-      apiUrl: 'https://reddio.cloud.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://reddio.cloud.blockscout.com',
+    apiUrl: 'https://reddio.cloud.blockscout.com/api',
   },
   contracts: {
     multicall3: {

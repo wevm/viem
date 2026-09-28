@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const btr = /*#__PURE__*/ defineChain({
+export const btr = /*#__PURE__*/ Chain.from({
   id: 200901,
   name: 'Bitlayer',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const btr = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.bitlayer.org', 'https://rpc.bitlayer-rpc.com'],
-      webSocket: ['wss://ws.bitlayer.org', 'wss://ws.bitlayer-rpc.com'],
-    },
+    http: ['https://rpc.bitlayer.org', 'https://rpc.bitlayer-rpc.com'],
+    ws: ['wss://ws.bitlayer.org', 'wss://ws.bitlayer-rpc.com'],
   },
   blockExplorers: {
-    default: {
-      name: 'Bitlayer(BTR) Scan',
-      url: 'https://www.btrscan.com',
-    },
+    name: 'Bitlayer(BTR) Scan',
+    url: 'https://www.btrscan.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

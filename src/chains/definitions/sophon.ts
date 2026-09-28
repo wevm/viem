@@ -1,8 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sophon = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const sophon = /*#__PURE__*/ Chain.from({
   blockTime: 200,
   id: 50104,
   name: 'Sophon',
@@ -12,18 +11,15 @@ export const sophon = /*#__PURE__*/ defineChain({
     symbol: 'SOPH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sophon.xyz'],
-      webSocket: ['wss://rpc.sophon.xyz/ws'],
-    },
+    http: 'https://rpc.sophon.xyz',
+    ws: 'wss://rpc.sophon.xyz/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Sophon Block Explorer',
-      url: 'https://explorer.sophon.xyz',
-    },
+    name: 'Sophon Block Explorer',
+    url: 'https://explorer.sophon.xyz',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x5f4867441d2416cA88B1b3fd38f21811680CD2C8',
       blockCreated: 116,

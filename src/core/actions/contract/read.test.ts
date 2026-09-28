@@ -1,0 +1,494 @@
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
+import * as contract from '~test/contract.js'
+import { Abi } from 'ox'
+import { describe, expect, test } from 'vitest'
+
+import { Actions, ContractError } from 'viem'
+const client = anvil.getClient(anvil.mainnet)
+
+const { abi } = generated.Erc721
+const { address, blockNumber } = await contract.deploy(client, {
+  bytecode: generated.Erc721.bytecode.object,
+})
+
+const errors = {
+  abi: generated.ErrorsExample.abi,
+  address: (
+    await contract.deploy(client, {
+      bytecode: generated.ErrorsExample.bytecode.object,
+    })
+  ).address,
+}
+
+const valuesAbi = Abi.from([
+  'function mixedValues() view returns (uint256 foo, uint256)',
+  'function unnamedValues() view returns (uint256, uint256)',
+  'function values() view returns (uint256 foo, uint256 bar)',
+])
+const valuesCode = '0x600f600c600039600f6000f3602a600052604560205260406000f3'
+
+test('default', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi,
+      address,
+      functionName: 'name',
+    }),
+  ).toBe('wagmi')
+})
+
+test('return shape', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'values',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "bar": 69n,
+      "foo": 42n,
+    }
+  `)
+
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      as: 'Array',
+      code: valuesCode,
+      functionName: 'values',
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      42n,
+      69n,
+    ]
+  `)
+})
+
+test('return shape: unnamed outputs', async () => {
+  // Fully unnamed outputs have no keys to name, so the tuple shape is kept.
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'unnamedValues',
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      42n,
+      69n,
+    ]
+  `)
+})
+
+test('return shape: mixed outputs', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi: valuesAbi,
+      code: valuesCode,
+      functionName: 'mixedValues',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "1": 69n,
+      "foo": 42n,
+    }
+  `)
+})
+
+test('args: function with return value', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi,
+      address,
+      functionName: 'symbol',
+    }),
+  ).toBe('WAGMI')
+  expect(
+    await Actions.contract.read(client, {
+      abi,
+      address,
+      functionName: 'totalSupply',
+    }),
+  ).toBe(1n)
+})
+
+test('args: blockNumber', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi,
+      address,
+      blockNumber,
+      functionName: 'name',
+    }),
+  ).toBe('wagmi')
+})
+
+test('args: args', async () => {
+  const error = await Actions.contract
+    .read(client, {
+      abi,
+      address,
+      args: [123n],
+      functionName: 'ownerOf',
+    })
+    .then(() => null)
+    .catch((error) => error as Error)
+  expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+  // The deployed address depends on the instance's deployment order.
+  expect(error?.message.replaceAll(address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
+    "The contract function "ownerOf" reverted with the following reason:
+    Execution reverted for an unknown reason.
+
+    Contract Call:
+      address:   0x<address>
+      function:  function ownerOf(uint256) pure returns (address)
+      args:             (123)
+     
+    Request Arguments:
+      data:  0x6352211e000000000000000000000000000000000000000000000000000000000000007b
+      to:    0x<address>
+
+    Details: execution reverted
+    Version: viem@x.x.x"
+  `)
+})
+
+test('error: reverts', async () => {
+  const error = await Actions.contract
+    .read(client, {
+      abi,
+      address,
+      args: [1n],
+      functionName: 'ownerOf',
+    })
+    .then(() => null)
+    .catch((error) => error as Error)
+  expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+  // The deployed address depends on the instance's deployment order.
+  expect(error?.message.replaceAll(address.toLowerCase(), '0x<address>'))
+    .toMatchInlineSnapshot(`
+    "The contract function "ownerOf" reverted with the following reason:
+    Execution reverted for an unknown reason.
+
+    Contract Call:
+      address:   0x<address>
+      function:  function ownerOf(uint256) pure returns (address)
+      args:             (1)
+     
+    Request Arguments:
+      data:  0x6352211e0000000000000000000000000000000000000000000000000000000000000001
+      to:    0x<address>
+
+    Details: execution reverted
+    Version: viem@x.x.x"
+  `)
+})
+
+test('args: deployless (code)', async () => {
+  expect(
+    await Actions.contract.read(client, {
+      abi,
+      code: generated.Erc721.bytecode.object,
+      functionName: 'name',
+    }),
+  ).toBe('wagmi')
+})
+
+test('error: zero data (not a contract)', async () => {
+  await expect(() =>
+    Actions.contract.read(client, {
+      abi,
+      address: '0x0000000000000000000000000000000000000000',
+      functionName: 'name',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ContractFunctionExecutionError: The contract function "name" returned no data ("0x").
+
+      This could be due to any of the following:
+        - The contract does not have the function "name",
+        - The parameters passed to the contract function may be invalid, or
+        - The address is not a contract.
+       
+      Contract Call:
+        address:   0x0000000000000000000000000000000000000000
+        function:  function name() view returns (string)
+
+      Details: Cannot decode zero data ("0x") with ABI parameters.
+      Version: viem@x.x.x]
+    `)
+})
+
+test('error: aborted request is not wrapped', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  const error = await Actions.contract
+    .read(client, {
+      abi,
+      address,
+      functionName: 'name',
+      requestOptions: { signal: controller.signal },
+    })
+    .catch((error) => error)
+  expect(error).not.toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+})
+
+describe('reverts', () => {
+  test('revert message', async () => {
+    const error = await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'revertRead',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "revertRead" reverted with the following reason:
+      This is a revert message
+
+      Contract Call:
+        address:   0x<address>
+        function:  function revertRead() pure
+       
+      Request Arguments:
+        data:  0x9f558709
+        to:    0x<address>
+
+      Details: execution reverted: This is a revert message
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('panic: assert', async () => {
+    const error = await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'assertRead',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "assertRead" reverted with the following reason:
+      An \`assert\` condition failed.
+
+      Contract Call:
+        address:   0x<address>
+        function:  function assertRead() pure
+       
+      Request Arguments:
+        data:  0xeb1aba20
+        to:    0x<address>
+
+      Details: execution reverted: panic: assertion failed (0x01)
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('panic: overflow', async () => {
+    const error = await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'overflowRead',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "overflowRead" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
+
+      Contract Call:
+        address:   0x<address>
+        function:  function overflowRead() pure returns (uint256)
+       
+      Request Arguments:
+        data:  0x4adac6eb
+        to:    0x<address>
+
+      Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('panic: divide by zero', async () => {
+    const error = await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'divideByZeroRead',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "divideByZeroRead" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+
+      Contract Call:
+        address:   0x<address>
+        function:  function divideByZeroRead() pure returns (uint256)
+       
+      Request Arguments:
+        data:  0x24db9ba0
+        to:    0x<address>
+
+      Details: execution reverted: panic: division or modulo by zero (0x12)
+      Version: viem@x.x.x"
+    `)
+  })
+
+  test('require', async () => {
+    const error = await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'requireRead',
+      })
+      .then(() => null)
+      .catch((error) => error as Error)
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    // The deployed address depends on the instance's deployment order.
+    expect(
+      error?.message.replaceAll(errors.address.toLowerCase(), '0x<address>'),
+    ).toMatchInlineSnapshot(`
+      "The contract function "requireRead" reverted with the following reason:
+      Execution reverted for an unknown reason.
+
+      Contract Call:
+        address:   0x<address>
+        function:  function requireRead() pure
+       
+      Request Arguments:
+        data:  0x699389ca
+        to:    0x<address>
+
+      Details: execution reverted
+      Version: viem@x.x.x"
+    `)
+  })
+
+  // Custom-error `Details:` lines carry anvil's raw (binary) revert payload,
+  // which is not safe to embed in a snapshot, so assert viem's decoded fields
+  // (`shortMessage`, decoded `Error:` meta, structured `cause.data`) instead.
+  test('custom error: with args', async () => {
+    const error = (await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'simpleCustomRead',
+      })
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error.name).toBe('ContractFunctionExecutionError')
+    expect(error.shortMessage).toBe(
+      'The contract function "simpleCustomRead" reverted.',
+    )
+    const cause = error.cause as ContractError.ContractFunctionRevertedError
+    expect(cause.name).toBe('ContractFunctionRevertedError')
+    expect(cause.data).toMatchInlineSnapshot(`
+        {
+          "args": [
+            "bugger",
+          ],
+          "name": "SimpleError",
+        }
+      `)
+    expect(cause.metaMessages).toMatchInlineSnapshot(`
+        [
+          "Error: error SimpleError(string message)",
+          "                  (bugger)",
+        ]
+      `)
+  })
+
+  test('custom error: no args', async () => {
+    const error = (await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'simpleCustomReadNoArgs',
+      })
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error.name).toBe('ContractFunctionExecutionError')
+    expect(error.shortMessage).toBe(
+      'The contract function "simpleCustomReadNoArgs" reverted.',
+    )
+    const cause = error.cause as ContractError.ContractFunctionRevertedError
+    expect(cause.data).toMatchInlineSnapshot(`
+        {
+          "args": [],
+          "name": "SimpleErrorNoArgs",
+        }
+      `)
+    expect(cause.metaMessages).toMatchInlineSnapshot(`
+        [
+          "Error: error SimpleErrorNoArgs()",
+          "",
+        ]
+      `)
+  })
+
+  test('custom error: complex', async () => {
+    const error = (await Actions.contract
+      .read(client, {
+        ...errors,
+        functionName: 'complexCustomRead',
+      })
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error.name).toBe('ContractFunctionExecutionError')
+    expect(error.shortMessage).toBe(
+      'The contract function "complexCustomRead" reverted.',
+    )
+    const cause = error.cause as ContractError.ContractFunctionRevertedError
+    expect(cause.data).toMatchInlineSnapshot(`
+        {
+          "args": [
+            {
+              "bar": 69n,
+              "sender": "0x0000000000000000000000000000000000000000",
+            },
+            "bugger",
+            69n,
+          ],
+          "name": "ComplexError",
+        }
+      `)
+    expect(cause.metaMessages).toMatchInlineSnapshot(`
+        [
+          "Error: error ComplexError((address sender, uint256 bar) foo, string message, uint256 number)",
+          "                   ({"sender":"0x0000000000000000000000000000000000000000","bar":"69"}, bugger, 69)",
+        ]
+      `)
+  })
+
+  test('custom error: not on abi', async () => {
+    const error = (await Actions.contract
+      .read(client, {
+        ...errors,
+        abi: errors.abi.filter((item) => item.name !== 'SimpleError'),
+        functionName: 'simpleCustomRead',
+      })
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error.name).toBe('ContractFunctionExecutionError')
+    const cause = error.cause as ContractError.ContractFunctionRevertedError
+    expect(cause.signature).toBe('0xf9006398')
+    expect(cause.metaMessages).toMatchInlineSnapshot(`
+        [
+          "Unable to decode signature "0xf9006398" as it was not found on the provided ABI.",
+          "Make sure you are using the correct ABI and that the error exists on it.",
+        ]
+      `)
+  })
+})

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const newton = /*#__PURE__*/ defineChain({
+export const newton = /*#__PURE__*/ Chain.from({
   id: 1012,
   name: 'Newton',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const newton = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://global.rpc.mainnet.newtonproject.org'],
-    },
+    http: 'https://global.rpc.mainnet.newtonproject.org',
   },
   blockExplorers: {
-    default: {
-      name: 'NewFi explorer',
-      url: 'https://explorer.newtonproject.org/',
-    },
+    name: 'NewFi explorer',
+    url: 'https://explorer.newtonproject.org/',
   },
   testnet: false,
 })

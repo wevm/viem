@@ -30,7 +30,7 @@ const allowance = await client.token.getAllowance({
 ### Composing Calls
 
 Use `.call` to build a `getAllowance` contract call, ready to pass to
-[`multicall`](/docs/contract/multicall), [`simulateContract`](/docs/contract/simulateContract), or any
+[`multicall`](/docs/actions/public/multicall), [`contract.simulate`](/docs/actions/public/contract/simulate), or any
 other Action that accepts a contract call.
 
 :::code-group
@@ -47,7 +47,7 @@ const call = client.token.getAllowance.call({ account: '0x…', spender: '0x…'
 
 :::
 
-## Return Type
+## Return Value
 
 ```ts
 type ReturnType = {
@@ -71,6 +71,13 @@ The remaining allowance, both in base units (`amount`) and as a human-readable d
 
 Account that owns the tokens.
 
+### decimals
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the Client's `tokens` array, or fetched from the token contract when omitted.
+
 ### spender
 
 - **Type:** `Address`
@@ -83,10 +90,3 @@ Account allowed to spend the account's tokens.
 
 Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
 token symbol (resolving its `address` and `decimals`), or a token address.
-
-### decimals (optional)
-
-- **Type:** `number`
-
-Token decimals for converting base units to human-readable amounts. Inferred
-from the Client's `tokens` array, or fetched from the token contract when omitted.

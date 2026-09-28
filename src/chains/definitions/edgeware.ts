@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const edgeware = /*#__PURE__*/ defineChain({
+export const edgeware = /*#__PURE__*/ Chain.from({
   id: 2021,
   name: 'Edgeware EdgeEVM Mainnet',
   nativeCurrency: {
@@ -8,15 +8,11 @@ export const edgeware = /*#__PURE__*/ defineChain({
     name: 'Edgeware',
     symbol: 'EDG',
   },
-  rpcUrls: {
-    default: { http: ['https://edgeware-evm.jelliedowl.net'] },
-  },
+  rpcUrls: { http: 'https://edgeware-evm.jelliedowl.net' },
   blockExplorers: {
-    default: {
-      name: 'Edgscan by Bharathcoorg',
-      url: 'https://edgscan.live',
-      apiUrl: 'https://edgscan.live/api',
-    },
+    name: 'Edgscan by Bharathcoorg',
+    url: 'https://edgscan.live',
+    apiUrl: 'https://edgscan.live/api',
   },
   contracts: {
     multicall3: {

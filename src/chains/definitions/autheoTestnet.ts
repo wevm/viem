@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const autheoTestnet = /*#__PURE__*/ defineChain({
+export const autheoTestnet = /*#__PURE__*/ Chain.from({
   id: 785,
   name: 'Autheo Testnet',
   nativeCurrency: {
@@ -9,18 +9,14 @@ export const autheoTestnet = /*#__PURE__*/ defineChain({
     symbol: 'THEO',
   },
   rpcUrls: {
-    default: {
-      http: [
-        'https://testnet-rpc1.autheo.com',
-        'https://testnet-rpc2.autheo.com',
-      ],
-    },
+    http: [
+      'https://testnet-rpc1.autheo.com',
+      'https://testnet-rpc2.autheo.com',
+    ],
   },
   blockExplorers: {
-    default: {
-      name: 'Autheo Testnet Block Explorer',
-      url: 'https://testnet-explorer.autheo.com/',
-    },
+    name: 'Autheo Testnet Block Explorer',
+    url: 'https://testnet-explorer.autheo.com/',
   },
   testnet: true,
 })

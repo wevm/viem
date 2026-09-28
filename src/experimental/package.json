@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/experimental/index.d.ts",
-  "module": "../_esm/experimental/index.js",
-  "main": "../_cjs/experimental/index.js"
-}

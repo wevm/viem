@@ -1,15 +1,16 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const storyAeneid = /*#__PURE__*/ defineChain({
+export const storyAeneid = /*#__PURE__*/ Chain.from({
   id: 1315,
   name: 'Data Network Aeneid',
-  network: 'data-network-aeneid',
   nativeCurrency: {
     decimals: 18,
     name: 'DATA',
     symbol: 'DATA',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 1792,
@@ -23,15 +24,11 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
       blockCreated: 1322097,
     },
   },
-  rpcUrls: {
-    default: { http: ['https://aeneid.datarpc.io'] },
-  },
+  rpcUrls: { http: 'https://aeneid.datarpc.io' },
   blockExplorers: {
-    default: {
-      name: 'Data Network Aeneid Explorer',
-      url: 'https://aeneid.datanetscan.io',
-      apiUrl: 'https://aeneid.datanetscan.io/api/v2',
-    },
+    name: 'Data Network Aeneid Explorer',
+    url: 'https://aeneid.datanetscan.io',
+    apiUrl: 'https://aeneid.datanetscan.io/api/v2',
   },
   ensTlds: ['.ip'],
   testnet: true,

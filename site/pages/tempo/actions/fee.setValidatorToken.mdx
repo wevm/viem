@@ -1,0 +1,142 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# Set Validator Fee Token [fee.setValidatorToken]
+
+Sets the calling validator's preferred fee token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.fee.setValidatorTokenSync({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `fee.setValidatorToken` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.fee.setValidatorToken({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
+
+const { args } = Actions.fee.setValidatorToken.extractEvent(receipt.logs)
+```
+
+## Recipes
+
+### Validate a Token Before Rotating
+
+Combine [`fee.validateToken`](/tempo/actions/fee.validateToken) with `setValidatorToken` so fee revenue never switches to a paused or non-USD token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const { address } = await client.fee.validateToken({ token: alphaUsd }) // [!code focus]
+
+const { receipt } = await client.fee.setValidatorTokenSync({ token: address }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sign with the Validator Key from an Ops Client
+
+Pass `account` to sign with the validator key when the Client defaults to another account: the preference applies to the sending account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validatorKey = Account.fromSecp256k1('0x...')
+
+const { receipt } = await client.fee.setValidatorTokenSync({
+  account: validatorKey, // [!code focus]
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Confirm the Rotation On-Chain
+
+Read the preference back with [`fee.getValidatorToken`](/tempo/actions/fee.getValidatorToken) after rotating, as a convergence check in a validator runbook.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+await client.fee.setValidatorTokenSync({ token: alphaUsd })
+
+const token = await client.fee.getValidatorToken({ // [!code focus]
+  validator: client.account.address, // [!code focus]
+}) // [!code focus]
+
+console.log('Receiving fees in:', token)
+// @log: Receiving fees in: 0x20c0000000000000000000000000000000000001
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnType = {
+  /** Token set as the validator's preferred fee token. */
+  token: Address
+  /** Validator the fee token was set for. */
+  validator: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### token
+
+- **Type:** `Address`
+
+Token address to set as the preferred fee token.
+
+<WriteParameters />

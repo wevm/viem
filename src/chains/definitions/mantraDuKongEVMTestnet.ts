@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const mantraDuKongEVMTestnet = /*#__PURE__*/ defineChain({
+export const mantraDuKongEVMTestnet = /*#__PURE__*/ Chain.from({
   id: 5887,
   name: 'MANTRA DuKong EVM Testnet',
   nativeCurrency: {
@@ -8,14 +9,13 @@ export const mantraDuKongEVMTestnet = /*#__PURE__*/ defineChain({
     name: 'MANTRA',
     symbol: 'MANTRA',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.dukong.mantrachain.io'] },
-  },
+  rpcUrls: { http: 'https://evm.dukong.mantrachain.io' },
   blockExplorers: {
-    default: {
-      name: 'MANTRAScan',
-      url: 'https://mantrascan.io/dukong',
-    },
+    name: 'MANTRAScan',
+    url: 'https://mantrascan.io/dukong',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

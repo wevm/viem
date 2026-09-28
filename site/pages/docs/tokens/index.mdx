@@ -1,0 +1,40 @@
+import { Card, Cards } from 'vocs'
+
+# Tokens
+
+## Overview
+
+The **Token** module describes an ERC-20 token. It combines shared metadata with a map of per-Chain
+contract addresses.
+
+Call a Token from [`Token.from`](/docs/tokens/create) with a Chain ID to resolve its configuration.
+You can also declare it in a [Client](/docs/clients) `tokens` array.
+
+[Token Actions](/docs/actions/public/token/getBalance) can use a declared Token's symbol instead of
+its contract address. Viem exports predefined Tokens, including USDC and EURC, from `viem/tokens`.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: 'usdc',
+})
+```
+
+<Cards>
+  <Card
+    title="Defining a Token"
+    description="Define a token with Token.from from metadata and per-chain addresses."
+    icon="lucide:coins"
+    to="/docs/tokens/create"
+  />
+</Cards>

@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const thunderCore = /*#__PURE__*/ defineChain({
+export const thunderCore = /*#__PURE__*/ Chain.from({
   id: 108,
   name: 'ThunderCore Mainnet',
   nativeCurrency: { name: 'TT', symbol: 'TT', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet-rpc.thundercore.com'],
-    },
+    http: 'https://mainnet-rpc.thundercore.com',
   },
   blockExplorers: {
-    default: {
-      name: 'ThunderCore Explorer',
-      url: 'https://explorer-mainnet.thundercore.com',
-    },
+    name: 'ThunderCore Explorer',
+    url: 'https://explorer-mainnet.thundercore.com',
   },
   contracts: {
     multicall3: {

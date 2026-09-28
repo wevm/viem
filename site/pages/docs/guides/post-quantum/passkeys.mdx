@@ -1,0 +1,98 @@
+---
+description: Derive an ML-DSA-44 signing key from a credential-bound WebAuthn PRF.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Post-Quantum Passkeys
+
+## Overview
+
+A passkey can authorize a WebAuthn pseudo-random function (PRF) evaluation. The 32-byte PRF output
+can deterministically derive an ML-DSA-44 private key with
+[`MlDsa44.fromPrf`](/docs/utilities/mldsa44/fromPrf).
+
+The ML-DSA key is software key material derived after the WebAuthn ceremony. The authenticator does
+not store or use an ML-DSA key, and the surrounding application is only post-quantum secure when
+all relevant cryptography and recovery paths are also post-quantum secure.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Create a Post-Quantum Passkey
+
+Use a stable [`Prf.tag`](/docs/utilities/prf/tag) value when creating the
+[`WebAuthn`](/docs/utilities/webauthn) credential. Store the credential identifier and ML-DSA
+public key, but do not persist the PRF output or derived private key.
+
+```ts twoslash
+import { MlDsa44, Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: Prf.tag('post-quantum-signing.v1'),
+})
+
+const privateKey = MlDsa44.fromPrf(credential.prf)
+const publicKey = MlDsa44.getPublicKey({ privateKey })
+
+const credentialId = credential.id
+```
+
+### Retrieve the Signing Key
+
+Request the same credential with the same tag to derive the same private key.
+
+```ts twoslash
+import { MlDsa44, Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: Prf.tag('post-quantum-signing.v1'),
+})
+
+const privateKey = MlDsa44.fromPrf(credential.prf)
+```
+
+### Sign with the Derived Key
+
+Derive the private key during a user-authorized ceremony, then sign the payload.
+
+```ts twoslash
+import { Hex, MlDsa44, Prf, WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: Prf.tag('post-quantum-signing.v1'),
+})
+const privateKey = MlDsa44.fromPrf(credential.prf)
+
+const payload = Hex.fromString('Approve document 42')
+const signature = MlDsa44.sign({ payload, privateKey })
+```
+
+## Best Practices
+
+### Keep Tags Stable
+
+The credential and tag determine the PRF output. Changing either value derives a different key.
+Version the tag only when you intend to rotate the ML-DSA key.
+
+### Verify Credential Support
+
+WebAuthn PRF support varies by authenticator and credential. Handle unsupported PRF evaluation and
+provide a recovery path before relying on the derived key for durable data or identity.
+
+### Limit Access to Derived Material
+
+Code running in the same relying-party scope can receive the PRF output after an authorized
+ceremony. Minimize third-party scripts and keep the derived private key in the narrowest scope that
+can complete the signing operation.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:shield-check" title="Post-Quantum" description="Create, sign, and verify with ML-DSA-44." to="/docs/guides/post-quantum" />
+  <Card icon="lucide:fingerprint" title="WebAuthn Reference" description="Create and retrieve WebAuthn credentials with PRF output." to="/docs/utilities/webauthn" />
+</Cards>

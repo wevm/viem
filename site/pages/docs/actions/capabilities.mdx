@@ -1,0 +1,187 @@
+# Capabilities
+
+## Overview
+
+Capabilities extend wallet protocols such as
+[EIP-5792](https://eips.ethereum.org/EIPS/eip-5792) and
+[ERC-7846](https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7846.md).
+
+A wallet advertises features such as paymaster services, atomic batching, and sign-in.
+Applications request these capabilities for individual calls.
+
+Actions such as [`Actions.wallet.connect`](/docs/actions/wallet/connect),
+[`Actions.wallet.sendCalls`](/docs/actions/wallet/sendCalls), and
+[`Actions.wallet.getCapabilities`](/docs/actions/wallet/getCapabilities) exchange capability bags.
+
+The `Capabilities` module types those bags.
+By default, capability bags accept any string key with an `unknown` value.
+
+Declare schemas through `Capabilities.Register` to type known capabilities while preserving
+unknown keys.
+
+```ts twoslash
+import { Actions, Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }],
+  capabilities: {
+    paymasterService: { url: 'https://paymaster.example.com' },
+  },
+})
+```
+
+## Recipes
+
+### Register Capability Schemas
+
+Augment `Capabilities.Register` via declaration merging to type the capabilities exchanged for a specific RPC method. Key the schema by method name, with a `Request` and/or `ReturnType` entry.
+
+```ts twoslash
+declare module 'viem' { // [!code focus]
+  namespace Capabilities { // [!code focus]
+    interface Register { // [!code focus]
+      Schema: { // [!code focus]
+        sendCalls: { // [!code focus]
+          Request: { // [!code focus]
+            paymasterService?: { url: string } | undefined // [!code focus]
+          } // [!code focus]
+        } // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
+} // [!code focus]
+
+import { Actions, Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }],
+  capabilities: {
+    paymasterService: { url: 'https://paymaster.example.com' },
+  },
+})
+```
+
+### Request Capabilities on Connect
+
+Pass a `capabilities` bag to [`Actions.wallet.connect`](/docs/actions/wallet/connect) to request features alongside the connection.
+
+```ts twoslash
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+
+const { accounts } = await client.wallet.connect({
+  capabilities: { // [!code focus]
+    signInWithEthereum: { // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: '12345678', // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Discover Wallet Capabilities
+
+Use [`Actions.wallet.getCapabilities`](/docs/actions/wallet/getCapabilities) to read a connected
+wallet's capabilities, keyed by chain ID.
+
+```ts twoslash
+import { Client, custom, walletActions } from 'viem'
+import 'viem/window'
+
+const client = Client.create({
+  transport: custom(window.ethereum!),
+}).extend(walletActions())
+
+const capabilities = await client.wallet.getCapabilities({ chainId: 1 }) // [!code focus]
+```
+
+## `Capabilities.Register`
+
+Registry slot for capability schemas.
+Use declaration merging to define a `Request` or `ReturnType` schema for each RPC method.
+
+Supported method keys include `connect`, `sendCalls`, `getCallsStatus`, `getCapabilities`, and
+`fillTransaction`.
+
+### Usage
+
+```ts twoslash
+import type { Capabilities } from 'viem'
+
+declare module 'viem' {
+  namespace Capabilities {
+    interface Register {
+      Schema: {
+        fillTransaction: {
+          ReturnType: {
+            paymasterService?: { sponsored: boolean } | undefined
+          }
+        }
+      }
+    }
+  }
+}
+
+type FillCapabilities = Capabilities.Extract<'fillTransaction', 'ReturnType'>
+```
+
+## `Capabilities.Capabilities`
+
+An open, extensible capabilities bag. Known capabilities (supplied via the type parameter) are typed; unknown keys remain accessible as `unknown`.
+
+### Usage
+
+```ts twoslash
+import type { Capabilities } from 'viem'
+
+const capabilities: Capabilities.Capabilities<{
+  paymasterService: { url: string }
+}> = {
+  paymasterService: { url: 'https://paymaster.example.com' },
+  other: 'still allowed',
+}
+```
+
+## `Capabilities.Schema`
+
+The resolved capability schema: the `Schema` slot of [`Capabilities.Register`](#capabilitiesregister) if set, otherwise `{}`.
+
+### Usage
+
+```ts twoslash
+import type { Capabilities } from 'viem'
+
+type Schema = Capabilities.Schema
+```
+
+## `Capabilities.Extract`
+
+Extracts a method's `Request` or `ReturnType` capabilities from
+[`Capabilities.Schema`](#capabilitiesschema).
+
+Unregistered methods or directions use the open
+[`Capabilities.Capabilities`](#capabilitiescapabilities) bag.
+
+### Usage
+
+```ts twoslash
+import type { Capabilities } from 'viem'
+
+type SendCallsCapabilities = Capabilities.Extract<'sendCalls', 'Request'>
+```

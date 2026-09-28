@@ -1,23 +1,16 @@
-import type { Chain, ChainFormatters } from '../types/chain.js'
-import type { Assign } from '../types/utils.js'
-import {
-  type DefineChainReturnType,
-  defineChain,
-} from '../utils/chain/defineChain.js'
+import * as Chain from '../core/Chain.js'
+import type { Assign } from '../core/internal/types.js'
 import { type ChainConfig, chainConfig } from './chainConfig.js'
 
 type Defaults = {
+  contracts: undefined
   nativeCurrency: {
     decimals: number
     name: string
     symbol: string
   }
-  rpcUrls: { default: { http: string[] } }
+  rpcUrls: { http: string[] }
   supportsTransactionReplacementDetection: boolean
-}
-
-type ZoneChain = Chain<ChainFormatters, ChainConfig['extendSchema']> & {
-  formatters: ChainConfig['formatters']
 }
 
 /** Defines a Tempo Zone chain. */
@@ -27,26 +20,27 @@ export function from<const config extends from.Parameters>(
 export function from(config: from.Parameters) {
   const chain = {
     ...chainConfig,
+    contracts: undefined,
     nativeCurrency: {
       name: 'USD',
       symbol: 'USD',
       decimals: 6,
     },
-    rpcUrls: { default: { http: [] as string[] } },
+    rpcUrls: { http: [] as string[] },
     supportsTransactionReplacementDetection: false,
     ...config,
   }
-  return defineChain(chain)
+  return Chain.from(chain)
 }
 
 export declare namespace from {
-  type Parameters = Pick<Chain, 'id' | 'name'> &
-    Partial<Omit<Chain, 'id' | 'name' | 'sourceId'>> & {
+  type Parameters = Pick<Chain.Chain, 'id' | 'name'> &
+    Partial<Omit<Chain.Chain, 'id' | 'name' | 'sourceId'>> & {
       sourceId: number
     }
 
   type ReturnValue<config extends Parameters = Parameters> = Assign<
-    Assign<DefineChainReturnType<ZoneChain>, Defaults>,
+    Assign<Chain.from.ReturnType<ChainConfig>, Defaults>,
     config
   >
 }
@@ -54,22 +48,14 @@ export declare namespace from {
 export const a = /*#__PURE__*/ from({
   id: 4_217_000_006,
   name: 'Zone A',
-  rpcUrls: {
-    default: {
-      http: ['https://rpc-zone-a.testnet.tempo.xyz'],
-    },
-  },
+  rpcUrls: { http: ['https://rpc-zone-a.testnet.tempo.xyz'] },
   sourceId: 42_431,
 })
 
 export const b = /*#__PURE__*/ from({
   id: 4_217_000_007,
   name: 'Zone B',
-  rpcUrls: {
-    default: {
-      http: ['https://rpc-zone-b.testnet.tempo.xyz'],
-    },
-  },
+  rpcUrls: { http: ['https://rpc-zone-b.testnet.tempo.xyz'] },
   sourceId: 42_431,
 })
 

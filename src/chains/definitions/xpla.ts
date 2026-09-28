@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const xpla = /*#__PURE__*/ defineChain({
+export const xpla = /*#__PURE__*/ Chain.from({
   id: 37,
   name: 'CONX Chain',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const xpla = /*#__PURE__*/ defineChain({
     symbol: 'XPLA',
   },
   rpcUrls: {
-    default: {
-      http: ['https://dimension-evm-rpc.xpla.dev'],
-    },
+    http: 'https://dimension-evm-rpc.xpla.dev',
   },
   blockExplorers: {
-    default: {
-      name: 'CONX Explorer',
-      url: 'https://explorer.conx.xyz',
-    },
+    name: 'CONX Explorer',
+    url: 'https://explorer.conx.xyz',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

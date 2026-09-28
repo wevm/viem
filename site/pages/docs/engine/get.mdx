@@ -1,0 +1,63 @@
+# Inspecting an Engine
+
+## Overview
+
+[`Engine.get`](/docs/engine/get) returns the currently installed overrides. Default implementations
+are fallbacks rather than registered overrides, so a fresh registry returns an empty object.
+
+The returned Engine is a copy. Mutating it does not change the installed overrides.
+
+## Recipes
+
+### Check an Installed Slot
+
+Read a slot when application startup needs to confirm which overrides are present.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+
+await WasmEngine.install()
+
+const { Hash } = Engine.get() // [!code focus]
+```
+
+### Preserve an Engine
+
+Capture the current overrides before temporarily replacing them.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+
+const previous = Engine.get() // [!code focus]
+
+await NodeEngine.install()
+Engine.reset()
+Engine.set(previous) // [!code focus]
+```
+
+## `Engine.get`
+
+Returns the installed Engine overrides.
+
+### Usage
+
+```ts twoslash
+import { Engine } from 'viem'
+
+const engine = Engine.get()
+// @log: {}
+```
+
+### Definition
+
+```ts
+function get(): Engine.Engine
+```
+
+### Return Value
+
+`Engine.Engine`
+
+A copy of the installed overrides.

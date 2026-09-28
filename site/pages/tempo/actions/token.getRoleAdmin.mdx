@@ -1,0 +1,85 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# Get Token Role Admin [token.getRoleAdmin]
+
+Gets the admin role for a specific role in a TIP-20 token. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const adminRole = await client.token.getRoleAdmin({
+  role: 'issuer',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Admin role:', adminRole)
+// @log: Admin role: 0x0000000000000000000000000000000000000000000000000000000000000000
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Verify Your Admin Key Can Grant a Role
+
+Compare the returned hash against `TokenRole.serialize` to confirm the `defaultAdmin` role still governs issuer grants before calling [`token.grantRolesSync`](/tempo/actions/token.grantRoles) from your admin key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { TokenRole } from 'viem/tempo'
+import { client } from './viem.config'
+
+const token = '0x20c0000000000000000000000000000000000001'
+
+const adminRole = await client.token.getRoleAdmin({
+  role: 'issuer',
+  token,
+})
+
+if (adminRole === TokenRole.serialize('defaultAdmin')) // [!code focus]
+  await client.token.grantRolesSync({
+    roles: ['issuer'],
+    to: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+    token,
+  })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnType = Hex // Admin role hash
+```
+
+The admin role hash. The zero hash is the `defaultAdmin` role. Use `TokenRole.serialize`
+from `viem/tempo` to compare against a named role.
+
+## Parameters
+
+### role
+
+- **Type:** `"defaultAdmin" | "pause" | "unpause" | "issuer" | "burnBlocked"`
+
+Role to get admin for.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token to operate on: a TIP-20 token id or a contract address.
+
+<ReadParameters />

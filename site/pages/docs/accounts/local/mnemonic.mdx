@@ -1,0 +1,216 @@
+# Mnemonic Accounts
+
+## Overview
+
+A **Mnemonic Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic phrase.
+
+Viem converts the mnemonic to an HD key and derives the account at the configured path. The default
+path is `m/44'/60'/0'/0/0`.
+
+Access the underlying HD key through `account.getHdKey()`.
+
+Create one with [`Account.fromMnemonic`](#accountfrommnemonic).
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+)
+```
+
+## Recipes
+
+### Deriving at a Specific Index
+
+Use index options when you want to derive an account from a specific BIP-44 path position.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { accountIndex: 1, addressIndex: 2 }, // [!code focus]
+)
+```
+
+### Using a Custom Derivation Path
+
+Use a custom derivation path when you need to derive from a path that does not match the default index options.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { path: "m/44'/60'/0'/0/0" }, // [!code focus]
+)
+```
+
+### Adding a Passphrase
+
+Use a passphrase when the mnemonic was protected with an additional BIP-39 passphrase.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { passphrase: 'my-passphrase' }, // [!code focus]
+)
+```
+
+## `Account.fromMnemonic`
+
+Creates a local account from a mnemonic phrase.
+
+### Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+)
+```
+
+#### Deriving a Specific Address
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { addressIndex: 1 },
+)
+```
+
+### Parameters
+
+#### mnemonic
+
+- **Type:** `string`
+
+The mnemonic phrase to derive the account from.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk', // [!code focus]
+)
+```
+
+#### options.accountIndex
+
+- **Type:** `number`
+
+Account index in the path (`m/44'/60'/${accountIndex}'/0/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    accountIndex: 0, // [!code focus]
+  },
+)
+```
+
+#### options.addressIndex
+
+- **Type:** `number`
+
+Address index in the path (`m/44'/60'/0'/0/${addressIndex}`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    addressIndex: 1, // [!code focus]
+  },
+)
+```
+
+#### options.changeIndex
+
+- **Type:** `number`
+
+Change index in the path (`m/44'/60'/0'/${changeIndex}/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    changeIndex: 0, // [!code focus]
+  },
+)
+```
+
+#### options.nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    nonceManager: NonceManager.jsonRpc(), // [!code focus]
+  },
+)
+```
+
+#### options.passphrase
+
+- **Type:** `string`
+
+Optional BIP-39 passphrase.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    passphrase: 'my-passphrase', // [!code focus]
+  },
+)
+```
+
+#### options.path
+
+- **Type:** `` `m/44'/60'/${string}` ``
+
+Full HD path (overrides the index options).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    path: "m/44'/60'/0'/0/0", // [!code focus]
+  },
+)
+```
+
+### Return Value
+
+`Account.Hd`
+
+A mnemonic/HD-derived local account (`keyType: 'secp256k1'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `PublicKey.InvalidError` | The derived private key produces an invalid public key. |

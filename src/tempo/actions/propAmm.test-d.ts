@@ -1,21 +1,16 @@
-import type { Address, Hash } from 'viem'
+import { Client, http } from 'viem'
+import { tempoModerato } from 'viem/chains'
+import { tempoActions } from 'viem/tempo'
+import type { Address, Hex } from 'viem/utils'
+import type { TransactionReceipt } from '../chainConfig.js'
 import { expectTypeOf, test } from 'vitest'
-import { tempoModerato } from '../../chains/index.js'
-import { createClient } from '../../clients/createClient.js'
-import { custom } from '../../clients/transports/custom.js'
-import { decorator } from '../Decorator.js'
-import type { TransactionReceipt } from '../Transaction.js'
 import * as propAmm from './propAmm.js'
 
-const client = createClient({
+const client = Client.create({
   account: '0x0000000000000000000000000000000000000001',
   chain: tempoModerato,
-  transport: custom({
-    async request() {
-      return null
-    },
-  }),
-}).extend(decorator())
+  transport: http(),
+}).extend(tempoActions())
 
 const pool = '0x0000000000000000000000000000000000000002'
 const customerId = `0x${'01'.repeat(32)}` as const
@@ -31,7 +26,7 @@ const route = {
 test('pool reads and quotes preserve their public types', async () => {
   expectTypeOf(
     await client.propAmm.baseToken({ pool }),
-  ).toEqualTypeOf<Address>()
+  ).toEqualTypeOf<Address.Address>()
   expectTypeOf(
     await client.propAmm.takerAllowed({ pool, taker: client.account.address }),
   ).toEqualTypeOf<boolean>()
@@ -113,14 +108,14 @@ test('pool reads and quotes preserve their public types', async () => {
     }).functionName,
   ).toEqualTypeOf<'quoteExactOutputFor'>()
   expectTypeOf(
-    client.propAmm.getSwapQuote.call({
+    propAmm.getSwapQuote.call({
       ...route,
       amountIn: 1n,
       taker: client.account.address,
     }).functionName,
   ).toEqualTypeOf<'quoteExactInputFor'>()
   expectTypeOf(
-    client.propAmm.getSwapQuote.call({
+    propAmm.getSwapQuote.call({
       ...route,
       mode: 'exactOutput',
       amountOut: 1n,
@@ -139,16 +134,15 @@ test('swap builders compose with standalone and decorated actions', async () => 
     minimumOracleUpdatedAt: 1n,
     tradeId,
   }
-  expectTypeOf(await propAmm.swap(client, options)).toEqualTypeOf<Hash>()
-  expectTypeOf(await client.propAmm.swap(options)).toEqualTypeOf<Hash>()
+  expectTypeOf(await propAmm.swap(client, options)).toEqualTypeOf<Hex.Hex>()
+  expectTypeOf(await client.propAmm.swap(options)).toEqualTypeOf<Hex.Hex>()
   expectTypeOf(
     propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n }).functionName,
   ).toEqualTypeOf<'swapExactInput'>()
   expectTypeOf(
-    client.propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n })
-      .functionName,
+    propAmm.swap.call({ ...options, oraclePriceToleranceBps: 0n }).functionName,
   ).toEqualTypeOf<'swapExactInput'>()
-  await client.propAmm.swap.simulate({
+  await propAmm.swap.simulate(client, {
     ...options,
     blockTag: 'latest',
     validation: true,
@@ -161,7 +155,7 @@ test('swap builders compose with standalone and decorated actions', async () => 
   const trade = await client.propAmm.swapSync(options)
   expectTypeOf(trade.receipt).toEqualTypeOf<TransactionReceipt>()
   expectTypeOf(trade.amountOut).toEqualTypeOf<bigint>()
-  expectTypeOf(trade.receipt.transactionHash).toEqualTypeOf<Hash>()
+  expectTypeOf(trade.receipt.transactionHash).toEqualTypeOf<Hex.Hex>()
 })
 
 test('quote and swap accept omitted defaults', async () => {
@@ -180,10 +174,10 @@ test('quote and swap accept omitted defaults', async () => {
     pool,
     tradeId,
   } as const
-  expectTypeOf(await client.propAmm.swap(parameters)).toEqualTypeOf<Hash>()
+  expectTypeOf(await client.propAmm.swap(parameters)).toEqualTypeOf<Hex.Hex>()
   await client.propAmm.swapSync(parameters)
   await propAmm.swap.estimateGas(client, parameters)
-  await client.propAmm.swap.simulate(parameters)
+  await propAmm.swap.simulate(client, parameters)
 })
 
 test('quote requests compose with swaps in both modes', async () => {

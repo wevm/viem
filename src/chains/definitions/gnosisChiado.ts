@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const gnosisChiado = /*#__PURE__*/ defineChain({
+export const gnosisChiado = /*#__PURE__*/ Chain.from({
   id: 10_200,
   name: 'Gnosis Chiado',
   nativeCurrency: {
@@ -10,19 +11,16 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
   },
   blockTime: 5_000,
   rpcUrls: {
-    default: {
-      http: ['https://rpc.chiadochain.net'],
-      webSocket: ['wss://rpc.chiadochain.net/wss'],
-    },
+    http: 'https://rpc.chiadochain.net',
+    ws: 'wss://rpc.chiadochain.net/wss',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.chiadochain.net',
-      apiUrl: 'https://blockscout.chiadochain.net/api',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.chiadochain.net',
+    apiUrl: 'https://blockscout.chiadochain.net/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 4967313,

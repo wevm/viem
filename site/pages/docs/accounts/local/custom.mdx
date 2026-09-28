@@ -1,0 +1,283 @@
+# Custom Accounts
+
+## Overview
+
+A **Custom Account** is a [local account](/docs/accounts) (`Account.Local<'custom'>`) backed by
+signing logic that you provide, such as a KMS, HSM, or remote signing service.
+
+Create one with [`Account.from`](#accountfrom) by passing an account object. The object requires
+an `address` or `publicKey` and a `sign` function.
+
+Viem derives the other signing methods from `sign`. Override a derived method when the signing
+backend requires custom payload handling.
+
+```ts twoslash
+import { Account } from 'viem'
+
+// An external service that signs a hash and returns a hex signature.
+declare const kms: { sign(hash: string): Promise<`0x${string}`> }
+
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  async sign({ hash }) {
+    return await kms.sign(hash)
+  },
+})
+```
+
+## Recipes
+
+### Set a Default Client Account
+
+Pass the custom account to [`Client.create`](/docs/clients/create). Wallet Actions use this account
+when you do not pass an `account` option.
+
+```ts twoslash
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+declare const kms: { sign(hash: string): Promise<`0x${string}`> }
+
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  async sign({ hash }) {
+    return await kms.sign(hash)
+  },
+})
+
+const client = Client.create({
+  account, // [!code focus]
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+
+const signature = await client.signMessage({ message: 'hello world' })
+```
+
+## `Account.from`
+
+Creates an Account from an existing Account, an address (JSON-RPC), or custom signing logic
+(local).
+
+### Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+// An external service that signs a hash and returns a hex signature.
+declare const kms: { sign(hash: string): Promise<`0x${string}`> }
+
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  async sign({ hash }) {
+    return await kms.sign(hash)
+  },
+})
+```
+
+### Parameters
+
+#### account
+
+- **Type:** `Address.Address | Account.Account | Account.from.Account`
+
+A JSON-RPC account address, an existing Account, or an object that defines a local account. Existing
+Accounts are returned unchanged.
+
+The custom account object requires `sign` and either `address` or `publicKey`.
+
+Viem derives `address` from `publicKey` when needed. Viem also derives omitted signing methods from
+`sign`. The optional `keyType` defaults to `'custom'`.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+// An external service that signs a hash and returns a hex signature.
+declare const kms: { sign(hash: string): Promise<`0x${string}`> }
+
+const account = Account.from({ // [!code focus]
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  async sign({ hash }) { // [!code focus]
+    return await kms.sign(hash) // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+##### address
+
+- **Type:** `Address.Address`
+
+The account address. Provide `address` or `publicKey`.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  sign,
+})
+```
+
+##### keyType
+
+- **Type:** `string`
+- **Default:** `'custom'`
+
+The identifier for the account's signing backend.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  keyType: 'kms', // [!code focus]
+  sign,
+})
+```
+
+##### nonceManager
+
+- **Type:** `NonceManager.NonceManager`
+
+The [nonce manager](/docs/accounts/nonce-manager) attached to the account.
+
+```ts twoslash
+import { Account, NonceManager } from 'viem'
+
+declare const sign: Account.Local['sign']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  nonceManager: NonceManager.jsonRpc(), // [!code focus]
+  sign,
+})
+```
+
+##### publicKey
+
+- **Type:** `Hex.Hex`
+
+The public key used to derive the account address. Provide `publicKey` or `address`.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const publicKey: `0x${string}`
+declare const sign: Account.Local['sign']
+// ---cut---
+const account = Account.from({
+  publicKey, // [!code focus]
+  sign,
+})
+```
+
+##### sign
+
+- **Type:** `Account.Local['sign']`
+
+The required function that signs a hash.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const kms: { sign(hash: string): Promise<`0x${string}`> }
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  async sign({ hash }) { // [!code focus]
+    return await kms.sign(hash) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### signAuthorization
+
+- **Type:** `Account.Local['signAuthorization']`
+
+An optional EIP-7702 authorization signer. Viem derives this method from `sign` when omitted.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+declare const signAuthorization: NonNullable<Account.Local['signAuthorization']>
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  sign,
+  signAuthorization, // [!code focus]
+})
+```
+
+##### signMessage
+
+- **Type:** `Account.Local['signMessage']`
+
+An optional EIP-191 message signer. Viem derives this method from `sign` when omitted.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+declare const signMessage: Account.Local['signMessage']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  sign,
+  signMessage, // [!code focus]
+})
+```
+
+##### signTransaction
+
+- **Type:** `Account.Local['signTransaction']`
+
+An optional transaction signer. Viem derives this method from `sign` when omitted.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+declare const signTransaction: Account.Local['signTransaction']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  sign,
+  signTransaction, // [!code focus]
+})
+```
+
+##### signTypedData
+
+- **Type:** `Account.Local['signTypedData']`
+
+An optional EIP-712 typed-data signer. Viem derives this method from `sign` when omitted.
+
+```ts twoslash
+import { Account } from 'viem'
+
+declare const sign: Account.Local['sign']
+declare const signTypedData: Account.Local['signTypedData']
+// ---cut---
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  sign,
+  signTypedData, // [!code focus]
+})
+```
+
+### Return Value
+
+`Account.from.ReturnType<account>`
+
+The existing Account, JSON-RPC Account, or derived local Account. The return type follows the input.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Address.InvalidAddressError` | The supplied address is not a valid Ethereum address. |

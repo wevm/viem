@@ -1,9 +1,10 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const megaeth = /*#__PURE__*/ defineChain({
+export const megaeth = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 4326,
   blockTime: 1_000,
@@ -14,25 +15,17 @@ export const megaeth = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.megaeth.com/rpc'],
-      webSocket: ['wss://mainnet.megaeth.com/ws'],
-    },
+    http: 'https://mainnet.megaeth.com/rpc',
+    ws: 'wss://mainnet.megaeth.com/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://mega.etherscan.io',
-      apiUrl: 'https://api.etherscan.io/v2/api',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://megaeth.blockscout.com',
-      apiUrl: 'https://megaeth.blockscout.com/api',
-    },
+    name: 'Etherscan',
+    url: 'https://mega.etherscan.io',
+    apiUrl: 'https://api.etherscan.io/v2/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x8546840adF796875cD9AAcc5B3B048f6B2c9D563',

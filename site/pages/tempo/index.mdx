@@ -4,7 +4,7 @@
 
 [Tempo](https://tempo.xyz) is a purpose-built Layer 1 blockchain optimized for payments.
 
-It enshrines features like [token management](https://docs.tempo.xyz/protocol/tip20/overview), [Fee AMM](https://docs.tempo.xyz/protocol/fees), and a [stablecoin DEX](https://docs.tempo.xyz/protocol/exchange) directly into the protocol, as well as a [Tempo transaction type](https://docs.tempo.xyz/protocol/transactions) with support for batch calls, fee sponsorship, configurable fee tokens, concurrent transactions, access keys, and scheduled execution.
+It enshrines features like [token management](https://docs.tempo.xyz/protocol/tip20/overview), a [Fee AMM](https://docs.tempo.xyz/protocol/fees), and a [stablecoin DEX](https://docs.tempo.xyz/protocol/exchange) directly into the protocol, as well as a [Tempo transaction type](https://docs.tempo.xyz/protocol/transactions) with support for batch calls, fee sponsorship, configurable fee tokens, concurrent transactions, and access keys.
 
 :::tip
 Need direct access to Tempo data? [Try the Tempo API](https://api.tempo.xyz).
@@ -12,7 +12,7 @@ Need direct access to Tempo data? [Try the Tempo API](https://api.tempo.xyz).
 
 ## Setup
 
-Setup the Tempo extension for Viem by following the steps below.
+Set up the Tempo extension for Viem by following the steps below.
 
 ::::steps
 
@@ -20,118 +20,66 @@ Setup the Tempo extension for Viem by following the steps below.
 
 To use the Tempo extension, ensure that you have Viem installed.
 
+{/* TODO(v3): Remove `@next` when Viem v3 is stable. */}
+
 :::code-group
 
 ```bash [npm]
-npm i viem
+npm i viem@next
 ```
 
 ```bash [pnpm]
-pnpm i viem
+pnpm i viem@next
+```
+
+```bash [bun]
+bun i viem@next
 ```
 
 :::
 
 ### Configure
 
-Next, we will configure a [Viem Client](/docs/clients/custom).
+Next, we will configure a Tempo [Client](/docs/clients).
 
-In the snippet below, we create a Tempo Client with `createClient`. It defaults to the
-Tempo mainnet chain and an `http` transport, and comes preconfigured with `tempoActions`.
+In the snippet below, we create a Client with `Client.create`. It defaults to the Tempo mainnet chain and an `http` transport, and comes decorated with Tempo Actions.
 
-```ts twoslash [viem.config.ts] 
+```ts twoslash [viem.config.ts]
 // [!include ~/snippets/tempo/viem.config.ts:setup]
 ```
 
 :::tip
-`createClient` also accepts Tempo options like `testnet` to target the Tempo testnet and
-`feeToken` to set a default fee token for every transaction. Set `experimental_multisig` to
-coordinate multisig approvals with a shared store.
+`Client.create` also accepts `testnet` to target the Tempo testnet, and `feeToken` to set a default fee token for every transaction sent with the Client. Set `experimental_multisig` to coordinate approvals with a shared [atomic store](/tempo/utilities/Store).
 
 ```ts
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 import { store } from './store.db'
 
-export const client = createClient({
+export const client = Client.create({
   experimental_multisig: { store }, // [!code hl]
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
   testnet: true, // [!code hl]
 })
 ```
-
-The store must implement [`Store.Atomic`](/tempo/utilities/Store), including atomic
-`compareAndSet`. Coordinated owners use normal
-`sendTransaction` actions and pass the first approval's operation hash to later approvals. See
-[Send Multisig Transactions](/tempo/guides/multisig/send).
-:::
-
-### Use Viem Actions
-
-Once we have configured our Viem client with Tempo, we can then use regular Viem actions (e.g. `sendTransactionSync`) 
-that are decorated with [Tempo properties](https://docs.tempo.xyz/protocol/transactions#properties) 
-like `calls` (batch transactions), `feePayer` (fee sponsorship), `nonceKey` (concurrent transactions) and more!
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const receipt = await client.sendTransactionSync({
-  calls: [
-    {
-      data: '0xcafebabe00000000000000000000000000000001',
-      to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
-    },
-    {
-      data: '0xdeadbeef00000000000000000000000000000002',
-      to: '0xfeedfacefeedfacefeedfacefeedfacefeedface'
-    },
-    {
-      data: '0xfeedface00000000000000000000000000000003',
-      to: '0xfeedfacefeedfacefeedfacefeedfacefeedface'
-    },
-  ],
-  feePayer: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
-  nonceKey: 1337n,
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
-:::tip
-
-[See all Viem Actions](/docs/actions/public/introduction)
-
 :::
 
 ### Use Tempo Actions
 
-You can also use [Tempo-specific Actions](/tempo/actions):
+Once the Client is configured, use Tempo Actions from the `token` namespace to work with TIP-20 tokens.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const alphaUsd = '0x20c0000000000000000000000000000000000001'
-
-const metadata = await client.token.getMetadata({ 
-  token: alphaUsd 
+const result = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
-console.log(
-  'Alpha USD Metadata:', 
-  metadata.name,
-  metadata.symbol,
-  metadata.logoURI,
-  metadata.decimals,
-  metadata.totalSupply
-)
-// @log: Alpha USD Metadata: Alpha USD, AlphaUSD, https://example.com/token.svg, 6, 1000000000000000000000n
+console.log('Transferred:', result.formatted)
+// @log: Transferred: 10.5
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -140,17 +88,17 @@ console.log(
 
 :::
 
-:::tip
-
-[See all Tempo Actions](/tempo/actions)
-
-:::
-
-### Next Steps
-
-After you have set up Tempo with Viem, you can now:
-
-- Follow a guide on how to [use accounts](https://docs.tempo.xyz/guide/use-accounts), [make payments](https://docs.tempo.xyz/guide/payments), [issue stablecoins](https://docs.tempo.xyz/guide/issuance) and [exchange stablecoins](https://docs.tempo.xyz/guide/stablecoin-exchange).
-- Use the [suite of Tempo Actions](/tempo/actions)
-
 ::::
+
+## Actions
+
+Tempo Actions are available on the Client (as shown above), or standalone via the `Actions` namespace. Browse the action reference from the sidebar.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const metadata = await Actions.token.getMetadata(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```

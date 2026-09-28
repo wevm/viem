@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `earn.redeem`
+# Redeem Earn Shares [earn.redeem]
 
 Redeems an exact number of Earn shares for assets sent to a recipient.
 
@@ -74,6 +74,63 @@ const hash = await client.earn.redeem({
 })
 // @log: 0x1234...abcd
 ```
+
+## Recipes
+
+### Exit the Full Position
+
+Combine [`earn.getPosition`](/tempo/actions/earn.getPosition) with the redemption to burn every
+Earn share the account holds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const vault = '0x0000000000000000000000000000000000000001'
+
+const { shareBalance } = await client.earn.getPosition({ vault }) // [!code focus]
+
+const result = await client.earn.redeemSync({
+  shareAmount: shareBalance, // [!code focus]
+  slippageBps: 50,
+  vault,
+})
+// @log: { assetAmount: 100_250_000n, shareAmount: 99_500_000n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Fund a Payroll Account from Yield
+
+Pass `recipient` to pay the redeemed assets straight to a disbursement address ahead of a payroll
+run.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.earn.redeemSync({
+  recipient: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  shareAmount: 52_000_000_000n,
+  slippageBps: 50,
+  vault: '0x0000000000000000000000000000000000000001',
+})
+// @log: { assetAmount: 52_130_000_000n, recipient: '0x742d...bEbb', ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The redemption still burns shares from the sending account; only the asset payout is redirected.
 
 ## Return Value
 

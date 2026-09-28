@@ -1,25 +1,20 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const snax = /*#__PURE__*/ defineChain({
+export const snax = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 2192,
-  network: 'snaxchain-mainnet',
   name: 'SnaxChain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.snaxchain.io'],
-    },
+    http: 'https://mainnet.snaxchain.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Snax Explorer',
-      url: 'https://explorer.snaxchain.io',
-      apiUrl: 'https://explorer.snaxchain.io/api',
-    },
+    name: 'Snax Explorer',
+    url: 'https://explorer.snaxchain.io',
+    apiUrl: 'https://explorer.snaxchain.io/api',
   },
   contracts: {
     ...chainConfig.contracts,

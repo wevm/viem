@@ -1,0 +1,55 @@
+# TxEnvelope.recoverAddress
+
+Recovers the signing address of a transaction envelope, either serialized or as an envelope object.
+
+## Imports
+
+```ts
+import { TxEnvelope } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { TxEnvelope } from 'viem/utils'
+
+declare const envelope: TxEnvelope.TxEnvelope
+declare const signature: { r: bigint; s: bigint; yParity: number }
+
+// From a serialized transaction (signature carried on the envelope).
+const address = TxEnvelope.recoverAddress('0x02f8…')
+
+// From an envelope object, with an explicit signature.
+const address2 = TxEnvelope.recoverAddress(envelope, { signature })
+```
+
+## Definition
+
+```ts
+function recoverAddress(
+  transaction: TxEnvelope.TxEnvelope | TxEnvelope.Serialized,
+  options?: recoverAddress.Options,
+): Address
+```
+
+## Parameters
+
+### transaction
+
+- **Type:** `TxEnvelope.TxEnvelope | TxEnvelope.Serialized`
+
+The transaction envelope (serialized, or an envelope object).
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+- **Optional**
+
+Signature of the transaction. Defaults to the one carried on a signed transaction.
+
+## Return Type
+
+The recovered signing address.
+
+`Address`

@@ -1,21 +1,21 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const creditCoin3Mainnet = /*#__PURE__*/ defineChain({
+export const creditCoin3Mainnet = /*#__PURE__*/ Chain.from({
   id: 102030,
   name: 'Creditcoin',
   nativeCurrency: { name: 'Creditcoin', symbol: 'CTC', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet3.creditcoin.network'],
-      webSocket: ['wss://mainnet3.creditcoin.network'],
-    },
+    http: 'https://mainnet3.creditcoin.network',
+    ws: 'wss://mainnet3.creditcoin.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://creditcoin.blockscout.com',
-      apiUrl: 'https://creditcoin.blockscout.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://creditcoin.blockscout.com',
+    apiUrl: 'https://creditcoin.blockscout.com/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

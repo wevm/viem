@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/window/index.d.ts",
-  "module": "../_esm/window/index.js",
-  "main": "../_cjs/window/index.js"
-}

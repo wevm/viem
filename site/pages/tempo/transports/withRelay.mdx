@@ -23,11 +23,11 @@ the relay because a pending operation hash exists only in the relay's store.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, http, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, http, withRelay } from 'viem/tempo'
 
-const client = createClient({
-  account: privateKeyToAccount('0x...'),
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   testnet: true,
   transport: withRelay(
     http(),                             // ← Default Transport
@@ -36,12 +36,12 @@ const client = createClient({
 })
 
 // Regular transaction
-const receipt1 = await client.sendTransactionSync({
+const receipt1 = await client.transaction.sendSync({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
 })
 
 // Sponsored transaction // [!code hl]
-const receipt2 = await client.sendTransactionSync({ // [!code hl]
+const receipt2 = await client.transaction.sendSync({ // [!code hl]
   feePayer: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code hl]
 })
@@ -62,11 +62,11 @@ See `server.ts` for the server-side implementation. It uses [`Handler.relay` pro
 :::code-group
 
 ```ts twoslash [client.ts]
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, http, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, http, withRelay } from 'viem/tempo'
 
-const client = createClient({
-  account: privateKeyToAccount('0x...'),
+const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   testnet: true,
   transport: withRelay(
     http(),
@@ -74,7 +74,7 @@ const client = createClient({
   ),
 })
 
-const hash = await client.sendTransactionSync({
+const hash = await client.transaction.sendSync({
   feePayer: true,
   to: '0x0000000000000000000000000000000000000000',
 })
@@ -83,11 +83,11 @@ const hash = await client.sendTransactionSync({
 ```ts twoslash [server.ts]
 // @noErrors
 import { createServer } from 'node:http'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client } from 'viem/tempo'
 import { Handler } from 'accounts/server'
 
-const client = createClient({
+const client = Client.create({
   // Note: the relay can specify its own fee token.
   feeToken: '0x20c0000000000000000000000000000000000001',
   testnet: true,
@@ -95,7 +95,7 @@ const client = createClient({
 
 const handler = Handler.relay({ // [!code hl]
   feePayer: { // [!code hl]
-    account: privateKeyToAccount('0x...'), // [!code hl]
+    account: Account.fromPrivateKey('0x...'), // [!code hl]
   }, // [!code hl]
 }) // [!code hl]
 

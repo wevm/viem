@@ -1,25 +1,23 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const hyperEvm = /*#__PURE__*/ defineChain({
+export const hyperEvm = /*#__PURE__*/ Chain.from({
   id: 999,
   name: 'HyperEVM',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
   blockExplorers: {
-    default: {
-      name: 'HyperEVMScan',
-      url: 'https://hyperevmscan.io',
-    },
+    name: 'HyperEVMScan',
+    url: 'https://hyperevmscan.io',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 13051,
     },
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.hyperliquid.xyz/evm'],
-    },
+    http: 'https://rpc.hyperliquid.xyz/evm',
   },
   testnet: false,
 })

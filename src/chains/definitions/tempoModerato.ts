@@ -1,17 +1,17 @@
+import * as Contracts from '../../core/internal/contracts.js'
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../tempo/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const tempoModerato = /*#__PURE__*/ defineChain({
+export const tempoModerato = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 42431,
   hardfork: 't5',
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.testnet.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.testnet.tempo.xyz',
   },
   contracts: {
+    create2: Contracts.create2,
     earnFactory: {
       address: '0xb5889A96114014d4C032ebD76772c10bF3b97137',
     },
@@ -26,10 +26,8 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.moderato.tempo.xyz'],
-      webSocket: ['wss://rpc.moderato.tempo.xyz'],
-    },
+    http: 'https://rpc.moderato.tempo.xyz',
+    ws: 'wss://rpc.moderato.tempo.xyz',
   },
   testnet: true,
 })

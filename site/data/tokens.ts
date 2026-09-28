@@ -60,6 +60,11 @@ export const tokenLookupData = [
         name: 'Sonic',
       },
       {
+        address: '0xB6CEceAB302E2E4948951eE7843FC24E92933061',
+        id: 196,
+        name: 'X Layer Mainnet',
+      },
+      {
         address: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
         id: 324,
         name: 'ZKsync Era',

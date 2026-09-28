@@ -1,10 +1,9 @@
-import { chainConfig } from '../../celo/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
 const sourceId = 11_155_111 // sepolia
 // source https://storage.googleapis.com/cel2-rollup-files/celo-sepolia/deployment-l1.json
-export const celoSepolia = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const celoSepolia = /*#__PURE__*/ Chain.from({
   id: 11_142_220,
   name: 'Celo Sepolia Testnet',
   nativeCurrency: {
@@ -13,19 +12,15 @@ export const celoSepolia = /*#__PURE__*/ defineChain({
     symbol: 'S-CELO',
   },
   rpcUrls: {
-    default: {
-      http: ['https://forno.celo-sepolia.celo-testnet.org'],
-    },
+    http: 'https://forno.celo-sepolia.celo-testnet.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Celo Sepolia Explorer',
-      url: 'https://celo-sepolia.blockscout.com/',
-      apiUrl: 'https://celo-sepolia.blockscout.com/api',
-    },
+    name: 'Celo Sepolia Explorer',
+    url: 'https://celo-sepolia.blockscout.com/',
+    apiUrl: 'https://celo-sepolia.blockscout.com/api',
   },
   contracts: {
-    ...chainConfig.contracts,
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1,

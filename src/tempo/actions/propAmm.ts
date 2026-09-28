@@ -1,44 +1,35 @@
-import type { Address } from 'abitype'
-import * as Hex from 'ox/Hex'
-import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { estimateGas as core_estimateGas } from '../../actions/public/estimateGas.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
-import { readContract } from '../../actions/public/readContract.js'
-import {
-  type SendTransactionReturnType,
-  sendTransaction,
-} from '../../actions/wallet/sendTransaction.js'
-import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
-import type { Client } from '../../clients/createClient.js'
-import type { Transport } from '../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseErrorType } from '../../errors/base.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs } from '../../types/contract.js'
-import type { Log } from '../../types/log.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
-import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
-import { pad } from '../../utils/data/pad.js'
+import { AbiEvent, Address, Hex } from 'ox'
+import type { Errors } from 'ox'
+import * as Account from '../../core/Account.js'
+import type * as Chain from '../../core/Chain.js'
+import type * as Client from '../../core/Client.js'
+import { estimateGas as core_estimateGas } from '../../core/actions/transaction/estimateGas.js'
+import { read } from '../../core/actions/contract/read.js'
+import { send } from '../../core/actions/transaction/send.js'
+import { sendSync } from '../../core/actions/transaction/sendSync.js'
+import { multicall } from '../../core/actions/multicall.js'
+import type { Compute, UnionOmit } from '../../core/internal/types.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
-import { defineCall, pickWriteParameters } from '../internal/utils.js'
-import type { TransactionReceipt } from '../Transaction.js'
-import * as simulateActions from './simulate.js'
-import * as tokenActions from './token.js'
+import {
+  defineCall,
+  dispatchSend,
+  pickWriteParameters,
+} from '../internal/utils.js'
+import type { TransactionReceipt } from '../chainConfig.js'
+import * as tokenActions from './token/index.js'
 
 /**
  * Reads the base token of a propAMM pool.
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const token = await Actions.propAmm.baseToken(client, { pool: '0x...' })
  * ```
@@ -47,23 +38,23 @@ import * as tokenActions from './token.js'
  * @param parameters - Pool and read options.
  * @returns Base token address.
  */
-export async function baseToken<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function baseToken<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: baseToken.Parameters,
 ): Promise<baseToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...baseToken.call({ pool }) })
+  return read(client, { ...rest, ...baseToken.call({ pool }) })
 }
 
 export namespace baseToken {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnValue = read.ReturnType<
     typeof Abis.directPropAmm,
     'baseToken'
   >
@@ -85,11 +76,11 @@ export namespace baseToken {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const token = await Actions.propAmm.quoteToken(client, { pool: '0x...' })
  * ```
@@ -98,23 +89,23 @@ export namespace baseToken {
  * @param parameters - Pool and read options.
  * @returns Quote token address.
  */
-export async function quoteToken<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function quoteToken<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: quoteToken.Parameters,
 ): Promise<quoteToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...quoteToken.call({ pool }) })
+  return read(client, { ...rest, ...quoteToken.call({ pool }) })
 }
 
 export namespace quoteToken {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnValue = read.ReturnType<
     typeof Abis.directPropAmm,
     'quoteToken'
   >
@@ -136,11 +127,11 @@ export namespace quoteToken {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const isPaused = await Actions.propAmm.paused(client, { pool: '0x...' })
  * ```
@@ -149,26 +140,23 @@ export namespace quoteToken {
  * @param parameters - Pool and read options.
  * @returns Whether swaps are paused.
  */
-export async function paused<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function paused<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: paused.Parameters,
 ): Promise<paused.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...paused.call({ pool }) })
+  return read(client, { ...rest, ...paused.call({ pool }) })
 }
 
 export namespace paused {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.directPropAmm,
-    'paused'
-  >
+  export type ReturnValue = read.ReturnType<typeof Abis.directPropAmm, 'paused'>
 
   /**
    * Defines the pool's `paused` call.
@@ -187,11 +175,11 @@ export namespace paused {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const allowed = await Actions.propAmm.takerAllowed(client, { pool: '0x...', taker: '0x...' })
  * ```
@@ -200,12 +188,12 @@ export namespace paused {
  * @param parameters - Pool, taker, and read options.
  * @returns Whether the taker is allowed.
  */
-export async function takerAllowed<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function takerAllowed<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: takerAllowed.Parameters,
 ): Promise<takerAllowed.ReturnValue> {
   const { pool, taker, ...rest } = parameters
-  return readContract(client, {
+  return read(client, {
     ...rest,
     ...takerAllowed.call({ pool, taker }),
   })
@@ -214,14 +202,14 @@ export async function takerAllowed<chain extends Chain | undefined>(
 export namespace takerAllowed {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
     /** Address that calls the swap. */
-    taker: Address
+    taker: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnValue = read.ReturnType<
     typeof Abis.directPropAmm,
     'takerAllowed'
   >
@@ -244,11 +232,11 @@ export namespace takerAllowed {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const allowed = await Actions.propAmm.recipientAllowed(client, { pool: '0x...', recipient: '0x...' })
  * ```
@@ -257,12 +245,12 @@ export namespace takerAllowed {
  * @param parameters - Pool, resolved recipient, and read options.
  * @returns Whether the resolved recipient is allowed.
  */
-export async function recipientAllowed<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function recipientAllowed<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: recipientAllowed.Parameters,
 ): Promise<recipientAllowed.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return read(client, {
     ...rest,
     ...recipientAllowed.call({ pool, recipient }),
   })
@@ -271,14 +259,14 @@ export async function recipientAllowed<chain extends Chain | undefined>(
 export namespace recipientAllowed {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
     /** Resolved address to check. */
-    recipient: Address
+    recipient: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnValue = read.ReturnType<
     typeof Abis.directPropAmm,
     'recipientAllowed'
   >
@@ -301,11 +289,11 @@ export namespace recipientAllowed {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const resolved = await Actions.propAmm.resolveRecipient(client, { pool: '0x...', recipient: '0x...' })
  * ```
@@ -314,12 +302,12 @@ export namespace recipientAllowed {
  * @param parameters - Pool, recipient, and read options.
  * @returns Resolved recipient address.
  */
-export async function resolveRecipient<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
+export async function resolveRecipient<chain extends Chain.Chain | undefined>(
+  client: Client.Client<chain>,
   parameters: resolveRecipient.Parameters,
 ): Promise<resolveRecipient.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return read(client, {
     ...rest,
     ...resolveRecipient.call({ pool, recipient }),
   })
@@ -328,14 +316,14 @@ export async function resolveRecipient<chain extends Chain | undefined>(
 export namespace resolveRecipient {
   export type Args = {
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
     /** Destination provided to the swap. */
-    recipient: Address
+    recipient: Address.Address
   }
 
   export type Parameters = ReadParameters & Args
 
-  export type ReturnValue = ReadContractReturnType<
+  export type ReturnValue = read.ReturnType<
     typeof Abis.directPropAmm,
     'resolveRecipient'
   >
@@ -358,11 +346,11 @@ export namespace resolveRecipient {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http() })
+ * const client = Client.create({ chain: tempo, transport: http() })
  *
  * const { amountOut, price, updatedAt } = await Actions.propAmm.getSwapQuote(client, {
  *   pool: '0x...',
@@ -378,36 +366,43 @@ export namespace resolveRecipient {
  * @returns Quoted amount, oracle observation, rounding credit, and swap request.
  */
 export async function getSwapQuote<
-  chain extends Chain | undefined,
+  chain extends Chain.Chain | undefined,
   const parameters extends getSwapQuote.Parameters,
 >(
-  client: Client<Transport, chain>,
+  client: Client.Client<chain>,
   parameters: parameters,
 ): Promise<getSwapQuote.ReturnValue<parameters>>
 export async function getSwapQuote(
-  client: Client,
+  client: Client.Client,
   parameters: getSwapQuote.Parameters,
 ): Promise<getSwapQuote.ReturnValue> {
   const account = parameters.account ?? client.account
-  const taker = parameters.taker ?? (account && parseAccount(account).address)
+  const taker = parameters.taker ?? (account && Account.from(account).address)
   if (!taker) throw new Error('A taker or client account is required to quote.')
   const recipient =
-    parameters.recipient ?? (account && parseAccount(account).address)
-  if (!recipient) throw new AccountNotFoundError()
+    parameters.recipient ?? (account && Account.from(account).address)
+  if (!recipient) throw new Account.NotFoundError()
   const baseToQuote = parameters.baseToQuote ?? true
-  const customerId = parameters.customerId ?? pad(taker, { size: 32 })
-  const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
+  const customerId = parameters.customerId ?? Hex.padLeft(taker, 32)
+  const quote = {
     ...parameters,
-    ...getSwapQuote.call({
-      ...parameters,
-      baseToQuote,
-      customerId,
-      recipient,
-      taker,
-    }),
-  } as never) as Promise<
-    ReadContractReturnType<typeof Abis.directPropAmm, 'quoteExactInputFor'>
-  >)
+    baseToQuote,
+    customerId,
+    recipient,
+    taker,
+  }
+  const [amount, price, updatedAt, creditAfter] =
+    quote.mode === 'exactInput'
+      ? await read(client, {
+          ...parameters,
+          ...getSwapQuote.call(quote),
+          as: 'Array',
+        })
+      : await read(client, {
+          ...parameters,
+          ...getSwapQuote.call(quote),
+          as: 'Array',
+        })
   const request = {
     baseToQuote,
     customerId,
@@ -451,11 +446,11 @@ export namespace getSwapQuote {
     /** Nonzero attribution and rounding-route identifier. */
     customerId: Hex.Hex
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
     /** Destination of the output token. */
-    recipient: Address
+    recipient: Address.Address
     /** Address that will call the swap. */
-    taker: Address
+    taker: Address.Address
   } & (
     | {
         /** Exact-input quote. */
@@ -478,9 +473,9 @@ export namespace getSwapQuote {
       /** Route identifier. Defaults to the taker address left-padded to 32 bytes. */
       customerId?: Hex.Hex | undefined
       /** Output destination. Defaults to the read account or client account. */
-      recipient?: Address | undefined
+      recipient?: Address.Address | undefined
       /** Address that will call the swap. Defaults to the read account or client account. */
-      taker?: Address | undefined
+      taker?: Address.Address | undefined
     }
 
   /** Quoted amount, oracle observation, rounding credit, and swap request. */
@@ -573,8 +568,8 @@ namespace exactInput {
     minAmountOut: bigint
     minimumOracleUpdatedAt: bigint
     oraclePriceToleranceBps: bigint
-    pool: Address
-    recipient: Address
+    pool: Address.Address
+    recipient: Address.Address
     tradeId: Hex.Hex
   }
 
@@ -624,8 +619,8 @@ namespace exactOutput {
     maxAmountIn: bigint
     minimumOracleUpdatedAt: bigint
     oraclePriceToleranceBps: bigint
-    pool: Address
-    recipient: Address
+    pool: Address.Address
+    recipient: Address.Address
     tradeId: Hex.Hex
   }
 
@@ -667,11 +662,11 @@ namespace exactOutput {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http(), account: '0x...' })
+ * const client = Client.create({ chain: tempo, transport: http(), account: '0x...' })
  *
  * const hash = await Actions.propAmm.swap(client, {
  *   pool: '0x...',
@@ -688,13 +683,13 @@ namespace exactOutput {
  * @returns Transaction hash.
  */
 export async function swap<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
+  client: Client.Client<chain, account>,
   parameters: swap.Parameters<chain, account>,
 ): Promise<swap.ReturnValue> {
-  return swap.inner(sendTransaction, client, parameters)
+  return swap.inner(send, client, parameters)
 }
 
 export namespace swap {
@@ -712,9 +707,9 @@ export namespace swap {
     /** Accepted oracle-price movement in basis points. Zero binds exactly. */
     oraclePriceToleranceBps: bigint
     /** Pool address. */
-    pool: Address
+    pool: Address.Address
     /** Destination of the output token. */
-    recipient: Address
+    recipient: Address.Address
     /** Trade attribution value, not replay protection. */
     tradeId: Hex.Hex
   } & (
@@ -752,7 +747,7 @@ export namespace swap {
     /** Last accepted execution timestamp. Defaults to five minutes from now. */
     deadline?: bigint | undefined
     /** Output destination. Defaults to the sending account. */
-    recipient?: Address | undefined
+    recipient?: Address.Address | undefined
     /** Accepted oracle-price movement in basis points. Defaults to zero. */
     oraclePriceToleranceBps?: bigint | undefined
     /** Trade attribution value. Defaults to a random 32-byte value per swap. */
@@ -760,45 +755,49 @@ export namespace swap {
   }
 
   export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & InputArgs
+    chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+    account extends Account.Account | undefined = Account.Account | undefined,
+  > = WriteParameters &
+    InputArgs &
+    ([chain, account] extends [unknown, unknown] ? unknown : never)
 
-  export type ReturnValue = SendTransactionReturnType
+  export type ReturnValue = send.ReturnType
 
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.GlobalErrorType
 
   /** @internal */
   export async function inner<
-    action extends typeof sendTransaction | typeof sendTransactionSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    action extends typeof send | typeof sendSync,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
+    client: Client.Client<chain, account>,
     parameters: Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    return (await action(client, {
+  ): Promise<dispatchSend.ReturnType<action>> {
+    return await dispatchSend(action, client, {
       ...parameters,
       calls: await getCalls(client, parameters),
-    } as never)) as never
+    })
   }
 
   async function getCalls<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: InputArgs & { account?: Account | Address | null | undefined },
+    client: Client.Client<chain, account>,
+    parameters: InputArgs & {
+      account?: Account.Account | Address.Address | null | undefined
+    },
   ) {
     const account = parameters.account ?? client.account
     const recipient =
-      parameters.recipient ?? (account && parseAccount(account).address)
-    if (!recipient) throw new AccountNotFoundError()
+      parameters.recipient ?? (account && Account.from(account).address)
+    if (!recipient) throw new Account.NotFoundError()
     const customerId =
       parameters.customerId ??
-      (account && pad(parseAccount(account).address, { size: 32 }))
-    if (!customerId) throw new AccountNotFoundError()
+      (account && Hex.padLeft(Account.from(account).address, 32))
+    if (!customerId) throw new Account.NotFoundError()
     const baseToQuote = parameters.baseToQuote ?? true
     const tokenIn = await (baseToQuote
       ? baseToken(client, { pool: parameters.pool })
@@ -833,16 +832,18 @@ export namespace swap {
    * @returns The gas estimate.
    */
   export async function estimateGas<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
   >(
-    client: Client<Transport, chain, account>,
+    client: Client.Client<chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<bigint> {
     return core_estimateGas(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters(parameters),
       calls: await getCalls(client, parameters),
-    } as never)
+    } as core_estimateGas.Options & {
+      calls: Awaited<ReturnType<typeof getCalls>>
+    })
   }
 
   /**
@@ -853,25 +854,17 @@ export namespace swap {
    * @returns The approval and swap simulation results.
    */
   export async function simulate<
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<Transport, chain, account>,
-    parameters: simulate.Parameters,
-  ) {
-    const {
-      blockNumber,
-      blockTag,
-      stateOverrides,
-      traceTransfers,
-      validation,
-    } = parameters
-    return simulateActions.simulateCalls(client, {
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
+  >(client: Client.Client<chain, account>, parameters: simulate.Parameters) {
+    const { blockNumber, blockTag, stateOverride, traceTransfers, validation } =
+      parameters
+    return multicall(client, {
+      mode: 'simulate',
       account: parameters.account ?? client.account,
-      blockNumber,
-      blockTag,
+      ...(blockNumber === undefined ? { blockTag } : { blockNumber }),
       calls: await getCalls(client, parameters),
-      stateOverrides,
+      stateOverride,
       traceTransfers,
       validation,
     })
@@ -880,7 +873,7 @@ export namespace swap {
   export namespace simulate {
     /** Swap inputs and batch simulation options. */
     export type Parameters = InputArgs &
-      Omit<simulateActions.simulateCalls.Parameters, 'calls'>
+      Omit<multicall.Options<readonly unknown[], 'simulate'>, 'calls' | 'mode'>
   }
 
   /**
@@ -904,17 +897,15 @@ export namespace swap {
    * Extracts the unique matching trade event from a receipt.
    */
   export function extractEvent(
-    logs: Log[],
-    args: { pool: Address; tradeId: Hex.Hex },
+    logs: readonly (AbiEvent.extractLogs.Log & { address: Address.Address })[],
+    args: { pool: Address.Address; tradeId: Hex.Hex },
   ) {
-    const matching = parseEventLogs({
-      abi: Abis.directPropAmm,
-      logs,
+    const matching = AbiEvent.extractLogs(Abis.directPropAmm, logs, {
       eventName: 'TradeExecuted',
       strict: true,
     }).filter(
       (log) =>
-        isAddressEqual(log.address, args.pool) &&
+        Address.isEqual(log.address, args.pool) &&
         log.args.tradeId.toLowerCase() === args.tradeId.toLowerCase(),
     )
     if (matching.length !== 1)
@@ -930,11 +921,11 @@ export namespace swap {
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Actions } from 'viem/tempo'
  *
- * const client = createClient({ chain: tempo, transport: http(), account: '0x...' })
+ * const client = Client.create({ chain: tempo, transport: http(), account: '0x...' })
  *
  * const trade = await Actions.propAmm.swapSync(client, {
  *   pool: '0x...',
@@ -952,10 +943,10 @@ export namespace swap {
  * @returns Confirmed trade data and receipt.
  */
 export async function swapSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
+  chain extends Chain.Chain | undefined,
+  account extends Account.Account | undefined,
 >(
-  client: Client<Transport, chain, account>,
+  client: Client.Client<chain, account>,
   parameters: swapSync.Parameters<chain, account>,
 ): Promise<swapSync.ReturnValue> {
   const {
@@ -963,34 +954,30 @@ export async function swapSync<
     throwOnReceiptRevert = true,
     ...rest
   } = parameters
-  const receipt = await swap.inner(sendTransactionSync, client, {
+  const receipt = await swap.inner(sendSync, client, {
     ...rest,
     throwOnReceiptRevert,
     tradeId,
-  } as never)
+  })
   if ((receipt as TransactionReceipt).status === 'pending')
-    return { receipt } as never
+    return { receipt } as swapSync.ReturnValue
   const { args } = swap.extractEvent(receipt.logs, {
     pool: parameters.pool,
     tradeId,
   })
-  return { ...args, receipt } as never
+  return { ...args, receipt }
 }
 
 export namespace swapSync {
   export type Args = swap.InputArgs
 
   export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
+    chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+    account extends Account.Account | undefined = Account.Account | undefined,
   > = swap.Parameters<chain, account>
 
   export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.directPropAmm,
-      'TradeExecuted',
-      { IndexedOnly: false; Required: true }
-    > & {
+    ReturnType<typeof swap.extractEvent>['args'] & {
       /** Confirmed receipt. */
       receipt: TransactionReceipt
     }

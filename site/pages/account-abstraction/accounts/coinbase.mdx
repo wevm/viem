@@ -1,0 +1,146 @@
+# Coinbase Smart Wallet
+
+The `CoinbaseSmartAccount.from` implementation references the [Coinbase Smart Wallet](https://github.com/coinbase/smart-wallet) contract.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { CoinbaseSmartAccount } from 'viem/erc4337' // [!code focus]
+import { client } from './client.js'
+import { owner } from './owner.js'
+
+const account = await CoinbaseSmartAccount.from({ // [!code focus]
+  client, // [!code focus]
+  owners: [owner], // [!code focus]
+  version: '1.1', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [client.ts] filename="client.ts"
+import { http, Client } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+```ts twoslash [owner.ts (Private Key)] filename="owner.ts"
+import { Account } from 'viem'
+
+export const owner = Account.fromPrivateKey('0x...')
+```
+
+```ts twoslash [owner.ts (Passkey)] filename="owner.ts"
+import { WebAuthnAccount } from 'viem/erc4337'
+import { WebAuthn } from 'viem/utils'
+
+// Register a credential (ie. passkey).
+const credential = await WebAuthn.createCredential({ name: 'Wallet' })
+
+// Create a WebAuthn owner account from the credential.
+export const owner = WebAuthnAccount.fromCredential(credential)
+```
+
+:::
+
+:::tip
+**Tip:** You can use a Passkey (WebAuthn) to sign User Operations. Check the **owner.ts (Passkey)** tab.
+:::
+
+## Returns
+
+`SmartAccount<CoinbaseSmartAccountImplementation>`
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+Existing account address. When omitted, it is derived from the factory.
+
+### client
+
+- **Type:** `Client`
+
+Client used to retrieve Smart Account data.
+
+```ts
+const client = Client.create({ // [!code focus]
+  chain: mainnet, // [!code focus]
+  transport: http(), // [!code focus]
+}) // [!code focus]
+
+const account = await CoinbaseSmartAccount.from({
+  client, // [!code focus]
+  owners: [owner],
+  version: '1.1',
+})
+```
+
+### nonce
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Nonce to use for the Smart Account.
+
+```ts
+const account = await CoinbaseSmartAccount.from({
+  client,
+  owners: [owner],
+  nonce: 1n, // [!code focus]
+  version: '1.1',
+})
+```
+
+### ownerIndex
+
+- **Type:** `number`
+- **Default:** `0`
+
+Index of the owner to use for signing messages & User Operations.
+
+```ts
+const account = await CoinbaseSmartAccount.from({
+  client,
+  owners: [Account.fromPrivateKey('0x...'), Account.fromPrivateKey('0x...')],
+  ownerIndex: 1, // [!code focus]
+  version: '1.1',
+})
+```
+
+### owners
+
+- **Type:** `readonly (Address | LocalAccount | WebAuthnAccount)[]`
+
+Owners of the Smart Account. At least one owner is required. Address owners can derive and inspect the account, while the owner selected for signing must be a [Local Account](/docs/accounts) or [WebAuthn Account (Passkey)](/account-abstraction/accounts/webauthn).
+
+```ts
+const account = await CoinbaseSmartAccount.from({
+  client,
+  owners: [Account.fromPrivateKey('0x...')], // [!code focus]
+  version: '1.1',
+})
+```
+
+### version
+
+- **Type:** `'1.1' | '1'`
+
+Version of the Smart Account to use.
+
+:::warning
+Version bumps can contain breaking changes.
+:::
+
+```ts
+const account = await CoinbaseSmartAccount.from({
+  client,
+  owners: [owner],
+  version: '1', // [!code focus]
+})

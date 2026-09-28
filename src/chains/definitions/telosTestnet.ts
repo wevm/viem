@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const telosTestnet = /*#__PURE__*/ defineChain({
+export const telosTestnet = /*#__PURE__*/ Chain.from({
   id: 41,
   name: 'Telos',
   nativeCurrency: {
@@ -8,14 +9,13 @@ export const telosTestnet = /*#__PURE__*/ defineChain({
     name: 'Telos',
     symbol: 'TLOS',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.telos.net'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.telos.net' },
   blockExplorers: {
-    default: {
-      name: 'Teloscan (testnet)',
-      url: 'https://testnet.teloscan.io/',
-    },
+    name: 'Teloscan (testnet)',
+    url: 'https://testnet.teloscan.io/',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

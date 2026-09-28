@@ -130,7 +130,6 @@ and wait for inclusion manually.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { waitForTransactionReceipt } from 'viem/actions'
 import { client } from './viem.config'
 
 const hash = await client.token.transfer({
@@ -139,7 +138,7 @@ const hash = await client.token.transfer({
   token: 'usdc',
 })
 // @log: '0x4ca7ee652d57678f26e887c149ab0735f41de667966bf...'
-const receipt = await waitForTransactionReceipt(client, { hash })
+const receipt = await client.transaction.waitForReceipt({ hash }).receipt
 
 const { args } = client.token.transfer.extractEvent(receipt.logs)
 // @log: args: {

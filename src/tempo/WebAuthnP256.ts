@@ -1,8 +1,7 @@
-import * as Bytes from 'ox/Bytes'
-import type * as Hex from 'ox/Hex'
-import * as PublicKey from 'ox/PublicKey'
-import * as WebAuthnP256 from 'ox/WebAuthnP256'
+import { Bytes, PublicKey, WebAuthnP256 } from 'ox'
+import type { Hex } from 'ox'
 
+/** A WebAuthn P256 credential with its public key. */
 export type P256Credential = {
   id: WebAuthnP256.P256Credential['id']
   publicKey: Hex.Hex
@@ -20,7 +19,7 @@ export type P256Credential = {
  * ```ts
  * import { WebAuthnP256 } from 'viem/tempo'
  *
- * const credential = await WebAuthnP256.createCredential({ name: 'Example' })
+ * const credential = await WebAuthnP256.createCredential({ label: 'Example' })
  * // {
  * //   id: 'oZ48...',
  * //   publicKey: '0x...',
@@ -53,7 +52,7 @@ export async function createCredential(
           name: rpId,
         }
       : undefined,
-    name: undefined as never,
+    name: undefined,
     user: {
       displayName: label,
       id: new Uint8Array(userId ?? Bytes.fromString(label)),
@@ -70,7 +69,7 @@ export async function createCredential(
 }
 
 export declare namespace createCredential {
-  export type Parameters = Omit<
+  type Parameters = Omit<
     WebAuthnP256.createCredential.Options,
     'publicKey' | 'rp' | 'signal' | 'user'
   > & {
@@ -89,7 +88,7 @@ export declare namespace createCredential {
     userId?: Bytes.Bytes | undefined
   }
 
-  export type ReturnValue = P256Credential
+  type ReturnValue = P256Credential
 }
 
 /**
@@ -132,17 +131,19 @@ export async function getCredential(
 }
 
 export declare namespace getCredential {
-  export type Parameters = Omit<
+  type Parameters = Omit<
     WebAuthnP256.sign.Options,
     'challenge' | 'mediation' | 'publicKey' | 'signal'
   > & {
+    /** Digest/hash to sign over. */
     hash?: Hex.Hex | undefined
+    /** Fetches the public key paired with the credential from an external store. */
     getPublicKey: (
       credential: WebAuthnP256.P256Credential['raw'],
     ) => Promise<Hex.Hex>
   }
 
-  export type ReturnValue = WebAuthnP256.sign.ReturnType & {
+  type ReturnValue = WebAuthnP256.sign.ReturnType & {
     id: string
     publicKey: Hex.Hex
   }

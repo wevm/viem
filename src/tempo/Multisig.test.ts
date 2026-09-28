@@ -3,8 +3,9 @@ import {
   MultisigConfig,
   MultisigOperation,
   SignatureEnvelope,
+  TxEnvelopeTempo as Transaction,
 } from 'ox/tempo'
-import { Account, Multisig, Store, Transaction } from 'viem/tempo'
+import { Account, Multisig, Store } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import { nativeMultisigFactory } from './Addresses.js'
 import * as Operation from './multisig/Operation.js'
@@ -21,7 +22,11 @@ const account = MultisigConfig.getAddress(config, {
   factory: nativeMultisigFactory,
 })
 const approval = SignatureEnvelope.from({
-  signature: { r: 1n, s: 2n, yParity: 0 },
+  signature: {
+    r: `0x${'00'.repeat(31)}01`,
+    s: `0x${'00'.repeat(31)}02`,
+    yParity: 0,
+  },
   type: 'secp256k1',
 })
 const serializedApproval = SignatureEnvelope.serialize(approval)
@@ -32,7 +37,7 @@ test('behavior: resolves the chain from a Tempo transaction', async () => {
     { store: Store.memory() },
   )
   const transaction = await Transaction.serialize({
-    calls: [],
+    calls: [{ to: account }],
     chainId: 4217,
   })
 
@@ -74,16 +79,16 @@ test('behavior: resolves the chain from a key authorization', async () => {
       params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [UnknownRpcError: An unknown RPC error occurred.
-
-    Details: eth_blockNumber:4217
-    Version: viem@x.y.z]
+    [RpcResponse.InternalError: eth_blockNumber:4217]
   `)
 })
 
 test('behavior: resolves the chain from a stored transaction operation', async () => {
   const store = Store.memory()
-  const transaction = await Transaction.serialize({ calls: [], chainId: 4217 })
+  const transaction = await Transaction.serialize({
+    calls: [{ to: account }],
+    chainId: 4217,
+  })
   const hash = MultisigOperation.getHash({
     account,
     config,
@@ -166,10 +171,7 @@ test('behavior: resolves the chain from a stored key authorization operation', a
       params: [{ hash, signature: serializedApproval }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [UnknownRpcError: An unknown RPC error occurred.
-
-    Details: eth_blockNumber:4217
-    Version: viem@x.y.z]
+    [RpcResponse.InternalError: eth_blockNumber:4217]
   `)
 })
 
@@ -178,7 +180,7 @@ test('error: rejects conflicting chain ids', async () => {
     store: Store.memory(),
   })
   const transaction = await Transaction.serialize({
-    calls: [],
+    calls: [{ to: account }],
     chainId: 4217,
   })
 

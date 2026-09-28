@@ -1,47 +1,74 @@
+---
+description: Install Viem with a package manager, CDN, preview build, or source checkout.
+---
+
 # Installation
 
-Install Viem via your package manager, a `<script>` tag, or build from source.
+Install Viem with your package manager for version locking, type declarations, and tree shaking.
+For small prototypes, you can also load Viem from an ESM CDN.
 
 ## Package Manager
 
-Install the required packages.
+{/* TODO(v3): Remove `@next` when Viem v3 is stable. */}
 
 :::code-group
+
 ```bash [pnpm]
-pnpm add viem
+pnpm add viem@next
 ```
 
 ```bash [npm]
-npm install viem
+npm install viem@next
 ```
 
-```bash [yarn]
-yarn add viem
+```bash [Yarn]
+yarn add viem@next
 ```
 
-```bash [bun]
-bun add viem
+```bash [Bun]
+bun add viem@next
 ```
-```bash [deno]
-deno add viem
+
+```bash [Deno]
+deno add npm:viem@next
 ```
+
 :::
+
+The `npm:` package specifier selects the npm registry explicitly. See the
+[`deno add` reference](https://docs.deno.com/runtime/reference/cli/add/) for other options.
 
 ## CDN
 
-If you're not using a package manager, you can also use Viem via an ESM-compatible CDN such as [esm.sh](https://esm.sh). Simply add a `<script type="module">` tag to the bottom of your HTML file with the following content.
+Use an ESM-compatible CDN such as [esm.sh](https://esm.sh) when a package manager is not
+available. Pin the Viem major version in the URL to avoid unexpected breaking changes.
+
+{/* TODO(v3): Replace `@next` with `@3` when Viem v3 is stable. */}
 
 ```html
 <script type="module">
-  import { createClient } from 'https://esm.sh/viem'
+  import { Actions, Client, http } from 'https://esm.sh/viem@next'
+  import { mainnet } from 'https://esm.sh/viem@next/chains'
+
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(),
+  })
+
+  const blockNumber = await Actions.block.getNumber(client)
+  console.log(blockNumber)
 </script>
 ```
 
-## Using Unreleased Commits
+## Preview Releases
 
-If you can't wait for a new release to test the latest features, pull requests and commits are continuously released via [pkg.pr.new](https://pkg.pr.new) and can be installed using the pull request number or short commit ID.
+[pkg.pr.new](https://pkg.pr.new) publishes packages for pull requests and commits. Copy an install
+URL from the pull request or workflow output.
+
+You can also replace `123` below with a pull request number or short commit ID.
 
 :::code-group
+
 ```bash [pnpm]
 pnpm add https://pkg.pr.new/viem@123
 ```
@@ -50,34 +77,39 @@ pnpm add https://pkg.pr.new/viem@123
 npm install https://pkg.pr.new/viem@123
 ```
 
-```bash [yarn]
+```bash [Yarn]
 yarn add https://pkg.pr.new/viem@123
 ```
 
-```bash [bun]
+```bash [Bun]
 bun add https://pkg.pr.new/viem@123
 ```
+
 :::
 
-Or clone the [Viem repo](https://github.com/wevm/viem) to your local machine, build, and link it yourself.
+Preview packages are temporary and may contain unreviewed changes. Use a stable release in
+production.
+
+## Contribute from Source
+
+Clone the repository with its submodules, then install and build the workspace with the versions
+specified in `package.json`.
 
 ```bash
-gh repo clone wevm/viem
+git clone https://github.com/wevm/viem.git --recurse-submodules
 cd viem
 pnpm install
 pnpm build
-pnpm link --global
 ```
 
-Then go to the project where you are using Viem and run `pnpm link --global viem` (or the package manager that you used to link Viem globally).
+Read the [contribution guide](https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md)
+before proposing an API or implementation change.
 
 ## Security
 
-Ethereum-related projects are often targeted in attacks to steal users' assets. Make sure you follow security best-practices for your project. Some quick things to get started.
-
-- Pin package versions, upgrade mindfully, and inspect lockfile changes to minimize the risk of [supply-chain attacks](https://nodejs.org/en/guides/security/#supply-chain-attacks).
-- Use [npm](https://docs.npmjs.com)'s [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) or [pnpm](https://pnpm.io)'s [`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage) and [`trustPolicy`](https://pnpm.io/settings#trustpolicy) to mitigate against supply-chain attacks.
-- Install the [Socket](https://socket.dev) [GitHub App](https://github.com/apps/socket-security) to help detect and block supply-chain attacks.
-- Add a [Content Security Policy](https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html) to defend against external scripts running in your app.
-- Pin [GitHub Action](https://x.com/paulmillr/status/1900948425325031448) versions to commits instead of tags. [Actions Up](https://github.com/azat-io/actions-up) is a good tool for using commits instead of tags.
-
+- Commit your lockfile, review dependency changes, and audit upgrades before deployment.
+- Pin production versions and consider a package-manager release-age policy, such as
+  [npm `min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) or
+  [pnpm `minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage).
+- Avoid preview packages and floating CDN URLs in production. Restrict CDN origins with a
+  [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).

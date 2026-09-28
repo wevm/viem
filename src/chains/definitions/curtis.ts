@@ -1,19 +1,19 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const curtis = /*#__PURE__*/ defineChain({
+export const curtis = /*#__PURE__*/ Chain.from({
   id: 33_111,
   name: 'Curtis',
   nativeCurrency: { name: 'ApeCoin', symbol: 'APE', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.curtis.apechain.com'],
-    },
+    http: 'https://rpc.curtis.apechain.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Curtis Explorer',
-      url: 'https://explorer.curtis.apechain.com',
-    },
+    name: 'Curtis Explorer',
+    url: 'https://explorer.curtis.apechain.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: true,
 })

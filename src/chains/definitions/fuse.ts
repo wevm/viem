@@ -1,20 +1,18 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const fuse = /*#__PURE__*/ defineChain({
+export const fuse = /*#__PURE__*/ Chain.from({
   id: 122,
   name: 'Fuse',
   nativeCurrency: { name: 'Fuse', symbol: 'FUSE', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://rpc.fuse.io'] },
-  },
+  rpcUrls: { http: 'https://rpc.fuse.io' },
   blockExplorers: {
-    default: {
-      name: 'Fuse Explorer',
-      url: 'https://explorer.fuse.io',
-      apiUrl: 'https://explorer.fuse.io/api',
-    },
+    name: 'Fuse Explorer',
+    url: 'https://explorer.fuse.io',
+    apiUrl: 'https://explorer.fuse.io/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 16146628,

@@ -1,0 +1,152 @@
+---
+description: Build a reusable Viem standalone Action and expose it through an optional Client decorator.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Build Actions and Decorators
+
+## Overview
+
+Put reusable behavior in a standalone Action that accepts a Client. A decorator should be a thin
+adapter that binds the same Action for applications that prefer method syntax.
+
+## Recipes
+
+These recipes build one Account summary from existing
+[Public Actions](/docs/actions/public).
+
+### Define a Standalone Action
+
+Export Options, ReturnType, and ErrorType beside the function so callers can compose its public
+contract without duplicating types.
+
+```ts twoslash
+import { Actions, type Client } from 'viem'
+import { Address } from 'viem/utils'
+
+export async function getAccountSummary( // [!code focus]
+  client: Client.Client, // [!code focus]
+  options: getAccountSummary.Options, // [!code focus]
+): Promise<getAccountSummary.ReturnType> { // [!code focus]
+  const [balance, nonce] = await Promise.all([ // [!code focus]
+    Actions.address.getBalance(client, options), // [!code focus]
+    Actions.address.getTransactionCount(client, options), // [!code focus]
+  ]) // [!code focus]
+  return { balance, nonce } // [!code focus]
+} // [!code focus]
+
+export namespace getAccountSummary { // [!code focus]
+  export type Options = { address: Address.Address } // [!code focus]
+  export type ReturnType = { balance: bigint; nonce: number } // [!code focus]
+  export type ErrorType = // [!code focus]
+    | Actions.address.getBalance.ErrorType // [!code focus]
+    | Actions.address.getTransactionCount.ErrorType // [!code focus]
+} // [!code focus]
+```
+
+### Bind the Action with a Decorator
+
+The decorator closes over the caller's Client and adds a discoverable `accounts` namespace.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const summary = await client.accounts.getSummary({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Actions, Client, http, type Client as ClientType } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Address } from 'viem/utils'
+
+async function getAccountSummary(
+  client: ClientType.Client,
+  options: { address: Address.Address },
+) {
+  const [balance, nonce] = await Promise.all([
+    Actions.address.getBalance(client, options),
+    Actions.address.getTransactionCount(client, options),
+  ])
+  return { balance, nonce }
+}
+
+function accountSummaryActions() { // [!code focus]
+  return (client: ClientType.Client) => ({ // [!code focus]
+    accounts: { // [!code focus]
+      getSummary: (options: { address: Address.Address }) => // [!code focus]
+        getAccountSummary(client, options), // [!code focus]
+    }, // [!code focus]
+  }) // [!code focus]
+} // [!code focus]
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+  .extend(accountSummaryActions()) // [!code focus]
+```
+
+:::
+
+### Keep the Standalone Form Available
+
+Library callers can use the same Action without adopting the decorator or its namespace.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions, type Client } from 'viem'
+import { Address } from 'viem/utils'
+import { client } from './viem.config'
+
+async function getAccountSummary(
+  client: Client.Client,
+  options: { address: Address.Address },
+) {
+  const [balance, nonce] = await Promise.all([
+    Actions.address.getBalance(client, options),
+    Actions.address.getTransactionCount(client, options),
+  ])
+  return { balance, nonce }
+}
+
+const summary = await getAccountSummary(client, { // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Best Practices
+
+### Keep Decorators Thin
+
+Do not implement separate behavior in the method form. Delegate to the standalone Action so both
+entrypoints share runtime behavior and errors.
+
+### Namespace Public Types
+
+Keep Options, ReturnType, ErrorType, and reusable helpers beside the function. Editors and coding
+agents can discover the Action's complete surface from one symbol.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:scissors" title="Tree-Shakable Actions" description="Use standalone Actions at focused application and library boundaries." to="/docs/guides/extending/tree-shakable-actions" />
+  <Card icon="lucide:package-open" title="Distribute a Viem Library" description="Package the Action and decorator without owning consumer configuration." to="/docs/guides/extending/libraries" />
+</Cards>

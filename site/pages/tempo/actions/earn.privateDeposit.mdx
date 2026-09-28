@@ -14,10 +14,11 @@ client.
 :::code-group
 
 ```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
@@ -51,10 +52,11 @@ deposit. `senderTag` identifies the corresponding parent-chain `WithdrawalProces
 Use `earn.privateDeposit` to return the Zone transaction hash immediately.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
@@ -75,10 +77,11 @@ private asset into the vault asset through its configured token authority before
 `vaultAssetAmountMin` to bound that conversion independently from the Earn share bound.
 
 ```ts twoslash
+import { Actions } from 'viem/tempo'
 import { client as parentClient } from './viem.config'
 import { client as zoneClient } from './zones.config'
 
-const prepared = await parentClient.earn.privateDeposit.prepare({
+const prepared = await Actions.earn.privateDeposit.prepare(parentClient, {
   assetAmount: 100_000_000n,
   gateway: '0x0000000000000000000000000000000000000001',
   recipient: zoneClient.account.address,
