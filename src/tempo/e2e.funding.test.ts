@@ -648,47 +648,74 @@ describe('Actions.token.transferSync', () => {
 })
 
 describe('funding error decoding', () => {
-  test.each(['burn', 'transfer', 'sell'] as const)(
-    '%s propagates insufficient funding',
-    async (action) => {
-      const account = Account.fromSecp256k1(generatePrivateKey())
-      const parameters = {
+  test('burn propagates insufficient funding', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const result = await Actions.token
+      .burn(client, {
         account,
         feePayer: accounts[1],
         requireFunds: [{ sources: [] }],
-      }
-      const result = await (action === 'burn'
-        ? Actions.token.burn(client, {
-            ...parameters,
-            amount: 1n,
-            token: Addresses.pathUsd,
-          })
-        : action === 'transfer'
-          ? Actions.token.transfer(client, {
-              ...parameters,
-              amount: 1n,
-              to: recipient,
-              token: Addresses.pathUsd,
-            })
-          : Actions.dex.sell(client, {
-              ...parameters,
-              amountIn: 1n,
-              minAmountOut: 0n,
-              tokenIn: Addresses.pathUsd,
-              tokenOut: Addresses.alphaUsd,
-            })
-      ).catch((error) =>
+        amount: 1n,
+        token: Addresses.pathUsd,
+      })
+      .catch((error) =>
         error.walk(
           (error: unknown) => error instanceof ContractFunctionRevertedError,
         ),
       )
-      expect(result).toBeInstanceOf(ContractFunctionRevertedError)
-      expect(result.data).toBeUndefined()
-      expect(result.raw).toMatchInlineSnapshot(
-        `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+    expect(result).toBeInstanceOf(ContractFunctionRevertedError)
+    expect(result.data).toBeUndefined()
+    expect(result.raw).toMatchInlineSnapshot(
+      `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+    )
+  })
+
+  test('transfer propagates insufficient funding', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const result = await Actions.token
+      .transfer(client, {
+        account,
+        feePayer: accounts[1],
+        requireFunds: [{ sources: [] }],
+        amount: 1n,
+        to: recipient,
+        token: Addresses.pathUsd,
+      })
+      .catch((error) =>
+        error.walk(
+          (error: unknown) => error instanceof ContractFunctionRevertedError,
+        ),
       )
-    },
-  )
+    expect(result).toBeInstanceOf(ContractFunctionRevertedError)
+    expect(result.data).toBeUndefined()
+    expect(result.raw).toMatchInlineSnapshot(
+      `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+    )
+  })
+
+  test('sell propagates insufficient funding', async () => {
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const result = await Actions.dex
+      .sell(client, {
+        account,
+        feePayer: accounts[1],
+        requireFunds: [{ sources: [] }],
+        amountIn: 1n,
+        minAmountOut: 0n,
+        tokenIn: Addresses.pathUsd,
+        tokenOut: Addresses.alphaUsd,
+      })
+      .catch((error) =>
+        error.walk(
+          (error: unknown) => error instanceof ContractFunctionRevertedError,
+        ),
+      )
+    expect(result).toBeInstanceOf(ContractFunctionRevertedError)
+    expect(result.data).toBeUndefined()
+    expect(result.raw).toMatchInlineSnapshot(
+      `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+    )
+  })
 })
 
 describe('relay funding integrity', () => {
