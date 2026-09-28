@@ -214,28 +214,31 @@ export namespace authorize {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = OneOf<
-    account extends Account | undefined
-      ? WalletParameters<account> | LocalCallParameters<chain, account>
-      : never
-  >
+  > =
+    | (WalletParameters<account> & {
+        [key in Exclude<
+          keyof LocalParameters,
+          keyof WalletParameters
+        >]?: undefined
+      })
+    | (LocalCallParameters<chain, account> & { keyType?: undefined })
 
   /** Wallet parameters with a hoisted or explicit JSON-RPC account. */
   export type WalletParameters<
     account extends Account | undefined = Account | undefined,
   > = RpcArgs &
-    ([account] extends [{ type: 'json-rpc' }]
-      ? { account?: JsonRpcAccount | Address | undefined }
-      : { account: JsonRpcAccount | Address })
+    ([Extract<account, JsonRpcAccount>] extends [never]
+      ? { account: JsonRpcAccount | Address }
+      : { account?: JsonRpcAccount | Address | undefined })
 
   /** Local parameters with a hoisted or explicit signing account. */
   export type LocalCallParameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = LocalParameters<chain, account> &
-    ([account] extends [{ type: 'local' | 'smart' }]
-      ? { account?: Exclude<Account, JsonRpcAccount> | undefined }
-      : { account: Exclude<Account, JsonRpcAccount> })
+    ([Extract<account, { type: 'local' | 'smart' }>] extends [never]
+      ? { account: Exclude<Account, JsonRpcAccount> }
+      : { account?: Exclude<Account, JsonRpcAccount> | undefined })
 
   /** Parameters for signing locally and submitting an authorization transaction. */
   export type LocalParameters<

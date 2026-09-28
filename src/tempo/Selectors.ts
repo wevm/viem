@@ -238,7 +238,7 @@ export const tip20 = {
 export const tip403Registry = {
   compoundPolicyData: '0xb6266019',
   createCompoundPolicy: '0x5da414ee',
-  createPolicy: '0x259ebb11',
+  createPolicy: '0xca5d55f6',
   createPolicyWithAccounts: '0xa2d3044f',
   isAuthorized: '0x55a1179e',
   isAuthorizedMintRecipient: '0xb389e305',
@@ -321,7 +321,7 @@ export const zoneVerifier = {
   OverloadedFunctionSelectors<'verify'>
 
 export const fundingPolicy = {
-  createPolicy: '0xb4f9d29c',
+  createPolicy: '0x259ebb11',
   getPolicy: '0x6d738773',
   policyExists: '0x330f5637',
   policyIdCounter: '0x3cc32f9c',

@@ -26,7 +26,10 @@ import * as Addresses from '../Addresses.js'
 import type * as Funding from '../Funding.js'
 
 const balance = 2n ** 96n
-const insufficientBalance = AbiError.fromAbi(Abis.tip20, 'InsufficientBalance')
+const insufficientBalance = /*#__PURE__*/ AbiError.fromAbi(
+  Abis.tip20,
+  'InsufficientBalance',
+)
 
 export const fundingErrors = /*#__PURE__*/ [
   ...Abis.accountKeychain,

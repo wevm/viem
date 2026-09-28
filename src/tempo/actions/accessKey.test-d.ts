@@ -166,6 +166,10 @@ test('authorize returns the same shape for local and JSON-RPC accounts', async (
   await wallet.accessKey.authorize({})
   // @ts-expect-error Wallet authorization does not submit a transaction.
   await wallet.accessKey.authorize({ ...options, gas: 100_000n })
+  // @ts-expect-error Wallet authorization does not accept local admin options.
+  await wallet.accessKey.authorize({ ...options, admin: true })
+  // @ts-expect-error Local authorization gets the key type from the supplied key.
+  await local.accessKey.authorize({ accessKey, keyType: 'p256' })
   // @ts-expect-error A client without an account needs an override.
   await client.accessKey.authorize(options)
 })
