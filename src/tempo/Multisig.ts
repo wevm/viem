@@ -579,7 +579,9 @@ async function approveKeyAuthorization(
       const authorization = (() => {
         try {
           return KeyAuthorization.fromRpc(
-            value.keyAuthorization as KeyAuthorization.Rpc,
+            value.keyAuthorization as Parameters<
+              typeof KeyAuthorization.fromRpc
+            >[0],
           )
         } catch {
           throw new RpcResponse.InvalidParamsError({
@@ -1301,7 +1303,9 @@ async function resolveRequestChainId(
       try {
         return parseChainId(
           KeyAuthorization.fromRpc(
-            value.keyAuthorization as KeyAuthorization.Rpc,
+            value.keyAuthorization as Parameters<
+              typeof KeyAuthorization.fromRpc
+            >[0],
           ).chainId,
         )
       } catch {

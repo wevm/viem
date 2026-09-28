@@ -1,5 +1,6 @@
+import type { SignatureEnvelope } from 'ox/tempo'
 import { MultisigConfig, Transaction } from 'viem/tempo'
-import { test } from 'vitest'
+import { expectTypeOf, test } from 'vitest'
 
 const from = '0x0000000000000000000000000000000000000001'
 const multisigSimulation = {
@@ -22,4 +23,24 @@ test('serialize requires a sender when combining multisig simulation and approva
   })
   // @ts-expect-error Multisig approvals require an explicit sender.
   Transaction.serialize({ ...transaction, multisigSimulation, signatures: [] })
+})
+
+test('preserves all protocol key authorization types', () => {
+  type Type = SignatureEnvelope.Type | 'multisig'
+  expectTypeOf<
+    NonNullable<Transaction.TransactionTempo['keyAuthorization']>['type']
+  >().toEqualTypeOf<Type>()
+  expectTypeOf<
+    NonNullable<Transaction.TransactionRequestTempo['keyAuthorization']>['type']
+  >().toEqualTypeOf<Type>()
+  expectTypeOf<
+    NonNullable<
+      Transaction.TransactionSerializableTempo['keyAuthorization']
+    >['type']
+  >().toEqualTypeOf<Type>()
+  expectTypeOf<
+    NonNullable<
+      Extract<Transaction.TransactionRpc, { type: '0x76' }>['keyAuthorization']
+    >['keyType']
+  >().toEqualTypeOf<Type>()
 })

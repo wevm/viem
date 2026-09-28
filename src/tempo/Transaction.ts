@@ -5,10 +5,10 @@ import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import {
   type AuthorizationTempo,
-  type KeyAuthorization,
   MultisigConfig,
   type MultisigOperation,
   type MultisigSimulation,
+  type Transaction as ox_Transaction,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -60,7 +60,10 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
       'authorizationList' | 'keyAuthorization' | 'signature'
     > & {
       authorizationList?: AuthorizationTempo.ListRpc | undefined
-      keyAuthorization?: KeyAuthorization.Rpc | null | undefined
+      keyAuthorization?:
+        | ox_Transaction.TempoRpc['keyAuthorization']
+        | null
+        | undefined
       multisig?: MultisigOperation.TransactionRpc | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
@@ -81,7 +84,10 @@ export type TransactionTempo<
   chainId: index
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
-  keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
+  keyAuthorization?:
+    | TxTempo.TxEnvelopeTempo<boolean, quantity, index>['keyAuthorization']
+    | null
+    | undefined
   multisig?: MultisigOperation.TransactionOperation | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
@@ -133,7 +139,9 @@ export type TransactionRequestTempo<
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
     hash?: Hex.Hex | undefined
-    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
+    keyAuthorization?:
+      | TxTempo.TxEnvelopeTempo<boolean, quantity, index>['keyAuthorization']
+      | undefined
     multisigSimulation?: MultisigSimulation.Spec | undefined
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
@@ -156,7 +164,9 @@ export type TransactionSerializableTempo<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
-    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
+    keyAuthorization?:
+      | TxTempo.TxEnvelopeTempo<boolean, quantity, index>['keyAuthorization']
+      | undefined
     nonceKey?: quantity | undefined
     owner?: RootAccount | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
