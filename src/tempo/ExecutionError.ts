@@ -294,7 +294,7 @@ export declare namespace from {
     | Hex
     | {
         /** ABI-encoded revert data. */
-        data?: Hex | undefined
+        data?: Hex | { data: Hex } | undefined
         /** Fallback message when revert data cannot be decoded. */
         message: string
       }
@@ -336,18 +336,24 @@ export function serialize(preimage: ExecutionError): Rpc {
   } as never
 }
 
-function extractRevertData(error: unknown): Hex | null {
-  if (!error || typeof error !== 'object') return null
+function extractRevertData(
+  error: unknown,
+  seen = new Set<unknown>(),
+): Hex | null {
+  if (!error || typeof error !== 'object' || seen.has(error)) return null
+  seen.add(error)
   const e = error as Record<string, unknown>
-  if (typeof e.data === 'string' && e.data.startsWith('0x'))
+  if (typeof e.data === 'string' && /^0x(?:[\da-f]{2})*$/i.test(e.data))
     return e.data as Hex
-  if (e.cause) return extractRevertData(e.cause)
-  if (e.error) return extractRevertData(e.error)
+  for (const inner of [e.data, e.cause, e.error]) {
+    const data = extractRevertData(inner, seen)
+    if (data) return data
+  }
   if (typeof e.walk === 'function') {
     const inner = (
       e as { walk: (fn: (e: unknown) => boolean) => unknown }
     ).walk((e) => typeof (e as Record<string, unknown>).data === 'string')
-    if (inner) return extractRevertData(inner)
+    if (inner) return extractRevertData(inner, seen)
   }
   return null
 }

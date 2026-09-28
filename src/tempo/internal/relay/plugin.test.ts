@@ -26,6 +26,42 @@ const localnetTokens = [
 
 const caller = Tempo.getClient({ chain: Tempo.chain })
 
+test.each(['legacy', 'calls'])(
+  'reports malformed %s values as invalid params through Fetch',
+  async (shape) => {
+    const relay = Relay.create({ client: caller, plugins: [Relay.simulate()] })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: userAccount.address,
+              ...(shape === 'legacy'
+                ? { to: recipient.address, value: '0xzz' }
+                : { calls: [{ to: recipient.address, value: '0xzz' }] }),
+            },
+          ],
+        }),
+      }),
+    )
+    expect(await response.json()).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32602,
+          "message": "Invalid transaction value.",
+        },
+        "id": 1,
+        "jsonrpc": "2.0",
+      }
+    `)
+  },
+)
+
 beforeAll(async () => {
   await Promise.all(
     [0, 9].map((index) =>

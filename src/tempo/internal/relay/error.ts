@@ -71,7 +71,9 @@ export async function formatError(
             calls: optimisticCalls,
             store: simulateStore,
           }),
-          resolveVirtualAddresses(client, { calls: optimisticCalls }),
+          resolveVirtualAddresses(client, { calls: optimisticCalls }).catch(
+            () => undefined,
+          ),
         ])
       : [{ balanceDiffs: undefined }, undefined]
 

@@ -71,6 +71,10 @@ function normalizeKeyAuthorization(value: unknown) {
 
 function normalizeFillValue(value: unknown) {
   if (typeof value !== 'string' || !value.startsWith('0x')) return value
+  if (!/^0x[\da-f]*$/i.test(value))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Invalid transaction value.',
+    })
   return BigInt(value === '0x' ? '0x0' : value)
 }
 

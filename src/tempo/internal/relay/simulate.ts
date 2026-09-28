@@ -128,10 +128,26 @@ export async function simulateAndParseDiffs(
     }[])
       if (result.logs) logs.push(...result.logs)
 
+    // Attribute approvals to the injected calls, not just their token and spender.
+    const swapCallCount =
+      swap?.calls.length &&
+      swap.calls.every(
+        (call, index) =>
+          call.to?.toLowerCase() === calls[index]?.to?.toLowerCase() &&
+          call.data?.toLowerCase() === calls[index]?.data?.toLowerCase() &&
+          BigInt(call.value ?? 0) === BigInt(calls[index]?.value ?? 0),
+      )
+        ? swap.calls.length
+        : 0
+    const approvalLogs = results.flatMap((result, index) =>
+      index < swapCallCount ? [] : (result.logs ?? []),
+    )
+
     // Build per-token balance diffs relative to the sender.
     const balanceDiffs = account
       ? await buildBalanceDiffs(client, {
           account,
+          approvalLogs,
           store,
           logs,
           swap,
@@ -161,7 +177,9 @@ export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
-    swap?: { tokenIn: Address; tokenOut: Address } | undefined
+    swap?:
+      | { calls: readonly Call[]; tokenIn: Address; tokenOut: Address }
+      | undefined
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined
@@ -169,8 +187,8 @@ export declare namespace simulateAndParseDiffs {
   }
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: declaration merge
-async function buildBalanceDiffs(
+/** Builds a complete preview within the metadata lookup budget. */
+export async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,
 ) {
@@ -188,7 +206,7 @@ async function buildBalanceDiffs(
   const approvalLogs = parseEventLogs({
     abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     eventName: 'Approval',
-    logs,
+    logs: options.approvalLogs,
   })
 
   // Track net movement per token: incoming vs outgoing.
@@ -252,14 +270,6 @@ async function buildBalanceDiffs(
     if (log.args.amount === 0n) continue
     const token = log.address.toLowerCase()
 
-    // Skip swap-related approvals (reported in capabilities.autoSwap instead).
-    if (
-      swap &&
-      token === swapTokenIn &&
-      log.args.spender.toLowerCase() === dexLower
-    )
-      continue
-
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
       outgoing: 0n,
@@ -280,24 +290,31 @@ async function buildBalanceDiffs(
     return net > 0n
   })
   if (entries.length === 0) return {}
+  // Omit an unavailable preview rather than returning a partial set of movements.
+  if (entries.length > 100) return undefined
 
-  // Resolve metadata for all tokens in parallel (simulation metadata first, RPC fallback).
+  // Bound metadata work for a single fill independently of the RPC batch limit.
   const metadataMap = new Map<
     string,
     { decimals: number; symbol: string; name: string }
   >()
+  let index = 0
   await Promise.all(
-    entries.map(async (entry) => {
-      try {
-        const metadata = await resolveTokenMetadata(client, {
-          token: entry.token,
-          tokenMetadata,
-          store,
-        })
-        metadataMap.set(entry.token.toLowerCase(), metadata)
-      } catch {}
+    Array.from({ length: Math.min(10, entries.length) }, async () => {
+      while (index < entries.length) {
+        const entry = entries[index++]!
+        try {
+          const metadata = await resolveTokenMetadata(client, {
+            token: entry.token,
+            tokenMetadata,
+            store,
+          })
+          metadataMap.set(entry.token.toLowerCase(), metadata)
+        } catch {}
+      }
     }),
   )
+  if (metadataMap.size !== entries.length) return undefined
 
   // Build the diff array for this account.
   const diffs: Capabilities.BalanceDiff[] = []
@@ -308,15 +325,15 @@ async function buildBalanceDiffs(
         : entry.incoming - entry.outgoing
 
     const direction = entry.outgoing > entry.incoming ? 'outgoing' : 'incoming'
-    const meta = metadataMap.get(entry.token.toLowerCase())
-    const decimals = meta?.decimals ?? 0
+    const meta = metadataMap.get(entry.token.toLowerCase())!
+    const decimals = meta.decimals
     diffs.push({
       address: entry.token,
       decimals,
       direction,
       formatted: formatUnits(net, decimals),
-      name: meta?.name ?? '',
-      symbol: meta?.symbol ?? '',
+      name: meta.name,
+      symbol: meta.symbol,
       recipients: [...entry.recipients] as Address[],
       value: Hex.fromNumber(net) as `0x${string}`,
     })
@@ -325,9 +342,10 @@ async function buildBalanceDiffs(
   return { [account]: diffs }
 }
 
-declare namespace buildBalanceDiffs {
+export declare namespace buildBalanceDiffs {
   type Options = {
     account: Address
+    approvalLogs: Log[]
     store?: Store.Store | undefined
     logs: Log[]
     swap?: { tokenIn: Address; tokenOut: Address } | undefined

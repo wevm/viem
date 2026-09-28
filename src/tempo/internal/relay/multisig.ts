@@ -46,10 +46,13 @@ export function create(
         store: options.store,
       })
       const client = createClient({
-        transport: custom({
-          request: ({ method, params }, options) =>
-            next({ method, params }, { ...requestOptions, ...options }),
-        }),
+        transport: custom(
+          {
+            request: ({ method, params }, options) =>
+              next({ method, params }, { ...requestOptions, ...options }),
+          },
+          { retryCount: 0 },
+        ),
       })
 
       if (request.method === 'multisig_getConfig') {

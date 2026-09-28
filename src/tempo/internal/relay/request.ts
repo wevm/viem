@@ -4,6 +4,7 @@ import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
+import type { Call } from '../../../types/calls.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
@@ -49,7 +50,9 @@ export type Handler = Relay.handleRequest.Handler & {
 
 export type Result = {
   [pending]?: readonly (() => Promise<Partial<Result>>)[] | undefined
-  [swap]?: { tokenIn: Address; tokenOut: Address } | undefined
+  [swap]?:
+    | { calls: readonly Call[]; tokenIn: Address; tokenOut: Address }
+    | undefined
   tx: Record<string, unknown>
   capabilities?: Record<string, unknown> | undefined
   sponsor?: unknown
@@ -169,14 +172,17 @@ export function wrap(
         return createClient({
           chain: { ...tempo, ...upstream?.chain, id },
           batch: { multicall: { deployless: true } },
-          transport: custom({
-            request: (request, options) =>
-              (next[deferred] ?? next)(request, {
-                ...requestOptions,
-                ...options,
-                chainId: id,
-              }),
-          }),
+          transport: custom(
+            {
+              request: (request, options) =>
+                (next[deferred] ?? next)(request, {
+                  ...requestOptions,
+                  ...options,
+                  chainId: id,
+                }),
+            },
+            { retryCount: 0 },
+          ),
         })
       }
 

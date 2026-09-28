@@ -36,6 +36,17 @@ test('accepts selectors without adding Error instance properties', () => {
   error.stack
 })
 
+test('accepts nested revert data on plain error objects', () => {
+  const error = ExecutionError.from({
+    data: { data: '0x82b42900' },
+    message: 'reverted',
+    requestId: 'request-1' as const,
+  })
+  expectTypeOf(error.requestId).toEqualTypeOf<'request-1'>()
+  if (error.errorName === 'Unauthorized')
+    expectTypeOf(error.data).toEqualTypeOf<Hex>()
+})
+
 test('omits decoded arguments from RPC errors', () => {
   const error = ExecutionError.serialize(
     ExecutionError.from(new Error('reverted')),

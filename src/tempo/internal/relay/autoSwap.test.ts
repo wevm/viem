@@ -5,7 +5,15 @@ import {
   sendRawTransactionSync,
   sendTransactionSync,
 } from 'viem/actions'
-import { Actions, Addresses, Relay, Store, Tick, withRelay } from 'viem/tempo'
+import {
+  Actions,
+  Addresses,
+  type Capabilities,
+  Relay,
+  Store,
+  Tick,
+  withRelay,
+} from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 
@@ -32,6 +40,54 @@ beforeAll(async () => {
 })
 
 let token: Address
+
+test.each([0n, parseUnits('5.25', 6), parseUnits('100', 6)])(
+  'retains a user DEX approval after the injected swap: %s',
+  async (amount) => {
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [Relay.simulate(), Relay.autoSwap()],
+      }),
+    })
+    const { capabilities } = await fillTransaction(client, {
+      account: userAccount.address,
+      feeToken: Tempo.addresses.alphaUsd,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token,
+          to: recipient.address,
+          amount: parseUnits('5', 6),
+        }),
+        Actions.token.approve.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          spender: Addresses.stablecoinDex,
+          amount,
+        }),
+      ],
+    })
+    expect(capabilities?.autoSwap).toBeDefined()
+    const diffs = Object.values(
+      (capabilities as Capabilities.FillTransactionCapabilities | undefined)
+        ?.balanceDiffs ?? {},
+    ).flat()
+    const approval = diffs.find(
+      (diff) => diff.address.toLowerCase() === Tempo.addresses.alphaUsd,
+    )
+    if (amount === 0n) expect(approval).toBeUndefined()
+    else
+      expect(approval).toEqual({
+        address: Tempo.addresses.alphaUsd,
+        decimals: 6,
+        direction: 'outgoing',
+        formatted: amount === parseUnits('5.25', 6) ? '5.25' : '100',
+        name: 'AlphaUSD',
+        recipients: [Addresses.stablecoinDex],
+        symbol: 'AlphaUSD',
+        value: `0x${amount.toString(16)}`,
+      })
+  },
+)
 
 beforeAll(async () => {
   const rpc = Tempo.getClient({

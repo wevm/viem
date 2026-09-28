@@ -1,4 +1,4 @@
-import { encodeErrorResult } from 'viem'
+import { encodeErrorResult, RawContractError } from 'viem'
 import { Abis, ExecutionError } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
@@ -10,6 +10,59 @@ const tokenAlreadyExistsData =
   '0x15ef3a5700000000000000000000000020c0000000000000000000000000000000000001' as const
 
 describe('from', () => {
+  test('decodes nested RawContractError data', () => {
+    const error = new RawContractError({ data: { data: unauthorizedData } })
+    expect(
+      ExecutionError.serialize(ExecutionError.from(error)),
+    ).toMatchInlineSnapshot(`
+      {
+        "abiItem": {
+          "inputs": [],
+          "name": "Unauthorized",
+          "type": "error",
+        },
+        "data": "0x82b42900",
+        "errorName": "Unauthorized",
+        "message": "Unauthorized.",
+      }
+    `)
+  })
+
+  test('decodes nested data from a plain error object', () => {
+    expect(
+      ExecutionError.from({
+        data: { data: unauthorizedData },
+        message: 'reverted',
+      }),
+    ).toEqual(ExecutionError.from(unauthorizedData))
+  })
+
+  test.each(['0xzz', '0x123', 'not-hex'])(
+    'ignores invalid nested data and checks the cause: %s',
+    (data) => {
+      const error = Object.assign(new Error('reverted'), {
+        data: { data },
+        cause: new RawContractError({ data: unauthorizedData }),
+      })
+      expect(ExecutionError.serialize(ExecutionError.from(error))).toEqual(
+        ExecutionError.serialize(ExecutionError.from(unauthorizedData)),
+      )
+    },
+  )
+
+  test('handles cyclic error objects', () => {
+    const error = new Error('reverted')
+    error.cause = error
+    expect(
+      ExecutionError.serialize(ExecutionError.from(error)),
+    ).toMatchInlineSnapshot(`
+      {
+        "errorName": "unknown",
+        "message": "reverted",
+      }
+    `)
+  })
+
   test('accepts a plain error object', () => {
     expect(
       ExecutionError.from({ data: unauthorizedData, message: 'reverted' }),
