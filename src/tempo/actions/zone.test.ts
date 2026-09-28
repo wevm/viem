@@ -15,6 +15,7 @@ import {
 } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import {
+  getLogs,
   getTransaction,
   getTransactionReceipt,
   readContract,
@@ -1306,6 +1307,15 @@ describe('earn', () => {
         gateway,
         pollingInterval: 100,
         vault: stack.adapter,
+      }).catch(async (error) => {
+        const logs = await getLogs(mainnetClient, { fromBlock: preparedDeposit.fromBlock })
+        const events = parseEventLogs({ abi: Abis.zonePortal, logs })
+        console.log('DIAGNOSTIC EVENTS', JSON.stringify(events, (_, value) => typeof value === 'bigint' ? value.toString() : value))
+        for (const hash of new Set(events.map((event) => event.transactionHash))) {
+          const trace = await mainnetClient.request({ method: 'debug_traceTransaction', params: [hash, { tracer: 'callTracer' }] } as never)
+          console.log('DIAGNOSTIC TRACE', JSON.stringify(trace))
+        }
+        throw error
       })
       expect(deposit.actionId).toBe(preparedDeposit.actionId)
       expect(deposit.inputAmount).toBe(assetAmount)
