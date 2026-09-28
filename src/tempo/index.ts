@@ -67,14 +67,19 @@ export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+/** Decodes Tempo precompile reverts into readable execution errors. */
+export * as ExecutionError from './ExecutionError.js'
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
-/** @experimental */
-export * as Multisig from './Multisig.js'
 export * as P256 from './P256.js'
+/**
+ * Composable relay request handlers alongside the Tempo (Execution) RPC.
+ * @experimental
+ */
+export * as Relay from './Relay.js'
 /** @experimental */
 export * as Scopes from './Scopes.js'
 /** @experimental */
@@ -117,7 +122,6 @@ export {
   http,
   walletNamespaceCompat,
   withFeePayer,
-  withMultisig,
   withRelay,
 } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'

@@ -56,6 +56,7 @@ relay to sponsor the transaction.
 ```ts twoslash
 import { Account, createClient, http, withRelay } from 'viem/tempo'
 
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   account: Account.fromSecp256k1('0x...'),
   testnet: true,

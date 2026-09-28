@@ -2517,7 +2517,7 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).toHaveBeenCalled()
   })
 
-  test('behavior: ignores relay transaction `calls` and exposes autoSwap calls in capabilities', async () => {
+  test('behavior: ignores relay transaction `calls` and preserves custom capabilities', async () => {
     const userCalls = [{ to: targetAccount.address, data: '0xdeadbeef' }]
     const relayCalls = [
       {
@@ -2525,7 +2525,7 @@ describe('behavior: attemptFill', () => {
         data: '0xbadc0de',
       },
     ] as const
-    const autoSwapCalls = [
+    const customCalls = [
       {
         to: '0x20c000000000000000000000b9537d11c60e8b50',
         data: '0x095ea7b3',
@@ -2552,8 +2552,8 @@ describe('behavior: attemptFill', () => {
         feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
       },
       capabilities: {
-        autoSwap: {
-          calls: autoSwapCalls,
+        custom: {
+          calls: customCalls,
         },
       },
     } as never)
@@ -2572,9 +2572,9 @@ describe('behavior: attemptFill', () => {
     expect(
       (
         request._capabilities as {
-          autoSwap?: { calls?: typeof autoSwapCalls }
+          custom?: { calls?: typeof customCalls }
         }
-      ).autoSwap?.calls,
-    ).toEqual(autoSwapCalls)
+      ).custom?.calls,
+    ).toEqual(customCalls)
   })
 })

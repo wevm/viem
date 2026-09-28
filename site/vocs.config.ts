@@ -2515,6 +2515,18 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/relay' },
+                {
+                  text: 'Connect to a Relay',
+                  link: '/tempo/guides/relay/connect',
+                },
+                { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+              ],
+            },
+            {
               badge: { text: 'EXP', variant: 'warning' },
               text: 'PropAMM',
               collapsed: true,
@@ -3410,19 +3422,61 @@ export default defineConfig({
           text: 'Transports',
           items: [
             {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'withMultisig',
-              link: '/tempo/transports/withMultisig',
-            },
-            {
               text: 'withRelay',
               link: '/tempo/transports/withRelay',
             },
           ],
         },
         {
+          text: 'Relay',
+          items: [
+            { text: 'Overview', link: '/tempo/relay' },
+            {
+              text: 'Plugins',
+              items: [
+                {
+                  text: 'Fee Payer',
+                  link: '/tempo/relay/plugins/fee-payer',
+                },
+                { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Multisig',
+                  link: '/tempo/relay/plugins/multisig',
+                },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Funding',
+                },
+                {
+                  badge: { text: '🚧', variant: 'warning' },
+                  disabled: true,
+                  text: 'Access Key State',
+                },
+              ],
+            },
+          ],
+        },
+        {
           text: 'Utilities',
           items: [
+            {
+              text: 'ExecutionError',
+              link: '/tempo/utilities/ExecutionError',
+            },
+            {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'create', link: '/tempo/utilities/Relay.create' },
+                {
+                  text: 'handleRequest',
+                  link: '/tempo/utilities/Relay.handleRequest',
+                },
+              ],
+            },
             {
               text: 'Store',
               collapsed: true,
@@ -3464,21 +3518,6 @@ export default defineConfig({
                 {
                   text: 'validate',
                   link: '/tempo/utilities/TempoAddress.validate',
-                },
-              ],
-            },
-            {
-              badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Overview',
-                  link: '/tempo/utilities/Multisig',
-                },
-                {
-                  text: 'handleRequest',
-                  link: '/tempo/utilities/Multisig.handleRequest',
                 },
               ],
             },

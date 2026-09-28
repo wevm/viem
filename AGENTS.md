@@ -98,6 +98,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Shared request fields belong on the base type**; variant-only copies can make `OneOf` exclude ordinary transactions when intersected with shared preparation fields.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
+- **Relay plugins are objects**; use `(context, next)` middleware and explicit post-fill hooks; keep request state off handler functions.
+- **Relay forwarding transports do not retry**; keep retry policy at downstream I/O, including explicit per-request overrides.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions
@@ -126,6 +128,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
@@ -256,8 +259,11 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 ### Prose
 
+- **Keep paragraphs concise**; aim for 30–40 words, with no more than 3 paragraphs per section. Split longer sections under additional headings.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
+- **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.
+- **Prebundle Mermaid for docs development**; keep `mermaid` in `site/vite.config.ts`'s `optimizeDeps.include`. Use `pnpm docs:dev`, since `vocs dev` ignores that config.
 
 ### Headings
 
