@@ -269,14 +269,6 @@ const signature = await walletClient.signTransaction({
 
 EIP-8141 frames, either explicit objects or helpers from `viem/frames`. Put call destinations, calldata, values, and gas budgets inside each frame. See [Frame Transactions](/docs/frames).
 
-```ts twoslash
-import { calls } from 'viem/frames'
-
-const request = {
-  frames: [calls([{ value: 1n }])], // [!code focus]
-}
-```
-
 ### gas (optional)
 
 - **Type:** `bigint`
@@ -401,14 +393,6 @@ const signature = await walletClient.signTransaction({
 - **Type:** [`readonly FrameSignature[]`](/docs/glossary/types#framesignature)
 
 Signature entries for explicit EIP-8141 frames. Leave this field to Viem when using signing helpers; they allocate and populate their own entries.
-
-```ts twoslash
-import type { FrameSignature } from 'viem'
-
-const signatures: readonly FrameSignature[] = [
-  { scheme: 'secp256k1' }, // [!code focus]
-]
-```
 
 ### value (optional)
 
