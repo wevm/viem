@@ -126,7 +126,7 @@ export async function readContract<
       call,
       'call',
     )({
-      ...(rest as CallParameters),
+      ...(rest as Exclude<CallParameters, { frames: readonly unknown[] }>),
       data: calldata,
       to: address!,
     })

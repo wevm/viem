@@ -1,6 +1,5 @@
 import type { Abi, AbiStateMutability, Address, Narrow } from 'abitype'
 import * as BlockOverrides from 'ox/BlockOverrides'
-
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -8,7 +7,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { UnknownNodeError } from '../../errors/node.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -210,15 +209,37 @@ export async function simulateBlocks<
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, CallExtraProperties>
         const account = call.account ? parseAccount(call.account) : undefined
+        if (
+          (call.frames || call.type === 'eip8141') &&
+          (call.to !== undefined ||
+            call.data !== undefined ||
+            call.value !== undefined ||
+            call.abi ||
+            call.dataSuffix)
+        )
+          throw new BaseError(
+            'Frame transactions must put call fields inside frames.',
+          )
         const data = call.abi ? encodeFunctionData(call) : call.data
-        const request = {
-          ...call,
-          account,
-          data: call.dataSuffix
-            ? concat([data || '0x', call.dataSuffix])
-            : data,
-          from: call.from ?? account?.address,
-        } as const
+        const request = (
+          call.frames || call.type === 'eip8141'
+            ? {
+                ...call,
+                account,
+                data: undefined,
+                to: undefined,
+                value: undefined,
+                from: call.from ?? account?.address,
+              }
+            : ({
+                ...call,
+                account,
+                data: call.dataSuffix
+                  ? concat([data || '0x', call.dataSuffix])
+                  : data,
+                from: call.from ?? account?.address,
+              } as const)
+        ) as Parameters<typeof formatTransactionRequest>[0]
         assertRequest(request)
         return formatTransactionRequest(request)
       })

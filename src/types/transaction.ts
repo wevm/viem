@@ -346,7 +346,10 @@ export type TransactionRequestEIP8141<
   type = 'eip8141',
   frame = Frame<quantity>,
   signature = FrameSignature,
-> = TransactionRequestBase<quantity, index, type> &
+> = Omit<
+  TransactionRequestBase<quantity, index, type>,
+  'data' | 'to' | 'value'
+> &
   ExactPartial<FeeValuesEIP4844<quantity>> & {
     /** Versioned blob hashes. */
     blobVersionedHashes?: readonly Hex[] | undefined
