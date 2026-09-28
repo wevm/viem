@@ -27,7 +27,8 @@ describe('block.simulate', () => {
     })
 
     const call = block!.calls[0]!
-    const { data: _data, gasUsed: _gasUsed, logs, ...result } = call
+    const { data: _data, gasUsed: _gasUsed, maxUsedGas, logs, ...result } = call
+    if (maxUsedGas !== undefined) expect(maxUsedGas).toBeGreaterThan(0n)
 
     expect({
       ...result,
