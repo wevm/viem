@@ -16,7 +16,7 @@ export const tokens = Symbol('relay.tokens')
 const resolveClient = Symbol('relay.client')
 const processing = Symbol('relay.processing')
 
-export type Options = Relay.handleRequest.RequestOptions & {
+type Options = Relay.handleRequest.RequestOptions & {
   [processing]?: true | undefined
   [response]?:
     | { sponsorship_details?: SponsorshipDetails | undefined }
@@ -36,7 +36,7 @@ export type Result = {
   sponsor?: unknown
 }
 
-export type Context = {
+type Context = {
   client: Client
   getClient: (chainId?: number) => Client
   chainId: number | undefined

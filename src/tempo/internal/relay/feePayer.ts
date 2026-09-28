@@ -187,7 +187,8 @@ const refusalMessages = {
 } as const satisfies Record<Exclude<Validation, boolean>, string>
 
 /** Returns sponsor metadata for `eth_fillTransaction` responses. */
-export function getSponsor(options: getSponsor.Options): getSponsor.ReturnType {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+function getSponsor(options: getSponsor.Options): getSponsor.ReturnType {
   const { account, name, url } = options
   return {
     address: account.address,
@@ -196,7 +197,7 @@ export function getSponsor(options: getSponsor.Options): getSponsor.ReturnType {
   }
 }
 
-export declare namespace getSponsor {
+declare namespace getSponsor {
   type Options = {
     /** Account used for sponsorship. */
     account: LocalAccount
@@ -217,7 +218,8 @@ export declare namespace getSponsor {
 }
 
 /** Returns whether the fee payer approves a filled transaction. */
-export async function shouldSponsor(options: shouldSponsor.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function shouldSponsor(options: shouldSponsor.Options) {
   const { sender, transaction, validate } = options
   if (!validate) return true
   // Named refusal reasons collapse to false: fills fall back to an
@@ -229,7 +231,7 @@ export async function shouldSponsor(options: shouldSponsor.Options) {
   return verdict === true
 }
 
-export declare namespace shouldSponsor {
+declare namespace shouldSponsor {
   type Options = {
     /** Sender address from the original request. */
     sender?: Address | undefined
@@ -241,7 +243,7 @@ export declare namespace shouldSponsor {
 }
 
 /** Returns whether a raw Tempo transaction is explicitly requesting sponsorship. */
-export function requestsRawSponsorship(serialized: `0x${string}`) {
+function requestsRawSponsorship(serialized: `0x${string}`) {
   if (!Utils.isSerializedTempoTransaction(serialized)) return false
   const transaction = Transaction.deserialize(serialized)
   return (
@@ -250,7 +252,7 @@ export function requestsRawSponsorship(serialized: `0x${string}`) {
 }
 
 /** Returns `true` when a fill request already has the fields needed for sponsorship signing. */
-export function isPreparedTransaction(value: Record<string, unknown>) {
+function isPreparedTransaction(value: Record<string, unknown>) {
   return (
     typeof value.from === 'string' &&
     typeof Utils.resolveChainId(value.chainId) === 'number' &&
@@ -324,9 +326,8 @@ export declare namespace sign {
 }
 
 /** Handles `eth_signRawTransaction` and broadcast methods for sponsored Tempo transactions. */
-export async function handleRawTransaction(
-  options: handleRawTransaction.Options,
-) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function handleRawTransaction(options: handleRawTransaction.Options) {
   const {
     account,
     feeToken: sponsorFeeToken,
@@ -415,7 +416,7 @@ export async function handleRawTransaction(
   return { result, ...(sponsorshipDetails ? { sponsorshipDetails } : {}) }
 }
 
-export declare namespace handleRawTransaction {
+declare namespace handleRawTransaction {
   type Options = {
     /** Account used as the fee payer. */
     account: LocalAccount

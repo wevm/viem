@@ -157,7 +157,7 @@ export declare namespace resolveFeeToken {
 }
 
 /** Includes call-target TIP20 tokens as fee candidates, allowing transfers to pay fees with the transferred token. */
-export function callTargetTokens(
+function callTargetTokens(
   transaction: Record<string, unknown>,
 ): readonly Address[] {
   const calls = transaction.calls as readonly { to?: Address }[] | undefined

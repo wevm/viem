@@ -76,7 +76,8 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
   )
 }
 
-export async function simulate(client: Client, options: simulate.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function simulate(client: Client, options: simulate.Options) {
   const { account, calls } = options
   try {
     return await Actions.simulate.simulateCalls(client, {
@@ -101,7 +102,7 @@ export async function simulate(client: Client, options: simulate.Options) {
   }
 }
 
-export declare namespace simulate {
+declare namespace simulate {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
@@ -168,7 +169,8 @@ export declare namespace simulateAndParseDiffs {
   }
 }
 
-export async function buildBalanceDiffs(
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function buildBalanceDiffs(
   client: Client,
   options: buildBalanceDiffs.Options,
 ) {
@@ -325,7 +327,7 @@ export async function buildBalanceDiffs(
   return { [account]: diffs }
 }
 
-export declare namespace buildBalanceDiffs {
+declare namespace buildBalanceDiffs {
   type Options = {
     account: Address
     store?: Store.Store | undefined
@@ -338,7 +340,8 @@ export declare namespace buildBalanceDiffs {
   }
 }
 
-export async function computeFee(client: Client, options: computeFee.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function computeFee(client: Client, options: computeFee.Options) {
   const { feeToken, gas, store, maxFeePerGas, tokenMetadata } = options
   if (!feeToken || !gas || !maxFeePerGas) return undefined
 
@@ -361,7 +364,7 @@ export async function computeFee(client: Client, options: computeFee.Options) {
   }
 }
 
-export declare namespace computeFee {
+declare namespace computeFee {
   type Options = {
     feeToken?: Address | undefined
     gas?: bigint | undefined

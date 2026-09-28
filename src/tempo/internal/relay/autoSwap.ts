@@ -71,7 +71,8 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
   )
 }
 
-export async function fill(client: Client, options: fill.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function fill(client: Client, options: fill.Options) {
   const { autoSwap, feeToken, store, transaction: request } = options
 
   // Skip re-formatting if already in RPC format (e.g. from viem's fillTransaction).
@@ -242,7 +243,7 @@ export async function fill(client: Client, options: fill.Options) {
   }
 }
 
-export declare namespace fill {
+declare namespace fill {
   type Options = {
     autoSwap: { slippage: number }
     feeToken?: Address | undefined
@@ -254,7 +255,8 @@ export declare namespace fill {
   }
 }
 
-export async function resolveAutoSwapMetadata(
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function resolveAutoSwapMetadata(
   client: Client,
   options: resolveAutoSwapMetadata.Options,
 ) {
@@ -291,7 +293,7 @@ export async function resolveAutoSwapMetadata(
   }
 }
 
-export declare namespace resolveAutoSwapMetadata {
+declare namespace resolveAutoSwapMetadata {
   type Options = {
     autoSwap: { slippage: number }
     store?: Store.Store | undefined
@@ -307,7 +309,7 @@ export declare namespace resolveAutoSwapMetadata {
   }
 }
 
-export function buildSwapCalls(
+function buildSwapCalls(
   client: Client,
   sourceToken: Address,
   targetToken: Address,
