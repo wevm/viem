@@ -12,6 +12,7 @@ import type {
   TransactionSerializableEIP8141,
   TransactionSerialized,
 } from '../../types/transaction.js'
+import type { MaybePromise } from '../../types/utils.js'
 import {
   type Keccak256ErrorType,
   keccak256,
@@ -27,8 +28,9 @@ import { privateKeyToAddress } from './privateKeyToAddress.js'
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTransactionParameters<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends (
+    ...args: never[]
+  ) => MaybePromise<Hex> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = {
   privateKey: Hex
@@ -37,8 +39,9 @@ export type SignTransactionParameters<
 }
 
 export type SignTransactionReturnType<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends (
+    ...args: never[]
+  ) => MaybePromise<Hex> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = TransactionSerialized<GetTransactionType<transaction>>
 
@@ -49,8 +52,9 @@ export type SignTransactionErrorType =
   | ErrorType
 
 export async function signTransaction<
-  serializer extends
-    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
+  serializer extends (
+    ...args: never[]
+  ) => MaybePromise<Hex> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 >(
   parameters: SignTransactionParameters<serializer, transaction>,
@@ -58,9 +62,10 @@ export async function signTransaction<
   const {
     privateKey,
     transaction: transaction_,
-    serializer = serializeTransaction,
+    serializer: serializer_ = serializeTransaction,
   } = parameters
-  const transaction = resolveFrames(transaction_)
+  const serializer = serializer_ as SerializeTransactionFn
+  const transaction = resolveFrames(transaction_ as TransactionSerializable)
 
   if (transaction.frames?.some((frame) => (frame as SigningFrame)[signing]))
     return (await signFrameTransaction(
@@ -139,7 +144,7 @@ export async function signTransaction<
     if (transaction.type === 'eip4844')
       return {
         ...transaction,
-        sidecars: false,
+        sidecars: false as const,
       }
     return transaction
   })()

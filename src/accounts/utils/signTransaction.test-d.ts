@@ -1,4 +1,4 @@
-import type { Hex, TransactionSerializable } from 'viem'
+import type { Hex, TransactionSerializableEIP8141 } from 'viem'
 import { privateKeyToAccount, signTransaction } from 'viem/accounts'
 import { expectTypeOf, test } from 'vitest'
 
@@ -27,7 +27,8 @@ test('default signing accepts frame transactions', () => {
 })
 
 test('custom serializers accept frame transactions', () => {
-  const serializer = (_transaction: TransactionSerializable): Hex => '0x06'
+  const serializer = (_transaction: TransactionSerializableEIP8141): Hex =>
+    '0x06'
   const account = privateKeyToAccount(privateKey)
   expectTypeOf(
     account.signTransaction(transaction, { serializer }),

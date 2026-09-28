@@ -17,8 +17,7 @@ import type {
   Account as viem_Account,
 } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
-import type { TransactionSerializable } from '../types/transaction.js'
-import type { OneOf, RequiredBy } from '../types/utils.js'
+import type { MaybePromise, OneOf, RequiredBy } from '../types/utils.js'
 import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
@@ -39,8 +38,9 @@ export type Account_base<source extends string = string> = RequiredBy<
   sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
-    serializer extends
-      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
+    serializer extends (
+      ...args: never[]
+    ) => MaybePromise<Hex.Hex> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
@@ -404,8 +404,10 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     async signMessage() {
       throw new Error('`signMessage` is not supported for multisig accounts.')
     },
-    async signTransaction(transaction, options) {
-      const { serializer = Transaction.serialize } = options ?? {}
+    async signTransaction(transaction_, options) {
+      const transaction = transaction_ as Transaction.TransactionSerializable
+      const { serializer: serializer_ = Transaction.serialize } = options ?? {}
+      const serializer = serializer_ as typeof Transaction.serialize
       const request = transaction as Transaction.TransactionSerializableTempo
       if (request.owner) {
         const owner = parseAccount(request.owner)
@@ -956,8 +958,10 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       const { message } = parameters
       return await sign({ hash: hashMessage(message) })
     },
-    async signTransaction(transaction, options) {
-      const { serializer = Transaction.serialize } = options ?? {}
+    async signTransaction(transaction_, options) {
+      const transaction = transaction_ as Transaction.TransactionSerializable
+      const { serializer: serializer_ = Transaction.serialize } = options ?? {}
+      const serializer = serializer_ as typeof Transaction.serialize
       const presign = (() => {
         if ('feePayerSignature' in transaction && transaction.feePayerSignature)
           return { ...transaction, feePayerSignature: null }

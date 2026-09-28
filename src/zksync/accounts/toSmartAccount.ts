@@ -38,9 +38,9 @@ export function toSmartAccount(
     },
     async signTransaction(transaction) {
       const signableTransaction = {
-        ...transaction,
+        ...(transaction as ZksyncTransactionSerializableEIP712),
         from: this.address!,
-      } as ZksyncTransactionSerializableEIP712
+      }
 
       return serializeTransaction({
         ...signableTransaction,
