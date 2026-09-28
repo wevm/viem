@@ -291,7 +291,7 @@ export declare namespace multisig {
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.autoSwap({ slippage: 0.05 })
  * ```
- * @param options - Slippage tolerance and optional metadata cache.
+ * @param options - Slippage tolerance and optional metadata store.
  * @returns An auto-swap relay plugin.
  */
 export function autoSwap(options: autoSwap.Options = {}): Plugin {
@@ -300,10 +300,10 @@ export function autoSwap(options: autoSwap.Options = {}): Plugin {
 
 export declare namespace autoSwap {
   export type Options = {
-    /** Metadata cache. Omit to read metadata for each request. */
-    cache?: Store.Store | undefined
     /** Slippage tolerance as a fraction. @default 0.05 */
     slippage?: number | undefined
+    /** Store for cached metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
   }
 }
 
@@ -357,7 +357,7 @@ export declare namespace feePayer {
  * import { Addresses, Relay } from 'viem/tempo'
  * const plugin = Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] })
  * ```
- * @param options - Token candidates and optional cache.
+ * @param options - Token candidates and optional store.
  * @returns A fee-token relay plugin.
  */
 export function feeToken(options: feeToken.Options = {}): Plugin {
@@ -368,12 +368,12 @@ export declare namespace feeToken {
   export type Options = {
     /** Tempo API key for the default verified-token resolver. */
     apiKey?: string | undefined
-    /** Cache for user fee-token preferences. */
-    cache?: Store.Store | undefined
     /** Candidates in preference order. Defaults to the Tempo API token list on mainnet and testnet. */
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
+    /** Store for cached user fee-token preferences. */
+    store?: Store.Store | undefined
   }
 }
 
@@ -387,7 +387,7 @@ export declare namespace feeToken {
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.simulate()
  * ```
- * @param options - Optional metadata cache.
+ * @param options - Optional metadata store.
  * @returns A simulation relay plugin.
  */
 export function simulate(options: simulate.Options = {}): Plugin {
@@ -396,8 +396,8 @@ export function simulate(options: simulate.Options = {}): Plugin {
 
 export declare namespace simulate {
   export type Options = {
-    /** Metadata cache. Omit to read metadata for each request. */
-    cache?: Store.Store | undefined
+    /** Store for cached metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
   }
 }
 

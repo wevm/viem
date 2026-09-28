@@ -96,10 +96,10 @@ test('cached metadata preserves bigint fields', async () => {
     transport: withRelay(Tempo.http(), {
       plugins: [
         Relay.feeToken({
-          cache: store,
           resolveTokens: () => [Tempo.addresses.alphaUsd],
+          store,
         }),
-        Relay.simulate({ cache: store }),
+        Relay.simulate({ store }),
       ],
     }),
   })

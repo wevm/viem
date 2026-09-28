@@ -28,7 +28,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
         return next(request, context.options)
 
       const parameters = request.params![0] as Record<string, unknown>
-      const store = Store.scoped(options.cache)
+      const store = Store.scoped(options.store)
       const result: Request.Result = await Request.fill(
         context.client,
         Utils.normalizeFillTransactionRequest(parameters),

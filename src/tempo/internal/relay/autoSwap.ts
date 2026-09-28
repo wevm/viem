@@ -27,7 +27,7 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
       const transaction = Utils.normalizeFillTransactionRequest(
         request.params![0] as Record<string, unknown>,
       )
-      const store = Store.scoped(options.cache)
+      const store = Store.scoped(options.store)
       const autoSwap = { slippage: options.slippage ?? 0.05 }
 
       const result = await fill(context.client, {

@@ -37,7 +37,7 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
           : await resolveFeeToken(context.client, {
               account: transaction.from as Address | undefined,
               feeToken: transaction.feeToken as Address | undefined,
-              store: Store.scoped(options.cache),
+              store: Store.scoped(options.store),
               tokens: candidates,
             })
 

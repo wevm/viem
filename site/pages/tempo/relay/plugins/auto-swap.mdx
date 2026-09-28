@@ -68,17 +68,17 @@ import { Relay } from 'viem/tempo'
 Relay.autoSwap({ slippage: 0.02 }) // [!code focus]
 ```
 
-#### options.cache
+#### options.store
 
 - **Type:** `Store.Store`
 
 Optional [store](/tempo/utilities/Store) for token metadata, cached for 24 hours.
-Without a cache, metadata is read for each request.
+Without a store, metadata is read for each request.
 
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'
 // ---cut---
-Relay.autoSwap({ cache: Store.memory() }) // [!code focus]
+Relay.autoSwap({ store: Store.memory() }) // [!code focus]
 ```
 
 ### Return Value

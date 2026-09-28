@@ -43,6 +43,19 @@ const plugin = Relay.feeToken()
 
 ### Parameters
 
+#### options.apiKey
+
+- **Type:** `string`
+
+Optional Tempo API key for the default token resolver. A custom `resolveTokens`
+callback does not use this key.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feeToken({ apiKey: 'tempo_...' }) // [!code focus]
+```
+
 #### options.resolveTokens
 
 - **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
@@ -57,20 +70,7 @@ import { Addresses, Relay } from 'viem/tempo'
 Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] }) // [!code focus]
 ```
 
-#### options.apiKey
-
-- **Type:** `string`
-
-Optional Tempo API key for the default token resolver. A custom `resolveTokens`
-callback does not use this key.
-
-```ts twoslash
-import { Relay } from 'viem/tempo'
-// ---cut---
-Relay.feeToken({ apiKey: 'tempo_...' }) // [!code focus]
-```
-
-#### options.cache
+#### options.store
 
 - **Type:** `Store.Store`
 
@@ -81,7 +81,7 @@ A cached preference with no balance falls back to another funded candidate.
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'
 // ---cut---
-Relay.feeToken({ cache: Store.memory() }) // [!code focus]
+Relay.feeToken({ store: Store.memory() }) // [!code focus]
 ```
 
 ### Return Value
@@ -94,5 +94,5 @@ A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
 
 | Error | Description |
 | --- | --- |
-| `Error` | The token resolver or cache fails. |
+| `Error` | The token resolver or store fails. |
 | `RpcRequestError` | The selected token cannot pay for the transaction. |

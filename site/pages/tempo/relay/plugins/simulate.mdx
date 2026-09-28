@@ -96,7 +96,7 @@ const plugin = Relay.simulate()
 
 ### Parameters
 
-#### options.cache
+#### options.store
 
 - **Type:** `Store.Store`
 
@@ -106,7 +106,7 @@ Simulation results are never cached.
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'
 // ---cut---
-Relay.simulate({ cache: Store.memory() }) // [!code focus]
+Relay.simulate({ store: Store.memory() }) // [!code focus]
 ```
 
 ### Return Value
