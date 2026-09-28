@@ -79,6 +79,13 @@ The execution metadata without `args`. Original properties and decoded arguments
 
 ## `messages`
 
-Message templates cover every error name in `Abis.core`. Placeholders such as `{0}` refer to decoded arguments by position.
+Message templates cover every error signature in `Abis.core`. Placeholders such as `{0}` refer to decoded arguments by position.
 
-For repository maintenance, run `bun scripts/checkTempoErrors.ts` after updating the ABIs or templates. The check reports missing messages, unknown error names, and placeholders absent from every ABI signature for an error. `pnpm gen:tempo-abis` also runs this check against the checked-in ABIs.
+```ts
+import { ExecutionError } from 'viem/tempo'
+
+ExecutionError.messages['InsufficientBalance()']
+// 'Insufficient balance.'
+```
+
+For repository maintenance, run `bun scripts/checkTempoErrors.ts` after updating the ABIs or templates. The check reports missing messages, unknown signatures, and placeholders absent from their ABI signature. `pnpm gen:tempo-abis` also runs this check against the checked-in ABIs.

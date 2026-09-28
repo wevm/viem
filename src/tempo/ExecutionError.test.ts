@@ -114,6 +114,59 @@ describe('from', () => {
     },
   )
 
+  test('uses the zero-argument InsufficientBalance template', () => {
+    expect(
+      ExecutionError.from(
+        encodeErrorResult({
+          abi: [{ type: 'error', name: 'InsufficientBalance', inputs: [] }],
+          errorName: 'InsufficientBalance',
+        }),
+      ),
+    ).toMatchObject({
+      errorName: 'InsufficientBalance',
+      message: 'Insufficient balance.',
+      args: undefined,
+    })
+  })
+
+  test.each([
+    {
+      inputs: [{ type: 'string' }, { type: 'string' }],
+      args: ['invalid:port', 'backtrace'],
+      message: '"invalid:port" is not a valid IP:port.',
+    },
+    {
+      inputs: [{ type: 'string' }, { type: 'string' }, { type: 'string' }],
+      args: ['validator', 'invalid:port', 'backtrace'],
+      message: '"invalid:port" is not a valid IP:port for validator.',
+    },
+  ])(
+    'formats the NotIpPort overload: $message',
+    ({ inputs, args, message }) => {
+      const data = encodeErrorResult({
+        abi: [{ type: 'error', name: 'NotIpPort', inputs }],
+        errorName: 'NotIpPort',
+        args,
+      })
+      expect(ExecutionError.from(data)).toMatchObject({
+        errorName: 'NotIpPort',
+        args,
+        message,
+      })
+    },
+  )
+
+  test('preserves ambiguous human-readable overloads', () => {
+    expect(
+      ExecutionError.from(
+        new Error('execution reverted: NotIpPort(input, backtrace)'),
+      ),
+    ).toMatchObject({
+      errorName: 'unknown',
+      message: 'NotIpPort(input, backtrace)',
+    })
+  })
+
   test('formats errors added to the core ABI', () => {
     const data = encodeErrorResult({
       abi: Abis.core,

@@ -1,14 +1,10 @@
 import * as Abis from '../src/tempo/Abis.js'
 import * as ExecutionError from '../src/tempo/ExecutionError.js'
+import { formatAbiItem } from '../src/utils/abi/formatAbiItem.js'
 
-// Overloaded error names share a template; use their largest input list.
 const errors = new Map<string, number>()
 for (const item of Abis.core)
-  if (item.type === 'error')
-    errors.set(
-      item.name,
-      Math.max(errors.get(item.name) ?? 0, item.inputs.length),
-    )
+  if (item.type === 'error') errors.set(formatAbiItem(item), item.inputs.length)
 
 const messages: Record<string, string> = ExecutionError.messages
 const failures = new Set<string>()
@@ -23,7 +19,7 @@ for (const [name, inputs] of errors) {
   for (const match of message.matchAll(/\{(\d+)\}/g))
     if (Number(match[1]) >= inputs)
       failures.add(
-        `Invalid placeholder ${match[0]} in ${name}: ABI signatures have at most ${inputs} inputs.`,
+        `Invalid placeholder ${match[0]} in ${name}: ABI signature has ${inputs} inputs.`,
       )
 }
 
