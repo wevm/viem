@@ -58,11 +58,11 @@ test('behavior: routes multisig coordination to the relay', async () => {
       { data: '0xdeadbeef', to: '0x0000000000000000000000000000000000000020' },
     ],
     chainId: chain.id,
+    from: MultisigConfig.getAddress(config, {
+      factory: nativeMultisigFactory,
+    }),
     multisigSimulation: {
-      account: MultisigConfig.getAddress(config, {
-        factory: nativeMultisigFactory,
-      }),
-      approvals: [{ owner: owner.address, type: 'primitive' as const }],
+      approvals: [{ owner: owner.address }],
       config,
     },
   } as const
