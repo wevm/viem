@@ -19,6 +19,16 @@ function transaction(frames: readonly FrameType[] = []): Transaction {
 }
 
 describe('resolve', () => {
+  test.each([
+    Frame.calls([{ value: 1n }]),
+    Frame.expiry(1),
+    Frame.from(() => ({ frame: { mode: 'sender' } })),
+  ])('rejects nested builders', (frame) => {
+    expect(() =>
+      resolve({ frames: [Frame.from(() => ({ frames: [frame] }))] }),
+    ).toThrow('Frame expansions must contain explicit frames, not builders.')
+  })
+
   test('preserves requests without helpers', () => {
     for (const request of [
       {},

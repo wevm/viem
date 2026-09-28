@@ -78,7 +78,13 @@ export function resolve<
         state.prepared?.signatureIndex === signatureIndex || signed.length
           ? { frame, signatures: state.prepared?.signatures ?? [] }
           : state.prepare({ frames, signatureIndex })
-      if (prepared.frames) return prepared.frames
+      if (prepared.frames) {
+        if (prepared.frames.some((frame) => (frame as SigningFrame)[signing]))
+          throw new BaseError(
+            'Frame expansions must contain explicit frames, not builders.',
+          )
+        return prepared.frames
+      }
 
       const entries = prepared.signatures ?? []
       if (entries.some((entry) => typeof entry.sign !== 'function'))
