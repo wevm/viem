@@ -145,7 +145,7 @@ export async function getGames<
   const games = rawGames
     .map((game, i) => {
       const blockNumber = l2SequenceNumbers[i] as bigint
-      return !l2BlockNumber || blockNumber > l2BlockNumber
+      return !l2BlockNumber || blockNumber >= l2BlockNumber
         ? { ...game, l2BlockNumber: blockNumber, usesSuperRoots }
         : null
     })

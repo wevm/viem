@@ -268,6 +268,7 @@ export default defineConfig({
           { text: 'Wallet Client', link: '/docs/clients/wallet' },
           { text: 'Test Client', link: '/docs/clients/test' },
           { text: 'Build your own Client', link: '/docs/clients/custom' },
+          { text: 'Resolving Clients', link: '/docs/clients/resolve' },
           {
             text: 'Transports',
             items: [

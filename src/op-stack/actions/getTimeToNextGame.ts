@@ -133,9 +133,9 @@ export async function getTimeToNextGame<
     // then we assume that the dispute game has already been submitted.
     if (now < latestGameTimestamp) return 0
 
-    // If the latest dispute game block is newer than the provided dispute game block number,
+    // If the latest dispute game covers the provided block number,
     // then we assume that the dispute game has already been submitted.
-    if (latestGame.l2BlockNumber > l2BlockNumber) return 0
+    if (latestGame.l2BlockNumber >= l2BlockNumber) return 0
 
     // If there is only a single game, no interval data
     if (intervalWithBuffer === 0) return 0

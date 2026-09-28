@@ -286,7 +286,7 @@ jobs:
           VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
           VITE_TEMPO_TAG: latest
           VITE_TEMPO_ZONES: 'true'
-          VITE_TEMPO_ZONE_TAG: sha256:ad97eaf7025f87f630b4be14f46b0f7b917710b11121b2f73988caaf9d260e81
+          VITE_TEMPO_ZONE_TAG: sha256:2da5ca1eba6600a687987e9c991a9c30565ddf6a97360ce7f48bb6bc07a7e9e6
 
   test-envs:
     name: Test Environments

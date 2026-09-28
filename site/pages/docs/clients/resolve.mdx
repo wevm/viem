@@ -1,0 +1,199 @@
+# Resolving Clients
+
+## Overview
+
+Use [`createClientResolver`](#createclientresolver) to configure several [chains](/docs/chains/introduction) and resolve a typed [Client](/docs/clients/custom) for one chain at a time. Each Client is created on first use and cached for subsequent requests with the same chain ID.
+
+Provide `transport` as either a chain-ID map with an entry for every configured chain or a callback returning a [Transport](/docs/clients/intro#transports). The resolver shares all other [`createClient` options](/docs/clients/custom) across its Clients.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: {
+    [mainnet.id]: http(),
+    [optimism.id]: http(),
+  },
+})
+
+const client = resolver.getClient({ chainId: optimism.id })
+//    ^?
+```
+
+## Recipes
+
+These recipes configure their own Client resolver.
+
+### Resolve Transports with a Callback
+
+Use a callback when transport selection needs logic beyond a static map. Its `chainId` is typed as the IDs declared in `chains`. The callback runs only when creating a Client, not when returning a cached one.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const urls = {
+  [mainnet.id]: 'https://eth.merkle.io',
+  [optimism.id]: 'https://mainnet.optimism.io',
+}
+
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: ({ chainId }) => http(urls[chainId]), // [!code focus]
+})
+```
+
+### Share Client Configuration
+
+Options such as `account`, `batch`, and `pollingInterval` apply to every resolved Client. Defaults that depend on the chain are calculated separately for each Client.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = createClientResolver({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  batch: { multicall: true }, // [!code focus]
+  chains: [mainnet, optimism],
+  pollingInterval: 1_000, // [!code focus]
+  transport: () => http(),
+})
+```
+
+### Call Actions on a Resolved Client
+
+Pass the resolved Client to standalone Actions such as [`getBlockNumber`](/docs/actions/public/getBlockNumber), or attach Actions using [`.extend()`](/docs/clients/custom#extending-with-actions-or-configuration). The selected chain remains available to type inference.
+
+```ts twoslash
+import { createClientResolver, http, publicActions } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: () => http(),
+})
+
+const client = resolver
+  .getClient({ chainId: optimism.id }) // [!code focus]
+  .extend(publicActions) // [!code focus]
+
+const blockNumber = await client.getBlockNumber()
+// @log: 19621696n
+```
+
+Extending a Client returns a new Client. The resolver continues to return the cached base Client.
+
+## `createClientResolver`
+
+Creates a resolver that lazily constructs and caches a typed Client for each configured chain.
+
+### Usage
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: () => http(),
+})
+```
+
+### Parameters
+
+Accepts `createClientResolver.Options`: shared [`createClient` configuration](/docs/clients/custom) with `chain` replaced by `chains` and `transport` replaced by a map or callback.
+
+#### options.chains
+
+- **Type:** `readonly [Chain, ...Chain[]]`
+
+The nonempty list of available chains. Chain IDs determine the allowed inputs to `getClient`.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = createClientResolver({
+  chains: [mainnet, optimism], // [!code focus]
+  transport: () => http(),
+})
+```
+
+#### options.transport
+
+- **Type:** `Record<ChainId, Transport> | ((options: { chainId: ChainId }) => Transport)`
+
+A transport map with an entry for every configured chain ID, or a callback returning a transport. A map preserves each chain's specific transport type; a callback preserves its return type.
+
+```ts twoslash
+import { createClientResolver, http, webSocket } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+// ---cut---
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: { // [!code focus]
+    [mainnet.id]: http(), // [!code focus]
+    [optimism.id]: webSocket('wss://optimism.example'), // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Return Value
+
+`createClientResolver.ReturnType`
+
+An object exposing [`getClient`](#resolvergetclient). Each resolver maintains its own cache.
+
+## `resolver.getClient`
+
+Returns the cached Client for a chain ID, creating it on first use.
+
+### Usage
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: () => http(),
+})
+
+const client = resolver.getClient({ chainId: optimism.id })
+```
+
+### Parameters
+
+#### options.chainId
+
+- **Type:** Union of configured chain IDs.
+
+The chain to resolve. Required even when only one chain is configured.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { mainnet, optimism } from 'viem/chains'
+const resolver = createClientResolver({
+  chains: [mainnet, optimism],
+  transport: () => http(),
+})
+// ---cut---
+const client = resolver.getClient({ chainId: optimism.id }) // [!code focus]
+```
+
+### Return Value
+
+`Client`
+
+A Client with its chain and transport narrowed by `chainId`, preserving the configured account, tokens, and RPC schema. Repeated resolutions of the same chain return the same object.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `ChainNotConfiguredError` | The requested chain ID is not configured. |
+| `TransportNotConfiguredError` | The configured chain has no transport at runtime. |
+
+Errors from transport selection and Client construction propagate to the caller. Failed resolutions are not cached.
