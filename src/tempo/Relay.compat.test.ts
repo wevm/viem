@@ -763,6 +763,8 @@ describe.runIf(
       const feePayerFirstTransaction = Transaction.deserialize(
         feePayerFirstPending.multisig.transaction,
       )
+      if (!('feePayerSignature' in feePayerFirstTransaction))
+        throw new Error('Expected a Tempo transaction.')
       expect({
         feePayerSigned:
           'feePayerSignature' in feePayerFirstTransaction &&
@@ -782,9 +784,9 @@ describe.runIf(
       })
       expect(approval.maxPriorityFeePerGas).toBe(0n)
       expect(approval.gas).toBe(feePayerFirstTransaction.gas)
-      expect(approval.feePayerSignature).toEqual(
-        feePayerFirstTransaction.feePayerSignature,
-      )
+      expect(approval).toMatchObject({
+        feePayerSignature: feePayerFirstTransaction.feePayerSignature,
+      })
 
       const { receipt: feePayerFirstReceipt } =
         await Actions.token.transferSync(sponsorClient, {

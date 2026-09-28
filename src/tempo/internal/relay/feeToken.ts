@@ -20,9 +20,7 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
         context.request = {
           ...request,
           params: [
-            transaction.type === '0x76'
-              ? transaction
-              : Utils.formatFillTransactionRequest(context.client, transaction),
+            Utils.formatFillTransactionRequest(context.client, transaction),
           ],
         }
         return next()
@@ -51,11 +49,7 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
       const selected = { ...transaction, ...(feeToken ? { feeToken } : {}) }
       context.request = {
         ...request,
-        params: [
-          transaction.type === '0x76'
-            ? selected
-            : Utils.formatFillTransactionRequest(context.client, selected),
-        ],
+        params: [Utils.formatFillTransactionRequest(context.client, selected)],
       }
       return next()
     },

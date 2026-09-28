@@ -1,6 +1,40 @@
 import { RpcResponse } from 'ox'
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
 import { describe, expect, test } from 'vitest'
-import { normalizeFillTransactionRequest, toRpcError } from './utils.js'
+import {
+  formatFillTransactionRequest,
+  normalizeFillTransactionRequest,
+  toRpcError,
+} from './utils.js'
+
+describe('formatFillTransactionRequest', () => {
+  test.each([false, true])(
+    'preserves encoded fields while formatting sponsorship: %s',
+    (signed) => {
+      const client = createClient({ chain: tempo, transport: http() })
+      const feeToken = '0x20c0000000000000000000000000000000000001'
+      const signature = { r: '0x1', s: '0x2', yParity: 0 }
+      const request = {
+        type: '0x76',
+        nonceKey: '0xff',
+        feePayer: true,
+        feeToken,
+        ...(signed ? { feePayerSignature: signature } : {}),
+      }
+      expect(formatFillTransactionRequest(client, request)).toEqual({
+        type: '0x76',
+        nonceKey: '0xff',
+        feePayer: true,
+        ...(signed ? { feeToken, feePayerSignature: signature } : {}),
+      })
+      expect(request.feeToken).toBe(feeToken)
+      expect(
+        formatFillTransactionRequest(client, { ...request, feePayer: false }),
+      ).toEqual({ ...request, feePayer: false })
+    },
+  )
+})
 
 describe('normalizeFillTransactionRequest', () => {
   test.each([null, undefined, [], 'call', 1, true])(

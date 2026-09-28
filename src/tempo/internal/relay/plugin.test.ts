@@ -204,7 +204,15 @@ test('built-in plugins preserve nested RPC errors and normalize expiration', asy
     },
     { plugins: [Relay.simulate()] },
   )
-  await expect(handle({ method: 'eth_blockNumber' })).rejects.toMatchObject({
+  await expect(
+    handle(
+      {
+        method: 'eth_fillTransaction',
+        params: [{ from: userAccount.address, to: recipient.address }],
+      },
+      { chainId: Tempo.chain.id },
+    ),
+  ).rejects.toMatchObject({
     code: -32003,
     message: 'Transaction expired.',
     data: { code: 'transaction_expired' },

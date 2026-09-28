@@ -325,9 +325,7 @@ export async function fill(
     {
       method: 'eth_fillTransaction',
       params: [
-        (transaction.type === '0x76'
-          ? transaction
-          : Utils.formatFillTransactionRequest(client, transaction)) as never,
+        Utils.formatFillTransactionRequest(client, transaction) as never,
       ],
     },
     options,

@@ -22,6 +22,12 @@ export function formatFillTransactionRequest(
   client: Client,
   value: Record<string, unknown>,
 ) {
+  if (value.type === '0x76') {
+    const request = { ...value }
+    if (request.feePayer === true && !request.feePayerSignature)
+      delete request.feeToken
+    return request
+  }
   const format = client.chain?.formatters?.transactionRequest?.format
   if (!format) return value
   return format({ ...value } as never, 'fillTransaction') as Record<
