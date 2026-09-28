@@ -32,7 +32,10 @@ requests a fee-payer signature and broadcasts eligible transactions through the
 node; `sign-and-broadcast` delegates both to the relay. Multisig submissions use
 the relay's coordination path under either policy.
 
-### Coordinate in the Application
+### Connect to a Local Relay
+
+Pass plugins to `withRelay` to run a relay inside the application. Requests pass
+through the plugins before reaching the execution RPC, without a separate HTTP service.
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -47,9 +50,16 @@ const client = createClient({
 })
 ```
 
-Local mode runs plugins directly, preserves the underlying transport, and does
-not enable fee sponsorship. An empty plugin list does not advertise multisig
-support unless the underlying transport already provides it.
+:::info
+The multisig plugin requires a [store with atomic operations](/tempo/utilities/Store).
+[`Store.memory`](/tempo/utilities/Store.memory) keeps approvals in one process and loses
+them on restart. For coordination across applications or server instances, use the same
+persistent atomic store for every local relay.
+:::
+
+Local mode preserves the underlying transport. The multisig plugin coordinates
+approvals without fee sponsorship. See [Add Plugins](/tempo/guides/relay/run#add-plugins)
+for the available plugins.
 
 ## Best Practices
 
@@ -59,5 +69,5 @@ each local coordinator. Keep sponsorship policy options in remote mode.
 
 ## See More
 
-- [Run a Relay](/tempo/relay/run)
-- [Coordinate Multisig Approvals](/tempo/relay/coordinate-multisig)
+- [Run a Relay](/tempo/guides/relay/run)
+- [Send Multisig Transactions](/tempo/guides/multisig/send)

@@ -2484,6 +2484,18 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/relay' },
+                {
+                  text: 'Connect to a Relay',
+                  link: '/tempo/guides/relay/connect',
+                },
+                { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+              ],
+            },
+            {
               badge: { text: 'EXP', variant: 'warning' },
               text: 'Multisig',
               collapsed: true,
@@ -3373,12 +3385,6 @@ export default defineConfig({
           text: 'Relay',
           items: [
             { text: 'Overview', link: '/tempo/relay' },
-            { text: 'Connect to a Relay', link: '/tempo/relay/connect' },
-            { text: 'Run a Relay', link: '/tempo/relay/run' },
-            {
-              text: 'Coordinate Multisig Approvals',
-              link: '/tempo/relay/coordinate-multisig',
-            },
             {
               text: 'Plugins',
               items: [

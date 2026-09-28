@@ -28,7 +28,11 @@ const relay = Relay.create({
 export default { fetch: relay.fetch } // [!code focus]
 ```
 
-### Coordinate Approvals in One Process
+### Add Plugins
+
+Pass plugins to `Relay.create` to add services to the relay. Requests enter plugins
+in array order, and each plugin can handle the request or pass it to the next handler.
+For example, add the multisig plugin to coordinate owner approvals:
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -43,9 +47,16 @@ const relay = Relay.create({
 export default { fetch: relay.fetch }
 ```
 
-Memory storage is suitable for local development. Independent processes and
-Worker isolates must share a persistent [atomic store](/tempo/utilities/Store).
-The multisig plugin does not provide fee sponsorship.
+:::info
+[Memory storage](/tempo/utilities/Store.memory) is suitable for local development.
+Independent processes and Worker isolates must share a persistent
+[atomic store](/tempo/utilities/Store) so they can read and update the same approvals.
+:::
+
+Available plugins:
+
+- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum,
+  and submits multisig transactions. It does not provide fee sponsorship.
 
 ### Select a Chain for an Endpoint
 
@@ -82,6 +93,6 @@ relay. Independent relay instances must use the same atomic storage.
 
 ## See More
 
-- [Connect to a Relay](/tempo/relay/connect)
-- [Coordinate Multisig Approvals](/tempo/relay/coordinate-multisig)
+- [Connect to a Relay](/tempo/guides/relay/connect)
+- [Send Multisig Transactions](/tempo/guides/multisig/send)
 - [`Relay.create`](/tempo/utilities/Relay.create)

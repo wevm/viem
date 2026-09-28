@@ -1,0 +1,45 @@
+---
+description: Connect a Tempo client to a relay or host a relay with plugins.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Relay
+
+## Overview
+
+A relay adds offchain services to the Tempo execution RPC, such as collecting
+multisig approvals before submitting a transaction. The execution node still
+validates signatures and executes transactions.
+
+Use [`withRelay`](/tempo/transports/withRelay) to connect a client to a remote
+relay service or run plugins locally in the application. A remote relay gives
+independent clients a shared endpoint. A local relay runs the same plugins
+directly around the client's transport.
+
+To host a service, use [`Relay.create`](/tempo/utilities/Relay.create) and export
+its Fetch handler. Add plugins for the services you need; without plugins,
+requests pass through to the execution RPC.
+
+The [`Relay.multisig`](/tempo/relay/plugins/multisig) plugin stores approvals until
+quorum and submits the completed transaction. Coordinators must share a
+persistent [atomic store](/tempo/utilities/Store) when they run in separate
+processes. Fee sponsorship depends on the relay service and is not provided by
+the multisig plugin.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:network"
+    title="Connect to a Relay"
+    description="Connect a client to a remote service or run plugins locally."
+    to="/tempo/guides/relay/connect"
+  />
+  <Card
+    icon="lucide:workflow"
+    title="Run a Relay"
+    description="Host a Fetch endpoint and add relay plugins."
+    to="/tempo/guides/relay/run"
+  />
+</Cards>
