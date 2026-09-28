@@ -16,7 +16,7 @@ const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!
 
-// Keep token candidates independent of the token-list API.
+// Token candidates for the local test chain.
 const localnetTokens = [
   '0x20c0000000000000000000000000000000000000',
   '0x20c0000000000000000000000000000000000001',

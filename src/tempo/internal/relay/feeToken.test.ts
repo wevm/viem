@@ -1,14 +1,16 @@
 import { createClient } from 'viem'
 import { fillTransaction } from 'viem/actions'
+import { tempo, tempoModerato } from 'viem/chains'
 import { Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { getDefaultTokens } from './feeToken.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!
 
-// Keep token candidates independent of the token-list API.
+// Token candidates for the local test chain.
 const localnetTokens = [
   '0x20c0000000000000000000000000000000000000',
   '0x20c0000000000000000000000000000000000001',
@@ -159,5 +161,33 @@ test.each([false, true])(
       message: 'Internal error',
       data: { code: 'internal_error' },
     })
+  },
+)
+
+test('default candidates include mainnet tokens and exclude testnet-only tokens', async () => {
+  const tokens = await getDefaultTokens(tempo.id)
+  expect(tokens).toContain('0x20c0000000000000000000000000000000000000')
+  expect(tokens).toContain('0x20c000000000000000000000f047dd7018e50367')
+  expect(tokens).not.toContain('0x20c0000000000000000000000000000000000001')
+  expect(tokens).not.toContain('0x20c000000000000000000000d72572838bbee59c')
+})
+
+test('default candidates use the testnet deployments in token-set order', async () => {
+  expect(await getDefaultTokens(tempoModerato.id)).toMatchInlineSnapshot(`
+    [
+      "0x20c0000000000000000000000000000000000001",
+      "0x20c0000000000000000000000000000000000002",
+      "0x20c000000000000000000000d72572838bbee59c",
+      "0x20c0000000000000000000000000000000000000",
+      "0x20c0000000000000000000000000000000000003",
+      "0x20c0000000000000000000009e8d7eb59b783726",
+    ]
+  `)
+})
+
+test.each([1, 1337])(
+  'default candidates are empty for an unlisted chain: %s',
+  async (chainId) => {
+    expect(await getDefaultTokens(chainId)).toMatchInlineSnapshot('[]')
   },
 )

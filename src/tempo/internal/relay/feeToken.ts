@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
-import { tempo, tempoModerato } from '../../../chains/index.js'
 import type { Client } from '../../../clients/createClient.js'
+import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
@@ -46,29 +46,19 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
     { resolveTokens },
   )
 
-  async function resolveTokens(chainId: number, signal?: AbortSignal) {
+  async function resolveTokens(chainId: number) {
     if (options.resolveTokens) return options.resolveTokens(chainId)
-    return getDefaultTokens(chainId, signal, options.apiKey)
+    return getDefaultTokens(chainId)
   }
 }
 
 export async function getDefaultTokens(
   chainId: number,
-  signal?: AbortSignal,
-  apiKey?: string,
 ): Promise<readonly Address[]> {
-  if (chainId !== tempo.id && chainId !== tempoModerato.id) return []
-
-  const url = new URL('https://api.tempo.xyz/v1/tokenlist')
-  url.searchParams.set('chainId', String(chainId))
-  const response = await fetch(url, {
-    ...(signal ? { signal } : {}),
-    ...(apiKey ? { headers: { 'tempo-api-key': apiKey } } : {}),
+  return tokenSets.tempo.flatMap((token) => {
+    const address = (token.addresses as Record<number, Address>)[chainId]
+    return address ? [address] : []
   })
-  if (response.status !== 200) return []
-
-  const body = (await response.json()) as { tokens: { address: Address }[] }
-  return body.tokens.map((token) => token.address)
 }
 
 export async function resolveFeeToken(

@@ -43,26 +43,14 @@ const plugin = Relay.feeToken()
 
 ### Parameters
 
-#### options.apiKey
-
-- **Type:** `string`
-
-Optional Tempo API key for the default token resolver. A custom `resolveTokens`
-callback does not use this key.
-
-```ts twoslash
-import { Relay } from 'viem/tempo'
-// ---cut---
-Relay.feeToken({ apiKey: 'tempo_...' }) // [!code focus]
-```
-
 #### options.resolveTokens
 
 - **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
-- **Default:** The Tempo API token list for mainnet and testnet; an empty list for other chains.
+- **Default:** The bundled `tokens.tempo` set from `viem/tokens`, filtered by chain ID.
 
-Returns candidate token addresses for a chain. Supply a resolver for local or
-custom networks, or to use your application's token list.
+Returns candidate token addresses for a chain. The default makes no token-list
+API request and returns an empty list for chains absent from the set. Supply a
+resolver for local or custom networks, or to use your application's token list.
 
 ```ts twoslash
 import { Addresses, Relay } from 'viem/tempo'

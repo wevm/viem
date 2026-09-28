@@ -369,9 +369,7 @@ export function feeToken(options: feeToken.Options = {}): Plugin {
 
 export declare namespace feeToken {
   export type Options = {
-    /** Tempo API key for the default verified-token resolver. */
-    apiKey?: string | undefined
-    /** Candidates in preference order. Defaults to the Tempo API token list on mainnet and testnet. */
+    /** Candidates in preference order. Defaults to the bundled Tempo token set filtered by chain ID. */
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
