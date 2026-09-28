@@ -91,7 +91,7 @@ const spendPolicies = {
  *   access: account,
  * })
  *
- * const hash = await Actions.accessKey.authorize(client, {
+ * const { hash } = await Actions.accessKey.authorize(client, {
  *   accessKey,
  *   expiry: Math.floor((Date.now() + 30_000) / 1000),
  * })
@@ -117,22 +117,8 @@ const spendPolicies = {
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The transaction hash for local accounts, or the signed authorization and root address for JSON-RPC accounts.
+ * @returns The root address, signed authorization, and transaction hash. The hash is undefined for JSON-RPC accounts.
  */
-export function authorize<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: authorize.WalletParameters<account>,
-): Promise<authorize.RpcReturnValue>
-export function authorize<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: authorize.LocalCallParameters<chain, account>,
-): Promise<WriteContractReturnType>
 export function authorize<
   chain extends Chain | undefined,
   account extends Account | undefined,
@@ -147,7 +133,8 @@ export async function authorize<
   client: Client<Transport, chain, account>,
   parameters:
     | authorize.LocalParameters<chain, account>
-    | authorize.RpcParameters,
+    | (authorize.RpcArgs &
+        GetAccountParameter<account, Account | Address, false>),
 ): Promise<authorize.ReturnValue> {
   const account_ = parameters.account ?? client.account
   if (!account_) throw new Error('account is required.')
@@ -206,15 +193,21 @@ export async function authorize<
         'Wallet authorized an access key for a different account.',
       )
     return {
-      ...result,
+      rootAddress: result.rootAddress,
       keyAuthorization: KeyAuthorization.fromRpc(result.keyAuthorization),
+      hash: undefined,
     }
   }
-  return authorize.inner(
+  const {
+    result: hash,
+    keyAuthorization,
+    rootAddress,
+  } = await authorize.inner(
     sendTransaction,
     client,
     parameters as authorize.LocalParameters<chain, account>,
   )
+  return { rootAddress, keyAuthorization, hash }
 }
 
 export namespace authorize {
@@ -249,11 +242,6 @@ export namespace authorize {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
-
-  /** Parameters for asking a connected wallet to authorize a key. */
-  export type RpcParameters = RpcArgs & {
-    account?: Account | Address | undefined
-  }
 
   /** Wallet authorization options. Omit `accessKey` to let the wallet generate and store a key. */
   export type RpcArgs = Omit<
@@ -304,16 +292,13 @@ export namespace authorize {
     witness?: Hex | undefined
   }
 
-  export type ReturnValue<
-    account extends Account | Address | undefined = Account,
-  > = account extends JsonRpcAccount | Address
-    ? RpcReturnValue
-    : WriteContractReturnType
-
-  /** The wallet's signed authorization and authorizing account. No transaction is required. */
-  export type RpcReturnValue = {
-    keyAuthorization: KeyAuthorization.Signed
+  export type ReturnValue = {
+    /** Account that authorized the key. */
     rootAddress: Address
+    /** Signed key authorization. */
+    keyAuthorization: KeyAuthorization.Signed
+    /** Submitted transaction hash. Undefined for wallet authorization. */
+    hash: Hex | undefined
   }
 
   // TODO: exhaustive error type
@@ -328,7 +313,11 @@ export namespace authorize {
     action: action,
     client: Client<Transport, chain, account>,
     parameters: authorize.LocalParameters<chain, account>,
-  ): Promise<ReturnType<action>> {
+  ): Promise<{
+    result: Awaited<ReturnType<action>>
+    keyAuthorization: KeyAuthorization.Signed
+    rootAddress: Address
+  }> {
     const {
       accessKey,
       admin,
@@ -354,10 +343,15 @@ export namespace authorize {
       scopes,
       witness,
     })
-    return (await action(client, {
+    const result = await action(client, {
       ...rest,
       keyAuthorization,
-    } as never)) as never
+    } as never)
+    return {
+      result: result as Awaited<ReturnType<action>>,
+      keyAuthorization,
+      rootAddress: parseAccount(account_).address,
+    }
   }
 
   export function extractEvent(logs: Log[]) {
@@ -411,10 +405,14 @@ export async function authorizeSync<
   parameters: authorizeSync.Parameters<chain, account>,
 ): Promise<authorizeSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await authorize.inner(sendTransactionSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
+  const { result: receipt } = await authorize.inner(
+    sendTransactionSync,
+    client,
+    {
+      ...rest,
+      throwOnReceiptRevert,
+    } as never,
+  )
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
   const { args } = authorize.extractEvent(receipt.logs)

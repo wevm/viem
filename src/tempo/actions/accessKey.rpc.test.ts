@@ -126,6 +126,7 @@ test('authorize: wallet-managed key and wire encoding', async () => {
     expect(wallet.requests[0]!.params[0]).not.toHaveProperty('keyType')
     expect(wallet.requests[0]!.params[0]).not.toHaveProperty('address')
     expect(result.rootAddress).toBe(owner.address)
+    expect(result).toHaveProperty('hash', undefined)
     expect(result.keyAuthorization).toMatchObject({
       address: key.accessKeyAddress,
       type: 'p256',

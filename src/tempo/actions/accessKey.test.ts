@@ -45,17 +45,24 @@ async function setupAccessKey(
 }
 
 describe('authorize', () => {
-  test('local account submits a transaction and returns its hash', async () => {
+  test('local account returns the submitted authorization and hash', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
     })
-    const hash = await actions.accessKey.authorize(client, {
-      accessKey,
-      expiry: Math.floor(Date.now() / 1000) + 3600,
-    })
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const { hash, keyAuthorization, rootAddress } =
+      await actions.accessKey.authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+      })
+    const receipt = await waitForTransactionReceipt(client, { hash: hash! })
 
     expect(hash).toMatch(/^0x[0-9a-f]{64}$/)
+    expect(rootAddress).toBe(account.address)
+    expect(keyAuthorization).toMatchObject({
+      address: accessKey.accessKeyAddress,
+      type: 'p256',
+    })
+    expect(keyAuthorization.signature.type).toBe('secp256k1')
     expect(receipt.status).toBe('success')
     const metadata = await actions.accessKey.getMetadata(client, {
       account: account.address,
@@ -69,7 +76,7 @@ describe('authorize', () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
     })
-    const hash = await actions.accessKey.authorize(
+    const { hash } = await actions.accessKey.authorize(
       getClient({ account: account.address }),
       {
         account,
@@ -77,7 +84,7 @@ describe('authorize', () => {
         expiry: Math.floor(Date.now() / 1000) + 3600,
       },
     )
-    const receipt = await waitForTransactionReceipt(client, { hash })
+    const receipt = await waitForTransactionReceipt(client, { hash: hash! })
 
     expect(receipt.status).toBe('success')
     expect(

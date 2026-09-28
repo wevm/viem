@@ -329,11 +329,11 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const hash = await client.accessKey.authorize({
+const { hash } = await client.accessKey.authorize({
   accessKey,
   expiry: Expiry.hours(1),
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.waitForTransactionReceipt({ hash: hash! })
 
 const { args }
   = Actions.accessKey.authorize.extractEvent(receipt.logs)
@@ -341,7 +341,17 @@ const { args }
 
 ## Return Type
 
-`authorize` returns a transaction hash for local accounts. For JSON-RPC accounts, it returns `{ keyAuthorization: KeyAuthorization.Signed, rootAddress: Address }`, with decoded numeric fields. An explicit `account` override determines the return type when supplied.
+`authorize` always returns the same shape:
+
+```ts
+type ReturnValue = {
+  rootAddress: Address
+  keyAuthorization: KeyAuthorization.Signed
+  hash: Hex | undefined
+}
+```
+
+Local accounts submit the signed authorization and return its transaction hash. JSON-RPC accounts return the wallet's signed authorization with `hash: undefined`. Numeric authorization fields are decoded.
 
 `authorizeSync` returns the onchain event and receipt:
 

@@ -1,14 +1,10 @@
 ---
-"viem": minor
+"viem": major
 ---
 
-Added wallet-managed access key authorization for JSON-RPC accounts with an account-dependent return type.
+Unified access key authorization results into `{ rootAddress, keyAuthorization, hash }`, with `hash` undefined for wallet authorization.
 
-```ts
-import { Expiry } from 'viem/tempo'
-
-const { keyAuthorization, rootAddress } = await client.accessKey.authorize({
-  expiry: Expiry.hours(1),
-  fundingPolicy: true,
-})
+```diff
+- const hash = await client.accessKey.authorize({ accessKey, expiry })
++ const { rootAddress, keyAuthorization, hash } = await client.accessKey.authorize({ accessKey, expiry })
 ```

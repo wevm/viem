@@ -127,38 +127,38 @@ test('prepared funding policy is concrete', async () => {
   >()
 })
 
-test('authorize infers local and JSON-RPC results and account overrides', async () => {
+test('authorize returns the same shape for local and JSON-RPC accounts', async () => {
   const local = createClient({ chain: tempoLocalnet, account: owner })
   const wallet = createClient({ chain: tempoLocalnet, account: owner.address })
   const options = { expiry: 2_000_000_000, fundingPolicy: true } as const
 
   expectTypeOf(
     await Actions.accessKey.authorize(local, { accessKey }),
-  ).toEqualTypeOf<`0x${string}`>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await local.accessKey.authorize({ accessKey }),
-  ).toEqualTypeOf<`0x${string}`>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await Actions.accessKey.authorize(wallet, options),
-  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await wallet.accessKey.authorize(options),
-  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await local.accessKey.authorize({ ...options, account: owner.address }),
-  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await wallet.accessKey.authorize({ account: owner, accessKey }),
-  ).toEqualTypeOf<`0x${string}`>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await Actions.accessKey.authorize(client, {
       ...options,
       account: owner.address,
     }),
-  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
   expectTypeOf(
     await Actions.accessKey.authorize(wallet, { account: owner, accessKey }),
-  ).toEqualTypeOf<`0x${string}`>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
 
   // @ts-expect-error Local authorization needs a supplied key.
   await local.accessKey.authorize(options)
@@ -170,10 +170,18 @@ test('authorize infers local and JSON-RPC results and account overrides', async 
   await client.accessKey.authorize(options)
 })
 
-test('authorize keeps the result uncertain for an account union', async () => {
+test('authorize returns the same shape for an account union', async () => {
   const account = owner as ViemAccount
   const uncertain = createClient({ chain: tempoLocalnet, account })
   expectTypeOf(
     await uncertain.accessKey.authorize({ accessKey, expiry: 2_000_000_000 }),
-  ).toEqualTypeOf<`0x${string}` | Actions.accessKey.authorize.RpcReturnValue>()
+  ).toEqualTypeOf<Actions.accessKey.authorize.ReturnValue>()
+})
+
+test('authorize result includes all fields', () => {
+  expectTypeOf<Actions.accessKey.authorize.ReturnValue>().toEqualTypeOf<{
+    rootAddress: `0x${string}`
+    keyAuthorization: KeyAuthorization.Signed
+    hash: `0x${string}` | undefined
+  }>()
 })

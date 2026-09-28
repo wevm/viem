@@ -49,29 +49,18 @@ type DecoratorBase<
      *   access: account,
      * })
      *
-     * const hash = await client.accessKey.authorize({
+     * const { hash } = await client.accessKey.authorize({
      *   accessKey,
      *   expiry: Math.floor((Date.now() + 30_000) / 1000),
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The transaction hash for local accounts, or the signed authorization and root address for JSON-RPC accounts.
+     * @returns The root address, signed authorization, and transaction hash. The hash is undefined for JSON-RPC accounts.
      */
-    authorize: {
-      (
-        parameters: accessKeyActions.authorize.WalletParameters<account>,
-      ): Promise<accessKeyActions.authorize.RpcReturnValue>
-      (
-        parameters: accessKeyActions.authorize.LocalCallParameters<
-          chain,
-          account
-        >,
-      ): Promise<`0x${string}`>
-      (
-        parameters: accessKeyActions.authorize.Parameters<chain, account>,
-      ): Promise<accessKeyActions.authorize.ReturnValue>
-    }
+    authorize: (
+      parameters: accessKeyActions.authorize.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.authorize.ReturnValue>
     /**
      * Authorizes an access key and waits for the transaction receipt.
      *
