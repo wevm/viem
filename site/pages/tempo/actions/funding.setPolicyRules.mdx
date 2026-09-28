@@ -92,24 +92,4 @@ Funding policy ID.
 
 Replacement token-keyed source routes and maximum aggregate slippage.
 
-#### enforceOrder
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Set `rules.enforceOrder` to `true` to require funding sources to follow their policy order. When omitted or `false`, allowed sources can be used in any order.
-
-```ts twoslash
-import { Actions } from 'viem/tempo'
-// ---cut---
-Actions.funding.setPolicyRules.call({
-  policyId: 1n,
-  rules: {
-    enforceOrder: true, // [!code focus]
-    maxSlippageBps: 100,
-    sources: {},
-  },
-})
-```
-
 <WriteParameters />
