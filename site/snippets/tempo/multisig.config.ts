@@ -1,8 +1,10 @@
 // [!region setup]
-import { createClient } from 'viem/tempo'
+import { createClient, http, Relay, withRelay } from 'viem/tempo'
 import { store } from './store.db'
 
 export const client = createClient({
-  experimental_multisig: { store },
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store })],
+  }),
 })
 // [!endregion setup]

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm -w gen:token-lookup && vocs dev",
+    "dev": "pnpm -w gen:token-lookup && vite dev",
     "build": "pnpm -w gen:token-lookup && pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
@@ -11,7 +11,9 @@
   "devDependencies": {
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "^6.0.2",
     "accounts": "^0.14.12",
+    "mermaid": "^12.0.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-server-dom-webpack": "~19.2.8",

@@ -1,9 +1,8 @@
 import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
-import { createClient } from 'viem/tempo'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
 import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
-import { createTransport } from '../clients/transports/createTransport.js'
 
 import { tempo, tempoTestnet } from './Chain.js'
 
@@ -77,8 +76,9 @@ describe('createClient', () => {
 
   test('behavior: multisig coordination preserves the transport', () => {
     const client = createClient({
-      experimental_multisig: true,
-      transport: http('http://localhost'),
+      transport: withRelay(http('http://localhost'), {
+        plugins: [Relay.multisig({ store: Store.memory() })],
+      }),
     })
 
     expect(client.transport.type).toBe('http')
@@ -86,14 +86,9 @@ describe('createClient', () => {
 
   test('behavior: multisig coordination forwards request options', async () => {
     const client = createClient({
-      experimental_multisig: true,
-      transport: () =>
-        createTransport({
-          key: 'recording',
-          name: 'Recording',
-          request: async () => 'tempo' as never,
-          type: 'recording',
-        }),
+      transport: withRelay(http('http://localhost'), {
+        plugins: [Relay.multisig({ store: Store.memory() })],
+      }),
     })
 
     const controller = new AbortController()

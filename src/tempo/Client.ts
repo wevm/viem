@@ -25,8 +25,6 @@ import type { RpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import { tempo, tempoTestnet } from './Chain.js'
 import { type Decorator, decorator as tempoActions } from './Decorator.js'
-import * as Store from './Store.js'
-import { withMultisig } from './Transport.js'
 
 /**
  * Configuration for a Tempo {@link Client}.
@@ -54,19 +52,6 @@ export type ClientConfig<
      * @default tempo (or `tempoTestnet` when `testnet` is truthy)
      */
     chain?: chain | Chain | undefined
-    /**
-     * Enables native multisig approval coordination. Pass `true` to use an
-     * in-memory store or provide a shared store.
-     *
-     * @default undefined
-     */
-    experimental_multisig?:
-      | true
-      | {
-          /** Store shared by multisig coordinators. */
-          store: Store.Atomic
-        }
-      | undefined
     /**
      * Default fee token for the Client. Extended onto the chain so it applies
      * to every transaction sent with the Client.
@@ -121,8 +106,8 @@ export type CreateClientErrorType = ErrorType
  * Defaults to the `tempo` mainnet chain and `http` transport, so a minimal
  * client can be created with `createClient()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
- * to set a default fee token for every transaction. Pass
- * `experimental_multisig` to coordinate multisig owner approvals.
+ * to set a default fee token for every transaction. Use `withRelay` with a
+ * `Relay.multisig` plugin to coordinate multisig owner approvals.
  *
  * @example
  * ```ts
@@ -156,11 +141,13 @@ export type CreateClientErrorType = ErrorType
  *
  * @example
  * ```ts
- * import { createClient } from 'viem/tempo'
+ * import { createClient, http, Relay, Store, withRelay } from 'viem/tempo'
  *
  * // Multisig coordination with a client-local in-memory store.
  * const client = createClient({
- *   experimental_multisig: true,
+ *   transport: withRelay(http(), {
+ *     plugins: [Relay.multisig({ store: Store.memory() })],
+ *   }),
  * })
  * ```
  *
@@ -182,15 +169,7 @@ export function createClient<
     : accountOrAddress,
   rpcSchema
 > {
-  const {
-    chain,
-    experimental_multisig,
-    feeToken,
-    testnet,
-    tokens,
-    transport,
-    ...rest
-  } = parameters
+  const { chain, feeToken, testnet, tokens, transport, ...rest } = parameters
   const baseChain = chain ?? (testnet ? tempoTestnet : tempo)
   const resolvedChain =
     feeToken && typeof (baseChain as { extend?: unknown }).extend === 'function'
@@ -198,20 +177,11 @@ export function createClient<
           feeToken,
         })
       : baseChain
-  const transport_ = transport ?? http()
-  const resolvedTransport = experimental_multisig
-    ? withMultisig(
-        transport_,
-        experimental_multisig === true
-          ? { store: Store.memory() }
-          : experimental_multisig,
-      )
-    : transport_
   return createClient_({
     ...rest,
     chain: resolvedChain,
     tokens: tokens ?? tokenSets.tempo,
-    transport: resolvedTransport,
+    transport: transport ?? http(),
   } as ClientConfig_)
     .extend(publicActions)
     .extend(walletActions)

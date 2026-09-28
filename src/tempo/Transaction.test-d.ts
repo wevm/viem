@@ -1,5 +1,5 @@
-import { MultisigConfig, Transaction } from 'viem/tempo'
-import { test } from 'vitest'
+import { createClient, MultisigConfig, Transaction } from 'viem/tempo'
+import { expectTypeOf, test } from 'vitest'
 
 const from = '0x0000000000000000000000000000000000000001'
 const multisigSimulation = {
@@ -39,4 +39,11 @@ test('funding requirements use executable values', () => {
     // @ts-expect-error Executable requirements must specify sources.
     requireFunds: [{ token, amount: 50n }],
   })
+})
+
+test('transfer actions accept sponsorship opt-out and external relay URLs', () => {
+  const client = createClient()
+  expectTypeOf<false | string>().toMatchTypeOf<
+    Parameters<typeof client.token.transferSync>[0]['feePayer']
+  >()
 })

@@ -353,7 +353,11 @@ describe('update', () => {
 
     await expect(
       Operation.update(store, hash, () => operation),
-    ).rejects.toThrowError(Operation.StoreConflictError)
+    ).rejects.toMatchObject({
+      name: 'Multisig.Operation.StoreConflictError',
+      shortMessage:
+        'Multisig operation could not be updated after repeated conflicts.',
+    })
   })
 
   test('error: stored operation hash does not match', async () => {

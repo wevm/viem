@@ -24,7 +24,9 @@ import {
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Funding from './Funding.js'
-import * as Multisig from './Multisig.js'
+import * as Plugin_ from './internal/relay/plugin.js'
+import * as Request_ from './internal/relay/request.js'
+import type * as Relay_ from './Relay.js'
 import type { Store } from './Store.js'
 import * as Store_ from './Store.js'
 import * as Transaction from './Transaction.js'
@@ -223,16 +225,57 @@ export declare namespace withMultisig {
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
  * - `'sign-and-broadcast'`: Relay co-signs and broadcasts the transaction directly
  *
+ * Local plugin options wrap the default transport directly, preserving its attributes.
+ * Local mode enables fee sponsorship only when a `Relay.feePayer` plugin is configured.
+ *
  * @param defaultTransport - The default transport to use.
- * @param relayTransport - The relay transport to use.
+ * @param relayTransport - The remote relay transport or local plugin options.
  * @param parameters - Configuration parameters.
  * @returns A relay transport.
  */
+export function withRelay<
+  transport extends Transport,
+  const plugins extends readonly Relay_.Plugin[] = readonly [],
+>(
+  defaultTransport: transport,
+  options: withRelay.LocalOptions<plugins>,
+): withRelay.LocalReturnValue<transport, plugins>
 export function withRelay(
   defaultTransport: Transport,
   relayTransport: Transport,
   parameters?: withRelay.Parameters,
-): withRelay.ReturnValue {
+): withRelay.ReturnValue
+export function withRelay(
+  defaultTransport: Transport,
+  relayTransport: Transport | withRelay.LocalOptions,
+  parameters?: withRelay.Parameters,
+): Transport {
+  if (typeof relayTransport !== 'function')
+    return (config) => {
+      const transport = defaultTransport(config)
+      const next: Relay_.handleRequest.Handler = (request, options) =>
+        transport.request(request as never, options)
+      const request = Request_.compose(
+        next,
+        relayTransport,
+        config.chain ? () => ({ chain: config.chain! }) : undefined,
+      )
+      return {
+        ...transport,
+        request: ((request_, options) =>
+          request(request_ as Relay_.handleRequest.Request, {
+            chainId: config.chain?.id,
+            ...options,
+          })) as typeof transport.request,
+        value: {
+          ...transport.value,
+          ...(relayTransport.plugins?.some(Plugin_.isMultisig)
+            ? { multisig: true }
+            : {}),
+        },
+      }
+    }
+
   const { policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
@@ -379,6 +422,29 @@ export declare namespace withRelay {
   export const type = 'relay'
 
   export type Parameters = RelayProxyParameters
+
+  /** Plugins applied directly to the default transport. */
+  export type LocalOptions<
+    plugins extends readonly Relay_.Plugin[] = readonly Relay_.Plugin[],
+  > = Pick<Relay_.handleRequest.Options, 'resolveTokens'> & {
+    /** Ordered relay plugins. Defaults to an empty list. */
+    plugins?: plugins | undefined
+  }
+
+  /** Wrapped transport preserving its attributes and RPC request schema. */
+  export type LocalReturnValue<
+    transport extends Transport,
+    plugins extends readonly Relay_.Plugin[] = readonly [],
+  > = transport extends Transport<infer type, infer attributes, infer request>
+    ? Transport<
+        type,
+        attributes &
+          (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
+            ? {}
+            : { multisig: true }),
+        request
+      >
+    : never
 
   export type ReturnValue = Relay
 }

@@ -6,7 +6,15 @@ import { toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
-import { Account, createClient, custom, Scopes } from 'viem/tempo'
+import {
+  Account,
+  createClient,
+  custom,
+  Relay,
+  Scopes,
+  Store,
+  withRelay,
+} from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
@@ -1067,14 +1075,16 @@ describe('verifyHash', () => {
 function getMultisigClient() {
   return createClient({
     chain: tempoLocalnet,
-    experimental_multisig: true,
-    transport: custom({
-      async request({ method }) {
-        if (method === 'eth_blockNumber') return '0x1'
-        if (method === 'eth_call')
-          return '0x0000000000000000000000000000000000000000000000000000000000000000'
-        throw new Error(`Unexpected request: ${method}`)
-      },
-    }),
+    transport: withRelay(
+      custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return '0x1'
+          if (method === 'eth_call')
+            return '0x0000000000000000000000000000000000000000000000000000000000000000'
+          throw new Error(`Unexpected request: ${method}`)
+        },
+      }),
+      { plugins: [Relay.multisig({ store: Store.memory() })] },
+    ),
   })
 }

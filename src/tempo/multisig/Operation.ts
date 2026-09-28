@@ -201,7 +201,7 @@ export declare namespace InvalidStoreValueError {
 }
 
 /** Thrown when a multisig operation cannot be updated due to contention. */
-export class StoreConflictError extends BaseError {
+class StoreConflictError extends BaseError {
   /** Creates a store conflict error. */
   constructor() {
     super('Multisig operation could not be updated after repeated conflicts.', {

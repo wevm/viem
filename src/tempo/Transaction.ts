@@ -140,7 +140,8 @@ export type TransactionRequestTempo<
     accessList?: AccessList | undefined
     calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
-    feePayer?: Account | true | undefined
+    /** Fee-payer account, external relay URL, or sponsorship preference. */
+    feePayer?: Account | boolean | string | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined

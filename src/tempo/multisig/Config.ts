@@ -122,7 +122,8 @@ function serialize(config: MultisigConfig.Config): string {
 }
 
 /** Thrown when a stored multisig config is malformed or mismatched. */
-export class InvalidStoreValueError extends BaseError {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+class InvalidStoreValueError extends BaseError {
   /** Creates an invalid store value error. */
   constructor(options: InvalidStoreValueError.Options = {}) {
     super('Stored multisig config is malformed or mismatched.', {
@@ -132,7 +133,7 @@ export class InvalidStoreValueError extends BaseError {
   }
 }
 
-export declare namespace InvalidStoreValueError {
+declare namespace InvalidStoreValueError {
   /** Error construction options. */
   export type Options = {
     /** Underlying error. */
