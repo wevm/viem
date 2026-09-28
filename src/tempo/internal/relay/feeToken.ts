@@ -6,7 +6,6 @@ import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
-import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feeToken.Options): Relay.Plugin {
@@ -17,7 +16,15 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
       const parameters = request.params![0] as Record<string, unknown>
       const transaction = Utils.normalizeFillTransactionRequest(parameters)
 
-      if (transaction.feeToken) return Request.fill(context.client, transaction)
+      if (transaction.feeToken) {
+        context.request = {
+          ...request,
+          params: [
+            Utils.formatFillTransactionRequest(context.client, transaction),
+          ],
+        }
+        return next()
+      }
 
       const tokens = await context.resolveTokens()
       const candidates = [
@@ -39,10 +46,16 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
             tokens: candidates,
           })
 
-      return Request.fill(context.client, {
-        ...transaction,
-        ...(feeToken ? { feeToken } : {}),
-      })
+      context.request = {
+        ...request,
+        params: [
+          Utils.formatFillTransactionRequest(context.client, {
+            ...transaction,
+            ...(feeToken ? { feeToken } : {}),
+          }),
+        ],
+      }
+      return next()
     },
   }
 }

@@ -3205,7 +3205,7 @@ describe('stateful', () => {
       Request Arguments:
         from:  0x2f7dea517DdC7aa2Fc0Dfa101F8Dd75d08892024
 
-      Details: Submission failed.
+      Details: Internal error
       Version: viem@x.y.z]
     `,
     )

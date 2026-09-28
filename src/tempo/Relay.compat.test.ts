@@ -753,6 +753,7 @@ describe.runIf(
           account: feePayerFirst,
           amount: 7n,
           feePayer: feePayerAccount,
+          maxPriorityFeePerGas: 0n,
           owner: owner_1,
           to: recipient.address,
           token: Tempo.addresses.alphaUsd,
@@ -773,6 +774,17 @@ describe.runIf(
           "status": "pending",
         }
       `)
+
+      const approval = await prepareTransactionRequest(sponsorClient, {
+        account: feePayerFirst,
+        hash: feePayerFirstPending.transactionHash,
+        owner: owner_2,
+      })
+      expect(approval.maxPriorityFeePerGas).toBe(0n)
+      expect(approval.gas).toBe(feePayerFirstTransaction.gas)
+      expect(approval.feePayerSignature).toEqual(
+        feePayerFirstTransaction.feePayerSignature,
+      )
 
       const { receipt: feePayerFirstReceipt } =
         await Actions.token.transferSync(sponsorClient, {
