@@ -1,14 +1,15 @@
 import type { Address } from 'abitype'
+import * as Hex_ from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
 import {
-  type FundingPolicy,
+  FundingPolicy,
   KeyAuthorization,
   MultisigConfig,
   MultisigOperation,
   type RpcSchemaTempo,
   SignatureEnvelope,
 } from 'ox/tempo'
-import type { Account } from '../../accounts/types.js'
+import type { Account, JsonRpcAccount } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -68,7 +69,9 @@ const spendPolicies = {
 } as const
 
 /**
- * Authorizes an access key by signing a key authorization and sending a transaction.
+ * Authorizes an access key. Local accounts sign and submit a transaction;
+ * JSON-RPC accounts request `wallet_authorizeAccessKey` from the connected wallet.
+ * Omit `accessKey` for JSON-RPC accounts to let the wallet generate and store the key.
  *
  * @example
  * ```ts
@@ -94,25 +97,176 @@ const spendPolicies = {
  * })
  * ```
  *
+ * @example
+ * ```ts
+ * import { createClient, custom } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, Expiry } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   account: '0x0000000000000000000000000000000000000001',
+ *   chain: tempo,
+ *   transport: custom(window.ethereum),
+ * })
+ *
+ * const { keyAuthorization, rootAddress } = await Actions.accessKey.authorize(client, {
+ *   expiry: Expiry.hours(1),
+ *   fundingPolicy: true,
+ * })
+ * ```
+ *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The transaction hash.
+ * @returns The transaction hash for local accounts, or the signed authorization and root address for JSON-RPC accounts.
  */
-export async function authorize<
+export function authorize<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: authorize.WalletParameters<account>,
+): Promise<authorize.RpcReturnValue>
+export function authorize<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: authorize.LocalCallParameters<chain, account>,
+): Promise<WriteContractReturnType>
+export function authorize<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
   parameters: authorize.Parameters<chain, account>,
+): Promise<authorize.ReturnValue>
+export async function authorize<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters:
+    | authorize.LocalParameters<chain, account>
+    | authorize.RpcParameters,
 ): Promise<authorize.ReturnValue> {
-  return authorize.inner(sendTransaction, client, parameters)
+  const account_ = parameters.account ?? client.account
+  if (!account_) throw new Error('account is required.')
+  const account = parseAccount(account_)
+  if (account.type === 'json-rpc') {
+    const {
+      accessKey,
+      chainId = client.chain?.id,
+      expiry,
+      fundingPolicy,
+      limits,
+      scopes,
+    } = parameters
+    if (expiry === undefined)
+      throw new Error('expiry is required for wallet authorization.')
+    const key = accessKey ? resolveAccessKey(accessKey) : undefined
+    const request = {
+      ...(key
+        ? { address: key.accessKeyAddress, keyType: key.keyType }
+        : 'keyType' in parameters && parameters.keyType
+          ? { keyType: parameters.keyType }
+          : {}),
+      ...(chainId !== undefined ? { chainId: Hex_.fromNumber(chainId) } : {}),
+      expiry,
+      ...(fundingPolicy !== undefined
+        ? {
+            fundingPolicy:
+              fundingPolicy === true
+                ? true
+                : FundingPolicy.toRpc(fundingPolicy),
+          }
+        : {}),
+      ...(limits
+        ? {
+            limits: limits.map(({ limit, ...rest }) => ({
+              ...rest,
+              limit: Hex_.fromNumber(limit),
+            })),
+          }
+        : {}),
+      ...(scopes ? { scopes } : {}),
+    }
+    const result = await client.request<{
+      Method: 'wallet_authorizeAccessKey'
+      Parameters: [typeof request]
+      ReturnType: {
+        keyAuthorization: KeyAuthorization.Rpc
+        rootAddress: Address
+      }
+    }>(
+      { method: 'wallet_authorizeAccessKey', params: [request] },
+      { retryCount: 0 },
+    )
+    if (!isAddressEqual(result.rootAddress, account.address))
+      throw new Error(
+        'Wallet authorized an access key for a different account.',
+      )
+    return {
+      ...result,
+      keyAuthorization: KeyAuthorization.fromRpc(result.keyAuthorization),
+    }
+  }
+  return authorize.inner(
+    sendTransaction,
+    client,
+    parameters as authorize.LocalParameters<chain, account>,
+  )
 }
 
 export namespace authorize {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
+  > = OneOf<
+    account extends Account | undefined
+      ? WalletParameters<account> | LocalCallParameters<chain, account>
+      : never
+  >
+
+  /** Wallet parameters with a hoisted or explicit JSON-RPC account. */
+  export type WalletParameters<
+    account extends Account | undefined = Account | undefined,
+  > = RpcArgs &
+    ([account] extends [{ type: 'json-rpc' }]
+      ? { account?: JsonRpcAccount | Address | undefined }
+      : { account: JsonRpcAccount | Address })
+
+  /** Local parameters with a hoisted or explicit signing account. */
+  export type LocalCallParameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = LocalParameters<chain, account> &
+    ([account] extends [{ type: 'local' | 'smart' }]
+      ? { account?: Exclude<Account, JsonRpcAccount> | undefined }
+      : { account: Exclude<Account, JsonRpcAccount> })
+
+  /** Parameters for signing locally and submitting an authorization transaction. */
+  export type LocalParameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
+
+  /** Parameters for asking a connected wallet to authorize a key. */
+  export type RpcParameters = RpcArgs & {
+    account?: Account | Address | undefined
+  }
+
+  /** Wallet authorization options. Omit `accessKey` to let the wallet generate and store a key. */
+  export type RpcArgs = Omit<
+    Args,
+    'accessKey' | 'admin' | 'expiry' | 'witness'
+  > & {
+    /** External access key to authorize. Omit to generate a wallet-managed key. */
+    accessKey?: resolveAccessKey.Parameters | undefined
+    /** Unix timestamp when the key expires. */
+    expiry: number
+    /** Type of key to generate. Defaults to the wallet's preferred key type. */
+    keyType?: SignatureEnvelope.Type | undefined
+  }
 
   export type Args = {
     /** The access key to authorize. */
@@ -150,7 +304,17 @@ export namespace authorize {
     witness?: Hex | undefined
   }
 
-  export type ReturnValue = WriteContractReturnType
+  export type ReturnValue<
+    account extends Account | Address | undefined = Account,
+  > = account extends JsonRpcAccount | Address
+    ? RpcReturnValue
+    : WriteContractReturnType
+
+  /** The wallet's signed authorization and authorizing account. No transaction is required. */
+  export type RpcReturnValue = {
+    keyAuthorization: KeyAuthorization.Signed
+    rootAddress: Address
+  }
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -163,7 +327,7 @@ export namespace authorize {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: authorize.Parameters<chain, account>,
+    parameters: authorize.LocalParameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const {
       accessKey,
@@ -264,7 +428,7 @@ export namespace authorizeSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = authorize.Parameters<chain, account>
+  > = authorize.LocalParameters<chain, account>
 
   export type Args = authorize.Args
 

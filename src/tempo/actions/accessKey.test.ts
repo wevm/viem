@@ -4,6 +4,7 @@ import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
 import { toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
+import { waitForTransactionReceipt } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, createClient, custom, Scopes } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
@@ -44,6 +45,48 @@ async function setupAccessKey(
 }
 
 describe('authorize', () => {
+  test('local account submits a transaction and returns its hash', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const hash = await actions.accessKey.authorize(client, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 3600,
+    })
+    const receipt = await waitForTransactionReceipt(client, { hash })
+
+    expect(hash).toMatch(/^0x[0-9a-f]{64}$/)
+    expect(receipt.status).toBe('success')
+    const metadata = await actions.accessKey.getMetadata(client, {
+      account: account.address,
+      accessKey,
+    })
+    expect(metadata.keyType).toBe('p256')
+    expect(metadata.isRevoked).toBe(false)
+  })
+
+  test('local override uses the signing path on a JSON-RPC client', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const hash = await actions.accessKey.authorize(
+      getClient({ account: account.address }),
+      {
+        account,
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 3600,
+      },
+    )
+    const receipt = await waitForTransactionReceipt(client, { hash })
+
+    expect(receipt.status).toBe('success')
+    expect(
+      actions.accessKey.authorize
+        .extractEvent(receipt.logs)
+        .args.publicKey.toLowerCase(),
+    ).toBe(accessKey.accessKeyAddress.toLowerCase())
+  })
+
   test('default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,

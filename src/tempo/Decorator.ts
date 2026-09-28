@@ -29,7 +29,7 @@ type DecoratorBase<
 > = {
   accessKey: {
     /**
-     * Authorizes an access key by signing a key authorization and sending a transaction.
+     * Authorizes an access key locally or through the connected wallet. Omit `accessKey` for a wallet-managed key.
      *
      * @example
      * ```ts
@@ -56,11 +56,22 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The transaction hash.
+     * @returns The transaction hash for local accounts, or the signed authorization and root address for JSON-RPC accounts.
      */
-    authorize: (
-      parameters: accessKeyActions.authorize.Parameters<chain, account>,
-    ) => Promise<accessKeyActions.authorize.ReturnValue>
+    authorize: {
+      (
+        parameters: accessKeyActions.authorize.WalletParameters<account>,
+      ): Promise<accessKeyActions.authorize.RpcReturnValue>
+      (
+        parameters: accessKeyActions.authorize.LocalCallParameters<
+          chain,
+          account
+        >,
+      ): Promise<`0x${string}`>
+      (
+        parameters: accessKeyActions.authorize.Parameters<chain, account>,
+      ): Promise<accessKeyActions.authorize.ReturnValue>
+    }
     /**
      * Authorizes an access key and waits for the transaction receipt.
      *

@@ -1,4 +1,5 @@
 import type { FundingPolicy, KeyAuthorization } from 'ox/tempo'
+import type { Account as ViemAccount } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
@@ -124,4 +125,55 @@ test('prepared funding policy is concrete', async () => {
   expectTypeOf(prepared.fundingPolicy).toEqualTypeOf<
     FundingPolicy.Authorization | undefined
   >()
+})
+
+test('authorize infers local and JSON-RPC results and account overrides', async () => {
+  const local = createClient({ chain: tempoLocalnet, account: owner })
+  const wallet = createClient({ chain: tempoLocalnet, account: owner.address })
+  const options = { expiry: 2_000_000_000, fundingPolicy: true } as const
+
+  expectTypeOf(
+    await Actions.accessKey.authorize(local, { accessKey }),
+  ).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(
+    await local.accessKey.authorize({ accessKey }),
+  ).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(
+    await Actions.accessKey.authorize(wallet, options),
+  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  expectTypeOf(
+    await wallet.accessKey.authorize(options),
+  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  expectTypeOf(
+    await local.accessKey.authorize({ ...options, account: owner.address }),
+  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  expectTypeOf(
+    await wallet.accessKey.authorize({ account: owner, accessKey }),
+  ).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(
+    await Actions.accessKey.authorize(client, {
+      ...options,
+      account: owner.address,
+    }),
+  ).toEqualTypeOf<Actions.accessKey.authorize.RpcReturnValue>()
+  expectTypeOf(
+    await Actions.accessKey.authorize(wallet, { account: owner, accessKey }),
+  ).toEqualTypeOf<`0x${string}`>()
+
+  // @ts-expect-error Local authorization needs a supplied key.
+  await local.accessKey.authorize(options)
+  // @ts-expect-error The wallet RPC requires an expiry.
+  await wallet.accessKey.authorize({})
+  // @ts-expect-error Wallet authorization does not submit a transaction.
+  await wallet.accessKey.authorize({ ...options, gas: 100_000n })
+  // @ts-expect-error A client without an account needs an override.
+  await client.accessKey.authorize(options)
+})
+
+test('authorize keeps the result uncertain for an account union', async () => {
+  const account = owner as ViemAccount
+  const uncertain = createClient({ chain: tempoLocalnet, account })
+  expectTypeOf(
+    await uncertain.accessKey.authorize({ accessKey, expiry: 2_000_000_000 }),
+  ).toEqualTypeOf<`0x${string}` | Actions.accessKey.authorize.RpcReturnValue>()
 })
