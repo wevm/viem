@@ -134,13 +134,6 @@ export const POST = relay.fetch
 
 :::
 
-Mount the Node adapter before middleware that consumes the request body.
-[Elysia disables its body parser](https://elysiajs.com/essential/life-cycle#skip-body-parsing)
-with `parse: 'none'` so the relay can read the request. The
-relay accepts JSON-RPC over `POST` with `Content-Type: application/json`;
-`GET` returns `405`. Apply CORS, preflight handling, and custom headers in your
-framework or around the Fetch handler.
-
 ### Add Plugins
 
 Pass plugins to `Relay.create` to add services to the relay. Requests enter plugins
@@ -224,9 +217,7 @@ import { Relay } from 'viem/tempo'
 
 const { getClient } = createClientResolver({
   chains: [tempo, tempoModerato],
-  transport: ({ chainId }) => http(chainId === tempo.id
-    ? 'https://rpc.tempo.xyz'
-    : 'https://rpc.moderato.tempo.xyz'),
+  transport: () => http(),
 })
 const relay = Relay.create({ getClient })
 

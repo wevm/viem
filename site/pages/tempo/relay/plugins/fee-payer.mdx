@@ -14,36 +14,27 @@ with the plugins shown in the local configuration.
 
 ### Sponsor Transactions
 
-Prepare a transfer with a local sponsor or a remote relay. Replace the key and
-addresses with your own. Sponsor metadata below is illustrative.
+Send a transfer with [`token.transferSync`](/tempo/actions/token.transfer).
+The relay sponsors the transaction fees and the action waits for its receipt.
+Replace the keys and addresses with your own.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { fillTransaction } from 'viem/actions'
-import { Actions } from 'viem/tempo'
+import { privateKeyToAccount } from 'viem/accounts'
 import { client } from './viem.config'
 
-const { transaction, capabilities } = await fillTransaction(client, {
-  account: '0x1111111111111111111111111111111111111111',
-  calls: [Actions.token.transfer.call(client, {
-    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
-    to: '0x2222222222222222222222222222222222222222',
-    amount: parseUnits('100', 6),
-  })],
+// [!code focus:start]
+const { receipt } = await client.token.transferSync({
+  account: privateKeyToAccount('0x...'),
+  token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+  to: '0x2222222222222222222222222222222222222222',
+  amount: parseUnits('100', 6),
 })
 
-// [!code focus:start]
-capabilities?.sponsored
-// @log: true
-capabilities?.sponsor
-// @log: {
-// @log:   address: '0x1234567890abcdef1234567890abcdef12345678',
-// @log:   name: 'Example Sponsor',
-// @log:   url: 'https://example.com',
-// @log: }
-transaction.feePayerSignature // The sponsor's signature; the sender still needs to sign.
+receipt.status
+// @log: 'success'
 // [!code focus:end]
 ```
 
@@ -81,6 +72,73 @@ export const client = createClient({
 Run the local fee-payer configuration only in a trusted server environment.
 Keep the signing key on your server. The sponsor needs a balance in the selected
 fee token. The sender needs the USDC.e being transferred.
+
+### Inspect Sponsorship
+
+Use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest)
+to inspect sponsorship before signing and sending a transfer. Sponsor metadata
+below is illustrative.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { prepareTransactionRequest } from 'viem/actions'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.sponsored
+// @log: true
+capabilities?.sponsor
+// @log: {
+// @log:   address: '0x1234567890abcdef1234567890abcdef12345678',
+// @log:   name: 'Example Sponsor',
+// @log:   url: 'https://example.com',
+// @log: }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.feePayer({
+        account: privateKeyToAccount('0x...'),
+        name: 'Example Sponsor',
+        url: 'https://example.com',
+      }),
+      // [!code focus:end]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('/relay')), // [!code focus]
+})
+```
+
+:::
 
 ### Apply a Sponsorship Policy
 
@@ -123,27 +181,25 @@ external fee-payer URL uses that relay's policy, rather than this callback.
 
 ### Opt Out of Sponsorship
 
-An RPC caller can set `feePayer: false` to pay its own fees. For example, this
-raw RPC request prepares an empty transaction without sponsorship:
+Set `feePayer: false` on the transfer to pay fees from the sender's balance.
 
 :::code-group
 
 ```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { client } from './viem.config'
 
-const result = await client.transport.request({
-  method: 'eth_fillTransaction',
-  params: [{
-    from: '0x1111111111111111111111111111111111111111',
-    calls: [],
-    feePayer: false, // [!code focus]
-  }],
+const { receipt } = await client.token.transferSync({
+  account: privateKeyToAccount('0x...'),
+  token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+  to: '0x2222222222222222222222222222222222222222',
+  amount: parseUnits('100', 6),
+  feePayer: false, // [!code focus]
 })
 
-// [!code focus:start]
-result
-// @log: { capabilities: { sponsored: false }, tx: { ... }, raw: '0x...' }
-// [!code focus:end]
+receipt.status
+// @log: 'success'
 ```
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
@@ -180,9 +236,27 @@ export const client = createClient({
 
 ### Use an External Sponsor
 
-Allow the sponsor's full URL in the relay configuration:
+Pass the sponsor's URL as `feePayer` when sending the transfer. Allow the same
+full URL in the relay configuration.
 
 :::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  account: privateKeyToAccount('0x...'),
+  token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+  to: '0x2222222222222222222222222222222222222222',
+  amount: parseUnits('100', 6),
+  feePayer: 'https://sponsor.example/relay', // [!code focus]
+})
+
+receipt.status
+// @log: 'success'
+```
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
@@ -209,8 +283,7 @@ export const client = createClient({
 
 :::
 
-In the RPC request above, replace `feePayer: false` with
-`feePayer: 'https://sponsor.example/relay'`. No local sponsor account is required.
+No local sponsor account is required.
 The external service supplies the signature and sponsor metadata. Its URL must
 match the configured allowlist, including the path and query.
 
@@ -270,10 +343,11 @@ Place `feeToken` after `feePayer` so sender-paid retries select a fee token agai
 ### Usage
 
 ```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
 import { Relay } from 'viem/tempo'
 
 const plugin = Relay.feePayer({
-  allowedFeePayers: ['https://relay.example/rpc'],
+  account: privateKeyToAccount('0x...'),
 })
 ```
 

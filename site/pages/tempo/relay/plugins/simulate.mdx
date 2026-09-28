@@ -14,8 +14,8 @@ with the plugins shown in the local configuration.
 
 These examples use Tempo mainnet. Replace the sender and recipient with your
 addresses. The sender needs pathUSD for fees and enough USDC.e for successful
-transfers. [Filling a transaction](/docs/actions/public/fillTransaction) prepares
-it without signing or broadcasting it.
+transfers. [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest)
+prepares a transaction without signing or broadcasting it.
 
 ### Preview Balance Diffs
 
@@ -23,11 +23,11 @@ it without signing or broadcasting it.
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { fillTransaction } from 'viem/actions'
+import { prepareTransactionRequest } from 'viem/actions'
 import { Actions, Addresses } from 'viem/tempo'
 import { client } from './viem.config'
 
-const { capabilities } = await fillTransaction(client, {
+const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
   account: '0x1111111111111111111111111111111111111111',
   feeToken: Addresses.pathUsd,
   calls: [Actions.token.transfer.call(client, {
@@ -80,65 +80,6 @@ export const client = createClient({
 `balanceDiffs` groups net token transfers and final approval exposure by account.
 Outgoing amounts include approval exposure. Incoming funds use a separate entry
 for the same token, so they do not cancel outgoing approval exposure.
-
-### Estimate Fees Without Balance Diffs
-
-Set `balanceDiffs: false` to skip the post-fill simulation. The plugin still
-estimates fees from the filled gas limit, maximum fee per gas, and fee-token
-metadata. Actual fees depend on execution.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import { fillTransaction } from 'viem/actions'
-import { Actions, Addresses } from 'viem/tempo'
-import { client } from './viem.config'
-
-const { capabilities } = await fillTransaction(client, {
-  account: '0x1111111111111111111111111111111111111111',
-  feeToken: Addresses.pathUsd,
-  capabilities: { balanceDiffs: false }, // [!code focus]
-  calls: [Actions.token.transfer.call(client, {
-    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
-    to: '0x2222222222222222222222222222222222222222',
-    amount: parseUnits('100', 6),
-  })],
-})
-
-// [!code focus:start]
-capabilities?.fee
-// @log: { amount: '0x6b86', decimals: 6, formatted: '0.027526', symbol: 'pathUSD' }
-capabilities?.balanceDiffs
-// @log: undefined
-// [!code focus:end]
-```
-
-```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
-import { http } from 'viem'
-import { createClient, Relay, withRelay } from 'viem/tempo'
-
-export const client = createClient({
-  transport: withRelay(http(), {
-    plugins: [Relay.simulate()], // [!code focus]
-  }),
-})
-```
-
-```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
-import { http } from 'viem'
-import { createClient, withRelay } from 'viem/tempo'
-
-// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
-  transport: withRelay(http(), http('/relay')), // [!code focus]
-})
-```
-
-:::
-
-The fee above is an example; gas and fee estimates vary. Without the opt-out,
-`fee` and `balanceDiffs` are both included when their metadata is available.
 
 ### Report Missing Funds
 
@@ -219,11 +160,11 @@ revert. The sender still needs pathUSD for fees.
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { fillTransaction } from 'viem/actions'
+import { prepareTransactionRequest } from 'viem/actions'
 import { Actions, Addresses } from 'viem/tempo'
 import { client } from './viem.config'
 
-const { capabilities } = await fillTransaction(client, {
+const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
   account: '0x1111111111111111111111111111111111111111',
   feeToken: Addresses.pathUsd,
   capabilities: { errors: true }, // [!code focus]
