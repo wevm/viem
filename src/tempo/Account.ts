@@ -22,7 +22,6 @@ import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
-import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import { nativeMultisigFactory } from './Addresses.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import { parseApproval } from './multisig/Signature.js'
@@ -38,9 +37,12 @@ export type Account_base<source extends string = string> = RequiredBy<
   sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
-    serializer extends (
-      ...args: never[]
-    ) => MaybePromise<Hex.Hex> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
+    serializer extends (...args: never[]) => MaybePromise<Hex.Hex> = (
+      transaction: Exclude<
+        Transaction.TransactionSerializable,
+        { frames: readonly unknown[] }
+      >,
+    ) => MaybePromise<Hex.Hex>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
@@ -508,12 +510,13 @@ export type MultisigAccount<
   config extends MultisigConfig.Config | undefined =
     | MultisigConfig.Config
     | undefined,
-> = RequiredBy<LocalAccount<'multisig'>, 'sign'> & {
-  /** Normalized config, or `undefined` for an address-only account. */
-  config: config
-  /** @internal Local owner accounts available for signing. */
-  owners: readonly LocalAccount[]
-}
+> = Omit<RequiredBy<LocalAccount<'multisig'>, 'sign'>, 'signTransaction'> &
+  Pick<Account_base, 'signTransaction'> & {
+    /** Normalized config, or `undefined` for an address-only account. */
+    config: config
+    /** @internal Local owner accounts available for signing. */
+    owners: readonly LocalAccount[]
+  }
 
 function isMultisigAccount(account: LocalAccount): account is MultisigAccount {
   return account.source === 'multisig'

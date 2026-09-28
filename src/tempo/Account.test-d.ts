@@ -75,3 +75,19 @@ test('fromMultisig accepts custom local owners', () => {
   Account.fromMultisig({ owners: [customOwner] })
   Account.fromMultisig({ owners: [{ owner: customOwner, weight: 2 }] })
 })
+
+test('default signing excludes frame transactions', () => {
+  const transaction = {
+    chainId: 1,
+    frames: [{}],
+    sender: owner.address,
+  } as const
+  // @ts-expect-error Tempo's default signer cannot sign frame transactions.
+  owner.signTransaction(transaction)
+  const multisig = Account.fromMultisig({ owners: [owner] })
+  // @ts-expect-error Tempo multisig signing does not sign frame transactions.
+  multisig.signTransaction(transaction)
+  owner.signTransaction(transaction, {
+    serializer: (_transaction: typeof transaction) => '0x06' as const,
+  })
+})
