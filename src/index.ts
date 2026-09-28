@@ -609,6 +609,12 @@ export {
   type MulticallBatchOptions,
   rpcSchema,
 } from './clients/createClient.js'
+/** Lazily resolves and caches typed Clients across configured chains. */
+export {
+  ChainNotConfiguredError,
+  createClientResolver,
+  TransportNotConfiguredError,
+} from './clients/createClientResolver.js'
 export {
   type CreatePublicClientErrorType,
   createPublicClient,
