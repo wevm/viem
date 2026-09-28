@@ -4,11 +4,25 @@ import {
   MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
-import { Account, Relay, Store, Transaction } from 'viem/tempo'
-import { expect, test } from 'vitest'
-import { nativeMultisigFactory } from './Addresses.js'
-import * as Operation from './multisig/Operation.js'
-import { parseApproval } from './multisig/Signature.js'
+import { createClient, createClientResolver, http, toHex } from 'viem'
+import { tempo, tempoModerato } from 'viem/chains'
+import {
+  Account,
+  Actions,
+  Relay,
+  Store,
+  Transaction,
+  withRelay,
+} from 'viem/tempo'
+import { beforeAll, describe, expect, test } from 'vitest'
+import * as Tempo from '~test/tempo/config.js'
+import { nativeMultisigFactory } from '../../Addresses.js'
+import * as Operation from '../../multisig/Operation.js'
+import { parseApproval } from '../../multisig/Signature.js'
+
+const feePayerAccount = Tempo.accounts[0]!
+const recipient = Tempo.accounts[7]!
+const caller = Tempo.getClient({ chain: Tempo.chain })
 
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -192,5 +206,115 @@ test('error: rejects conflicting chain ids', async () => {
     ),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `[RpcResponse.InvalidParamsError: Conflicting chain ids.]`,
+  )
+})
+
+test('multisig infers the chain before client resolution', async () => {
+  const resolver = createClientResolver({
+    chains: [tempo, tempoModerato],
+    transport: () => http(),
+  })
+  const relay = Relay.create({
+    getClient: resolver.getClient,
+    plugins: [Relay.multisig({ store: Store.memory() })],
+  })
+  const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
+  await expect(
+    relay.request({ method: 'eth_sendRawTransaction', params: [transaction] }),
+  ).rejects.toThrow('Chain with id 1 is not configured')
+})
+
+test('rejects a signed payload conflicting with the client chain', async () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.multisig({ store: Store.memory() })],
+  })
+  const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
+  await expect(
+    relay.request({ method: 'eth_sendRawTransaction', params: [transaction] }),
+  ).rejects.toThrow('Conflicting chain ids')
+})
+
+describe.runIf(
+  import.meta.env.VITE_TEMPO_MULTISIG === 'true' &&
+    import.meta.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+)('plugin: multisig', () => {
+  beforeAll(async () => {
+    await Actions.faucet.fundSync(caller, {
+      account: feePayerAccount,
+      timeout: 60_000,
+    })
+  })
+
+  test.each([false, true])(
+    'collects approvals with fee sponsorship: %s',
+    async (sponsored) => {
+      const owners = [Tempo.accounts[1]!, Tempo.accounts[2]!]
+      const account = Account.fromMultisig({
+        owners,
+        salt: toHex(sponsored ? 0x514001 : 0x514000, { size: 32 }),
+        threshold: 2,
+      })
+      await Actions.token.transferSync(caller, {
+        account: feePayerAccount,
+        token: Tempo.addresses.alphaUsd,
+        to: account.address,
+        amount: 100_000n,
+      })
+      const client = createClient({
+        chain: Tempo.chain,
+        pollingInterval: 100,
+        transport: withRelay(Tempo.http(), {
+          plugins: [
+            Relay.multisig({ store: Store.memory() }),
+            ...(sponsored
+              ? [Relay.feePayer({ account: feePayerAccount })]
+              : []),
+          ],
+        }),
+      })
+      const before = await Actions.token.getBalance(caller, {
+        account: recipient.address,
+        token: Tempo.addresses.alphaUsd,
+      })
+      const { receipt: pending } = await Actions.token.transferSync(client, {
+        account,
+        owner: owners[0]!,
+        token: Tempo.addresses.alphaUsd,
+        feeToken: Tempo.addresses.alphaUsd,
+        feePayer: sponsored || undefined,
+        to: recipient.address,
+        amount: 1n,
+      })
+      expect(pending.status).toBe('pending')
+      expect(pending.multisig?.signatureCount).toBe(1)
+      expect(
+        await Actions.token.getBalance(caller, {
+          account: recipient.address,
+          token: Tempo.addresses.alphaUsd,
+        }),
+      ).toEqual(before)
+      const { receipt } = await Actions.token.transferSync(client, {
+        account,
+        owner: owners[1]!,
+        hash: pending.transactionHash,
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      } as never)
+      expect(receipt.status).toBe('success')
+      expect(receipt.multisig?.signatureCount).toBe(2)
+      expect(receipt.feePayer).toBe(
+        (sponsored ? feePayerAccount.address : account.address).toLowerCase(),
+      )
+      expect(
+        (
+          await Actions.token.getBalance(caller, {
+            account: recipient.address,
+            token: Tempo.addresses.alphaUsd,
+          })
+        ).amount - before.amount,
+      ).toBe(1n)
+    },
   )
 })

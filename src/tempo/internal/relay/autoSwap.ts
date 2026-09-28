@@ -14,11 +14,12 @@ import {
   resolveFeeToken,
   resolveTokenMetadata,
 } from './feeToken.js'
+import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.autoSwap.Options): Relay.Plugin {
-  return (next: Request.Handler) =>
+  return Plugin.from((next) =>
     Request.wrap(next, async (request, context) => {
       if (request.method !== 'eth_fillTransaction')
         return next(request, context.options)
@@ -66,7 +67,8 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
           ...(metadata ? { autoSwap: metadata } : {}),
         },
       }
-    })
+    }),
+  )
 }
 
 export async function fill(client: Client, options: fill.Options) {

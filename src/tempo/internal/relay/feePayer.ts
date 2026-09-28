@@ -7,11 +7,12 @@ import { http } from '../../../clients/transports/http.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import { getDefaultTokens } from './feeToken.js'
+import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feePayer.Options): Relay.Plugin {
-  return (next: Request.Handler) =>
+  return Plugin.from((next) =>
     Request.wrap(next, async (request, context) => {
       const { client, getClient, chainId, options: requestOptions } = context
 
@@ -150,7 +151,8 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           ...(sponsor ? { sponsor } : {}),
         },
       }
-    })
+    }),
+  )
 }
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */

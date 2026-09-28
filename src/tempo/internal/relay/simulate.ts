@@ -16,12 +16,13 @@ import { extractSwapFromCapabilities } from './autoSwap.js'
 import * as Store from './cache.js'
 import { formatError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
+import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 import { extractCalls } from './virtualAddress.js'
 
 export function create(options: Relay.simulate.Options): Relay.Plugin {
-  return (next) =>
+  return Plugin.from((next) =>
     Request.wrap(next, async (request, context) => {
       if (request.method !== 'eth_fillTransaction')
         return next(request, context.options)
@@ -71,7 +72,8 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
         ...result,
         capabilities: { ...result.capabilities, ...simulation },
       }
-    })
+    }),
+  )
 }
 
 export async function simulate(client: Client, options: simulate.Options) {

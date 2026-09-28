@@ -4,12 +4,13 @@ import type { Client } from '../../../clients/createClient.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
+import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feeToken.Options): Relay.Plugin {
-  return (next) =>
-    Object.assign(
+  return Plugin.from(
+    (next) =>
       Request.wrap(next, async (request, context) => {
         if (request.method !== 'eth_fillTransaction')
           return next(request, context.options)
@@ -45,8 +46,8 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
           ...(feeToken ? { feeToken } : {}),
         })
       }),
-      { [Request.tokens]: resolveTokens },
-    )
+    { resolveTokens },
+  )
 
   async function resolveTokens(chainId: number, signal?: AbortSignal) {
     if (options.resolveTokens) return options.resolveTokens(chainId)
