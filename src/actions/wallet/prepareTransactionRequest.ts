@@ -24,7 +24,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
-import { BaseError } from '../../errors/base.js'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
@@ -246,6 +246,10 @@ export type PrepareTransactionRequestReturnType<
 >
 
 export type PrepareTransactionRequestErrorType =
+  | BaseErrorType
+  | SignedFrameTransactionError
+  | FrameCountMismatchError
+  | FrameGasMissingError
   | AccountNotFoundErrorType
   | AssertRequestErrorType
   | ParseAccountErrorType
@@ -411,9 +415,7 @@ export async function prepareTransactionRequest<
       }
     })
   )
-    throw new BaseError(
-      'Signed frame transactions must be sent with sendRawTransaction.',
-    )
+    throw new SignedFrameTransactionError()
 
   if (
     parameters.includes('nonce') &&
@@ -567,9 +569,7 @@ export async function prepareTransactionRequest<
             parameters.includes('gas') &&
             filledFrames?.length !== frames.length
           )
-            throw new BaseError(
-              'The node returned an unexpected number of frames.',
-            )
+            throw new FrameCountMismatchError()
           const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
           const hasFilledFeePayerSignature =
             'feePayerSignature' in rest &&
@@ -796,9 +796,7 @@ export async function prepareTransactionRequest<
         frame.executionGas === undefined || frame.stateGas === undefined,
     )
   )
-    throw new BaseError(
-      'Provide executionGas and stateGas for every frame, or use a node that supports filling frame gas limits.',
-    )
+    throw new FrameGasMissingError()
 
   if (parameters.includes('gas') && !frames && typeof gas === 'undefined')
     request.gas = await getAction(
@@ -831,4 +829,31 @@ export async function prepareTransactionRequest<
   delete request.parameters
 
   return request as any
+}
+
+class SignedFrameTransactionError extends BaseError {
+  override readonly name =
+    'PrepareTransactionRequest.SignedFrameTransactionError'
+
+  constructor() {
+    super('Signed frame transactions must be sent with sendRawTransaction.')
+  }
+}
+
+class FrameCountMismatchError extends BaseError {
+  override readonly name = 'PrepareTransactionRequest.FrameCountMismatchError'
+
+  constructor() {
+    super('The node returned an unexpected number of frames.')
+  }
+}
+
+class FrameGasMissingError extends BaseError {
+  override readonly name = 'PrepareTransactionRequest.FrameGasMissingError'
+
+  constructor() {
+    super(
+      'Provide executionGas and stateGas for every frame, or use a node that supports filling frame gas limits.',
+    )
+  }
 }
