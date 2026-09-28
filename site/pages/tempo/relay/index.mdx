@@ -29,31 +29,6 @@ The node behind the execution RPC executes transactions and enforces authorizati
 A Relay prepares transactions and coordinates offchain state; it cannot bypass
 chain rules. Clients rely on it for service availability and persistence.
 
-## Usage
-
-Connect to a remote Relay with [`withRelay`](/tempo/transports/withRelay). To
-implement relay behavior, use [`Relay.create`](/tempo/utilities/Relay.create)
-to compose plugins around a Viem client. With no plugins, requests pass
-directly to the execution RPC.
-
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay } from 'viem/tempo'
-
-const relay = Relay.create({
-  client: createClient({ chain: tempo, transport: http() }),
-})
-
-const chainId = await relay.request({ method: 'eth_chainId' })
-// @log: '0x1079'
-```
-
-:::warning
-**Experimental.** This module composes handlers, not a complete relay service.
-Your application provides HTTP hosting, authentication, and persistent storage.
-:::
-
 <Cards>
   <Card
     icon="lucide:workflow"

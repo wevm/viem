@@ -1,5 +1,5 @@
 ---
-description: Connect a Tempo client to a relay or host a relay with plugins.
+description: Extend the Tempo (Execution) RPC with offchain transaction services and coordination.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,38 +8,57 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A relay adds offchain services to the Tempo execution RPC, such as collecting
-multisig approvals before submitting a transaction. The execution node still
-validates signatures and executes transactions.
+A **Relay** sits between a client and the **Tempo (Execution) RPC**. It acts as a
+sidecar to the chain, providing offchain services that are impractical onchain
+because of storage growth, cost, or operational requirements.
 
-Use [`withRelay`](/tempo/transports/withRelay) to connect a client to a remote
-relay service or run plugins locally in the application. A remote relay gives
-independent clients a shared endpoint. A local relay runs the same plugins
-directly around the client's transport.
+```mermaid
+flowchart LR
+  client[Client] --> relay
+  subgraph relay[Relay RPC]
+    direction TB
+    multisig[Multisig]
+    feePayer["🚧 Fee Payer"]
+    funding["🚧 Funding"]
+    accessKeyState["🚧 Access Key State"]
+  end
+  relay --> rpc["Tempo (Execution) RPC"]
+```
 
-To host a service, use [`Relay.create`](/tempo/utilities/Relay.create) and export
-its Fetch handler. Add plugins for the services you need; without plugins,
-requests pass through to the execution RPC.
-
-The [`Relay.multisig`](/tempo/relay/plugins/multisig) plugin stores approvals until
-quorum and submits the completed transaction. Coordinators must share a
-persistent [atomic store](/tempo/utilities/Store) when they run in separate
-processes. Fee sponsorship depends on the relay service and is not provided by
-the multisig plugin.
-
-## See More
+The node behind the execution RPC executes transactions and enforces authorization.
+A Relay prepares transactions and coordinates offchain state; it cannot bypass
+chain rules. Clients rely on it for service availability and persistence.
 
 <Cards>
   <Card
-    icon="lucide:network"
-    title="Connect to a Relay"
-    description="Connect a client to a remote service or run plugins locally."
-    to="/tempo/guides/relay/connect"
-  />
-  <Card
     icon="lucide:workflow"
     title="Run a Relay"
-    description="Host a Fetch endpoint and add relay plugins."
+    description="Host a Fetch endpoint with a Viem client and plugins."
     to="/tempo/guides/relay/run"
+  />
+  <Card
+    icon="lucide:network"
+    title="Connect to a Relay"
+    description="Route client requests to a remote relay service."
+    to="/tempo/guides/relay/connect"
+  />
+</Cards>
+
+## Plugins
+
+The first Viem relay plugin coordinates multisig approvals. Fee-payer, funding,
+access-key state, and account-config plugins are not implemented here.
+
+The production Tempo Relay API separately provides transaction services such as
+fee sponsorship, auto-swap, and fee-token resolution. A Viem relay with the
+multisig plugin does not implement those services. Spend routing is a future
+direction with similarities to auto-swap.
+
+<Cards>
+  <Card
+    icon="lucide:users"
+    title="Multisig"
+    description="Learn how a shared mailbox coordinates owner approvals."
+    to="/tempo/relay/plugins/multisig"
   />
 </Cards>
