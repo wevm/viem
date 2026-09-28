@@ -1,3 +1,7 @@
+import type * as FrameSignature_ox from 'ox/FrameSignature'
+import type * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import type { BaseErrorType } from '../errors/base.js'
+import type { ErrorType as ErrorType_ } from '../errors/utils.js'
 import type { Frame } from '../types/frame.js'
 import * as internal from './internal/transaction.js'
 
@@ -52,4 +56,13 @@ export async function sign(
   { transaction }: { transaction: internal.Transaction },
 ): Promise<Frame> {
   return internal.signFrame(frame, transaction)
+}
+
+export declare namespace sign {
+  /** Errors from preparation validation, signature conversion, or the signing callback. */
+  type ErrorType =
+    | BaseErrorType
+    | FrameSignature_ox.from.ErrorType
+    | TxEnvelopeEip8141.getSignPayload.ErrorType
+    | ErrorType_
 }
