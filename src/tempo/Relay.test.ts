@@ -1,6 +1,7 @@
 // Adapted from tempoxyz/api relay.test.ts at f209a9aca75123540fe5b959fd224b62494af399.
 
-import { type RpcRequest, Secp256k1 } from 'ox'
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import { Secp256k1 } from 'ox'
 import {
   Transaction as core_Transaction,
   SignatureEnvelope,
@@ -26,7 +27,7 @@ import {
   Actions,
   Addresses,
   type Capabilities,
-  Relay as Relay_,
+  Relay,
   Store,
   Tick,
   Transaction,
@@ -34,14 +35,15 @@ import {
   withRelay,
 } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
+import * as Tempo from '~test/tempo/config.js'
 import { nodeEnv } from '~test/tempo/config.js'
-import * as Relay from '~test/tempo/relay.js'
+import { createHttpServer } from '~test/utils.js'
 
-type Server = Relay.Server
+type Server = Awaited<ReturnType<typeof createHttpServer>>
 
-const userAccount = Relay.accounts[9]!
-const feePayerAccount = Relay.accounts[0]!
-const recipient = Relay.accounts[7]!
+const userAccount = Tempo.accounts[9]!
+const feePayerAccount = Tempo.accounts[0]!
+const recipient = Tempo.accounts[7]!
 
 /**
  * Tokens the relay handler probes for fee-token resolution. The default
@@ -49,30 +51,10 @@ const recipient = Relay.accounts[7]!
  * tests inject this list explicitly.
  */
 const localnetTokens = [
-  {
-    address: '0x20c0000000000000000000000000000000000000',
-    decimals: 6,
-    name: 'pathUSD',
-    symbol: 'pathUSD',
-  },
-  {
-    address: '0x20c0000000000000000000000000000000000001',
-    decimals: 6,
-    name: 'alphaUSD',
-    symbol: 'alphaUSD',
-  },
-  {
-    address: '0x20c0000000000000000000000000000000000002',
-    decimals: 6,
-    name: 'betaUSD',
-    symbol: 'betaUSD',
-  },
-  {
-    address: '0x20c0000000000000000000000000000000000003',
-    decimals: 6,
-    name: 'thetaUSD',
-    symbol: 'thetaUSD',
-  },
+  '0x20c0000000000000000000000000000000000000',
+  '0x20c0000000000000000000000000000000000001',
+  '0x20c0000000000000000000000000000000000002',
+  '0x20c0000000000000000000000000000000000003',
 ] as const
 
 /** Case-insensitive lookup into balanceDiffs keyed by address. */
@@ -99,12 +81,12 @@ function virtualAddresses(
 }
 
 /** Client used only to build typed calldata (`Actions.token.*.call`). */
-const caller = Relay.getClient()
+const caller = Tempo.getClient({ chain: Tempo.chain })
 
 /** A simple transfer call for tests that just need a valid transaction. */
 const transferCall = () =>
   Actions.token.transfer.call(caller, {
-    token: Relay.addresses.alphaUsd,
+    token: Tempo.addresses.alphaUsd,
     to: recipient.address,
     amount: 1n,
   })
@@ -116,32 +98,46 @@ beforeAll(async () => {
   // insufficient-balance tests) and accounts[7] (recipient only).
   await Promise.all(
     [0, 2, 3, 4, 6, 8, 9].map((index) =>
-      Actions.faucet.fundSync(Relay.getClient(), {
-        account: Relay.accounts[index]!,
+      Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
+        account: Tempo.accounts[index]!,
         timeout: 60_000,
       }),
     ),
   )
   // userAccount prefers alphaUsd (a faucet-funded genesis token) as its fee token.
   await waitForTransactionReceipt(caller, {
-    hash: await Actions.fee.setUserToken(Relay.getClient(), {
-      account: userAccount,
-      token: Relay.addresses.alphaUsd,
-    }),
+    hash: await Actions.fee.setUserToken(
+      Tempo.getClient({ chain: Tempo.chain }),
+      {
+        account: userAccount,
+        token: Tempo.addresses.alphaUsd,
+      },
+    ),
   })
 })
 
 describe.skipIf(nodeEnv !== 'localnet')('default', () => {
-  let client: ReturnType<typeof Relay.getClient>
+  let client: typeof caller
   let server: Server
 
   beforeAll(async () => {
-    server = await Relay.createServer((await Relay.relay({})).listener)
-    client = Relay.getClient({ url: server.url })
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [Relay.feePayer()],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
+    client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(server.url),
+    })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   test('default: returns filled transaction with capabilities', async () => {
@@ -156,7 +152,7 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
 
   test('behavior: proxies other methods to RPC node', async () => {
     const chainId = await client.request({ method: 'eth_chainId' })
-    expect(Number(chainId)).toMatchInlineSnapshot(`${Relay.chain.id}`)
+    expect(Number(chainId)).toMatchInlineSnapshot(`${Tempo.chain.id}`)
   })
 
   test('behavior: surfaces upstream RPC errors as JSON-RPC errors', async () => {
@@ -165,7 +161,7 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
     // forward the revert as a structured JSON-RPC error response (HTTP 200
     // with `error.code`/`error.data`), not a 500.
     const call = Actions.token.grantRoles.call(caller, {
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
       role: 'issuer',
       to: recipient.address,
     })
@@ -241,36 +237,44 @@ describe.skipIf(nodeEnv !== 'localnet')('default', () => {
     expect(body).toHaveLength(2)
     expect(body[0]!.id).toBe(1)
     expect(body[1]!.id).toBe(2)
-    expect(Number(body[0]!.result)).toBe(Relay.chain.id)
-    expect(Number(body[1]!.result)).toBe(Relay.chain.id)
+    expect(Number(body[0]!.result)).toBe(Tempo.chain.id)
+    expect(Number(body[1]!.result)).toBe(Tempo.chain.id)
   })
 })
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   let server: Server
-  let client: ReturnType<typeof Relay.getClient>
-  let requests: RpcRequest.RpcRequest[] = []
+  let client: typeof caller
+  let requests: Relay.handleRequest.Request[] = []
 
   beforeAll(async () => {
-    server = await Relay.createServer(
-      (
-        await Relay.relay({
-          feePayer: {
-            account: feePayerAccount,
-            name: 'Test Sponsor',
-            url: 'https://test.com',
-          },
-          onRequest: async (request) => {
-            requests.push(request)
-          },
-        })
-      ).listener,
-    )
-    client = Relay.getClient({ url: server.url })
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        (next) => async (request, options) => {
+          requests.push(request)
+          return next(request, options)
+        },
+        Relay.feePayer({
+          account: feePayerAccount,
+          name: 'Test Sponsor',
+          url: 'https://test.com',
+        }),
+      ],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
+    client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(server.url),
+    })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   afterEach(() => {
@@ -314,7 +318,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
       calls: [transferCall()],
     })
     const signed = await userAccount.signTransaction(transaction as never)
-    const receipt = (await Relay.getClient().request({
+    const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
       method: 'eth_sendRawTransactionSync' as never,
       params: [signed],
     })) as { feePayer?: string | undefined }
@@ -344,33 +348,38 @@ describe.runIf(
     import.meta.env.VITE_TEMPO_MULTISIG === 'true' &&
     import.meta.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
 )('multisig', () => {
-  let client: ReturnType<typeof Relay.getClient>
+  let client: typeof caller
   let server: Server
   const store = Store.memory()
 
   beforeAll(async () => {
-    server = await Relay.createServer(
-      (
-        await Relay.relay({
-          multisig: { store },
-          tokens: localnetTokens,
-        })
-      ).listener,
-    )
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.multisig({ store }),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => localnetTokens }),
+      ],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
     client = createClient({
-      chain: Relay.chain,
+      chain: Tempo.chain,
       pollingInterval: 100,
-      transport: withRelay(Relay.http(), Relay.http(server.url)),
+      transport: withRelay(Tempo.http(), Tempo.http(server.url)),
     })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   test('example: initial configuration', async () => {
-    const owner_1 = Relay.accounts[1]!
-    const owner_2 = Relay.accounts[2]!
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
@@ -382,11 +391,11 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
 
     const { receipt: pending } = await Actions.token.transferSync(client, {
@@ -394,7 +403,7 @@ describe.runIf(
       amount: 1n,
       owner: owner_1,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     expect({
       signatureCount: pending.multisig?.signatureCount,
@@ -416,7 +425,7 @@ describe.runIf(
       hash: pending.transactionHash,
       owner: owner_2,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     } as never)
     expect({
       signatureCount: receipt.multisig?.signatureCount,
@@ -435,7 +444,7 @@ describe.runIf(
       (
         await Actions.token.getBalance(client, {
           account: recipient.address,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         })
       ).amount - balance.amount,
     ).toMatchInlineSnapshot(`1n`)
@@ -461,15 +470,15 @@ describe.runIf(
   })
 
   test('rejects multisig accounts as owners', () => {
-    const child = Account.fromMultisig({ owners: [Relay.accounts[3]!] })
+    const child = Account.fromMultisig({ owners: [Tempo.accounts[3]!] })
     expect(() => Account.fromMultisig({ owners: [child as never] })).toThrow()
   })
 
   test('example: weighted quorum', async () => {
     const owners = [
-      Relay.accounts[4]!,
-      Relay.accounts[6]!,
-      Relay.accounts[8]!,
+      Tempo.accounts[4]!,
+      Tempo.accounts[6]!,
+      Tempo.accounts[8]!,
     ].sort((a, b) => a.address.localeCompare(b.address))
     const heavy = owners[0]!
     const light_1 = owners[1]!
@@ -489,7 +498,7 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
 
     const { receipt: alicePending } = await Actions.token.transferSync(client, {
@@ -497,7 +506,7 @@ describe.runIf(
       amount: 3n,
       owner: heavy,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     expect({
       status: alicePending.status,
@@ -514,7 +523,7 @@ describe.runIf(
       hash: alicePending.transactionHash,
       owner: light_1,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     } as never)
     expect(aliceBob.status).toMatchInlineSnapshot(`"success"`)
 
@@ -525,7 +534,7 @@ describe.runIf(
         amount: 4n,
         owner: heavy,
         to: recipient.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       },
     )
     const { receipt: aliceCarol } = await Actions.token.transferSync(client, {
@@ -534,7 +543,7 @@ describe.runIf(
       hash: secondAlicePending.transactionHash,
       owner: light_2,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     } as never)
     expect(aliceCarol.status).toMatchInlineSnapshot(`"success"`)
 
@@ -543,7 +552,7 @@ describe.runIf(
       amount: 5n,
       owner: light_1,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const { receipt: bobCarolPending } = await Actions.token.transferSync(
       client,
@@ -553,7 +562,7 @@ describe.runIf(
         hash: bobPending.transactionHash,
         owner: light_2,
         to: recipient.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       } as never,
     )
     expect({
@@ -572,7 +581,7 @@ describe.runIf(
       hash: bobCarolPending.transactionHash,
       owner: heavy,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     } as never)
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
 
@@ -596,25 +605,31 @@ describe.runIf(
 
   test('example: fee sponsorship', async () => {
     const sponsorStore = Store.memory()
-    const sponsorServer = await Relay.createServer(
-      (
-        await Relay.relay({
-          feePayer: {
-            account: feePayerAccount,
-            onSponsored: () => ({ subsidized: true }),
-          },
-          multisig: { store: sponsorStore },
-          tokens: localnetTokens,
-        })
-      ).listener,
+    const sponsorRelay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.multisig({ store: sponsorStore }),
+        Relay.feePayer({
+          account: feePayerAccount,
+          onSponsored: () => ({ subsidized: true }),
+        }),
+        Relay.feeToken({ resolveTokens: () => localnetTokens }),
+      ],
+    })
+
+    const sponsorServer = await createHttpServer(
+      createRequestListener(sponsorRelay.fetch),
     )
     const sponsorClient = createClient({
-      chain: Relay.chain,
+      chain: Tempo.chain,
       pollingInterval: 100,
-      transport: withRelay(Relay.http(), Relay.http(sponsorServer.url)),
+      transport: withRelay(Tempo.http(), Tempo.http(sponsorServer.url)),
     })
-    const owner_1 = Relay.accounts[1]!
-    const owner_2 = Relay.accounts[2]!
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
 
     try {
       const transaction = await prepareTransactionRequest(caller, {
@@ -647,7 +662,7 @@ describe.runIf(
         account: feePayerAccount,
         amount: parseUnits('1', 6),
         to: ownerFirst.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       })
 
       const { receipt: ownerFirstPending } = await Actions.token.transferSync(
@@ -658,7 +673,7 @@ describe.runIf(
           feePayer: true,
           owner: owner_1,
           to: recipient.address,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         },
       )
       if (!ownerFirstPending.multisig)
@@ -686,7 +701,7 @@ describe.runIf(
           hash: ownerFirstPending.transactionHash,
           owner: owner_2,
           to: recipient.address,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         } as never,
       )
       expect({
@@ -709,7 +724,7 @@ describe.runIf(
         account: feePayerAccount,
         amount: parseUnits('1', 6),
         to: feePayerFirst.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       })
 
       const { receipt: feePayerFirstPending } =
@@ -719,7 +734,7 @@ describe.runIf(
           feePayer: feePayerAccount,
           owner: owner_1,
           to: recipient.address,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         })
       if (!feePayerFirstPending.multisig)
         throw new Error('Expected a multisig operation.')
@@ -745,7 +760,7 @@ describe.runIf(
           hash: feePayerFirstPending.transactionHash,
           owner: owner_2,
           to: recipient.address,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         } as never)
       expect({
         feePayer: feePayerFirstReceipt.feePayer,
@@ -757,13 +772,13 @@ describe.runIf(
         }
       `)
     } finally {
-      sponsorServer.close()
+      await sponsorServer.close()
     }
   })
 
   test('example: initial config and immediate access key use', async () => {
-    const owner_1 = Relay.accounts[3]!
-    const owner_2 = Relay.accounts[4]!
+    const owner_1 = Tempo.accounts[3]!
+    const owner_2 = Tempo.accounts[4]!
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -778,7 +793,7 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const pending = await Actions.accessKey.signAuthorization(client, {
       accessKey,
@@ -808,7 +823,7 @@ describe.runIf(
       amount: 8n,
       keyAuthorization,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const transaction = await getTransaction(client, {
       hash: receipt.transactionHash,
@@ -834,8 +849,8 @@ describe.runIf(
   })
 
   test('example: initial config and subsequent access key use', async () => {
-    const owner_1 = Relay.accounts[6]!
-    const owner_2 = Relay.accounts[8]!
+    const owner_1 = Tempo.accounts[6]!
+    const owner_2 = Tempo.accounts[8]!
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -850,7 +865,7 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const pendingAuthorization = await Actions.accessKey.signAuthorization(
       client,
@@ -871,7 +886,7 @@ describe.runIf(
       keyAuthorization,
       owner: owner_1,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const { receipt: initialReceipt } = await Actions.token.transferSync(
       client,
@@ -882,7 +897,7 @@ describe.runIf(
         keyAuthorization,
         owner: owner_2,
         to: recipient.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       } as never,
     )
     const initialTransaction = await getTransaction(client, {
@@ -905,7 +920,7 @@ describe.runIf(
       account: accessKey,
       amount: 10n,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     expect({
       from: receipt.from,
@@ -919,9 +934,9 @@ describe.runIf(
   })
 
   test('example: current configuration and configuration rotation', async () => {
-    const owner_1 = Relay.accounts[1]!
-    const owner_2 = Relay.accounts[2]!
-    const owner_3 = Relay.accounts[3]!
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
+    const owner_3 = Tempo.accounts[3]!
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -937,7 +952,7 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const { receipt: pending } = await Actions.multisig.updateConfigSync(
       client,
@@ -984,7 +999,7 @@ describe.runIf(
       amount: 11n,
       owner: owner_3,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const transaction = await getTransaction(client, {
       hash: receipt.transactionHash,
@@ -1006,8 +1021,8 @@ describe.runIf(
   })
 
   test('behavior: routes pathless approvals to their operation chain', async () => {
-    const owner_1 = Relay.accounts[1]!
-    const owner_2 = Relay.accounts[2]!
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
@@ -1019,36 +1034,40 @@ describe.runIf(
       account: feePayerAccount,
       amount: parseUnits('1', 6),
       to: account.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
     const { receipt: pending } = await Actions.token.transferSync(client, {
       account,
       amount: 12n,
       owner: owner_1,
       to: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     })
 
-    const getClient = Relay.readClient()
-    if (!getClient) throw new Error('Expected a relay client resolver.')
-    const routedServer = await Relay.createServer(
-      (
-        await Relay.relay({
-          getClient(chainId) {
-            if (chainId !== Relay.chain.id)
-              throw new Error('Expected the multisig operation chain.')
-            return getClient(chainId)
-          },
-          multisig: { store },
-          tokens: localnetTokens,
+    const routedRelay = Relay.create({
+      getClient({ chainId }) {
+        if (chainId !== Tempo.chain.id)
+          throw new Error('Expected the multisig operation chain.')
+        return Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
         })
-      ).listener,
+      },
+      plugins: [
+        Relay.multisig({ store }),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => localnetTokens }),
+      ],
+    })
+
+    const routedServer = await createHttpServer(
+      createRequestListener(routedRelay.fetch),
     )
     try {
       const routedClient = createClient({
-        chain: Relay.chain,
+        chain: Tempo.chain,
         pollingInterval: 100,
-        transport: withRelay(Relay.http(), Relay.http(routedServer.url)),
+        transport: withRelay(Tempo.http(), Tempo.http(routedServer.url)),
       })
       const { receipt } = await Actions.token.transferSync(routedClient, {
         account,
@@ -1056,12 +1075,12 @@ describe.runIf(
         hash: pending.transactionHash,
         owner: owner_2,
         to: recipient.address,
-        token: Relay.addresses.alphaUsd,
+        token: Tempo.addresses.alphaUsd,
       } as never)
 
       expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     } finally {
-      await routedServer.closeAsync()
+      await routedServer.close()
     }
   })
 })
@@ -1070,28 +1089,35 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: with feePayer.feeToken',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     const sponsorFeeToken =
       '0x20c0000000000000000000000000000000000000' as const // pathUSD
 
     beforeAll(async () => {
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            feePayer: {
-              account: feePayerAccount,
-              feeToken: sponsorFeeToken,
-            },
-            tokens: localnetTokens,
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            feeToken: sponsorFeeToken,
+          }),
+          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     test('default: sponsor.feeToken is used when request omits feeToken', async () => {
@@ -1107,7 +1133,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const { transaction } = await fillTransaction(client, {
         account: userAccount.address,
         calls: [transferCall()],
-        feeToken: Relay.addresses.alphaUsd as Address,
+        feeToken: Tempo.addresses.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(sponsorFeeToken)
       expect(transaction.feePayerSignature).toBeDefined()
@@ -1118,10 +1144,10 @@ describe.skipIf(nodeEnv !== 'localnet')(
         account: userAccount.address,
         calls: [transferCall()],
         feePayer: false as never,
-        feeToken: Relay.addresses.alphaUsd as Address,
+        feeToken: Tempo.addresses.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(
-        Relay.addresses.alphaUsd.toLowerCase(),
+        Tempo.addresses.alphaUsd.toLowerCase(),
       )
       expect(transaction.feePayerSignature).toBeUndefined()
     })
@@ -1133,12 +1159,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const { transaction } = await fillTransaction(client, {
         account: userAccount.address,
         calls: [transferCall()],
-        feeToken: Relay.addresses.alphaUsd as Address,
+        feeToken: Tempo.addresses.alphaUsd as Address,
       })
       expect(transaction.feeToken?.toLowerCase()).toBe(sponsorFeeToken)
 
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Relay.getClient().request({
+      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
         method: 'eth_sendRawTransactionSync' as never,
         params: [signed],
       })) as { feePayer?: string | undefined; feeToken?: string | undefined }
@@ -1148,7 +1174,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: raw sponsor signing restores sponsor.feeToken when envelope omits feeToken', async () => {
-      const rpc = Relay.getClient({ account: userAccount })
+      const rpc = Tempo.getClient({ chain: Tempo.chain, account: userAccount })
       const { transaction } = await fillTransaction(rpc, {
         account: userAccount.address,
         calls: [transferCall()],
@@ -1182,21 +1208,27 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     test('behavior: raw sponsor signing restores token-list default before validation', async () => {
       let feeToken_validated: Address | undefined
-      const customServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            feePayer: {
-              account: feePayerAccount,
-              validate: (request) => {
-                feeToken_validated = request.feeToken as Address | undefined
-                return true
-              },
+      const customRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            validate: (request) => {
+              feeToken_validated = request.feeToken as Address | undefined
+              return true
             },
-            tokens: localnetTokens,
-          })
-        ).listener,
+          }),
+          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+        ],
+      })
+
+      const customServer = await createHttpServer(
+        createRequestListener(customRelay.fetch),
       )
-      const rpc = Relay.getClient({ account: userAccount })
+      const rpc = Tempo.getClient({ chain: Tempo.chain, account: userAccount })
       const { transaction } = await fillTransaction(rpc, {
         account: userAccount.address,
         calls: [transferCall()],
@@ -1226,7 +1258,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
         expect(feeToken_validated?.toLowerCase()).toBe(sponsorFeeToken)
         expect(feeToken?.toLowerCase()).toBe(sponsorFeeToken)
       } finally {
-        customServer.close()
+        await customServer.close()
       }
     })
   },
@@ -1237,37 +1269,48 @@ describe.skipIf(nodeEnv !== 'localnet')(
   () => {
     let appServer: Server
     let walletServer: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
       // App relay: has a fee payer account and signs transactions.
-      appServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            feePayer: {
-              account: feePayerAccount,
-              name: 'App Sponsor',
-              url: 'https://app.example.com',
-            },
-          })
-        ).listener,
-      )
+      const appRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'App Sponsor',
+            url: 'https://app.example.com',
+          }),
+        ],
+      })
+
+      appServer = await createHttpServer(createRequestListener(appRelay.fetch))
 
       // Wallet relay: no fee payer configured — proxies to app relay.
-      walletServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            internal_allowUnsafeUrls: true,
-          })
-        ).listener,
+      const walletRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [Relay.feePayer({ internal_allowUnsafeUrls: true })],
+      })
+
+      walletServer = await createHttpServer(
+        createRequestListener(walletRelay.fetch),
       )
 
-      client = Relay.getClient({ url: walletServer.url })
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(walletServer.url),
+      })
     })
 
-    afterAll(() => {
-      appServer.close()
-      walletServer.close()
+    afterAll(async () => {
+      await appServer.close()
+      await walletServer.close()
     })
 
     test('default: proxies fill to app relay and returns sponsored tx', async () => {
@@ -1283,11 +1326,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     test('rejects redirects from external fee-payer relays', async () => {
       let targetRequests = 0
-      const target = await Relay.createServer((_request, response) => {
+      const target = await createHttpServer((_request, response) => {
         targetRequests++
         response.end()
       })
-      const redirect = await Relay.createServer((_request, response) => {
+      const redirect = await createHttpServer((_request, response) => {
         response.writeHead(302, { location: target.url })
         response.end()
       })
@@ -1302,8 +1345,8 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ).rejects.toThrow()
         expect(targetRequests).toBe(0)
       } finally {
-        redirect.close()
-        target.close()
+        await redirect.close()
+        await target.close()
       }
     })
 
@@ -1331,7 +1374,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
         feePayer: appServer.url as never,
       })
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Relay.getClient().request({
+      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
         method: 'eth_sendRawTransactionSync' as never,
         params: [signed],
       })) as { feePayer?: string | undefined }
@@ -1346,54 +1389,72 @@ describe.skipIf(nodeEnv !== 'localnet')(
   () => {
     let appServer: Server
     let walletServer: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
-      // App relay sponsors fees AND has `features: 'all'` so it can recover
-      // from InsufficientBalance via autoSwap.
-      appServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            feePayer: {
-              account: feePayerAccount,
-              name: 'App Sponsor',
-              url: 'https://app.example.com',
-            },
-          })
-        ).listener,
+      // The app relay uses autoSwap to recover from insufficient balances before sponsorship.
+      const appRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'App Sponsor',
+            url: 'https://app.example.com',
+          }),
+          Relay.feeToken({ resolveTokens: () => [] }),
+        ],
+      })
+
+      appServer = await createHttpServer(createRequestListener(appRelay.fetch))
+
+      // The wallet relay retries external sponsorship after adding swaps.
+      const walletRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer({ internal_allowUnsafeUrls: true }),
+          Relay.feeToken({ resolveTokens: () => [] }),
+        ],
+      })
+
+      walletServer = await createHttpServer(
+        createRequestListener(walletRelay.fetch),
       )
 
-      // Wallet relay forwards to the app relay; also has features:'all' so its
-      // own fill() can detect upstream `capabilities.error` as InsufficientBalance.
-      walletServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            internal_allowUnsafeUrls: true,
-          })
-        ).listener,
-      )
-
-      client = Relay.getClient({ url: walletServer.url })
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(walletServer.url),
+      })
     })
 
-    afterAll(() => {
-      appServer.close()
-      walletServer.close()
+    afterAll(async () => {
+      await appServer.close()
+      await walletServer.close()
     })
 
     test('behavior: autoSwap recovers when external feePayer surfaces InsufficientBalance', async () => {
-      const sender = Relay.accounts[6]!
+      const sender = Tempo.accounts[6]!
 
       // Token pair + DEX liquidity. Use alphaUsd as the quote token so the
       // relay can swap alphaUsd → base to cover the deficit.
-      const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+      const rpc = Tempo.getClient({
+        chain: Tempo.chain,
+        account: Tempo.accounts[0]!,
+      })
       const { token: base } = await Actions.token.createSync(rpc, {
         name: 'External Swap Base',
         symbol: 'EXTBASE',
         currency: 'USD',
-        quoteToken: Relay.addresses.alphaUsd,
+        quoteToken: Tempo.addresses.alphaUsd,
       })
       await sendTransactionSync(rpc, {
         calls: [
@@ -1413,7 +1474,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
             amount: parseUnits('10000', 6),
           }),
           Actions.token.approve.call(caller, {
-            token: Relay.addresses.alphaUsd,
+            token: Tempo.addresses.alphaUsd,
             spender: Addresses.stablecoinDex,
             amount: parseUnits('10000', 6),
           }),
@@ -1430,9 +1491,9 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // Sender has faucet alphaUsd (fee + swap source) but NO base tokens.
       await waitForTransactionReceipt(caller, {
         hash: await Actions.fee.setUserToken(
-          Relay.getClient({ account: sender }),
+          Tempo.getClient({ chain: Tempo.chain, account: sender }),
           {
-            token: Relay.addresses.alphaUsd,
+            token: Tempo.addresses.alphaUsd,
           },
         ),
       })
@@ -1446,7 +1507,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
         account: sender.address,
         ...Actions.token.transfer.call(caller, {
           token: base,
-          to: Relay.accounts[7]!.address,
+          to: Tempo.accounts[7]!.address,
           amount: transferAmount,
         }),
         feePayer: appServer.url as never,
@@ -1472,46 +1533,61 @@ describe.skipIf(nodeEnv !== 'localnet')(
   () => {
     let appServer: Server
     let walletServer: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
       // App relay is the authoritative sponsor — it has its own fee payer
       // account and signs sponsored transactions.
-      appServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            feePayer: {
-              account: feePayerAccount,
-              name: 'App Sponsor',
-              url: 'https://app.example.com',
-            },
-          })
-        ).listener,
-      )
+      const appRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'App Sponsor',
+            url: 'https://app.example.com',
+          }),
+        ],
+      })
+
+      appServer = await createHttpServer(createRequestListener(appRelay.fetch))
 
       // Wallet relay has its own fee payer with a `validate` that ALWAYS
       // rejects. This guards the wallet's own fee payer; it must NOT gate
       // sponsorship when the dapp supplies its own external feePayer URL.
-      walletServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
+      const walletRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'Wallet Sponsor',
+            validate: () => false,
             internal_allowUnsafeUrls: true,
-            feePayer: {
-              account: feePayerAccount,
-              name: 'Wallet Sponsor',
-              validate: () => false,
-            },
-          })
-        ).listener,
+          }),
+          Relay.feeToken({ resolveTokens: () => [] }),
+        ],
+      })
+
+      walletServer = await createHttpServer(
+        createRequestListener(walletRelay.fetch),
       )
 
-      client = Relay.getClient({ url: walletServer.url })
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(walletServer.url),
+      })
     })
 
-    afterAll(() => {
-      appServer.close()
-      walletServer.close()
+    afterAll(async () => {
+      await appServer.close()
+      await walletServer.close()
     })
 
     test('behavior: external feePayer URL is sponsored even when wallet validate rejects', async () => {
@@ -1534,20 +1610,37 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: chainId path parameter',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
-      server = await Relay.createServer((await Relay.relay({})).listener)
-      client = Relay.getClient({ url: `${server.url}/${Relay.chain.id}` })
+      const relay = Relay.create<number>({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [Relay.feePayer()],
+      })
+
+      server = await createHttpServer(
+        createRequestListener((request) =>
+          relay.fetch(request, {
+            chainId: Number(new URL(request.url).pathname.slice(1)),
+          }),
+        ),
+      )
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(`${server.url}/${Tempo.chain.id}`),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     test('default: proxies RPC methods via /:chainId path', async () => {
       const chainId = await client.request({ method: 'eth_chainId' })
-      expect(Number(chainId)).toMatchInlineSnapshot(`${Relay.chain.id}`)
+      expect(Number(chainId)).toMatchInlineSnapshot(`${Tempo.chain.id}`)
     })
 
     test('behavior: fills transaction via /:chainId path', async () => {
@@ -1561,7 +1654,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: handles batch requests via /:chainId path', async () => {
-      const response = await fetch(`${server.url}/${Relay.chain.id}`, {
+      const response = await fetch(`${server.url}/${Tempo.chain.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([
@@ -1573,29 +1666,39 @@ describe.skipIf(nodeEnv !== 'localnet')(
       expect(response.status).toBe(200)
       const body = (await response.json()) as { id: number; result: string }[]
       expect(body).toHaveLength(2)
-      expect(Number(body[0]!.result)).toBe(Relay.chain.id)
-      expect(Number(body[1]!.result)).toBe(Relay.chain.id)
+      expect(Number(body[0]!.result)).toBe(Tempo.chain.id)
+      expect(Number(body[1]!.result)).toBe(Tempo.chain.id)
     })
   },
 )
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   let server: Server
-  let client: ReturnType<typeof Relay.getClient>
+  let client: typeof caller
 
   beforeAll(async () => {
-    server = await Relay.createServer(
-      (
-        await Relay.relay({
-          features: 'all',
-        })
-      ).listener,
-    )
-    client = Relay.getClient({ url: server.url })
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.simulate(),
+        Relay.autoSwap(),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => [] }),
+      ],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
+    client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(server.url),
+    })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   test('default: returns fee and sponsored info', async () => {
@@ -1612,17 +1715,20 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: token transfer produces balance diffs', async () => {
-    const sender = Relay.accounts[6]!
-    const recipient = Relay.accounts[7]!
-    const token = Relay.addresses.alphaUsd
+    const sender = Tempo.accounts[6]!
+    const recipient = Tempo.accounts[7]!
+    const token = Tempo.addresses.alphaUsd
 
     // Sender is faucet-funded with alphaUsd (enough for transfer + fee).
     // Set fee token so relay doesn't need pathUSD balance.
     await waitForTransactionReceipt(caller, {
-      hash: await Actions.fee.setUserToken(Relay.getClient(), {
-        account: sender,
-        token,
-      }),
+      hash: await Actions.fee.setUserToken(
+        Tempo.getClient({ chain: Tempo.chain }),
+        {
+          account: sender,
+          token,
+        },
+      ),
     })
 
     const { data, to: callTo } = Actions.token.transfer.call(caller, {
@@ -1679,7 +1785,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
           amount: 1n,
           memo: '0x01',
           to: virtualAddress,
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         }),
       ],
       capabilities: { errors: true },
@@ -1693,11 +1799,14 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: approve + dex swap + transfer produces balance diffs', async () => {
-    const sender = Relay.accounts[8]!
-    const recipient = Relay.accounts[7]!
+    const sender = Tempo.accounts[8]!
+    const recipient = Tempo.accounts[7]!
 
     // Set up token pair + DEX liquidity.
-    const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+    const rpc = Tempo.getClient({
+      chain: Tempo.chain,
+      account: Tempo.accounts[0]!,
+    })
     const { token: quote } = await Actions.token.createSync(rpc, {
       name: 'Test Quote',
       symbol: 'TQUOTE',
@@ -1759,9 +1868,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     })
     await waitForTransactionReceipt(caller, {
       hash: await Actions.fee.setUserToken(
-        Relay.getClient({ account: sender }),
+        Tempo.getClient({ chain: Tempo.chain, account: sender }),
         {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         },
       ),
     })
@@ -1806,9 +1915,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: approval covered by transfer is suppressed', async () => {
-    const sender = Relay.accounts[6]!
-    const recipient = Relay.accounts[7]!
-    const token = Relay.addresses.alphaUsd
+    const sender = Tempo.accounts[6]!
+    const recipient = Tempo.accounts[7]!
+    const token = Tempo.addresses.alphaUsd
 
     // approve(100) + transfer(100) to same spender → approval fully covered.
     const result = await fillTransaction(client, {
@@ -1838,9 +1947,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
   })
 
   test('behavior: uncovered approval shows as outgoing', async () => {
-    const sender = Relay.accounts[6]!
-    const spender = Relay.accounts[7]!
-    const token = Relay.addresses.alphaUsd
+    const sender = Tempo.accounts[6]!
+    const spender = Tempo.accounts[7]!
+    const token = Tempo.addresses.alphaUsd
 
     // approve(200) + transfer(50) to same spender → 150 uncovered approval.
     const result = await fillTransaction(client, {
@@ -1872,34 +1981,47 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
   let server: Server
-  let client: ReturnType<typeof Relay.getClient>
+  let client: typeof caller
 
   beforeAll(async () => {
-    server = await Relay.createServer(
-      (
-        await Relay.relay({
-          features: 'all',
-        })
-      ).listener,
-    )
-    client = Relay.getClient({ url: server.url })
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.simulate(),
+        Relay.autoSwap(),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => [] }),
+      ],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
+    client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(server.url),
+    })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   test('behavior: prepends swap calls on InsufficientBalance', async () => {
-    const sender = Relay.accounts[4]!
+    const sender = Tempo.accounts[4]!
 
     // Set up token pair + DEX liquidity.
     // Use alphaUsd as the quote token so the relay can swap alphaUsd → base.
-    const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+    const rpc = Tempo.getClient({
+      chain: Tempo.chain,
+      account: Tempo.accounts[0]!,
+    })
     const { token: base } = await Actions.token.createSync(rpc, {
       name: 'Swap Base',
       symbol: 'SWBASE',
       currency: 'USD',
-      quoteToken: Relay.addresses.alphaUsd,
+      quoteToken: Tempo.addresses.alphaUsd,
     })
     await sendTransactionSync(rpc, {
       calls: [
@@ -1919,7 +2041,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
           amount: parseUnits('10000', 6),
         }),
         Actions.token.approve.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           spender: Addresses.stablecoinDex,
           amount: parseUnits('10000', 6),
         }),
@@ -1936,9 +2058,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     // Sender has faucet alphaUsd (fee token) but NO base tokens.
     await waitForTransactionReceipt(caller, {
       hash: await Actions.fee.setUserToken(
-        Relay.getClient({ account: sender }),
+        Tempo.getClient({ chain: Tempo.chain, account: sender }),
         {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         },
       ),
     })
@@ -1950,7 +2072,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
       account: sender.address,
       ...Actions.token.transfer.call(caller, {
         token: base,
-        to: Relay.accounts[7]!.address,
+        to: Tempo.accounts[7]!.address,
         amount: transferAmount,
       }),
     })
@@ -1959,7 +2081,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     const { transaction, capabilities } = result
     expect(transaction.gas).toBeDefined()
     expect(transaction.nonce).toBeDefined()
-    expect(transaction.feeToken).toBe(Relay.addresses.alphaUsd)
+    expect(transaction.feeToken).toBe(Tempo.addresses.alphaUsd)
     expect(transaction.calls).toHaveLength(3) // approve + swap + transfer
 
     const m = capabilities
@@ -1980,23 +2102,23 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     expect(m?.autoSwap?.maxIn.formatted).toBe('5.25')
     expect(m?.autoSwap?.maxIn.symbol).toBe('AlphaUSD')
     expect(m?.autoSwap?.maxIn.token.toLowerCase()).toBe(
-      Relay.addresses.alphaUsd.toLowerCase(),
+      Tempo.addresses.alphaUsd.toLowerCase(),
     )
     expect(m?.autoSwap?.minOut.formatted).toBe('5')
     expect(m?.autoSwap?.minOut.symbol).toBe('SWBASE')
     expect(m?.autoSwap?.minOut.token.toLowerCase()).toBe(base.toLowerCase())
     const sponsoredClient = createClient({
-      chain: Relay.chain,
-      transport: withRelay(Relay.http(), {
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
         plugins: [
-          Relay_.simulate(),
-          Relay_.feePayer({
+          Relay.simulate(),
+          Relay.feePayer({
             account: feePayerAccount,
-            feeToken: Relay.addresses.alphaUsd,
+            feeToken: Tempo.addresses.alphaUsd,
             validate: (transaction) => transaction.calls?.length === 3,
           }),
-          Relay_.autoSwap(),
-          Relay_.feeToken({ resolveTokens: () => [Relay.addresses.alphaUsd] }),
+          Relay.autoSwap(),
+          Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
         ],
       }),
     })
@@ -2011,7 +2133,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     expect(sponsored.capabilities?.sponsored).toBe(true)
     expect(sponsored.transaction.calls).toHaveLength(3)
     const signed = await sender.signTransaction(sponsored.transaction as never)
-    const receipt = await Relay.getClient().request({
+    const receipt = await Tempo.getClient({ chain: Tempo.chain }).request({
       method: 'eth_sendRawTransactionSync',
       params: [signed],
     })
@@ -2019,15 +2141,18 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
   })
 
   test('behavior: custom slippage is applied to autoSwap', async () => {
-    const sender = Relay.accounts[2]!
+    const sender = Tempo.accounts[2]!
 
     // Set up token pair + DEX liquidity.
-    const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+    const rpc = Tempo.getClient({
+      chain: Tempo.chain,
+      account: Tempo.accounts[0]!,
+    })
     const { token: base } = await Actions.token.createSync(rpc, {
       name: 'Slippage Base',
       symbol: 'SLPBASE',
       currency: 'USD',
-      quoteToken: Relay.addresses.alphaUsd,
+      quoteToken: Tempo.addresses.alphaUsd,
     })
     await sendTransactionSync(rpc, {
       calls: [
@@ -2047,7 +2172,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
           amount: parseUnits('10000', 6),
         }),
         Actions.token.approve.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           spender: Addresses.stablecoinDex,
           amount: parseUnits('10000', 6),
         }),
@@ -2064,33 +2189,44 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     // Sender has faucet alphaUsd but NO base tokens.
     await waitForTransactionReceipt(caller, {
       hash: await Actions.fee.setUserToken(
-        Relay.getClient({ account: sender }),
+        Tempo.getClient({ chain: Tempo.chain, account: sender }),
         {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         },
       ),
     })
 
     // Create relay with custom 2% slippage.
-    const customServer = await Relay.createServer(
-      (
-        await Relay.relay({
-          features: 'all',
-          autoSwap: { slippage: 0.02 },
-        })
-      ).listener,
+    const customRelay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.simulate(),
+        Relay.autoSwap({ slippage: 0.02 }),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => [] }),
+      ],
+    })
+
+    const customServer = await createHttpServer(
+      createRequestListener(customRelay.fetch),
     )
-    const customClient = Relay.getClient({ url: customServer.url })
+    const customClient = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(customServer.url),
+    })
 
     const result = await fillTransaction(customClient, {
       account: sender.address,
       ...Actions.token.transfer.call(caller, {
         token: base,
-        to: Relay.accounts[7]!.address,
+        to: Tempo.accounts[7]!.address,
         amount: parseUnits('10', 6),
       }),
     })
-    customServer.close()
+    await customServer.close()
 
     const m = result.capabilities
     expect(m?.autoSwap?.slippage).toBe(0.02)
@@ -2100,15 +2236,18 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
   })
 
   test('behavior: autoSwap disabled throws InsufficientBalance instead of swapping', async () => {
-    const sender = Relay.accounts[3]!
+    const sender = Tempo.accounts[3]!
 
     // Set up token pair + DEX liquidity.
-    const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+    const rpc = Tempo.getClient({
+      chain: Tempo.chain,
+      account: Tempo.accounts[0]!,
+    })
     const { token: base } = await Actions.token.createSync(rpc, {
       name: 'No Swap Base',
       symbol: 'NSWBASE',
       currency: 'USD',
-      quoteToken: Relay.addresses.alphaUsd,
+      quoteToken: Tempo.addresses.alphaUsd,
     })
     await sendTransactionSync(rpc, {
       calls: [
@@ -2140,23 +2279,33 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
     // Sender has faucet alphaUsd but NO base tokens.
     await waitForTransactionReceipt(caller, {
       hash: await Actions.fee.setUserToken(
-        Relay.getClient({ account: sender }),
+        Tempo.getClient({ chain: Tempo.chain, account: sender }),
         {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
         },
       ),
     })
 
     // Create relay with autoSwap disabled.
-    const customServer = await Relay.createServer(
-      (
-        await Relay.relay({
-          features: 'all',
-          autoSwap: false,
-        })
-      ).listener,
+    const customRelay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.simulate(),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => [] }),
+      ],
+    })
+
+    const customServer = await createHttpServer(
+      createRequestListener(customRelay.fetch),
     )
-    const customClient = Relay.getClient({ url: customServer.url })
+    const customClient = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(customServer.url),
+    })
 
     // Should return error capability instead of auto-swapping.
     const result = await fillTransaction(customClient, {
@@ -2164,7 +2313,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
       calls: [
         Actions.token.transfer.call(caller, {
           token: base,
-          to: Relay.accounts[7]!.address,
+          to: Tempo.accounts[7]!.address,
           amount: parseUnits('5', 6),
         }),
       ],
@@ -2196,7 +2345,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: AMM resolution', () => {
         "message": "Insufficient balance. Required: 5000000, available: 0.",
       }
     `)
-    customServer.close()
+    await customServer.close()
   })
 })
 
@@ -2204,36 +2353,46 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: conditional sponsoring',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
       // accounts[3] is faucet-funded with alphaUsd so transfers succeed.
       await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(Relay.getClient(), {
-          account: Relay.accounts[3]!,
-          token: Relay.addresses.alphaUsd,
-        }),
+        hash: await Actions.fee.setUserToken(
+          Tempo.getClient({ chain: Tempo.chain }),
+          {
+            account: Tempo.accounts[3]!,
+            token: Tempo.addresses.alphaUsd,
+          },
+        ),
       })
 
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            feePayer: {
-              account: feePayerAccount,
-              name: 'Test Sponsor',
-              url: 'https://test.com',
-              validate: (request) =>
-                request.from?.toLowerCase() !==
-                Relay.accounts[3]!.address.toLowerCase(),
-            },
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'Test Sponsor',
+            url: 'https://test.com',
+            validate: (request) =>
+              request.from?.toLowerCase() !==
+              Tempo.accounts[3]!.address.toLowerCase(),
+          }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     test('behavior: approved tx is sponsored and can be broadcast', async () => {
@@ -2244,7 +2403,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       expect(transaction.feePayerSignature).toBeDefined()
 
       const signed = await userAccount.signTransaction(transaction as never)
-      const receipt = (await Relay.getClient().request({
+      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
         method: 'eth_sendRawTransactionSync' as never,
         params: [signed],
       })) as { feePayer?: string | undefined }
@@ -2253,7 +2412,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
     })
 
     test('behavior: rejected tx is not sponsored and can be self-paid', async () => {
-      const sender = Relay.accounts[3]!
+      const sender = Tempo.accounts[3]!
       const result = await fillTransaction(client, {
         account: sender.address,
         calls: [transferCall()],
@@ -2274,7 +2433,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const signed = TxEnvelopeTempo.serialize(envelope, {
         signature: SignatureEnvelope.from(signature),
       })
-      const receipt = (await Relay.getClient().request({
+      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
         method: 'eth_sendRawTransactionSync' as never,
         params: [signed],
       })) as { feePayer?: string | undefined }
@@ -2289,30 +2448,39 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path A — guaranteed sponsorship (no validate)',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
-    let requests: RpcRequest.RpcRequest[] = []
+    let client: typeof caller
+    let requests: Relay.handleRequest.Request[] = []
 
     beforeAll(async () => {
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            tokens: localnetTokens,
-            feePayer: {
-              account: feePayerAccount,
-              name: 'Path A Sponsor',
-            },
-            onRequest: async (request) => {
-              requests.push(request)
-            },
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          (next) => async (request, options) => {
+            requests.push(request)
+            return next(request, options)
+          },
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'Path A Sponsor',
+          }),
+          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     afterEach(() => {
@@ -2367,7 +2535,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       expect(result.transaction.feeToken?.toLowerCase()).toBe(
-        localnetTokens[0]!.address.toLowerCase(),
+        localnetTokens[0].toLowerCase(),
       )
     })
 
@@ -2375,11 +2543,11 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const result = await fillTransaction(client, {
         account: userAccount.address,
         calls: [transferCall()],
-        feeToken: Relay.addresses.alphaUsd as Address,
+        feeToken: Tempo.addresses.alphaUsd as Address,
       })
 
       expect(result.transaction.feeToken?.toLowerCase()).toBe(
-        Relay.addresses.alphaUsd.toLowerCase(),
+        Tempo.addresses.alphaUsd.toLowerCase(),
       )
     })
   },
@@ -2389,43 +2557,56 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path B — conditional sponsorship (validate)',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
-    let requests: RpcRequest.RpcRequest[] = []
+    let client: typeof caller
+    let requests: Relay.handleRequest.Request[] = []
 
     // Reject accounts[3], approve everyone else.
-    const rejectedSender = Relay.accounts[3]!
+    const rejectedSender = Tempo.accounts[3]!
 
     beforeAll(async () => {
       // rejectedSender is faucet-funded with alphaUsd so it can self-pay.
       await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(Relay.getClient(), {
-          account: rejectedSender,
-          token: Relay.addresses.alphaUsd,
-        }),
+        hash: await Actions.fee.setUserToken(
+          Tempo.getClient({ chain: Tempo.chain }),
+          {
+            account: rejectedSender,
+            token: Tempo.addresses.alphaUsd,
+          },
+        ),
       })
 
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            feePayer: {
-              account: feePayerAccount,
-              name: 'Path B Sponsor',
-              validate: (request) =>
-                request.from?.toLowerCase() !==
-                rejectedSender.address.toLowerCase(),
-            },
-            onRequest: async (request) => {
-              requests.push(request)
-            },
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          (next) => async (request, options) => {
+            requests.push(request)
+            return next(request, options)
+          },
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer({
+            account: feePayerAccount,
+            name: 'Path B Sponsor',
+            validate: (request) =>
+              request.from?.toLowerCase() !==
+              rejectedSender.address.toLowerCase(),
+          }),
+          Relay.feeToken({ resolveTokens: () => [] }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     afterEach(() => {
@@ -2470,7 +2651,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       const signed = TxEnvelopeTempo.serialize(envelope, {
         signature: SignatureEnvelope.from(signature),
       })
-      const receipt = (await Relay.getClient().request({
+      const receipt = (await Tempo.getClient({ chain: Tempo.chain }).request({
         method: 'eth_sendRawTransactionSync' as never,
         params: [signed],
       })) as { feePayer?: string | undefined }
@@ -2484,25 +2665,36 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: path C — no sponsorship',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
-    let requests: RpcRequest.RpcRequest[] = []
+    let client: typeof caller
+    let requests: Relay.handleRequest.Request[] = []
 
     beforeAll(async () => {
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            onRequest: async (request) => {
-              requests.push(request)
-            },
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          (next) => async (request, options) => {
+            requests.push(request)
+            return next(request, options)
+          },
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer(),
+          Relay.feeToken({ resolveTokens: () => [] }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     afterEach(() => {
@@ -2542,34 +2734,46 @@ describe.skipIf(nodeEnv !== 'localnet')(
 describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: fee token resolution',
   () => {
-    const feeTokenAccount = Relay.accounts[0]!
-    const preferredToken = Relay.addresses.alphaUsd
+    const feeTokenAccount = Tempo.accounts[0]!
+    const preferredToken = Tempo.addresses.alphaUsd
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
 
     beforeAll(async () => {
       // feeTokenAccount is faucet-funded with alphaUsd so the balance check passes.
       // Set on-chain fee token preference.
       await waitForTransactionReceipt(caller, {
-        hash: await Actions.fee.setUserToken(Relay.getClient(), {
-          account: feeTokenAccount,
-          token: preferredToken,
-        }),
+        hash: await Actions.fee.setUserToken(
+          Tempo.getClient({ chain: Tempo.chain }),
+          {
+            account: feeTokenAccount,
+            token: preferredToken,
+          },
+        ),
       })
 
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            tokens: localnetTokens,
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer(),
+          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     test('behavior: uses explicitly provided feeToken', async () => {
@@ -2598,19 +2802,22 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // (a faucet-funded account would carry genesis balances that dominate).
       // The relay's tokenlist is restricted to just these two so the
       // highest-balance resolver picks between them deterministically.
-      const freshAccount = Relay.accounts[5]!
-      const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+      const freshAccount = Tempo.accounts[5]!
+      const rpc = Tempo.getClient({
+        chain: Tempo.chain,
+        account: Tempo.accounts[0]!,
+      })
       const { token: lowUsd } = await Actions.token.createSync(rpc, {
         name: 'LowUSD',
         symbol: 'LowUSD',
         currency: 'USD',
-        quoteToken: Relay.addresses.alphaUsd,
+        quoteToken: Tempo.addresses.alphaUsd,
       })
       const { token: highUsd } = await Actions.token.createSync(rpc, {
         name: 'HighUSD',
         symbol: 'HighUSD',
         currency: 'USD',
-        quoteToken: Relay.addresses.alphaUsd,
+        quoteToken: Tempo.addresses.alphaUsd,
       })
       await sendTransactionSync(rpc, {
         calls: [
@@ -2637,28 +2844,26 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ],
       })
 
-      const customServer = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            tokens: [
-              {
-                address: lowUsd,
-                decimals: 6,
-                name: 'LowUSD',
-                symbol: 'LowUSD',
-              },
-              {
-                address: highUsd,
-                decimals: 6,
-                name: 'HighUSD',
-                symbol: 'HighUSD',
-              },
-            ],
-          })
-        ).listener,
+      const customRelay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer(),
+          Relay.feeToken({ resolveTokens: () => [lowUsd, highUsd] }),
+        ],
+      })
+
+      const customServer = await createHttpServer(
+        createRequestListener(customRelay.fetch),
       )
-      const customClient = Relay.getClient({ url: customServer.url })
+      const customClient = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(customServer.url),
+      })
 
       const { transaction } = await fillTransaction(customClient, {
         account: freshAccount.address,
@@ -2670,19 +2875,19 @@ describe.skipIf(nodeEnv !== 'localnet')(
           }),
         ],
       })
-      customServer.close()
+      await customServer.close()
 
       // highUsd has the higher balance (500 > 100).
       expect(transaction.feeToken?.toLowerCase()).toBe(highUsd.toLowerCase())
     })
 
     test('behavior: falls back to pathUSD when no preference or balances', async () => {
-      const freshAccount = Relay.accounts[10]!
+      const freshAccount = Tempo.accounts[10]!
       const { transaction } = await fillTransaction(client, {
         account: freshAccount.address,
         calls: [
           Actions.token.transfer.call(caller, {
-            token: Relay.addresses.alphaUsd,
+            token: Tempo.addresses.alphaUsd,
             to: freshAccount.address,
             amount: 0n,
           }),
@@ -2696,32 +2901,41 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
 describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   let server: Server
-  let client: ReturnType<typeof Relay.getClient>
+  let client: typeof caller
 
   beforeAll(async () => {
-    server = await Relay.createServer(
-      (
-        await Relay.relay({
-          features: 'all',
-          getClient: Relay.readClient(),
-        })
-      ).listener,
-    )
-    client = Relay.getClient({ url: server.url })
+    const relay = Relay.create({
+      client: Tempo.getClient({
+        chain: Tempo.chain,
+        batch: { multicall: { deployless: true } },
+      }),
+      plugins: [
+        Relay.simulate(),
+        Relay.autoSwap(),
+        Relay.feePayer(),
+        Relay.feeToken({ resolveTokens: () => [] }),
+      ],
+    })
+
+    server = await createHttpServer(createRequestListener(relay.fetch))
+    client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: Tempo.http(server.url),
+    })
   })
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    await server.close()
   })
 
   test('behavior: returns requireFunds on InsufficientBalance when errors capability is enabled', async () => {
-    const sender = Relay.accounts[10]!
+    const sender = Tempo.accounts[10]!
 
     const result = await fillTransaction(client, {
       account: sender.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           to: recipient.address,
           amount: parseUnits('100', 6),
         }),
@@ -2772,13 +2986,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('behavior: returns error capability on generic revert when errors capability is enabled', async () => {
-    const sender = Relay.accounts[10]!
+    const sender = Tempo.accounts[10]!
 
     const result = await fillTransaction(client, {
       account: sender.address,
       calls: [
         Actions.token.grantRoles.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           role: 'issuer',
           to: sender.address,
         }),
@@ -2804,12 +3018,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('default: throws JSON-RPC error on InsufficientBalance', async () => {
-    const sender = Relay.accounts[10]!
+    const sender = Tempo.accounts[10]!
     const error = await fillTransaction(client, {
       account: sender.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           to: recipient.address,
           amount: parseUnits('100', 6),
         }),
@@ -2827,12 +3041,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('default: throws JSON-RPC error on generic revert', async () => {
-    const sender = Relay.accounts[10]!
+    const sender = Tempo.accounts[10]!
     const error = await fillTransaction(client, {
       account: sender.address,
       calls: [
         Actions.token.grantRoles.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           role: 'issuer',
           to: sender.address,
         }),
@@ -2848,12 +3062,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
   })
 
   test('behavior: explicit `errors: false` matches default JSON-RPC error behavior', async () => {
-    const sender = Relay.accounts[10]!
+    const sender = Tempo.accounts[10]!
     const error = await fillTransaction(client, {
       account: sender.address,
       calls: [
         Actions.token.transfer.call(caller, {
-          token: Relay.addresses.alphaUsd,
+          token: Tempo.addresses.alphaUsd,
           to: recipient.address,
           amount: parseUnits('100', 6),
         }),
@@ -2884,14 +3098,17 @@ describe.skipIf(nodeEnv !== 'localnet')(
   'behavior: autoSwap with USDC.e → PathUSD',
   () => {
     let server: Server
-    let client: ReturnType<typeof Relay.getClient>
+    let client: typeof caller
     let usdce: Address
     const pathUsd = Addresses.pathUsd
     const sender = Account.fromSecp256k1(generatePrivateKey())
     const senderAddress = sender.address
 
     beforeAll(async () => {
-      const rpc = Relay.getClient({ account: Relay.accounts[0]! })
+      const rpc = Tempo.getClient({
+        chain: Tempo.chain,
+        account: Tempo.accounts[0]!,
+      })
       const { token } = await Actions.token.createSync(rpc, {
         name: 'USDC.e',
         symbol: 'USDC.e',
@@ -2932,21 +3149,28 @@ describe.skipIf(nodeEnv !== 'localnet')(
         validatorTokenAmount: parseUnits('1000', 6),
         to: rpc.account.address,
       })
-      server = await Relay.createServer(
-        (
-          await Relay.relay({
-            features: 'all',
-            tokens: [
-              { address: token, decimals: 6, name: 'USDC.e', symbol: 'USDC.e' },
-            ],
-          })
-        ).listener,
-      )
-      client = Relay.getClient({ url: server.url })
+      const relay = Relay.create({
+        client: Tempo.getClient({
+          chain: Tempo.chain,
+          batch: { multicall: { deployless: true } },
+        }),
+        plugins: [
+          Relay.simulate(),
+          Relay.autoSwap(),
+          Relay.feePayer(),
+          Relay.feeToken({ resolveTokens: () => [token] }),
+        ],
+      })
+
+      server = await createHttpServer(createRequestListener(relay.fetch))
+      client = Tempo.getClient({
+        chain: Tempo.chain,
+        transport: Tempo.http(server.url),
+      })
     })
 
-    afterAll(() => {
-      server.close()
+    afterAll(async () => {
+      await server.close()
     })
 
     test('behavior: auto-swaps USDC.e → PathUSD when sender has USDC.e but no PathUSD', async () => {
@@ -2989,32 +3213,32 @@ describe('plugin composition', () => {
   test.each(['direct', 'custom'] as const)(
     'built-in plugins compose around a downstream handler: %s',
     async (mode) => {
-      const downstream: Relay_.handleRequest.Handler = (request) =>
+      const downstream: Relay.handleRequest.Handler = (request) =>
         caller.request(request as never)
       const plugins = [
-        Relay_.simulate(),
-        Relay_.autoSwap(),
-        Relay_.feePayer({ account: feePayerAccount }),
+        Relay.simulate(),
+        Relay.autoSwap(),
+        Relay.feePayer({ account: feePayerAccount }),
         ...(mode === 'custom'
           ? [
               ((next) =>
                 Object.freeze(async (request, options) =>
                   next(request, options),
-                )) satisfies Relay_.Plugin,
+                )) satisfies Relay.Plugin,
             ]
           : []),
-        Relay_.feeToken({ resolveTokens: () => [Relay.addresses.alphaUsd] }),
+        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
       ]
       const handle =
         mode === 'direct'
           ? plugins.reduceRight((next, plugin) => plugin(next), downstream)
-          : Relay_.handleRequest(downstream, { plugins })
+          : Relay.handleRequest(downstream, { plugins })
       const result = (await handle(
         {
           method: 'eth_fillTransaction',
           params: [{ from: userAccount.address, calls: [transferCall()] }],
         },
-        { chainId: Relay.chain.id },
+        { chainId: Tempo.chain.id },
       )) as {
         tx: Record<string, unknown>
         capabilities: Capabilities.FillTransactionCapabilities
@@ -3023,7 +3247,7 @@ describe('plugin composition', () => {
         result.tx as core_Transaction.Rpc,
       )!
       expect(transaction.feeToken?.toLowerCase()).toBe(
-        Relay.addresses.alphaUsd.toLowerCase(),
+        Tempo.addresses.alphaUsd.toLowerCase(),
       )
       expect(result.capabilities.sponsored).toBe(true)
       expect(result.capabilities.balanceDiffs).toBeDefined()
@@ -3048,23 +3272,23 @@ describe('plugin composition', () => {
     ).flat(),
   )('enabled plugins $mask, reversed $reverse', async ({ mask, reverse }) => {
     const plugins = [
-      Relay_.feePayer({ account: feePayerAccount }),
-      Relay_.autoSwap(),
-      Relay_.feeToken({
-        resolveTokens: () => localnetTokens.map((token) => token.address),
+      Relay.feePayer({ account: feePayerAccount }),
+      Relay.autoSwap(),
+      Relay.feeToken({
+        resolveTokens: () => localnetTokens,
       }),
-      Relay_.simulate(),
+      Relay.simulate(),
     ].filter((_, index) => mask & (1 << index))
     const client = createClient({
-      chain: Relay.chain,
-      transport: withRelay(Relay.http(), {
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
         plugins: reverse ? [...plugins].reverse() : plugins,
       }),
     })
     const result = await fillTransaction(client, {
       account: userAccount.address,
       calls: [transferCall()],
-      feeToken: Relay.addresses.alphaUsd,
+      feeToken: Tempo.addresses.alphaUsd,
     })
     expect(result.transaction.gas).toBeGreaterThan(0n)
     if (mask !== 0)
@@ -3077,16 +3301,23 @@ describe('plugin composition', () => {
   })
 
   test('raw sponsorship resolves chain from the signed envelope', async () => {
-    const request = await prepareTransactionRequest(Relay.getClient(), {
-      account: userAccount,
-      calls: [transferCall()],
-      feePayer: true,
-      feeToken: Relay.addresses.alphaUsd,
-    })
+    const request = await prepareTransactionRequest(
+      Tempo.getClient({ chain: Tempo.chain }),
+      {
+        account: userAccount,
+        calls: [transferCall()],
+        feePayer: true,
+        feeToken: Tempo.addresses.alphaUsd,
+      },
+    )
     const signed = await userAccount.signTransaction(request as never)
-    const relay = Relay_.create({
-      getClient: ({ chainId }) => Relay.readClient()(chainId),
-      plugins: [Relay_.feePayer({ account: feePayerAccount })],
+    const relay = Relay.create({
+      getClient: ({ chainId }) =>
+        Tempo.getClient({
+          chain: { ...Tempo.chain, id: chainId },
+          batch: { multicall: { deployless: true } },
+        }),
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
     })
     const result = (await relay.request({
       method: 'eth_signRawTransaction',
@@ -3110,9 +3341,9 @@ describe('plugin composition', () => {
   })
 
   test('rejects a mismatched resolver before signing a prepared fill', async () => {
-    const relay = Relay_.create({
-      getClient: () => Relay.getClient(),
-      plugins: [Relay_.feePayer({ account: feePayerAccount })],
+    const relay = Relay.create({
+      getClient: () => Tempo.getClient({ chain: Tempo.chain }),
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
     })
     await expect(
       relay.request({
@@ -3134,14 +3365,14 @@ describe('plugin composition', () => {
   test('cached metadata preserves bigint fields', async () => {
     const store = Store.memory()
     const client = createClient({
-      chain: Relay.chain,
-      transport: withRelay(Relay.http(), {
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
         plugins: [
-          Relay_.feeToken({
+          Relay.feeToken({
             cache: store,
-            resolveTokens: () => [Relay.addresses.alphaUsd],
+            resolveTokens: () => [Tempo.addresses.alphaUsd],
           }),
-          Relay_.simulate({ cache: store }),
+          Relay.simulate({ cache: store }),
         ],
       }),
     })
@@ -3167,17 +3398,20 @@ test.each([
   'spend_limit_exceeded',
   'tx_fee_limit_exceeded',
 ] as const)('raw sponsorship returns the %s refusal code', async (verdict) => {
-  const request = await prepareTransactionRequest(Relay.getClient(), {
-    account: userAccount,
-    calls: [transferCall()],
-    feePayer: true,
-    feeToken: Relay.addresses.alphaUsd,
-  })
+  const request = await prepareTransactionRequest(
+    Tempo.getClient({ chain: Tempo.chain }),
+    {
+      account: userAccount,
+      calls: [transferCall()],
+      feePayer: true,
+      feeToken: Tempo.addresses.alphaUsd,
+    },
+  )
   const signed = await userAccount.signTransaction(request as never)
-  const relay = Relay_.create({
-    client: Relay.getClient(),
+  const relay = Relay.create({
+    client: Tempo.getClient({ chain: Tempo.chain }),
     plugins: [
-      Relay_.feePayer({ account: feePayerAccount, validate: () => verdict }),
+      Relay.feePayer({ account: feePayerAccount, validate: () => verdict }),
     ],
   })
   await expect(
@@ -3189,17 +3423,20 @@ test.each([
 })
 
 test('a failed sponsorship record prevents broadcast', async () => {
-  const request = await prepareTransactionRequest(Relay.getClient(), {
-    account: userAccount,
-    calls: [transferCall()],
-    feePayer: true,
-    feeToken: Relay.addresses.alphaUsd,
-  })
+  const request = await prepareTransactionRequest(
+    Tempo.getClient({ chain: Tempo.chain }),
+    {
+      account: userAccount,
+      calls: [transferCall()],
+      feePayer: true,
+      feeToken: Tempo.addresses.alphaUsd,
+    },
+  )
   const signed = await userAccount.signTransaction(request as never)
-  const relay = Relay_.create({
-    client: Relay.getClient(),
+  const relay = Relay.create({
+    client: Tempo.getClient({ chain: Tempo.chain }),
     plugins: [
-      Relay_.feePayer({
+      Relay.feePayer({
         account: feePayerAccount,
         onSponsored: () => {
           throw new Error('Recording failed')
@@ -3209,7 +3446,7 @@ test('a failed sponsorship record prevents broadcast', async () => {
   })
   const before = await Actions.token.getBalance(caller, {
     account: recipient.address,
-    token: Relay.addresses.alphaUsd,
+    token: Tempo.addresses.alphaUsd,
   })
   await expect(
     relay.request({ method: 'eth_sendRawTransactionSync', params: [signed] }),
@@ -3217,7 +3454,7 @@ test('a failed sponsorship record prevents broadcast', async () => {
   expect(
     await Actions.token.getBalance(caller, {
       account: recipient.address,
-      token: Relay.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
     }),
   ).toEqual(before)
 })
@@ -3225,11 +3462,11 @@ test('a failed sponsorship record prevents broadcast', async () => {
 test.each([undefined, {}, { plugins: [] }])(
   'handleRequest passes through without plugins: %j',
   async (options) => {
-    const next: Relay_.handleRequest.Handler = async (request, options) => ({
+    const next: Relay.handleRequest.Handler = async (request, options) => ({
       request,
       options,
     })
-    const handle = Relay_.handleRequest(next, options)
+    const handle = Relay.handleRequest(next, options)
 
     expect(handle).toBe(next)
     expect(
@@ -3257,7 +3494,7 @@ test.each([undefined, {}, { plugins: [] }])(
 )
 
 test('handleRequest composes requests in array order and responses in reverse', async () => {
-  const plugins: readonly Relay_.Plugin[] = Object.freeze([
+  const plugins: readonly Relay.Plugin[] = Object.freeze([
     (next) => async (request, options) => ({
       outer: await next(
         { ...request, params: [...(request.params ?? []), 'outer'] },
@@ -3271,7 +3508,7 @@ test('handleRequest composes requests in array order and responses in reverse', 
       ),
     }),
   ])
-  const handle = Relay_.handleRequest(
+  const handle = Relay.handleRequest(
     async (request, options) => ({ request, options }),
     { plugins },
   )
@@ -3305,7 +3542,7 @@ test('handleRequest composes requests in array order and responses in reverse', 
 })
 
 test('handleRequest allows a plugin to handle a request locally', async () => {
-  const handle = Relay_.handleRequest(async () => 'downstream', {
+  const handle = Relay.handleRequest(async () => 'downstream', {
     plugins: [
       (next) => async (request, options) =>
         request.method === 'eth_chainId' ? '0x1069' : next(request, options),
@@ -3322,7 +3559,7 @@ test('handleRequest allows a plugin to handle a request locally', async () => {
 
 test('handleRequest preserves per-request options through plugins', async () => {
   const options = { chainId: 4217, signal: new AbortController().signal }
-  const handle = Relay_.handleRequest(async (_request, options) => options, {
+  const handle = Relay.handleRequest(async (_request, options) => options, {
     plugins: [(next) => (request, options) => next(request, options)],
   })
 
@@ -3335,7 +3572,7 @@ test('handleRequest preserves per-request options through plugins', async () => 
 test('handleRequest propagates downstream and plugin errors unchanged', async () => {
   const downstream = new Error('downstream rejected request')
   const plugin = new Error('plugin rejected request')
-  const handle = Relay_.handleRequest(
+  const handle = Relay.handleRequest(
     async () => {
       throw downstream
     },
@@ -3357,14 +3594,14 @@ test('built-in plugins preserve unrelated requests and request options', async (
   const signal = new AbortController().signal
   const request = { method: 'eth_chainId' }
   const options = { signal, retryCount: 0, uid: 'unrelated' }
-  const handle = Relay_.handleRequest(
+  const handle = Relay.handleRequest(
     async (request, options) => ({ request, options }),
     {
       plugins: [
-        Relay_.feePayer(),
-        Relay_.autoSwap(),
-        Relay_.feeToken(),
-        Relay_.simulate(),
+        Relay.feePayer(),
+        Relay.autoSwap(),
+        Relay.feeToken(),
+        Relay.simulate(),
       ],
     },
   )
@@ -3376,11 +3613,11 @@ test('built-in plugins preserve nested RPC errors and normalize expiration', asy
     code: -32603,
     message: 'Revm error: transaction expired: valid_before is in the past',
   }
-  const handle = Relay_.handleRequest(
+  const handle = Relay.handleRequest(
     async () => {
       throw new Error('Transport failed', { cause: upstreamError })
     },
-    { plugins: [Relay_.simulate()] },
+    { plugins: [Relay.simulate()] },
   )
   await expect(handle({ method: 'eth_blockNumber' })).rejects.toMatchObject({
     code: -32003,

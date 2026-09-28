@@ -1,4 +1,3 @@
-import { createServer } from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import * as RpcResponse from 'ox/RpcResponse'
 import { createClient, createClientResolver, http } from 'viem'
@@ -6,6 +5,7 @@ import { tempo, tempoModerato } from 'viem/chains'
 import { Relay, Store, Transaction } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import { chain, getClient } from '~test/tempo/config.js'
+import { createHttpServer } from '~test/utils.js'
 
 const client = getClient()
 
@@ -118,14 +118,10 @@ test('multisig infers the chain before client resolution', async () => {
 
 test('fetch works as an unbound HTTP handler with a real Viem client', async () => {
   const relay = Relay.create({ client })
-  const server = createServer(createRequestListener(relay.fetch))
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  const server = await createHttpServer(createRequestListener(relay.fetch))
   try {
-    const address = server.address()
-    if (!address || typeof address === 'string')
-      throw new Error('Expected TCP listener')
     const remote = createClient({
-      transport: http(`http://127.0.0.1:${address.port}`),
+      transport: http(server.url),
     })
     expect(await remote.request({ method: 'eth_chainId' })).toBe(
       await client.request({ method: 'eth_chainId' }),
@@ -134,9 +130,7 @@ test('fetch works as an unbound HTTP handler with a real Viem client', async () 
       remote.request({ method: 'relay_unknown' } as never, { retryCount: 0 }),
     ).rejects.toMatchObject({ code: -32601 })
   } finally {
-    await new Promise<void>((resolve, reject) =>
-      server.close((error) => (error ? reject(error) : resolve())),
-    )
+    await server.close()
   }
 })
 
