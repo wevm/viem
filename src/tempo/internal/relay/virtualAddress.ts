@@ -47,7 +47,9 @@ export async function resolveVirtualAddresses(
   return Object.fromEntries(entries.flat()) as Record<Address, Address | null>
 }
 
-function getVirtualAddressTargets(calls: readonly Call[]): readonly Address[] {
+export function getVirtualAddressTargets(
+  calls: readonly Call[],
+): readonly Address[] {
   const targets = new Set<Address>()
   for (const call of calls) {
     for (const address of [call.to, decodeTransferRecipient(call.data)]) {

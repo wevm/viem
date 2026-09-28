@@ -247,9 +247,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
         batch: { multicall: { deployless: true } },
       }),
       plugins: [
-        (next) => async (request, options) => {
-          requests.push(request)
-          return next(request, options)
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            requests.push(request)
+            return next()
+          },
         },
         Relay.feePayer({
           account: feePayerAccount,
@@ -366,15 +369,13 @@ describe.runIf(
 
   beforeAll(async () => {
     const relay = Relay.create({
+      resolveTokens: () => localnetTokens,
+
       client: Tempo.getClient({
         chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
-      plugins: [
-        Relay.multisig({ store }),
-        Relay.feePayer(),
-        Relay.feeToken({ resolveTokens: () => localnetTokens }),
-      ],
+      plugins: [Relay.multisig({ store }), Relay.feePayer(), Relay.feeToken()],
     })
 
     server = await createHttpServer(createRequestListener(relay.fetch))
@@ -618,6 +619,8 @@ describe.runIf(
   test('example: fee sponsorship', async () => {
     const sponsorStore = Store.memory()
     const sponsorRelay = Relay.create({
+      resolveTokens: () => localnetTokens,
+
       client: Tempo.getClient({
         chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
@@ -628,7 +631,7 @@ describe.runIf(
           account: feePayerAccount,
           onSponsored: () => ({ subsidized: true }),
         }),
-        Relay.feeToken({ resolveTokens: () => localnetTokens }),
+        Relay.feeToken(),
       ],
     })
 
@@ -1063,6 +1066,8 @@ describe.runIf(
     })
 
     const routedRelay = Relay.create({
+      resolveTokens: () => localnetTokens,
+
       getClient({ chainId }) {
         if (chainId !== Tempo.chain.id)
           throw new Error('Expected the multisig operation chain.')
@@ -1071,11 +1076,7 @@ describe.runIf(
           batch: { multicall: { deployless: true } },
         })
       },
-      plugins: [
-        Relay.multisig({ store }),
-        Relay.feePayer(),
-        Relay.feeToken({ resolveTokens: () => localnetTokens }),
-      ],
+      plugins: [Relay.multisig({ store }), Relay.feePayer(), Relay.feeToken()],
     })
 
     const routedServer = await createHttpServer(
@@ -1114,6 +1115,8 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     beforeAll(async () => {
       const relay = Relay.create({
+        resolveTokens: () => localnetTokens,
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
@@ -1123,7 +1126,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
             account: feePayerAccount,
             feeToken: sponsorFeeToken,
           }),
-          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+          Relay.feeToken(),
         ],
       })
 
@@ -1257,6 +1260,8 @@ describe.skipIf(nodeEnv !== 'localnet')(
     test('behavior: raw sponsor signing restores token-list default before validation', async () => {
       let feeToken_validated: Address | undefined
       const customRelay = Relay.create({
+        resolveTokens: () => localnetTokens,
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
@@ -1269,7 +1274,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
               return true
             },
           }),
-          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+          Relay.feeToken(),
         ],
       })
 
@@ -1497,6 +1502,8 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // rejects. This guards the wallet's own fee payer; it must NOT gate
       // sponsorship when the dapp supplies its own external feePayer URL.
       const walletRelay = Relay.create({
+        resolveTokens: () => [],
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
@@ -1510,7 +1517,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
             allowedFeePayers: [appServer.url],
             internal_allowUnsafeUrls: true,
           }),
-          Relay.feeToken({ resolveTokens: () => [] }),
+          Relay.feeToken(),
         ],
       })
 
@@ -1629,15 +1636,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
   beforeAll(async () => {
     const relay = Relay.create({
+      resolveTokens: () => [],
+
       client: Tempo.getClient({
         chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
-      plugins: [
-        Relay.simulate(),
-        Relay.feePayer(),
-        Relay.feeToken({ resolveTokens: () => [] }),
-      ],
+      plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
     })
 
     server = await createHttpServer(createRequestListener(relay.fetch))
@@ -2051,21 +2056,26 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     beforeAll(async () => {
       const relay = Relay.create({
+        resolveTokens: () => localnetTokens,
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
-          (next) => async (request, options) => {
-            requests.push(request)
-            return next(request, options)
+          {
+            async handleRequest(context, next) {
+              const { request } = context
+              requests.push(request)
+              return next()
+            },
           },
           Relay.simulate(),
           Relay.feePayer({
             account: feePayerAccount,
             name: 'Path A Sponsor',
           }),
-          Relay.feeToken({ resolveTokens: () => localnetTokens }),
+          Relay.feeToken(),
         ],
       })
 
@@ -2203,14 +2213,19 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       const relay = Relay.create({
+        resolveTokens: () => [],
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
-          (next) => async (request, options) => {
-            requests.push(request)
-            return next(request, options)
+          {
+            async handleRequest(context, next) {
+              const { request } = context
+              requests.push(request)
+              return next()
+            },
           },
           Relay.simulate(),
           Relay.feePayer({
@@ -2220,7 +2235,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
               request.from?.toLowerCase() !==
               rejectedSender.address.toLowerCase(),
           }),
-          Relay.feeToken({ resolveTokens: () => [] }),
+          Relay.feeToken(),
         ],
       })
 
@@ -2314,18 +2329,23 @@ describe.skipIf(nodeEnv !== 'localnet')(
 
     beforeAll(async () => {
       const relay = Relay.create({
+        resolveTokens: () => [],
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
         plugins: [
-          (next) => async (request, options) => {
-            requests.push(request)
-            return next(request, options)
+          {
+            async handleRequest(context, next) {
+              const { request } = context
+              requests.push(request)
+              return next()
+            },
           },
           Relay.simulate(),
           Relay.feePayer(),
-          Relay.feeToken({ resolveTokens: () => [] }),
+          Relay.feeToken(),
         ],
       })
 
@@ -2408,15 +2428,13 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       const relay = Relay.create({
+        resolveTokens: () => localnetTokens,
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
-        plugins: [
-          Relay.simulate(),
-          Relay.feePayer(),
-          Relay.feeToken({ resolveTokens: () => localnetTokens }),
-        ],
+        plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
       })
 
       server = await createHttpServer(createRequestListener(relay.fetch))
@@ -2511,15 +2529,13 @@ describe.skipIf(nodeEnv !== 'localnet')(
       })
 
       const customRelay = Relay.create({
+        resolveTokens: () => [lowUsd, highUsd],
+
         client: Tempo.getClient({
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
-        plugins: [
-          Relay.simulate(),
-          Relay.feePayer(),
-          Relay.feeToken({ resolveTokens: () => [lowUsd, highUsd] }),
-        ],
+        plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
       })
 
       const customServer = await createHttpServer(
@@ -2570,15 +2586,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
 
   beforeAll(async () => {
     const relay = Relay.create({
+      resolveTokens: () => [],
+
       client: Tempo.getClient({
         chain: Tempo.chain,
         batch: { multicall: { deployless: true } },
       }),
-      plugins: [
-        Relay.simulate(),
-        Relay.feePayer(),
-        Relay.feeToken({ resolveTokens: () => [] }),
-      ],
+      plugins: [Relay.simulate(), Relay.feePayer(), Relay.feeToken()],
     })
 
     server = await createHttpServer(createRequestListener(relay.fetch))

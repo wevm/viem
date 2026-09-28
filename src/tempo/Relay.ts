@@ -72,29 +72,25 @@ export function create(
       message: 'Expected a client with a configured chain.',
     })
 
-  const handle = handleRequest(
-    Request_.withClient(
-      async (request, requestOptions) => {
-        const { chainId, ...rest } = requestOptions ?? {}
-        if (chainId === undefined)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'A chain ID is required to resolve the downstream client.',
-          })
-        if (clientChainId !== undefined && chainId !== clientChainId)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Conflicting chain ids.',
-          })
-        const client =
-          options.client ?? options.getClient!({ chainId } as never)
-        if (client.chain.id !== chainId)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Conflicting chain ids.',
-          })
-        return client.request(request as never, rest)
-      },
-      (chainId) => options.client ?? options.getClient!({ chainId } as never),
-    ),
+  const getClient = (chainId: number) => {
+    const client = options.client ?? options.getClient!({ chainId } as never)
+    if (client.chain.id !== chainId)
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Conflicting chain ids.',
+      })
+    return client
+  }
+  const handle = Request_.compose(
+    async (request, requestOptions) => {
+      const { chainId, response: _, ...rest } = requestOptions ?? {}
+      if (chainId === undefined)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'A chain ID is required to resolve the downstream client.',
+        })
+      return getClient(chainId).request(request as never, rest)
+    },
     options,
+    getClient,
   )
 
   const request: handleRequest.Handler = (request, requestOptions) => {
@@ -169,8 +165,8 @@ export declare namespace create {
  * Creates an RPC request handler by composing relay plugins around a downstream handler.
  *
  * Requests enter plugins in array order, and responses return in reverse order.
- * Built-in plugins run independent response work concurrently after filling.
- * Custom middleware receives completed downstream results.
+ * Post-fill hooks run concurrently after middleware finishes. Middleware sees
+ * the downstream result before post-fill enrichment and signing.
  * Without plugins, the downstream handler is returned unchanged. Plugins decide
  * whether to forward, transform, or handle a request. Errors propagate unchanged
  * unless a plugin handles them.
@@ -183,8 +179,12 @@ export declare namespace create {
  * const rpc = http('https://rpc.tempo.xyz')({})
  * const handle = Relay.handleRequest(rpc.request, {
  *   plugins: [
- *     (next) => (request, options) =>
- *       next(request, { ...options, retryCount: 0 }),
+ *     {
+ *       async handleRequest(context, next) {
+ *         context.options.retryCount = 0
+ *         await next()
+ *       },
+ *     },
  *   ],
  * })
  * const chainId = await handle({ method: 'eth_chainId' })
@@ -199,11 +199,7 @@ export function handleRequest(
   next: handleRequest.Handler,
   options: handleRequest.Options = {},
 ): handleRequest.Handler {
-  const plugins = options.plugins ?? []
-  return plugins.reduceRight(
-    (next, plugin) => Request_.inherit(next, plugin(next)),
-    next,
-  )
+  return Request_.compose(next, options)
 }
 
 export declare namespace handleRequest {
@@ -217,6 +213,10 @@ export declare namespace handleRequest {
   export type Options = {
     /** Plugins in request execution order. Defaults to an empty list. */
     plugins?: readonly Plugin[] | undefined
+    /** Fee-token candidates shared by all plugins, memoized per request and chain. */
+    resolveTokens?:
+      | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
+      | undefined
   }
 
   /** RPC request passed to a handler. */
@@ -231,25 +231,72 @@ export declare namespace handleRequest {
   export type RequestOptions = EIP1193RequestOptions & {
     /** Chain selected by the caller or resolved by a plugin. */
     chainId?: number | undefined
+    /** Response metadata collected by the Fetch adapter. */
+    response?:
+      | { sponsorship_details?: Sponsorship.SponsorshipDetails | undefined }
+      | undefined
   }
 }
 
-/**
- * Middleware that wraps the next relay request handler.
- *
- * A plugin is applied once when composing a handler, not once per request.
- * Call `next(request, options)` to continue to the remaining plugins and
- * downstream handler, or return a result to handle the request locally.
- *
- * @param next - The remaining request handler pipeline.
- * @returns A handler for this plugin's requests.
- */
-export type Plugin = ((
-  next: handleRequest.Handler,
-) => handleRequest.Handler) & {
-  /** Whether this plugin coordinates native multisig approvals. */
-  multisig?: true | undefined
+/** Hooks extending relay request processing and filled transaction responses. */
+export type Plugin = {
+  /** Processes an RPC request. Await next(), then read or replace context.result. */
+  handleRequest?:
+    | ((context: Plugin.Context, next: () => Promise<void>) => Promise<unknown>)
+    | undefined
+  /** Runs concurrently after the final fill. Returns capability fields to merge. */
+  afterFill?:
+    | ((
+        filled: Plugin.FillResult,
+        context: Plugin.Context,
+      ) => Promise<Plugin.Enrichment | undefined>)
+    | undefined
+  /** Signs the final fill concurrently with enrichment. Only one signer may be registered. */
+  signTransaction?:
+    | ((
+        filled: Plugin.FillResult,
+        context: Plugin.Context,
+      ) => Promise<Plugin.Signature | undefined>)
+    | undefined
 }
+
+export declare namespace Plugin {
+  /** State and services isolated to one RPC invocation. */
+  export type Context = {
+    /** Current RPC request. Changes are passed to next(). */
+    request: handleRequest.Request
+    /** Downstream result, populated by next(). */
+    result: unknown
+    /** Transport options and selected chain. */
+    options: handleRequest.RequestOptions
+    /** Downstream client for the selected chain. */
+    readonly client: Client_
+    /** Gets a downstream client for the selected or specified chain. */
+    getClient: (chainId?: number) => Client_
+    /** Gets the shared token candidates for the selected or specified chain. */
+    resolveTokens: (chainId?: number) => Promise<readonly Address[]>
+    /** Scopes a configured store to this invocation. */
+    getStore: (store: Store.Store | undefined) => Store.Store | undefined
+  }
+  /** Immutable RPC fill supplied to post-fill hooks. */
+  export type FillResult = {
+    readonly tx: Readonly<Record<string, unknown>>
+    readonly capabilities?: Readonly<Record<string, unknown>> | undefined
+    readonly sponsor?: unknown
+  }
+  /** Additional response capabilities. Duplicate keys from hooks are rejected. */
+  export type Enrichment = {
+    capabilities?: Record<string, unknown> | undefined
+  }
+  /** Fee-payer signature in RPC format. */
+  export type Signature = {
+    r: `0x${string}`
+    s: `0x${string}`
+    yParity: `0x${string}`
+  }
+}
+
+declare const multisigBrand: unique symbol
 
 /**
  * Coordinates native multisig approvals using shared atomic storage.
@@ -281,7 +328,7 @@ export declare namespace multisig {
     store: Store.Atomic
   }
   /** Middleware advertising native multisig coordination. */
-  export type ReturnType = Plugin & { multisig: true }
+  export type ReturnType = Plugin & { readonly [multisigBrand]: true }
 }
 
 /**
@@ -333,10 +380,10 @@ export declare namespace feePayer {
  *
  * @example
  * ```ts
- * import { Addresses, Relay } from 'viem/tempo'
- * const plugin = Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] })
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.feeToken()
  * ```
- * @param options - Token candidates and optional store.
+ * @param options - Optional preference store.
  * @returns A fee-token relay plugin.
  */
 export function feeToken(options: feeToken.Options = {}): Plugin {
@@ -346,10 +393,6 @@ export function feeToken(options: feeToken.Options = {}): Plugin {
 export declare namespace feeToken {
   /** Fee-token selection configuration. */
   export type Options = {
-    /** Candidates in preference order. Defaults to the bundled Tempo token set filtered by chain ID. */
-    resolveTokens?:
-      | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
-      | undefined
     /** Store for cached user fee-token preferences. */
     store?: Store.Store | undefined
   }
@@ -358,7 +401,7 @@ export declare namespace feeToken {
 /**
  * Adds balance changes, estimated fees, and execution errors to fill capabilities.
  *
- * Place this plugin before transaction-modifying plugins to simulate their final result.
+ * Runs after transaction middleware to simulate the final filled result.
  *
  * @example
  * ```ts

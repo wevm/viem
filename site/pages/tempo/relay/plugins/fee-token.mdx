@@ -90,9 +90,8 @@ import { Addresses, createClient, Relay, withRelay } from 'viem/tempo'
 
 export const client = createClient({
   transport: withRelay(http(), {
-    plugins: [Relay.feeToken({
-      resolveTokens: () => [Addresses.pathUsd], // [!code focus]
-    })],
+    resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+    plugins: [Relay.feeToken()],
   }),
 })
 ```
@@ -127,35 +126,34 @@ import type { Address } from 'viem'
 import { createClient, Relay, Store, withRelay } from 'viem/tempo'
 
 const store = Store.memory()
-const plugin = Relay.feeToken({
-  store,
-  // [!code focus:start]
-  async resolveTokens(chainId) {
-    const key = `tokenList:${chainId}`
-    type Entry = { addresses: readonly Address[]; expiresAt: number }
-    const cached = await store.getItem(key)
-    if (cached) {
-      const entry = JSON.parse(cached) as Entry
-      if (entry.expiresAt > Date.now()) return entry.addresses
-    }
+const plugin = Relay.feeToken({ store })
+// [!code focus:start]
+async function resolveTokens(chainId: number) {
+  const key = `tokenList:${chainId}`
+  type Entry = { addresses: readonly Address[]; expiresAt: number }
+  const cached = await store.getItem(key)
+  if (cached) {
+    const entry = JSON.parse(cached) as Entry
+    if (entry.expiresAt > Date.now()) return entry.addresses
+  }
 
-    const response = await fetch(`https://tokenlist.tempo.xyz/list/${chainId}`)
-    if (!response.ok) throw new Error('Token list unavailable.')
-    type TokenList = { tokens: readonly { address: Address }[] }
-    const { tokens } = await response.json() as TokenList
-    const addresses = tokens.map((token) => token.address)
-    await store.setItem(key, JSON.stringify({
-      addresses,
-      expiresAt: Date.now() + 60_000,
-    }))
-    return addresses
-  },
-  // [!code focus:end]
-})
+  const response = await fetch(`https://tokenlist.tempo.xyz/list/${chainId}`)
+  if (!response.ok) throw new Error('Token list unavailable.')
+  type TokenList = { tokens: readonly { address: Address }[] }
+  const { tokens } = await response.json() as TokenList
+  const addresses = tokens.map((token) => token.address)
+  await store.setItem(key, JSON.stringify({
+    addresses,
+    expiresAt: Date.now() + 60_000,
+  }))
+  return addresses
+}
+// [!code focus:end]
 
 export const client = createClient({
   transport: withRelay(http(), {
-    plugins: [plugin], // [!code focus]
+    resolveTokens, // [!code focus]
+    plugins: [plugin],
   }),
 })
 ```
@@ -172,7 +170,7 @@ export const client = createClient({
 
 :::
 
-This resolver replaces the bundled defaults. Plugin metadata caching and
+The relay-level `resolveTokens` option replaces the bundled defaults and is shared with sponsorship. Plugin metadata caching and
 candidate-list caching have separate lifetimes; changing this expiration does
 not change the 60-second preference cache.
 
@@ -189,24 +187,6 @@ const plugin = Relay.feeToken()
 ```
 
 ### Parameters
-
-#### options.resolveTokens
-
-- **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
-- **Default:** The bundled `tokens.tempo` set from `viem/tokens`, filtered by chain ID.
-
-Returns candidate token addresses for a chain. The default makes no token-list
-API request and returns an empty list for chains absent from the set. Supply a
-resolver for local or custom networks, or to use your application's token list.
-Return addresses, rather than token metadata objects. If your resolver fetches a
-remote list, implement its caching and expiration inside the resolver; `store`
-does not cache candidate lists.
-
-```ts twoslash
-import { Addresses, Relay } from 'viem/tempo'
-// ---cut---
-Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] }) // [!code focus]
-```
 
 #### options.store
 

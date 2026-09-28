@@ -115,6 +115,25 @@ const relay = Relay.create({
 })
 ```
 
+#### options.resolveTokens
+
+- **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
+- **Default:** Bundled Tempo token addresses for the selected chain.
+
+Supplies fee-token candidates shared by fee selection and sponsorship. Results are
+memoized within each request and chain. Implement cross-request caching inside the
+resolver when fetching a remote token list.
+
+```ts twoslash
+import { Addresses, createClient, Relay } from 'viem/tempo'
+// ---cut---
+const relay = Relay.create({
+  client: createClient(),
+  resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+  plugins: [Relay.feeToken()],
+})
+```
+
 ### Return Value
 
 `Relay.create.ReturnType`

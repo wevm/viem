@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added a Fetch-based relay handler with composable plugins, replacing `Multisig.handleRequest`, `withMultisig`, and the `experimental_multisig` client option.
+Added a Fetch-based relay handler with context-based middleware and concurrent post-fill plugin hooks, replacing `Multisig.handleRequest`, `withMultisig`, and the `experimental_multisig` client option.
 
 ```ts
 import { createClient, Relay, Store } from 'viem/tempo'

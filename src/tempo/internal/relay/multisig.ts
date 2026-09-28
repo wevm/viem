@@ -38,18 +38,25 @@ export function create(
       message:
         'Multisig coordination requires a store with atomic `compareAndSet`.',
     })
-  return Plugin.from(
-    (next) => async (request, requestOptions_) => {
+  return Plugin.multisig({
+    async handleRequest(context, forward) {
+      const { request, options: requestOptions_ } = context
       const requestOptions = await resolveRequestOptions({
         request,
         requestOptions: requestOptions_,
         store: options.store,
       })
+      context.options = requestOptions ?? {}
+      const next: Relay.handleRequest.Handler = async (request, options) => {
+        return context
+          .getClient(options?.chainId)
+          .request(request as never, { ...options, retryCount: 0 })
+      }
       const client = createClient({
         transport: custom(
           {
-            request: ({ method, params }, options) =>
-              next({ method, params }, { ...requestOptions, ...options }),
+            request: (request, options) =>
+              next(request, { ...requestOptions, ...options }),
           },
           { retryCount: 0 },
         ),
@@ -104,11 +111,9 @@ export function create(
         request.method === 'eth_getTransactionReceipt'
       ) {
         const hash = request.params?.[0]
-        if (typeof hash !== 'string' || !Hash.validate(hash))
-          return await next(request, requestOptions)
+        if (typeof hash !== 'string' || !Hash.validate(hash)) return forward()
         const operation = await OperationStore.read(options.store, hash)
-        if (!operation || operation.type !== 'transaction')
-          return await next(request, requestOptions)
+        if (!operation || operation.type !== 'transaction') return forward()
         if (request.method === 'eth_getTransactionReceipt') {
           if (operation.status === 'pending') return null
           const transactionHash = await getSubmittedTransactionHash(
@@ -173,14 +178,14 @@ export function create(
         request.method !== 'multisig_approveRawTransaction' &&
         request.method !== 'multisig_approveRawTransactionSync'
       )
-        return await next(request, requestOptions)
+        return forward()
 
       const standard =
         request.method === 'eth_sendRawTransaction' ||
         request.method === 'eth_sendRawTransactionSync'
       const serialized = request.params?.[0]
       if (!isSerializedTempoTransaction(serialized)) {
-        if (standard) return await next(request, requestOptions)
+        if (standard) return forward()
         throw new RpcResponse.InvalidParamsError({
           message: 'Expected a serialized Tempo multisig transaction.',
         })
@@ -196,8 +201,7 @@ export function create(
         store: options.store,
       })
     },
-    { multisig: true },
-  )
+  })
 }
 
 /** Collects approvals and submits a transaction after quorum. @internal */

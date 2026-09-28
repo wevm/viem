@@ -78,7 +78,7 @@ beforeAll(async () => {
   })
 })
 
-test.each(['direct', 'custom'] as const)(
+test.each(['plain', 'custom'] as const)(
   'built-in plugins compose around a downstream handler: %s',
   async (mode) => {
     const downstream: Relay.handleRequest.Handler = (request) =>
@@ -88,18 +88,19 @@ test.each(['direct', 'custom'] as const)(
       Relay.feePayer({ account: feePayerAccount }),
       ...(mode === 'custom'
         ? [
-            ((next) =>
-              Object.freeze(async (request, options) =>
-                next(request, options),
-              )) satisfies Relay.Plugin,
+            {
+              async handleRequest(_context, next) {
+                return next()
+              },
+            } satisfies Relay.Plugin,
           ]
         : []),
-      Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+      Relay.feeToken(),
     ]
-    const handle =
-      mode === 'direct'
-        ? plugins.reduceRight((next, plugin) => plugin(next), downstream)
-        : Relay.handleRequest(downstream, { plugins })
+    const handle = Relay.handleRequest(downstream, {
+      plugins,
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+    })
     const result = (await handle(
       {
         method: 'eth_fillTransaction',
@@ -151,15 +152,14 @@ test.each(
 )('enabled plugins $mask, reversed $reverse', async ({ mask, reverse }) => {
   const plugins = [
     Relay.feePayer({ account: feePayerAccount }),
-    Relay.feeToken({
-      resolveTokens: () => localnetTokens,
-    }),
+    Relay.feeToken(),
     Relay.simulate(),
   ].filter((_, index) => mask & (1 << index))
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
       plugins: reverse ? [...plugins].reverse() : plugins,
+      resolveTokens: () => localnetTokens,
     }),
   })
   const result = await fillTransaction(client, {
@@ -262,6 +262,8 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+
       plugins: [
         Relay.simulate(),
         Relay.feePayer({
@@ -270,17 +272,21 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
             await simulated.promise
           },
         }),
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
-        (next) => async (request, options) => {
-          if (request.method === 'tempo_simulateV1') await resolved.promise
-          const result = await next(request, options)
-          if (request.method === 'tempo_simulateV1') simulated.resolve()
-          if (
-            request.method === 'eth_call' &&
-            JSON.stringify(request.params).includes(masterCall.slice(2))
-          )
-            resolved.resolve()
-          return result
+        Relay.feeToken(),
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method === 'tempo_simulateV1') await resolved.promise
+            await next()
+            const result = context.result
+            if (request.method === 'tempo_simulateV1') simulated.resolve()
+            if (
+              request.method === 'eth_call' &&
+              JSON.stringify(request.params).includes(masterCall.slice(2))
+            )
+              resolved.resolve()
+            return result
+          },
         },
       ] satisfies readonly Relay.Plugin[],
     }),
@@ -306,45 +312,6 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
     simulated.resolve()
     resolved.resolve()
   }
-})
-
-test('custom middleware receives completed downstream enrichment', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [
-        (next) => async (request, options) => {
-          const result = await next(request, options)
-          if (request.method !== 'eth_fillTransaction') return result
-          const filled = result as {
-            tx: { feePayerSignature?: unknown }
-            capabilities?: { balanceDiffs?: unknown }
-          }
-          if (
-            !filled.tx.feePayerSignature ||
-            !filled.capabilities?.balanceDiffs
-          )
-            throw new Error('Incomplete downstream response')
-          return result
-        },
-        Relay.simulate(),
-        Relay.feePayer({ account: feePayerAccount }),
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
-      ] satisfies readonly Relay.Plugin[],
-    }),
-  })
-  const { transaction, capabilities } = await fillTransaction(client, {
-    account: userAccount.address,
-    calls: [
-      Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
-        to: recipient.address,
-        amount: 1n,
-      }),
-    ],
-  })
-  expect(transaction.feePayerSignature).toBeDefined()
-  expect(capabilities?.balanceDiffs).toBeDefined()
 })
 
 test.each([

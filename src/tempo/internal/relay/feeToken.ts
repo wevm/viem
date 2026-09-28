@@ -6,54 +6,44 @@ import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from './cache.js'
-import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feeToken.Options): Relay.Plugin {
-  return Plugin.from(
-    (next) =>
-      Request.wrap(next, async (request, context) => {
-        if (request.method !== 'eth_fillTransaction')
-          return next(request, context.options)
+  return {
+    async handleRequest(context, next) {
+      const { request } = context
+      if (request.method !== 'eth_fillTransaction') return next()
+      const parameters = request.params![0] as Record<string, unknown>
+      const transaction = Utils.normalizeFillTransactionRequest(parameters)
 
-        const parameters = request.params![0] as Record<string, unknown>
-        const transaction = Utils.normalizeFillTransactionRequest(parameters)
+      if (transaction.feeToken) return Request.fill(context.client, transaction)
 
-        if (transaction.feeToken)
-          return Request.fill(context.client, transaction)
+      const tokens = await context.resolveTokens()
+      const candidates = [
+        ...tokens,
+        ...callTargetTokens(transaction).filter(
+          (token) =>
+            !tokens.some(
+              (candidate) => candidate.toLowerCase() === token.toLowerCase(),
+            ),
+        ),
+      ]
 
-        const tokens = await context.getTokens(resolveTokens)
-        const candidates = [
-          ...tokens,
-          ...callTargetTokens(transaction).filter(
-            (token) =>
-              !tokens.some(
-                (candidate) => candidate.toLowerCase() === token.toLowerCase(),
-              ),
-          ),
-        ]
+      const feeToken = transaction.feePayer
+        ? (transaction.feeToken ?? tokens[0])
+        : await resolveFeeToken(context.client, {
+            account: transaction.from as Address | undefined,
+            feeToken: transaction.feeToken as Address | undefined,
+            store: context.getStore(options.store),
+            tokens: candidates,
+          })
 
-        const feeToken = transaction.feePayer
-          ? (transaction.feeToken ?? tokens[0])
-          : await resolveFeeToken(context.client, {
-              account: transaction.from as Address | undefined,
-              feeToken: transaction.feeToken as Address | undefined,
-              store: context.getStore(options.store),
-              tokens: candidates,
-            })
-
-        return Request.fill(context.client, {
-          ...transaction,
-          ...(feeToken ? { feeToken } : {}),
-        })
-      }),
-    { resolveTokens },
-  )
-
-  async function resolveTokens(chainId: number) {
-    if (options.resolveTokens) return options.resolveTokens(chainId)
-    return getDefaultTokens(chainId)
+      return Request.fill(context.client, {
+        ...transaction,
+        ...(feeToken ? { feeToken } : {}),
+      })
+    },
   }
 }
 

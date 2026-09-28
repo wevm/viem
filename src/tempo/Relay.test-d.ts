@@ -18,15 +18,18 @@ test('handleRequest contextually types plugins and downstream handlers', () => {
     },
     {
       plugins: [
-        (next) => (request, options) => {
-          expectTypeOf(next).toEqualTypeOf<Relay.handleRequest.Handler>()
-          expectTypeOf(request.params).toEqualTypeOf<
-            readonly unknown[] | undefined
-          >()
-          expectTypeOf(options).toEqualTypeOf<
-            Relay.handleRequest.RequestOptions | undefined
-          >()
-          return next(request, options)
+        {
+          async handleRequest(context, next) {
+            const { request, options } = context
+            expectTypeOf(next).toEqualTypeOf<() => Promise<void>>()
+            expectTypeOf(request.params).toEqualTypeOf<
+              readonly unknown[] | undefined
+            >()
+            expectTypeOf(
+              options,
+            ).toEqualTypeOf<Relay.handleRequest.RequestOptions>()
+            return next()
+          },
         },
       ],
     },
@@ -37,7 +40,10 @@ test('handleRequest contextually types plugins and downstream handlers', () => {
     (
       request: { method: string; params?: readonly unknown[] | undefined },
       options?:
-        | (EIP1193RequestOptions & { chainId?: number | undefined })
+        | (EIP1193RequestOptions & {
+            chainId?: number | undefined
+            response?: Relay.handleRequest.RequestOptions['response']
+          })
         | undefined,
     ) => Promise<unknown>
   >()
@@ -47,8 +53,20 @@ test('handleRequest contextually types plugins and downstream handlers', () => {
 })
 
 test('handleRequest accepts readonly plugins and exact optional properties', () => {
-  const plugins = [(next) => next] as const satisfies readonly Relay.Plugin[]
-  const handle = Relay.handleRequest(async () => null, { plugins })
+  const plugins = [
+    {
+      async handleRequest(_context, next) {
+        await next()
+      },
+    },
+  ] as const satisfies readonly Relay.Plugin[]
+  const handle = Relay.handleRequest(async () => null, {
+    plugins,
+    resolveTokens: (chainId) => {
+      expectTypeOf(chainId).toEqualTypeOf<number>()
+      return []
+    },
+  })
   Relay.handleRequest(handle, { plugins: undefined })
   handle(
     { method: 'eth_chainId', params: undefined },
@@ -56,7 +74,7 @@ test('handleRequest accepts readonly plugins and exact optional properties', () 
   )
 
   // @ts-expect-error Plugins must return a request handler.
-  Relay.handleRequest(handle, { plugins: [() => Promise.resolve(null)] })
+  Relay.handleRequest(handle, { plugins: [{ handleRequest: () => 1 }] })
   // @ts-expect-error Chain IDs are numbers.
   handle({ method: 'eth_chainId' }, { chainId: '0x1069' })
 })
@@ -100,12 +118,7 @@ test('create contextually types inline client resolvers', () => {
 
 test('transaction plugins expose typed policies and caches', () => {
   const plugins: readonly Relay.Plugin[] = [
-    Relay.feeToken({
-      resolveTokens: (chainId) => {
-        expectTypeOf(chainId).toEqualTypeOf<number>()
-        return []
-      },
-    }),
+    Relay.feeToken(),
     Relay.simulate(),
     Relay.feePayer({
       validate(transaction) {
@@ -120,9 +133,15 @@ test('transaction plugins expose typed policies and caches', () => {
       },
     }),
   ]
-  Relay.handleRequest(async () => null, { plugins })
+  Relay.handleRequest(async () => null, {
+    plugins,
+    resolveTokens: (chainId) => {
+      expectTypeOf(chainId).toEqualTypeOf<number>()
+      return []
+    },
+  })
   // @ts-expect-error A policy must return a supported verdict.
   Relay.feePayer({ validate: () => 'allow' })
   // @ts-expect-error Tokens must be addresses.
-  Relay.feeToken({ resolveTokens: () => ['pathUSD'] })
+  Relay.handleRequest(async () => null, { resolveTokens: () => ['pathUSD'] })
 })

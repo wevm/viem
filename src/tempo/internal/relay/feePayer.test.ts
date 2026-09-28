@@ -253,9 +253,11 @@ test('a rejected prepared fill can be signed and sent without sponsorship', asyn
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+
       plugins: [
         Relay.feePayer({ account: feePayerAccount, validate: () => false }),
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+        Relay.feeToken(),
       ],
     }),
   })
@@ -288,12 +290,20 @@ test.each([false, true])(
     const upstream = Relay.create({
       client: caller,
       plugins: [
-        (next) => async (request, options) => {
-          const result = await next(request, options)
-          if (request.method !== 'eth_fillTransaction') return result
-          const { sponsor: _, capabilities, ...rest } = result as Request.Result
-          const { sponsor: __, ...metadata } = capabilities ?? {}
-          return { ...rest, capabilities: metadata }
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            await next()
+            const result = context.result
+            if (request.method !== 'eth_fillTransaction') return result
+            const {
+              sponsor: _,
+              capabilities,
+              ...rest
+            } = result as Request.Result
+            const { sponsor: __, ...metadata } = capabilities ?? {}
+            return { ...rest, capabilities: metadata }
+          },
         },
         Relay.feePayer({ account: feePayerAccount }),
       ],
@@ -398,6 +408,8 @@ test.each(['validate', 'onSponsored'] as const)(
   'redacts failures in %s with error capabilities enabled',
   async (hook) => {
     const relay = Relay.create({
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+
       client: caller,
       plugins: [
         Relay.simulate(),
@@ -411,7 +423,7 @@ test.each(['validate', 'onSponsored'] as const)(
             throw new Error('Recording failed')
           },
         }),
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+        Relay.feeToken(),
       ],
     })
     const response = await relay.fetch(
@@ -598,13 +610,16 @@ test('preserves the synchronous broadcast timeout after signing', async () => {
     client: caller,
     plugins: [
       Relay.feePayer({ account: feePayerAccount }),
-      (next) => (request, options) => {
-        if (
-          request.method === 'eth_sendRawTransactionSync' &&
-          request.params?.[1] !== 5000
-        )
-          throw new Error('Expected the requested broadcast timeout')
-        return next(request, options)
+      {
+        async handleRequest(context, next) {
+          const { request } = context
+          if (
+            request.method === 'eth_sendRawTransactionSync' &&
+            request.params?.[1] !== 5000
+          )
+            throw new Error('Expected the requested broadcast timeout')
+          return next()
+        },
       },
     ],
   })

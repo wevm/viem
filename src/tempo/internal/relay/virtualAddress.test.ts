@@ -27,16 +27,18 @@ test('resolves targets within a downstream concurrency budget', async () => {
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
       plugins: [
-        (next) => async (request, options) => {
-          const slot = Symbol()
-          active.add(slot)
-          try {
-            if (active.size > 10)
-              throw new Error('Downstream concurrency exceeded')
-            return await next(request, options)
-          } finally {
-            active.delete(slot)
-          }
+        {
+          async handleRequest(_context, next) {
+            const slot = Symbol()
+            active.add(slot)
+            try {
+              if (active.size > 10)
+                throw new Error('Downstream concurrency exceeded')
+              return await next()
+            } finally {
+              active.delete(slot)
+            }
+          },
         },
       ] satisfies readonly Relay.Plugin[],
     }),

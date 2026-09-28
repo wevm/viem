@@ -42,7 +42,9 @@ test.each([undefined, Tempo.addresses.pathUsd])(
     const client = createClient({
       chain: Tempo.chain,
       transport: withRelay(Tempo.http(), {
-        plugins: [Relay.feeToken({ resolveTokens: () => localnetTokens })],
+        resolveTokens: () => localnetTokens,
+
+        plugins: [Relay.feeToken()],
       }),
     })
     const { transaction, capabilities } = await fillTransaction(client, {
@@ -68,13 +70,16 @@ test('provides token defaults to a fee payer through frozen middleware', async (
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+
       plugins: [
         Relay.feePayer({ account: feePayerAccount }),
-        ((next) =>
-          Object.freeze((request, options) =>
-            next(request, options),
-          )) satisfies Relay.Plugin,
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+        {
+          async handleRequest(_context, next) {
+            return next()
+          },
+        } satisfies Relay.Plugin,
+        Relay.feeToken(),
       ],
     }),
   })
@@ -96,9 +101,10 @@ test('cached metadata preserves bigint fields', async () => {
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+
       plugins: [
         Relay.feeToken({
-          resolveTokens: () => [Tempo.addresses.alphaUsd],
           store,
         }),
         Relay.simulate({ store }),
@@ -135,15 +141,12 @@ test.each([false, true])(
   'redacts token-list failures, simulate: %s',
   async (simulate) => {
     const relay = Relay.create({
+      resolveTokens: () => {
+        throw new Error('Private token-list configuration')
+      },
+
       client: caller,
-      plugins: [
-        ...(simulate ? [Relay.simulate()] : []),
-        Relay.feeToken({
-          resolveTokens: () => {
-            throw new Error('Private token-list configuration')
-          },
-        }),
-      ],
+      plugins: [...(simulate ? [Relay.simulate()] : []), Relay.feeToken()],
     })
     await expect(
       relay.request({
@@ -196,13 +199,11 @@ test('an explicit token does not require token discovery', async () => {
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
-      plugins: [
-        Relay.feeToken({
-          resolveTokens: () => {
-            throw new Error('Discovery is unavailable')
-          },
-        }),
-      ],
+      resolveTokens: () => {
+        throw new Error('Discovery is unavailable')
+      },
+
+      plugins: [Relay.feeToken()],
     }),
   })
   const { transaction } = await fillTransaction(client, {
@@ -227,12 +228,10 @@ test.each(['calls', 'resolver'] as const)(
       (_, i) => `0x20c0${(i + 100).toString(16).padStart(36, '0')}` as const,
     )
     const relay = Relay.create({
+      resolveTokens: () => (source === 'resolver' ? tokens : []),
+
       client: caller,
-      plugins: [
-        Relay.feeToken({
-          resolveTokens: () => (source === 'resolver' ? tokens : []),
-        }),
-      ],
+      plugins: [Relay.feeToken()],
     })
     await expect(
       relay.request({
@@ -262,17 +261,19 @@ test('selects a funded token within a downstream concurrency budget', async () =
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
       plugins: [
-        (next) => async (request, options) => {
-          const slot = Symbol()
-          active.add(slot)
-          try {
-            // Ten balance reads may overlap with the user-token lookup.
-            if (active.size > 11)
-              throw new Error('Downstream concurrency exceeded')
-            return await next(request, options)
-          } finally {
-            active.delete(slot)
-          }
+        {
+          async handleRequest(_context, next) {
+            const slot = Symbol()
+            active.add(slot)
+            try {
+              // Ten balance reads may overlap with the user-token lookup.
+              if (active.size > 11)
+                throw new Error('Downstream concurrency exceeded')
+              return await next()
+            } finally {
+              active.delete(slot)
+            }
+          },
         },
       ] satisfies readonly Relay.Plugin[],
     }),
@@ -303,7 +304,9 @@ test('uses a funded preference outside the configured candidates', async () => {
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
-      plugins: [Relay.feeToken({ resolveTokens: () => [localnetTokens[2]] })],
+      resolveTokens: () => [localnetTokens[2]],
+
+      plugins: [Relay.feeToken()],
     }),
   })
   const { transaction } = await fillTransaction(client, {
@@ -330,9 +333,9 @@ test('uses a funded call target outside the configured candidates', async () => 
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
-      plugins: [
-        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.pathUsd] }),
-      ],
+      resolveTokens: () => [Tempo.addresses.pathUsd],
+
+      plugins: [Relay.feeToken()],
     }),
   })
   const { transaction } = await fillTransaction(client, {

@@ -8,103 +8,167 @@ import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
 import { formatError, isExecutionError } from './error.js'
-import type { SponsorshipDetails } from './feePayer.js'
 import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
-import { extractCalls, resolveVirtualAddresses } from './virtualAddress.js'
-
-export const response = Symbol('relay.response')
-export const tokens = Symbol('relay.tokens')
-const resolveClient = Symbol('relay.client')
-const processing = Symbol('relay.processing')
-export const deferred = Symbol('relay.deferred')
-const pending = Symbol('relay.pending')
-const tokenLists = Symbol('relay.tokenLists')
-const stores = Symbol('relay.stores')
-
-type TokenResolver = (
-  chainId: number,
-  signal?: AbortSignal,
-) => Promise<readonly Address[]>
-
-type Options = Relay.handleRequest.RequestOptions & {
-  [processing]?: true | undefined
-  [stores]?: Map<Store.Store, Store.Store> | undefined
-  [tokenLists]?:
-    | Map<TokenResolver, Map<number, Promise<readonly Address[]>>>
-    | undefined
-  [response]?:
-    | { sponsorship_details?: SponsorshipDetails | undefined }
-    | undefined
-}
-
-export type Handler = Relay.handleRequest.Handler & {
-  [deferred]?: Relay.handleRequest.Handler | undefined
-  [resolveClient]?: ((chainId: number) => { chain: { id: number } }) | undefined
-  [tokens]?:
-    | ((chainId: number, signal?: AbortSignal) => Promise<readonly Address[]>)
-    | undefined
-}
+import {
+  extractCalls,
+  getVirtualAddressTargets,
+  resolveVirtualAddresses,
+} from './virtualAddress.js'
 
 export type Result = {
-  [pending]?: readonly (() => Promise<Partial<Result>>)[] | undefined
   tx: Record<string, unknown>
   capabilities?: Record<string, unknown> | undefined
   sponsor?: unknown
 }
 
-type Context = {
-  client: Client
-  getStore: (store: Store.Store | undefined) => Store.Store | undefined
-  getTokens: (resolver?: TokenResolver) => Promise<readonly Address[]>
-  getClient: (chainId?: number) => Client
-  chainId: number | undefined
-  options: Options
-}
+/** Compose middleware and execute post-fill hooks once for the selected result. */
+export function compose(
+  downstream: Relay.handleRequest.Handler,
+  options: Relay.handleRequest.Options = {},
+  resolveClient?: ((chainId: number) => { chain: { id: number } }) | undefined,
+): Relay.handleRequest.Handler {
+  const options_ = options
+  const plugins = options.plugins ?? []
+  if (plugins.length === 0) return downstream
+  if (plugins.filter((plugin) => plugin.signTransaction).length > 1)
+    throw new Error('Only one relay transaction signer may be configured.')
 
-export function withClient(
-  next: Handler,
-  getClient: NonNullable<Handler[typeof resolveClient]>,
-): Handler {
-  return Object.assign(next, { [resolveClient]: getClient })
-}
+  return async (request, requestOptions = {}) => {
+    const stores = new Map<Store.Store, Store.Store>()
+    const tokens = new Map<number, Promise<readonly Address[]>>()
+    const scoped = (store: Store.Store | undefined) => {
+      if (!store) return undefined
+      let result = stores.get(store)
+      if (!result) {
+        result = Store.scoped(store)!
+        stores.set(store, result)
+      }
+      return result
+    }
 
-/** Preserve downstream client and token resolvers through custom middleware. */
-export function inherit(next: Handler, handler: Handler): Handler {
-  const keys = [resolveClient, tokens].filter(
-    (key) => !(key in handler) && key in next,
-  )
-  if (keys.length === 0) return handler
+    const execute = async (
+      start: number,
+      request: Relay.handleRequest.Request,
+      options: Relay.handleRequest.RequestOptions,
+    ) => {
+      const state = {
+        request,
+        options: { ...options },
+        result: undefined as unknown,
+      }
+      const contexts = new Map<number, Relay.Plugin.Context>()
+      const contextAt = (index: number): Relay.Plugin.Context => {
+        const existing = contexts.get(index)
+        if (existing) return existing
+        const clients = new Map<number, Client>()
+        const chainId = (id = state.options.chainId) => {
+          if (id === undefined || !Number.isSafeInteger(id) || id <= 0)
+            throw new RpcResponse.InvalidParamsError({
+              message:
+                'A chain ID is required to resolve the downstream client.',
+            })
+          return id
+        }
+        const context: Relay.Plugin.Context = {
+          get request() {
+            return state.request
+          },
+          set request(value) {
+            state.request = value
+          },
+          get result() {
+            return state.result
+          },
+          set result(value) {
+            state.result = value
+          },
+          get options() {
+            return state.options
+          },
+          set options(value) {
+            state.options = value
+          },
+          get client() {
+            return context.getClient()
+          },
+          getClient(id_) {
+            const id = chainId(id_)
+            let client = clients.get(id)
+            if (client) return client
+            const upstream = resolveClient?.(id)
+            if (upstream?.chain && upstream.chain.id !== id)
+              throw new RpcResponse.InvalidParamsError({
+                message: 'Conflicting chain ids.',
+              })
+            client = createClient({
+              chain: { ...tempo, ...upstream?.chain, id },
+              batch: { multicall: { deployless: true } },
+              transport: custom(
+                {
+                  request: async (request, options) => {
+                    const child = await execute(index + 1, request, {
+                      ...state.options,
+                      ...options,
+                      chainId: id,
+                    })
+                    return child.state.result
+                  },
+                },
+                { retryCount: 0 },
+              ),
+            })
+            clients.set(id, client)
+            return client
+          },
+          async resolveTokens(id_) {
+            const id = chainId(id_)
+            let result = tokens.get(id)
+            if (!result) {
+              result = Promise.resolve().then(() =>
+                (options_.resolveTokens ?? getDefaultTokens)(id),
+              )
+              tokens.set(id, result)
+            }
+            return result
+          },
+          getStore: scoped,
+        }
+        contexts.set(index, context)
+        return context
+      }
+      const dispatch = async (index: number): Promise<void> => {
+        if (index === plugins.length) {
+          state.result = await downstream(state.request, state.options)
+          return
+        }
+        const plugin = plugins[index]!
+        const context = contextAt(index)
+        if (!plugin.handleRequest) return dispatch(index + 1)
+        let called = false
+        const result = await plugin.handleRequest(context, async () => {
+          if (called)
+            throw new Error(
+              'next() may only be called once per middleware invocation.',
+            )
+          called = true
+          await dispatch(index + 1)
+        })
+        if (result !== undefined) state.result = result
+      }
+      await dispatch(start)
+      return { state, contextAt }
+    }
 
-  return Object.assign(
-    (request: Relay.handleRequest.Request, options?: Options) =>
-      handler(request, options),
-    handler,
-    Object.fromEntries(keys.map((key) => [key, next[key as keyof Handler]])),
-  )
-}
-
-export function wrap(
-  next: Handler,
-  handle: (
-    request: Relay.handleRequest.Request,
-    context: Context,
-  ) => Promise<unknown>,
-): Handler {
-  const handleDeferred: Handler = async (request, options: Options = {}) => {
-    const outer = !options[processing]
     const isFill = request.method === 'eth_fillTransaction'
-    const isRaw =
-      request.method === 'eth_signRawTransaction' ||
-      request.method === 'eth_sendRawTransaction' ||
-      request.method === 'eth_sendRawTransactionSync'
-
-    let client: Client | undefined
+    const isRaw = [
+      'eth_signRawTransaction',
+      'eth_sendRawTransaction',
+      'eth_sendRawTransactionSync',
+    ].includes(request.method)
     const parameters = request.params?.[0] as Record<string, unknown>
-
+    let root: Awaited<ReturnType<typeof execute>> | undefined
     try {
-      if (!isFill && !isRaw) return await next(request, options)
-
       if (
         isFill &&
         (!parameters ||
@@ -114,7 +178,7 @@ export function wrap(
         throw new RpcResponse.InvalidParamsError({
           message: 'Expected a transaction object.',
         })
-
+      if (isFill) Utils.normalizeFillTransactionRequest(parameters)
       const bodyChainId = (() => {
         if (isRaw && Utils.isSerializedTempoTransaction(request.params?.[0])) {
           try {
@@ -133,44 +197,93 @@ export function wrap(
           })
         return id
       })()
-
       if (
         bodyChainId !== undefined &&
-        options.chainId !== undefined &&
-        bodyChainId !== options.chainId
+        requestOptions.chainId !== undefined &&
+        bodyChainId !== requestOptions.chainId
       )
         throw new RpcResponse.InvalidParamsError({
           message: 'Conflicting chain ids.',
         })
-
-      const chainId = options.chainId ?? bodyChainId
-      const requestOptions: Options = {
-        ...options,
-        chainId,
-        [processing]: true,
-        [stores]: options[stores] ?? new Map(),
-        [tokenLists]: options[tokenLists] ?? new Map(),
+      root = await execute(0, request, {
+        ...requestOptions,
+        ...((requestOptions.chainId ?? bodyChainId) !== undefined
+          ? { chainId: requestOptions.chainId ?? bodyChainId }
+          : {}),
+      })
+      if (!isFill) return root.state.result
+      const filled = root.state.result as Result
+      if (filled.capabilities?.error) return filled
+      const transaction = Utils.normalizeTempoTransaction(
+        Utils.mergeCallsFromRequest(
+          filled.tx,
+          Utils.normalizeFillTransactionRequest(parameters),
+        ),
+      )
+      const final: Result = {
+        ...filled,
+        tx: Utils.formatTempoTransaction(
+          transaction as core_Transaction.Transaction,
+        ),
       }
-
-      const getClient = (id = chainId): Client => {
-        if (id === undefined || !Number.isSafeInteger(id) || id <= 0)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'A chain ID is required to resolve the downstream client.',
-          })
-
-        const upstream = next[resolveClient]?.(id)
-        if (upstream && upstream.chain.id !== id)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Conflicting chain ids.',
-          })
-
-        return createClient({
-          chain: { ...tempo, ...upstream?.chain, id },
-          batch: { multicall: { deployless: true } },
+      const snapshot = freeze(structuredClone(final))
+      const [patches, signatures, virtualAddresses] = await Promise.all([
+        Promise.all(
+          plugins.map((plugin, index) =>
+            plugin.afterFill?.(snapshot, root!.contextAt(index)),
+          ),
+        ),
+        Promise.all(
+          plugins.map((plugin, index) =>
+            plugin.signTransaction?.(snapshot, root!.contextAt(index)),
+          ),
+        ),
+        getVirtualAddressTargets(extractCalls(transaction)).length > 0
+          ? resolveVirtualAddresses(root.contextAt(-1).client, {
+              calls: extractCalls(transaction),
+            })
+          : undefined,
+      ])
+      const capabilities = { ...final.capabilities }
+      const keys = new Set<string>()
+      for (const patch of patches) {
+        for (const [key, value] of Object.entries(patch?.capabilities ?? {})) {
+          if (keys.has(key))
+            throw new Error(`Conflicting relay capability: ${key}.`)
+          keys.add(key)
+          capabilities[key] = value
+        }
+      }
+      const signature = signatures.find((signature) => signature !== undefined)
+      if (signature) {
+        delete final.tx.signature
+        final.tx.feePayerSignature = signature
+      }
+      const sponsor = capabilities.sponsor ?? final.sponsor
+      return {
+        ...final,
+        capabilities: {
+          sponsored: !!sponsor,
+          ...capabilities,
+          ...(virtualAddresses ? { virtualAddresses } : {}),
+        },
+      }
+    } catch (error) {
+      if (
+        isFill &&
+        isExecutionError(error) &&
+        (parameters.capabilities as Record<string, unknown> | undefined)
+          ?.errors === true
+      ) {
+        // Resolve errors through a downstream-only client; never restart the plugin pipeline.
+        const id =
+          requestOptions.chainId ?? Utils.resolveChainId(parameters.chainId)
+        const client = createClient({
+          chain: { ...tempo, id: id ?? tempo.id },
           transport: custom(
             {
               request: (request, options) =>
-                (next[deferred] ?? next)(request, {
+                downstream(request, {
                   ...requestOptions,
                   ...options,
                   chainId: id,
@@ -179,115 +292,21 @@ export function wrap(
             { retryCount: 0 },
           ),
         })
-      }
-
-      client = getClient()
-      const result = await handle(request, {
-        client,
-        getStore: (store) => {
-          if (!store) return undefined
-          const scoped = requestOptions[stores]!
-          let result = scoped.get(store)
-          if (!result) {
-            result = Store.scoped(store)!
-            scoped.set(store, result)
-          }
-          return result
-        },
-        getTokens: (resolver = next[tokens] ?? getDefaultTokens) => {
-          const lists = requestOptions[tokenLists]!
-          let chains = lists.get(resolver)
-          if (!chains) {
-            chains = new Map()
-            lists.set(resolver, chains)
-          }
-          let result = chains.get(chainId!)
-          if (!result) {
-            result = resolver(chainId!, requestOptions.signal)
-            chains.set(chainId!, result)
-          }
-          return result
-        },
-        getClient,
-        chainId,
-        options: requestOptions,
-      })
-      if (!isFill || !outer) return result
-
-      const filled = result as Result
-      if (filled.capabilities?.error) return filled
-
-      const transaction = Utils.normalizeTempoTransaction(
-        Utils.mergeCallsFromRequest(
-          filled.tx,
-          Utils.normalizeFillTransactionRequest(parameters),
-        ),
-      )
-      const [resolved, virtualAddresses] = await Promise.all([
-        resolve(filled),
-        resolveVirtualAddresses(client, { calls: extractCalls(transaction) }),
-      ])
-      const sponsor = resolved.capabilities?.sponsor ?? resolved.sponsor
-
-      return {
-        ...resolved,
-        tx: Utils.formatTempoTransaction(
-          Utils.normalizeTempoTransaction(
-            Utils.mergeCallsFromRequest(
-              resolved.tx,
-              Utils.normalizeFillTransactionRequest(parameters),
-            ),
-          ) as core_Transaction.Transaction,
-        ),
-        capabilities: {
-          sponsored: !!sponsor,
-          ...resolved.capabilities,
-          ...(virtualAddresses ? { virtualAddresses } : {}),
-        },
-      }
-    } catch (error) {
-      if (!outer) throw error
-
-      if (
-        isFill &&
-        client &&
-        isExecutionError(error) &&
-        (parameters.capabilities as Record<string, unknown> | undefined)
-          ?.errors === true
-      )
         return formatError(error, parameters, client)
-
+      }
+      if (!isFill && !isRaw) throw error
       throw Utils.toRpcError(error)
     }
   }
-  // Custom middleware and public callers always receive completed results.
-  const handler: Handler = async (request, options) => {
-    const result = await handleDeferred(request, options)
-    return request.method === 'eth_fillTransaction'
-      ? resolve(result as Result)
-      : result
-  }
-  handler[deferred] = handleDeferred
-  return inherit(next, handler)
 }
 
-/** Defers response work until the final fill is selected, then runs it concurrently. */
-export function enrich(
-  result: Result,
-  task: () => Promise<Partial<Result>>,
-): Result {
-  return { ...result, [pending]: [...(result[pending] ?? []), task] }
-}
-
-async function resolve(result: Result): Promise<Result> {
-  const { [pending]: tasks, ...base } = result
-  if (!tasks) return base
-  for (const patch of await Promise.all(tasks.map((task) => task()))) {
-    const capabilities = { ...base.capabilities, ...patch.capabilities }
-    // Replace the transaction so signing can remove the node's placeholder sender signature.
-    Object.assign(base, patch, { capabilities })
+/** Prevent hooks from mutating the transaction another hook signs. */
+function freeze<value>(value: value): value {
+  if (value && typeof value === 'object') {
+    for (const child of Object.values(value)) freeze(child)
+    Object.freeze(value)
   }
-  return base
+  return value
 }
 
 /** Normalize a downstream fill without discarding capabilities added by other plugins. */

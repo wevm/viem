@@ -121,10 +121,11 @@ uses it for ordinary requests and broadcasting with the `sign-only` policy.
 
 ### relayTransport
 
-- **Type:** `Transport | { plugins?: readonly Relay.Plugin[] }`
+- **Type:** `Transport | Transport.withRelay.LocalOptions`
 
 Pass a transport to connect to a remote relay, or an options object to run plugins
 locally. Plugins run in array order; an empty array forwards requests unchanged.
+Local options also accept `resolveTokens`, shared by fee selection and sponsorship.
 
 ### parameters.policy
 

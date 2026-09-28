@@ -41,10 +41,14 @@ describe('create', () => {
     const relay = Relay.create({
       getClient: resolver.getClient,
       plugins: [
-        (next) => (request, options) =>
-          request.method === 'relay_status'
-            ? Promise.resolve('ready')
-            : next(request, options),
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            return request.method === 'relay_status'
+              ? Promise.resolve('ready')
+              : next()
+          },
+        },
       ],
     })
     expect(
@@ -117,12 +121,15 @@ describe('create', () => {
     const relay = Relay.create({
       client,
       plugins: [
-        (next) => async (request, options) => {
-          if (request.method === 'relay_put') {
-            await store.setItem('value', request.params?.[0] as string)
-            return null
-          }
-          return next(request, options)
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method === 'relay_put') {
+              await store.setItem('value', request.params?.[0] as string)
+              return null
+            }
+            return next()
+          },
         },
       ],
     })
@@ -162,10 +169,13 @@ describe('create', () => {
     const relay = Relay.create({
       client,
       plugins: [
-        (next) => async (request, options) => {
-          if (request.method !== 'relay_put') return next(request, options)
-          await store.setItem('value', 'executed')
-          return null
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method !== 'relay_put') return next()
+            await store.setItem('value', 'executed')
+            return null
+          },
         },
       ],
     })
@@ -193,18 +203,21 @@ describe('create', () => {
     const relay = Relay.create({
       client,
       plugins: [
-        (next) => async (request, options) => {
-          if (request.method !== 'relay_work') return next(request, options)
-          const slot = slots.values().next().value
-          if (slot === undefined)
-            throw new Error('Downstream capacity exceeded')
-          slots.delete(slot)
-          try {
-            await new Promise((resolve) => setTimeout(resolve, 10))
-            return request.params?.[0]
-          } finally {
-            slots.add(slot)
-          }
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method !== 'relay_work') return next()
+            const slot = slots.values().next().value
+            if (slot === undefined)
+              throw new Error('Downstream capacity exceeded')
+            slots.delete(slot)
+            try {
+              await new Promise((resolve) => setTimeout(resolve, 10))
+              return request.params?.[0]
+            } finally {
+              slots.add(slot)
+            }
+          },
         },
       ],
     })
@@ -274,14 +287,16 @@ describe('create', () => {
     const relay = Relay.create({
       client,
       plugins: [
-        () => async (request) => {
-          if (request.method === 'relay_invalid')
-            throw new RpcResponse.InvalidParamsError({
-              message: 'Invalid token',
-              data: { token: 'bad' },
-            })
-          if (request.method === 'relay_bigint') return 1n
-          throw new Error('secret implementation detail')
+        {
+          async handleRequest({ request }) {
+            if (request.method === 'relay_invalid')
+              throw new RpcResponse.InvalidParamsError({
+                message: 'Invalid token',
+                data: { token: 'bad' },
+              })
+            if (request.method === 'relay_bigint') return 1n
+            throw new Error('secret implementation detail')
+          },
         },
       ],
     })
@@ -327,11 +342,15 @@ describe('create', () => {
     const relay = Relay.create({
       client,
       plugins: [
-        () => async (_, options) => ({
-          chainId: options?.chainId,
-          retryCount: options?.retryCount,
-          aborted: options?.signal?.aborted,
-        }),
+        {
+          async handleRequest({ options }) {
+            return {
+              chainId: options?.chainId,
+              retryCount: options?.retryCount,
+              aborted: options?.signal?.aborted,
+            }
+          },
+        },
       ],
     })
     const response = await relay.fetch(
@@ -383,18 +402,28 @@ describe('handleRequest', () => {
 
   test('handleRequest composes requests in array order and responses in reverse', async () => {
     const plugins: readonly Relay.Plugin[] = Object.freeze([
-      (next) => async (request, options) => ({
-        outer: await next(
-          { ...request, params: [...(request.params ?? []), 'outer'] },
-          { ...options, chainId: 4217 },
-        ),
-      }),
-      (next) => async (request, options) => ({
-        inner: await next(
-          { ...request, params: [...(request.params ?? []), 'inner'] },
-          { ...options, uid: 'inner' },
-        ),
-      }),
+      {
+        async handleRequest(context, next) {
+          context.request = {
+            ...context.request,
+            params: [...(context.request.params ?? []), 'outer'],
+          }
+          context.options = { ...context.options, chainId: 4217 }
+          await next()
+          context.result = { outer: context.result }
+        },
+      },
+      {
+        async handleRequest(context, next) {
+          context.request = {
+            ...context.request,
+            params: [...(context.request.params ?? []), 'inner'],
+          }
+          context.options = { ...context.options, uid: 'inner' }
+          await next()
+          context.result = { inner: context.result }
+        },
+      },
     ])
     const handle = Relay.handleRequest(
       async (request, options) => ({ request, options }),
@@ -432,8 +461,12 @@ describe('handleRequest', () => {
   test('handleRequest allows a plugin to handle a request locally', async () => {
     const handle = Relay.handleRequest(async () => 'downstream', {
       plugins: [
-        (next) => async (request, options) =>
-          request.method === 'eth_chainId' ? '0x1069' : next(request, options),
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            return request.method === 'eth_chainId' ? '0x1069' : next()
+          },
+        },
       ],
     })
 
@@ -448,13 +481,17 @@ describe('handleRequest', () => {
   test('handleRequest preserves per-request options through plugins', async () => {
     const options = { chainId: 4217, signal: new AbortController().signal }
     const handle = Relay.handleRequest(async (_request, options) => options, {
-      plugins: [(next) => (request, options) => next(request, options)],
+      plugins: [
+        {
+          async handleRequest(_context, next) {
+            return next()
+          },
+        },
+      ],
     })
 
-    expect(await handle({ method: 'eth_chainId' }, options)).toBe(options)
-    expect(await handle({ method: 'eth_chainId' })).toMatchInlineSnapshot(
-      'undefined',
-    )
+    expect(await handle({ method: 'eth_chainId' }, options)).toEqual(options)
+    expect(await handle({ method: 'eth_chainId' })).toMatchInlineSnapshot('{}')
   })
 
   test('handleRequest propagates downstream and plugin errors unchanged', async () => {
@@ -466,9 +503,12 @@ describe('handleRequest', () => {
       },
       {
         plugins: [
-          (next) => async (request, options) => {
-            if (request.method === 'relay_reject') throw plugin
-            return next(request, options)
+          {
+            async handleRequest(context, next) {
+              const { request } = context
+              if (request.method === 'relay_reject') throw plugin
+              return next()
+            },
           },
         ],
       },

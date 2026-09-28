@@ -252,10 +252,12 @@ const client = createClient()
 const relay = Relay.create({
   client,
   plugins: [
-    (next) => async (request, options) => { // [!code focus]
-      console.log('Processing request:', request.method) // [!code focus]
-      return next(request, options) // [!code focus]
-    }, // [!code focus]
+    {
+      async handleRequest(context, next) { // [!code focus]
+        console.log('Processing request:', context.request.method) // [!code focus]
+        await next() // [!code focus]
+      }, // [!code focus]
+    },
     Relay.simulate(),
     Relay.feeToken(),
   ],

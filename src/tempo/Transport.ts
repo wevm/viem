@@ -23,8 +23,9 @@ import {
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Plugin_ from './internal/relay/plugin.js'
 import * as Request_ from './internal/relay/request.js'
-import * as Relay_ from './Relay.js'
+import type * as Relay_ from './Relay.js'
 import type { Store } from './Store.js'
 import * as Store_ from './Store.js'
 import * as Transaction from './Transaction.js'
@@ -130,13 +131,10 @@ export function withRelay(
       const transport = defaultTransport(config)
       const next: Relay_.handleRequest.Handler = (request, options) =>
         transport.request(request as never, options)
-      const request = Relay_.handleRequest(
-        config.chain
-          ? Request_.withClient(next, () => ({
-              chain: config.chain!,
-            }))
-          : next,
+      const request = Request_.compose(
+        next,
         relayTransport,
+        config.chain ? () => ({ chain: config.chain! }) : undefined,
       )
       return {
         ...transport,
@@ -147,7 +145,7 @@ export function withRelay(
           })) as typeof transport.request,
         value: {
           ...transport.value,
-          ...(relayTransport.plugins?.some((plugin) => plugin.multisig)
+          ...(relayTransport.plugins?.some(Plugin_.isMultisig)
             ? { multisig: true }
             : {}),
         },
@@ -273,7 +271,7 @@ export declare namespace withRelay {
   /** Plugins applied directly to the default transport. */
   export type LocalOptions<
     plugins extends readonly Relay_.Plugin[] = readonly Relay_.Plugin[],
-  > = {
+  > = Pick<Relay_.handleRequest.Options, 'resolveTokens'> & {
     /** Ordered relay plugins. Defaults to an empty list. */
     plugins?: plugins | undefined
   }

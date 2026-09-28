@@ -6,8 +6,6 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
-import { getDefaultTokens } from './feeToken.js'
-import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -19,21 +17,26 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       }),
     ),
   )
-  return Plugin.from((next) =>
-    Request.wrap(next, async (request, context) => {
-      const { client, getClient, chainId, options: requestOptions } = context
+  return {
+    async handleRequest(context, next) {
+      const { request } = context
+      if (
+        ![
+          'eth_fillTransaction',
+          'eth_signRawTransaction',
+          'eth_sendRawTransaction',
+          'eth_sendRawTransactionSync',
+        ].includes(request.method)
+      )
+        return next()
+      const { client, getClient, options: requestOptions } = context
+      const chainId = requestOptions.chainId
 
-      const getTokens = (id: number) =>
-        id === chainId
-          ? context.getTokens()
-          : (next[Request.tokens] ?? getDefaultTokens)(
-              id,
-              requestOptions.signal,
-            )
+      const getTokens = (id: number) => context.resolveTokens(id)
 
       const record = (details: SponsorshipDetails | undefined) => {
-        if (details && requestOptions[Request.response])
-          requestOptions[Request.response].sponsorship_details = details
+        if (details && requestOptions.response)
+          requestOptions.response.sponsorship_details = details
       }
 
       if (request.method !== 'eth_fillTransaction') {
@@ -44,7 +47,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
                 'eth_signRawTransaction requires a fee payer to be configured on the relay. Add `Relay.feePayer({ account })` to enable transaction sponsorship.',
             })
 
-          return next(request, requestOptions)
+          return next()
         }
 
         const serialized = request.params?.[0]
@@ -52,7 +55,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           typeof serialized !== 'string' ||
           !requestsRawSponsorship(serialized as Hex.Hex)
         )
-          return next(request, requestOptions)
+          return next()
 
         const result = await handleRawTransaction({
           ...options,
@@ -152,45 +155,51 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             : undefined
         : undefined
 
-      return Request.enrich(
-        {
-          ...result,
+      if (options.account && !external && !defer) {
+        delete filled.signature
+        if (!filled.from) filled.from = parameters.from as Address
+      }
+      return {
+        ...result,
+        ...(sponsor ? { sponsor } : {}),
+        tx: Utils.formatTempoTransaction(
+          filled as core_Transaction.Transaction,
+        ),
+        capabilities: {
+          ...result.capabilities,
+          sponsored: external
+            ? (result.capabilities?.sponsored ?? !!sponsor)
+            : !!sponsor,
           ...(sponsor ? { sponsor } : {}),
-          tx: Utils.formatTempoTransaction(
-            filled as core_Transaction.Transaction,
-          ),
-          capabilities: {
-            ...result.capabilities,
-            sponsored: external
-              ? (result.capabilities?.sponsored ?? !!sponsor)
-              : !!sponsor,
-            ...(sponsor ? { sponsor } : {}),
-          },
         },
-        async () => {
-          const signed =
-            sponsored &&
-            options.account &&
-            !external &&
-            !filled.feePayerSignature &&
-            !defer
-              ? await sign({
-                  account: options.account,
-                  onSponsored: options.onSponsored,
-                  sender: parameters.from as Address | undefined,
-                  transaction: filled,
-                })
-              : { transaction: filled, sponsorshipDetails: undefined }
-
-          record(signed.sponsorshipDetails)
-          const transaction = Utils.formatTempoTransaction(
-            signed.transaction as core_Transaction.Transaction,
-          )
-          return { tx: transaction }
-        },
+      }
+    },
+    async signTransaction(result, context) {
+      const parameters = context.request.params![0] as Record<string, unknown>
+      if (
+        !options.account ||
+        typeof parameters.feePayer === 'string' ||
+        parameters.feePayer === false ||
+        !result.capabilities?.sponsored ||
+        result.tx.feePayerSignature ||
+        (typeof parameters.multisigSimulation === 'object' &&
+          parameters.multisigSimulation !== null)
       )
-    }),
-  )
+        return undefined
+      const signed = await sign({
+        account: options.account,
+        onSponsored: options.onSponsored,
+        sender: parameters.from as Address | undefined,
+        transaction: Utils.normalizeTempoTransaction(result.tx),
+      })
+      if (signed.sponsorshipDetails && context.options.response)
+        context.options.response.sponsorship_details = signed.sponsorshipDetails
+      const tx = Utils.formatTempoTransaction(
+        signed.transaction as core_Transaction.Transaction,
+      )
+      return tx.feePayerSignature as Relay.Plugin.Signature
+    },
+  }
 }
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */

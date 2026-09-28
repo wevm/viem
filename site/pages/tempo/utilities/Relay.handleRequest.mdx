@@ -44,10 +44,12 @@ import { Relay } from 'viem/tempo'
 const rpc = http('https://rpc.tempo.xyz')({})
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [ // [!code focus]
-    (next) => async (request, options) => { // [!code focus]
-      if (request.method === 'relay_status') return { ready: true } // [!code focus]
-      return next(request, options) // [!code focus]
-    }, // [!code focus]
+    {
+      async handleRequest(context, next) { // [!code focus]
+        if (context.request.method === 'relay_status') return { ready: true } // [!code focus]
+        await next() // [!code focus]
+      }, // [!code focus]
+    },
   ], // [!code focus]
 })
 
@@ -57,9 +59,9 @@ const status = await handle({ method: 'relay_status' })
 
 ### Select a Chain per Request
 
-Pass `chainId` when a route selects the chain. Relay preserves request options
-but does not infer or validate the chain. Forward options to `next` so downstream
-handlers retain chain selection, retries, and cancellation.
+Pass `chainId` when a route selects the chain. Middleware reads or updates
+`context.options`; `next()` forwards the current request and options, preserving
+chain selection, retries, and cancellation.
 
 ```ts twoslash
 import { http } from 'viem'
@@ -117,9 +119,9 @@ const handle = Relay.handleRequest(
 - **Type:** `readonly Relay.Plugin[]`
 - **Default:** `[]`
 
-Plugins run in array order: `[a, b]` produces `a(b(next))`. Factories run once
-during composition, not per request. The array stays unchanged. Without plugins,
-the downstream handler is returned directly.
+Plugin handlers run in array order. Code after `await next()` runs in reverse
+order. Post-fill hooks run after all middleware returns. Without plugins, the
+downstream handler is returned directly.
 
 ```ts twoslash
 import { http } from 'viem'
@@ -128,11 +130,33 @@ const rpc = http('https://rpc.tempo.xyz')({})
 // ---cut---
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [ // [!code focus]
-    (next) => async (request, options) => { // [!code focus]
-      if (request.method === 'relay_status') return { ready: true } // [!code focus]
-      return next(request, options) // [!code focus]
-    }, // [!code focus]
+    {
+      async handleRequest(context, next) { // [!code focus]
+        if (context.request.method === 'relay_status') return { ready: true } // [!code focus]
+        await next() // [!code focus]
+      }, // [!code focus]
+    },
   ], // [!code focus]
+})
+```
+
+#### options.resolveTokens
+
+- **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
+- **Default:** Bundled Tempo token addresses for the selected chain.
+
+Supplies fee-token candidates shared by fee selection and sponsorship. Results are
+memoized within each request and chain. Implement cross-request caching inside the
+resolver when fetching a remote token list.
+
+```ts twoslash
+import { Addresses, Relay } from 'viem/tempo'
+import { http } from 'viem'
+const rpc = http('https://rpc.tempo.xyz')({})
+// ---cut---
+const handle = Relay.handleRequest(rpc.request, {
+  resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+  plugins: [Relay.feeToken()],
 })
 ```
 
@@ -145,28 +169,51 @@ per-request options extend `EIP1193RequestOptions` with an optional numeric
 `chainId`, preserving retries, deduplication, and cancellation settings. It returns
 a promise for the RPC result.
 
-The composer introduces no error classes. Errors thrown while composing plugins
-or handling requests propagate unchanged unless a plugin handles them.
+Ordinary RPC errors propagate through middleware. Transaction processing normalizes
+RPC errors and can return execution-error capabilities when requested.
 
 ## `Relay.Plugin`
 
-Middleware that wraps the next relay request handler.
+An object containing request middleware and optional post-fill hooks.
 
 ### Usage
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
 
-const status: Relay.Plugin = (next) => async (request, options) => {
-  if (request.method === 'relay_status') return { ready: true }
-  return next(request, options)
+const status: Relay.Plugin = {
+  async handleRequest(context, next) {
+    if (context.request.method === 'relay_status') return { ready: true }
+    await next()
+    // Read or replace context.result here.
+  },
 }
 ```
 
-### Return Value
+### Request Context
 
-`Relay.handleRequest.Handler`
+`context.request` and `context.options` are forwarded by `next()`, which returns
+`Promise<void>`. The downstream result is available as `context.result`. Return a
+result directly to answer locally, or assign `context.result` after `next()`.
+Call `next()` at most once per middleware invocation.
 
-A plugin takes the remaining handler pipeline as `next` and returns its own
-handler. Call `next(request, options)` to continue through the remaining plugins
-and downstream handler, or return a result to answer locally.
+`context.client` and `context.getClient(chainId)` issue requests through the
+remaining middleware. `context.resolveTokens(chainId)` shares the configured
+resolver across plugins, memoized per request and chain. `context.getStore(store)`
+shares in-flight cache work within the request.
+
+### Post-Fill Hooks
+
+`afterFill(filled, context)` runs after middleware selects the final transaction.
+All hooks run concurrently against a deeply frozen snapshot. Each returns
+`{ capabilities }`; duplicate capability keys returned by hooks are rejected.
+Hooks may replace upstream capability fields, but cannot patch transaction fields.
+
+`signTransaction(filled, context)` runs concurrently with `afterFill` and returns
+an RPC fee-payer signature (`r`, `s`, and `yParity`) or `undefined`. Only one signing
+hook may be configured. The relay removes the placeholder sender signature when
+applying the fee-payer signature.
+
+Hooks run once for the final successful fill, not for intermediate fills or error
+capabilities. Middleware sees the downstream result before these hooks run; the
+public relay handler returns the completed response.

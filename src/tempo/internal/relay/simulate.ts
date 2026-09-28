@@ -14,61 +14,58 @@ import type * as Relay from '../../Relay.js'
 import type * as Store from './cache.js'
 import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
-import * as Plugin from './plugin.js'
-import * as Request from './request.js'
 import * as Utils from './utils.js'
 import { extractCalls } from './virtualAddress.js'
 
 export function create(options: Relay.simulate.Options): Relay.Plugin {
-  return Plugin.from((next) =>
-    Request.wrap(next, async (request, context) => {
-      if (request.method !== 'eth_fillTransaction')
-        return next(request, context.options)
-
-      const parameters = request.params![0] as Record<string, unknown>
-      const store = context.getStore(options.store)
-      const result: Request.Result = await Request.fill(
-        context.client,
-        Utils.normalizeFillTransactionRequest(parameters),
-      ).catch((error) => {
+  return {
+    async handleRequest(context, next) {
+      if (context.request.method !== 'eth_fillTransaction') return next()
+      try {
+        await next()
+      } catch (error) {
+        const parameters = context.request.params![0] as Record<string, unknown>
         if (
           isExecutionError(error) &&
           (parameters.capabilities as Record<string, unknown> | undefined)
             ?.errors === true
         )
-          return formatError(error, parameters, context.client, store)
-
+          return formatError(
+            error,
+            parameters,
+            context.client,
+            context.getStore(options.store),
+          )
         throw error
-      })
-      if (result.capabilities?.error) return result
-
+      }
+    },
+    async afterFill(result, context) {
+      const parameters = context.request.params![0] as Record<string, unknown>
+      const store = context.getStore(options.store)
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
-      return Request.enrich(result, async () => {
-        const simulation =
-          (parameters.capabilities as Record<string, unknown> | undefined)
-            ?.balanceDiffs !== false
-            ? await simulateAndParseDiffs(context.client, {
-                account: parameters.from as Address | undefined,
-                calls: extractCalls(transaction),
-                feeToken,
-                gas: transaction.gas,
-                maxFeePerGas: transaction.maxFeePerGas,
-                store,
-              })
-            : await computeFee(context.client, {
-                feeToken,
-                gas: transaction.gas,
-                maxFeePerGas: transaction.maxFeePerGas,
-                store,
-              })
-                .catch(() => undefined)
-                .then((fee) => ({ balanceDiffs: undefined, fee }))
-
-        return { capabilities: simulation }
-      })
-    }),
-  )
+      const simulation =
+        (parameters.capabilities as Record<string, unknown> | undefined)
+          ?.balanceDiffs !== false
+          ? await simulateAndParseDiffs(context.client, {
+              account: parameters.from as Address | undefined,
+              calls: extractCalls(transaction),
+              feeToken,
+              gas: transaction.gas,
+              maxFeePerGas: transaction.maxFeePerGas,
+              store,
+            })
+          : await computeFee(context.client, {
+              feeToken,
+              gas: transaction.gas,
+              maxFeePerGas: transaction.maxFeePerGas,
+              store,
+            })
+              .catch(() => undefined)
+              .then((fee) => ({ balanceDiffs: undefined, fee }))
+      return { capabilities: simulation }
+    },
+  }
 }
 
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
