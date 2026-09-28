@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 import { AbiEvent, Hex } from 'ox'
-import { simulateCalls } from '../../../actions/public/simulateCalls.js'
 import type { Client } from '../../../clients/createClient.js'
 import { zeroAddress } from '../../../constants/address.js'
 import type { Call } from '../../../types/calls.js'
@@ -69,39 +68,6 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
   }
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: declaration merge
-async function simulate(client: Client, options: simulate.Options) {
-  const { account, calls } = options
-  try {
-    return await Actions.simulate.simulateCalls(client, {
-      ...(account ? { account } : {}),
-      calls: calls as Call[],
-      traceTransfers: true,
-    })
-  } catch (error) {
-    // TODO: Remove fallback once all nodes support tempo_simulateV1.
-    // Fall back to viem's simulateCalls (eth_simulateV1) if the Tempo
-    // method (tempo_simulateV1) is not supported.
-    const code =
-      (error as { code?: number | undefined }).code ??
-      (error as { cause?: { code?: number | undefined } | undefined }).cause
-        ?.code
-    if (code !== -32601) throw error
-    const { results } = await simulateCalls(client, {
-      ...(account ? { account } : {}),
-      calls: calls as Call[],
-    })
-    return { results, tokenMetadata: undefined }
-  }
-}
-
-declare namespace simulate {
-  type Options = {
-    account?: Address | undefined
-    calls: readonly Call[]
-  }
-}
-
 export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
@@ -110,10 +76,24 @@ export async function simulateAndParseDiffs(
   signal?.throwIfAborted()
 
   try {
-    const { results, tokenMetadata } = await simulate(client, {
+    // Including the fee token as a read target asks the node to return its metadata too.
+    const probe =
+      feeToken &&
+      !calls.some((call) => call.to?.toLowerCase() === feeToken.toLowerCase())
+        ? [
+            Actions.token.getBalance.call(client, {
+              account: account ?? zeroAddress,
+              token: feeToken,
+            }),
+          ]
+        : []
+    const simulation = await Actions.simulate.simulateCalls(client, {
       account: account === zeroAddress ? undefined : account,
-      calls,
+      calls: [...calls, ...probe] as Call[],
+      traceTransfers: true,
     })
+    const results = simulation.results.slice(0, calls.length)
+    const { tokenMetadata } = simulation
 
     signal?.throwIfAborted()
 

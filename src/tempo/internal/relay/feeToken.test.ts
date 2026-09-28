@@ -291,7 +291,7 @@ test('selects a funded token within a downstream concurrency budget', async () =
       exclude: Tempo.addresses.pathUsd,
       tokens,
     }),
-  ).resolves.toBe(Tempo.addresses.alphaUsd)
+  ).resolves.toMatchObject({ feeToken: Tempo.addresses.alphaUsd })
 })
 
 test('uses a funded preference outside the configured candidates', async () => {

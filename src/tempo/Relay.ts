@@ -220,12 +220,16 @@ export declare namespace handleRequest {
 
   /** Options for {@link handleRequest}. */
   export type Options = {
+    /** Maximum downstream attempts per plugin-handled fill, including retries. Defaults to 4. */
+    maxRequests?: number | undefined
     /** Plugins in request execution order. Defaults to an empty list. */
     plugins?: readonly Plugin[] | undefined
     /** Fee-token candidates shared by all plugins, memoized per request and chain. */
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
+    /** Deadline in milliseconds for a plugin-handled fill, including callbacks. Defaults to 10,000. */
+    timeout?: number | undefined
   }
 
   /** RPC request passed to a handler. */
@@ -392,7 +396,7 @@ export declare namespace feePayer {
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.feeToken()
  * ```
- * @param options - Optional preference store.
+ * @param options - Fee-token options.
  * @returns A fee-token relay plugin.
  */
 export function feeToken(options: feeToken.Options = {}): Plugin {
@@ -402,7 +406,7 @@ export function feeToken(options: feeToken.Options = {}): Plugin {
 export declare namespace feeToken {
   /** Fee-token selection configuration. */
   export type Options = {
-    /** Store for cached user fee-token preferences. */
+    /** @deprecated Preferences and balances are now read together without caching. */
     store?: Store.Store | undefined
   }
 }

@@ -182,9 +182,7 @@ const plugin = Relay.feeToken()
 
 - **Type:** `Store.Store`
 
-Optional [store](/tempo/utilities/Store) for the user's fee-token preference,
-cached for 60 seconds. Current balances are always read from the execution node.
-A cached preference with no balance falls back to another funded candidate.
+Deprecated. Preferences, candidate balances, and virtual recipients are read together in one deployless `eth_call`. The store option is retained for compatibility.
 
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'

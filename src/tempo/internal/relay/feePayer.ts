@@ -6,6 +6,7 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import * as Budget from './budget.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -121,11 +122,14 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const result: Request.Result =
         prepared && !external
           ? { tx: transaction }
-          : await Request.fill(
-              fillClient,
-              transaction,
-              external ? { ...requestOptions, retryCount: 0 } : requestOptions,
-            )
+          : external
+            ? ((await Budget.request(
+                async (_request, options) =>
+                  Request.fill(fillClient, transaction, options),
+                { method: 'eth_fillTransaction', params: [transaction] },
+                { ...requestOptions, retryCount: 0 },
+              )) as Request.Result)
+            : await Request.fill(fillClient, transaction, requestOptions)
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
@@ -214,6 +218,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         onSponsored: options.onSponsored,
         sender: parameters.from as Address | undefined,
         transaction,
+        signal: context.options.signal,
       })
       if (signed.sponsorshipDetails && context.options.response)
         context.options.response.sponsorship_details = signed.sponsorshipDetails
@@ -357,9 +362,11 @@ export async function sign(options: sign.Options) {
   const signPayload = TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
     sender: prepared.from,
   })
+  options.signal?.throwIfAborted()
   const feePayerSignature = Signature.from(
     await account.sign({ hash: signPayload }),
   )
+  options.signal?.throwIfAborted()
 
   // Record the commitment before releasing the signature, since the signed fill can be broadcast through another endpoint.
   const feeToken = transaction.feeToken as Address | null | undefined
@@ -380,6 +387,8 @@ export async function sign(options: sign.Options) {
 
 export declare namespace sign {
   type Options = {
+    /** Abort signal for the enclosing fill. */
+    signal?: AbortSignal | undefined
     /** Account used as the fee payer. */
     account: LocalAccount
     /** Called once the fee payer has signed the fill. Awaited: a throw aborts the fill. */

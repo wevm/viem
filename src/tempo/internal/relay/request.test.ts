@@ -435,7 +435,7 @@ test('keeps a sponsored fill when optional virtual-address metadata is unavailab
   expect(result.capabilities?.virtualAddresses).toBeUndefined()
 })
 
-test.each(['tempo_simulateV1', 'eth_simulateV1', 'eth_call'])(
+test.each(['tempo_simulateV1', 'eth_call'])(
   'propagates cancellation during %s',
   async (method) => {
     const started = Promise.withResolvers<void>()
@@ -586,3 +586,121 @@ test.each(['none', 'explicit', 'resolved'])(
     )
   },
 )
+
+test('bounds callbacks that do not observe the fill deadline', async () => {
+  const release = Promise.withResolvers<void>()
+  const completed = Promise.withResolvers<void>()
+  let forwarded = false
+  const relay = Relay.handleRequest(
+    async () => {
+      forwarded = true
+      return null
+    },
+    {
+      timeout: 20,
+      plugins: [
+        {
+          async handleRequest(context) {
+            await release.promise
+            try {
+              await context.client.request({ method: 'eth_chainId' })
+            } finally {
+              completed.resolve()
+            }
+          },
+        },
+      ],
+    },
+  )
+  await expect(
+    relay(
+      { method: 'eth_fillTransaction', params: [{}] },
+      { chainId: tempoLocalnet.id },
+    ),
+  ).rejects.toMatchObject({
+    code: -32005,
+    message: 'Relay fill exceeded its deadline.',
+  })
+  release.resolve()
+  await completed.promise
+  expect(forwarded).toBe(false)
+})
+
+test('charges retries against one fill request budget', async () => {
+  let requests = 0
+  const server = await createHttpServer((_request, response) => {
+    requests++
+    response.writeHead(503)
+    response.end()
+  })
+  try {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http(server.url),
+      }),
+      maxRequests: 4,
+      plugins: [
+        {
+          async handleRequest(_context, next) {
+            await next()
+          },
+        },
+      ],
+    })
+    await expect(
+      relay.request(
+        {
+          method: 'eth_fillTransaction',
+          params: [{ from: '0x0000000000000000000000000000000000000001' }],
+        },
+        { retryCount: 10, retryDelay: 0 },
+      ),
+    ).rejects.toMatchObject({ code: -32005 })
+    expect(requests).toBe(4)
+  } finally {
+    await server.close()
+  }
+})
+
+test.each(['maxRequests', 'timeout'] as const)(
+  'rejects invalid %s',
+  (option) => {
+    for (const value of [0, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])
+      expect(() =>
+        Relay.handleRequest(async () => null, {
+          [option]: value,
+          plugins: [Relay.simulate()],
+        }),
+      ).toThrow(`Expected a positive integer for ${option}.`)
+  },
+)
+
+test('rejects a timeout that would overflow the runtime timer', () => {
+  expect(() =>
+    Relay.handleRequest(async () => null, {
+      plugins: [Relay.simulate()],
+      timeout: 2 ** 31,
+    }),
+  ).toThrow('The fill timeout cannot exceed 2147483647 milliseconds.')
+})
+
+test('rejects an already aborted fill without starting callbacks', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  const relay = Relay.handleRequest(async () => null, {
+    plugins: [
+      {
+        async handleRequest() {
+          throw new Error('Unexpected callback')
+        },
+      },
+    ],
+  })
+  await expect(
+    relay(
+      { method: 'eth_fillTransaction', params: [{}] },
+      { signal: controller.signal },
+    ),
+  ).rejects.toMatchObject({ name: 'AbortError' })
+})
