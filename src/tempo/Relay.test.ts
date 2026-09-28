@@ -131,3 +131,39 @@ test('handleRequest propagates downstream and plugin errors unchanged', async ()
   await expect(handle({ method: 'eth_blockNumber' })).rejects.toBe(downstream)
   await expect(handle({ method: 'relay_reject' })).rejects.toBe(plugin)
 })
+
+test('service plugins preserve unrelated requests and request options', async () => {
+  const signal = new AbortController().signal
+  const request = { method: 'eth_chainId' }
+  const options = { signal, retryCount: 0, uid: 'unrelated' }
+  const handle = Relay.handleRequest(
+    async (request, options) => ({ request, options }),
+    {
+      plugins: [
+        Relay.feePayer(),
+        Relay.autoSwap(),
+        Relay.feeToken(),
+        Relay.simulate(),
+      ],
+    },
+  )
+  expect(await handle(request, options)).toEqual({ request, options })
+})
+
+test('service plugins preserve nested RPC errors and normalize expiration', async () => {
+  const upstreamError = {
+    code: -32603,
+    message: 'Revm error: transaction expired: valid_before is in the past',
+  }
+  const handle = Relay.handleRequest(
+    async () => {
+      throw new Error('Transport failed', { cause: upstreamError })
+    },
+    { plugins: [Relay.simulate()] },
+  )
+  await expect(handle({ method: 'eth_blockNumber' })).rejects.toMatchObject({
+    code: -32003,
+    message: 'Transaction expired.',
+    data: { code: 'transaction_expired' },
+  })
+})

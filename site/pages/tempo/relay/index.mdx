@@ -18,7 +18,10 @@ flowchart LR
   subgraph relay[Relay RPC]
     direction TB
     multisig[Multisig]
-    feePayer["🚧 Fee Payer"]
+    feePayer[Fee Payer]
+    autoSwap[Auto-Swap]
+    feeToken[Fee Token]
+    simulate[Simulate]
     funding["🚧 Funding"]
     accessKeyState["🚧 Access Key State"]
   end
@@ -46,13 +49,11 @@ chain rules. Clients rely on it for service availability and persistence.
 
 ## Plugins
 
-The first Viem relay plugin coordinates multisig approvals. Fee-payer, funding,
-access-key state, and account-config plugins are not implemented here.
+Compose plugins to sponsor transactions, resolve fee tokens, add swaps, simulate
+balance changes, and coordinate multisig approvals. The transaction plugins share
+one fill workflow, so combining them does not repeat the fill for each plugin.
 
-The production Tempo Relay API separately provides transaction services such as
-fee sponsorship, auto-swap, and fee-token resolution. A Viem relay with the
-multisig plugin does not implement those services. Spend routing is a future
-direction with similarities to auto-swap.
+Funding and access-key state plugins are planned.
 
 <Cards>
   <Card
@@ -60,5 +61,29 @@ direction with similarities to auto-swap.
     title="Multisig"
     description="Learn how a shared mailbox coordinates owner approvals."
     to="/tempo/relay/plugins/multisig"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Fee Payer"
+    description="Sponsor transaction fees."
+    to="/tempo/relay/plugins/fee-payer"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Auto-Swap"
+    description="Swap held tokens to cover a missing balance."
+    to="/tempo/relay/plugins/auto-swap"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Fee Token"
+    description="Select a fee token the sender holds."
+    to="/tempo/relay/plugins/fee-token"
+  />
+  <Card
+    icon="lucide:scan"
+    title="Simulate"
+    description="Preview balance changes and estimated fees."
+    to="/tempo/relay/plugins/simulate"
   />
 </Cards>

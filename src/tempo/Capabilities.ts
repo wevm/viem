@@ -18,12 +18,14 @@ export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
 export type FillTransactionRequestCapabilities = {
   /** Whether to include `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
+  /** Whether fill failures return error capabilities instead of throwing. */
+  errors?: boolean | undefined
 }
 
 export type FillTransactionCapabilities = {
   autoSwap?:
     | {
-        calls: readonly { to: Address; data: Hex; value: Hex }[]
+        calls: readonly { to: Address; data: Hex; value?: Hex | undefined }[]
         maxIn: SwapAmount
         minOut: SwapAmount
         slippage: number

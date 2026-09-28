@@ -1,0 +1,89 @@
+# Auto-Swap Plugin
+
+## Overview
+
+[`Relay.autoSwap`](#relayautoswap) adds Stablecoin DEX swaps when a fill fails
+with `InsufficientBalance`. It uses a token the sender holds to acquire the
+missing amount, then retries the fill with approval and swap calls prepended.
+
+## Recipes
+
+### Fill a Transfer with Another Token
+
+Combine auto-swap with [`Relay.feeToken`](/tempo/relay/plugins/fee-token) to
+select a held token and [`Relay.simulate`](/tempo/relay/plugins/simulate) to
+preview the resulting balance changes.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.feeToken(), Relay.autoSwap(), Relay.simulate()], // [!code focus]
+  }),
+})
+```
+
+The sender needs a source-token balance, and the DEX needs liquidity for the
+swap. The plugin reports injected calls, maximum input, minimum output, and
+slippage in `capabilities.autoSwap`. Swap movements are excluded from the
+simulation's transfer balance changes.
+
+## `Relay.autoSwap`
+
+Creates a plugin that recovers missing token balances during transaction preparation.
+It also attempts a swap when a successful fill selects a fee token with an
+insufficient balance. Failure of that additional attempt preserves the original fill.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.autoSwap({ slippage: 0.02 })
+```
+
+### Parameters
+
+#### options.slippage
+
+- **Type:** `number`
+- **Default:** `0.05`
+
+Maximum additional source-token input as a fraction. For a deficit of 10 tokens,
+`0.02` allows a maximum input of 10.2 tokens. This calculation assumes tokens
+with equal nominal values and does not fetch a market-price quote.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.autoSwap({ slippage: 0.02 }) // [!code focus]
+```
+
+#### options.cache
+
+- **Type:** `Store.Store`
+
+Optional [store](/tempo/utilities/Store) for token metadata, cached for 24 hours.
+Without a cache, metadata is read for each request.
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+// ---cut---
+Relay.autoSwap({ cache: Store.memory() }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcRequestError` | The fill or recovery swap fails, or no funded source token is available. |

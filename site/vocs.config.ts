@@ -3394,10 +3394,12 @@ export default defineConfig({
                   link: '/tempo/relay/plugins/multisig',
                 },
                 {
-                  badge: { text: '🚧', variant: 'warning' },
-                  disabled: true,
                   text: 'Fee Payer',
+                  link: '/tempo/relay/plugins/fee-payer',
                 },
+                { text: 'Auto-Swap', link: '/tempo/relay/plugins/auto-swap' },
+                { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {
                   badge: { text: '🚧', variant: 'warning' },
                   disabled: true,

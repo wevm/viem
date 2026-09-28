@@ -1,0 +1,199 @@
+# Fee Payer Plugin
+
+## Overview
+
+[`Relay.feePayer`](#relayfeepayer) sponsors transaction fees with a local account.
+It signs filled transactions and raw Tempo transactions that request sponsorship.
+A request can also supply an external fee-payer URL.
+
+## Recipes
+
+### Sponsor Transactions
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [
+    Relay.feePayer({
+      account: privateKeyToAccount('0x...'), // [!code focus]
+      name: 'Example Sponsor',
+      url: 'https://example.com',
+    }),
+  ],
+})
+
+export default { fetch: relay.fetch }
+```
+
+Keep the signing key on your server. The sponsor needs a balance in the selected
+fee token. Passing `feePayer: false` in a fill request opts out of sponsorship.
+
+### Apply a Sponsorship Policy
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { Addresses, Relay } from 'viem/tempo'
+
+const plugin = Relay.feePayer({
+  account: privateKeyToAccount('0x...'),
+  feeToken: Addresses.pathUsd,
+  validate: (transaction) => // [!code focus]
+    transaction.from === '0x0000000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+Only `true` approves sponsorship. Rejected fills fall back to sender-paid
+transactions. Rejected raw submissions return an RPC error. An app-provided
+external fee-payer URL uses that relay's policy, rather than this callback.
+
+### Record Sponsorship Before Returning a Signature
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.feePayer({
+  account: privateKeyToAccount('0x...'),
+  async onSponsored(event) { // [!code focus]
+    const response = await fetch('https://example.com/sponsorships', {
+      method: 'POST',
+      body: JSON.stringify(event),
+    })
+    if (!response.ok) throw new Error('Sponsorship recording failed.')
+    return { subsidized: false }
+  },
+})
+```
+
+The callback is awaited before returning a signature or broadcasting. A thrown
+error aborts the request. Fill events contain an unsigned sender envelope;
+raw-submission events also include `transactionHash`. Returned subsidy details
+appear as `sponsorship_details` on the Fetch JSON-RPC response envelope.
+
+## `Relay.feePayer`
+
+Creates a fee-payer plugin. With [`Relay.multisig`](/tempo/relay/plugins/multisig),
+fee-payer signing waits until the multisig transaction reaches quorum.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.feePayer()
+```
+
+Without an account, the plugin handles external fee-payer URLs supplied by requests.
+External URLs require HTTPS and a public hostname or IP address; redirects are
+rejected. The hosting application controls DNS and outbound network access.
+
+### Parameters
+
+#### options.account
+
+- **Type:** `LocalAccount`
+
+The local sponsor account. Omit for external fee-payer requests only.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ account: privateKeyToAccount('0x...') }) // [!code focus]
+```
+
+#### options.feeToken
+
+- **Type:** `Address`
+
+Preferred sponsor token. Overrides the fill request's fee token. A raw envelope's
+explicit token takes precedence, because its sender has already signed it.
+
+```ts twoslash
+import { Addresses, Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ feeToken: Addresses.pathUsd }) // [!code focus]
+```
+
+#### options.validate
+
+- **Type:** `(transaction) => Relay.feePayer.Validation | Promise<Relay.feePayer.Validation>`
+
+Checks the prepared transaction, including its chain ID. Return `false` or a named
+refusal: `billing_past_due`, `billing_required`, `fee_token_unsupported`,
+`spend_limit_exceeded`, or `tx_fee_limit_exceeded`.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
+```
+
+#### options.onSponsored
+
+- **Type:** `(event: Relay.feePayer.SponsoredEvent) => void | { subsidized: boolean } | Promise<void | { subsidized: boolean }>`
+
+Records a signing commitment. Requests can repeat, so use `event.signPayload` as
+an idempotency key when recording commitments.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ onSponsored: () => ({ subsidized: false }) }) // [!code focus]
+```
+
+#### options.name
+
+- **Type:** `string`
+
+Display name included with the sponsor address in fill capabilities.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ name: 'Example Sponsor' }) // [!code focus]
+```
+
+#### options.url
+
+- **Type:** `string`
+
+Display URL included in sponsor metadata. This value does not select an external relay.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ url: 'https://example.com' }) // [!code focus]
+```
+
+#### options.internal_allowUnsafeUrls
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Allows HTTP and private external relay addresses for trusted local development.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ internal_allowUnsafeUrls: true }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcResponse.InvalidParamsError` | Sponsorship is rejected, a URL is invalid, chain IDs conflict, or a raw transaction lacks a sender signature. |
+| `RpcResponse.MethodNotFoundError` | A raw signing request has no configured sponsor account. |
+| `Error` | The account cannot sign, or a policy or recording callback throws. |

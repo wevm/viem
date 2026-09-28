@@ -1,0 +1,312 @@
+import type { Address } from 'abitype'
+import { AbiEvent, Hex } from 'ox'
+import { simulateCalls } from '../../../actions/public/simulateCalls.js'
+import type { Client } from '../../../clients/createClient.js'
+import { zeroAddress } from '../../../constants/address.js'
+import type { Call } from '../../../types/calls.js'
+import type { Log } from '../../../types/log.js'
+import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
+import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import * as Abis from '../../Abis.js'
+import * as Addresses from '../../Addresses.js'
+import * as Actions from '../../actions/index.js'
+import type * as Capabilities from '../../Capabilities.js'
+import type * as Store from './cache.js'
+import { resolveTokenMetadata } from './feeToken.js'
+
+export async function simulate(client: Client, options: simulate.Options) {
+  const { account, calls } = options
+  try {
+    return await Actions.simulate.simulateCalls(client, {
+      ...(account ? { account } : {}),
+      calls: calls as Call[],
+      traceTransfers: true,
+    })
+  } catch (error) {
+    // TODO: Remove fallback once all nodes support tempo_simulateV1.
+    // Fall back to viem's simulateCalls (eth_simulateV1) if the Tempo
+    // method (tempo_simulateV1) is not supported.
+    const code =
+      (error as { code?: number | undefined }).code ??
+      (error as { cause?: { code?: number | undefined } | undefined }).cause
+        ?.code
+    if (code !== -32601) throw error
+    const { results } = await simulateCalls(client, {
+      ...(account ? { account } : {}),
+      calls: calls as Call[],
+    })
+    return { results, tokenMetadata: undefined }
+  }
+}
+
+export declare namespace simulate {
+  type Options = {
+    account?: Address | undefined
+    calls: readonly Call[]
+  }
+}
+
+export async function simulateAndParseDiffs(
+  client: Client,
+  options: simulateAndParseDiffs.Options,
+) {
+  const { account, calls, swap, feeToken, gas, store, maxFeePerGas } = options
+
+  try {
+    const { results, tokenMetadata } = await simulate(client, {
+      account: account === zeroAddress ? undefined : account,
+      calls,
+    })
+
+    // Collect all logs across all call results.
+    const logs: (typeof results)[number]['logs'] = []
+    for (const result of results as {
+      logs?: (typeof logs)[number][] | undefined
+    }[])
+      if (result.logs) logs.push(...result.logs)
+
+    // Build per-token balance diffs relative to the sender.
+    const balanceDiffs = account
+      ? await buildBalanceDiffs(client, {
+          account,
+          store,
+          logs,
+          swap,
+          tokenMetadata: tokenMetadata as never,
+        })
+      : {}
+
+    // Compute fee breakdown.
+    const fee = await computeFee(client, {
+      feeToken,
+      gas,
+      store,
+      maxFeePerGas,
+      tokenMetadata: tokenMetadata as never,
+    }).catch(() => undefined)
+
+    return { balanceDiffs, fee }
+  } catch {
+    // Simulation failures should not block the fill response —
+    // return empty diffs with fee computed from transaction fields.
+    const fee = await computeFee(client, { feeToken, gas, store, maxFeePerGas })
+    return { balanceDiffs: undefined, fee }
+  }
+}
+
+export declare namespace simulateAndParseDiffs {
+  type Options = {
+    account?: Address | undefined
+    calls: readonly Call[]
+    swap?: { tokenIn: Address; tokenOut: Address } | undefined
+    feeToken?: Address | undefined
+    gas?: bigint | undefined
+    store?: Store.Store | undefined
+    maxFeePerGas?: bigint | undefined
+  }
+}
+
+export async function buildBalanceDiffs(
+  client: Client,
+  options: buildBalanceDiffs.Options,
+) {
+  const { account, store, logs, swap, tokenMetadata } = options
+  const accountLower = account.toLowerCase()
+  const dexLower = Addresses.stablecoinDex.toLowerCase()
+  const swapTokenIn = swap?.tokenIn.toLowerCase()
+  const swapTokenOut = swap?.tokenOut.toLowerCase()
+
+  const transferLogs = parseEventLogs({
+    abi: [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
+    eventName: 'Transfer',
+    logs,
+  })
+  const approvalLogs = parseEventLogs({
+    abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
+    eventName: 'Approval',
+    logs,
+  })
+
+  // Track net movement per token: incoming vs outgoing.
+  const tokenMap = new Map<
+    string,
+    {
+      incoming: bigint
+      outgoing: bigint
+      recipients: Set<Address>
+      token: Address
+    }
+  >()
+
+  // Track total transferred per (token, spender) so we can suppress covered approvals.
+  const transferredBySpender = new Map<string, bigint>()
+
+  for (const log of transferLogs) {
+    const token = log.address.toLowerCase()
+    const fromLower = log.args.from.toLowerCase()
+    const toLower = log.args.to.toLowerCase()
+
+    // Skip swap-related transfers (reported in capabilities.autoSwap instead).
+    if (swap) {
+      if (
+        token === swapTokenIn &&
+        fromLower === accountLower &&
+        toLower === dexLower
+      )
+        continue
+      if (
+        token === swapTokenOut &&
+        fromLower === dexLower &&
+        toLower === accountLower
+      )
+        continue
+    }
+
+    const entry = tokenMap.get(token) ?? {
+      incoming: 0n,
+      outgoing: 0n,
+      recipients: new Set<Address>(),
+      token: log.address,
+    }
+    if (fromLower === accountLower) {
+      entry.outgoing += log.args.amount
+      entry.recipients.add(log.args.to)
+      const key = `${token}:${toLower}`
+      transferredBySpender.set(
+        key,
+        (transferredBySpender.get(key) ?? 0n) + log.args.amount,
+      )
+    }
+    if (toLower === accountLower) entry.incoming += log.args.amount
+    tokenMap.set(token, entry)
+  }
+
+  // Treat approvals as outgoing unless the spender already transferred >= approval amount.
+  for (const log of approvalLogs) {
+    if (log.args.owner.toLowerCase() !== accountLower) continue
+    const token = log.address.toLowerCase()
+
+    // Skip swap-related approvals (reported in capabilities.autoSwap instead).
+    if (
+      swap &&
+      token === swapTokenIn &&
+      log.args.spender.toLowerCase() === dexLower
+    )
+      continue
+
+    const spenderKey = `${token}:${log.args.spender.toLowerCase()}`
+    const transferred = transferredBySpender.get(spenderKey) ?? 0n
+    if (log.args.amount <= transferred) continue
+
+    const entry = tokenMap.get(token) ?? {
+      incoming: 0n,
+      outgoing: 0n,
+      recipients: new Set<Address>(),
+      token: log.address,
+    }
+    entry.outgoing += log.args.amount - transferred
+    entry.recipients.add(log.args.spender)
+    tokenMap.set(token, entry)
+  }
+
+  // Collect unique tokens that need decimals.
+  const entries = [...tokenMap.values()].filter((e) => {
+    const net =
+      e.outgoing > e.incoming
+        ? e.outgoing - e.incoming
+        : e.incoming - e.outgoing
+    return net > 0n
+  })
+  if (entries.length === 0) return {}
+
+  // Resolve metadata for all tokens in parallel (simulation metadata first, RPC fallback).
+  const metadataMap = new Map<
+    string,
+    { decimals: number; symbol: string; name: string }
+  >()
+  await Promise.all(
+    entries.map(async (entry) => {
+      try {
+        const metadata = await resolveTokenMetadata(client, {
+          token: entry.token,
+          tokenMetadata,
+          store,
+        })
+        metadataMap.set(entry.token.toLowerCase(), metadata)
+      } catch {}
+    }),
+  )
+
+  // Build the diff array for this account.
+  const diffs: Capabilities.BalanceDiff[] = []
+  for (const entry of entries) {
+    const net =
+      entry.outgoing > entry.incoming
+        ? entry.outgoing - entry.incoming
+        : entry.incoming - entry.outgoing
+
+    const direction = entry.outgoing > entry.incoming ? 'outgoing' : 'incoming'
+    const meta = metadataMap.get(entry.token.toLowerCase())
+    const decimals = meta?.decimals ?? 0
+    diffs.push({
+      address: entry.token,
+      decimals,
+      direction,
+      formatted: formatUnits(net, decimals),
+      name: meta?.name ?? '',
+      symbol: meta?.symbol ?? '',
+      recipients: [...entry.recipients] as Address[],
+      value: Hex.fromNumber(net) as `0x${string}`,
+    })
+  }
+
+  return { [account]: diffs }
+}
+
+export declare namespace buildBalanceDiffs {
+  type Options = {
+    account: Address
+    store?: Store.Store | undefined
+    logs: Log[]
+    swap?: { tokenIn: Address; tokenOut: Address } | undefined
+    tokenMetadata: Record<
+      Address,
+      { name: string; symbol: string; currency: string }
+    >
+  }
+}
+
+export async function computeFee(client: Client, options: computeFee.Options) {
+  const { feeToken, gas, store, maxFeePerGas, tokenMetadata } = options
+  if (!feeToken || !gas || !maxFeePerGas) return undefined
+
+  try {
+    const metadata = await resolveTokenMetadata(client, {
+      token: feeToken,
+      tokenMetadata,
+      store,
+    })
+    const raw = gas * maxFeePerGas
+    const amount = raw / 10n ** BigInt(18 - metadata.decimals)
+    return {
+      amount: Hex.fromNumber(amount) as `0x${string}`,
+      decimals: metadata.decimals,
+      formatted: formatUnits(amount, metadata.decimals),
+      symbol: metadata.symbol,
+    }
+  } catch {
+    return undefined
+  }
+}
+
+export declare namespace computeFee {
+  type Options = {
+    feeToken?: Address | undefined
+    gas?: bigint | undefined
+    store?: Store.Store | undefined
+    maxFeePerGas?: bigint | undefined
+    tokenMetadata?:
+      | Record<Address, { name: string; symbol: string; currency: string }>
+      | undefined
+  }
+}

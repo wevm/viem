@@ -1,0 +1,98 @@
+# Fee Token Plugin
+
+## Overview
+
+[`Relay.feeToken`](#relayfeetoken) selects a fee token the sender holds. It honors
+an explicit request token, then checks the sender's onchain preference. If the
+preferred token has no balance, it selects the highest-balance candidate.
+
+## Recipes
+
+### Select from Supported Tokens
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Addresses, Relay, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.feeToken({
+      resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+    })],
+  }),
+})
+```
+
+TIP-20 tokens targeted by the transaction's calls also become candidates for
+sender-paid fills. Candidate order breaks equal-balance ties. Guaranteed
+sponsorship skips sender-balance resolution; rejected sponsorship falls back to it.
+
+## `Relay.feeToken`
+
+Creates a fee-token selection plugin.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.feeToken()
+```
+
+### Parameters
+
+#### options.resolveTokens
+
+- **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
+- **Default:** The Tempo API token list for mainnet and testnet; an empty list for other chains.
+
+Returns candidate token addresses for a chain. Supply a resolver for local or
+custom networks, or to use your application's token list.
+
+```ts twoslash
+import { Addresses, Relay } from 'viem/tempo'
+// ---cut---
+Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] }) // [!code focus]
+```
+
+#### options.apiKey
+
+- **Type:** `string`
+
+Optional Tempo API key for the default token resolver. A custom `resolveTokens`
+callback does not use this key.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feeToken({ apiKey: 'tempo_...' }) // [!code focus]
+```
+
+#### options.cache
+
+- **Type:** `Store.Store`
+
+Optional [store](/tempo/utilities/Store) for the user's fee-token preference,
+cached for 60 seconds. Current balances are always read from the execution node.
+A cached preference with no balance falls back to another funded candidate.
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+// ---cut---
+Relay.feeToken({ cache: Store.memory() }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Error` | The token resolver or cache fails. |
+| `RpcRequestError` | The selected token cannot pay for the transaction. |

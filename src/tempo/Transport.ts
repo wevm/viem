@@ -23,6 +23,7 @@ import {
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Services from './internal/relay/services.js'
 import * as Relay_ from './Relay.js'
 import type { Store } from './Store.js'
 import * as Store_ from './Store.js'
@@ -127,8 +128,15 @@ export function withRelay(
   if (typeof relayTransport !== 'function')
     return (config) => {
       const transport = defaultTransport(config)
+      const next: Relay_.handleRequest.Handler = (request, options) =>
+        transport.request(request as never, options)
       const request = Relay_.handleRequest(
-        (request, options) => transport.request(request as never, options),
+        config.chain
+          ? Services.withClient(next, () => ({
+              chain: config.chain!,
+              request: transport.request,
+            }))
+          : next,
         relayTransport,
       )
       return {

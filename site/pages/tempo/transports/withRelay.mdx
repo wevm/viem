@@ -59,7 +59,8 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 Below is an end-to-end example of a client/server relay setup.
 
-See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `accounts/server`](https://docs.tempo.xyz/accounts/server/handler.relay) to handle relay requests.
+The server uses [`Relay.create`](/tempo/utilities/Relay.create) with the
+[fee-payer plugin](/tempo/relay/plugins/fee-payer) to sponsor requests.
 
 :::code-group
 
@@ -83,26 +84,19 @@ const hash = await client.sendTransactionSync({
 ```
 
 ```ts twoslash [server.ts]
-// @noErrors
-import { createServer } from 'node:http'
+import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { createClient } from 'viem/tempo'
-import { Handler } from 'accounts/server'
+import { tempoModerato } from 'viem/chains'
+import { Relay } from 'viem/tempo'
 
-const client = createClient({
-  // Note: the relay can specify its own fee token.
-  feeToken: '0x20c0000000000000000000000000000000000001',
-  testnet: true,
+const relay = Relay.create({
+  client: createClient({ chain: tempoModerato, transport: http() }),
+  plugins: [ // [!code focus]
+    Relay.feePayer({ account: privateKeyToAccount('0x...') }), // [!code focus]
+  ], // [!code focus]
 })
 
-const handler = Handler.relay({ // [!code hl]
-  feePayer: { // [!code hl]
-    account: privateKeyToAccount('0x...'), // [!code hl]
-  }, // [!code hl]
-}) // [!code hl]
-
-const server = createServer(handler.listener)
-server.listen(3000)
+export default { fetch: relay.fetch }
 ```
 
 :::
@@ -122,9 +116,9 @@ const client = createClient({
 })
 ```
 
-Local plugins wrap the default transport directly. The multisig plugin adds
-coordination without fee sponsorship. Memory storage is process-local; independent
-clients or servers must use the same persistent atomic store.
+Local plugins wrap the default transport directly. See the [available plugins](/tempo/guides/relay/connect#connect-to-a-local-relay)
+for sponsorship, auto-swap, fee-token resolution, simulation, and multisig coordination.
+Memory storage is process-local; independent multisig clients must share persistent atomic storage.
 
 ## Return Type
 

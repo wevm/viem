@@ -1,0 +1,113 @@
+# Simulate Plugin
+
+## Overview
+
+[`Relay.simulate`](#relaysimulate) adds balance changes and estimated fees to
+filled transactions. It simulates calls with `tempo_simulateV1` and falls back
+to `eth_simulateV1` when the Tempo method is unavailable.
+
+## Recipes
+
+### Preview a Transaction
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { tempo } from 'viem/chains'
+import { Addresses, Relay, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.feeToken(), Relay.simulate()], // [!code focus]
+  }),
+})
+const { capabilities } = await fillTransaction(client, {
+  account: '0x0000000000000000000000000000000000000001',
+  feeToken: Addresses.pathUsd,
+  calls: [],
+})
+```
+
+`capabilities.balanceDiffs` groups outgoing transfers, incoming transfers, and
+uncovered approvals by account and token. `capabilities.fee` uses the filled
+gas limit and maximum fee per gas. Fee metadata requires a known fee token.
+
+### Return Execution Errors as Capabilities
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { tempo } from 'viem/chains'
+import { Relay, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), { plugins: [Relay.simulate()] }),
+})
+const { capabilities } = await fillTransaction(client, {
+  account: '0x0000000000000000000000000000000000000001',
+  calls: [],
+  capabilities: { errors: true }, // [!code focus]
+})
+```
+
+With `errors: true`, failed fills return a transaction stub and a decoded
+`capabilities.error`. Insufficient balances also return `requireFunds` when token
+metadata is available. A failed fill is not a transaction ready to sign.
+
+### Skip Balance Simulation
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { fillTransaction } from 'viem/actions'
+import { tempo } from 'viem/chains'
+import { Relay, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), { plugins: [Relay.simulate()] }),
+})
+await fillTransaction(client, {
+  account: '0x0000000000000000000000000000000000000001',
+  calls: [],
+  capabilities: { balanceDiffs: false }, // [!code focus]
+})
+```
+
+The plugin still computes fee metadata when the filled fee token is known.
+Simulation failures do not block a successful fill; unavailable balance changes
+are omitted.
+
+## `Relay.simulate`
+
+Creates a transaction simulation plugin.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.simulate()
+```
+
+### Parameters
+
+#### options.cache
+
+- **Type:** `Store.Store`
+
+Optional [store](/tempo/utilities/Store) for token metadata, cached for 24 hours.
+Simulation results are never cached.
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+// ---cut---
+Relay.simulate({ cache: Store.memory() }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.

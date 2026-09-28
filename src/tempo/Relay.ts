@@ -1,7 +1,11 @@
+import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import type * as Sponsorship from './internal/relay/feePayer.js'
 import * as Multisig from './internal/relay/multisig.js'
+import * as Services from './internal/relay/services.js'
 import * as internal from './internal/relay.js'
 import type * as Store from './Store.js'
 
@@ -66,23 +70,30 @@ export function create(
       message: 'Expected a client with a configured chain.',
     })
 
-  const handle = handleRequest(async (request, requestOptions) => {
-    const { chainId, ...rest } = requestOptions ?? {}
-    if (chainId === undefined)
-      throw new RpcResponse.InvalidParamsError({
-        message: 'A chain ID is required to resolve the downstream client.',
-      })
-    if (clientChainId !== undefined && chainId !== clientChainId)
-      throw new RpcResponse.InvalidParamsError({
-        message: 'Conflicting chain ids.',
-      })
-    const client = options.client ?? options.getClient!({ chainId } as never)
-    if (client.chain.id !== chainId)
-      throw new RpcResponse.InvalidParamsError({
-        message: 'Conflicting chain ids.',
-      })
-    return client.request(request as never, rest)
-  }, options)
+  const handle = handleRequest(
+    Services.withClient(
+      async (request, requestOptions) => {
+        const { chainId, ...rest } = requestOptions ?? {}
+        if (chainId === undefined)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'A chain ID is required to resolve the downstream client.',
+          })
+        if (clientChainId !== undefined && chainId !== clientChainId)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Conflicting chain ids.',
+          })
+        const client =
+          options.client ?? options.getClient!({ chainId } as never)
+        if (client.chain.id !== chainId)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Conflicting chain ids.',
+          })
+        return client.request(request as never, rest)
+      },
+      (chainId) => options.client ?? options.getClient!({ chainId } as never),
+    ),
+    options,
+  )
 
   const request: handleRequest.Handler = (request, requestOptions) => {
     const chainId = requestOptions?.chainId ?? clientChainId
@@ -184,10 +195,13 @@ export function handleRequest(
   next: handleRequest.Handler,
   options: handleRequest.Options = {},
 ): handleRequest.Handler {
-  return (options.plugins ?? []).reduceRight(
-    (next, plugin) => plugin(next),
-    next,
-  )
+  const plugins = options.plugins ?? []
+  const handler = plugins.some(Services.isPlugin)
+    ? Services.handleRequest(next, {
+        multisig: plugins.some((plugin) => plugin.multisig === true),
+      })
+    : next
+  return plugins.reduceRight((next, plugin) => plugin(next), handler)
 }
 
 export declare namespace handleRequest {
@@ -266,6 +280,115 @@ export declare namespace multisig {
   }
   /** Middleware advertising native multisig coordination. */
   export type ReturnType = Plugin & { multisig: true }
+}
+
+/**
+ * Adds swaps to fill requests when a token balance is insufficient.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.autoSwap({ slippage: 0.05 })
+ * ```
+ * @param options - Slippage tolerance and optional metadata cache.
+ * @returns An auto-swap relay plugin.
+ */
+export function autoSwap(options: autoSwap.Options = {}): Plugin {
+  return Services.create('autoSwap', options)
+}
+export declare namespace autoSwap {
+  export type Options = {
+    /** Metadata cache. Omit to read metadata for each request. */
+    cache?: Store.Store | undefined
+    /** Slippage tolerance as a fraction. @default 0.05 */
+    slippage?: number | undefined
+  }
+}
+
+/**
+ * Sponsors transactions with a local account or an external fee-payer relay.
+ *
+ * @example
+ * ```ts
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
+ * ```
+ * @param options - Sponsor account, policy, and display metadata.
+ * @returns A fee-payer relay plugin.
+ */
+export function feePayer(options: feePayer.Options = {}): Plugin {
+  return Services.create('feePayer', options)
+}
+export declare namespace feePayer {
+  export type Options = {
+    /** Local sponsor. Omit when requests use an external fee-payer URL. */
+    account?: LocalAccount | undefined
+    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
+    feeToken?: Address | undefined
+    /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
+    internal_allowUnsafeUrls?: boolean | undefined
+    /** Display name returned in sponsor capabilities. */
+    name?: string | undefined
+    /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
+    onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined
+    /** Sponsor display URL. */
+    url?: string | undefined
+    /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
+    validate?: Sponsorship.Validate | undefined
+  }
+  /** Result of a sponsorship policy check. */
+  export type Validation = Sponsorship.Validation
+  /** Facts passed to the sponsorship callback. */
+  export type SponsoredEvent = Sponsorship.SponsoredEvent
+}
+
+/**
+ * Resolves fee tokens from user preferences and token balances.
+ *
+ * @example
+ * ```ts
+ * import { Addresses, Relay } from 'viem/tempo'
+ * const plugin = Relay.feeToken({ resolveTokens: () => [Addresses.pathUsd] })
+ * ```
+ * @param options - Token candidates and optional cache.
+ * @returns A fee-token relay plugin.
+ */
+export function feeToken(options: feeToken.Options = {}): Plugin {
+  return Services.create('feeToken', options)
+}
+export declare namespace feeToken {
+  export type Options = {
+    /** Tempo API key for the default verified-token resolver. */
+    apiKey?: string | undefined
+    /** Cache for user fee-token preferences. */
+    cache?: Store.Store | undefined
+    /** Candidates in preference order. Defaults to the Tempo API token list on mainnet and testnet. */
+    resolveTokens?:
+      | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
+      | undefined
+  }
+}
+
+/**
+ * Adds balance changes, estimated fees, and execution errors to fill capabilities.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.simulate()
+ * ```
+ * @param options - Optional metadata cache.
+ * @returns A simulation relay plugin.
+ */
+export function simulate(options: simulate.Options = {}): Plugin {
+  return Services.create('simulate', options)
+}
+export declare namespace simulate {
+  export type Options = {
+    /** Metadata cache. Omit to read metadata for each request. */
+    cache?: Store.Store | undefined
+  }
 }
 
 type Client = Pick<Client_, 'request'> & { chain: { id: number } }

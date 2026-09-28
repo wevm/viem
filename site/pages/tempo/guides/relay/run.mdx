@@ -55,8 +55,11 @@ Independent processes and Worker isolates must share a persistent
 
 Available plugins:
 
-- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum,
-  and submits multisig transactions. It does not provide fee sponsorship.
+- [`Relay.feePayer`](/tempo/relay/plugins/fee-payer): sponsors fills and signed transactions.
+- [`Relay.autoSwap`](/tempo/relay/plugins/auto-swap): adds swaps when a token balance is insufficient.
+- [`Relay.feeToken`](/tempo/relay/plugins/fee-token): selects fee tokens from preferences and balances.
+- [`Relay.simulate`](/tempo/relay/plugins/simulate): reports balance changes and estimated fees.
+- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum, and submits multisig transactions.
 
 ### Select a Chain for an Endpoint
 
