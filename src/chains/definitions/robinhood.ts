@@ -1,5 +1,5 @@
-import * as Chain from '../../core/Chain.js'
 import * as Contracts from '../../core/internal/contracts.js'
+import * as Chain from '../../core/Chain.js'
 
 export const robinhood = /*#__PURE__*/ Chain.from({
   id: 4663,
@@ -7,7 +7,11 @@ export const robinhood = /*#__PURE__*/ Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   blockTime: 100,
   rpcUrls: {
-    http: 'https://rpc.mainnet.chain.robinhood.com',
+    http: [
+      'https://rpc.mainnet.chain.robinhood.com',
+      'https://rpc.ordofi.network',
+    ],
+    ws: ['wss://rpc.ordofi.network'],
   },
   blockExplorers: {
     name: 'Blockscout',

@@ -165,6 +165,7 @@ export async function simulate<
         | { code: number; data?: Hex.Hex | undefined; message: string }
         | undefined
       gasUsed: Hex.Hex
+      maxUsedGas?: Hex.Hex | undefined
       logs?: readonly Log.Rpc[] | undefined
       returnData: Hex.Hex
       status: Hex.Hex
@@ -238,6 +239,9 @@ export async function simulate<
         return {
           data,
           gasUsed,
+          ...(call.maxUsedGas === undefined
+            ? {}
+            : { maxUsedGas: Hex.toBigInt(call.maxUsedGas) }),
           logs,
           status,
           ...(status === 'success' ? { result } : { error }),
@@ -312,6 +316,8 @@ export declare namespace simulate {
           extraProperties: {
             data: Hex.Hex
             gasUsed: bigint
+            /** Gas consumed before refunds, when reported by the node. */
+            maxUsedGas?: bigint | undefined
             logs?: readonly Log.Log[] | undefined
           }
           mutability: AbiStateMutability

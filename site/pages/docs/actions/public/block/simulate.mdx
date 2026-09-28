@@ -426,3 +426,5 @@ const blocks = await Actions.block.simulate(client, {
 | Error | Description |
 | --- | --- |
 | `RpcError.ExecutionError` | The simulation request failed (for example, invalid request, fee invariants violated, or the node rejected the payload). |
+
+Calls include `maxUsedGas` when the node reports gas usage before refunds. This value is a measurement, not a guaranteed sufficient gas limit.

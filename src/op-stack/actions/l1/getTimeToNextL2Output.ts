@@ -52,7 +52,7 @@ export async function getTimeToNextL2Output<
   const now = Date.now()
   const seconds = (() => {
     if (now < latestOutputTimestamp) return 0
-    if (latestOutput.l2BlockNumber > l2BlockNumber) return 0
+    if (latestOutput.l2BlockNumber >= l2BlockNumber) return 0
 
     const elapsedBlocks = Number(l2BlockNumber - latestOutput.l2BlockNumber)
     const elapsed = Math.ceil((now - latestOutputTimestamp) / 1000)

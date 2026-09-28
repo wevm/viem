@@ -1,8 +1,11 @@
-import * as Chain from '../../core/Chain.js'
 import * as Contracts from '../../core/internal/contracts.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
+import * as Chain from '../../core/Chain.js'
+
+const sourceId = 11_155_111 // sepolia
 
 export const whitechainSepolia = /*#__PURE__*/ Chain.from({
-  testnet: true,
+  ...chainConfig,
   id: 1874,
   name: 'Whitechain Sepolia',
   nativeCurrency: {
@@ -10,8 +13,10 @@ export const whitechainSepolia = /*#__PURE__*/ Chain.from({
     name: 'WBT',
     symbol: 'WBT',
   },
+  blockTime: 1_000,
   rpcUrls: {
-    http: 'https://rpc.testnet.whitechain.io',
+    http: ['https://rpc.testnet.whitechain.io'],
+    ws: ['wss://rpc.testnet.whitechain.io/ws'],
   },
   blockExplorers: {
     name: 'Whitechain Testnet Explorer',
@@ -19,8 +24,28 @@ export const whitechainSepolia = /*#__PURE__*/ Chain.from({
   },
   contracts: {
     create2: Contracts.create2,
+    ...chainConfig.contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0xfaa2fAA8912C069c01abc169c33713c79027c833',
+      },
+    },
+    portal: {
+      [sourceId]: {
+        address: '0xFF9b597b0781457ae6aa7256Ca5ed5839bF7D0C3',
+        blockCreated: 11071328,
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: '0x0c50bE539AB5D72d226038928F2eB25100899DED',
+        blockCreated: 11071328,
+      },
+    },
   },
+  testnet: true,
+  sourceId,
 })

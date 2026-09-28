@@ -109,3 +109,11 @@ test('decorator', async () => {
     }),
   ).resolves.toBe(true)
 })
+
+test('rejects a signed message with a comma in its scheme', async () => {
+  const message = `ht,tps://${createMessage()}`
+  const signature = await localAccount.signMessage({ message })
+  await expect(
+    Actions.siwe.verify(client, { message, signature }),
+  ).resolves.toBe(false)
+})

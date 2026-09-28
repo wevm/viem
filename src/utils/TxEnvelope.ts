@@ -29,7 +29,9 @@ export function recoverAddress(
     typeof transaction === 'string'
       ? TxEnvelope.deserialize(transaction)
       : transaction
-  const signature = options.signature ?? Signature.extract(envelope)
+  const signature =
+    options.signature ??
+    ('r' in envelope ? Signature.extract(envelope) : undefined)
   if (!signature) throw new MissingSignatureError()
   const publicKey = Secp256k1.recoverPublicKey({
     payload: TxEnvelope.getSignPayload(

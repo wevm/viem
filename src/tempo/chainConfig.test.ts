@@ -1,3 +1,4 @@
+import { nativeMultisigFactory } from './Addresses.js'
 import {
   Address,
   Hash,
@@ -148,8 +149,7 @@ describe('codecs.transactionRequest', () => {
       keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
       keyType: 'webAuthn',
       multisigSimulation: {
-        account: sender,
-        approvals: [{ type: 'primitive', owner: sender, keyType: 'secp256k1' }],
+        approvals: [{ owner: sender, keyType: 'secp256k1' }],
         config: MultisigConfig.from({
           version: 0n,
           salt: MultisigConfig.zeroSalt,
@@ -166,8 +166,7 @@ describe('codecs.transactionRequest', () => {
     expect(rpc.keyId).toBe('0xcccccccccccccccccccccccccccccccccccccccc')
     expect(rpc.keyType).toBe('webAuthn')
     expect(rpc.multisigSimulation).toMatchObject({
-      account: sender,
-      approvals: [{ owner: sender, keyType: 'secp256k1', type: 'primitive' }],
+      approvals: [{ owner: sender, keyType: 'secp256k1' }],
     })
   })
 
@@ -572,9 +571,13 @@ describe('transaction.serialize', () => {
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: MultisigConfig.getAddress(config),
+      from: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       multisigSimulation: {
-        account: MultisigConfig.getAddress(config),
+        account: MultisigConfig.getAddress(config, {
+          factory: nativeMultisigFactory,
+        }),
         config,
         approvals: [],
       },
@@ -584,7 +587,9 @@ describe('transaction.serialize', () => {
     const payload = getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
       payload,
-      account: MultisigConfig.getAddress(config),
+      account: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       config,
     })
     const signatures = ownerKeys.map((privateKey) =>
@@ -612,9 +617,13 @@ describe('transaction.serialize', () => {
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: MultisigConfig.getAddress(config),
+      from: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       multisigSimulation: {
-        account: MultisigConfig.getAddress(config),
+        account: MultisigConfig.getAddress(config, {
+          factory: nativeMultisigFactory,
+        }),
         config,
         approvals: [],
       },
@@ -625,7 +634,9 @@ describe('transaction.serialize', () => {
     const payload = getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
       payload,
-      account: MultisigConfig.getAddress(config),
+      account: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       config,
     })
     const signatures = [
@@ -765,7 +776,6 @@ describe('transaction.prepare', () => {
     )
     expect(request.from).toBe(account.address)
     expect(request.multisigSimulation).toMatchObject({
-      account: account.address,
       config: { threshold: 2 },
     })
     expect(

@@ -42,8 +42,10 @@ export async function get<
 
   return {
     ...result,
+    blockHash: result.blockHash ?? null,
+    transactionHash: result.transactionHash ?? null,
     blockNumber:
-      result.blockNumber === null ? null : Hex.toBigInt(result.blockNumber),
+      result.blockNumber == null ? null : Hex.toBigInt(result.blockNumber),
     userOperation: UserOperation.fromRpc(result.userOperation),
   } as get.ReturnType<entryPointVersion>
 }

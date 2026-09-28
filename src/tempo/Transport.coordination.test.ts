@@ -1,3 +1,4 @@
+import { nativeMultisigFactory } from './Addresses.js'
 import { Hex, RpcResponse, Secp256k1 } from 'ox'
 import { MultisigConfig } from 'ox/tempo'
 import { custom } from 'viem'
@@ -58,7 +59,9 @@ test('behavior: routes multisig coordination to the relay', async () => {
     ],
     chainId: chain.id,
     multisigSimulation: {
-      account: MultisigConfig.getAddress(config),
+      account: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       approvals: [{ owner: owner.address, type: 'primitive' as const }],
       config,
     },

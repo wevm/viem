@@ -143,7 +143,7 @@ test('encodes constructor args', async () => {
     hash: receipt.transactionHash,
   })
   expect(
-    transaction.input.slice(generated.Events.bytecode.object.length),
+    transaction.input?.slice(generated.Events.bytecode.object.length),
   ).toMatchInlineSnapshot(
     `"000000000000000000000000000000000000000000000000000000000000007b"`,
   )

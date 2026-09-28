@@ -243,7 +243,7 @@ test('behavior: baseFeeMultiplier value (decimal precision)', async () => {
     method: 'eth_fillTransaction',
     params: [request],
   })
-  const base = Transaction.fromRpc(response.tx).maxFeePerGas!
+  const base = TransactionRequest.fromRpc(response.tx).maxFeePerGas!
 
   const { transaction } = await Actions.transaction.fill(client, {
     account,

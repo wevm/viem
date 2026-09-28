@@ -134,7 +134,7 @@ export function shouldRetry(error: Error): boolean {
   const code = (error as { code?: unknown }).code
   if (typeof code === 'number') {
     if (code === -1) return true // unknown
-    if (code === -32005) return true // limit exceeded
+    if (code === -32005 || code === -32007) return true // limit exceeded
     if (code === -32603) return true // internal
     if (code === 429) return true // too many requests (JSON-RPC body form)
     return false

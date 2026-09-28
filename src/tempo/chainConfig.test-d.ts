@@ -18,7 +18,7 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
     Account.Account | boolean | undefined
   >()
   expectTypeOf<Request['keyType']>().toEqualTypeOf<
-    'secp256k1' | 'p256' | 'webAuthn' | undefined
+    'multisig' | 'secp256k1' | 'p256' | 'webAuthn' | undefined
   >()
   expectTypeOf<Request['nonceKey']>().toEqualTypeOf<
     'expiring' | 'random' | bigint | undefined

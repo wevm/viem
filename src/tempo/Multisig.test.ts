@@ -7,7 +7,9 @@ import {
 } from 'ox/tempo'
 import { Account, Multisig, Store } from 'viem/tempo'
 import { expect, test } from 'vitest'
+import { nativeMultisigFactory } from './Addresses.js'
 import * as Operation from './multisig/Operation.js'
+import { parseApproval } from './multisig/Signature.js'
 
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -16,7 +18,9 @@ const config = MultisigConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = MultisigConfig.getAddress(config)
+const account = MultisigConfig.getAddress(config, {
+  factory: nativeMultisigFactory,
+})
 const approval = SignatureEnvelope.from({
   signature: {
     r: `0x${'00'.repeat(31)}01`,
@@ -64,7 +68,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
       signature: SignatureEnvelope.from({
         account,
         config,
-        signatures: [approval],
+        signatures: [parseApproval(SignatureEnvelope.serialize(approval))],
       }),
     },
   )

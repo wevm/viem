@@ -8,7 +8,7 @@ import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions as TempoActions, Client, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
-import * as TempoZoneGenesis from './tempoZoneGenesis.js'
+import * as TempoMultisig from './tempoMultisigInstance.js'
 
 export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 
@@ -294,6 +294,8 @@ type StartedZone = Zone & { stop(): Promise<void> }
 export type DefineZoneOptions = {
   /** Existing factory reused to allocate another zone ID. */
   factoryAddress?: `0x${string}` | undefined
+  /** Dev key for the factory owner and Zone sequencer. */
+  key?: `0x${string}` | undefined
 }
 
 /** Lazily provisioned local zone handle. */
@@ -351,7 +353,7 @@ async function startZone(options: DefineZoneOptions): Promise<StartedZone> {
   )
   const instance = TestContainers.Instance.tempoZone({
     dev: {
-      key: zoneAdminKey,
+      key: options.key ?? zoneAdminKey,
       ...(process.env.VITE_TEMPO_HARDFORK !== 'T7' &&
       process.env.VITE_TEMPO_HARDFORK !== 'T8'
         ? { token: pathUsd }
@@ -419,16 +421,14 @@ export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
   const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
   const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
-  if (options.zones || hardfork === 'T9') {
-    return TempoZoneGenesis.createCustom({
-      blockTime,
-      hardfork,
-      image,
-      log: process.env.VITE_TEMPO_LOG,
-    })
-  }
+  if (process.env.VITE_TEMPO_MULTISIG)
+    return TempoMultisig.create({ image, blockTime })
   return TestContainers.Instance.tempo({
     blockTime,
+    hardfork:
+      hardfork === 'Tnext'
+        ? undefined
+        : (hardfork as TestContainers.Instance.tempo.Parameters['hardfork']),
     image,
     log: process.env.VITE_TEMPO_LOG,
     port,

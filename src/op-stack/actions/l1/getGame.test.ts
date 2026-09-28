@@ -40,7 +40,7 @@ test('returns the latest game after an L2 block', async () => {
 test('supports random selection', async () => {
   const game = await Actions.l1.getGame(client, {
     l2BlockNumber: 144_990_134n,
-    limit: 3,
+    limit: 1,
     strategy: 'random',
     targetChain: optimism,
   })
@@ -70,4 +70,14 @@ test('rejects when no newer game exists', async () => {
 
     Version: viem@x.x.x]
   `)
+})
+
+test('includes a game at exactly the requested L2 block', async () => {
+  const game = await Actions.l1.getGame(client, {
+    l2BlockNumber: 144_991_861n,
+    limit: 3,
+    targetChain: optimism,
+  })
+  expect(game.l2BlockNumber).toBe(144_991_861n)
+  expect(game.index).toBe(13219n)
 })

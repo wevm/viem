@@ -1,3 +1,4 @@
+import { parseApproval } from '../../multisig/Signature.js'
 import { Address, type Errors, type Hex } from 'ox'
 import {
   KeyAuthorization,
@@ -116,7 +117,7 @@ export async function signAuthorization<
         signature: SignatureEnvelope.from({
           account: account.address,
           config,
-          signatures: [SignatureEnvelope.from(signature)],
+          signatures: [parseApproval(signature)],
         }),
         type,
         ...(witness ? { witness } : {}),
@@ -197,7 +198,7 @@ export namespace signAuthorization {
     /** Multisig account being authorized. */
     account: Address.Address | MultisigAccount
     /** Local owner that approves the authorization. */
-    owner: RootAccount | MultisigAccount
+    owner: RootAccount
   }
 
   /** Coordinated key authorization parameters. */
@@ -207,7 +208,7 @@ export namespace signAuthorization {
         /** Stored multisig operation hash. */
         hash: Hex.Hex
         /** Local owner that approves the authorization. */
-        owner: RootAccount | MultisigAccount
+        owner: RootAccount
       }
   >
 

@@ -145,7 +145,7 @@ test('encodes constructor args', async () => {
   await testClient.block.mine({ blocks: 1 })
   const transaction = await Actions.transaction.get(client, { hash })
   expect(
-    transaction.input.slice(generated.Events.bytecode.object.length),
+    transaction.input?.slice(generated.Events.bytecode.object.length),
   ).toMatchInlineSnapshot(
     `"000000000000000000000000000000000000000000000000000000000000007b"`,
   )

@@ -12,7 +12,7 @@ export async function getGame<chain extends Chain.Chain | undefined>(
 ): Promise<getGame.ReturnType> {
   const { l2BlockNumber, strategy = 'latest' } = options
   const games = (await getGames(client, options)).filter(
-    (game) => game.l2BlockNumber > l2BlockNumber,
+    (game) => game.l2BlockNumber >= l2BlockNumber,
   )
   const game =
     strategy === 'random'

@@ -1,0 +1,42 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.quoteToken`
+
+Reads the quote token of a propAMM pool.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const quote = await client.propAmm.quoteToken({
+  pool: '0x0000000000000000000000000000000000000002',
+})
+// @log: '0x0000000000000000000000000000000000000002'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Address
+```
+
+The token received when the pool swaps base for quote.
+
+## Parameters
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+<ReadParameters />

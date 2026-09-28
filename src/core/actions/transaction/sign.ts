@@ -84,7 +84,10 @@ export async function sign<chain extends Chain.Chain | undefined>(
   const request = {
     ...rest,
     chainId,
-    from: account.address,
+    from:
+      account.type === 'local'
+        ? (rest.from ?? account.address)
+        : account.address,
   } satisfies TransactionRequest.toRpc.Input
 
   if (account.type === 'local') {

@@ -32,7 +32,7 @@ export async function getTimeToNextGame<chain extends Chain.Chain | undefined>(
 
   const seconds = (() => {
     if (now < latestGameTimestamp) return 0
-    if (latestGame.l2BlockNumber > l2BlockNumber) return 0
+    if (latestGame.l2BlockNumber >= l2BlockNumber) return 0
     if (intervalWithBuffer === 0) return 0
 
     const elapsedBlocks = Number(l2BlockNumber - latestGame.l2BlockNumber)

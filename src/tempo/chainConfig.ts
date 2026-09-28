@@ -30,6 +30,7 @@ import type * as Capabilities from './Capabilities.js'
 import type { Hardfork } from './Hardfork.js'
 import type * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 import { getConfig } from './actions/multisig/getConfig.js'
+import { parseApproval } from './multisig/Signature.js'
 import * as Concurrent from './internal/concurrent.js'
 
 const maxExpirySecs = 25
@@ -52,7 +53,7 @@ export type TransactionRequest = Omit<
     Hex.Hex | bigint | number,
     Hex.Hex | number
   >,
-  'capabilities' | 'feePayer' | 'nonceKey'
+  'capabilities' | 'feePayer' | 'nonceKey' | 'signatures'
 > & {
   /** Capabilities to pass to `eth_fillTransaction`. */
   capabilities?: Capabilities.FillTransactionRequestCapabilities | undefined
@@ -65,7 +66,7 @@ export type TransactionRequest = Omit<
   /** Stored multisig operation to approve. */
   hash?: Hex.Hex | undefined
   /** Owner signing a multisig approval. */
-  owner?: MultisigAccount | RootAccount | undefined
+  owner?: RootAccount | undefined
   /** Multisig account, config, and modeled approvals for gas estimation. */
   multisigSimulation?: MultisigSimulation.Spec | undefined
   /**
@@ -91,7 +92,7 @@ export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
   /** Fee payer of the transaction (TIP-1 gas sponsorship). */
   feePayer?: viem_Account.Account | boolean | undefined
   /** Owner signing a multisig approval. */
-  owner?: MultisigAccount | RootAccount | undefined
+  owner?: RootAccount | undefined
   /** Multisig account, config, and modeled approvals for gas estimation. */
   multisigSimulation?: MultisigSimulation.Spec | undefined
   /** Owner approvals to combine into a multisig signature (TIP-1061). */
@@ -258,10 +259,7 @@ export const chainConfig = {
             throw new Error(
               'A local owner account is required to approve a stored multisig transaction.',
             )
-          if (
-            request.owner.source !== 'root' &&
-            request.owner.source !== 'multisig'
-          )
+          if (request.owner.source !== 'root')
             throw new Error(
               'A Tempo owner account is required to approve a stored multisig transaction.',
             )
@@ -299,7 +297,6 @@ export const chainConfig = {
             account: request.account,
             from: operation.account,
             multisigSimulation: getMultisigSimulation({
-              account: operation.account,
               config: operation.config,
               local: request.account as MultisigAccount,
             }),
@@ -378,11 +375,7 @@ export const chainConfig = {
           throw new Error(
             'A local owner account is required to approve a multisig transaction.',
           )
-        if (
-          request.owner &&
-          request.owner.source !== 'root' &&
-          request.owner.source !== 'multisig'
-        )
+        if (request.owner && request.owner.source !== 'root')
           throw new Error(
             'A Tempo owner account is required to approve a multisig transaction.',
           )
@@ -412,7 +405,6 @@ export const chainConfig = {
             )
           request.from = account
           request.multisigSimulation = getMultisigSimulation({
-            account,
             config,
             local,
           })
@@ -532,20 +524,22 @@ export const chainConfig = {
         if (!envelope.multisigSimulation || !envelope.signatures)
           return undefined
 
+        if (!envelope.from)
+          throw new Error('A multisig sender is required for signing.')
         const payload = TxEnvelopeTempo.getSignPayload(
           TxEnvelopeTempo.from(envelope),
         )
         const signatures = envelope.signatures.map((approval) =>
-          SignatureEnvelope.from(approval),
+          parseApproval(approval),
         )
         const sorted = SignatureEnvelope.sortMultisigApprovals({
           payload,
           signatures,
-          account: envelope.multisigSimulation.account,
+          account: envelope.from!,
           config: MultisigConfig.from(envelope.multisigSimulation.config),
         })
         return SignatureEnvelope.from({
-          account: envelope.multisigSimulation.account,
+          account: envelope.from!,
           config: MultisigConfig.from(envelope.multisigSimulation.config),
           signatures: sorted,
         })
@@ -777,48 +771,18 @@ function encodeRequest(
 
 /** Builds a bounded multisig spec for gas simulation. */
 function getMultisigSimulation(options: {
-  account: Address.Address
   config: MultisigConfig.Config
   local?: MultisigAccount | undefined
 }): MultisigSimulation.Spec {
-  const { account, config, local } = options
+  const { config, local } = options
   return {
-    account,
     approvals: selectOwners(config).map((owner) => {
       const localOwner = local?.owners.find((account) =>
         Address.isEqual(account.address, owner.owner),
       )
-      if (localOwner?.source === 'multisig') {
-        const nested = localOwner as MultisigAccount
-        if (!nested.config)
-          throw new Error(
-            'A nested multisig config is required for gas estimation.',
-          )
-        return {
-          type: 'multisig',
-          spec: {
-            account: nested.address,
-            approvals: selectOwners(nested.config).map((owner) => {
-              const nestedOwner = nested.owners.find((account) =>
-                Address.isEqual(account.address, owner.owner),
-              )
-              if (nestedOwner?.source === 'multisig')
-                throw new Error(
-                  'Multisig simulation nesting exceeds depth two.',
-                )
-              return {
-                ...getSimulationKey(nestedOwner),
-                owner: owner.owner,
-              }
-            }),
-            config: nested.config,
-          },
-        }
-      }
       return {
         ...getSimulationKey(localOwner),
         owner: owner.owner,
-        type: 'primitive',
       }
     }),
     config,

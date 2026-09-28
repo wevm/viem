@@ -553,7 +553,7 @@ describe.sequential('live EntryPoint flows', () => {
       sender: Address.isEqual(receipt.sender, operationLog.args.sender),
       transaction: transaction.hash === receipt.receipt.transactionHash,
       transactionEntryPoint:
-        transaction.to !== null &&
+        transaction.to != null &&
         Address.isEqual(transaction.to, account09.entryPoint.address),
       transactionHash:
         receipt_.receipt.transactionHash === receipt.receipt.transactionHash,

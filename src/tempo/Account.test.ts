@@ -1,3 +1,4 @@
+import { nativeMultisigFactory } from './Addresses.js'
 import {
   Address,
   Authorization,
@@ -646,8 +647,10 @@ describe('signTransaction', () => {
 
     const approval = await owner.signTransaction({
       ...envelope,
+      from: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       multisigSimulation: {
-        account: MultisigConfig.getAddress(config),
         config,
         approvals: [],
       },
@@ -655,7 +658,9 @@ describe('signTransaction', () => {
 
     const payload = TxEnvelopeTempo.getSignPayload(envelope)
     const digest = MultisigConfig.getSignPayload({
-      account: MultisigConfig.getAddress(config),
+      account: MultisigConfig.getAddress(config, {
+        factory: nativeMultisigFactory,
+      }),
       config,
       payload,
     })
@@ -686,6 +691,17 @@ describe('fromMultisig', () => {
     expect(account.address).toBe(
       Account.fromMultisig({ ...account.config, version: 0n }).address,
     )
+  })
+
+  test('rejects nested and access-key owners', () => {
+    const child = Account.fromMultisig({ owners: [owner_1] })
+    const accessKey = Account.fromSecp256k1(privateKey_p256, { access: child })
+    for (const owner of [child, accessKey]) {
+      expect(() => {
+        // @ts-expect-error Exercise invalid owner rejection at runtime.
+        Account.fromMultisig({ owners: [owner] })
+      }).toThrowError('Multisig owners must use primitive signatures.')
+    }
   })
 
   test('sign requires local owners; message signing is unsupported', async () => {
@@ -734,8 +750,8 @@ describe('fromMultisig', () => {
     const feePayer = Account.fromSecp256k1(feePayerKey)
     const approval = await owner_1.signTransaction({
       ...envelope,
+      from: account.address,
       multisigSimulation: {
-        account: account.address,
         config: account.config,
         approvals: [],
       },
@@ -745,8 +761,8 @@ describe('fromMultisig', () => {
       {
         ...envelope,
         feePayer,
+        from: account.address,
         multisigSimulation: {
-          account: account.address,
           config: account.config,
           approvals: [],
         },

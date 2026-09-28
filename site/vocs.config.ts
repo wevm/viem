@@ -1064,6 +1064,11 @@ export default defineConfig({
                 badge: badge('public'),
               },
               {
+                text: 'Get Storage Values',
+                link: '/docs/actions/public/address/getStorageValues',
+                badge: badge('public'),
+              },
+              {
                 text: 'Get Storage Value',
                 link: '/docs/actions/public/address/getStorageAt',
                 badge: badge('public'),
@@ -2473,6 +2478,13 @@ export default defineConfig({
             ],
           },
           {
+            text: 'PropAMM',
+            items: [
+              { text: 'Overview', link: '/tempo/guides/propamm' },
+              { text: 'Swap Tokens', link: '/tempo/guides/propamm/swap' },
+            ],
+          },
+          {
             text: 'Earn',
             collapsed: true,
             items: [
@@ -3148,6 +3160,37 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Set Transfer Policy Admin',
                 link: '/tempo/actions/policy.setAdmin',
+              },
+            ],
+          },
+          {
+            text: 'PropAMM',
+            items: [
+              {
+                text: 'propAmm.baseToken',
+                link: '/tempo/actions/propAmm.baseToken',
+              },
+              {
+                text: 'propAmm.getSwapQuote',
+                link: '/tempo/actions/propAmm.getSwapQuote',
+              },
+              { text: 'propAmm.paused', link: '/tempo/actions/propAmm.paused' },
+              {
+                text: 'propAmm.quoteToken',
+                link: '/tempo/actions/propAmm.quoteToken',
+              },
+              {
+                text: 'propAmm.recipientAllowed',
+                link: '/tempo/actions/propAmm.recipientAllowed',
+              },
+              {
+                text: 'propAmm.resolveRecipient',
+                link: '/tempo/actions/propAmm.resolveRecipient',
+              },
+              { text: 'propAmm.swap', link: '/tempo/actions/propAmm.swap' },
+              {
+                text: 'propAmm.takerAllowed',
+                link: '/tempo/actions/propAmm.takerAllowed',
               },
             ],
           },

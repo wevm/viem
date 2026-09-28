@@ -150,5 +150,5 @@ test('behavior: `contract.write` consults a `transaction.send` override', async 
   })
 
   const transaction = await Actions.transaction.get(client, { hash })
-  expect(transaction.input.endsWith('deadbeef')).toBe(true)
+  expect(transaction.input?.endsWith('deadbeef')).toBe(true)
 })

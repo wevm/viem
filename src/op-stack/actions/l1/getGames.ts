@@ -66,7 +66,7 @@ export async function getGames<chain extends Chain.Chain | undefined>(
   for (const [index, game] of rawGames.entries()) {
     const blockNumber = results[index]
     if (typeof blockNumber !== 'bigint') throw new GameSequenceNotFoundError()
-    if (!l2BlockNumber || blockNumber > l2BlockNumber)
+    if (l2BlockNumber === undefined || blockNumber >= l2BlockNumber)
       games.push({
         ...game,
         l2BlockNumber: blockNumber,

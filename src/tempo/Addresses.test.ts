@@ -1,5 +1,13 @@
+import { Address, AbiParameters } from 'viem/utils'
 import { Addresses } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
+
+test('current committee address', () => {
+  expect(Address.validate(Addresses.currentCommittee)).toBe(true)
+  expect(
+    AbiParameters.encode([{ type: 'address' }], [Addresses.currentCommittee]),
+  ).toBe('0x000000000000000000000000c077e00000000000000000000000000000000000')
+})
 
 test('validator addresses', () => {
   expect({

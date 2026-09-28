@@ -9,7 +9,7 @@ import {
   Value,
 } from 'ox'
 import { describe, expect, test } from 'vitest'
-import { Account, Actions, Chain, Client, http } from 'viem'
+import { Account, Actions, Chain, Client, custom, http } from 'viem'
 import { mainnet, optimism } from 'viem/chains'
 
 import * as anvil from '~test/anvil.js'
@@ -370,7 +370,8 @@ describe('behavior: chain', () => {
       value: 1n,
       type: 'eip1559',
     })
-    expect(TxEnvelope.deserialize(signed).value).toBe(69n)
+    const envelope = TxEnvelope.deserialize(signed)
+    expect(envelope.type === 'eip1559' && envelope.value).toBe(69n)
   })
 
   test('behavior: custom envelope chain signs cast-free', async () => {
@@ -465,7 +466,11 @@ describe('behavior: prepare', () => {
       value: 1n,
       type: 'eip1559',
     })
-    expect(TxEnvelope.deserialize(signed).gas).toBeUndefined()
+    const envelope = TxEnvelope.deserialize(signed)
+    expect(envelope.type).toBe('eip1559')
+    if (envelope.type !== 'eip1559')
+      throw new Error('Expected EIP-1559 envelope.')
+    expect(envelope.gas).toBeUndefined()
   })
 
   test('json-rpc account signs a prepared request', async () => {
@@ -481,4 +486,36 @@ describe('behavior: prepare', () => {
 
 test('alias: `Actions.signTransaction`', () => {
   expect(Actions.signTransaction).toBe(Actions.transaction.sign)
+})
+
+test('preserves the sender when a local owner signs an approval', async () => {
+  const sender = '0x0000000000000000000000000000000000000001'
+  let envelope: unknown
+  const client = Client.create({
+    chain: Chain.from({
+      ...mainnet,
+      transaction: {
+        toEnvelope(request) {
+          envelope = request
+          return undefined
+        },
+      },
+    }),
+    transport: custom({
+      async request() {
+        return '0x1'
+      },
+    }),
+  })
+  await Actions.transaction.sign(client, {
+    account: local,
+    from: sender,
+    type: 'eip1559',
+    chainId: 1,
+    gas: 21000n,
+    nonce: 0,
+    maxFeePerGas: 1n,
+    maxPriorityFeePerGas: 1n,
+  })
+  expect(envelope).toMatchObject({ from: sender })
 })

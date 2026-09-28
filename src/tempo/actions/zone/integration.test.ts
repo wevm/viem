@@ -620,8 +620,20 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
     async () => {
       if (!tempoZone.factoryAddress)
         throw new Error('Zone factory address is unavailable.')
+      const secondaryAccount = Account.fromSecp256k1(
+        tempo.accounts[1].privateKey,
+      )
       const secondary = tempo.defineZone({
         factoryAddress: tempoZone.factoryAddress,
+        key: tempo.accounts[1].privateKey,
+      })
+
+      // Concurrent sequencers need distinct accounts because they use the same L1 nonce keys.
+      await CoreActions.contract.writeSync(zoneAdminClient, {
+        abi: Abis.zoneFactory,
+        address: tempoZone.factoryAddress,
+        args: [secondaryAccount.address],
+        functionName: 'transferOwnership',
       })
 
       try {
@@ -658,6 +670,13 @@ describe.skipIf(Boolean(process.env.OFFLINE))('local zone', () => {
         ).resolves.toMatchObject({ zoneId: tempoZone.zoneId })
       } finally {
         await secondary.stop()
+        await CoreActions.contract.writeSync(zoneAdminClient, {
+          abi: Abis.zoneFactory,
+          account: secondaryAccount,
+          address: tempoZone.factoryAddress,
+          args: [zoneAdmin.address],
+          functionName: 'transferOwnership',
+        })
       }
     },
   )

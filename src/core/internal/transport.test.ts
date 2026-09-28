@@ -11,7 +11,7 @@ const withStatus = (status: number) =>
 
 describe('shouldRetry', () => {
   test('retries on retryable JSON-RPC codes', () => {
-    for (const code of [-1, -32005, -32603, 429])
+    for (const code of [-1, -32005, -32007, -32603, 429])
       expect(transport.shouldRetry(withCode(code))).toBe(true)
   })
 

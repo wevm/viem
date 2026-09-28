@@ -3,7 +3,7 @@ import { AbiEvent, Address, Hex } from 'ox'
 import type { TransactionReceipt } from '../../chainConfig.js'
 
 import * as Account from '../../../core/Account.js'
-import type * as Chain from '../../../core/Chain.js'
+import * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
 import { BaseError } from '../../../core/Errors.js'
 import { getCode } from '../../../core/actions/address/getCode.js'
@@ -889,7 +889,6 @@ export class DeployErc4626StackError extends BaseError<Error> {
  * })
  * const result = await Actions.earn.deployErc4626StackSync(client, {
  *   deploymentId: '0x...',
- *   factories: { earn: '0x...', erc4626Engine: '0x...' },
  *   venue: '0x...',
  * })
  * ```
@@ -922,6 +921,20 @@ export async function deployErc4626StackSync<
   )
     throw new Error('`bindingAccount` must match `owner`.')
 
+  const factories = (() => {
+    if (parameters.factories) return parameters.factories
+    if (!client.chain) throw new Chain.NotFoundError()
+    return {
+      earn: Chain.getContractAddress({
+        chain: client.chain,
+        contract: 'earnFactory',
+      }),
+      erc4626Engine: Chain.getContractAddress({
+        chain: client.chain,
+        contract: 'erc4626EngineFactory',
+      }),
+    }
+  })()
   validateDeploymentId(parameters.deploymentId)
   if (
     parameters.resume &&
@@ -930,7 +943,7 @@ export async function deployErc4626StackSync<
   )
     throw new Error('The resumed deployment ID does not match `deploymentId`.')
   await validateContracts(client, {
-    factories: parameters.factories,
+    factories,
     venue: parameters.venue,
   })
 
@@ -949,7 +962,7 @@ export async function deployErc4626StackSync<
   }
   const engineArgs = {
     deploymentId: parameters.deploymentId,
-    factory: parameters.factories.erc4626Engine,
+    factory: factories.erc4626Engine,
     name: parameters.name,
     owner,
     symbol: parameters.symbol,
@@ -998,7 +1011,7 @@ export async function deployErc4626StackSync<
       } as never)
       receipts.engine = receipt
       createErc4626Engine.extractEvent(receipt.logs, {
-        factory: parameters.factories.erc4626Engine,
+        factory: factories.erc4626Engine,
       })
     }
     await verifyEngine(client, engineArgs, predictedEngine)
@@ -1011,7 +1024,7 @@ export async function deployErc4626StackSync<
     deploymentId: parameters.deploymentId,
     distributor: parameters.distributor,
     engine: predictedEngine,
-    factory: parameters.factories.earn,
+    factory: factories.earn,
     fees: parameters.fees,
     owner,
     transferPolicyId: parameters.transferPolicyId,
@@ -1054,7 +1067,7 @@ export async function deployErc4626StackSync<
       if ((receipt as TransactionReceipt).status === 'pending')
         return { receipt } as never
       const { args } = createStack.extractEvent(receipt.logs, {
-        factory: parameters.factories.earn,
+        factory: factories.earn,
       })
       state.vault = args.earnVault
       if (
@@ -1073,7 +1086,7 @@ export async function deployErc4626StackSync<
       if (!state.vault) {
         const event = await findStackDeployment(client, {
           earnShare: predicted.earnShare,
-          factory: parameters.factories.earn,
+          factory: factories.earn,
           fromBlock: parameters.fromBlock,
         })
         state.vault = event.args.earnVault
@@ -1168,8 +1181,8 @@ export namespace deployErc4626StackSync {
       deploymentId: Hex.Hex
       /** Optional protected fee distributor. */
       distributor?: EarnDistributorConfiguration | undefined
-      /** Reviewed factory pair from one Earn release. */
-      factories: EarnFactoryAddresses
+      /** Reviewed factory pair from one Earn release. @default `client.chain.contracts` */
+      factories?: EarnFactoryAddresses | undefined
       /** Initial fee configuration. Omit for fee-free deployment. */
       fees?: EarnFeeConfiguration | undefined
       /** First block to search for a prior factory deployment event. */

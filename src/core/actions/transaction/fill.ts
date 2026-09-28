@@ -1,4 +1,4 @@
-import { Transaction, TransactionRequest } from 'ox'
+import { TransactionRequest } from 'ox'
 import type { Address, Errors, Hex } from 'ox'
 
 import type * as Account from '../../Account.js'
@@ -87,7 +87,7 @@ export async function fill<chain extends Chain.Chain | undefined>(
 
     const fromRpc = chain?.codecs?.transaction?.fromRpc
     const transaction = (
-      fromRpc ? fromRpc(response.tx) : Transaction.fromRpc(response.tx)
+      fromRpc ? fromRpc(response.tx) : TransactionRequest.fromRpc(response.tx)
     ) as Record<string, any>
 
     // Remove unnecessary fields.
@@ -100,7 +100,7 @@ export async function fill<chain extends Chain.Chain | undefined>(
     delete transaction.yParity
 
     // Rewrite fields.
-    transaction.data = transaction.input
+    transaction.data = transaction.data ?? transaction.input
 
     // Coerce to `bigint` so the return type stays consistent with the
     // node-derived (decoded) values regardless of the supplied input format.
