@@ -5,6 +5,10 @@ on:
   workflow_dispatch:
 jobs:
   zone:
+    strategy:
+      fail-fast: false
+      matrix:
+        hardfork: [T13, Tnext]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -13,11 +17,11 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/install-dependencies
       - run: pnpm contracts:build
-      - run: pnpm test --run --project tempo src/tempo/actions/zone.test.ts --retry=0
+      - run: pnpm test --run --project tempo src/tempo/actions/zone.test.ts
         env:
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_HARDFORK: T13
+          VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
           VITE_TEMPO_TAG: latest
           VITE_TEMPO_ZONES: 'true'
           VITE_TEMPO_LOG: 'true'
-          VITE_TEMPO_ZONE_TAG: sha256:ad97eaf7025f87f630b4be14f46b0f7b917710b11121b2f73988caaf9d260e81
+          VITE_TEMPO_ZONE_TAG: sha256:303b8d4fb36f1b0ba5037ea6795010ed16ffcdaee323c176a9edde3be80fbdd4
