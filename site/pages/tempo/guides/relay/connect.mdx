@@ -50,16 +50,12 @@ const client = createClient({
 })
 ```
 
-:::info
-The multisig plugin requires a [store with atomic operations](/tempo/utilities/Store).
-[`Store.memory`](/tempo/utilities/Store.memory) keeps approvals in one process and loses
-them on restart. For coordination across applications or server instances, use the same
-persistent atomic store for every local relay.
-:::
+Local mode preserves the underlying transport.
 
-Local mode preserves the underlying transport. The multisig plugin coordinates
-approvals without fee sponsorship. See [Add Plugins](/tempo/guides/relay/run#add-plugins)
-for the available plugins.
+Available plugins:
+
+- [`Relay.multisig`](/tempo/relay/plugins/multisig): stores approvals, tracks quorum,
+  and submits multisig transactions. It does not provide fee sponsorship.
 
 ## Best Practices
 

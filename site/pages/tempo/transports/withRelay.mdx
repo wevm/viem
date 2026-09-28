@@ -20,6 +20,8 @@ matching operation lookup through the relay. Other lookups retain the default re
 
 ## Usage
 
+### Remote Mode
+
 :::code-group
 
 ```ts twoslash [example.ts]
@@ -53,26 +55,7 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 :::
 
-### Local Plugins
-
-```ts twoslash
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay, Store, withRelay } from 'viem/tempo'
-
-const client = createClient({
-  chain: tempo,
-  transport: withRelay(http(), { // [!code focus]
-    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
-  }), // [!code focus]
-})
-```
-
-Local plugins wrap the default transport directly. The multisig plugin adds
-coordination without fee sponsorship. Memory storage is process-local; independent
-clients or servers must use the same persistent atomic store.
-
-### Example Relay Service
+#### Example Relay Service
 
 Below is an end-to-end example of a client/server relay setup.
 
@@ -124,6 +107,25 @@ server.listen(3000)
 
 :::
 
+### Local Mode
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store, withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), { // [!code focus]
+    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  }), // [!code focus]
+})
+```
+
+Local plugins wrap the default transport directly. The multisig plugin adds
+coordination without fee sponsorship. Memory storage is process-local; independent
+clients or servers must use the same persistent atomic store.
+
 ## Return Type
 
 Remote mode returns `Transport<'relay', { multisig: true }>`. Local mode preserves
@@ -155,33 +157,3 @@ Available only in remote mode. For sponsored non-multisig transactions,
 `sign-only` requests a signature from the relay and broadcasts through the default
 transport. `sign-and-broadcast` submits through the relay. Multisig submissions
 always use the relay for coordination.
-
-## Migration
-
-Replace the `experimental_multisig` client option with a local multisig plugin:
-
-```diff
--import { createClient } from 'viem/tempo'
-+import { createClient, http, Relay, withRelay } from 'viem/tempo'
-
- createClient({
--  experimental_multisig: { store },
-+  transport: withRelay(http(), {
-+    plugins: [Relay.multisig({ store })],
-+  }),
- })
-```
-
-Replace `withMultisig` with a local multisig plugin:
-
-```diff
--import { Store, withMultisig } from 'viem/tempo'
-+import { Relay, Store, withRelay } from 'viem/tempo'
-
--withMultisig(http(), { store: Store.memory() })
-+withRelay(http(), {
-+  plugins: [Relay.multisig({ store: Store.memory() })],
-+})
-```
-
-For service hosting, see [Run a Relay](/tempo/guides/relay/run).

@@ -2469,6 +2469,18 @@ export default defineConfig({
               ],
             },
             {
+              text: 'Relay',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/relay' },
+                {
+                  text: 'Connect to a Relay',
+                  link: '/tempo/guides/relay/connect',
+                },
+                { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+              ],
+            },
+            {
               badge: { text: 'EXP', variant: 'warning' },
               text: 'PropAMM',
               collapsed: true,
@@ -2481,18 +2493,6 @@ export default defineConfig({
                   text: 'Swap with a PropAMM Pool',
                   link: '/tempo/guides/propamm/swap',
                 },
-              ],
-            },
-            {
-              text: 'Relay',
-              collapsed: true,
-              items: [
-                { text: 'Overview', link: '/tempo/guides/relay' },
-                {
-                  text: 'Connect to a Relay',
-                  link: '/tempo/guides/relay/connect',
-                },
-                { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
               ],
             },
             {
