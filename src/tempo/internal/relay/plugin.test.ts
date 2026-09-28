@@ -1,8 +1,14 @@
 import { Secp256k1 } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient } from 'viem'
+import { createClient, encodeFunctionData } from 'viem'
 import { fillTransaction } from 'viem/actions'
-import { Actions, type Capabilities, Relay, withRelay } from 'viem/tempo'
+import {
+  Actions,
+  type Capabilities,
+  Relay,
+  VirtualAddress,
+  withRelay,
+} from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 
@@ -174,4 +180,142 @@ test('built-in plugins preserve nested RPC errors and normalize expiration', asy
     message: 'Transaction expired.',
     data: { code: 'transaction_expired' },
   })
+})
+
+test.each(['0x76', '0x78'] as const)(
+  'malformed Tempo envelope %s returns invalid params',
+  async (serialized) => {
+    for (const plugin of [
+      Relay.autoSwap(),
+      Relay.feePayer(),
+      Relay.feeToken(),
+      Relay.simulate(),
+    ]) {
+      const relay = Relay.create({ client: caller, plugins: [plugin] })
+      for (const method of [
+        'eth_signRawTransaction',
+        'eth_sendRawTransaction',
+        'eth_sendRawTransactionSync',
+      ]) {
+        const response = await relay.fetch(
+          new Request('https://relay.example', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              id: 1,
+              method,
+              params: [serialized],
+            }),
+          }),
+        )
+        expect(await response.json()).toMatchObject({
+          id: 1,
+          error: {
+            code: -32602,
+            message: 'Invalid serialized Tempo transaction.',
+          },
+        })
+      }
+    }
+  },
+)
+
+test('simulation and virtual-address resolution progress while sponsorship is pending', async () => {
+  const simulated = Promise.withResolvers<void>()
+  const resolved = Promise.withResolvers<void>()
+  const virtual = VirtualAddress.from({
+    masterId: '0xffffffff',
+    userTag: '0x000000000001',
+  })
+  const masterCall = encodeFunctionData(
+    Actions.virtualAddress.getMasterAddress.call({ masterId: '0xffffffff' }),
+  )
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.simulate(),
+        Relay.feePayer({
+          account: feePayerAccount,
+          onSponsored: async () => {
+            await simulated.promise
+          },
+        }),
+        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+        (next) => async (request, options) => {
+          if (request.method === 'tempo_simulateV1') await resolved.promise
+          const result = await next(request, options)
+          if (request.method === 'tempo_simulateV1') simulated.resolve()
+          if (
+            request.method === 'eth_call' &&
+            JSON.stringify(request.params).includes(masterCall.slice(2))
+          )
+            resolved.resolve()
+          return result
+        },
+      ] satisfies readonly Relay.Plugin[],
+    }),
+  })
+  try {
+    const { transaction, capabilities } = await fillTransaction(client, {
+      account: userAccount.address,
+      calls: [
+        { to: virtual },
+        Actions.token.transfer.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+    expect(transaction.feePayerSignature).toBeDefined()
+    expect(capabilities?.balanceDiffs).toBeDefined()
+    expect(capabilities).toMatchObject({
+      virtualAddresses: { [virtual]: null },
+    })
+  } finally {
+    simulated.resolve()
+    resolved.resolve()
+  }
+})
+
+test('custom middleware receives completed downstream enrichment', async () => {
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.autoSwap(),
+        (next) => async (request, options) => {
+          const result = await next(request, options)
+          if (request.method !== 'eth_fillTransaction') return result
+          const filled = result as {
+            tx: { feePayerSignature?: unknown }
+            capabilities?: { balanceDiffs?: unknown }
+          }
+          if (
+            !filled.tx.feePayerSignature ||
+            !filled.capabilities?.balanceDiffs
+          )
+            throw new Error('Incomplete downstream response')
+          return result
+        },
+        Relay.simulate(),
+        Relay.feePayer({ account: feePayerAccount }),
+        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.alphaUsd] }),
+      ] satisfies readonly Relay.Plugin[],
+    }),
+  })
+  const { transaction, capabilities } = await fillTransaction(client, {
+    account: userAccount.address,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(transaction.feePayerSignature).toBeDefined()
+  expect(capabilities?.balanceDiffs).toBeDefined()
 })

@@ -157,6 +157,76 @@ describe('create', () => {
     expect(await store.getItem('value')).toBe('batch')
   })
 
+  test('fetch rejects oversized batches before executing notifications', async () => {
+    const store = Store.memory()
+    const relay = Relay.create({
+      client,
+      plugins: [
+        (next) => async (request, options) => {
+          if (request.method !== 'relay_put') return next(request, options)
+          await store.setItem('value', 'executed')
+          return null
+        },
+      ],
+    })
+    const response = await relay.fetch(
+      request(
+        Array.from({ length: 101 }, () => ({
+          jsonrpc: '2.0',
+          method: 'relay_put',
+        })),
+      ),
+    )
+    expect(await response.json()).toEqual({
+      jsonrpc: '2.0',
+      id: null,
+      error: {
+        code: -32600,
+        message: 'Batch exceeds the limit of 100 requests.',
+      },
+    })
+    expect(await store.getItem('value')).toBeNull()
+  })
+
+  test('fetch executes a full batch within downstream capacity and preserves order', async () => {
+    const slots = new Set(Array.from({ length: 10 }, (_, i) => i))
+    const relay = Relay.create({
+      client,
+      plugins: [
+        (next) => async (request, options) => {
+          if (request.method !== 'relay_work') return next(request, options)
+          const slot = slots.values().next().value
+          if (slot === undefined)
+            throw new Error('Downstream capacity exceeded')
+          slots.delete(slot)
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 10))
+            return request.params?.[0]
+          } finally {
+            slots.add(slot)
+          }
+        },
+      ],
+    })
+    const response = await relay.fetch(
+      request(
+        Array.from({ length: 100 }, (_, id) => ({
+          jsonrpc: '2.0',
+          id,
+          method: 'relay_work',
+          params: [id],
+        })),
+      ),
+    )
+    expect(await response.json()).toEqual(
+      Array.from({ length: 100 }, (_, id) => ({
+        jsonrpc: '2.0',
+        id,
+        result: id,
+      })),
+    )
+  })
+
   test.each([
     null,
     [],

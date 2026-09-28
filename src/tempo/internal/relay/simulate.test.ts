@@ -51,3 +51,38 @@ test('returns fees and balance changes without executing the transfer', async ()
     }),
   ).toEqual(before)
 })
+
+test.each([50n, 200n])(
+  'retains approval exposure after a direct transfer of %s',
+  async (amount) => {
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
+    })
+    const { capabilities } = await fillTransaction(client, {
+      account: userAccount.address,
+      feeToken: Tempo.addresses.alphaUsd,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          to: recipient.address,
+          amount,
+        }),
+        Actions.token.approve.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          spender: recipient.address,
+          amount: 200n,
+        }),
+      ],
+    })
+    expect(
+      Object.values(capabilities?.balanceDiffs ?? {}).flat(),
+    ).toMatchObject([
+      {
+        address: Tempo.addresses.alphaUsd,
+        direction: 'outgoing',
+        value: amount === 50n ? '0xfa' : '0x190',
+      },
+    ])
+  },
+)

@@ -170,6 +170,8 @@ export declare namespace create {
  * Creates an RPC request handler by composing relay plugins around a downstream handler.
  *
  * Requests enter plugins in array order, and responses return in reverse order.
+ * Built-in plugins run independent response work concurrently after filling.
+ * Custom middleware receives completed downstream results.
  * Without plugins, the downstream handler is returned unchanged. Plugins decide
  * whether to forward, transform, or handle a request. Errors propagate unchanged
  * unless a plugin handles them.

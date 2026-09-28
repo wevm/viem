@@ -1,13 +1,15 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import { Transaction as core_Transaction } from 'ox/tempo'
+import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import * as Store from './cache.js'
 import { formatError } from './error.js'
 import type { SponsorshipDetails } from './feePayer.js'
+import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
 import { extractCalls, resolveVirtualAddresses } from './virtualAddress.js'
 
@@ -15,15 +17,30 @@ export const response = Symbol('relay.response')
 export const tokens = Symbol('relay.tokens')
 const resolveClient = Symbol('relay.client')
 const processing = Symbol('relay.processing')
+export const deferred = Symbol('relay.deferred')
+export const swap = Symbol('relay.swap')
+const pending = Symbol('relay.pending')
+const tokenLists = Symbol('relay.tokenLists')
+const stores = Symbol('relay.stores')
+
+type TokenResolver = (
+  chainId: number,
+  signal?: AbortSignal,
+) => Promise<readonly Address[]>
 
 type Options = Relay.handleRequest.RequestOptions & {
   [processing]?: true | undefined
+  [stores]?: Map<Store.Store, Store.Store> | undefined
+  [tokenLists]?:
+    | Map<TokenResolver, Map<number, Promise<readonly Address[]>>>
+    | undefined
   [response]?:
     | { sponsorship_details?: SponsorshipDetails | undefined }
     | undefined
 }
 
 export type Handler = Relay.handleRequest.Handler & {
+  [deferred]?: Relay.handleRequest.Handler | undefined
   [resolveClient]?: ((chainId: number) => { chain: { id: number } }) | undefined
   [tokens]?:
     | ((chainId: number, signal?: AbortSignal) => Promise<readonly Address[]>)
@@ -31,6 +48,8 @@ export type Handler = Relay.handleRequest.Handler & {
 }
 
 export type Result = {
+  [pending]?: readonly (() => Promise<Partial<Result>>)[] | undefined
+  [swap]?: { tokenIn: Address; tokenOut: Address } | undefined
   tx: Record<string, unknown>
   capabilities?: Record<string, unknown> | undefined
   sponsor?: unknown
@@ -38,6 +57,8 @@ export type Result = {
 
 type Context = {
   client: Client
+  getStore: (store: Store.Store | undefined) => Store.Store | undefined
+  getTokens: (resolver?: TokenResolver) => Promise<readonly Address[]>
   getClient: (chainId?: number) => Client
   chainId: number | undefined
   options: Options
@@ -72,7 +93,7 @@ export function wrap(
     context: Context,
   ) => Promise<unknown>,
 ): Handler {
-  return inherit(next, async (request, options: Options = {}) => {
+  const handleDeferred: Handler = async (request, options: Options = {}) => {
     const outer = !options[processing]
     const isFill = request.method === 'eth_fillTransaction'
     const isRaw =
@@ -96,12 +117,18 @@ export function wrap(
           message: 'Expected a transaction object.',
         })
 
-      const bodyChainId =
-        isRaw && Utils.isSerializedTempoTransaction(request.params?.[0])
-          ? Transaction.deserialize(request.params[0]).chainId
-          : isFill
-            ? Utils.resolveChainId(parameters.chainId)
-            : undefined
+      const bodyChainId = (() => {
+        if (isRaw && Utils.isSerializedTempoTransaction(request.params?.[0])) {
+          try {
+            return Transaction.deserialize(request.params[0]).chainId
+          } catch {
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Invalid serialized Tempo transaction.',
+            })
+          }
+        }
+        return isFill ? Utils.resolveChainId(parameters.chainId) : undefined
+      })()
 
       if (
         bodyChainId !== undefined &&
@@ -117,6 +144,8 @@ export function wrap(
         ...options,
         chainId,
         [processing]: true,
+        [stores]: options[stores] ?? new Map(),
+        [tokenLists]: options[tokenLists] ?? new Map(),
       }
 
       const getClient = (id = chainId): Client => {
@@ -136,7 +165,11 @@ export function wrap(
           batch: { multicall: { deployless: true } },
           transport: custom({
             request: (request, options) =>
-              next(request, { ...requestOptions, ...options, chainId: id }),
+              (next[deferred] ?? next)(request, {
+                ...requestOptions,
+                ...options,
+                chainId: id,
+              }),
           }),
         })
       }
@@ -144,6 +177,30 @@ export function wrap(
       client = getClient()
       const result = await handle(request, {
         client,
+        getStore: (store) => {
+          if (!store) return undefined
+          const scoped = requestOptions[stores]!
+          let result = scoped.get(store)
+          if (!result) {
+            result = Store.scoped(store)!
+            scoped.set(store, result)
+          }
+          return result
+        },
+        getTokens: (resolver = next[tokens] ?? getDefaultTokens) => {
+          const lists = requestOptions[tokenLists]!
+          let chains = lists.get(resolver)
+          if (!chains) {
+            chains = new Map()
+            lists.set(resolver, chains)
+          }
+          let result = chains.get(chainId!)
+          if (!result) {
+            result = resolver(chainId!, requestOptions.signal)
+            chains.set(chainId!, result)
+          }
+          return result
+        },
         getClient,
         chainId,
         options: requestOptions,
@@ -159,17 +216,25 @@ export function wrap(
           Utils.normalizeFillTransactionRequest(parameters),
         ),
       )
-      const virtualAddresses = await resolveVirtualAddresses(client, {
-        calls: extractCalls(transaction),
-      })
-      const sponsor = filled.capabilities?.sponsor ?? filled.sponsor
+      const [resolved, virtualAddresses] = await Promise.all([
+        resolve(filled),
+        resolveVirtualAddresses(client, { calls: extractCalls(transaction) }),
+      ])
+      const sponsor = resolved.capabilities?.sponsor ?? resolved.sponsor
 
       return {
-        ...filled,
-        tx: core_Transaction.toRpc(transaction as core_Transaction.Transaction),
+        ...resolved,
+        tx: Utils.formatTempoTransaction(
+          Utils.normalizeTempoTransaction(
+            Utils.mergeCallsFromRequest(
+              resolved.tx,
+              Utils.normalizeFillTransactionRequest(parameters),
+            ),
+          ) as core_Transaction.Transaction,
+        ),
         capabilities: {
           sponsored: !!sponsor,
-          ...filled.capabilities,
+          ...resolved.capabilities,
           ...(virtualAddresses ? { virtualAddresses } : {}),
         },
       }
@@ -187,22 +252,54 @@ export function wrap(
 
       throw Utils.toRpcError(error)
     }
-  })
+  }
+  // Custom middleware and public callers always receive completed results.
+  const handler: Handler = async (request, options) => {
+    const result = await handleDeferred(request, options)
+    return request.method === 'eth_fillTransaction'
+      ? resolve(result as Result)
+      : result
+  }
+  handler[deferred] = handleDeferred
+  return inherit(next, handler)
+}
+
+/** Defers response work until the final fill is selected, then runs it concurrently. */
+export function enrich(
+  result: Result,
+  task: () => Promise<Partial<Result>>,
+): Result {
+  return { ...result, [pending]: [...(result[pending] ?? []), task] }
+}
+
+async function resolve(result: Result): Promise<Result> {
+  const { [pending]: tasks, [swap]: _, ...base } = result
+  if (!tasks) return base
+  for (const patch of await Promise.all(tasks.map((task) => task()))) {
+    const capabilities = { ...base.capabilities, ...patch.capabilities }
+    // Replace the transaction so signing can remove the node's placeholder sender signature.
+    Object.assign(base, patch, { capabilities })
+  }
+  return base
 }
 
 /** Normalize a downstream fill without discarding capabilities added by other plugins. */
 export async function fill(
   client: Client,
   transaction: Record<string, unknown>,
+  options: Relay.handleRequest.RequestOptions = {},
 ): Promise<Result> {
-  const result = (await client.request({
-    method: 'eth_fillTransaction',
-    params: [
-      (transaction.type === '0x76'
-        ? transaction
-        : Utils.formatFillTransactionRequest(client, transaction)) as never,
-    ],
-  })) as unknown as Result
+  const result = (await client.request(
+    {
+      method: 'eth_fillTransaction',
+      params: [
+        (transaction.type === '0x76'
+          ? transaction
+          : Utils.formatFillTransactionRequest(client, transaction)) as never,
+      ],
+    },
+    options,
+  )) as unknown as Result
 
   const error = result.capabilities?.error as
     | { message?: string; errorName?: string; data?: `0x${string}` }

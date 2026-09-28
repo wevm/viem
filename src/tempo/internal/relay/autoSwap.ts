@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import { Hex } from 'ox'
-import { Transaction as core_Transaction } from 'ox/tempo'
+import type { Transaction as core_Transaction } from 'ox/tempo'
 import type { Client } from '../../../clients/createClient.js'
 import type { Call } from '../../../types/calls.js'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
@@ -8,12 +8,8 @@ import * as Addresses from '../../Addresses.js'
 import * as Actions from '../../actions/index.js'
 import * as ExecutionError from '../../ExecutionError.js'
 import type * as Relay from '../../Relay.js'
-import * as Store from './cache.js'
-import {
-  getDefaultTokens,
-  resolveFeeToken,
-  resolveTokenMetadata,
-} from './feeToken.js'
+import type * as Store from './cache.js'
+import { resolveFeeToken, resolveTokenMetadata } from './feeToken.js'
 import * as Plugin from './plugin.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -27,7 +23,7 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
       const transaction = Utils.normalizeFillTransactionRequest(
         request.params![0] as Record<string, unknown>,
       )
-      const store = Store.scoped(options.store)
+      const store = context.getStore(options.store)
       const autoSwap = { slippage: options.slippage ?? 0.05 }
 
       const result = await fill(context.client, {
@@ -38,35 +34,32 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
         resolveFeeToken: async (insufficientToken) =>
           resolveFeeToken(context.client, {
             account: transaction.from as Address | undefined,
+            exclude: insufficientToken,
             store,
-            tokens: (
-              await (next[Request.tokens] ?? getDefaultTokens)(
-                context.chainId!,
-                context.options.signal,
-              )
-            ).filter(
+            tokens: (await context.getTokens()).filter(
               (token) =>
                 token.toLowerCase() !== insufficientToken.toLowerCase(),
             ),
           }),
       })
 
-      const metadata = await resolveAutoSwapMetadata(context.client, {
-        autoSwap,
-        store,
-        swap: result.swap,
-      })
-
-      return {
-        ...result.result,
-        tx: core_Transaction.toRpc(
-          result.transaction as core_Transaction.Transaction,
-        ),
-        capabilities: {
-          ...result.result.capabilities,
-          ...(metadata ? { autoSwap: metadata } : {}),
+      return Request.enrich(
+        {
+          ...result.result,
+          [Request.swap]: result.swap,
+          tx: Utils.formatTempoTransaction(
+            result.transaction as core_Transaction.Transaction,
+          ),
         },
-      }
+        async () => {
+          const metadata = await resolveAutoSwapMetadata(context.client, {
+            autoSwap,
+            store,
+            swap: result.swap,
+          })
+          return { capabilities: metadata ? { autoSwap: metadata } : {} }
+        },
+      )
     }),
   )
 }

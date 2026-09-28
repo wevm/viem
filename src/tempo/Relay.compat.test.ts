@@ -2015,12 +2015,12 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     ).toBeUndefined()
   })
 
-  test('behavior: approval covered by transfer is suppressed', async () => {
+  test('behavior: transfer to a spender retains approval exposure', async () => {
     const sender = Tempo.accounts[6]!
     const recipient = Tempo.accounts[7]!
     const token = Tempo.addresses.alphaUsd
 
-    // approve(100) + transfer(100) to same spender → approval fully covered.
+    // Transferring to the spender does not consume its allowance.
     const result = await fillTransaction(client, {
       account: sender.address,
       calls: [
@@ -2042,8 +2042,8 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     const tokenDiff = diffs.find(
       (d) => d.address.toLowerCase() === token.toLowerCase(),
     )!
-    // Only the transfer shows — approval is fully covered.
-    expect(tokenDiff.value).toBe('0x64')
+    // Include both the transfer and the outstanding approval.
+    expect(tokenDiff.value).toBe('0xc8')
     expect(tokenDiff.direction).toBe('outgoing')
   })
 
@@ -2052,7 +2052,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     const spender = Tempo.accounts[7]!
     const token = Tempo.addresses.alphaUsd
 
-    // approve(200) + transfer(50) to same spender → 150 uncovered approval.
+    // The full approval remains available after the direct transfer.
     const result = await fillTransaction(client, {
       account: sender.address,
       calls: [
@@ -2074,8 +2074,8 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     const tokenDiff = diffs.find(
       (d) => d.address.toLowerCase() === token.toLowerCase(),
     )!
-    // transfer(50) + uncovered approval(150) = 200 outgoing.
-    expect(tokenDiff.value).toBe('0xc8')
+    // Transfer exposure is 50 and approval exposure is 200.
+    expect(tokenDiff.value).toBe('0xfa')
     expect(tokenDiff.direction).toBe('outgoing')
   })
 })

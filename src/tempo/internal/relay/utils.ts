@@ -95,6 +95,18 @@ export function normalizeTempoTransaction(
   } as core_Transaction.Rpc)!
 }
 
+/** Preserves the nonce domain when serializing filled Tempo transactions. */
+export function formatTempoTransaction(
+  transaction: core_Transaction.Transaction,
+) {
+  return {
+    ...core_Transaction.toRpc(transaction),
+    ...('nonceKey' in transaction && transaction.nonceKey !== undefined
+      ? { nonceKey: Hex.fromNumber(transaction.nonceKey) }
+      : {}),
+  }
+}
+
 /** Preserves upstream RPC errors and the relay's expired-transaction contract. */
 export function toRpcError(error: unknown): RpcResponse.BaseError {
   let current: unknown = error

@@ -18,10 +18,7 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
         const parameters = request.params![0] as Record<string, unknown>
         const transaction = Utils.normalizeFillTransactionRequest(parameters)
 
-        const tokens = await resolveTokens(
-          context.chainId!,
-          context.options.signal,
-        )
+        const tokens = await context.getTokens(resolveTokens)
         const candidates = [
           ...tokens,
           ...callTargetTokens(transaction).filter(
@@ -37,7 +34,7 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
           : await resolveFeeToken(context.client, {
               account: transaction.from as Address | undefined,
               feeToken: transaction.feeToken as Address | undefined,
-              store: Store.scoped(options.store),
+              store: context.getStore(options.store),
               tokens: candidates,
             })
 
@@ -78,7 +75,7 @@ export async function resolveFeeToken(
   client: Client,
   options: resolveFeeToken.Options,
 ): Promise<Address | undefined> {
-  const { feeToken, account, store, tokens } = options
+  const { feeToken, account, exclude, store, tokens } = options
   if (feeToken) return feeToken
   if (!account) return undefined
 
@@ -115,7 +112,7 @@ export async function resolveFeeToken(
   ])
 
   // If on-chain preference is set and user has balance, use it.
-  if (userToken) {
+  if (userToken && userToken.address.toLowerCase() !== exclude?.toLowerCase()) {
     const match = balances.find(
       (b: { address: Address; balance: bigint }) =>
         b.address.toLowerCase() === userToken.address.toLowerCase() &&
@@ -138,7 +135,11 @@ export async function resolveFeeToken(
   // Pick the token with the highest balance.
   let best: { address: Address; balance: bigint } | undefined
   for (const asset of balances) {
-    if (asset.balance <= 0n) continue
+    if (
+      asset.balance <= 0n ||
+      asset.address.toLowerCase() === exclude?.toLowerCase()
+    )
+      continue
     if (!best || asset.balance > best.balance) best = asset
   }
   if (best) return best.address
@@ -147,6 +148,7 @@ export async function resolveFeeToken(
 
 export declare namespace resolveFeeToken {
   type Options = {
+    exclude?: Address | undefined
     feeToken?: Address | undefined
     account?: Address | undefined
     store?: Store.Store | undefined

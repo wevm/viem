@@ -21,6 +21,8 @@ export function from(
     const handle: Request.Handler = (request, requestOptions) =>
       handler(request, requestOptions)
     handle[Request.tokens] = options.resolveTokens
+    if (handler[Request.deferred])
+      handle[Request.deferred] = handler[Request.deferred]
     return Request.inherit(next, Request.inherit(handler, handle))
   }
   if (options.multisig) plugin.multisig = true

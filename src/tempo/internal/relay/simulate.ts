@@ -13,7 +13,7 @@ import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
 import type * as Relay from '../../Relay.js'
 import { extractSwapFromCapabilities } from './autoSwap.js'
-import * as Store from './cache.js'
+import type * as Store from './cache.js'
 import { formatError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
 import * as Plugin from './plugin.js'
@@ -28,7 +28,7 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
         return next(request, context.options)
 
       const parameters = request.params![0] as Record<string, unknown>
-      const store = Store.scoped(options.store)
+      const store = context.getStore(options.store)
       const result: Request.Result = await Request.fill(
         context.client,
         Utils.normalizeFillTransactionRequest(parameters),
@@ -46,32 +46,32 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
 
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
-      const simulation =
-        (parameters.capabilities as Record<string, unknown> | undefined)
-          ?.balanceDiffs !== false
-          ? await simulateAndParseDiffs(context.client, {
-              account: parameters.from as Address | undefined,
-              calls: extractCalls(transaction),
-              swap: extractSwapFromCapabilities(result.capabilities?.autoSwap),
-              feeToken,
-              gas: transaction.gas,
-              maxFeePerGas: transaction.maxFeePerGas,
-              store,
-            })
-          : {
-              balanceDiffs: undefined,
-              fee: await computeFee(context.client, {
+      return Request.enrich(result, async () => {
+        const simulation =
+          (parameters.capabilities as Record<string, unknown> | undefined)
+            ?.balanceDiffs !== false
+            ? await simulateAndParseDiffs(context.client, {
+                account: parameters.from as Address | undefined,
+                calls: extractCalls(transaction),
+                swap:
+                  result[Request.swap] ??
+                  extractSwapFromCapabilities(result.capabilities?.autoSwap),
                 feeToken,
                 gas: transaction.gas,
                 maxFeePerGas: transaction.maxFeePerGas,
                 store,
-              }).catch(() => undefined),
-            }
+              })
+            : await computeFee(context.client, {
+                feeToken,
+                gas: transaction.gas,
+                maxFeePerGas: transaction.maxFeePerGas,
+                store,
+              })
+                .catch(() => undefined)
+                .then((fee) => ({ balanceDiffs: undefined, fee }))
 
-      return {
-        ...result,
-        capabilities: { ...result.capabilities, ...simulation },
-      }
+        return { capabilities: simulation }
+      })
     }),
   )
 }
@@ -202,9 +202,6 @@ async function buildBalanceDiffs(
     }
   >()
 
-  // Track total transferred per (token, spender) so we can suppress covered approvals.
-  const transferredBySpender = new Map<string, bigint>()
-
   for (const log of transferLogs) {
     const token = log.address.toLowerCase()
     const fromLower = log.args.from.toLowerCase()
@@ -235,17 +232,12 @@ async function buildBalanceDiffs(
     if (fromLower === accountLower) {
       entry.outgoing += log.args.amount
       entry.recipients.add(log.args.to)
-      const key = `${token}:${toLower}`
-      transferredBySpender.set(
-        key,
-        (transferredBySpender.get(key) ?? 0n) + log.args.amount,
-      )
     }
     if (toLower === accountLower) entry.incoming += log.args.amount
     tokenMap.set(token, entry)
   }
 
-  // Treat approvals as outgoing unless the spender already transferred >= approval amount.
+  // Transfers do not identify allowance consumption, so retain approval exposure.
   for (const log of approvalLogs) {
     if (log.args.owner.toLowerCase() !== accountLower) continue
     const token = log.address.toLowerCase()
@@ -258,17 +250,13 @@ async function buildBalanceDiffs(
     )
       continue
 
-    const spenderKey = `${token}:${log.args.spender.toLowerCase()}`
-    const transferred = transferredBySpender.get(spenderKey) ?? 0n
-    if (log.args.amount <= transferred) continue
-
     const entry = tokenMap.get(token) ?? {
       incoming: 0n,
       outgoing: 0n,
       recipients: new Set<Address>(),
       token: log.address,
     }
-    entry.outgoing += log.args.amount - transferred
+    entry.outgoing += log.args.amount
     entry.recipients.add(log.args.spender)
     tokenMap.set(token, entry)
   }

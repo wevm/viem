@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import { Hash, type Hex, RpcResponse, Signature } from 'ox'
-import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
+import { type Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
 import type { LocalAccount } from '../../../accounts/types.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
@@ -17,7 +17,12 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const { client, getClient, chainId, options: requestOptions } = context
 
       const getTokens = (id: number) =>
-        (next[Request.tokens] ?? getDefaultTokens)(id, requestOptions.signal)
+        id === chainId
+          ? context.getTokens()
+          : (next[Request.tokens] ?? getDefaultTokens)(
+              id,
+              requestOptions.signal,
+            )
 
       const record = (details: SponsorshipDetails | undefined) => {
         if (details && requestOptions[Request.response])
@@ -92,9 +97,10 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             transport: http(external, { fetchOptions: { redirect: 'error' } }),
           })
         : client
-      const result: Request.Result = prepared
-        ? { tx: transaction }
-        : await Request.fill(fillClient, transaction)
+      const result: Request.Result =
+        prepared && !external
+          ? { tx: transaction }
+          : await Request.fill(fillClient, transaction, requestOptions)
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
@@ -111,25 +117,11 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           transaction: filled,
           validate: options.validate,
         }))
-      if (!sponsored && !prepared) return Request.fill(client, base)
+      if (!sponsored) return Request.fill(client, { ...base, feePayer: false })
 
       const defer =
         typeof normalized.multisigSimulation === 'object' &&
         normalized.multisigSimulation !== null
-      const signed =
-        sponsored &&
-        options.account &&
-        !external &&
-        !filled.feePayerSignature &&
-        !defer
-          ? await sign({
-              account: options.account,
-              onSponsored: options.onSponsored,
-              sender: parameters.from as Address | undefined,
-              transaction: filled,
-            })
-          : { transaction: filled, sponsorshipDetails: undefined }
-      record(signed.sponsorshipDetails)
 
       const sponsor = sponsored
         ? external
@@ -139,18 +131,43 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             : undefined
         : undefined
 
-      return {
-        ...result,
-        ...(sponsor ? { sponsor } : {}),
-        tx: core_Transaction.toRpc(
-          signed.transaction as core_Transaction.Transaction,
-        ),
-        capabilities: {
-          ...result.capabilities,
-          sponsored: !!sponsor,
+      return Request.enrich(
+        {
+          ...result,
           ...(sponsor ? { sponsor } : {}),
+          tx: Utils.formatTempoTransaction(
+            filled as core_Transaction.Transaction,
+          ),
+          capabilities: {
+            ...result.capabilities,
+            sponsored: external
+              ? (result.capabilities?.sponsored ?? !!sponsor)
+              : !!sponsor,
+            ...(sponsor ? { sponsor } : {}),
+          },
         },
-      }
+        async () => {
+          const signed =
+            sponsored &&
+            options.account &&
+            !external &&
+            !filled.feePayerSignature &&
+            !defer
+              ? await sign({
+                  account: options.account,
+                  onSponsored: options.onSponsored,
+                  sender: parameters.from as Address | undefined,
+                  transaction: filled,
+                })
+              : { transaction: filled, sponsorshipDetails: undefined }
+
+          record(signed.sponsorshipDetails)
+          const transaction = Utils.formatTempoTransaction(
+            signed.transaction as core_Transaction.Transaction,
+          )
+          return { tx: transaction }
+        },
+      )
     }),
   )
 }

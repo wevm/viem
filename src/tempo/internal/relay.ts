@@ -125,9 +125,28 @@ export async function fetch(
   }
 
   if (Array.isArray(body.value) && body.value.length > 0) {
-    const responses = (await Promise.all(body.value.map(handle))).filter(
-      (value) => value !== undefined,
+    if (body.value.length > 100)
+      return Response.json({
+        jsonrpc: '2.0',
+        id: null,
+        error: {
+          code: -32600,
+          message: 'Batch exceeds the limit of 100 requests.',
+        },
+      })
+
+    const batch = body.value
+    const results = new Array<unknown>(batch.length)
+    let index = 0
+    await Promise.all(
+      Array.from({ length: Math.min(10, batch.length) }, async () => {
+        while (index < batch.length) {
+          const current = index++
+          results[current] = await handle(batch[current])
+        }
+      }),
     )
+    const responses = results.filter((value) => value !== undefined)
     return responses.length
       ? Response.json(responses)
       : new Response(null, { status: 204 })
