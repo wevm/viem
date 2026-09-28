@@ -441,9 +441,11 @@ test.each(['none', 'explicit', 'resolved'])(
       transport: http('http://127.0.0.1:1', { retryCount: 0 }),
     })
     const transaction = {
+      type: '0x76',
       from: account.address,
       chainId: tempoLocalnet.id,
       nonce: '0x0',
+      nonceKey: '0xff',
       gas: '0x186a0',
       maxFeePerGas: '0x1',
       maxPriorityFeePerGas: '0x0',
@@ -480,6 +482,7 @@ test.each(['none', 'explicit', 'resolved'])(
       ],
     })
     const result = (await sponsored.request(request)) as Relay.Plugin.FillResult
+    expect(result.tx.nonceKey).toBe('0xff')
     expect(result.tx.feePayerSignature).toBeDefined()
     expect(Signature.fromRpc(result.tx.feePayerSignature as never).r).not.toBe(
       1n,
