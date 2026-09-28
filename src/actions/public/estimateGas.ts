@@ -7,6 +7,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -111,6 +112,8 @@ export async function estimateGas<
   client: Client<Transport, chain, account>,
   args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
+  args = frameTransaction.resolve(args)
+
   const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
 

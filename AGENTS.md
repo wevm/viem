@@ -45,6 +45,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **IIFE expressions for fallible local derivations**; prefer IIFEs for local `try`/`catch` parsing.
   - Avoid `let value: T` followed by assignment inside `try`.
 - **Skip braces for single-statement blocks**; omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
+- **Separate logical blocks with a blank line**; visually separate validation and early returns, preparation, execution or signing, and final results.
+  - Keep closely related declarations and their checks together. Do not add blank lines between every statement or use multiple blank lines.
 - **No section separator comments**; do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
 - **No internal-tracking references in code or comments**; code must read standalone.
   - Avoid planning phases, task IDs, and internal labels.

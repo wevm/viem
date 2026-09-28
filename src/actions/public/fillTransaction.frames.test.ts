@@ -4,21 +4,20 @@ import {
   sendRawTransaction,
   waitForTransactionReceipt,
 } from 'viem/actions'
-import { expect, test } from 'vitest'
+import { Frame } from 'viem/frames'
+import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
 
 const client = getClient({ account: accounts[0].address })
 
-test('default', async () => {
-  const result = await fillTransaction(client, {
-    signatures: [{ scheme: 'secp256k1' }],
-    frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
-  })
+describe('frames: Frame', () => {
+  test('default', async () => {
+    const result = await fillTransaction(client, {
+      frames: [Frame.verify({ account: accounts[0] })],
+    })
 
-  expect(result).toMatchInlineSnapshot(`
-    {
-      "raw": "0x06f6821fcd8094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8010380c264808080c5c401808080cb843b9aca0084b2d05e0080c0",
-      "transaction": {
+    expect(result.transaction).toMatchInlineSnapshot(`
+      {
         "blobVersionedHashes": [],
         "chainId": 8141,
         "data": undefined,
@@ -29,13 +28,14 @@ test('default', async () => {
             "flags": 3,
             "mode": 1,
             "stateGas": 0n,
+            "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "value": 0n,
           },
         ],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": undefined,
         "gasPrice": undefined,
-        "hash": "0xf1d8ee86866e8b51157bd085bac887c4d5fc6660ea12210f88b2839d7765cfaa",
+        "hash": "0xaf264d22e7672ed063d238ad7b98f490a9d123594a2dd16fa305b4a5b0cdaaae",
         "maxFeePerBlobGas": 0n,
         "maxFeePerGas": 3600000000n,
         "maxPriorityFeePerGas": 1000000000n,
@@ -44,112 +44,228 @@ test('default', async () => {
           {
             "payload": "0x",
             "scheme": "secp256k1",
+            "signer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           },
         ],
         "to": null,
         "type": "eip8141",
         "typeHex": "0x6",
         "value": undefined,
-      },
-    }
-  `)
-})
-
-test('fills a frame transaction for signing', async () => {
-  const balance = await getBalance(client, { address: accounts[1].address })
-
-  const { transaction } = await fillTransaction(client, {
-    frames: [
-      { flags: 'approveExecutionAndPayment', mode: 'verify' },
-      { mode: 'sender', to: accounts[1].address, value: 1n },
-    ],
-    signatures: [{ scheme: 'secp256k1' }],
+      }
+    `)
   })
-  if (transaction.type !== 'eip8141')
-    throw new Error('Expected a frame transaction.')
 
-  expect(await getBalance(client, { address: accounts[1].address })).toBe(
-    balance,
-  )
-
-  const serializedTransaction = await accounts[0].signTransaction({
-    chainId: transaction.chainId,
-    frames: transaction.frames,
-    maxFeePerGas: transaction.maxFeePerGas,
-    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
-    nonce: transaction.nonce,
-    sender: transaction.from,
-    signatures: transaction.signatures,
-  })
-  const hash = await sendRawTransaction(client, { serializedTransaction })
-
-  expect((await waitForTransactionReceipt(client, { hash })).status).toBe(
-    'success',
-  )
-  expect(await getBalance(client, { address: accounts[1].address })).toBe(
-    balance + 1n,
-  )
-})
-
-test('args: frames.executionGas', async () => {
-  const { transaction } = await fillTransaction(client, {
-    signatures: [{ scheme: 'secp256k1' }],
-    frames: [
-      {
-        flags: 'approveExecutionAndPayment',
+  test('expands atomic calls without signing or changing state', async () => {
+    const balance = await getBalance(client, { address: accounts[1].address })
+    const frames = [
+      Frame.verify({
+        account: {
+          ...accounts[0],
+          async sign() {
+            throw new Error('Simulation must not sign.')
+          },
+        },
         executionGas: 50_000n,
-        mode: 'verify',
         stateGas: 0n,
-      },
-    ],
-  })
-
-  expect(transaction.frames).toMatchInlineSnapshot(`
-    [
-      {
-        "data": "0x",
-        "executionGas": 50000n,
-        "flags": 3,
-        "mode": 1,
-        "stateGas": 0n,
-        "value": 0n,
-      },
+      }),
+      Frame.calls([
+        {
+          to: accounts[1].address,
+          value: 1n,
+          executionGas: 50_000n,
+          stateGas: 0n,
+        },
+        {
+          to: accounts[1].address,
+          value: 2n,
+          executionGas: 50_000n,
+          stateGas: 0n,
+        },
+      ]),
     ]
-  `)
+    const result = await fillTransaction(client, { frames })
+
+    expect(result.transaction.frames).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x",
+          "executionGas": 50000n,
+          "flags": 3,
+          "mode": 1,
+          "stateGas": 0n,
+          "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "value": 0n,
+        },
+        {
+          "data": "0x",
+          "executionGas": 50000n,
+          "flags": 4,
+          "mode": 2,
+          "stateGas": 0n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": 1n,
+        },
+        {
+          "data": "0x",
+          "executionGas": 50000n,
+          "flags": 0,
+          "mode": 2,
+          "stateGas": 0n,
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": 2n,
+        },
+      ]
+    `)
+    expect(frames).toHaveLength(2)
+    expect(await getBalance(client, { address: accounts[1].address })).toBe(
+      balance,
+    )
+  })
 })
 
-test('fills state gas for a new recipient', async () => {
-  const { transaction } = await fillTransaction(client, {
-    signatures: [{ scheme: 'secp256k1' }],
-    frames: [
-      { flags: 'approveExecutionAndPayment', mode: 'verify' },
+describe('frames: explicit', () => {
+  test('default', async () => {
+    const result = await fillTransaction(client, {
+      signatures: [{ scheme: 'secp256k1' }],
+      frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
+    })
+
+    expect(result).toMatchInlineSnapshot(`
       {
-        mode: 'sender',
-        to: '0x000000000000000000000000000000000000dead',
-        value: 1n,
-      },
-    ],
+        "raw": "0x06f6821fcd8094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8010380c264808080c5c401808080cb843b9aca0084b2d05e0080c0",
+        "transaction": {
+          "blobVersionedHashes": [],
+          "chainId": 8141,
+          "data": undefined,
+          "frames": [
+            {
+              "data": "0x",
+              "executionGas": 100n,
+              "flags": 3,
+              "mode": 1,
+              "stateGas": 0n,
+              "value": 0n,
+            },
+          ],
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gas": undefined,
+          "gasPrice": undefined,
+          "hash": "0xf1d8ee86866e8b51157bd085bac887c4d5fc6660ea12210f88b2839d7765cfaa",
+          "maxFeePerBlobGas": 0n,
+          "maxFeePerGas": 3600000000n,
+          "maxPriorityFeePerGas": 1000000000n,
+          "nonce": 0,
+          "signatures": [
+            {
+              "payload": "0x",
+              "scheme": "secp256k1",
+            },
+          ],
+          "to": null,
+          "type": "eip8141",
+          "typeHex": "0x6",
+          "value": undefined,
+        },
+      }
+    `)
   })
 
-  expect(transaction.frames).toMatchInlineSnapshot(`
-    [
-      {
-        "data": "0x",
-        "executionGas": 100n,
-        "flags": 3,
-        "mode": 1,
-        "stateGas": 0n,
-        "value": 0n,
-      },
-      {
-        "data": "0x",
-        "executionGas": 3000n,
-        "flags": 0,
-        "mode": 2,
-        "stateGas": 183600n,
-        "to": "0x000000000000000000000000000000000000dead",
-        "value": 1n,
-      },
-    ]
-  `)
+  test('fills a frame transaction for signing', async () => {
+    const balance = await getBalance(client, { address: accounts[1].address })
+
+    const { transaction } = await fillTransaction(client, {
+      frames: [
+        { flags: 'approveExecutionAndPayment', mode: 'verify' },
+        { mode: 'sender', to: accounts[1].address, value: 1n },
+      ],
+      signatures: [{ scheme: 'secp256k1' }],
+    })
+    if (transaction.type !== 'eip8141')
+      throw new Error('Expected a frame transaction.')
+
+    expect(await getBalance(client, { address: accounts[1].address })).toBe(
+      balance,
+    )
+
+    const serializedTransaction = await accounts[0].signTransaction({
+      chainId: transaction.chainId,
+      frames: transaction.frames,
+      maxFeePerGas: transaction.maxFeePerGas,
+      maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+      nonce: transaction.nonce,
+      sender: transaction.from,
+      signatures: transaction.signatures,
+    })
+    const hash = await sendRawTransaction(client, { serializedTransaction })
+
+    expect((await waitForTransactionReceipt(client, { hash })).status).toBe(
+      'success',
+    )
+    expect(await getBalance(client, { address: accounts[1].address })).toBe(
+      balance + 1n,
+    )
+  })
+
+  test('args: frames.executionGas', async () => {
+    const { transaction } = await fillTransaction(client, {
+      signatures: [{ scheme: 'secp256k1' }],
+      frames: [
+        {
+          flags: 'approveExecutionAndPayment',
+          executionGas: 50_000n,
+          mode: 'verify',
+          stateGas: 0n,
+        },
+      ],
+    })
+
+    expect(transaction.frames).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x",
+          "executionGas": 50000n,
+          "flags": 3,
+          "mode": 1,
+          "stateGas": 0n,
+          "value": 0n,
+        },
+      ]
+    `)
+  })
+
+  test('fills state gas for a new recipient', async () => {
+    const { transaction } = await fillTransaction(client, {
+      signatures: [{ scheme: 'secp256k1' }],
+      frames: [
+        { flags: 'approveExecutionAndPayment', mode: 'verify' },
+        {
+          mode: 'sender',
+          to: '0x000000000000000000000000000000000000dead',
+          value: 1n,
+        },
+      ],
+    })
+
+    expect(transaction.frames).toMatchInlineSnapshot(`
+      [
+        {
+          "data": "0x",
+          "executionGas": 100n,
+          "flags": 3,
+          "mode": 1,
+          "stateGas": 0n,
+          "value": 0n,
+        },
+        {
+          "data": "0x",
+          "executionGas": 3000n,
+          "flags": 0,
+          "mode": 2,
+          "stateGas": 183600n,
+          "to": "0x000000000000000000000000000000000000dead",
+          "value": 1n,
+        },
+      ]
+    `)
+  })
 })

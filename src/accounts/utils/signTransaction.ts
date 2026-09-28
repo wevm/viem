@@ -1,6 +1,11 @@
 import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import {
+  resolve as resolveFrames,
+  type SigningFrame,
+  signing,
+} from '../../frames/internal/transaction.js'
 import type { Hex } from '../../types/misc.js'
 import type {
   TransactionSerializable,
@@ -16,6 +21,7 @@ import {
   type SerializeTransactionFn,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
+import { signFrameTransaction } from './internal/signFrameTransaction.js'
 
 import { privateKeyToAddress } from './privateKeyToAddress.js'
 import { type SignErrorType, sign } from './sign.js'
@@ -51,9 +57,16 @@ export async function signTransaction<
 ): Promise<SignTransactionReturnType<serializer, transaction>> {
   const {
     privateKey,
-    transaction,
+    transaction: transaction_,
     serializer = serializeTransaction,
   } = parameters
+  const transaction = resolveFrames(transaction_)
+
+  if (transaction.frames?.some((frame) => (frame as SigningFrame)[signing]))
+    return (await signFrameTransaction(
+      transaction as TransactionSerializableEIP8141,
+      serializer,
+    )) as SignTransactionReturnType<serializer, transaction>
 
   if (
     transaction.type === 'eip8141' ||

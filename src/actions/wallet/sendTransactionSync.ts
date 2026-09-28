@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
+import { signFrameTransaction } from '../../accounts/utils/internal/signFrameTransaction.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -20,6 +21,11 @@ import {
   type TransactionReceiptRevertedErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
+import {
+  type SigningFrame,
+  signing,
+} from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -28,7 +34,10 @@ import type {
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { TransactionRequest } from '../../types/transaction.js'
+import type {
+  TransactionRequest,
+  TransactionSerializableEIP8141,
+} from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
   type RecoverAuthorizationAddressErrorType,
@@ -183,6 +192,11 @@ export async function sendTransactionSync<
     request
   >,
 ): Promise<SendTransactionSyncReturnType<chain>> {
+  parameters = prepareFrames(
+    parameters,
+    parameters.account === undefined ? client.account : parameters.account,
+  )
+
   const {
     account: account_ = client.account,
     assertChainId = true,
@@ -216,6 +230,12 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
+  const hasSigningFrames = frames?.some(
+    (frame) => (frame as SigningFrame)[signing],
+  )
+  const hasSignedFrames = frames?.some(
+    (frame) => (frame as SigningFrame)[signing]?.hash,
+  )
   let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
@@ -243,7 +263,10 @@ export async function sendTransactionSync<
       return undefined
     })()
 
-    if (account?.type === 'json-rpc' || account === null) {
+    if (
+      (account?.type === 'json-rpc' || account === null) &&
+      !hasSigningFrames
+    ) {
       let chainId: number | undefined
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
@@ -353,7 +376,10 @@ export async function sendTransactionSync<
       return receipt
     }
 
-    if (account?.type === 'local') {
+    if (
+      account?.type === 'local' ||
+      (account?.type === 'json-rpc' && hasSigningFrames)
+    ) {
       const nonceManager = ((): NonceManager | undefined => {
         if (!account.nonceManager || typeof nonce !== 'undefined')
           return account.nonceManager
@@ -398,7 +424,7 @@ export async function sendTransactionSync<
         maxPriorityFeePerGas,
         nonce,
         nonceManager,
-        parameters: [...defaultParameters, 'sidecars'],
+        parameters: hasSignedFrames ? [] : [...defaultParameters, 'sidecars'],
         signatures,
         type,
         value,
@@ -407,12 +433,14 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const signedTransaction = (await account.signTransaction(
-        request as never,
-        {
-          serializer,
-        },
-      )) as Hash
+      const signedTransaction = (
+        hasSigningFrames
+          ? await signFrameTransaction(
+              request as TransactionSerializableEIP8141,
+              serializer,
+            )
+          : await account.signTransaction!(request as never, { serializer })
+      ) as Hash
       const transactionEnvelope = (chain ?? client.chain)?.serializers
         ?.transactionEnvelope
       const serializedTransaction = transactionEnvelope

@@ -6,6 +6,7 @@ import type { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
@@ -110,6 +111,8 @@ export async function fillTransaction<
     accountOverride
   >,
 ): Promise<FillTransactionReturnType<chain, chainOverride>> {
+  parameters = frameTransaction.resolve(parameters)
+
   const {
     account = client.account,
     accessList,

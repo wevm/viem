@@ -30,6 +30,7 @@ import {
   getAbortError,
   isAbortError,
 } from '../../errors/utils.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestOptions } from '../../types/eip1193.js'
@@ -179,6 +180,8 @@ export async function call<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   args: CallParameters<chain>,
 ): Promise<CallReturnType> {
+  args = frameTransaction.resolve(args)
+
   const {
     account: account_ = client.account,
     authorizationList,

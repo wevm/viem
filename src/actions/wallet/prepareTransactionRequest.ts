@@ -30,6 +30,7 @@ import {
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
+import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -317,7 +318,10 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = { ...args } as PrepareTransactionRequestParameters
+  let request = prepareFrames(
+    { ...args },
+    args.account === undefined ? client.account : args.account,
+  ) as PrepareTransactionRequestParameters
   request.account ??= client.account
   request.parameters ??= defaultParameters
 

@@ -1,4 +1,5 @@
 import type { Account } from '../../accounts/types.js'
+import { signFrameTransaction } from '../../accounts/utils/internal/signFrameTransaction.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -8,6 +9,11 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
+import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
+import {
+  type SigningFrame,
+  signing,
+} from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -19,6 +25,7 @@ import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
+  TransactionSerializableEIP8141,
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -130,6 +137,11 @@ export async function signTransaction<
   client: Client<Transport, chain, account>,
   parameters: SignTransactionParameters<chain, account, chainOverride, request>,
 ): Promise<SignTransactionReturnType<request>> {
+  parameters = prepareFrames(
+    parameters,
+    parameters.account === undefined ? client.account : parameters.account,
+  )
+
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -157,6 +169,16 @@ export async function signTransaction<
   const formatters = chain?.formatters || client.chain?.formatters
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
+
+  if (transaction.frames?.some((frame) => (frame as SigningFrame)[signing]))
+    return (await signFrameTransaction(
+      {
+        ...transaction,
+        chainId,
+        sender: account.address,
+      } as TransactionSerializableEIP8141,
+      chain?.serializers?.transaction,
+    )) as SignTransactionReturnType<request>
 
   if (account.signTransaction)
     return account.signTransaction(
