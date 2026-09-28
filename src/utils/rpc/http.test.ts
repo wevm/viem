@@ -1,15 +1,14 @@
 import type { IncomingHttpHeaders } from 'node:http'
+import { Instance } from 'prool'
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-import { keccak256 } from '../../index.js'
+import { createTestClient, http, keccak256 } from '../../index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
 import { getHttpRpcClient, parseUrl } from './http.js'
-
-const client = anvilMainnet.getClient()
 
 describe('request', () => {
   test('valid request', async () => {
@@ -103,10 +102,16 @@ describe('request', () => {
     )
   })
 
-  test('parallel requests', async () => {
-    const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
+  test('parallel requests', async ({ onTestFinished }) => {
+    const instance = Instance.anvil({ port: 6969 })
+    await instance.start()
+    onTestFinished(() => instance.stop())
 
-    await wait(500)
+    const client = createTestClient({
+      mode: 'anvil',
+      transport: http(instance.url),
+    })
+    const rpcClient = getHttpRpcClient(instance.url)
 
     await mine(client, { blocks: 100 })
     const blockNumber = await getBlockNumber(client)
@@ -126,7 +131,6 @@ describe('request', () => {
         numberToHex(blockNumber - BigInt(i)),
       ),
     )
-    await wait(500)
   })
 
   test('no application/json header', async () => {

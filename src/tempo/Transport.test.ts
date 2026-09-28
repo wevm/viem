@@ -13,7 +13,7 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, Store, Transaction } from 'viem/tempo'
+import { Account, Actions, Relay, Store, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -26,17 +26,14 @@ import { custom } from '../clients/transports/custom.js'
 import * as Account_ from './Account.js'
 import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction_ from './Transaction.js'
-import {
-  walletNamespaceCompat,
-  withFeePayer,
-  withMultisig,
-  withRelay,
-} from './Transport.js'
+import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
-describe('withMultisig', () => {
+describe('withRelay local plugins', () => {
   test('default', async () => {
     const client = getClient({
-      transport: withMultisig(http(), { store: Store.memory() }),
+      transport: withRelay(http(), {
+        plugins: [Relay.multisig({ store: Store.memory() })],
+      }),
     })
 
     expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
@@ -49,6 +46,23 @@ describe('withMultisig', () => {
     ).resolves.toMatchInlineSnapshot(`null`)
   })
 
+  test('empty plugins preserve the underlying capabilities', async () => {
+    const plain = getClient({ transport: withRelay(http(), {}) })
+    expect('multisig' in plain.transport).toBe(false)
+    expect(plain.transport.type).toBe('http')
+    expect(await plain.request({ method: 'eth_chainId' })).toBe(
+      await getClient().request({ method: 'eth_chainId' }),
+    )
+    const remote = withRelay(http(), http())
+    const underlying = getClient({ transport: remote })
+    const nested = getClient({
+      transport: withRelay(remote, { plugins: [] }),
+    })
+    expect(nested.transport.multisig).toBe(true)
+    expect(nested.transport.type).toBe(underlying.transport.type)
+    expect(nested.transport.name).toBe(underlying.transport.name)
+  })
+
   test('error: non-atomic store', () => {
     const store = Store.from({
       getItem: async () => null,
@@ -58,7 +72,10 @@ describe('withMultisig', () => {
 
     expect(() =>
       getClient({
-        transport: withMultisig(http(), { store } as never),
+        transport: withRelay(http(), {
+          // @ts-expect-error Non-atomic stores are rejected at runtime.
+          plugins: [Relay.multisig({ store })],
+        }),
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [RpcResponse.InvalidParamsError: Multisig coordination requires a store with atomic \`compareAndSet\`.]
@@ -795,7 +812,7 @@ describe('withRelay', () => {
           params: expect.any(Array),
         })
         expect(relayRequests).toContainEqual({
-          method: 'eth_signRawTransaction',
+          method: 'eth_sendRawTransactionSync',
           params: expect.any(Array),
         })
       },
@@ -812,9 +829,9 @@ describe('withRelay', () => {
           threshold: 2,
         })
         const coordinated = getClient({
-          transport: withMultisig(
+          transport: withRelay(
             withRelay(http(), http('http://localhost:3051')),
-            { store: Store.memory() },
+            { plugins: [Relay.multisig({ store: Store.memory() })] },
           ),
         })
 

@@ -119,6 +119,10 @@ export const chainConfig = {
           throw new Error('Multisig operation hash does not match transaction.')
         return {
           ...storedTransaction,
+          // Serialized zero values must not trigger a new fill of an approved transaction.
+          gas: storedTransaction.gas ?? 0n,
+          maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
+          maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
           account: request.account,
           from: operation.account,
           multisigSimulation: getMultisigSimulation({

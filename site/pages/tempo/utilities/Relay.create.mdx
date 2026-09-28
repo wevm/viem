@@ -1,0 +1,239 @@
+# `Relay.create`
+
+## Overview
+
+Create a Tempo relay with a parsed RPC handler and a Fetch endpoint. Both methods
+share the same ordered plugins. Requests that plugins do not handle are forwarded
+to a Viem client.
+
+Choose a chain-configured `client` for one chain or `getClient` for multiple
+chains. Exactly one is required. A relay with no plugins forwards requests without
+adding multisig coordination or fee sponsorship.
+
+## Recipes
+
+### Serve One Chain
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }), // [!code focus]
+})
+
+export default { fetch: relay.fetch }
+```
+
+### Resolve Multiple Chains
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { tempo, tempoModerato } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const resolver = createClientResolver({
+  chains: [tempo, tempoModerato],
+  transport: () => http(),
+})
+const relay = Relay.create({ getClient: resolver.getClient }) // [!code focus]
+
+const chainId = await relay.request(
+  { method: 'eth_chainId' },
+  { chainId: tempo.id }, // [!code focus]
+)
+```
+
+A plugin may infer the chain from a signed payload or stored operation. Ordinary
+calls such as `eth_blockNumber` need an explicit chain when using `getClient`.
+The relay never selects the resolver's first chain as a default.
+
+## `Relay.create`
+
+Creates handlers sharing one plugin pipeline.
+
+### Usage
+
+```ts twoslash
+import { createClient, Relay } from 'viem/tempo'
+
+const client = createClient()
+const relay = Relay.create({ client })
+```
+
+### Parameters
+
+#### options.client
+
+- **Type:** Chain-configured Viem `Client`
+
+Supplies the default chain. Explicit and inferred chain IDs must match
+`client.chain.id`. Cannot be combined with `getClient`.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const client = createClient({ chain: tempo, transport: http() })
+const store = Store.memory()
+// ---cut---
+const relay = Relay.create({ client }) // [!code focus]
+```
+
+#### options.getClient
+
+- **Type:** `({ chainId }) => Client`
+
+Resolves a client only when forwarding requires one. Accepts
+[`createClientResolver().getClient`](/docs/clients/resolve) directly and preserves
+its supported chain IDs. Cannot be combined with `client`.
+
+```ts twoslash
+import { createClientResolver, http } from 'viem'
+import { tempo, tempoModerato } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const resolver = createClientResolver({
+  chains: [tempo, tempoModerato],
+  transport: () => http(),
+})
+// ---cut---
+const relay = Relay.create({ getClient: resolver.getClient }) // [!code focus]
+```
+
+#### options.plugins
+
+- **Type:** `readonly Relay.Plugin[]`
+- **Default:** `[]`
+
+Requests enter plugins in array order. Plugins are composed once per relay.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const client = createClient({ chain: tempo, transport: http() })
+const store = Store.memory()
+// ---cut---
+const relay = Relay.create({
+  client,
+  plugins: [Relay.multisig({ store })], // [!code focus]
+})
+```
+
+#### options.resolveTokens
+
+- **Type:** `(chainId: number) => readonly Address[] | Promise<readonly Address[]>`
+- **Default:** Bundled Tempo token addresses for the selected chain.
+
+Supplies fee-token candidates shared by fee selection and sponsorship. Results are
+memoized within each request and chain. Implement cross-request caching inside the
+resolver when fetching a remote token list.
+
+```ts twoslash
+import { Addresses, createClient, Relay } from 'viem/tempo'
+const client = createClient()
+// ---cut---
+const relay = Relay.create({
+  client,
+  resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+  plugins: [Relay.feeToken()],
+})
+```
+
+### Return Value
+
+`Relay.create.ReturnType`
+
+An object with `request` and `fetch` methods. Neither method requires `this` binding.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcResponse.InvalidParamsError` | Both or neither client options were supplied, or the single client has no valid configured chain. |
+
+## `relay.request`
+
+Handles `{ method, params? }` and returns `Promise<unknown>` containing the RPC
+result. The optional second argument preserves Viem request options, including
+cancellation, retries, and deduplication, and adds an optional numeric `chainId`.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const client = createClient({ chain: tempo, transport: http() })
+const store = Store.memory()
+const relay = Relay.create({ client })
+// ---cut---
+await relay.request({ method: 'eth_blockNumber' }, { chainId: 4217 })
+```
+
+Invalid, conflicting, or missing required chain IDs reject with
+`RpcResponse.InvalidParamsError`. Resolver and downstream errors propagate.
+Locally handled requests need not resolve a client.
+
+## `relay.fetch`
+
+Handles a standard `Request` and returns `Promise<Response>`. The optional second
+argument accepts the same request options as `relay.request`. The incoming
+request's abort signal is used unless an explicit signal is supplied.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store } from 'viem/tempo'
+
+const client = createClient({ chain: tempo, transport: http() })
+const store = Store.memory()
+const relay = Relay.create({ client })
+// ---cut---
+export default {
+  fetch(request: Request) {
+    return relay.fetch(request, { chainId: 4217 })
+  },
+}
+```
+
+### HTTP Behavior
+
+| Request | Response |
+| --- | --- |
+| POST with `Content-Type: application/json` | JSON-RPC response with HTTP 200. |
+| Valid batch | Array of responses, omitting notifications. |
+| Notification or notification-only batch | Empty HTTP 204 response after execution. |
+| Malformed JSON | JSON-RPC parse error, code `-32700`. |
+| Invalid request or empty batch | JSON-RPC invalid-request error, code `-32600`. |
+| Named parameters | JSON-RPC invalid-params error; Tempo RPC uses positional parameters. |
+| Method other than POST | HTTP 405 with `Allow: POST`. |
+| Unsupported content type | HTTP 415. |
+
+RPC errors preserve their code, message, and data. Unexpected exceptions become
+JSON-RPC internal errors without exposing implementation details. A batch item
+that cannot be serialized fails individually.
+
+Applications supply routing, authentication, CORS, and persistent storage. Read
+[Run a Relay](/tempo/guides/relay/run) for deployment examples.
+
+## Migration
+
+Replace `Multisig.handleRequest` with the multisig plugin. The low-level composer
+retains an existing downstream callback:
+
+```diff
+-import { Multisig } from 'viem/tempo'
++import { Relay } from 'viem/tempo'
+
+-const request = Multisig.handleRequest(next, { store })
++const request = Relay.handleRequest(next, {
++  plugins: [Relay.multisig({ store })],
++})
+```
+
+For a service backed by a Viem client, use `Relay.create({ client, plugins })` to
+obtain both parsed RPC and Fetch handlers.

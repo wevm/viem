@@ -1,5 +1,5 @@
-import { MultisigConfig, Transaction } from 'viem/tempo'
-import { test } from 'vitest'
+import { createClient, MultisigConfig, Transaction } from 'viem/tempo'
+import { expectTypeOf, test } from 'vitest'
 
 const from = '0x0000000000000000000000000000000000000001'
 const multisigSimulation = {
@@ -22,4 +22,11 @@ test('serialize requires a sender when combining multisig simulation and approva
   })
   // @ts-expect-error Multisig approvals require an explicit sender.
   Transaction.serialize({ ...transaction, multisigSimulation, signatures: [] })
+})
+
+test('transfer actions accept sponsorship opt-out and external relay URLs', () => {
+  const client = createClient()
+  expectTypeOf<false | string>().toMatchTypeOf<
+    Parameters<typeof client.token.transferSync>[0]['feePayer']
+  >()
 })

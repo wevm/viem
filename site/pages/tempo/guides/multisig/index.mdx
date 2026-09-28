@@ -49,11 +49,11 @@ const receipt = await client.sendTransactionSync({
 
 ### Coordinated Signing
 
-When owners sign independently, use coordinated signing. By default, Viem persists partial
-approvals in a shared store. Use stateless coordination when your application passes one prepared
-request between every owner.
+When owners sign independently, configure [`withRelay`](/tempo/transports/withRelay) with a
+[`Relay.multisig`](/tempo/relay/plugins/multisig) plugin and a shared store. Use stateless coordination
+when your application passes one prepared request between every owner.
 
-When owners sign independently, enable `experimental_multisig` on the client and use
+Send coordinated transactions with
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The first owner passes the
 transaction fields with the multisig `account` and local `owner`. Every later owner passes the
 same account, the operation hash from the pending receipt, and their signer.
@@ -116,7 +116,7 @@ const receipt = await client.sendTransactionSync({
 #### Stateless
 
 When independent owners can exchange one prepared request, collect every signature before
-submission. This flow does not require `experimental_multisig` or a shared store.
+submission. This flow does not require a multisig relay or a shared store.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
@@ -183,7 +183,7 @@ implementation with atomic `compareAndSet`. The in-memory store is for one proce
 ## See More
 
 <Cards>
-  <Card icon="lucide:database" title="Multisig" description="Configure the client, request handler, operation types, and store." to="/tempo/utilities/Multisig" />
+  <Card icon="lucide:database" title="Multisig Plugin" description="Coordinate approvals with relay middleware and shared atomic storage." to="/tempo/relay/plugins/multisig" />
   <Card icon="lucide:settings" title="Multisig Configuration" description="Read and update a multisig account's current configuration." to="/tempo/actions/multisig.getConfig" />
   <Card icon="lucide:book-open" title="TIP-1061" description="Read the specification for Tempo native multisig accounts." to="https://tips.sh/1061" />
 </Cards>

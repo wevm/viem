@@ -64,6 +64,7 @@ const receipt = await client.sendTransactionSync({
 import { createClient, http, withRelay } from 'viem/tempo'
 
 // 1. Use the relay for coordination and fee sponsorship.
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 export const client = createClient({
   transport: withRelay(http(), http('https://relay.example.com')),
 })
@@ -71,8 +72,8 @@ export const client = createClient({
 
 :::
 
-The relay owns the shared multisig store. The client does not need `experimental_multisig` when
-`withRelay` points to a relay that handles multisig coordination.
+The remote relay owns the shared multisig store. The client does not need a local multisig
+plugin when `withRelay` points to a relay that handles multisig coordination.
 
 ### Local Account
 
