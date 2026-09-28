@@ -161,3 +161,11 @@ A type for all transaction requests.
 ## `StateOverride`
 
 A type defining state overrides for `eth_call` method. [See more](https://geth.ethereum.org/docs/interacting-with-geth/rpc/ns-eth#eth-call)
+
+## Frame
+
+A single EIP-8141 frame with execution mode, flags, optional destination, calldata, value, and execution/state gas budgets. Import the type from `viem`; import builder functions from `viem/frames`. See [Raw Frames](/docs/frames/raw-frames).
+
+## FrameSignature
+
+An EIP-8141 signature entry with a scheme, optional signer and payload, and optional signature bytes. See [Custom Frames](/docs/frames/from#framesignature) for signatures paired with signing callbacks.

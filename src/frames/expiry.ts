@@ -7,9 +7,13 @@ import * as internal from './internal/transaction.js'
 /**
  * Requires execution on or before a Unix timestamp in seconds.
  *
+ * - Docs: https://viem.sh/docs/frames/expiry
+ *
  * @example
  * ```ts
- * frames: [Frame.expiry(1_800_000_000), Frame.calls([{ to, value: 1n }])]
+ * import { calls, expiry } from 'viem/frames'
+ *
+ * frames: [expiry(1_800_000_000), calls([{ to, value: 1n }])]
  * ```
  *
  * @param deadline - An unsigned 64-bit Unix timestamp in seconds.

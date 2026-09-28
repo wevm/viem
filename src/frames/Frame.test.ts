@@ -4,11 +4,11 @@ import {
   parseTransaction,
   serializeTransaction,
 } from 'viem'
+import { calls, Frame, verify } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { TransactionSerializableEIP8141 } from '../types/transaction.js'
-import * as Frame from './Frame.js'
 import { resolve } from './internal/transaction.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
@@ -16,7 +16,7 @@ const account = privateKeyToAccount(accounts[0].privateKey)
 function transaction() {
   return resolve({
     chainId: 8141,
-    frames: [Frame.verify({ account, executionGas: 50_000n, stateGas: 0n })],
+    frames: [verify({ account, executionGas: 50_000n, stateGas: 0n })],
     maxFeePerGas: 20n,
     maxPriorityFeePerGas: 1n,
     nonce: 0,
@@ -78,10 +78,7 @@ test('rejects ambiguous signature slots', async () => {
   await expect(
     account.signTransaction({
       ...base,
-      frames: [
-        Frame.verify({ account, ...gas }),
-        Frame.verify({ account, ...gas }),
-      ],
+      frames: [verify({ account, ...gas }), verify({ account, ...gas })],
     }),
   ).rejects.toThrow('signature index 0')
 
@@ -312,8 +309,8 @@ describe('from', () => {
   test('resolves approval peers after a multi-frame expansion', () => {
     const prepared = resolve({
       frames: [
-        Frame.calls([{ value: 1n }, { value: 2n }]),
-        Frame.verify({ account }),
+        calls([{ value: 1n }, { value: 2n }]),
+        verify({ account }),
         Frame.from(() => ({
           frame: {
             flags: 'approvePayment',

@@ -1,0 +1,98 @@
+---
+description: Send Frame Transactions and inspect their results.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send Transactions
+
+## Overview
+
+Use [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) to prepare, sign, and submit Frame Transactions. The `frames` property selects the transaction type without an explicit `type` field.
+
+## Recipes
+
+### Transfer Native Currency
+
+Put the recipient and value inside [`calls`](/docs/frames/calls), rather than on the outer request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [ // [!code focus]
+    calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }]), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Set an Expiry
+
+Place [`expiry`](/docs/frames/expiry) first. Its deadline is a Unix timestamp in seconds, inclusive. Viem inserts automatic account verification after this frame.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, expiry } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [
+    expiry(Math.floor(Date.now() / 1000) + 60), // [!code focus]
+    calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }]),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect Frame Results
+
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) returns the payer and individual frame receipts for EIP-8141 transactions.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+console.log(receipt.payer) // [!code focus]
+console.log(receipt.frameReceipts) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+A receipt's outer status alone does not establish that every call succeeded.
+:::
+
+## Best Practices
+
+Keep dependent calls in the same atomic group. Use the frame receipt status to distinguish successful, reverted, and skipped frames. An expiry verifier failure invalidates the transaction; it is not an ordinary failed call.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Batch Calls" description="Group dependent operations." to="/docs/frames/batching-calls" />
+  <Card icon="lucide:book-open" title="Signing Frames" description="Inspect requests before signing." to="/docs/frames/signing-frames" />
+</Cards>

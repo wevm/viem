@@ -1,0 +1,61 @@
+---
+description: Require a transaction deadline with expiry.
+---
+
+# Expiry Reference
+
+## Overview
+
+`expiry` calls the EIP-8141 expiry verifier. Put it first and include it at most once. Execution is allowed when the block timestamp equals the deadline.
+
+## Recipes
+
+### Set a Deadline
+
+```ts twoslash
+import { calls, expiry } from 'viem/frames'
+
+const frames = [
+  expiry(Math.floor(Date.now() / 1000) + 60), // [!code focus]
+  calls([{ value: 1n }]),
+]
+```
+
+## `expiry`
+
+Creates an expiry verification frame.
+
+### Usage
+
+```ts twoslash
+import { expiry } from 'viem/frames'
+
+const frame = expiry(1_900_000_000) // [!code focus]
+```
+
+### Parameters
+
+#### deadline
+
+- **Type:** `number | bigint`
+
+An unsigned 64-bit Unix timestamp in seconds. Numbers must be safe integers; use bigint for larger values. Do not pass milliseconds or a `Date`.
+
+```ts twoslash
+import { expiry } from 'viem/frames'
+
+const frame = expiry(1_900_000_000) // [!code focus]
+```
+
+### Return Value
+
+`Frame`
+
+An unresolved verification frame targeting `0x0000000000000000000000000000000000008141`, with an eight-byte deadline, no approval flags, and zero state gas.
+
+### Errors
+
+| Error | Condition |
+| --- | --- |
+| `BaseError` | A numeric deadline is not a safe integer, or the expiry frame is duplicated or misplaced during preparation. |
+| `IntegerOutOfRangeError` | The deadline is outside the unsigned 64-bit range when encoded during preparation. |

@@ -1,0 +1,117 @@
+---
+description: Sign one prepared frame with sign.
+---
+
+# Sign a Frame
+
+## Overview
+
+`Frame.sign` signs one resolved frame against the final prepared transaction. Most applications can use [`signTransaction`](/docs/actions/wallet/signTransaction) to sign every helper automatically. Use this function when you need an explicit signing order.
+
+## Recipes
+
+### Sign Before Submission
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const signed = await Frame.sign(request.frames[0]!, { transaction: request }) // [!code focus]
+const receipt = await client.sendTransactionSync({ // [!code focus]
+  ...request, // [!code focus]
+  frames: [signed, ...request.frames.slice(1)], // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+## `Frame.sign`
+
+Returns a signed copy of a frame without mutating the input or transaction.
+
+### Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const signed = await Frame.sign(request.frames[0]!, { transaction: request })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+### Parameters
+
+#### frame
+
+- **Type:** `Frame`
+
+Select the frame object from the prepared transaction's `frames` array. The original unresolved helper or a cloned object is not a valid substitute.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const signed = await Frame.sign(request.frames[0]!, { transaction: request }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+#### options.transaction
+
+- **Type:** `TransactionSerializableEIP8141`
+
+The complete transaction containing the frame. It must include chain ID, nonce, fee caps, and both gas budgets for every frame. Prepare every participant and the final frame order before any signature.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const signed = await Frame.sign(request.frames[0]!, { transaction: request }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+### Return Value
+
+`Promise<Frame>`
+
+A signed frame to place back at the same position in the transaction. An already signed frame is returned without signing again. Later changes to the signed transaction are rejected; signature bytes for other entries may still be populated.
+
+### Errors
+
+| Error | Condition |
+| --- | --- |
+| `BaseError` | The frame is not a signing frame from the supplied transaction, preparation is incomplete, the transaction changed after signing, or a callback returns no signature. |

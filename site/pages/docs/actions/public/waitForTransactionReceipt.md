@@ -8,6 +8,8 @@ Waits for the [Transaction](/docs/glossary/terms#transaction) to be included on 
 
 The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).
 
+EIP-8141 receipts include `payer` and `frameReceipts` in execution order. A successful outer receipt does not establish that every call succeeded. See [Inspect Frame Results](/docs/frames/sending-transactions#inspect-frame-results).
+
 ## Usage
 
 :::code-group

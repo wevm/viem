@@ -12,6 +12,8 @@ This Action is only recommended to be used on chains with low block times and fa
 
 :::
 
+Accepts signed EIP-8141 serialized transactions when the RPC supports synchronous submission. Inspect `frameReceipts` and `payer` on the returned receipt. See [Signing Frames](/docs/frames/signing-frames) for constructing the serialized transaction.
+
 ## Usage
 
 :::code-group

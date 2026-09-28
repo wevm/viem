@@ -30,6 +30,8 @@ const serialized = serializeTransaction({
 
 ## Frame Transactions
 
+For helper-based preparation and signing, see [Signing Frames](/docs/frames/signing-frames).
+
 Use `frames` and an explicit `sender` to serialize an EIP-8141 envelope. Chain IDs and nonces use numbers; frame gas budgets, values, and fees use bigint.
 
 ```ts twoslash
@@ -38,9 +40,9 @@ import { serializeTransaction } from 'viem'
 const serialized = serializeTransaction({
   chainId: 1,
   frames: [
-    { flags: 'approveExecutionAndPayment', gas: 50_000n, mode: 'verify' },
+    { flags: 'approveExecutionAndPayment', executionGas: 50_000n, stateGas: 0n, mode: 'verify' },
     {
-      gas: 50_000n,
+      executionGas: 50_000n, stateGas: 0n,
       mode: 'sender',
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       value: 1n,
@@ -55,7 +57,7 @@ const serialized = serializeTransaction({
 ```
 
 :::warning
-EIP-8141 is a draft. This example serializes an unsigned transaction with explicit gas budgets. Sending requires populated signatures and compatible client support.
+This example serializes an unsigned transaction with explicit gas budgets. Populate its signatures before sending.
 :::
 
 Frame transactions use the `signatures` array. Passing the separate `signature` argument or outer fields such as `to`, `value`, and `accessList` throws. An explicit `type` takes precedence over inference; incompatible fields also throw.

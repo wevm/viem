@@ -22,7 +22,7 @@ const transaction = parseTransaction('0x02ef018203118477359400847735940080947099
 
 `TransactionSerializable`
 
-The parsed transaction object. EIP-8141 results contain `sender`, `frames`, and `signatures`, including unsigned signature placeholders. Frame destinations use `to`; gas budgets use `gas` and `stateGas`.
+The parsed transaction object. Results for [EIP-8141 Frame Transactions](/docs/frames/raw-frames) contain `sender`, `frames`, and `signatures`, including unsigned signature placeholders. Frame destinations use `to`; gas budgets use `executionGas` and `stateGas`.
 
 Chain IDs and nonces use numbers. Parsing throws if either exceeds `Number.MAX_SAFE_INTEGER`. PeerDAS sidecars are retained when present.
 

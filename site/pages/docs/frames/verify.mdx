@@ -1,0 +1,91 @@
+---
+description: Verify a default account with verify.
+---
+
+# Account Verification
+
+## Overview
+
+`verify` declares a secp256k1 signature for a private-key account using EIP-8141 default-account verification. Wallet preparation inserts it automatically when no frame grants execution approval. It does not infer a custom account contract's ABI.
+
+## Recipes
+
+### Set Verification Gas
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { verify } from 'viem/frames'
+
+const account = privateKeyToAccount('0x...')
+const verification = verify({ account, executionGas: 50_000n, stateGas: 0n }) // [!code focus]
+```
+
+## `verify`
+
+Creates execution approval, including payment approval unless another frame declares `approvePayment`.
+
+### Usage
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { verify } from 'viem/frames'
+
+const account = privateKeyToAccount('0x...')
+const verification = verify({ account }) // [!code focus]
+```
+
+### Parameters
+
+#### account
+
+- **Type:** `PrivateKeyAccount`
+
+The default account that authorizes the transaction. An address alone cannot sign. Use a private-key account from [`privateKeyToAccount`](/docs/accounts/local/privateKeyToAccount), and match it to the transaction sender.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { verify } from 'viem/frames'
+
+const account = privateKeyToAccount('0x...')
+const verification = verify({ account }) // [!code focus]
+```
+
+#### executionGas
+
+- **Type:** `bigint | undefined`
+
+Execution gas budget. Omit it to let transaction preparation fill it.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { verify } from 'viem/frames'
+
+const account = privateKeyToAccount('0x...')
+const verification = verify({ account, executionGas: 50_000n }) // [!code focus]
+```
+
+#### stateGas
+
+- **Type:** `bigint | undefined`
+
+State gas budget. Explicit zero is preserved; omission requests filling during preparation.
+
+```ts twoslash
+import { privateKeyToAccount } from 'viem/accounts'
+import { verify } from 'viem/frames'
+
+const account = privateKeyToAccount('0x...')
+const verification = verify({ account, stateGas: 0n }) // [!code focus]
+```
+
+### Return Value
+
+`Frame`
+
+A verification helper with one signature entry. Signing uses `account.sign` with the final canonical signing hash. It must occupy signature index zero; unsigned frames such as expiry may precede it.
+
+### Errors
+
+| Error | Condition |
+| --- | --- |
+| `BaseError` | Default-account execution approval is allocated a signature index other than zero. |

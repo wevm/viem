@@ -1,0 +1,123 @@
+---
+description: Build custom frames and declare signature callbacks.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Building Frames
+
+## Overview
+
+Use [`Frame.from`](/docs/frames/from) when the built-in helpers do not express your execution or verification logic. Its callback returns one frame with optional signatures, or multiple unsigned frames.
+
+## Recipes
+
+### Define a Frame
+
+Return a raw sender frame to execute a transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const transfer = Frame.from(() => ({ // [!code focus]
+  frame: { // [!code focus]
+    mode: 'sender', // [!code focus]
+    to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', // [!code focus]
+    value: 1n, // [!code focus]
+  }, // [!code focus]
+})) // [!code focus]
+const receipt = await client.sendTransactionSync({ frames: [transfer] })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+For ordinary calls, prefer the built-in [`calls`](/docs/frames/calls) helper.
+:::
+
+### Expand into Multiple Frames
+
+Return `frames` to expand one helper into several unsigned frames.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const transfers = Frame.from(() => ({ // [!code focus]
+  frames: [ // [!code focus]
+    { mode: 'sender', to: client.account.address, value: 1n }, // [!code focus]
+    { mode: 'sender', to: client.account.address, value: 2n }, // [!code focus]
+  ], // [!code focus]
+})) // [!code focus]
+const receipt = await client.sendTransactionSync({ frames: [transfers] })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+These frames are independent unless you set atomic grouping flags; use [`calls`](/docs/frames/calls) when you want an atomic batch.
+:::
+
+### Declare a Signature
+
+The example assumes a deployed account contract implements `validate(uint256)`, checks the referenced signature, and performs the required approvals. Use that contract's address as the transaction account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData, parseAbi } from 'viem'
+import { Frame } from 'viem/frames'
+import { account } from './viem.config'
+
+// This ABI is illustrative; use your deployed account's validation ABI.
+const abi = parseAbi(['function validate(uint256 signatureIndex)'])
+const frame = Frame.from(({ signatureIndex }) => ({ // [!code focus]
+  frame: { // [!code focus]
+    mode: 'verify', // [!code focus]
+    flags: 'approveExecutionAndPayment', // [!code focus]
+    data: encodeFunctionData({ abi, functionName: 'validate', args: [BigInt(signatureIndex)] }), // [!code focus]
+  }, // [!code focus]
+  signatures: [{ // [!code focus]
+    scheme: 'secp256k1', // [!code focus]
+    signer: account.address, // [!code focus]
+    sign: ({ hash }) => account.sign({ hash }), // [!code focus]
+  }], // [!code focus]
+})) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+Supplying [approval flags](/docs/frames/raw-frames#flags) only permits approval; it does not perform it.
+:::
+
+## Best Practices
+
+Preparation may invoke the definition more than once. Keep it free of side effects and keep its return shape and signature metadata stable. Put signing inside each signature entry’s `sign` callback.
+
+The `signatureIndex` provided to the definition is its first allocated signature slot. Each signing callback receives its own slot, so signature metadata and signing stay together. Multi-frame definitions cannot declare signatures.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Custom Frames Reference" description="Definition inputs, signature entries, and constraints." to="/docs/frames/from" />
+  <Card icon="lucide:book-open" title="Raw Frames" description="Understand modes, flags, and gas budgets." to="/docs/frames/raw-frames" />
+  <Card icon="lucide:book-open" title="Signing Frames" description="Sign prepared frames." to="/docs/frames/signing-frames" />
+</Cards>

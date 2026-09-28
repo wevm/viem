@@ -6,6 +6,8 @@ description: Returns information about a block at a block number, hash or tag.
 
 Returns information about a block at a block number, hash or tag.
 
+When `includeTransactions` is `true`, EIP-8141 transaction objects include `frames` and `signatures`. Use [`getTransactionReceipt`](/docs/actions/public/getTransactionReceipt) for execution results and the payer. See [Raw Frames](/docs/frames/raw-frames).
+
 ## Usage
 
 :::code-group

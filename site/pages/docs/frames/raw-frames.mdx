@@ -1,0 +1,74 @@
+---
+description: Understand EIP-8141 frame fields, modes, flags, and signatures.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Raw Frames
+
+## Overview
+
+Raw frames expose the EIP-8141 protocol fields. Use them when you already have encoded frame calldata and signatures. Helpers from `viem/frames` resolve to this same structure.
+
+## Recipes
+
+### Prepare Explicit Frames
+
+[`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest) accepts explicit verification and sender frames. An unsigned signature declaration supplies the entry required by default-account verification during gas filling.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [ // [!code focus]
+    { mode: 'verify', flags: 'approveExecutionAndPayment' }, // [!code focus]
+    { mode: 'sender', to: client.account.address, value: 1n }, // [!code focus]
+  ], // [!code focus]
+  signatures: [{ scheme: 'secp256k1' }], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+## Frame Fields
+
+`Frame` and `FrameSignature` are exported from `viem`. Frame quantities use bigint. Omit `to` to target the transaction sender. `data` is calldata; `value` is native currency transferred by a sender frame. `executionGas` and `stateGas` are independent per-frame budgets. Omitted request budgets can be estimated; explicit zero remains zero.
+
+### Modes
+
+| Mode | Behavior |
+| --- | --- |
+| `default` / `0` | Executes with the protocol entry point as caller. |
+| `verify` / `1` | Runs transaction verification; failure invalidates the transaction. |
+| `sender` / `2` | Executes with the transaction sender as caller. |
+
+### Flags
+
+| Flag | Value | Purpose |
+| --- | --- | --- |
+| `none` | `0` | No approval or atomic grouping. |
+| `approvePayment` | `1` | Permits payment approval. |
+| `approveExecution` | `2` | Permits execution approval. |
+| `approveExecutionAndPayment` | `3` | Permits both approvals. |
+| `atomicBatch` | `4` | Groups this frame with the next frame. |
+
+Approval flags are permissions, not proof that approval occurred. Execution approval must target the transaction sender. Atomic groups cannot contain verification frames or approval flags, and an atomic flag requires a following frame. [`calls`](/docs/frames/calls) assigns these boundaries for you.
+
+## Signatures and Serialization
+
+The outer `signatures` array holds `scheme`, optional `signer`, optional `payload`, and optional `signature`. Omit signature bytes for preparation or simulation; real signing must complete the entries before submission.
+
+[`serializeTransaction`](/docs/utilities/serializeTransaction) uses an explicit outer `sender`, `chainId`, `nonce`, `frames`, `signatures`, and fee caps. Do not put execution `to`, `data`, or `value` on the outer envelope, or pass the separate legacy `signature` argument. [`parseTransaction`](/docs/utilities/parseTransaction) returns those envelope fields.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Custom Frames" description="Allocate signatures through a builder." to="/docs/frames/from" />
+  <Card icon="lucide:book-open" title="Signing Frames" description="Preserve frame contents during preparation." to="/docs/frames/signing-frames" />
+</Cards>

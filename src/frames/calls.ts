@@ -10,11 +10,15 @@ import * as internal from './internal/transaction.js'
 /**
  * Creates one atomic batch of sender calls.
  *
+ * - Docs: https://viem.sh/docs/frames/calls
+ *
  * @example
  * ```ts
+ * import { calls } from 'viem/frames'
+ *
  * frames: [
- *   Frame.calls([{ to: token, abi: tokenAbi, functionName: 'approve', args: [exchange, amount] }, { to: exchange, data: swapData }]),
- *   Frame.calls([{ to: recipient, value: 1n }]),
+ *   calls([{ to: token, abi: tokenAbi, functionName: 'approve', args: [exchange, amount] }, { to: exchange, data: swapData }]),
+ *   calls([{ to: recipient, value: 1n }]),
  * ]
  * ```
  *

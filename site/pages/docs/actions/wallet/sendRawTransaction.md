@@ -6,6 +6,8 @@ description: Sends a signed transaction to the network
 
 Sends a **signed** transaction to the network. Can be used with both [Public Clients](/docs/clients/public) and [Wallet Clients](/docs/clients/wallet)
 
+Accepts serialized EIP-8141 transactions (`0x06`). Prepare and sign the transaction before submission; this action does not resolve helpers or populate signature bytes. See [Sign and Submit](/docs/frames/signing-frames#sign-and-submit).
+
 ## Usage
 
 :::code-group

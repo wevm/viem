@@ -243,6 +243,34 @@ export default defineConfig({
           { text: 'TypeScript', link: '/docs/typescript' },
           { text: 'Error Handling', link: '/docs/error-handling' },
           {
+            text: 'Frame Transactions',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/docs/frames' },
+              {
+                text: 'Send Transactions',
+                link: '/docs/frames/sending-transactions',
+              },
+              { text: 'Batch Calls', link: '/docs/frames/batching-calls' },
+              {
+                text: 'Simulating & Inspecting Frames',
+                link: '/docs/frames/simulating-inspecting-frames',
+              },
+              {
+                text: 'Interacting with Contracts',
+                link: '/docs/frames/interacting-with-contracts',
+              },
+              {
+                text: 'Signing Frames',
+                link: '/docs/frames/signing-frames',
+              },
+              {
+                text: 'Building Frames',
+                link: '/docs/frames/building-frames',
+              },
+            ],
+          },
+          {
             text: 'EIP-7702',
             collapsed: true,
             items: [
@@ -1009,6 +1037,22 @@ export default defineConfig({
               { text: 'namehash', link: '/docs/ens/utilities/namehash' },
 
               { text: 'normalize', link: '/docs/ens/utilities/normalize' },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'Frames',
+        collapsed: true,
+        items: [
+          { text: 'calls', link: '/docs/frames/calls' },
+          { text: 'expiry', link: '/docs/frames/expiry' },
+          { text: 'verify', link: '/docs/frames/verify' },
+          {
+            text: 'Utilities',
+            items: [
+              { text: 'Frame.from', link: '/docs/frames/from' },
+              { text: 'Frame.sign', link: '/docs/frames/sign' },
             ],
           },
         ],

@@ -1,0 +1,78 @@
+---
+description: Call contract functions with ABI-inferred frame arguments.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Interacting with Contracts
+
+## Overview
+
+Pass `abi`, `functionName`, and `args` to [`calls`](/docs/frames/calls). Viem encodes the calldata and infers the function arguments from the ABI. Calls execute as the transaction sender.
+
+## Recipes
+
+### Transfer Tokens
+
+Replace `token` with a deployed ERC-20 address. The account must hold enough tokens to transfer the amount, which is expressed in the token’s smallest unit.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { erc20Abi } from 'viem'
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const token = '0x0000000000000000000000000000000000000001'
+const receipt = await client.sendTransactionSync({
+  frames: [calls([{ // [!code focus]
+    to: token, // [!code focus]
+    abi: erc20Abi, // [!code focus]
+    functionName: 'transfer', // [!code focus]
+    args: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 1n], // [!code focus]
+  }])], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Batch Contract Calls
+
+Approve a spender and transfer tokens in one atomic group. Provide an ABI and function arguments to encode calldata with type inference. Use the address of a deployed token and an account with enough tokens for the transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { erc20Abi } from 'viem'
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const token = '0x0000000000000000000000000000000000000001'
+const receipt = await client.sendTransactionSync({
+  frames: [calls([ // [!code focus]
+    { to: token, abi: erc20Abi, functionName: 'approve', args: ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', 1n] }, // [!code focus]
+    { to: token, abi: erc20Abi, functionName: 'transfer', args: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 2n] }, // [!code focus]
+  ])], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+Use an ABI that matches the deployed contract. Keep dependent contract calls in one `calls` group so they revert together. Inspect the frame receipts before treating a contract operation as successful.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Batch Calls" description="Choose atomic boundaries for contract calls." to="/docs/frames/batching-calls" />
+  <Card icon="lucide:book-open" title="Simulating & Inspecting Frames" description="Check requests before submission and inspect receipts." to="/docs/frames/simulating-inspecting-frames" />
+</Cards>

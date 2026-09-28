@@ -1,0 +1,73 @@
+---
+description: Sign Frame Transactions and individual prepared frames.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Signing Frames
+
+## Overview
+
+Prepare the transaction before requesting signatures. Preparation resolves helpers and fills gas budgets, nonce, and fees without invoking signing callbacks. Signing callbacks then receive the final transaction signing hash.
+
+## Recipes
+
+### Sign and Submit
+
+[`signTransaction`](/docs/actions/wallet/signTransaction) invokes each frame's signing callbacks and returns the serialized transaction. Submit it with [`sendRawTransactionSync`](/docs/actions/wallet/sendRawTransactionSync).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const serializedTransaction = await client.signTransaction(request) // [!code focus]
+const receipt = await client.sendRawTransactionSync({ serializedTransaction }) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Sign a Frame Explicitly
+
+Use [`Frame.sign`](/docs/frames/sign) to sign one frame before the final transaction signing call. Select the resolved frame from the prepared request, and replace that entry with the returned frame. Already signed frames are preserved.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+const signed = await Frame.sign(request.frames[0]!, { transaction: request }) // [!code focus]
+const serializedTransaction = await client.signTransaction({ // [!code focus]
+  ...request, // [!code focus]
+  frames: [signed, ...request.frames.slice(1)], // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+Finalize all participants and transaction fields before signing. Modifying the transaction after a frame is signed causes Viem to reject it. Prepared helpers retain local signing callbacks and are not a JSON transport format.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Sign Reference" description="Explicit signing parameters and errors." to="/docs/frames/sign" />
+  <Card icon="lucide:book-open" title="Building Frames" description="Declare frame preparation and signature callbacks." to="/docs/frames/building-frames" />
+</Cards>

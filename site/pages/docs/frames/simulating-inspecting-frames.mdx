@@ -1,0 +1,77 @@
+---
+description: Simulate Frame Transactions and inspect prepared requests and receipts.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Simulating & Inspecting Frames
+
+## Overview
+
+Prepare a Frame Transaction to populate missing gas budgets through simulation without signing or submitting it. Inspect the prepared request before signing, and read individual frame receipts after inclusion.
+
+## Recipes
+
+### Prepare and Inspect
+
+[`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest) uses `eth_fillTransaction` to simulate execution when populating missing frame gas. It declares signature entries without invoking signing callbacks.
+
+Viem preserves the supplied frame contents and takes only missing `executionGas` and `stateGas` from the corresponding RPC response frames. Inspect `frames` and `signatures` on the prepared request before signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const request = await client.prepareTransactionRequest({ // [!code focus]
+  frames: [calls([{ to: client.account.address, value: 1n }])], // [!code focus]
+}) // [!code focus]
+console.log(request.frames) // [!code focus]
+console.log(request.signatures) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect Frame Results
+
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) returns the payer and individual frame receipts for EIP-8141 transactions.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+console.log(receipt.payer) // [!code focus]
+console.log(receipt.frameReceipts) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+A receipt's outer status alone does not establish that every call succeeded.
+:::
+
+## Best Practices
+
+Simulation reflects the selected chain state and does not guarantee the outcome of a later transaction or prove that a signer will authorize it. Inspect individual frame receipts as well as the outer status.
+
+[`fillTransaction`](/docs/actions/public/fillTransaction) exposes the node’s filled transaction directly. Use `prepareTransactionRequest` to preserve helper callbacks and caller-supplied frame contents through gas population.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Signing Frames" description="Sign the finalized transaction and individual frames." to="/docs/frames/signing-frames" />
+</Cards>
