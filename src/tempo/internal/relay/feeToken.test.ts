@@ -292,3 +292,58 @@ test('selects a funded token within a downstream concurrency budget', async () =
     }),
   ).resolves.toBe(Tempo.addresses.alphaUsd)
 })
+
+test('uses a funded preference outside the configured candidates', async () => {
+  const account = Tempo.accounts[6]!
+  await Actions.faucet.fundSync(caller, { account, timeout: 60_000 })
+  await Actions.fee.setUserTokenSync(caller, {
+    account,
+    token: Tempo.addresses.alphaUsd,
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.feeToken({ resolveTokens: () => [localnetTokens[2]] })],
+    }),
+  })
+  const { transaction } = await fillTransaction(client, {
+    account: account.address,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: localnetTokens[2],
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+})
+
+test('uses a funded call target outside the configured candidates', async () => {
+  const account = Tempo.accounts[10]!
+  await Actions.token.transferSync(caller, {
+    account: userAccount,
+    token: localnetTokens[2],
+    to: account.address,
+    amount: 100_000_000n,
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.feeToken({ resolveTokens: () => [Tempo.addresses.pathUsd] }),
+      ],
+    }),
+  })
+  const { transaction } = await fillTransaction(client, {
+    account: account.address,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: localnetTokens[2],
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(transaction.feeToken?.toLowerCase()).toBe(localnetTokens[2])
+})
