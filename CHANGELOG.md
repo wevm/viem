@@ -1,5 +1,21 @@
 # viem
 
+## 3.0.0-next.11
+
+### Patch Changes
+
+- [#5128](https://github.com/wevm/viem/pull/5128) [`51f9ad9`](https://github.com/wevm/viem/commit/51f9ad9595507c3a5032254b3bc1ed342af2ba68) Thanks [@cryptocandyio](https://github.com/cryptocandyio)! - Added CandyChain.
+
+- [#5133](https://github.com/wevm/viem/pull/5133) [`1106809`](https://github.com/wevm/viem/commit/1106809071cea88eca868262ee7bab8a82081338) Thanks [@garywilson87](https://github.com/garywilson87)! - Added the BlockDAG chain definition.
+
+- [#4930](https://github.com/wevm/viem/pull/4930) [`a2bbd49`](https://github.com/wevm/viem/commit/a2bbd49cebcc2e77034a12002ace6c0c01f9f171) Thanks [@jxom](https://github.com/jxom)! - Fixed declaration generation for inferred clients and chains that reference frame transaction and Tempo multisig types.
+
+- [#5130](https://github.com/wevm/viem/pull/5130) [`33e3777`](https://github.com/wevm/viem/commit/33e3777a5291ec3553efcde025cf5d6037960002) Thanks [@HereForTheTechNFT](https://github.com/HereForTheTechNFT)! - Fixed `getGame`, `getGames`, `getTimeToNextGame` and `getTimeToNextL2Output` to treat a dispute game (or L2 output) at exactly the requested L2 block number as covering it.
+
+- [#5132](https://github.com/wevm/viem/pull/5132) [`e713dba`](https://github.com/wevm/viem/commit/e713dba3b7e2751457952dc2ed6fde1fca2fbfeb) Thanks [@gjija](https://github.com/gjija)! - Fixed `Siwe.parseMessage` losing or truncating `resources` when `Resources:` appeared in the statement, URI, Request ID or a resource.
+
+- Fixed `Siwe.createMessage` and `Siwe.parseMessage` accepting commas in URI schemes.
+
 ## 3.0.0-next.10
 
 ### Patch Changes
