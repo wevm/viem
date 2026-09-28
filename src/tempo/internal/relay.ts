@@ -90,6 +90,7 @@ export async function fetch(
         }),
       ) as unknown
     } catch (error) {
+      requestOptions.signal.throwIfAborted()
       if (id === undefined) return undefined
       const cause =
         error instanceof BaseError

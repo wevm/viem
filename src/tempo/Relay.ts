@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
+import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
@@ -73,12 +74,20 @@ export function create(
     })
 
   const getClient = (chainId: number) => {
-    const client = options.client ?? options.getClient!({ chainId } as never)
-    if (client.chain.id !== chainId)
-      throw new RpcResponse.InvalidParamsError({
-        message: 'Conflicting chain ids.',
-      })
-    return client
+    try {
+      const client = options.client ?? options.getClient!({ chainId } as never)
+      if (client.chain.id !== chainId)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Conflicting chain ids.',
+        })
+      return client
+    } catch (error) {
+      if (error instanceof ChainNotConfiguredError)
+        throw new RpcResponse.InvalidParamsError({
+          message: error.shortMessage,
+        })
+      throw error
+    }
   }
   const handle = Request_.compose(
     async (request, requestOptions) => {

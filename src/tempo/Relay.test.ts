@@ -75,6 +75,55 @@ describe('create', () => {
     },
   )
 
+  test('create reports an unsupported fill chain as invalid params', async () => {
+    const resolver = createClientResolver({
+      chains: [chain],
+      transport: () => http(),
+    })
+    const relay = Relay.create({
+      getClient: resolver.getClient,
+      plugins: [Relay.simulate()],
+    })
+    const parameters = {
+      method: 'eth_fillTransaction',
+      params: [{ chainId: 1 }],
+    }
+    await expect(relay.request(parameters)).rejects.toMatchObject({
+      code: -32602,
+      message: 'Chain with id 1 is not configured.',
+    })
+    const response = await relay.fetch(
+      request({ jsonrpc: '2.0', id: 1, ...parameters }),
+    )
+    expect(await response.json()).toMatchObject({
+      error: { code: -32602, message: 'Chain with id 1 is not configured.' },
+    })
+  })
+
+  test.each(['request', 'options'] as const)(
+    'fetch propagates cancellation from the %s signal',
+    async (source) => {
+      const relay = Relay.create({
+        client,
+        plugins: [
+          {
+            async handleRequest() {
+              return 'ready'
+            },
+          },
+        ],
+      })
+      const signal = AbortSignal.abort()
+      const body = request({ jsonrpc: '2.0', id: 1, method: 'relay_status' })
+      await expect(
+        relay.fetch(
+          source === 'request' ? new Request(body, { signal }) : body,
+          source === 'options' ? { signal } : {},
+        ),
+      ).rejects.toMatchObject({ name: 'AbortError' })
+    },
+  )
+
   test('create rejects missing, duplicate, and unconfigured client options', () => {
     expect(() => Relay.create({} as never)).toThrow('Expected exactly one')
     expect(() =>
@@ -338,7 +387,8 @@ describe('create', () => {
     ])
   })
 
-  test('fetch preserves request options and cancellation', async () => {
+  test('fetch preserves request options and signal', async () => {
+    const controller = new AbortController()
     const relay = Relay.create({
       client,
       plugins: [
@@ -355,12 +405,12 @@ describe('create', () => {
     })
     const response = await relay.fetch(
       request({ jsonrpc: '2.0', id: 1, method: 'relay_options' }),
-      { retryCount: 0, signal: AbortSignal.abort() },
+      { retryCount: 0, signal: controller.signal },
     )
     expect(await response.json()).toEqual({
       jsonrpc: '2.0',
       id: 1,
-      result: { chainId: chain.id, retryCount: 0, aborted: true },
+      result: { chainId: chain.id, retryCount: 0, aborted: false },
     })
   })
 })

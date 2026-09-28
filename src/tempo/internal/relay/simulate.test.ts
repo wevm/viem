@@ -316,6 +316,7 @@ test('reports the exact deficit for a partially funded transfer', async () => {
               calls: [
                 {
                   to: token,
+                  value: '0x0',
                   data: Actions.token.transfer.call(caller, {
                     token,
                     to: recipient.address,
