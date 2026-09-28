@@ -75,32 +75,6 @@ await client.sendTransactionSync({
 
 ### Per-Transaction Configuration
 
-#### Choose Tokens
-
-Specify the token to fund.
-
-:::code-group
-
-```ts [example.ts]
-import { parseUnits } from 'viem'
-import { Addresses } from 'viem/tempo'
-import { client } from './viem.config'
-
-await client.token.transferSync({
-  amount: parseUnits('50', 6),
-  // Infer the required amount from the transfer.
-  requireFunds: [{ token: Addresses.pathUsd }],
-  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: Addresses.pathUsd,
-})
-```
-
-```ts [viem.config.ts]
-// [!include ~/snippets/tempo/funding.config.ts:setup]
-```
-
-:::
-
 #### Choose Slippage
 
 Set transaction slippage to override the route default. The tolerance applies to aggregate input cost across all sources in that requirement.
@@ -161,6 +135,32 @@ export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
   transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
 })
+```
+
+:::
+
+#### Choose Tokens
+
+Specify the token to fund.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  // Infer the required amount from the transfer.
+  requireFunds: [{ token: Addresses.pathUsd }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
 ```
 
 :::
