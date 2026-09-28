@@ -2,23 +2,48 @@ import type { Address } from 'abitype'
 import * as Address_ from 'ox/Address'
 import * as Hex_ from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
-import { FundingPolicy, FundingRequirement, KeyAuthorization } from 'ox/tempo'
-import { getBlock } from '../../../actions/public/getBlock.js'
-import { createClient } from '../../../clients/createClient.js'
-import { custom } from '../../../clients/transports/custom.js'
-import type { BlockTag } from '../../../types/block.js'
-import type { Hex } from '../../../types/misc.js'
-import * as Addresses from '../../Addresses.js'
-import { getFundingPolicyId, getMetadata } from '../../actions/accessKey.js'
-import { discover, getPolicy, policyExists } from '../../actions/funding.js'
-import * as Funding from '../../Funding.js'
-import type * as Relay from '../../Relay.js'
-import * as Store from '../../Store.js'
-import * as internal from '../funding.js'
+import {
+  FundingPolicy,
+  FundingRequirement,
+  type FundingSource,
+  KeyAuthorization,
+  type TransactionRequest,
+} from 'ox/tempo'
+import { getBlock } from '../../actions/public/getBlock.js'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Hex } from '../../types/misc.js'
+import * as Addresses from '../Addresses.js'
+import { getFundingPolicyId, getMetadata } from '../actions/accessKey.js'
+import { discover, getPolicy, policyExists } from '../actions/funding.js'
+import * as Funding from '../Funding.js'
+import * as internal from '../internal/funding.js'
+import type * as Relay from '../Relay.js'
+import * as Store from '../Store.js'
+import type { TransactionRequestTempo, TransactionRpc } from '../Transaction.js'
 
-export function create(
-  parameters: Relay.funding.Options = {},
-): Relay.funding.ReturnType {
+/**
+ * Infers token requirements and resolves funding sources before filling, calling, or estimating a transaction.
+ *
+ * No other plugins are required. Add feePayer for sponsorship, feeToken for fee-token
+ * selection, and simulate for a funded execution preview. Place funding before
+ * feePayer so prepared transactions resolve funding before sponsorship.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Relay, withRelay } from 'viem/tempo'
+ *
+ * const transport = withRelay(http(), {
+ *   plugins: [Relay.funding()],
+ * })
+ * ```
+ * @param parameters - Discovery routes and policy rules storage.
+ * @returns A funding relay plugin.
+ * @experimental
+ */
+export function funding(parameters: funding.Options = {}): funding.ReturnType {
   const configuredStore = parameters.store ?? Store.memory()
   return {
     transport: { funding: true },
@@ -153,7 +178,7 @@ export function create(
         return next()
 
       const [transaction, ...rest] = (request.params ?? []) as [
-        Relay.funding.Transaction,
+        funding.Transaction,
         ...unknown[],
       ]
 
@@ -555,6 +580,53 @@ export function create(
           relay.result = { ...result, tx: { ...result.tx, requireFunds } }
       }
     },
+  }
+}
+
+export declare namespace funding {
+  /** Ordered configurations and aggregate slippage for one output token. */
+  export type Route = {
+    /** Aggregate slippage in basis points. Defaults to zero. */
+    slippageBps?: number | undefined
+    /** Ordered source configurations, not execution data from another request. */
+    sources: readonly FundingSource.Source[]
+  }
+
+  /** Funding discovery and policy rules storage. */
+  export type Options = {
+    /** Additional TIP-20 output tokens to seed when inferring requirements. The shared relay token resolver supplies known candidates. */
+    tokens?: readonly Address[] | undefined
+    /** Default policy selected only for `fundingPolicy: true`. */
+    policyId?: bigint | undefined
+    /** Fallback rules when neither the request nor the store supplies them. Verified against the current onchain commitment before use. */
+    policyRules?: FundingPolicy.Rules | undefined
+    /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
+    store?: Store.Store | undefined
+    /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
+    getRoute?:
+      | ((context: {
+          /** Chain selected for discovery and transaction filling. */
+          chainId: number
+          /** Checksummed output token address. */
+          token: Address
+          /** Unsigned RPC transaction. Read `from` for the funding account address. */
+          transaction: Readonly<Transaction>
+        }) => Route | undefined | Promise<Route | undefined>)
+      | undefined
+  }
+
+  /** Unsigned RPC transaction fields used by funding resolution. */
+  export type Transaction = Omit<TransactionRequest.Rpc, 'requireFunds'> &
+    Partial<Pick<TransactionRpc, 'feePayerSignature' | 'signature'>> &
+    Pick<TransactionRequestTempo, 'signatures'> & {
+      /** Access key used to execute the transaction. */
+      keyId?: Address | undefined
+      /** Funding requirements to resolve before filling. Set true to infer them from simulation. */
+      requireFunds?: true | readonly Funding.RequirementRpc[] | undefined
+    }
+  /** Middleware advertising funding resolution. */
+  export type ReturnType = Omit<Relay.Plugin, 'transport'> & {
+    transport: { funding: true }
   }
 }
 

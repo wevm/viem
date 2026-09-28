@@ -11,27 +11,44 @@ import {
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
-import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
-import { createClient } from '../../../clients/createClient.js'
-import { custom } from '../../../clients/transports/custom.js'
-import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
-import * as Abis from '../../Abis.js'
-import * as Addresses from '../../Addresses.js'
-import { getConfigCommitment } from '../../actions/multisig.js'
-import * as ConfigStore from '../../multisig/Config.js'
-import * as OperationStore from '../../multisig/Operation.js'
-import type * as Relay from '../../Relay.js'
-import type * as Store from '../../Store.js'
-import * as Transaction from '../../Transaction.js'
+import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import * as Abis from '../Abis.js'
+import * as Addresses from '../Addresses.js'
+import { getConfigCommitment } from '../actions/multisig.js'
+import * as ConfigStore from '../multisig/Config.js'
+import * as OperationStore from '../multisig/Operation.js'
+import type * as Relay from '../Relay.js'
+import type * as Store from '../Store.js'
+import * as Transaction from '../Transaction.js'
 
 const submissionTtl = 30_000
 const pollingInterval = 100
 
 /** Creates middleware for multisig approval coordination. @internal */
-export function create(
-  options: Relay.multisig.Options,
-): Relay.multisig.ReturnType {
+/**
+ * Coordinates native multisig approvals using shared atomic storage.
+ *
+ * Memory storage is process-local. Independent clients and multiple server
+ * instances must use the same persistent store to share pending approvals.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Relay, Store, withRelay } from 'viem/tempo'
+ *
+ * const transport = withRelay(http(), {
+ *   plugins: [Relay.multisig({ store: Store.memory() })],
+ * })
+ * ```
+ *
+ * @param options - Shared atomic storage.
+ * @returns A plugin that coordinates multisig requests and forwards other calls.
+ */
+export function multisig(options: multisig.Options): multisig.ReturnType {
   if (!options.store.compareAndSet)
     throw new RpcResponse.InvalidParamsError({
       message:
@@ -201,6 +218,18 @@ export function create(
         store: options.store,
       })
     },
+  }
+}
+
+export declare namespace multisig {
+  /** Multisig coordination options. */
+  export type Options = {
+    /** Store shared by multisig coordinators, with atomic compare-and-set support. */
+    store: Store.Atomic
+  }
+  /** Middleware advertising native multisig coordination. */
+  export type ReturnType = Omit<Relay.Plugin, 'transport'> & {
+    transport: { multisig: true }
   }
 }
 

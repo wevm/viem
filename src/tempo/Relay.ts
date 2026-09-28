@@ -1,20 +1,19 @@
 import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
-import type { FundingPolicy, FundingSource, TransactionRequest } from 'ox/tempo'
-import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import type * as Funding_ from './Funding.js'
-import * as Sponsorship from './internal/relay/feePayer.js'
-import * as FeeToken from './internal/relay/feeToken.js'
-import * as Funding from './internal/relay/funding.js'
-import * as Multisig from './internal/relay/multisig.js'
 import * as Request_ from './internal/relay/request.js'
-import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
+import type * as Sponsorship from './plugins/feePayer.js'
 import type * as Store from './Store.js'
-import type { TransactionRequestTempo, TransactionRpc } from './Transaction.js'
+
+// biome-ignore lint/performance/noBarrelFile: Relay exposes its plugin factories.
+export { feePayer } from './plugins/feePayer.js'
+export { feeToken } from './plugins/feeToken.js'
+export { funding } from './plugins/funding.js'
+export { multisig } from './plugins/multisig.js'
+export { simulate } from './plugins/simulate.js'
 
 /**
  * Creates a relay with RPC and Fetch handlers backed by a client or chain resolver.
@@ -308,204 +307,6 @@ export declare namespace Plugin {
     r: `0x${string}`
     s: `0x${string}`
     yParity: `0x${string}`
-  }
-}
-
-/**
- * Coordinates native multisig approvals using shared atomic storage.
- *
- * Memory storage is process-local. Independent clients and multiple server
- * instances must use the same persistent store to share pending approvals.
- *
- * @example
- * ```ts
- * import { http } from 'viem'
- * import { Relay, Store, withRelay } from 'viem/tempo'
- *
- * const transport = withRelay(http(), {
- *   plugins: [Relay.multisig({ store: Store.memory() })],
- * })
- * ```
- *
- * @param options - Shared atomic storage.
- * @returns A plugin that coordinates multisig requests and forwards other calls.
- */
-export function multisig(options: multisig.Options): multisig.ReturnType {
-  return Multisig.create(options)
-}
-
-export declare namespace multisig {
-  /** Multisig coordination options. */
-  export type Options = {
-    /** Store shared by multisig coordinators, with atomic compare-and-set support. */
-    store: Store.Atomic
-  }
-  /** Middleware advertising native multisig coordination. */
-  export type ReturnType = Omit<Plugin, 'transport'> & {
-    transport: { multisig: true }
-  }
-}
-
-/**
- * Sponsors transactions with a local account or an external fee-payer relay.
- *
- * Place multisig before this plugin and fee-token selection after it.
- *
- * @example
- * ```ts
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
- * ```
- * @param options - Sponsor account, policy, and display metadata.
- * @returns A fee-payer relay plugin.
- */
-export function feePayer(options: feePayer.Options = {}): Plugin {
-  return Sponsorship.create(options)
-}
-
-export declare namespace feePayer {
-  /** Fee sponsorship configuration. */
-  export type Options = {
-    /** Local sponsor. Omit when requests use an external fee-payer URL. */
-    account?: LocalAccount | undefined
-    /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
-    allowedFeePayers?: readonly string[] | undefined
-    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
-    feeToken?: Address | undefined
-    /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
-    internal_allowUnsafeUrls?: boolean | undefined
-    /** Display name returned in sponsor capabilities. */
-    name?: string | undefined
-    /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
-    onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined
-    /** Sponsor display URL. */
-    url?: string | undefined
-    /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
-    validate?: Sponsorship.Validate | undefined
-  }
-  /** Result of a sponsorship policy check. */
-  export type Validation = Sponsorship.Validation
-  /** Facts passed to the sponsorship callback. */
-  export type SponsoredEvent = Sponsorship.SponsoredEvent
-}
-
-/**
- * Resolves fee tokens from user preferences and token balances.
- *
- * @example
- * ```ts
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feeToken()
- * ```
- * @param options - Optional preference store.
- * @returns A fee-token relay plugin.
- */
-export function feeToken(options: feeToken.Options = {}): Plugin {
-  return FeeToken.create(options)
-}
-
-export declare namespace feeToken {
-  /** Fee-token selection configuration. */
-  export type Options = {
-    /** Store for cached user fee-token preferences. */
-    store?: Store.Store | undefined
-  }
-}
-
-/**
- * Infers token requirements and resolves funding sources before filling, calling, or estimating a transaction.
- *
- * No other plugins are required. Add feePayer for sponsorship, feeToken for fee-token
- * selection, and simulate for a funded execution preview. Place funding before
- * feePayer so prepared transactions resolve funding before sponsorship.
- *
- * @example
- * ```ts
- * import { http } from 'viem'
- * import { Relay, withRelay } from 'viem/tempo'
- *
- * const transport = withRelay(http(), {
- *   plugins: [Relay.funding()],
- * })
- * ```
- * @param options - Discovery routes and policy rules storage.
- * @returns A funding relay plugin.
- * @experimental
- */
-export function funding(options: funding.Options = {}): funding.ReturnType {
-  return Funding.create(options)
-}
-
-export declare namespace funding {
-  /** Ordered configurations and aggregate slippage for one output token. */
-  export type Route = {
-    /** Aggregate slippage in basis points. Defaults to zero. */
-    slippageBps?: number | undefined
-    /** Ordered source configurations, not execution data from another request. */
-    sources: readonly FundingSource.Source[]
-  }
-
-  /** Funding discovery and policy rules storage. */
-  export type Options = {
-    /** Additional TIP-20 output tokens to seed when inferring requirements. The shared relay token resolver supplies known candidates. */
-    tokens?: readonly Address[] | undefined
-    /** Default policy selected only for `fundingPolicy: true`. */
-    policyId?: bigint | undefined
-    /** Fallback rules when neither the request nor the store supplies them. Verified against the current onchain commitment before use. */
-    policyRules?: FundingPolicy.Rules | undefined
-    /** Verified rules cache, scoped by chain, contract, and commitment. Defaults to an in-memory store. */
-    store?: Store.Store | undefined
-    /** Resolves source configurations for a chain and output token. Defaults to known same-currency Native DEX inputs on mainnet, testnet, and localnet. */
-    getRoute?:
-      | ((context: {
-          /** Chain selected for discovery and transaction filling. */
-          chainId: number
-          /** Checksummed output token address. */
-          token: Address
-          /** Unsigned RPC transaction. Read `from` for the funding account address. */
-          transaction: Readonly<Transaction>
-        }) => Route | undefined | Promise<Route | undefined>)
-      | undefined
-  }
-
-  /** Unsigned RPC transaction fields used by funding resolution. */
-  export type Transaction = Omit<TransactionRequest.Rpc, 'requireFunds'> &
-    Partial<Pick<TransactionRpc, 'feePayerSignature' | 'signature'>> &
-    Pick<TransactionRequestTempo, 'signatures'> & {
-      /** Access key used to execute the transaction. */
-      keyId?: Address | undefined
-      /** Funding requirements to resolve before filling. Set true to infer them from simulation. */
-      requireFunds?: true | readonly Funding_.RequirementRpc[] | undefined
-    }
-  /** Middleware advertising funding resolution. */
-  export type ReturnType = Omit<Plugin, 'transport'> & {
-    transport: { funding: true }
-  }
-}
-
-/**
- * Adds balance changes, estimated fees, and execution errors to fill capabilities.
- *
- * Runs after transaction middleware to simulate the final filled result.
- *
- * @example
- * ```ts
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.simulate()
- * ```
- * @param options - Optional metadata store.
- * @returns A simulation relay plugin.
- */
-export function simulate(options: simulate.Options = {}): Plugin {
-  return Simulate.create(options)
-}
-
-export declare namespace simulate {
-  /** Simulation configuration. */
-  export type Options = {
-    /** Store for cached metadata. Omit to read metadata for each request. */
-    store?: Store.Store | undefined
   }
 }
 

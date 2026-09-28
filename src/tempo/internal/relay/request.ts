@@ -4,11 +4,11 @@ import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
+import { getDefaultTokens } from '../../plugins/feeToken.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
 import { formatError, isExecutionError } from './error.js'
-import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
 import {
   extractCalls,

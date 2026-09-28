@@ -1,14 +1,25 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import { readContract } from '../../../actions/public/readContract.js'
-import type { Client } from '../../../clients/createClient.js'
-import { tokens as tokenSets } from '../../../tokens/sets.js'
-import * as Actions from '../../actions/index.js'
-import type * as Relay from '../../Relay.js'
-import * as Store from './cache.js'
-import * as Utils from './utils.js'
+import { readContract } from '../../actions/public/readContract.js'
+import type { Client } from '../../clients/createClient.js'
+import { tokens as tokenSets } from '../../tokens/sets.js'
+import * as Actions from '../actions/index.js'
+import * as Store from '../internal/relay/cache.js'
+import * as Utils from '../internal/relay/utils.js'
+import type * as Relay from '../Relay.js'
 
-export function create(options: Relay.feeToken.Options): Relay.Plugin {
+/**
+ * Resolves fee tokens from user preferences and token balances.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.feeToken()
+ * ```
+ * @param options - Optional preference store.
+ * @returns A fee-token relay plugin.
+ */
+export function feeToken(options: feeToken.Options = {}): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       const { request } = context
@@ -53,6 +64,14 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
       }
       return next()
     },
+  }
+}
+
+export declare namespace feeToken {
+  /** Fee-token selection configuration. */
+  export type Options = {
+    /** Store for cached user fee-token preferences. */
+    store?: Store.Store | undefined
   }
 }
 

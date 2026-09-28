@@ -1,25 +1,38 @@
 import type { Address } from 'abitype'
 import { AbiEvent, Hex } from 'ox'
-import { simulateCalls } from '../../../actions/public/simulateCalls.js'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import type { Call } from '../../../types/calls.js'
-import type { Log } from '../../../types/log.js'
-import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
-import { formatLog } from '../../../utils/formatters/log.js'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
-import * as Abis from '../../Abis.js'
-import * as Actions from '../../actions/index.js'
-import type * as Capabilities from '../../Capabilities.js'
-import type * as Relay from '../../Relay.js'
-import { simulateFunding } from '../funding.js'
-import type * as Store from './cache.js'
-import { formatError, isExecutionError } from './error.js'
+import { simulateCalls } from '../../actions/public/simulateCalls.js'
+import type { Client } from '../../clients/createClient.js'
+import { zeroAddress } from '../../constants/address.js'
+import type { Call } from '../../types/calls.js'
+import type { Log } from '../../types/log.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { formatLog } from '../../utils/formatters/log.js'
+import { formatUnits } from '../../utils/unit/formatUnits.js'
+import * as Abis from '../Abis.js'
+import * as Actions from '../actions/index.js'
+import type * as Capabilities from '../Capabilities.js'
+import { simulateFunding } from '../internal/funding.js'
+import type * as Store from '../internal/relay/cache.js'
+import { formatError, isExecutionError } from '../internal/relay/error.js'
+import * as Utils from '../internal/relay/utils.js'
+import { extractCalls } from '../internal/relay/virtualAddress.js'
+import type * as Relay from '../Relay.js'
 import { resolveTokenMetadata } from './feeToken.js'
-import * as Utils from './utils.js'
-import { extractCalls } from './virtualAddress.js'
 
-export function create(options: Relay.simulate.Options): Relay.Plugin {
+/**
+ * Adds balance changes, estimated fees, and execution errors to fill capabilities.
+ *
+ * Runs after transaction middleware to simulate the final filled result.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.simulate()
+ * ```
+ * @param options - Optional metadata store.
+ * @returns A simulation relay plugin.
+ */
+export function simulate(options: simulate.Options = {}): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       if (context.request.method !== 'eth_fillTransaction') return next()
@@ -75,8 +88,19 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
   }
 }
 
+export declare namespace simulate {
+  /** Simulation configuration. */
+  export type Options = {
+    /** Store for cached metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
+  }
+}
+
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
-async function simulate(client: Client, options: simulate.Options) {
+async function simulateTransaction(
+  client: Client,
+  options: simulateTransaction.Options,
+) {
   const { account, calls, transaction } = options
   if (
     Array.isArray(transaction?.requireFunds) &&
@@ -113,7 +137,7 @@ async function simulate(client: Client, options: simulate.Options) {
   }
 }
 
-declare namespace simulate {
+declare namespace simulateTransaction {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
@@ -138,7 +162,7 @@ export async function simulateAndParseDiffs(
   signal?.throwIfAborted()
 
   try {
-    const { results, tokenMetadata } = await simulate(client, {
+    const { results, tokenMetadata } = await simulateTransaction(client, {
       account: account === zeroAddress ? undefined : account,
       calls,
       transaction,

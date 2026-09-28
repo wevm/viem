@@ -16,9 +16,9 @@ import {
 } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
-import { nativeMultisigFactory } from '../../Addresses.js'
-import * as Operation from '../../multisig/Operation.js'
-import { parseApproval } from '../../multisig/Signature.js'
+import { nativeMultisigFactory } from '../Addresses.js'
+import * as Operation from '../multisig/Operation.js'
+import { parseApproval } from '../multisig/Signature.js'
 
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!

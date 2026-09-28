@@ -1,15 +1,29 @@
 import type { Address } from 'abitype'
 import { Hash, type Hex, RpcResponse, Signature } from 'ox'
 import { type Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import type { LocalAccount } from '../../../accounts/types.js'
-import { type Client, createClient } from '../../../clients/createClient.js'
-import { http } from '../../../clients/transports/http.js'
-import type * as Relay from '../../Relay.js'
-import * as Transaction from '../../Transaction.js'
-import * as Request from './request.js'
-import * as Utils from './utils.js'
+import type { LocalAccount } from '../../accounts/types.js'
+import { type Client, createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
+import * as Request from '../internal/relay/request.js'
+import * as Utils from '../internal/relay/utils.js'
+import type * as Relay from '../Relay.js'
+import * as Transaction from '../Transaction.js'
 
-export function create(options: Relay.feePayer.Options): Relay.Plugin {
+/**
+ * Sponsors transactions with a local account or an external fee-payer relay.
+ *
+ * Place multisig before this plugin and fee-token selection after it.
+ *
+ * @example
+ * ```ts
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
+ * ```
+ * @param options - Sponsor account, policy, and display metadata.
+ * @returns A fee-payer relay plugin.
+ */
+export function feePayer(options: feePayer.Options = {}): Relay.Plugin {
   // Bind signing permission to the middleware invocation and its validated payload.
   const authorized = new WeakMap<Relay.Plugin.Context, Hex.Hex>()
   const allowedFeePayers = new Set(
@@ -225,21 +239,63 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
   }
 }
 
+export declare namespace feePayer {
+  /** Fee sponsorship configuration. */
+  export type Options = {
+    /** Local sponsor. Omit when requests use an external fee-payer URL. */
+    account?: LocalAccount | undefined
+    /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
+    allowedFeePayers?: readonly string[] | undefined
+    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
+    feeToken?: Address | undefined
+    /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
+    internal_allowUnsafeUrls?: boolean | undefined
+    /** Display name returned in sponsor capabilities. */
+    name?: string | undefined
+    /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
+    onSponsored?: sign.Options['onSponsored'] | undefined
+    /** Sponsor display URL. */
+    url?: string | undefined
+    /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
+    validate?: Validate | undefined
+  }
+  /** Result of a sponsorship policy check. */
+  export type Validation =
+    | boolean
+    | 'billing_past_due'
+    | 'billing_required'
+    | 'fee_token_unsupported'
+    | 'spend_limit_exceeded'
+    | 'tx_fee_limit_exceeded'
+  /** Facts passed to the sponsorship callback. */
+  export type SponsoredEvent = {
+    /** Chain the sponsored transaction targets. */
+    chainId: number
+    /** Fee token the sponsorship resolved, when known. */
+    feeToken?: Address | undefined
+    /** Method that triggered sponsorship: a fill (intent) or a raw submission. */
+    method:
+      | 'eth_fillTransaction'
+      | 'eth_signRawTransaction'
+      | 'eth_sendRawTransaction'
+      | 'eth_sendRawTransactionSync'
+    /** Transaction sender. */
+    sender: Address
+    /** Fee-payer sign payload: a stable identity for the sponsored envelope. */
+    signPayload: Hex.Hex
+    /** Serialized sponsored transaction (sender-unsigned for fill intents). */
+    transaction: Hex.Hex
+    /** Transaction hash (keccak256 of the signed envelope); absent for fill intents, whose senders have not signed yet. */
+    transactionHash?: Hex.Hex | undefined
+  }
+}
+
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */
 export type Validate = (
   request: Transaction.TransactionRequest & {
     chainId?: number | Hex.Hex | undefined
   },
-) => Validation | Promise<Validation>
-
-/** A sponsorship verdict: `true` sponsors; `false` or a named reason refuses. */
-export type Validation =
-  | boolean
-  | 'billing_past_due'
-  | 'billing_required'
-  | 'fee_token_unsupported'
-  | 'spend_limit_exceeded'
-  | 'tx_fee_limit_exceeded'
+) => feePayer.Validation | Promise<feePayer.Validation>
 
 /** Details recorded for a sponsored transaction. */
 export type SponsorshipDetails = {
@@ -254,7 +310,7 @@ const refusalMessages = {
   fee_token_unsupported: 'Fee token unsupported.',
   spend_limit_exceeded: 'Spend limit exceeded.',
   tx_fee_limit_exceeded: 'Transaction fee limit exceeded.',
-} as const satisfies Record<Exclude<Validation, boolean>, string>
+} as const satisfies Record<Exclude<feePayer.Validation, boolean>, string>
 
 /** Returns sponsor metadata for `eth_fillTransaction` responses. */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
@@ -385,7 +441,7 @@ export declare namespace sign {
     /** Called once the fee payer has signed the fill. Awaited: a throw aborts the fill. */
     onSponsored?:
       | ((
-          event: SponsoredEvent,
+          event: feePayer.SponsoredEvent,
         ) => SponsorshipDetails | Promise<SponsorshipDetails | void> | void)
       | undefined
     /** Filled transaction to sign. */
@@ -509,7 +565,7 @@ declare namespace handleRawTransaction {
     /** Called once the fee payer has signed, before any broadcast. Awaited: a throw aborts the request. */
     onSponsored?:
       | ((
-          event: SponsoredEvent,
+          event: feePayer.SponsoredEvent,
         ) => SponsorshipDetails | Promise<SponsorshipDetails | void> | void)
       | undefined
     /** Incoming JSON-RPC request. */
@@ -519,28 +575,6 @@ declare namespace handleRawTransaction {
     /** Optional sponsorship approval callback. */
     validate?: Validate | undefined
   }
-}
-
-/** Facts of one sponsorship commitment, emitted at fee-payer signing time. */
-export type SponsoredEvent = {
-  /** Chain the sponsored transaction targets. */
-  chainId: number
-  /** Fee token the sponsorship resolved, when known. */
-  feeToken?: Address | undefined
-  /** Method that triggered sponsorship: a fill (intent) or a raw submission. */
-  method:
-    | 'eth_fillTransaction'
-    | 'eth_signRawTransaction'
-    | 'eth_sendRawTransaction'
-    | 'eth_sendRawTransactionSync'
-  /** Transaction sender. */
-  sender: Address
-  /** Fee-payer sign payload: a stable identity for the sponsored envelope. */
-  signPayload: Hex.Hex
-  /** Serialized sponsored transaction (sender-unsigned for fill intents). */
-  transaction: Hex.Hex
-  /** Transaction hash (keccak256 of the signed envelope); absent for fill intents, whose senders have not signed yet. */
-  transactionHash?: Hex.Hex | undefined
 }
 
 export namespace ExternalFeePayerUrl {

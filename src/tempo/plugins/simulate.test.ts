@@ -12,7 +12,7 @@ import { tempoLocalnet } from 'viem/chains'
 import { Abis, Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
-import * as Cache from './cache.js'
+import * as Cache from '../internal/relay/cache.js'
 import { buildBalanceDiffs } from './simulate.js'
 
 const userAccount = Tempo.accounts[9]!
