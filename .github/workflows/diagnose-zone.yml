@@ -13,7 +13,7 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/install-dependencies
       - run: pnpm contracts:build
-      - run: pnpm test --run --project tempo src/tempo/actions/zone.test.ts -t 'deposits and redeems' --retry=0
+      - run: pnpm test --run --project tempo src/tempo/actions/zone.test.ts --retry=0
         env:
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_HARDFORK: T13
