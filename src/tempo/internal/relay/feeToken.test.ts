@@ -4,7 +4,7 @@ import { tempo, tempoModerato } from 'viem/chains'
 import { Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
-import { getDefaultTokens } from './feeToken.js'
+import { getDefaultTokens, resolveFeeToken } from './feeToken.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
@@ -191,3 +191,104 @@ test.each([1, 1337])(
     expect(await getDefaultTokens(chainId)).toMatchInlineSnapshot('[]')
   },
 )
+
+test('an explicit token does not require token discovery', async () => {
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.feeToken({
+          resolveTokens: () => {
+            throw new Error('Discovery is unavailable')
+          },
+        }),
+      ],
+    }),
+  })
+  const { transaction } = await fillTransaction(client, {
+    account: userAccount.address,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+})
+
+test.each(['calls', 'resolver'] as const)(
+  'rejects excessive fee candidates from %s',
+  async (source) => {
+    const tokens = Array.from(
+      { length: 101 },
+      (_, i) => `0x20c0${(i + 100).toString(16).padStart(36, '0')}` as const,
+    )
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        Relay.feeToken({
+          resolveTokens: () => (source === 'resolver' ? tokens : []),
+        }),
+      ],
+    })
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            calls: source === 'calls' ? tokens.map((to) => ({ to })) : [],
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({
+      code: -32602,
+      message: 'Fee-token candidates exceed the limit of 100 tokens.',
+    })
+  },
+)
+
+test('selects a funded token within a downstream concurrency budget', async () => {
+  await Actions.fee.setUserTokenSync(caller, {
+    account: userAccount,
+    token: Tempo.addresses.pathUsd,
+    feeToken: Tempo.addresses.alphaUsd,
+  })
+  const active = new Set<symbol>()
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        (next) => async (request, options) => {
+          const slot = Symbol()
+          active.add(slot)
+          try {
+            // Ten balance reads may overlap with the user-token lookup.
+            if (active.size > 11)
+              throw new Error('Downstream concurrency exceeded')
+            return await next(request, options)
+          } finally {
+            active.delete(slot)
+          }
+        },
+      ] satisfies readonly Relay.Plugin[],
+    }),
+  })
+  const tokens = [
+    ...Array.from(
+      { length: 30 },
+      (_, i) => `0x20c0${(i + 100).toString(16).padStart(36, '0')}` as const,
+    ),
+    Tempo.addresses.alphaUsd,
+  ]
+  await expect(
+    resolveFeeToken(client, {
+      account: userAccount.address,
+      exclude: Tempo.addresses.pathUsd,
+      tokens,
+    }),
+  ).resolves.toBe(Tempo.addresses.alphaUsd)
+})

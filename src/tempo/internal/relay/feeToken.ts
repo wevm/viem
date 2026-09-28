@@ -1,4 +1,6 @@
 import type { Address } from 'abitype'
+import { RpcResponse } from 'ox'
+import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
 import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
@@ -17,6 +19,9 @@ export function create(options: Relay.feeToken.Options): Relay.Plugin {
 
         const parameters = request.params![0] as Record<string, unknown>
         const transaction = Utils.normalizeFillTransactionRequest(parameters)
+
+        if (transaction.feeToken)
+          return Request.fill(context.client, transaction)
 
         const tokens = await context.getTokens(resolveTokens)
         const candidates = [
@@ -69,6 +74,15 @@ export async function resolveFeeToken(
   if (feeToken) return feeToken
   if (!account) return undefined
 
+  const candidates = [
+    ...new Set(tokens?.map((token) => token.toLowerCase() as Address)),
+  ]
+  if (candidates.length > 100)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Fee-token candidates exceed the limit of 100 tokens.',
+    })
+  const minimumBalance = options.minimumBalance ?? 1n
+
   // Cache the preference briefly; always check current balances before selecting it.
   const getUserToken = () =>
     Actions.fee.getUserToken(client, { account }).catch(() => null)
@@ -88,36 +102,49 @@ export async function resolveFeeToken(
 
   const [userToken, balances] = await Promise.all([
     userTokenPromise,
-    tokens
-      ? Promise.all(
-          tokens.map(async (token) => ({
-            address: token,
-            balance: await Actions.token
-              .getBalance(client, { account, token })
-              .then((balance) => balance.amount)
-              .catch(() => 0n),
-          })),
-        )
-      : [],
+    (async () => {
+      const balances = new Array<{ address: Address; balance: bigint }>(
+        candidates.length,
+      )
+      let index = 0
+      await Promise.all(
+        Array.from({ length: Math.min(10, candidates.length) }, async () => {
+          while (index < candidates.length) {
+            const current = index++
+            const token = candidates[current]!
+            balances[current] = {
+              address: token,
+              balance: await readContract(
+                client,
+                Actions.token.getBalance.call(client, { account, token }),
+              ).catch(() => 0n),
+            }
+          }
+        }),
+      )
+      return balances
+    })(),
   ])
 
   // If on-chain preference is set and user has balance, use it.
   if (userToken && userToken.address.toLowerCase() !== exclude?.toLowerCase()) {
     const match = balances.find(
       (b: { address: Address; balance: bigint }) =>
-        b.address.toLowerCase() === userToken.address.toLowerCase() &&
-        b.balance > 0n,
+        b.address.toLowerCase() === userToken.address.toLowerCase(),
     )
-    if (match) return userToken.address
+    if (match && match.balance >= minimumBalance) return userToken.address
 
     // Token list may not include the preference: check on-chain directly.
     if (!match) {
       try {
-        const { amount: balance } = await Actions.token.getBalance(client, {
-          account,
-          token: userToken.address,
-        })
-        if (balance > 0n) return userToken.address
+        const balance = await readContract(
+          client,
+          Actions.token.getBalance.call(client, {
+            account,
+            token: userToken.address,
+          }),
+        )
+        if (balance >= minimumBalance) return userToken.address
       } catch {}
     }
   }
@@ -126,7 +153,7 @@ export async function resolveFeeToken(
   let best: { address: Address; balance: bigint } | undefined
   for (const asset of balances) {
     if (
-      asset.balance <= 0n ||
+      asset.balance < minimumBalance ||
       asset.address.toLowerCase() === exclude?.toLowerCase()
     )
       continue
@@ -138,6 +165,7 @@ export async function resolveFeeToken(
 
 export declare namespace resolveFeeToken {
   type Options = {
+    minimumBalance?: bigint | undefined
     exclude?: Address | undefined
     feeToken?: Address | undefined
     account?: Address | undefined
@@ -163,6 +191,10 @@ function callTargetTokens(
     if (seen.has(lower)) continue
     seen.add(lower)
     out.push(c.to)
+    if (out.length > 100)
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Fee-token candidates exceed the limit of 100 tokens.',
+      })
   }
   return out
 }

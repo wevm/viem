@@ -11,7 +11,7 @@ export function resolveChainId(value: unknown) {
   if (typeof value === 'number') return value
   if (typeof value === 'bigint') return Number(value)
   if (typeof value === 'string') {
-    if (Hex.validate(value)) return Hex.toNumber(value)
+    if (!/^(?:0x[0-9a-f]+|[0-9]+)$/i.test(value)) return undefined
     const n = Number(value)
     if (Number.isFinite(n)) return n
   }

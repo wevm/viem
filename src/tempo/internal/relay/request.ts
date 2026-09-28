@@ -127,7 +127,13 @@ export function wrap(
             })
           }
         }
-        return isFill ? Utils.resolveChainId(parameters.chainId) : undefined
+        if (!isFill || parameters.chainId === undefined) return undefined
+        const id = Utils.resolveChainId(parameters.chainId)
+        if (id === undefined || !Number.isSafeInteger(id) || id <= 0)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Invalid transaction chain ID.',
+          })
+        return id
       })()
 
       if (

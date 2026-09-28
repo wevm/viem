@@ -12,6 +12,7 @@ import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import type * as Request from './request.js'
+import * as Utils from './utils.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
@@ -302,7 +303,12 @@ test.each([false, true])(
       const client = createClient({
         chain: Tempo.chain,
         transport: withRelay(Tempo.http(), {
-          plugins: [Relay.feePayer({ internal_allowUnsafeUrls: true })],
+          plugins: [
+            Relay.feePayer({
+              allowedFeePayers: [server.url],
+              internal_allowUnsafeUrls: true,
+            }),
+          ],
         }),
       })
       const parameters = {
@@ -357,7 +363,12 @@ test('cancelling a fill closes the external fee-payer request', async () => {
   try {
     const relay = Relay.create({
       client: caller,
-      plugins: [Relay.feePayer({ internal_allowUnsafeUrls: true })],
+      plugins: [
+        Relay.feePayer({
+          allowedFeePayers: [server.url],
+          internal_allowUnsafeUrls: true,
+        }),
+      ],
     })
     const pending = relay.request(
       {
@@ -436,3 +447,170 @@ test.each(['validate', 'onSponsored'] as const)(
   `)
   },
 )
+
+test.each([
+  'https://untrusted.example/rpc',
+  'https://relay.example/other',
+  'https://relay.example/rpc?extra=1',
+  'https://relay.example.attacker.example/rpc',
+  'https://relay.example@attacker.example/rpc',
+])(
+  'rejects an external fee payer outside the allowlist: %s',
+  async (feePayer) => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        Relay.feePayer({ allowedFeePayers: ['https://relay.example/rpc'] }),
+      ],
+    })
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            feePayer,
+            to: recipient.address,
+          },
+        ],
+      }),
+    ).rejects.toMatchObject({
+      code: -32602,
+      message: 'External fee payer URL is not allowed.',
+    })
+  },
+)
+
+test('unsafe development URLs still require an allowlist entry', async () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ internal_allowUnsafeUrls: true })],
+  })
+  await expect(
+    relay.request({
+      method: 'eth_fillTransaction',
+      params: [{ from: userAccount.address, feePayer: 'http://127.0.0.1:1' }],
+    }),
+  ).rejects.toMatchObject({
+    code: -32602,
+    message: 'External fee payer URL is not allowed.',
+  })
+})
+
+test('sponsors a transaction prepared for sender-paid gas', async () => {
+  const prepared = await prepareTransactionRequest(caller, {
+    account: userAccount,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    }),
+  })
+  const { transaction } = await fillTransaction(client, {
+    ...prepared,
+    chain: Tempo.chain,
+  })
+  const receipt = await sendRawTransactionSync(caller, {
+    serializedTransaction: await userAccount.signTransaction(
+      transaction as never,
+    ),
+  })
+  expect(receipt.status).toBe('success')
+  expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+})
+
+test('replaces an untrusted fee-payer signature and applies sponsorship recording', async () => {
+  const prepared = await prepareTransactionRequest(caller, {
+    account: userAccount,
+    feePayer: true,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  const parameters = {
+    ...Utils.formatFillTransactionRequest(caller, {
+      ...prepared,
+      from: userAccount.address,
+    }),
+    feePayerSignature: { r: '0x1', s: '0x2', yParity: '0x0' },
+  }
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      Relay.feePayer({
+        account: feePayerAccount,
+        onSponsored: () => {
+          throw new Error('Sponsorship recording unavailable')
+        },
+      }),
+    ],
+  })
+  await expect(
+    relay.request({ method: 'eth_fillTransaction', params: [parameters] }),
+  ).rejects.toThrow('Internal error')
+
+  const sponsored = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+  const result = (await sponsored.request({
+    method: 'eth_fillTransaction',
+    params: [parameters],
+  })) as Request.Result
+  const transaction = Utils.normalizeTempoTransaction(result.tx)
+  const receipt = await sendRawTransactionSync(caller, {
+    serializedTransaction: await userAccount.signTransaction(
+      transaction as never,
+    ),
+  })
+  expect(receipt.status).toBe('success')
+  expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+})
+
+test('preserves the synchronous broadcast timeout after signing', async () => {
+  const prepared = await prepareTransactionRequest(caller, {
+    account: userAccount,
+    feePayer: true,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      Relay.feePayer({ account: feePayerAccount }),
+      (next) => (request, options) => {
+        if (
+          request.method === 'eth_sendRawTransactionSync' &&
+          request.params?.[1] !== 5000
+        )
+          throw new Error('Expected the requested broadcast timeout')
+        return next(request, options)
+      },
+    ],
+  })
+  const receipt = await relay.request({
+    method: 'eth_sendRawTransactionSync',
+    params: [await userAccount.signTransaction(prepared as never), 5000],
+  })
+  expect(receipt).toMatchObject({ status: '0x1' })
+})

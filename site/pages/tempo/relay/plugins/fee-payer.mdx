@@ -4,7 +4,7 @@
 
 [`Relay.feePayer`](#relayfeepayer) sponsors transaction fees with a local account.
 It signs filled transactions and raw Tempo transactions that request sponsorship.
-A request can also supply an external fee-payer URL.
+A request can also supply an external fee-payer URL listed in `allowedFeePayers`.
 
 ## Recipes
 
@@ -86,10 +86,12 @@ Place `feeToken` after `feePayer` so sender-paid retries select a fee token agai
 ```ts twoslash
 import { Relay } from 'viem/tempo'
 
-const plugin = Relay.feePayer()
+const plugin = Relay.feePayer({
+  allowedFeePayers: ['https://relay.example/rpc'],
+})
 ```
 
-Without an account, the plugin handles external fee-payer URLs supplied by requests.
+Without an account, the plugin forwards requests to external fee-payer URLs in its allowlist.
 External URLs require HTTPS and a public hostname or IP address; redirects are
 rejected. The hosting application controls DNS and outbound network access.
 
@@ -106,6 +108,21 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { Relay } from 'viem/tempo'
 // ---cut---
 Relay.feePayer({ account: privateKeyToAccount('0x...') }) // [!code focus]
+```
+
+#### options.allowedFeePayers
+
+- **Type:** `readonly string[]`
+- **Default:** `[]`
+
+Trusted external relay URLs. Requests must match a normalized full URL, including
+its path and query. Only allow URLs controlled by trusted operators. Redirects
+are rejected. `internal_allowUnsafeUrls` does not bypass this allowlist.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ allowedFeePayers: ['https://relay.example/rpc'] }) // [!code focus]
 ```
 
 #### options.feeToken

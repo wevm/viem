@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { Hex } from 'ox'
+import { type Hex, RpcResponse } from 'ox'
 import * as VirtualAddress from 'ox/tempo/VirtualAddress'
 import type { Client } from '../../../clients/createClient.js'
 import type { Call } from '../../../types/calls.js'
@@ -24,12 +24,23 @@ export async function resolveVirtualAddresses(
     masters.set(lower, entry)
   }
 
-  const entries = await Promise.all(
-    [...masters.values()].map(async ({ addresses, masterId }) => {
-      const master = await Actions.virtualAddress.getMasterAddress(client, {
-        masterId,
-      })
-      return addresses.map((address) => [address, master] as const)
+  const groups = [...masters.values()]
+  const entries = new Array<readonly (readonly [Address, Address | null])[]>(
+    groups.length,
+  )
+  let index = 0
+  await Promise.all(
+    Array.from({ length: Math.min(10, groups.length) }, async () => {
+      while (index < groups.length) {
+        const current = index++
+        const { addresses, masterId } = groups[current]!
+        const master = await Actions.virtualAddress.getMasterAddress(client, {
+          masterId,
+        })
+        entries[current] = addresses.map(
+          (address) => [address, master] as const,
+        )
+      }
     }),
   )
 
@@ -43,6 +54,10 @@ function getVirtualAddressTargets(calls: readonly Call[]): readonly Address[] {
       if (!address || !isAddress(address) || !VirtualAddress.isVirtual(address))
         continue
       targets.add(address.toLowerCase() as Address)
+      if (targets.size > 100)
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Virtual-address targets exceed the limit of 100 addresses.',
+        })
     }
   }
 

@@ -350,7 +350,8 @@ async function computeFee(client: Client, options: computeFee.Options) {
       store,
     })
     const raw = gas * maxFeePerGas
-    const amount = raw / 10n ** BigInt(18 - metadata.decimals)
+    const scale = 10n ** BigInt(Math.max(0, 18 - metadata.decimals))
+    const amount = (raw + scale - 1n) / scale
     return {
       amount: Hex.fromNumber(amount) as `0x${string}`,
       decimals: metadata.decimals,

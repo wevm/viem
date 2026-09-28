@@ -302,6 +302,7 @@ export function autoSwap(options: autoSwap.Options = {}): Plugin {
 }
 
 export declare namespace autoSwap {
+  /** Automatic swap configuration. */
   export type Options = {
     /** Slippage tolerance as a fraction. @default 0.05 */
     slippage?: number | undefined
@@ -330,9 +331,12 @@ export function feePayer(options: feePayer.Options = {}): Plugin {
 }
 
 export declare namespace feePayer {
+  /** Fee sponsorship configuration. */
   export type Options = {
     /** Local sponsor. Omit when requests use an external fee-payer URL. */
     account?: LocalAccount | undefined
+    /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
+    allowedFeePayers?: readonly string[] | undefined
     /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
     feeToken?: Address | undefined
     /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
@@ -368,6 +372,7 @@ export function feeToken(options: feeToken.Options = {}): Plugin {
 }
 
 export declare namespace feeToken {
+  /** Fee-token selection configuration. */
   export type Options = {
     /** Candidates in preference order. Defaults to the bundled Tempo token set filtered by chain ID. */
     resolveTokens?:
@@ -396,6 +401,7 @@ export function simulate(options: simulate.Options = {}): Plugin {
 }
 
 export declare namespace simulate {
+  /** Simulation configuration. */
   export type Options = {
     /** Store for cached metadata. Omit to read metadata for each request. */
     store?: Store.Store | undefined

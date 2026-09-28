@@ -319,3 +319,38 @@ test('custom middleware receives completed downstream enrichment', async () => {
   expect(transaction.feePayerSignature).toBeDefined()
   expect(capabilities?.balanceDiffs).toBeDefined()
 })
+
+test.each([
+  'not-a-chain',
+  '',
+  ' ',
+  '0x',
+  '0xzz',
+  '1.5',
+  null,
+  {},
+  -1,
+  0,
+  1.5,
+  Number.MAX_SAFE_INTEGER + 1,
+])('rejects an invalid explicit chain ID: %s', async (chainId) => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+  await expect(
+    relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          from: userAccount.address,
+          chainId,
+          to: recipient.address,
+        },
+      ],
+    }),
+  ).rejects.toMatchObject({
+    code: -32602,
+    message: 'Invalid transaction chain ID.',
+  })
+})

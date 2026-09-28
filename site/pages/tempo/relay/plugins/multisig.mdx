@@ -31,6 +31,14 @@ Creates middleware that coordinates multisig approvals. The middleware infers
 chain IDs from parameters, signed transactions, key authorizations, and stored
 operations, and rejects conflicts with an explicit chain.
 
+### Usage
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+
+const plugin = Relay.multisig({ store: Store.memory() })
+```
+
 ### Parameters
 
 #### options.store

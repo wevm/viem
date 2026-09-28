@@ -12,6 +12,13 @@ import * as Request from './request.js'
 import * as Utils from './utils.js'
 
 export function create(options: Relay.feePayer.Options): Relay.Plugin {
+  const allowedFeePayers = new Set(
+    options.allowedFeePayers?.map((url) =>
+      ExternalFeePayerUrl.normalize(url, {
+        allowUnsafe: options.internal_allowUnsafeUrls,
+      }),
+    ),
+  )
   return Plugin.from((next) =>
     Request.wrap(next, async (request, context) => {
       const { client, getClient, chainId, options: requestOptions } = context
@@ -73,8 +80,14 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
               allowUnsafe: options.internal_allowUnsafeUrls ?? false,
             })
           : undefined
+      if (external && !allowedFeePayers.has(external))
+        throw new RpcResponse.InvalidParamsError({
+          message: 'External fee payer URL is not allowed.',
+        })
+
       const wantsSponsorship =
         (!!options.account || !!external) && parameters.feePayer !== false
+      if (options.account && !external) delete normalized.feePayerSignature
       const base = { ...normalized, chainId }
       if (!wantsSponsorship) return Request.fill(client, base)
 
@@ -104,7 +117,11 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.
-      if (!prepared && filled.gas && !filled.feePayerSignature)
+      if (
+        (!prepared || parameters.feePayer !== true) &&
+        filled.gas &&
+        !filled.feePayerSignature
+      )
         filled.gas += 20_000n
       if (token && filled.feeToken == null)
         Object.assign(filled, { feeToken: token })
@@ -428,7 +445,10 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
       ? serializedTransaction
       : await client.request({
           method: method as never,
-          params: [serializedTransaction],
+          params: [
+            serializedTransaction,
+            ...(request.params?.slice(1) ?? []),
+          ] as never,
         })
   return { result, ...(sponsorshipDetails ? { sponsorshipDetails } : {}) }
 }

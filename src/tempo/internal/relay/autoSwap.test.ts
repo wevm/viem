@@ -338,6 +338,7 @@ test.each([
         }),
       ],
       gas,
+      feePayer: true,
       nonce: 0,
       maxFeePerGas: 1_000_000n,
       maxPriorityFeePerGas: 0n,
@@ -388,3 +389,122 @@ test.each([false, true])(
     })
   },
 )
+
+test.each([false, true])(
+  'skips an underfunded source token, explicit: %s',
+  async (explicit) => {
+    const account = Tempo.accounts[explicit ? 10 : 6]!
+    await Actions.faucet.fundSync(caller, { account, timeout: 60_000 })
+    const balance = await Actions.token.getBalance(caller, {
+      account: account.address,
+      token: Tempo.addresses.pathUsd,
+    })
+    await Actions.token.transferSync(caller, {
+      account,
+      feeToken: Tempo.addresses.alphaUsd,
+      token: Tempo.addresses.pathUsd,
+      to: recipient.address,
+      amount: balance.amount - 1n,
+    })
+    await Actions.fee.setUserTokenSync(caller, {
+      account,
+      token: Tempo.addresses.pathUsd,
+      feeToken: Tempo.addresses.alphaUsd,
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.autoSwap(),
+          Relay.feePayer({
+            account: feePayerAccount,
+            feeToken: Tempo.addresses.alphaUsd,
+          }),
+          Relay.feeToken({
+            resolveTokens: () => [
+              Tempo.addresses.pathUsd,
+              Tempo.addresses.alphaUsd,
+            ],
+          }),
+        ],
+      }),
+    })
+    const { capabilities } = await fillTransaction(client, {
+      account: account.address,
+      ...(explicit ? { feeToken: Tempo.addresses.pathUsd } : {}),
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token,
+          to: recipient.address,
+          amount: parseUnits('5', 6),
+        }),
+      ],
+    })
+    expect(capabilities?.autoSwap?.maxIn.token.toLowerCase()).toBe(
+      Tempo.addresses.alphaUsd,
+    )
+  },
+)
+
+test('preserves slippage precision without rounding the limit up', async () => {
+  await Actions.dex.placeSync(caller, {
+    account: feePayerAccount,
+    token,
+    amount: parseUnits('100', 6),
+    type: 'sell',
+    tick: Tick.fromPrice('1'),
+  })
+  const account = Tempo.accounts[11]!
+  await Actions.faucet.fundSync(caller, { account, timeout: 60_000 })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.autoSwap({ slippage: 0.0006 })],
+    }),
+  })
+  const { capabilities } = await fillTransaction(client, {
+    account: account.address,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token,
+        to: recipient.address,
+        amount: parseUnits('5', 6),
+      }),
+    ],
+  })
+  expect(capabilities?.autoSwap?.maxIn.formatted).toBe('5.003')
+})
+
+test('preserves a successful fill when its fee balance cannot be read', async () => {
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.autoSwap(),
+        Relay.feePayer({ account: feePayerAccount }),
+        (next) => async (request, options) => {
+          if (
+            request.method === 'eth_call' &&
+            JSON.stringify(request.params).includes('70a08231')
+          )
+            throw new Error('Balance lookup unavailable')
+          return next(request, options)
+        },
+      ] satisfies readonly Relay.Plugin[],
+    }),
+  })
+  const { transaction, capabilities } = await fillTransaction(client, {
+    account: userAccount.address,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(transaction.calls).toHaveLength(1)
+  expect(capabilities?.autoSwap).toBeUndefined()
+})

@@ -31,10 +31,11 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
         autoSwap,
         store,
         feeToken: transaction.feeToken as Address | undefined,
-        resolveFeeToken: async (insufficientToken) =>
+        resolveFeeToken: async (insufficientToken, minimumBalance) =>
           resolveFeeToken(context.client, {
             account: transaction.from as Address | undefined,
             exclude: insufficientToken,
+            minimumBalance,
             store,
             tokens: (await context.getTokens()).filter(
               (token) =>
@@ -76,18 +77,29 @@ async function fill(client: Client, options: fill.Options) {
 
   // Retry with swaps prepended when a funded source token can cover the missing balance.
   async function fillWithSwap(insufficientToken: Address, deficit: bigint) {
-    const sourceToken =
+    const maxAmountIn =
+      deficit +
+      (deficit * BigInt(Math.floor(autoSwap.slippage * 1_000_000))) / 1_000_000n
+    const preferredBalance =
       feeToken && feeToken.toLowerCase() !== insufficientToken.toLowerCase()
+        ? await Actions.token
+            .getBalance(client, {
+              account: request.from as Address,
+              token: feeToken,
+            })
+            .then((balance) => balance.amount)
+            .catch(() => undefined)
+        : undefined
+    const sourceToken =
+      preferredBalance !== undefined && preferredBalance >= maxAmountIn
         ? feeToken
-        : await options.resolveFeeToken?.(insufficientToken)
+        : await options.resolveFeeToken?.(insufficientToken, maxAmountIn)
     if (
       !sourceToken ||
       sourceToken.toLowerCase() === insufficientToken.toLowerCase()
     )
       return null
 
-    const maxAmountIn =
-      deficit + (deficit * BigInt(Math.round(autoSwap.slippage * 1000))) / 1000n
     const originalCalls = (request.calls as Call[] | undefined) ?? []
     const swapCalls = buildSwapCalls(
       client,
@@ -185,13 +197,13 @@ async function fill(client: Client, options: fill.Options) {
               token: resolvedFeeToken,
             })
             .then((balance) => balance.amount)
-            .catch(() => 0n),
+            .catch(() => undefined),
           resolveTokenMetadata(client, {
             token: resolvedFeeToken,
             store,
           }).catch(() => undefined),
         ])
-        if (metadata) {
+        if (metadata && balance !== undefined) {
           const scale = 10n ** BigInt(Math.max(0, 18 - metadata.decimals))
           const requiredFee = (gas * maxFeePerGas + scale - 1n) / scale
           if (balance < requiredFee) {
@@ -241,7 +253,10 @@ declare namespace fill {
     feeToken?: Address | undefined
     store?: Store.Store | undefined
     resolveFeeToken?:
-      | ((insufficientToken: Address) => Promise<Address | undefined>)
+      | ((
+          insufficientToken: Address,
+          minimumBalance: bigint,
+        ) => Promise<Address | undefined>)
       | undefined
     transaction: Record<string, unknown>
   }

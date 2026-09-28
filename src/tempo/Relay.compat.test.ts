@@ -1349,7 +1349,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
           chain: Tempo.chain,
           batch: { multicall: { deployless: true } },
         }),
-        plugins: [Relay.feePayer({ internal_allowUnsafeUrls: true })],
+        plugins: [
+          Relay.feePayer({
+            allowedFeePayers: [appServer.url],
+            internal_allowUnsafeUrls: true,
+          }),
+        ],
       })
 
       walletServer = await createHttpServer(
@@ -1499,7 +1504,10 @@ describe.skipIf(nodeEnv !== 'localnet')(
         plugins: [
           Relay.simulate(),
           Relay.autoSwap(),
-          Relay.feePayer({ internal_allowUnsafeUrls: true }),
+          Relay.feePayer({
+            allowedFeePayers: [appServer.url],
+            internal_allowUnsafeUrls: true,
+          }),
           Relay.feeToken({ resolveTokens: () => [] }),
         ],
       })
@@ -1647,6 +1655,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
             account: feePayerAccount,
             name: 'Wallet Sponsor',
             validate: () => false,
+            allowedFeePayers: [appServer.url],
             internal_allowUnsafeUrls: true,
           }),
           Relay.feeToken({ resolveTokens: () => [] }),

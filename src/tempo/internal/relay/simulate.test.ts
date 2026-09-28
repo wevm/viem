@@ -172,3 +172,38 @@ test('keeps replacement approvals separate across tokens and spenders', async ()
     ]),
   )
 })
+
+test.each([
+  { gas: 1_000_000n, amount: '0x1', formatted: '0.000001' },
+  { gas: 1_000_001n, amount: '0x2', formatted: '0.000002' },
+])('rounds the reported fee up: $gas', async ({ gas, amount, formatted }) => {
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [
+        Relay.simulate(),
+        Relay.feePayer({
+          account: Tempo.accounts[0]!,
+          feeToken: Tempo.addresses.alphaUsd,
+        }),
+      ],
+    }),
+  })
+  const { capabilities } = await fillTransaction(client, {
+    account: userAccount.address,
+    feePayer: true,
+    feeToken: Tempo.addresses.alphaUsd,
+    gas,
+    nonce: 0,
+    maxFeePerGas: 1_000_000n,
+    maxPriorityFeePerGas: 0n,
+    calls: [
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+        amount: 1n,
+      }),
+    ],
+  })
+  expect(capabilities?.fee).toMatchObject({ amount, formatted })
+})
