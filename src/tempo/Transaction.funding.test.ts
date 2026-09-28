@@ -138,7 +138,7 @@ describe('formatTransactionRequest', () => {
     `)
   })
 
-  test.each(['estimateGas', 'call', 'signTransaction'])(
+  test.each(['signTransaction'])(
     'rejects unresolved sources for %s',
     (action) => {
       expect(() =>
@@ -147,7 +147,7 @@ describe('formatTransactionRequest', () => {
           action,
         ),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Resolve omitted funding fields with \`eth_fillTransaction\` before estimating or signing.]`,
+        `[Error: Resolve omitted funding fields with \`eth_fillTransaction\` before signing.]`,
       )
     },
   )
@@ -237,14 +237,19 @@ describe('behavior', () => {
   )
 })
 
-test('formats automatic requirements only before filling or wallet submission', () => {
-  for (const action of ['fillTransaction', 'sendTransaction'])
+test('formats automatic requirements before relay resolution', () => {
+  for (const action of [
+    'fillTransaction',
+    'sendTransaction',
+    'estimateGas',
+    'call',
+  ])
     expect(
       Formatters.formatTransactionRequest({ requireFunds: true }, action)
         .requireFunds,
     ).toBe(true)
-  for (const action of ['estimateGas', 'signTransaction', 'call'])
+  for (const action of ['signTransaction'])
     expect(() =>
       Formatters.formatTransactionRequest({ requireFunds: true }, action),
-    ).toThrow('before estimating or signing')
+    ).toThrow('before signing')
 })

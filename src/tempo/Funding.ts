@@ -14,6 +14,7 @@ import { createClient } from '../clients/createClient.js'
 import { custom } from '../clients/transports/custom.js'
 import type { Tokens } from '../tokens/defineToken.js'
 import { tokens } from '../tokens/sets.js'
+import type { BlockTag } from '../types/block.js'
 import type {
   EIP1193RequestOptions,
   PublicRpcSchema,
@@ -58,7 +59,7 @@ export type RpcSchema = [
 ]
 
 /**
- * Infers requested token balances and resolves funding sources and access key policy rules before transaction filling.
+ * Infers requested token balances and resolves funding sources and access key policy rules for fills, calls, and gas estimates.
  * Explicit sources are preserved; omitted access key rules are loaded and verified.
  *
  * @example
@@ -211,7 +212,12 @@ export function handleRequest(
       return { rulesHash }
     }
 
-    if (request.method !== 'eth_fillTransaction') return next(request, options)
+    if (
+      request.method !== 'eth_fillTransaction' &&
+      request.method !== 'eth_call' &&
+      request.method !== 'eth_estimateGas'
+    )
+      return next(request, options)
 
     const [transaction, ...rest] = (request.params ?? []) as [
       handleRequest.Transaction,
@@ -270,10 +276,38 @@ export function handleRequest(
     const chainId = chainId_explicit ?? chainId_request ?? 4217
     const requestOptions = { ...options, chainId }
 
+    const [block, stateOverrides, blockOverrides] = (
+      request.method === 'eth_fillTransaction' ? [] : rest
+    ) as [
+      internal.SimulationContext['block'],
+      internal.SimulationContext['stateOverrides'],
+      internal.SimulationContext['blockOverrides'],
+    ]
+    const context = { block, stateOverrides, blockOverrides }
     const client = createClient({
       transport: custom({
-        request: ({ method, params }, requestOptions_) =>
-          next({ method, params }, { ...requestOptions_, ...requestOptions }),
+        request: ({ method, params }, requestOptions_) => {
+          // Discovery reads must use the same state as the requested call or estimate.
+          if (method === 'eth_call' && request.method !== 'eth_fillTransaction')
+            return next(
+              {
+                method,
+                params: [
+                  params?.[0],
+                  block ?? params?.[1] ?? 'latest',
+                  ...(stateOverrides || blockOverrides
+                    ? [stateOverrides ?? {}]
+                    : []),
+                  ...(blockOverrides ? [blockOverrides] : []),
+                ],
+              },
+              { ...requestOptions_, ...requestOptions },
+            )
+          return next(
+            { method, params },
+            { ...requestOptions_, ...requestOptions },
+          )
+        },
       }),
     })
 
@@ -287,11 +321,20 @@ export function handleRequest(
             'Access key funding requires the transaction sender (`from`).',
         })
 
-      const block = await getBlock(client)
+      const selected = context.block
+      const block = await getBlock(client, {
+        ...(typeof selected === 'object'
+          ? 'blockHash' in selected
+            ? { blockHash: selected.blockHash }
+            : { blockNumber: BigInt(selected.blockNumber) }
+          : selected?.startsWith('0x')
+            ? { blockNumber: BigInt(selected) }
+            : { blockTag: selected as BlockTag | undefined }),
+      })
       const metadata = await getMetadata(client, {
         account: transaction.from,
         accessKey: transaction.keyId,
-        blockNumber: block.number,
+        blockNumber: block.number ?? undefined,
       })
       if (metadata.isRevoked)
         throw new RpcResponse.InvalidParamsError({
@@ -335,7 +378,11 @@ export function handleRequest(
             'The funding access key is not installed; supply `keyAuthorization`.',
         })
       const expiry = installed ? metadata.expiry : authorization?.expiry
-      if (expiry != null && BigInt(expiry) <= block.timestamp)
+      if (
+        expiry != null &&
+        BigInt(expiry) <=
+          (blockOverrides?.time ? BigInt(blockOverrides.time) : block.timestamp)
+      )
         throw new RpcResponse.InvalidParamsError({
           message: 'The funding access key has expired.',
         })
@@ -344,7 +391,7 @@ export function handleRequest(
         ? await getFundingPolicyId(client, {
             account: transaction.from,
             accessKey: transaction.keyId,
-            blockNumber: block.number,
+            blockNumber: block.number ?? undefined,
           })
         : authorization?.fundingPolicy
       if (policy === undefined || policy === 0n)
@@ -355,11 +402,11 @@ export function handleRequest(
         return {
           rulesHash: FundingPolicy.hash(policy.rules),
           rules: FundingPolicy.encode(policy.rules),
-          blockNumber: block.number,
+          blockNumber: block.number ?? undefined,
         }
       const { rulesHash } = await getPolicy(client, {
         policyId: policy,
-        blockNumber: block.number,
+        blockNumber: block.number ?? undefined,
       })
       return { rulesHash, policyId: policy, blockNumber: block.number }
     })()
@@ -408,6 +455,7 @@ export function handleRequest(
       const inferred = defaults
         ? [{ token: defaults.token, amount: Hex_.fromNumber(defaults.amount) }]
         : await internal.infer(client, {
+            ...context,
             tokens: [
               ...(parameters.tokens ?? []),
               ...tokens.tempo.flatMap((token) =>

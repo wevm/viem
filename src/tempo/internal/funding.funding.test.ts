@@ -1,7 +1,12 @@
+import { Hash, Hex } from 'ox'
 import { TransactionRequest } from 'ox/tempo'
 import { encodeFunctionData, getAddress, parseUnits } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { deployContract, waitForTransactionReceipt } from 'viem/actions'
+import {
+  deployContract,
+  getStorageAt,
+  waitForTransactionReceipt,
+} from 'viem/actions'
 import { Abis, Account, Actions, Addresses } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { FundingInference } from '~contracts/generated.js'
@@ -59,6 +64,71 @@ describe('infer', () => {
       args: [account.address],
     }),
   } as const
+
+  test.each(['state', 'stateDiff'] as const)(
+    'retries from caller balance overrides (%s)',
+    async (field) => {
+      const slot = Hash.keccak256(
+        Hex.concat(
+          Hex.padLeft(account.address, 32),
+          Hex.fromNumber(9, { size: 32 }),
+        ),
+      )
+      const state =
+        field === 'state'
+          ? Object.fromEntries(
+              await Promise.all(
+                Array.from({ length: 9 }, async (_, index) => {
+                  const slot = Hex.fromNumber(index, { size: 32 })
+                  return [
+                    slot,
+                    await getStorageAt(client, {
+                      address: Addresses.alphaUsd,
+                      slot,
+                    }),
+                  ]
+                }),
+              ),
+            )
+          : {}
+      expect(
+        await infer(client, {
+          tokens: [],
+          transaction: TransactionRequest.toRpc({
+            from: account.address,
+            calls: [transfer(Addresses.alphaUsd, 10n), balanceOf],
+          }),
+          stateOverrides: {
+            [Addresses.alphaUsd]: {
+              [field]: { ...state, [slot]: Hex.fromNumber(5, { size: 32 }) },
+            },
+          },
+        }),
+      ).toEqual([{ token: getAddress(Addresses.alphaUsd), amount: '0xa' }])
+    },
+  )
+
+  test('preserves caller code overrides during inference', async () => {
+    await expect(
+      infer(client, {
+        tokens: [Addresses.alphaUsd],
+        transaction: TransactionRequest.toRpc({
+          from: account.address,
+          calls: [
+            {
+              to: contract,
+              data: encodeFunctionData({
+                abi: FundingInference.abi,
+                functionName: 'roundTrip',
+                args: [Addresses.alphaUsd],
+              }),
+            },
+          ],
+        }),
+        stateOverrides: { [contract]: { code: '0x60006000fd' } },
+      }),
+    ).rejects.toThrow('Funding inference failed')
+  })
 
   test('infers transfer batches from calldata', async () => {
     const result = await infer(client, {

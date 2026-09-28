@@ -193,10 +193,12 @@ export function formatTransactionRequest(
     unresolved &&
     action &&
     action !== 'fillTransaction' &&
-    action !== 'sendTransaction'
+    action !== 'sendTransaction' &&
+    action !== 'call' &&
+    action !== 'estimateGas'
   )
     throw new Error(
-      'Resolve omitted funding fields with `eth_fillTransaction` before estimating or signing.',
+      'Resolve omitted funding fields with `eth_fillTransaction` before signing.',
     )
 
   rpc.requireFunds = requireFunds

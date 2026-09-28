@@ -215,6 +215,51 @@ describe('sendTransactionSync', () => {
       ).amount,
     ).toBe(before)
   })
+
+  test('resolves automatic funding through the relay', async () => {
+    const account = await setupAccount()
+    const { url } = await setupRelay({
+      getRoute: () => ({
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }),
+    })
+    const relay = getClient({ transport: withRelay(http(), http(url)) })
+    const parameters = {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      feePayer: accounts[1],
+      requireFunds: true,
+    } as const
+    const receipt = await sendTransactionSync(relay, parameters)
+    expect(receipt.status).toBe('success')
+    expect(
+      await getTransaction(relay, { hash: receipt.transactionHash }),
+    ).toMatchObject({
+      requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+    })
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('50', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(0n)
+  })
 })
 
 describe('prepareTransactionRequest', () => {
@@ -284,6 +329,47 @@ describe('prepareTransactionRequest', () => {
       },
     ])
   })
+
+  test('resolves automatic funding through the relay', async () => {
+    const account = await setupAccount()
+    const { url } = await setupRelay({
+      getRoute: () => ({
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }),
+    })
+    const relay = getClient({ transport: withRelay(http(), http(url)) })
+    const parameters = {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      feePayer: accounts[1],
+      requireFunds: true,
+    } as const
+    expect(await prepareTransactionRequest(relay, parameters)).toMatchObject({
+      requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+    })
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('100', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(0n)
+  })
 })
 
 describe('estimateGas', () => {
@@ -329,6 +415,47 @@ describe('estimateGas', () => {
       ).amount,
     ).toBe(parseUnits('500', 6))
   })
+
+  test('resolves automatic funding through the relay', async () => {
+    const account = await setupAccount()
+    const { url } = await setupRelay({
+      getRoute: () => ({
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }),
+    })
+    const relay = getClient({ transport: withRelay(http(), http(url)) })
+    const parameters = {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      feePayer: accounts[1],
+      requireFunds: true,
+    } as const
+    expect(
+      await estimateGas(relay, { ...parameters, prepare: false }),
+    ).toBeGreaterThan(0n)
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('100', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(0n)
+  })
 })
 
 describe('call', () => {
@@ -372,6 +499,90 @@ describe('call', () => {
         })
       ).amount,
     ).toBe(parseUnits('500', 6))
+  })
+
+  test('resolves automatic funding through the relay', async () => {
+    const account = await setupAccount()
+    const { url } = await setupRelay({
+      getRoute: () => ({
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }),
+    })
+    const relay = getClient({ transport: withRelay(http(), http(url)) })
+    const parameters = {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      feePayer: accounts[1],
+      requireFunds: true,
+    } as const
+    expect((await call(relay, parameters)).data).toBe(`0x${'0'.repeat(63)}1`)
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('100', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(0n)
+  })
+})
+
+describe('fillTransaction', () => {
+  test('resolves automatic funding through the relay', async () => {
+    const account = await setupAccount()
+    const { url } = await setupRelay({
+      getRoute: () => ({
+        sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
+      }),
+    })
+    const relay = getClient({ transport: withRelay(http(), http(url)) })
+    const parameters = {
+      account,
+      calls: [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          to: recipient,
+          amount: parseUnits('50', 6),
+        }),
+      ],
+      feePayer: accounts[1],
+      requireFunds: true,
+    } as const
+    expect(
+      (await fillTransaction(relay, parameters)).transaction,
+    ).toMatchObject({
+      requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+    })
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.alphaUsd,
+        })
+      ).amount,
+    ).toBe(parseUnits('100', 6))
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toBe(0n)
   })
 })
 
@@ -438,7 +649,7 @@ describe('Actions.token.transferSync', () => {
 
 describe('funding error decoding', () => {
   test.each(['burn', 'sell'] as const)(
-    '%s decodes insufficient funding',
+    '%s propagates insufficient funding',
     async (action) => {
       const account = Account.fromSecp256k1(generatePrivateKey())
       const parameters = {
@@ -465,6 +676,13 @@ describe('funding error decoding', () => {
         ),
       )
       expect(result).toBeInstanceOf(ContractFunctionRevertedError)
+      if (action === 'sell') {
+        expect(result.data).toBeUndefined()
+        expect(result.raw).toMatchInlineSnapshot(
+          `"0xbc21fc0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000"`,
+        )
+        return
+      }
       expect(result.data).toMatchInlineSnapshot(`
       {
         "abiItem": {
@@ -620,7 +838,10 @@ describe('relay funding integrity', () => {
       const server = await createHttpServer(
         createRequestListener(async (request) => {
           const body = await request.json()
-          if (body.method === 'eth_fillTransaction')
+          if (
+            body.method === 'eth_fillTransaction' ||
+            body.method === 'eth_call'
+          )
             body.params[0].requireFunds[0].amount = '0x2'
           const result = await handler(body)
           return Response.json(
@@ -654,7 +875,7 @@ describe('relay funding integrity', () => {
       ).resolves.toMatchObject(
         action === 'prepare'
           ? { requireFunds: [{ amount: 2n }] }
-          : { result: true, request: { requireFunds: [{ amount: 2n }] } },
+          : { result: true, request: { requireFunds: [{ amount: 1n }] } },
       )
     },
   )

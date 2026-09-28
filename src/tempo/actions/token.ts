@@ -4,7 +4,6 @@ import { TokenId, TokenRole } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
-import { fillTransaction } from '../../actions/public/fillTransaction.js'
 import {
   type MulticallParameters,
   type MulticallReturnType,
@@ -62,7 +61,7 @@ import {
   resolveToken,
   resolveTokenWithDecimals,
 } from '../internal/utils.js'
-import type { TransactionReceipt, TransactionTempo } from '../Transaction.js'
+import type { TransactionReceipt } from '../Transaction.js'
 
 /**
  * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -3520,8 +3519,7 @@ export namespace transfer {
 
   /**
    * Simulates a transfer of TIP20 tokens. `amount.decimals` is inferred from
-   * the client's declared `tokens` when omitted. Omitted funding fields are
-   * resolved before simulation.
+   * the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3539,31 +3537,9 @@ export namespace transfer {
       'transfer' | 'transferFrom' | 'transferWithMemo' | 'transferFromWithMemo'
     >
   > {
-    const call = transfer.call(client, parameters as never)
-    const request = pickWriteParameters(parameters)
-    const intent = parameters.requireFunds
-    const requireFunds = await (async () => {
-      if (
-        intent !== true &&
-        !intent?.some(
-          (requirement) =>
-            requirement.token === undefined ||
-            requirement.amount === undefined ||
-            requirement.sources === undefined,
-        )
-      )
-        return intent
-      const { transaction } = await fillTransaction(client, {
-        ...request,
-        data: encodeFunctionData(call),
-        to: call.address,
-      } as never)
-      return (transaction as unknown as TransactionTempo).requireFunds
-    })()
     return simulateContract(client, {
-      ...request,
-      ...call,
-      requireFunds,
+      ...pickWriteParameters(parameters as never),
+      ...transfer.call(client, parameters as never),
     } as never) as never
   }
 

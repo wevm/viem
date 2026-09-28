@@ -136,6 +136,8 @@ withFunding(http(), {
 
 ## Behavior
 
+Funding resolution applies to `eth_fillTransaction`, `eth_call`, and `eth_estimateGas`. Calls and estimates use their requested block and state overrides for discovery and leave onchain balances unchanged.
+
 Set `requireFunds: true` to infer requirements from the transaction calls. Partial entries such as `{ sources }` or `{ token, sources }` are also supported.
 
 Omitted token and amount fields are resolved from recognized single-transfer, burn, or exact-input DEX calldata when possible, including zero amounts. For `true`, recognized transfer and burn batches also skip simulation. Other calls use simulation, including swaps that may spend internal DEX balances.
@@ -146,7 +148,7 @@ When simulation is needed, the transport runs the complete batch with temporary 
 
 Successful simulation logs determine each token's peak cumulative outflow minus inflow. Sending 100 tokens, receiving 90 back, then sending 20 requires a starting balance of 100, even though net spending is only 30. Each inferred amount is a total target balance; funding sources supply the shortfall after existing funds.
 
-Inference stops at the first successful simulation. The transport then discovers sources and forwards the concrete requirements for normal transaction filling. Simulations do not change onchain state.
+Inference stops at the first successful simulation. The transport then discovers sources and forwards the concrete requirements for the requested RPC operation. Simulations do not change onchain state.
 
 :::warning
 Inference is intended for fixed-amount TIP-20 operations. Supply explicit token and amount requirements for balance-dependent calls, including “spend everything,” or when simulation cannot infer the intended operation. Missing approvals, permissions, funding routes, and source liquidity still cause failure. Multisig transactions require explicit requirements and sources.

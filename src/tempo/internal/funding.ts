@@ -1,5 +1,6 @@
 import * as AbiError from 'ox/AbiError'
 import * as Address from 'ox/Address'
+import type * as BlockOverrides from 'ox/BlockOverrides'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
@@ -12,7 +13,12 @@ import { getChainId } from '../../actions/public/getChainId.js'
 import { getStorageAt } from '../../actions/public/getStorageAt.js'
 import type { Client } from '../../clients/createClient.js'
 import type { BaseError } from '../../errors/base.js'
-import type { RpcLog } from '../../types/rpc.js'
+import type { BlockTag } from '../../types/block.js'
+import type {
+  RpcBlockIdentifier,
+  RpcLog,
+  RpcStateOverride,
+} from '../../types/rpc.js'
 import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
@@ -133,13 +139,19 @@ export function getDefaults(
   return undefined
 }
 
+export type SimulationContext = {
+  block?: Hex.Hex | BlockTag | RpcBlockIdentifier | undefined
+  stateOverrides?: RpcStateOverride | undefined
+  blockOverrides?: BlockOverrides.Rpc | undefined
+}
+
 /** Infers known call balances locally, otherwise simulates with retained overrides across retries. */
 export async function infer(
   client: Client,
   options: {
     tokens: readonly Address.Address[]
     transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
-  },
+  } & SimulationContext,
 ): Promise<readonly Pick<FundingRequirement.Rpc, 'token' | 'amount'>[]> {
   const { transaction } = options
   let blockHash: Hex.Hex | undefined
@@ -209,16 +221,29 @@ export async function infer(
 
   const failures = new Set<string>()
 
+  const overrides = Object.fromEntries(
+    Object.entries(options.stateOverrides ?? {}).map(([address, override]) => [
+      Address.checksum(address),
+      override,
+    ]),
+  )
   for (let attempt = 0; attempt < 16; attempt++) {
+    const stateOverrides = { ...overrides }
+    for (const [token, value] of balances) {
+      const override = overrides[token]
+      const balance = Hex.fromNumber(value, { size: 32 })
+      stateOverrides[token] = {
+        ...override,
+        ...(override?.state
+          ? { state: { ...override.state, [slot]: balance } }
+          : { stateDiff: { ...override?.stateDiff, [slot]: balance } }),
+      }
+    }
     const result = await simulateFunding(client, {
-      blockHash,
+      block: blockHash ? { blockHash } : options.block,
+      blockOverrides: options.blockOverrides,
       transaction: { ...transaction, requireFunds: undefined },
-      stateOverrides: Object.fromEntries(
-        [...balances].map(([token, value]) => [
-          token,
-          { stateDiff: { [slot]: Hex.fromNumber(value, { size: 32 }) } },
-        ]),
-      ),
+      stateOverrides,
     })
     blockHash = result.blockHash
 
@@ -250,11 +275,15 @@ export async function infer(
     const current =
       balances.get(token) ??
       BigInt(
-        (await getStorageAt(client, {
-          address: token,
-          blockHash,
-          slot,
-        })) ?? '0x0',
+        overrides[token]?.stateDiff?.[slot] ??
+          overrides[token]?.state?.[slot] ??
+          (overrides[token]?.state
+            ? '0x0'
+            : ((await getStorageAt(client, {
+                address: token,
+                blockHash,
+                slot,
+              })) ?? '0x0')),
       )
 
     if (current + required - available >= 2n ** 256n)
@@ -371,14 +400,15 @@ export async function resolvePolicyId(
 async function simulateFunding(
   client: Client,
   options: {
-    blockHash?: Hex.Hex | undefined
     transaction: Omit<Funding.handleRequest.Transaction, 'signatures'>
-    stateOverrides?:
-      | Record<Address.Address, { stateDiff: Record<Hex.Hex, Hex.Hex> }>
-      | undefined
-  },
+  } & SimulationContext,
 ) {
-  const { blockHash, stateOverrides, transaction } = options
+  const {
+    block: blockParameter,
+    blockOverrides,
+    stateOverrides,
+    transaction,
+  } = options
   const { calls, requireFunds, ...rest } = transaction
 
   const batch = calls?.length
@@ -389,7 +419,7 @@ async function simulateFunding(
   // The simulation RPC appends its top-level call after the supplied batch prefix.
   const response = await client.request<{
     Method: 'tempo_simulateV1'
-    Parameters: readonly [unknown, 'latest' | { blockHash: Hex.Hex }]
+    Parameters: readonly [unknown, NonNullable<SimulationContext['block']>]
     ReturnType: {
       blocks: readonly { parentHash: Hex.Hex; calls: readonly Simulation[] }[]
     }
@@ -415,11 +445,12 @@ async function simulateFunding(
               },
             ],
             stateOverrides,
+            blockOverrides,
           },
         ],
         validation: false,
       },
-      blockHash ? { blockHash } : 'latest',
+      blockParameter ?? 'latest',
     ],
   })
 

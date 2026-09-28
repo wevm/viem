@@ -88,7 +88,7 @@ export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type, { multisig: true }>
 
 /**
- * Infers requested token balances and resolves omitted funding sources before filling a transaction.
+ * Infers requested token balances and resolves omitted funding sources for transaction fills, calls, and gas estimates.
  *
  * @example
  * ```ts
@@ -212,6 +212,7 @@ export declare namespace withMultisig {
 /**
  * Creates a relay transport that routes requests between
  * the default transport or the relay transport.
+ * Calls and gas estimates with funding requirements are routed to the relay.
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
@@ -248,6 +249,33 @@ export function withRelay(
           method === 'funding_registerPolicyRules'
         )
           return transport_relay.request({ method, params }, options) as never
+
+        if (method === 'eth_call' || method === 'eth_estimateGas') {
+          const [transaction, ...rest] = params as readonly [
+            Funding.handleRequest.Transaction,
+            ...unknown[],
+          ]
+          const requirements = transaction?.requireFunds
+          if (
+            requirements &&
+            (!Array.isArray(requirements) || requirements.length)
+          )
+            return transport_relay.request(
+              {
+                method,
+                params: [
+                  {
+                    ...transaction,
+                    ...(transaction.chainId === undefined && config.chain
+                      ? { chainId: Hex.fromNumber(config.chain.id) }
+                      : {}),
+                  },
+                  ...rest,
+                ],
+              },
+              options,
+            ) as never
+        }
 
         if (
           method === 'eth_getTransactionByHash' ||

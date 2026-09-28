@@ -18,6 +18,8 @@ The relay must handle the `multisig_*` methods and proxy ordinary transaction an
 to its upstream RPC. Viem sends `eth_getTransactionByHash` and `eth_getTransactionReceipt` through
 the relay because a pending operation hash exists only in the relay's store.
 
+Requests to `eth_call` and `eth_estimateGas` with `requireFunds` also go to the relay for funding resolution. Calls and estimates without funding requirements use the default transport.
+
 ## Usage
 
 :::code-group

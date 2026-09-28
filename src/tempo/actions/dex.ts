@@ -26,7 +26,6 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import { fundingErrors } from '../internal/funding.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -1753,9 +1752,6 @@ export namespace sell {
     return (await action(client, {
       ...rest,
       ...call,
-      ...(parameters.requireFunds
-        ? { abi: [...Abis.stablecoinDex, ...fundingErrors] }
-        : {}),
     } as never)) as never
   }
 
