@@ -18,7 +18,7 @@ export function verify({
   Frame,
   'executionGas' | 'stateGas'
 >): Frame {
-  const prepare: internal.Definition = ({ frames }) => {
+  return from(function prepare({ frames }) {
     const hasPayer = frames.some(
       (candidate) =>
         (candidate as internal.SigningFrame)[internal.signing]?.prepare !==
@@ -51,7 +51,5 @@ export function verify({
         },
       ],
     }
-  }
-
-  return from(prepare)
+  })
 }
