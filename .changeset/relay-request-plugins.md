@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-Added a Relay RPC handler with a composable plugin mechanism.
+`viem/tempo`: Added a Relay RPC handler with a composable plugin mechanism.
 
 ```ts
 import { createClient, Relay, Store } from 'viem/tempo'
