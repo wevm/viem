@@ -1047,7 +1047,6 @@ export default defineConfig({
         text: 'Frames',
         collapsed: true,
         items: [
-          { text: 'Overview', link: '/docs/frames' },
           { text: 'calls', link: '/docs/frames/calls' },
           { text: 'expiry', link: '/docs/frames/expiry' },
           { text: 'verify', link: '/docs/frames/verify' },
