@@ -6,7 +6,6 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
-import * as Budget from './budget.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -122,14 +121,11 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const result: Request.Result =
         prepared && !external
           ? { tx: transaction }
-          : external
-            ? ((await Budget.request(
-                async (_request, options) =>
-                  Request.fill(fillClient, transaction, options),
-                { method: 'eth_fillTransaction', params: [transaction] },
-                { ...requestOptions, retryCount: 0 },
-              )) as Request.Result)
-            : await Request.fill(fillClient, transaction, requestOptions)
+          : await Request.fill(
+              fillClient,
+              transaction,
+              external ? { ...requestOptions, retryCount: 0 } : requestOptions,
+            )
       const filled = Utils.normalizeTempoTransaction(result.tx)
 
       // Reserve intrinsic gas for larger signatures before validating and signing the candidate.

@@ -6,8 +6,8 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
-import * as Budget from './budget.js'
 import * as Store from './cache.js'
+import * as Deadline from './deadline.js'
 import { formatError, isExecutionError } from './error.js'
 import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
@@ -160,7 +160,8 @@ export function compose(
                   params: [{ ...parameters, feeToken: undefined }],
                 }
               : state.request
-          state.result = await Budget.request(downstream, request, {
+          requestOptions.signal?.throwIfAborted()
+          state.result = await downstream(request, {
             ...state.options,
             ...(isFill ? { signal: requestOptions.signal } : {}),
           })
@@ -318,7 +319,7 @@ export function compose(
           transport: custom(
             {
               request: (request, options) =>
-                Budget.request(downstream, request, {
+                downstream(request, {
                   ...requestOptions,
                   ...options,
                   chainId: id,
@@ -334,19 +335,21 @@ export function compose(
       throw Utils.toRpcError(error)
     }
   }
-  for (const [key, value] of [
-    ['maxRequests', options.maxRequests],
-    ['timeout', options.timeout],
-  ] as const)
-    if (value !== undefined && (!Number.isSafeInteger(value) || value <= 0))
-      throw new RpcResponse.InvalidParamsError({
-        message: `Expected a positive integer for ${key}.`,
-      })
+  if (
+    options.timeout !== undefined &&
+    (!Number.isSafeInteger(options.timeout) || options.timeout <= 0)
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a positive integer for timeout.',
+    })
   if (options.timeout !== undefined && options.timeout > 2_147_483_647)
     throw new RpcResponse.InvalidParamsError({
       message: 'The fill timeout cannot exceed 2147483647 milliseconds.',
     })
-  return Budget.wrap(handle, options)
+  return (request, requestOptions = {}) =>
+    request.method === 'eth_fillTransaction'
+      ? Deadline.run(handle, request, requestOptions, options)
+      : handle(request, requestOptions)
 }
 
 /** Prevent hooks from mutating the transaction another hook signs. */

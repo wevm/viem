@@ -4,7 +4,6 @@ import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import * as Budget from './internal/relay/budget.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
@@ -91,18 +90,14 @@ export function create(
     }
   }
   const handle = Request_.compose(
-    Budget.boundary(async (request, requestOptions) => {
+    async (request, requestOptions) => {
       const { chainId, response: _, ...rest } = requestOptions ?? {}
       if (chainId === undefined)
         throw new RpcResponse.InvalidParamsError({
           message: 'A chain ID is required to resolve the downstream client.',
         })
-      return Budget.request(
-        getClient(chainId).request as handleRequest.Handler,
-        request,
-        rest,
-      )
-    }),
+      return getClient(chainId).request(request as never, rest)
+    },
     options,
     getClient,
   )
@@ -127,7 +122,7 @@ export function create(
     return handle(request, { ...requestOptions, chainId })
   }
   return {
-    request: Budget.boundary(request),
+    request,
     fetch: (request_, options: create.RequestOptions = {}) =>
       internal.fetch(request_, request, options),
   }
@@ -225,8 +220,6 @@ export declare namespace handleRequest {
 
   /** Options for {@link handleRequest}. */
   export type Options = {
-    /** Maximum downstream attempts per plugin-handled fill, including retries. Defaults to 4. */
-    maxRequests?: number | undefined
     /** Plugins in request execution order. Defaults to an empty list. */
     plugins?: readonly Plugin[] | undefined
     /** Fee-token candidates shared by all plugins, memoized per request and chain. */

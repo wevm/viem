@@ -587,13 +587,14 @@ test.each(['none', 'explicit', 'resolved'])(
   },
 )
 
-test('bounds callbacks that do not observe the fill deadline', async () => {
-  const release = Promise.withResolvers<void>()
-  const completed = Promise.withResolvers<unknown>()
-  const relay = Relay.handleRequest(
-    http('http://127.0.0.1:1', { retryCount: 0 })({}).request,
-    {
-      timeout: 20,
+test.each(['handler', 'create', 'transport'])(
+  'bounds nested callbacks that ignore the fill deadline: %s',
+  async (mode) => {
+    const release = Promise.withResolvers<void>()
+    const completed = Promise.withResolvers<unknown>()
+    const rpc = http('http://127.0.0.1:1', { retryCount: 0 })({})
+    const options = {
+      timeout: 60_000,
       plugins: [
         {
           async handleRequest(context) {
@@ -602,82 +603,124 @@ test('bounds callbacks that do not observe the fill deadline', async () => {
           },
         },
       ],
-    },
-  )
-  await expect(
-    relay(
-      { method: 'eth_fillTransaction', params: [{}] },
-      { chainId: tempoLocalnet.id },
-    ),
-  ).rejects.toMatchObject({
-    code: -32005,
-    message: 'Relay fill exceeded its deadline.',
-  })
-  const rejected = expect(completed.promise).rejects.toMatchObject({
-    code: -32005,
-    message: 'Relay fill exceeded its deadline.',
-  })
-  release.resolve()
-  await rejected
-})
+    } satisfies Relay.handleRequest.Options
+    const inner =
+      mode === 'handler'
+        ? Relay.handleRequest(rpc.request, options)
+        : mode === 'create'
+          ? Relay.create<number>({
+              client: createClient({
+                chain: tempoLocalnet,
+                transport: () => rpc,
+              }),
+              ...options,
+            }).request
+          : withRelay(() => rpc, options)({ chain: tempoLocalnet }).request
+    const relay = Relay.handleRequest(inner, {
+      timeout: 20,
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay(
+        { method: 'eth_fillTransaction', params: [{}] },
+        { chainId: tempoLocalnet.id },
+      ),
+    ).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+    const rejected = expect(completed.promise).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+    release.resolve()
+    await rejected
+  },
+)
 
-test.each([false, true])(
-  'stops retries at the fill budget with Retry-After: %s',
-  async (retryAfter) => {
-    let requests = 0
-    const server = await createHttpServer((_request, response) => {
-      requests++
-      if (retryAfter && requests === 4) response.setHeader('Retry-After', '60')
+test('allows transport retries beyond four attempts', async () => {
+  let requests = 0
+  const server = await createHttpServer((_request, response) => {
+    requests++
+    if (requests <= 5) {
       response.writeHead(503)
       response.end()
-    })
-    try {
-      const relay = Relay.create({
-        client: createClient({
-          chain: tempoLocalnet,
-          transport: http(server.url),
-        }),
-        maxRequests: 4,
-        timeout: 2_000,
-        plugins: [
-          {
-            async handleRequest(_context, next) {
-              await next()
-            },
-          },
-        ],
-      })
-      await expect(
-        relay.request(
-          {
-            method: 'eth_fillTransaction',
-            params: [{ from: '0x0000000000000000000000000000000000000001' }],
-          },
-          { retryCount: 10, retryDelay: 10 },
-        ),
-      ).rejects.toMatchObject({
-        code: -32005,
-        message: 'Relay fill exceeded its RPC request budget.',
-      })
-      expect(requests).toBe(4)
-    } finally {
-      await server.close()
+      return
     }
-  },
-)
+    response.setHeader('Content-Type', 'application/json')
+    response.end(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        error: { code: -32602, message: 'Permanently unavailable' },
+      }),
+    )
+  })
+  try {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http(server.url),
+      }),
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay.request(
+        { method: 'eth_fillTransaction', params: [{}] },
+        {
+          retryCount: 10,
+          retryDelay: 0,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: -32602,
+      message: 'Permanently unavailable',
+    })
+    expect(requests).toBe(6)
+  } finally {
+    await server.close()
+  }
+})
 
-test.each(['maxRequests', 'timeout'] as const)(
-  'rejects invalid %s',
-  (option) => {
-    for (const value of [0, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])
-      expect(() =>
-        Relay.handleRequest(async () => null, {
-          [option]: value,
-          plugins: [Relay.simulate()],
-        }),
-      ).toThrow(`Expected a positive integer for ${option}.`)
-  },
-)
+test('aborts a Retry-After delay at the fill deadline', async () => {
+  const server = await createHttpServer((_request, response) => {
+    response.writeHead(503, { 'Retry-After': '60' })
+    response.end()
+  })
+  try {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http(server.url),
+      }),
+      timeout: 100,
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay.request(
+        { method: 'eth_fillTransaction', params: [{}] },
+        {
+          retryCount: 10,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+  } finally {
+    await server.close()
+  }
+})
+
+test('rejects invalid timeouts', () => {
+  for (const timeout of [0, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])
+    expect(() =>
+      Relay.handleRequest(async () => null, {
+        timeout,
+        plugins: [Relay.simulate()],
+      }),
+    ).toThrow('Expected a positive integer for timeout.')
+})
 
 test('rejects a timeout that would overflow the runtime timer', () => {
   expect(() =>
@@ -729,7 +772,6 @@ test.each(['create', 'transport'])(
     })
     try {
       const options = {
-        maxRequests: 20,
         plugins: [
           {
             async handleRequest(context, next) {
@@ -752,7 +794,6 @@ test.each(['create', 'transport'])(
           : withRelay(http(server.url), options)({ chain: tempoLocalnet })
               .request
       const relay = Relay.handleRequest(inner, {
-        maxRequests: 20,
         plugins: [Relay.simulate()],
       })
       await expect(

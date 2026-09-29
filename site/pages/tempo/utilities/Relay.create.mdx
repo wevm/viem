@@ -103,25 +103,6 @@ const resolver = createClientResolver({
 const relay = Relay.create({ getClient: resolver.getClient }) // [!code focus]
 ```
 
-#### options.maxRequests
-
-- **Type:** `number`
-- **Default:** `4`
-
-Maximum downstream RPC attempts for each `eth_fillTransaction` handled by plugins. Explicit retries share this budget. Optional previews may be omitted when the budget is exhausted.
-
-Fills disable transport retries unless `retryCount` is supplied in the request options. Other RPC methods retain their transport retry policy.
-
-```ts twoslash
-import { createClient, Relay } from 'viem/tempo'
-
-const relay = Relay.create({
-  client: createClient(),
-  plugins: [Relay.feeToken(), Relay.simulate()],
-  maxRequests: 4, // [!code focus]
-})
-```
-
 #### options.plugins
 
 - **Type:** `readonly Relay.Plugin[]`
@@ -172,7 +153,7 @@ Deadline in milliseconds for a plugin-handled fill, including token resolution, 
 
 Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and multisig polling use their existing timeouts.
 
-Both limits must be positive integers. The timeout cannot exceed `2_147_483_647` milliseconds. Exceeding a limit rejects required work with RPC error code `-32005`.
+The timeout must be a positive integer no greater than `2_147_483_647` milliseconds. Exceeding the deadline rejects the fill with RPC error code `-32005`. Transport retries run within the same deadline.
 
 ```ts twoslash
 import { createClient, Relay } from 'viem/tempo'
