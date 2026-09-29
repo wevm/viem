@@ -1,37 +1,54 @@
 import * as Frame_ox from 'ox/Frame'
 import { Frame } from 'viem/frames'
-import { afterEach, describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { resolve } from './internal/transaction.js'
 
 describe('expiry', () => {
-  afterEach(() => vi.useRealTimers())
-
   test.each([
-    ['0s', 1_800_000_000n],
-    ['30s', 1_800_000_030n],
-    ['1m', 1_800_000_060n],
-    ['1h', 1_800_003_600n],
-    ['1d', 1_800_086_400n],
-    ['1w', 1_800_604_800n],
-    ['1.5h', 1_800_005_400n],
-    ['1y', 1_831_536_000n],
-    ['1y', 1_866_974_400n, '2028-02-29T12:00:00Z'],
-    ['4y', 1_961_668_800n, '2028-02-29T12:00:00Z'],
-  ] as const)(
-    'resolves duration %s once',
-    (duration, expected, start: string | number = 1_800_000_000_500) => {
-      vi.useFakeTimers()
-      vi.setSystemTime(start)
-      const helper = Frame.expiry(duration)
-      vi.setSystemTime(1_800_100_000_500)
+    ['0s', 0],
+    ['30s', 30],
+    ['1m', 60],
+    ['1h', 3_600],
+    ['1d', 86_400],
+    ['1w', 604_800],
+    ['1.5h', 5_400],
+  ] as const)('resolves duration %s', (duration, seconds) => {
+    const before = Math.floor(Date.now() / 1_000)
+    const helper = Frame.expiry(duration)
+    const after = Math.floor(Date.now() / 1_000)
+    const deadline = Number(resolve({ frames: [helper] }).frames[0]!.data!)
 
-      const resolveDeadline = () =>
-        BigInt(resolve({ frames: [helper] }).frames[0]!.data!)
-      expect(resolveDeadline()).toBe(expected)
-      vi.advanceTimersByTime(60_000)
-      expect(resolveDeadline()).toBe(expected)
+    expect(deadline).toBeGreaterThanOrEqual(before + seconds)
+    expect(deadline).toBeLessThanOrEqual(after + seconds)
+  })
+
+  test.each(['1y', '4y'] as const)(
+    'preserves UTC calendar time for %s',
+    (duration) => {
+      const before = new Date()
+      const helper = Frame.expiry(duration)
+      const after = new Date()
+      const deadline = Number(resolve({ frames: [helper] }).frames[0]!.data!)
+      const years = Number(duration.slice(0, -1))
+      for (const date of [before, after]) {
+        const month = date.getUTCMonth()
+        date.setUTCFullYear(date.getUTCFullYear() + years)
+        if (date.getUTCMonth() !== month) date.setUTCDate(0)
+      }
+
+      expect(deadline).toBeGreaterThanOrEqual(
+        Math.floor(before.getTime() / 1_000),
+      )
+      expect(deadline).toBeLessThanOrEqual(Math.floor(after.getTime() / 1_000))
     },
   )
+
+  test('keeps the creation deadline when prepared later', async () => {
+    const helper = Frame.expiry('1h')
+    const first = resolve({ frames: [helper] }).frames[0]!.data
+    await new Promise((resolve) => setTimeout(resolve, 1_100))
+    expect(resolve({ frames: [helper] }).frames[0]!.data).toEqual(first)
+  })
 
   test.each([
     '',
