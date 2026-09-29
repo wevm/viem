@@ -292,7 +292,7 @@ export declare namespace feePayer {
 }
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */
-export type Validate = (
+type Validate = (
   request: Transaction.TransactionRequest & {
     chainId?: number | Hex.Hex | undefined
   },
@@ -391,7 +391,8 @@ function isPreparedTransaction(value: Record<string, unknown>) {
 }
 
 /** Signs a filled transaction as the fee payer. */
-export async function sign(options: sign.Options) {
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function sign(options: sign.Options) {
   const { account, transaction, sender } = options
   const from = (transaction.from as Address | undefined) ?? sender
   const { signature: _, ...withoutSenderSig } = transaction
@@ -437,7 +438,7 @@ export async function sign(options: sign.Options) {
   }
 }
 
-export declare namespace sign {
+declare namespace sign {
   type Options = {
     /** Abort signal for the enclosing fill. */
     signal?: AbortSignal | undefined
