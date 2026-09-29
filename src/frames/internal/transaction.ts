@@ -209,7 +209,9 @@ export function resolve<
   )
     throw new BaseError('An expiry frame must be first and appear only once.')
 
-  if (!resolvedFrames.some((frame) => frame[signing]))
+  if (
+    !resolvedFrames.some((frame) => frame[signing]?.prepared?.signatures.length)
+  )
     return { ...transaction, frames: resolvedFrames }
 
   if (

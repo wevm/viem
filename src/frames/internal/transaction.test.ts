@@ -465,3 +465,19 @@ describe('resolveNonceKeys', () => {
     `)
   })
 })
+
+describe('unsigned helpers', () => {
+  test('preserves explicit signatures with expiry', () => {
+    const signatures = [{ scheme: 'secp256k1' as const, signer: '0x' as const }]
+    const request = {
+      frames: [Frame.expiry(1_800_000_000), { mode: 'verify' as const }],
+      signatures,
+    }
+    const prepared = resolve(request)
+    expect(prepared.signatures).toEqual(signatures)
+    expect(resolve(prepared).signatures).toEqual(signatures)
+    expect(prepared.frames[0]!.data).toMatchInlineSnapshot(
+      `"0x000000006b49d200"`,
+    )
+  })
+})
