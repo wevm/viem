@@ -2,11 +2,18 @@ import {
   fillTransaction,
   getBalance,
   sendRawTransaction,
+  sendRawTransactionSync,
+  signTransaction,
   waitForTransactionReceipt,
 } from 'viem/actions'
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
+import {
+  type SigningFrame,
+  signing,
+  type Transaction,
+} from '../../frames/internal/transaction.js'
 
 const client = getClient({ account: accounts[0].address })
 
@@ -16,20 +23,23 @@ describe('frames: Frame', () => {
       frames: [Frame.verify({ account: accounts[0] })],
     })
 
-    expect(result.transaction).toMatchInlineSnapshot(`
+    expect({
+      ...result.transaction,
+      frames: result.transaction.frames?.map(
+        ({ [signing]: _signing, ...frame }: SigningFrame) => frame,
+      ),
+    }).toMatchInlineSnapshot(`
       {
         "blobVersionedHashes": [],
         "chainId": 8141,
         "data": undefined,
         "frames": [
           {
-            "data": "0x",
             "executionGas": 100n,
-            "flags": 3,
-            "mode": 1,
+            "flags": "approveExecutionAndPayment",
+            "mode": "verify",
             "stateGas": 0n,
-            "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-            "value": 0n,
+            "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           },
         ],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
@@ -88,33 +98,32 @@ describe('frames: Frame', () => {
     ]
     const result = await fillTransaction(client, { frames })
 
-    expect(result.transaction.frames).toMatchInlineSnapshot(`
+    expect(
+      result.transaction.frames?.map(
+        ({ [signing]: _signing, ...frame }: SigningFrame) => frame,
+      ),
+    ).toMatchInlineSnapshot(`
       [
         {
-          "data": "0x",
           "executionGas": 50000n,
-          "flags": 3,
-          "mode": 1,
+          "flags": "approveExecutionAndPayment",
+          "mode": "verify",
           "stateGas": 0n,
-          "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "value": 0n,
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         },
         {
-          "data": "0x",
           "executionGas": 50000n,
-          "flags": 4,
-          "mode": 2,
+          "flags": "atomicBatch",
+          "mode": "sender",
           "stateGas": 0n,
-          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
           "value": 1n,
         },
         {
-          "data": "0x",
           "executionGas": 50000n,
-          "flags": 0,
-          "mode": 2,
+          "mode": "sender",
           "stateGas": 0n,
-          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
           "value": 2n,
         },
       ]
@@ -274,4 +283,55 @@ describe('frames: explicit', () => {
       ]
     `)
   })
+})
+
+describe('filled signing helpers', () => {
+  test.each(['verify', 'from'] as const)(
+    'preserves %s signing callbacks',
+    async (kind) => {
+      const frame =
+        kind === 'verify'
+          ? Frame.verify({
+              account: accounts[0],
+              executionGas: 50_000n,
+              stateGas: 50_000n,
+            })
+          : Frame.from(() => ({
+              frame: {
+                mode: 'verify',
+                flags: 'approveExecutionAndPayment',
+                to: accounts[0].address,
+                executionGas: 50_000n,
+                stateGas: 50_000n,
+              },
+              signatures: [
+                {
+                  scheme: 'secp256k1',
+                  signer: accounts[0].address,
+                  sign: accounts[0].sign,
+                },
+              ],
+            }))
+      const { transaction } = await fillTransaction(client, {
+        frames: [frame],
+      })
+      const { to: _to, ...request } = transaction
+      const prepared = {
+        ...request,
+        sender: accounts[0].address,
+      } as Transaction
+      const signed =
+        kind === 'verify'
+          ? await Frame.sign(prepared.frames[0]!, { transaction: prepared })
+          : prepared.frames[0]!
+      const serialized = await signTransaction(client, {
+        ...prepared,
+        frames: [signed],
+      })
+      const receipt = await sendRawTransactionSync(client, {
+        serializedTransaction: serialized,
+      })
+      expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    },
+  )
 })

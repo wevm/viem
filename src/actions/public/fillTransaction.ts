@@ -204,6 +204,23 @@ export async function fillTransaction<
 
     const transaction = format(response.tx)
 
+    if (
+      frames?.some(
+        (frame) =>
+          (frame as frameTransaction.SigningFrame)[frameTransaction.signing],
+      )
+    ) {
+      if (transaction.frames?.length !== frames.length)
+        throw new BaseError('Filled transaction must preserve the frame count.')
+
+      transaction.frames = frames.map((frame, index) => ({
+        ...frame,
+        executionGas:
+          frame.executionGas ?? transaction.frames![index]!.executionGas,
+        stateGas: frame.stateGas ?? transaction.frames![index]!.stateGas,
+      }))
+    }
+
     // Remove unnecessary fields.
     delete transaction.blockHash
     delete transaction.blockNumber
