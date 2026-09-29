@@ -382,6 +382,24 @@ describe('signFrame', () => {
 })
 
 describe('applyDataSuffix', () => {
+  test('appends with completed explicit-payload signatures', () => {
+    const request = {
+      frames: [{ mode: 'sender' as const, data: '0x12' as const }],
+      signatures: [
+        { scheme: 'secp256k1' as const },
+        {
+          scheme: 'arbitrary' as const,
+          payload: `0x${'11'.repeat(32)}` as Hex,
+          signature: '0xab' as const,
+        },
+      ],
+    }
+    const result = applyDataSuffix(request, '0xbeef')
+    expect(result.frames[0]!.data).toMatchInlineSnapshot(`"0x12beef"`)
+    expect(result.signatures).toEqual(request.signatures)
+    expect(applyDataSuffix(result, '0xbeef')).toEqual(result)
+  })
+
   test('appends once to sender frames and preserves per-call overrides', () => {
     const request = resolve({
       frames: [

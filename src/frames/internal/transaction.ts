@@ -74,7 +74,10 @@ export function applyDataSuffix<
       (frame) => (frame as SigningFrame)[signing]?.hash,
     ) ||
     transaction.signatures?.some(
-      (entry) => entry.signature && entry.signature !== '0x',
+      (entry) =>
+        (!entry.payload || entry.payload === '0x') &&
+        entry.signature &&
+        entry.signature !== '0x',
     )
   )
     return transaction
