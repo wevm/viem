@@ -1,4 +1,5 @@
 import * as FrameSignature_ox from 'ox/FrameSignature'
+import * as Hex_ox from 'ox/Hex'
 import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { BaseError } from '../../errors/base.js'
 import type { Frame, FrameSignature } from '../../types/frame.js'
@@ -94,13 +95,16 @@ export function applyDataSuffix<
 
 export function resolve<
   transaction extends {
-    nonceKeys?: readonly bigint[] | undefined
+    nonceKeys?: readonly (bigint | 'random')[] | undefined
     frames?: readonly Frame[] | undefined
     signatures?: Transaction['signatures'] | undefined
   },
 >(transaction: transaction): transaction {
-  if (transaction.frames && transaction.nonceKeys === undefined)
-    transaction = { ...transaction, nonceKeys: [0n] }
+  if (transaction.frames)
+    transaction = {
+      ...transaction,
+      nonceKeys: resolveNonceKeys(transaction.nonceKeys),
+    }
 
   const frames = transaction.frames as readonly SigningFrame[] | undefined
   if (!frames?.some((frame) => frame[signing])) return transaction
@@ -363,4 +367,24 @@ function toSignature({ sign: _sign, ...entry }: Signature): FrameSignature {
     ...(entry.scheme === 'arbitrary' ? { signature: '0x' as const } : {}),
     ...entry,
   } as FrameSignature
+}
+
+export function resolveNonceKeys(
+  keys: readonly (bigint | 'random')[] = [0n],
+): readonly bigint[] {
+  if (keys.every((key) => typeof key === 'bigint')) return keys
+
+  const used = new Set(
+    keys.filter((key): key is bigint => typeof key === 'bigint'),
+  )
+  const resolved = keys.map((key) => {
+    if (key !== 'random') return key
+
+    let value: bigint
+    do value = Hex_ox.toBigInt(Hex_ox.random(32))
+    while (value === 0n || used.has(value))
+    used.add(value)
+    return value
+  })
+  return resolved.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
 }

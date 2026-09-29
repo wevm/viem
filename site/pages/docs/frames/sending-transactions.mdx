@@ -57,6 +57,8 @@ const receipt = await client.sendTransactionSync({
 
 :::
 
+Use `nonceKeys: ['random']` to generate a fresh nonzero key during preparation. You can mix `'random'` with explicit keys; preparation sorts the resulting keys and preserves them for signing and sending.
+
 Omitting `nonceKeys` defaults to `[0n]`. Use `[0n]` to select the sender's ordinary account nonce. Other key sets contain 1–16 strictly increasing nonzero 256-bit integers. Successful payment approval advances every selected counter together. Nonzero keys do not advance the ordinary account nonce, and account nonce managers cannot allocate their sequences.
 
 ### Set an Expiry

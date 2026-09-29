@@ -362,8 +362,10 @@ export type TransactionRequestEIP8141<
     blobVersionedHashes?: readonly Hex[] | undefined
     /** Frames in execution order. */
     frames: readonly frame[]
-    /** EIP-8250 nonce domains sharing the transaction nonce. Defaults to `[0n]` for requests. */
-    nonceKeys?: readonly quantity[] | undefined
+    /** Nonce domains sharing the transaction nonce. Defaults to `[0n]`. Use `'random'` to generate a key during preparation. */
+    nonceKeys?:
+      | readonly (quantity | (quantity extends bigint ? 'random' : never))[]
+      | undefined
     /** PeerDAS blob sidecars included in the network wrapper. */
     sidecars?: TransactionSerializableEIP8141['sidecars'] | undefined
     /** Signature entries, including unsigned placeholders. */
@@ -387,11 +389,15 @@ export type TransactionRequestGeneric<
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   frames?: readonly Frame<quantity>[] | undefined
-  nonceKeys?: readonly quantity[] | undefined
+  nonceKeys?:
+    | readonly (quantity | (quantity extends bigint ? 'random' : never))[]
+    | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
   maxPriorityFeePerGas?: quantity | undefined
+  sidecars?: TransactionSerializableGeneric['sidecars'] | undefined
+  signatures?: readonly FrameSignature[] | undefined
   type?: string | undefined
 }
 

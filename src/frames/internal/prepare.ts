@@ -8,6 +8,7 @@ import { verify } from '../Frame.js'
 import {
   expiryVerifier,
   resolve,
+  resolveNonceKeys,
   type SigningFrame,
   signing,
   type Transaction,
@@ -15,7 +16,7 @@ import {
 
 export function prepare<
   transaction extends {
-    nonceKeys?: readonly bigint[] | undefined
+    nonceKeys?: readonly (bigint | 'random')[] | undefined
     frames?: readonly Frame[] | undefined
     signatures?: Transaction['signatures'] | undefined
   },
@@ -25,8 +26,10 @@ export function prepare<
 ): transaction {
   if (!transaction.frames) return transaction
 
-  if (transaction.nonceKeys === undefined)
-    transaction = { ...transaction, nonceKeys: [0n] }
+  transaction = {
+    ...transaction,
+    nonceKeys: resolveNonceKeys(transaction.nonceKeys),
+  }
 
   if (
     transaction.signatures?.length &&

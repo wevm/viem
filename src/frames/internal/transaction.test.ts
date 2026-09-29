@@ -9,6 +9,7 @@ import * as Frame from '../Frame.js'
 import {
   applyDataSuffix,
   resolve,
+  resolveNonceKeys,
   signFrame,
   type Transaction,
 } from './transaction.js'
@@ -432,5 +433,35 @@ describe('applyDataSuffix', () => {
       ],
     }
     expect(applyDataSuffix(explicit, '0xbeef')).toBe(explicit)
+  })
+})
+
+describe('resolveNonceKeys', () => {
+  test('generates distinct, nonzero uint256 keys in ascending order', () => {
+    const keys = resolveNonceKeys(['random', 1n, 'random'])
+    expect(keys.length).toMatchInlineSnapshot(`3`)
+    expect(keys[0]).toMatchInlineSnapshot(`1n`)
+    expect(
+      keys.every((key) => key > 0n && key < 2n ** 256n),
+    ).toMatchInlineSnapshot(`true`)
+    expect(keys[1]! < keys[2]!).toMatchInlineSnapshot(`true`)
+    expect(resolveNonceKeys(keys)).toBe(keys)
+    expect(resolveNonceKeys(['random'])[0] === keys[1]).toMatchInlineSnapshot(
+      `false`,
+    )
+  })
+
+  test('preserves explicit keys for validation', () => {
+    expect(resolveNonceKeys([2n, 1n])).toMatchInlineSnapshot(`
+      [
+        2n,
+        1n,
+      ]
+    `)
+    expect(resolveNonceKeys()).toMatchInlineSnapshot(`
+      [
+        0n,
+      ]
+    `)
   })
 })

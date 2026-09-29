@@ -35,6 +35,7 @@ import {
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
+import { resolveNonceKeys } from '../../frames/internal/transaction.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -235,6 +236,7 @@ export type PrepareTransactionRequestReturnType<
         : ExactPartial<_transactionRequest>
     > & {
       chainId?: number | undefined
+      nonceKeys?: readonly bigint[] | undefined
     } & (IsNever<_transactionType> extends true
         ? {}
         : _transactionType extends 'eip8141'
@@ -397,7 +399,12 @@ export async function prepareTransactionRequest<
   }
 
   const keys = request.nonceKeys
-  if (keys) TransactionRequest_ox.toRpc({ nonceKeys: keys })
+    ? resolveNonceKeys(request.nonceKeys)
+    : undefined
+  if (keys) {
+    TransactionRequest_ox.toRpc({ nonceKeys: keys })
+    request.nonceKeys = keys
+  }
 
   if (request.frames && keys && !(keys.length === 1 && keys[0] === 0n)) {
     if (nonceManager)

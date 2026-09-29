@@ -27,6 +27,47 @@ const request = {
 } as const
 
 describe('frames: Frame', () => {
+  test.each([
+    { nonceKeys: [0n, 'random'] },
+    { nonceKeys: [1n, 1n, 'random'] },
+    { nonceKeys: Array.from({ length: 17 }, () => 'random' as const) },
+  ] as const)(
+    'rejects invalid random key combinations ($nonceKeys)',
+    async ({ nonceKeys }) => {
+      await expect(
+        prepareTransactionRequest(client, {
+          nonceKeys,
+          frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+        }),
+      ).rejects.toThrow()
+    },
+  )
+
+  test('prepares random keys once and sends them unchanged', async () => {
+    const prepared = await prepareTransactionRequest(client, {
+      nonceKeys: ['random', 1n, 'random'],
+      frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+    })
+    const keys: readonly bigint[] | undefined = prepared.nonceKeys
+    expect(keys?.length).toMatchInlineSnapshot(`3`)
+    expect(prepared.nonce).toMatchInlineSnapshot(`0`)
+
+    const repeated = await prepareTransactionRequest(client, prepared)
+    expect(repeated.nonceKeys).toEqual(keys)
+    const receipt = await sendTransactionSync(client, repeated)
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.nonceKeys).toEqual(keys)
+
+    const direct = await sendTransactionSync(client, {
+      nonceKeys: ['random'],
+      frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+    })
+    expect(direct.status).toMatchInlineSnapshot(`"success"`)
+  })
+
   test('keyed nonces advance independently of the account nonce', async () => {
     const initial = await getTransactionCount(client, {
       address: accounts[0].address,
