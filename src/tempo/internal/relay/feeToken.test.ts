@@ -193,7 +193,17 @@ test('default candidates use the testnet deployments in token-set order', async 
   `)
 })
 
-test.each([1, 1337])(
+test.each([
+  [1, '0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436'],
+  [8453, '0xB2000000000000000000002fEb517dFeC7415344'],
+] as const)(
+  'default candidates include OUSD on chain %s',
+  async (chainId, address) => {
+    expect(await getDefaultTokens(chainId)).toEqual([address])
+  },
+)
+
+test.each([1337])(
   'default candidates are empty for an unlisted chain: %s',
   async (chainId) => {
     expect(await getDefaultTokens(chainId)).toMatchInlineSnapshot('[]')
