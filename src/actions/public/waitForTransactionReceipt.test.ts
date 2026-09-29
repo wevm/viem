@@ -3,6 +3,9 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
+import { mainnet } from '../../chains/index.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/index.js'
@@ -625,7 +628,7 @@ describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
 
-    vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
+    vi.spyOn(getBlock, 'getBlock').mockRejectedValue(new Error('foo'))
 
     await mine(client, { blocks: 10 })
 
@@ -663,5 +666,92 @@ describe('errors', () => {
         })(),
       ]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: foo]')
+  })
+})
+
+describe('concurrent waits with different options', () => {
+  const hash = `0x${'ab'.repeat(32)}` as `0x${string}`
+  const receipt = {
+    transactionHash: hash,
+    transactionIndex: '0x0',
+    blockHash: `0x${'cd'.repeat(32)}`,
+    blockNumber: '0x64',
+    from: `0x${'11'.repeat(20)}`,
+    to: `0x${'22'.repeat(20)}`,
+    cumulativeGasUsed: '0x5208',
+    gasUsed: '0x5208',
+    effectiveGasPrice: '0x1',
+    contractAddress: null,
+    logs: [],
+    logsBloom: `0x${'00'.repeat(256)}`,
+    status: '0x1',
+    type: '0x2',
+  }
+
+  test('a timing out call does not starve a longer-timeout call', async () => {
+    // The transaction is mined 300ms after start; one block per poll.
+    const start = Date.now()
+    let block = 100n
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return `0x${(block++).toString(16)}`
+          if (method === 'eth_getTransactionReceipt')
+            return Date.now() - start > 300 ? receipt : null
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const short = client_.waitForTransactionReceipt({
+      hash,
+      timeout: 100,
+      checkReplacement: false,
+    })
+    const long = client_.waitForTransactionReceipt({
+      hash,
+      timeout: 2_000,
+      checkReplacement: false,
+    })
+
+    await expect(short).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+    expect((await long).transactionHash).toBe(hash)
+  })
+
+  test('a call honors its own confirmations', async () => {
+    // The receipt (block 100) is available immediately; one block per poll.
+    let block = 100n
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return `0x${(block++).toString(16)}`
+          if (method === 'eth_getTransactionReceipt') return receipt
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const first = client_.waitForTransactionReceipt({
+      hash,
+      checkReplacement: false,
+    })
+    const second = client_.waitForTransactionReceipt({
+      hash,
+      confirmations: 5,
+      checkReplacement: false,
+    })
+
+    // Resolves at the default 1 confirmation.
+    await first
+    // 5 confirmations require head >= 104: must keep polling past the
+    // first call's resolution instead of inheriting its confirmations.
+    await second
+    expect(block).toBeGreaterThanOrEqual(105n)
   })
 })
