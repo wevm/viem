@@ -628,7 +628,7 @@ describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
 
-    vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
+    vi.spyOn(getBlock, 'getBlock').mockRejectedValue(new Error('foo'))
 
     await mine(client, { blocks: 10 })
 
