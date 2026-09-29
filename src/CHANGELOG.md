@@ -1,5 +1,11 @@
 # viem
 
+## 2.57.1
+
+### Patch Changes
+
+- [#5151](https://github.com/wevm/viem/pull/5151) [`93ea7b3928b41929e5e8b1116937c0caf4f2606f`](https://github.com/wevm/viem/commit/93ea7b3928b41929e5e8b1116937c0caf4f2606f) Thanks [@tmm](https://github.com/tmm)! - Added Open USD (OUSD) token support on Ethereum, Tempo, and Base.
+
 ## 2.57.0
 
 ### Minor Changes
