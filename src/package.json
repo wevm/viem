@@ -99,6 +99,11 @@
       "import": "./_esm/experimental/erc7895/index.js",
       "default": "./_cjs/experimental/erc7895/index.js"
     },
+    "./experimental/keystore": {
+      "types": "./_types/experimental/keystore/index.d.ts",
+      "import": "./_esm/experimental/keystore/index.js",
+      "default": "./_cjs/experimental/keystore/index.js"
+    },
     "./linea": {
       "types": "./_types/linea/index.d.ts",
       "import": "./_esm/linea/index.js",
@@ -201,6 +206,9 @@
       ],
       "experimental/erc7895": [
         "./_types/experimental/erc7895/index.d.ts"
+      ],
+      "experimental/keystore": [
+        "./_types/experimental/keystore/index.d.ts"
       ],
       "node": [
         "./_types/node/index.d.ts"

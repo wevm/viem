@@ -38,18 +38,51 @@ const hash = await sendTransaction(client, {
 This is also available as `client.eip8130.sendTransaction` via the [`eip8130Actions`](/eip8130#2-namespaced-client-decorators) decorator. Sponsored sends deliberately do not ride core `client.sendTransaction` (which throws on `payer`), since the payer co-signs off the raw-submit path.
 :::
 
-## Estimating a sponsored transaction
+## Open Payer Mode
 
-Pass the `payer` address (and, if the payer uses a non-K1 key, `payerAuthAuthenticator`) so the node prices the payer authentication too:
+Set `payer.address` to `openPayer` (`0x00`) when the sender does not know who will pay. The sender still signs over the `payer` field, so it commits to open mode, and any account can then attach its signature and pay. In open mode `payer_auth` is a raw 65-byte secp256k1 signature and the payer is the address it recovers to.
 
 ```ts
-import { canonicalAuthenticators, estimateGas } from 'viem/eip8130'
+import { openPayer, sendTransaction } from 'viem/eip8130'
+
+const hash = await sendTransaction(client, {
+  account,
+  calls: [{ to: recipient, data }],
+  gas: 250_000n,
+  payer: { account: sponsor, address: openPayer },
+})
+```
+
+The receipt reports the recovered payer in `eip8130.payer`.
+
+### Sign as the Sender Only
+
+To hand a sender-signed transaction to a sponsor, set `payer` on the transaction and sign without a payer. `payer_auth` is left empty for the sponsor to fill in:
+
+```ts
+import { openPayer, prepareTransactionRequest } from 'viem/eip8130'
+
+const tx = await prepareTransactionRequest(client, {
+  account,
+  calls: [[{ to: recipient, data }]],
+  gas: 250_000n,
+})
+tx.payer = openPayer // or the sponsor's address
+
+const senderSigned = await account.signTransaction(tx)
+```
+
+## Estimating a sponsored transaction
+
+Pass the `payer` address (or `openPayer`) so the node prices the payer authentication too. A k1 payer is priced by default; for another authenticator, pass `payerAuthAuthenticator` together with `payerAuthSize`:
+
+```ts
+import { estimateGas } from 'viem/eip8130'
 
 const gas = await estimateGas(client, {
   sender: account.address,
   calls: [[{ to: recipient, data }]],
   payer: sponsor.address,
-  payerAuthAuthenticator: canonicalAuthenticators.k1,
 })
 ```
 

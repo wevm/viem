@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import {
@@ -108,4 +109,36 @@ export function decodeAuthorizeActorPayload(
     expiry: BigInt(config.expiry),
     policyData,
   }
+}
+
+/**
+ * Decodes one `SignedAccountChanges` op from its type byte and ABI `payload`
+ * (the inverse of {@link encodeChangePayload}).
+ */
+export function decodeChange(type: number, payload: Hex): AaChange {
+  if (type === changeType.authorizeActor) {
+    const { actorId, authenticator, scope, expiry, policyData } =
+      decodeAuthorizeActorPayload(payload)
+    const change: AaChange = {
+      changeType: changeType.authorizeActor,
+      actorId,
+      authenticator,
+    }
+    if (scope !== 0) change.scope = scope
+    if (expiry !== 0n) change.expiry = expiry
+    if (policyData !== '0x') change.policyData = policyData
+    return change
+  }
+  if (type === changeType.revokeActor) {
+    const [actorId] = decodeAbiParameters(revokePayloadParameters, payload)
+    return { changeType: changeType.revokeActor, actorId }
+  }
+  if (type === changeType.lock) {
+    const [unlockDelay] = decodeAbiParameters(lockPayloadParameters, payload)
+    return { changeType: changeType.lock, unlockDelay }
+  }
+  if (type === changeType.unlock) return { changeType: changeType.unlock }
+  if (type === changeType.incrementLocalEpoch)
+    return { changeType: changeType.incrementLocalEpoch }
+  throw new BaseError(`Unknown account change op: 0x${type.toString(16)}.`)
 }

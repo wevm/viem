@@ -4,6 +4,10 @@ description: Authorize and revoke actors on an EIP-8130 account
 
 # Rotating Owners
 
+:::warning[Experimental]
+The Keystore ([EIP-8130](https://github.com/base/eip-8130) Keystore Accounts) is experimental and ships separately from the AA transaction type. Its APIs live in `viem/experimental/keystore` and may change.
+:::
+
 An EIP-8130 account is controlled by a set of **actors**. You rotate ownership by applying a signed `config` account-change that authorizes new actors and/or revokes existing ones. Because a config change is just an `accountChanges` entry, it rides along inside a normal transaction.
 
 ## Actors and keys
@@ -11,7 +15,7 @@ An EIP-8130 account is controlled by a set of **actors**. You rotate ownership b
 Each actor is `{ actorId, authenticator }`. Build them with the `key` helpers:
 
 ```ts
-import { key } from 'viem/eip8130'
+import { key } from 'viem/experimental/keystore'
 
 key.k1('0xowner...')             // secp256k1 (native ecrecover)
 key.p256({ x, y })               // P-256 public key
@@ -24,7 +28,7 @@ key.delegate('0xotherAccount')   // signatures for another account act for this 
 `authorizeActor` attaches a permission scope and optional expiry to an actor. Combine scope flags with `toScope`:
 
 ```ts
-import { actorScope, authorizeActor, key, toScope } from 'viem/eip8130'
+import { actorScope, authorizeActor, key, toScope } from 'viem/experimental/keystore'
 
 authorizeActor(key.p256({ x, y }), {
   // What the actor may do: originate transactions and pay its own gas.
@@ -49,7 +53,7 @@ An unrestricted (full-owner) actor uses scope `0` and needs no flags: admin (`sc
 Every config change is signed against the account's **next** config sequence. Read it first to avoid sequence-mismatch rejections:
 
 ```ts
-import { getConfigSequence } from 'viem/eip8130'
+import { getConfigSequence } from 'viem/experimental/keystore'
 
 const { local: sequence } = await getConfigSequence(client, {
   account: account.address,
@@ -61,12 +65,8 @@ const { local: sequence } = await getConfigSequence(client, {
 Sign the change with `account.change(...)`, then include it in a transaction's `accountChanges`:
 
 ```ts
-import {
-  actorScope,
-  authorizeActor,
-  key,
-  sendTransaction,
-} from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { actorScope, authorizeActor, key } from 'viem/experimental/keystore'
 
 const change = await account.change(
   [
@@ -90,12 +90,7 @@ const hash = await sendTransaction(client, {
 `revokeActor` accepts an actor or a raw `actorId`. Combine authorize + revoke in one change to atomically rotate a key:
 
 ```ts
-import {
-  actorScope,
-  authorizeActor,
-  key,
-  revokeActor,
-} from 'viem/eip8130'
+import { actorScope, authorizeActor, key, revokeActor } from 'viem/experimental/keystore'
 
 const rotate = await account.change(
   [
@@ -111,7 +106,8 @@ const rotate = await account.change(
 `incrementLocalEpoch()` bumps the account's local epoch, invalidating **every** unlanded local-channel signature signed at a prior epoch in one shot — an instant "revoke all pending" kill-switch (e.g. after a suspected key compromise, or to void outstanding just-in-time session-key grants that haven't landed). It takes no payload; sign it at the current `local` sequence like any other change:
 
 ```ts
-import { getConfigSequence, incrementLocalEpoch, sendTransaction } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { getConfigSequence, incrementLocalEpoch } from 'viem/experimental/keystore'
 
 const { local: sequence } = await getConfigSequence(client, {
   account: account.address,
@@ -137,14 +133,8 @@ The new epoch is reflected in `getConfigSequence`'s `localEpoch` once it lands.
 For a delegated EOA, you can delegate *and* install new keys in the very first transaction — no separate account handle required:
 
 ```ts
-import {
-  actorScope,
-  authorizeActor,
-  canonicalEip8130Deployment,
-  key,
-  sendTransaction,
-  toEoaAccount,
-} from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { actorScope, authorizeActor, canonicalEip8130Deployment, key, toEoaAccount } from 'viem/experimental/keystore'
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
 
 const account = toEoaAccount(privateKeyToAccount(generatePrivateKey()))

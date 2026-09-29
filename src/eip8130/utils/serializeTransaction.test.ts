@@ -1,12 +1,16 @@
 import { describe, expect, test } from 'vitest'
+import type { Hex } from '../../types/misc.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { fromRlp } from '../../utils/encoding/fromRlp.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import {
   aaPayerType,
   aaTransactionType,
+  accountChangeType,
   changeType,
   nonceKeyMax,
+  openPayer,
 } from '../constants.js'
-import { incrementLocalEpoch } from '../keys.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 import {
   getPayerSignatureHash,
@@ -164,8 +168,7 @@ describe('serializeTransaction (EIP-8130)', () => {
   })
 
   test('account changes: incrementLocalEpoch (empty-payload op)', () => {
-    const change = incrementLocalEpoch()
-    expect(change).toEqual({ changeType: changeType.incrementLocalEpoch })
+    const change = { changeType: changeType.incrementLocalEpoch }
 
     const transaction: TransactionSerializable8130 = {
       chainId: 8453,
@@ -289,5 +292,102 @@ describe('signature hashes', () => {
     const bytes = getSenderSignatureHash({ ...transaction, to: 'bytes' })
     expect(bytes).toBeInstanceOf(Uint8Array)
     expect(keccak256(bytes)).toMatch(/^0x/)
+  })
+})
+
+describe('wire format', () => {
+  function decode(serialized: Hex) {
+    return fromRlp(sliceHex(serialized, 1)) as any[]
+  }
+
+  test('calls encode as [to, value, data]', () => {
+    const transaction: TransactionSerializable8130 = {
+      chainId: 8453,
+      from: alice,
+      maxFeePerGas: 2n,
+      calls: [[{ to: bob, value: 1_000n, data: '0xdeadbeef' }, { to: token }]],
+      senderAuth,
+    }
+    const serialized = serializeTransaction(transaction)
+    expect(decode(serialized)[10]).toEqual([
+      [
+        [bob.toLowerCase(), '0x03e8', '0xdeadbeef'],
+        [token.toLowerCase(), '0x', '0x'],
+      ],
+    ])
+    expect(parseTransaction(serialized).calls).toEqual([
+      [
+        { to: bob.toLowerCase(), value: 1_000n, data: '0xdeadbeef' },
+        { to: token.toLowerCase() },
+      ],
+    ])
+  })
+
+  test('delegation entry is 0x01', () => {
+    const transaction: TransactionSerializable8130 = {
+      chainId: 8453,
+      from: alice,
+      maxFeePerGas: 2n,
+      accountChanges: [{ type: 'delegation', target: token }],
+      senderAuth,
+    }
+    const serialized = serializeTransaction(transaction)
+    expect(accountChangeType.delegation).toBe('0x01')
+    expect(decode(serialized)[9]).toEqual([['0x01', token.toLowerCase()]])
+    expect(parseTransaction(serialized).accountChanges).toEqual([
+      { type: 'delegation', target: token.toLowerCase() },
+    ])
+  })
+
+  test('rejects more than one delegation entry', () => {
+    expect(() =>
+      serializeTransaction({
+        chainId: 8453,
+        from: alice,
+        maxFeePerGas: 2n,
+        accountChanges: [
+          { type: 'delegation', target: token },
+          { type: 'delegation', target: bob },
+        ],
+        senderAuth,
+      }),
+    ).toThrow()
+  })
+
+  test('open payer encodes as 0x00 with a raw 65-byte payer_auth', () => {
+    const openPayerAuth = `0x${'ab'.repeat(65)}` as const
+    const transaction: TransactionSerializable8130 = {
+      chainId: 8453,
+      from: alice,
+      maxFeePerGas: 2n,
+      calls: [[{ to: bob }]],
+      payer: openPayer,
+      senderAuth,
+      payerAuth: openPayerAuth,
+    }
+    const serialized = serializeTransaction(transaction)
+    const fields = decode(serialized)
+    expect(fields[12]).toBe('0x00')
+    expect(fields[14]).toBe(openPayerAuth)
+    expect(parseTransaction(serialized)).toMatchObject({
+      payer: openPayer,
+      payerAuth: openPayerAuth,
+    })
+    expect(serializeTransaction(parseTransaction(serialized))).toEqual(
+      serialized,
+    )
+  })
+
+  test('open payer rejects a non-65-byte payer_auth', () => {
+    expect(() =>
+      serializeTransaction({
+        chainId: 8453,
+        from: alice,
+        maxFeePerGas: 2n,
+        payer: openPayer,
+        senderAuth,
+        payerAuth,
+      }),
+    ).toThrow()
   })
 })

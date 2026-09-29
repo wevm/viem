@@ -3,8 +3,9 @@ import type { LocalAccount } from '../../accounts/types.js'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import { type ConcatHexErrorType, concatHex } from '../../utils/data/concat.js'
-import { ecrecoverAuthenticator } from '../constants.js'
+import { k1Authenticator, openPayer } from '../constants.js'
 import type {
+  AaPayer,
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from '../types/transaction.js'
@@ -14,6 +15,7 @@ import {
   getPayerSignatureHash,
   getSenderSignatureHash,
 } from './hashTransaction.js'
+import { recoverSenderAddress } from './recoverSender.js'
 import {
   type SerializeTransactionErrorType,
   serializeTransaction,
@@ -34,8 +36,8 @@ export type Signer = Pick<LocalAccount, 'address'> & {
     | undefined
   /**
    * Authenticator address for this signer's auth blob. Defaults to
-   * `ECRECOVER_AUTHENTICATOR` (native secp256k1). Set to a P-256 / WebAuthn /
-   * delegate authenticator to sign as a non-ECDSA configured actor.
+   * `K1_AUTHENTICATOR` (native secp256k1). Other authenticators require the
+   * EIP-8130 Keystore integration (`viem/experimental/keystore`).
    */
   authenticator?: Address | undefined
 }
@@ -43,31 +45,35 @@ export type Signer = Pick<LocalAccount, 'address'> & {
 export type SignTransactionParameters = {
   transaction: TransactionSerializable8130
   /**
-   * Sender signer (secp256k1). Used to produce `sender_auth` over the sender
-   * signature hash. Not required if `transaction.senderAuth` is already set.
+   * Sender signer. Used to produce `sender_auth` over the sender signature
+   * hash. Not required if `transaction.senderAuth` is already set.
    *
-   * - EOA path (`transaction.from` unset): `sender_auth` is the raw 65-byte
-   *   signature and the recovered address is the sender.
-   * - Configured-actor path (`transaction.from` set): `sender_auth` is
-   *   `ECRECOVER_AUTHENTICATOR || signature`.
+   * - Recovered sender (`transaction.from` unset): `sender_auth` is the raw
+   *   65-byte signature and the recovered address is the sender.
+   * - Named sender (`transaction.from` set): `sender_auth` is
+   *   `K1_AUTHENTICATOR || signature`.
    */
   account?: Signer | undefined
   /**
-   * Authenticator for the sender's `auth` blob (configured-actor path). Defaults
-   * to `account.authenticator`, then `ECRECOVER_AUTHENTICATOR`. Set to a P-256 /
-   * WebAuthn (passkey) / delegate authenticator to sign as a non-ECDSA actor.
+   * Authenticator for a named sender's `auth` blob. Defaults to
+   * `account.authenticator`, then `K1_AUTHENTICATOR`.
    */
   authenticator?: Address | undefined
   /**
-   * Payer signer for sponsored transactions. Produces `payer_auth` as
-   * `authenticator || data` over the payer signature hash. Defaults the
-   * authenticator to `ECRECOVER_AUTHENTICATOR` (native secp256k1).
+   * Payer signer for sponsored transactions. Produces `payer_auth` over the
+   * payer signature hash: `authenticator || signature` for a named payer, or
+   * the raw 65-byte signature in open mode (`payer: openPayer`). When
+   * `transaction.senderAuth` is preset and `transaction.from` is empty, the
+   * sender is recovered so the payer signature binds to it.
    */
   payer?:
     | {
         account: Signer
-        /** The `payer` wire address. Defaults to the payer account's address. */
-        address?: Address | undefined
+        /**
+         * The `payer` wire value. Defaults to the payer account's address;
+         * pass `openPayer` for open mode.
+         */
+        address?: AaPayer | undefined
         /**
          * Authenticator for the payer's `auth` blob. Defaults to
          * `account.authenticator`, then `ECRECOVER_AUTHENTICATOR`.
@@ -108,9 +114,7 @@ export async function signTransaction(
         'A sender `account` with raw signing support, or a preset `transaction.senderAuth`, is required.',
       )
     const authenticator =
-      parameters.authenticator ??
-      account.authenticator ??
-      ecrecoverAuthenticator
+      parameters.authenticator ?? account.authenticator ?? k1Authenticator
     const senderHash = getSenderSignatureHash(transaction)
     const signature = await account.sign({ hash: senderHash })
     transaction.senderAuth = transaction.from
@@ -125,20 +129,34 @@ export async function signTransaction(
   if (payer && !transaction.payer)
     transaction.payer = payer.address ?? payer.account.address
 
-  if (transaction.payer && !transaction.payerAuth) {
-    if (!payer?.account.sign)
+  if (transaction.payer && !transaction.payerAuth && payer) {
+    if (!payer.account.sign)
       throw new BaseError(
         'A `payer` signer with raw signing support, or a preset `transaction.payerAuth`, is required for sponsored transactions.',
       )
-    const authenticator =
-      payer.authenticator ??
-      payer.account.authenticator ??
-      ecrecoverAuthenticator
     // The payer hash MUST bind to the resolved sender address.
-    const from = transaction.from ?? account?.address
+    const from =
+      transaction.from ??
+      account?.address ??
+      (await recoverSenderAddress({ transaction }))
+    const openMode = transaction.payer === openPayer
+    if (openMode) {
+      const authenticator = payer.authenticator ?? payer.account.authenticator
+      if (authenticator && authenticator.toLowerCase() !== k1Authenticator)
+        throw new BaseError(
+          `Open payer mode requires a secp256k1 payer signer (the payer is recovered from a raw signature), but the payer uses authenticator ${authenticator}. Name the payer address instead.`,
+        )
+    }
     const payerHash = getPayerSignatureHash({ ...transaction, from })
     const signature = await payer.account.sign({ hash: payerHash })
-    transaction.payerAuth = concatHex([authenticator, signature])
+    if (openMode)
+      // Open mode: the payer is recovered from a raw 65-byte signature.
+      transaction.payerAuth = signature
+    else {
+      const authenticator =
+        payer.authenticator ?? payer.account.authenticator ?? k1Authenticator
+      transaction.payerAuth = concatHex([authenticator, signature])
+    }
   }
 
   return serializeTransaction(transaction)

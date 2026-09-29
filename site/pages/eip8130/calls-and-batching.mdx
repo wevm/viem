@@ -1,5 +1,5 @@
 ---
-description: Group EIP-8130 calls into atomic phases and control how value-bearing calls execute
+description: Group EIP-8130 calls into atomic phases and send native value with calls
 ---
 
 # Calls & Batching
@@ -11,7 +11,8 @@ Every EIP-8130 transaction carries a list of **calls** grouped into ordered **ph
 `calls` is a nested array — an array of phases, each an array of `AaCall`:
 
 ```ts
-import { type AaCalls, parseEther } from 'viem/eip8130'
+import { parseEther } from 'viem'
+import type { AaCalls } from 'viem/eip8130'
 
 const calls: AaCalls = [
   // phase 0 — runs first, atomically
@@ -28,7 +29,7 @@ Each `AaCall` is `{ to, data?, value? }`:
 
 - `to` — target address.
 - `data` — calldata (defaults to `'0x'`).
-- `value` — wei to send (defaults to `0n`). This is an ERC-5792-style *intent*; it is realized by the account's wallet bytecode and never travels on the EIP-8130 wire.
+- `value`: wei to send (defaults to `0n`). Value travels on the wire, and the protocol transfers it from the account to `to` as part of the call.
 
 ## Flat vs. phased
 
@@ -54,39 +55,25 @@ await sendTransaction(client, {
 
 `estimateGas` and `prepareTransactionRequest` always take the **phased** form (`AaCalls`).
 
-## How value-bearing calls execute
+## Value in Calls
 
-A phase with no `value` passes each call straight to the wire as `[to, data]`. As soon as a phase contains any value-bearing call, the whole phase is collapsed into a single wallet-routed call — by default a self-call to the account's `executeBatch(Call[])`, which performs each value-bearing `CALL` while preserving the phase's atomicity. `encodeWalletCalls` implements this normalization:
-
-```ts
-import { encodeWalletCalls, parseEther } from 'viem/eip8130'
-
-const wire = encodeWalletCalls({
-  account: account.address,
-  calls: [[{ to: recipient, value: parseEther('1'), data: '0x' }]],
-})
-// -> [[{ to: account.address, data: executeBatch([...]) }]]
-```
-
-## Custom executors
-
-Wallets whose bytecode does not expose `executeBatch` must supply their own `encodeExecute` — a function mapping a phase's normalized calls to a single wallet call. Pass it to `sendTransaction` (or `encodeWalletCalls`):
+Each call is encoded on the wire as `[to, value, data]`, so a call can carry native value directly, with no wallet-side routing. The protocol performs the value transfer as part of the call: if the account cannot cover it, that call reverts and its phase is discarded like any other revert.
 
 ```ts
-import { type EncodeExecute, sendTransaction } from 'viem/eip8130'
-import { encodeFunctionData } from 'viem'
+import { parseEther } from 'viem'
+import { sendTransaction } from 'viem/eip8130'
 
-const encodeExecute: EncodeExecute = ({ account, calls }) => ({
-  to: account,
-  data: encodeFunctionData({
-    abi: myWalletAbi,
-    functionName: 'execute',
-    args: [calls],
-  }),
+await sendTransaction(client, {
+  account,
+  calls: [
+    { to: recipient, value: parseEther('0.01') },
+    { to: router, value: parseEther('0.5'), data: swapData },
+  ],
+  gas: 300_000n,
 })
-
-await sendTransaction(client, { account, calls, gas: 300_000n, encodeExecute })
 ```
+
+Each call with a non-zero `value` to an address other than the sender adds `TX_VALUE_COST` (`txValueCost`, 6,000 gas) to the intrinsic cost. Self-transfers are free. If the recipient does not exist yet, the usual account-creation charge applies at execution time, so include value-bearing calls when you [estimate gas](/eip8130/sending-a-transaction#estimate-gas).
 
 ## Choosing phases
 

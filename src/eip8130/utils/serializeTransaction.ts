@@ -24,10 +24,14 @@ import {
   assertTransaction,
 } from './assertTransaction.js'
 
-/** Encodes the `calls` field into a nested RLP-ready array. */
+/** Encodes the `calls` field into a nested RLP-ready array of `[to, value, data]`. */
 export function toCallsList(calls: AaCalls | undefined): RecursiveArray<Hex>[] {
   return (calls ?? []).map((phase) =>
-    phase.map((call) => [call.to, call.data ?? '0x']),
+    phase.map((call) => [
+      call.to,
+      call.value ? numberToHex(call.value) : '0x',
+      call.data ?? '0x',
+    ]),
   )
 }
 
@@ -46,14 +50,11 @@ function toChange(change: AaChange): RecursiveArray<Hex> {
 /**
  * Encodes the `account_changes` field into a nested RLP-ready array.
  *
- * Per [EIP-8130] (base/base #3985), each AccountChange is a single flat RLP list
- * whose first element is the type discriminant, followed by the body fields
- * inline: `rlp([type_byte, ...fields])`. The type byte is a genuine list element
- * (RLP-encoded as an integer, so `create` = `0` → `0x80`), NOT an EIP-2718-style
- * bare prefix — so each entry frames as exactly one item in the outer
- * `account_changes` list.
- *
- * [EIP-8130]: https://eips.ethereum.org/EIPS/eip-8130
+ * Each AccountChange is a single flat RLP list whose first element is the type
+ * discriminant, followed by the body fields inline: `rlp([type_byte, ...fields])`.
+ * The type byte is a genuine list element (RLP-encoded as an integer), NOT an
+ * EIP-2718-style bare prefix, so each entry frames as exactly one item in the
+ * outer `account_changes` list.
  */
 export function toAccountChangesList(
   accountChanges: readonly AaAccountChange[] | undefined,
@@ -131,10 +132,10 @@ export type SerializeTransactionErrorType =
   | ErrorType
 
 /**
- * Serializes an EIP-8130 (`AA_TX_TYPE`) transaction into its EIP-2718 envelope.
+ * Serializes an AA (`AA_TX_TYPE`) transaction into its EIP-2718 envelope.
  *
- * Requires `senderAuth`. For sponsored transactions, also provide `payer` and
- * `payerAuth`; omit both for self-pay.
+ * Requires `senderAuth`. For sponsored transactions, also provide `payer` (an
+ * address, or `openPayer` for open mode) and `payerAuth`; omit both for self-pay.
  */
 export function serializeTransaction(
   transaction: TransactionSerializable8130,

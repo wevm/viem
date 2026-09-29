@@ -7,14 +7,13 @@ import {
   defineTransactionReceipt,
   formatTransactionReceipt,
 } from '../utils/formatters/transactionReceipt.js'
-import type { ToAccountReturnType } from './accounts/toAccount.js'
+import type { AaAccount } from './accounts/types.js'
 import { estimateGas } from './actions/estimateGas.js'
 import {
   parseReceiptFields,
   type ReceiptFields,
 } from './actions/getTransactionReceipt.js'
 import { prepareTransactionRequest as fillEip8130Body } from './actions/sendTransaction.js'
-import { encodeWalletCalls } from './utils/encodeWalletCalls.js'
 import { toPhases } from './utils/toPhases.js'
 
 type RawReceipt8130 = ExactPartial<RpcTransactionReceipt> & {
@@ -24,11 +23,11 @@ type RawReceipt8130 = ExactPartial<RpcTransactionReceipt> & {
 }
 
 /**
- * Chain config that folds EIP-8130 (`AA_TX_TYPE`, `0x79`) receipt fields into
- * core viem, so `client.getTransactionReceipt` and
- * `client.waitForTransactionReceipt` natively return the EIP-8130 fields
- * (`payer`, `phaseStatuses`, `metadata`) under a `eip8130` key. Mirrors the
- * tempo `chainConfig` fold.
+ * Chain config that folds AA transaction (`AA_TX_TYPE`, `0x79`) receipt fields
+ * into core viem, so `client.getTransactionReceipt` and
+ * `client.waitForTransactionReceipt` natively return the AA fields (`payer`,
+ * `phaseStatuses`, `metadata`) under a `eip8130` key. Mirrors the tempo
+ * `chainConfig` fold.
  *
  * Spread it into an EIP-8130-enabled chain:
  *
@@ -44,23 +43,22 @@ type RawReceipt8130 = ExactPartial<RpcTransactionReceipt> & {
  *   rpcUrls: { default: { http: ['https://rpc.example.com'] } },
  * })
  *
- * // then, on a client for `myChain` with an EIP-8130 account, core
+ * // then, on a client for `myChain` with an AA account, core
  * // `client.sendTransaction` submits a native `AA_TX_TYPE` transaction
- * // (gas is estimated via the EIP-8130 `eth_estimateGas` extension when omitted):
+ * // (gas is estimated via the `eth_estimateGas` extension when omitted):
  * const hash = await client.sendTransaction({
- *   account, // toAccount(...) / newSmartAccount(...)
- *   calls: [{ to, data }],
+ *   account, // toEoaAccount(privateKeyToAccount(pk))
+ *   calls: [{ to, value }, { to: token, data }],
  * })
  * const receipt = await client.getTransactionReceipt({ hash })
  * receipt.eip8130.phaseStatuses // ['0x1']
  *
  * @remarks
  * The `prepareTransactionRequest` hook resolves the AA body (2D nonce, EIP-1559
- * fees, gas estimation, scope-driven nonce mode, phased-call encoding) so core
- * skips its standard fills; the account's `signTransaction` then serializes +
- * signs the `AA_TX_TYPE` envelope. Pass `gas` to skip estimation, and
- * `senderActorId` / `senderAuthAuthenticator` to refine estimation for
- * session-key or non-K1 sends.
+ * fees, gas estimation, phases) so core skips its standard fills; the account's
+ * `signTransaction` then serializes + signs the `AA_TX_TYPE` envelope. Pass
+ * `gas` to skip estimation. Keystore accounts (`viem/experimental/keystore`)
+ * also resolve their nonce mode and acting actor here.
  *
  * This covers the self-pay path only. Sponsored sends are not routed through
  * core `sendTransaction` (the payer signer isn't part of a core request, and
@@ -102,12 +100,8 @@ export const eip8130ChainConfig = {
             '`client.eip8168.sendTransaction` (ERC-8168 payer service).',
         )
 
-      const account = req.account as ToAccountReturnType
-      const calls = encodeWalletCalls({
-        account: account.address,
-        calls: toPhases(req.calls),
-        encodeExecute: req.encodeExecute,
-      })
+      const account = req.account as AaAccount
+      const calls = toPhases(req.calls)
 
       // Attribution suffix → top-level (signed, authenticated) `metadata`, since
       // EIP-8130 has no calldata to concatenate onto. Precedence mirrors core:
@@ -122,27 +116,11 @@ export const eip8130ChainConfig = {
           ? client.dataSuffix
           : client.dataSuffix?.value)
 
-      // Price the AA transaction via the EIP-8130 `eth_estimateGas` extension
-      // when the caller didn't pin `gas`. Thread the acting-actor hint so
-      // policy-gated (session-key) sends resolve the right policy, and let the
-      // caller override auth-gas pricing via `senderAuthAuthenticator`.
-      const gas =
-        req.gas ??
-        (await estimateGas(client, {
-          sender: account.address,
-          accountChanges: req.accountChanges,
-          calls,
-          nonceKey: req.nonceKey,
-          senderActorId: req.senderActorId ?? account.actorId,
-          senderAuthAuthenticator: req.senderAuthAuthenticator,
-          dataSuffix,
-        }))
-
       const body = await fillEip8130Body(client, {
         account,
         calls,
         accountChanges: req.accountChanges,
-        gas,
+        gas: req.gas ?? 0n,
         nonceKey: req.nonceKey,
         nonceSequence: req.nonceSequence,
         validAfter: req.validAfter,
@@ -151,6 +129,25 @@ export const eip8130ChainConfig = {
         maxPriorityFeePerGas: req.maxPriorityFeePerGas,
         dataSuffix,
       })
+
+      // Price the AA transaction via the EIP-8130 `eth_estimateGas` extension
+      // when the caller didn't pin `gas`, using the filled nonce channel and
+      // validity window (their calldata is priced). Thread the acting-actor hint
+      // so policy-gated (session-key) sends resolve the right policy, and let the
+      // caller override auth-gas pricing via `senderAuthAuthenticator`.
+      body.gas =
+        req.gas ??
+        (await estimateGas(client, {
+          sender: account.address,
+          accountChanges: req.accountChanges,
+          calls,
+          nonceKey: body.nonceKey,
+          validAfter: body.validAfter,
+          validBefore: body.validBefore,
+          senderActorId: req.senderActorId ?? account.actorId,
+          senderAuthAuthenticator: req.senderAuthAuthenticator,
+          dataSuffix,
+        }))
 
       return {
         ...request,

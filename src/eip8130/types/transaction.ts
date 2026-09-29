@@ -2,25 +2,18 @@ import type { Address } from 'abitype'
 import type { Hex } from '../../types/misc.js'
 
 /**
- * A single call within a phase.
+ * A single call within a phase, encoded on the wire as `rlp([to, value, data])`.
  *
- * On the wire, EIP-8130 calls carry no ETH value — each call executes with
- * `msg.value == 0`. A `value` MAY be supplied as ERC-5792-style intent: actions
- * that build the wire (e.g. {@link sendTransaction}) realize any non-zero `value`
- * by routing the phase through the account's wallet bytecode (`executeBatch`),
- * collapsing it back into a value-less `[to, data]`. A call whose `value` is `0`
- * (or omitted) is encoded directly as `[to, data]`. A non-zero `value` that
- * reaches serialization unwrapped is rejected (it would be silently dropped).
+ * The protocol dispatches the call from `sender` with `msg.value = value`. The
+ * transfer is part of the call frame and reverts with its phase; if `sender`
+ * cannot cover `value` when the call runs, the phase reverts.
  */
 export type AaCall = {
   /** Target address. */
   to: Address
   /** Calldata. @default '0x' */
   data?: Hex | undefined
-  /**
-   * ERC-5792-style intent value (wei). Realized via the account's wallet
-   * bytecode; never carried on the EIP-8130 wire. @default 0n
-   */
+  /** Wei transferred from `sender` to `to` with the call. @default 0n */
   value?: bigint | undefined
 }
 
@@ -61,7 +54,10 @@ export type AaActor = {
   policyData?: Hex | undefined
 }
 
-/** `create` (type `0x00`) account-change entry: deploy a new account. */
+/**
+ * `create` (type `0x02`) account-change entry: deploy a new Keystore account.
+ * Defined by the EIP-8130 Keystore integration (`viem/experimental/keystore`).
+ */
 export type AaAccountChangeCreate = {
   type: 'create'
   /** User-chosen uniqueness factor (bytes32). */
@@ -144,8 +140,9 @@ export type AaChange =
 export type AaChangeChannel = 'local' | 'multichain'
 
 /**
- * `config` (type `0x01`) account-change entry: a signed `SignedAccountChanges`
- * batch (`applySignedAccountChanges`).
+ * `config` (type `0x03`) account-change entry: a signed `SignedAccountChanges`
+ * batch (`applySignedAccountChanges`). Defined by the EIP-8130 Keystore
+ * integration (`viem/experimental/keystore`).
  */
 export type AaAccountChangeConfig = {
   type: 'config'
@@ -167,7 +164,11 @@ export type AaAccountChangeConfig = {
   signature: Hex
 }
 
-/** `delegation` (type `0x02`) account-change entry: code delegation. */
+/**
+ * `delegation` (type `0x01`) account-change entry: EIP-7702-style code
+ * delegation for the sender, authorized by `sender_auth`. Requires the sender
+ * to authenticate as its own secp256k1 key. At most one per transaction.
+ */
 export type AaAccountChangeDelegation = {
   type: 'delegation'
   /** Delegate target, or the zero address to clear delegation. */
@@ -180,7 +181,14 @@ export type AaAccountChange =
   | AaAccountChangeDelegation
 
 /**
- * An EIP-8130 (`AA_TX_TYPE`) serializable transaction.
+ * The `payer` wire field: an address for a named (bound) payer, or
+ * {@link openPayer} (`0x00`) for open mode, where the payer is recovered from
+ * `payer_auth`.
+ */
+export type AaPayer = Address | '0x00'
+
+/**
+ * An AA (`AA_TX_TYPE`) serializable transaction.
  *
  * The wire format is:
  *
@@ -196,9 +204,9 @@ export type TransactionSerializable8130 = {
   /** Chain ID per EIP-155. */
   chainId: number
   /**
-   * Sending account address (the wire `sender` field). Omit (EOA path) to have
-   * the address recovered from `senderAuth` via ecrecover; set it for configured
-   * actor signatures.
+   * Sending account address (the wire `sender` field). Omit to have the sender
+   * recovered from a raw 65-byte `senderAuth`; set it to name the sender, in
+   * which case `senderAuth` is `authenticator || data`.
    */
   from?: Address | undefined
   /** Nonce channel selector (`uint256`). `0` = standard sequential ordering. */
@@ -206,16 +214,16 @@ export type TransactionSerializable8130 = {
   /** Expected sequence number within `nonceKey` (`uint64`). */
   nonceSequence?: bigint | undefined
   /**
-   * Unix timestamp (**milliseconds**, `uint64`) before which the transaction is
-   * invalid. `0` (or omitted) = no lower bound. Evaluated against
-   * `block.timestamp * 1000`.
+   * Unix timestamp (`uint64`) before which the transaction is invalid, in
+   * milliseconds or seconds (values below {@link timestampMsThreshold} are
+   * read as seconds). `0` (or omitted) = no lower bound.
    */
   validAfter?: bigint | undefined
   /**
-   * Unix timestamp (**milliseconds**, `uint64`) at/after which the transaction
-   * is invalid. `0` (or omitted) = no upper bound, but MUST be non-zero in
-   * nonce-free mode (`nonceKey == nonceKeyMax`). Evaluated against
-   * `block.timestamp * 1000`.
+   * Unix timestamp (`uint64`) after which the transaction is invalid, in
+   * milliseconds or seconds (values below {@link timestampMsThreshold} are
+   * read as seconds). `0` (or omitted) = no expiry, but MUST be non-zero in
+   * nonce-free mode (`nonceKey == nonceKeyMax`).
    */
   validBefore?: bigint | undefined
   /** Max priority fee per gas (EIP-1559). */
@@ -224,7 +232,7 @@ export type TransactionSerializable8130 = {
   maxFeePerGas?: bigint | undefined
   /** Gas budget for sender-intrinsic gas and call execution (`gas_limit`). */
   gas?: bigint | undefined
-  /** Account creation, config change, and/or delegation operations. */
+  /** Typed account-change entries (delegation; Keystore create / config). */
   accountChanges?: readonly AaAccountChange[] | undefined
   /** Ordered call phases. */
   calls?: AaCalls | undefined
@@ -235,23 +243,26 @@ export type TransactionSerializable8130 = {
    * `'0x'` for none.
    *
    * High-level helpers (`prepareTransactionRequest` / `sendTransaction`) populate
-   * this from `dataSuffix` / `client.dataSuffix` (EIP-8130 has no calldata
-   * suffix; attribution lands here instead).
+   * this from `dataSuffix` / `client.dataSuffix` (the AA transaction has no
+   * calldata suffix; attribution lands here instead).
    */
   metadata?: Hex | undefined
-  /** Gas payer. Omit for self-pay; set to a 20-byte address for sponsored. */
-  payer?: Address | undefined
   /**
-   * Sender authorization. EOA path: raw 65-byte ECDSA signature. Configured
-   * actor: `authenticator (20 bytes) || data`.
+   * Gas payer. Omit for self-pay, set to an address for a named (bound) payer,
+   * or {@link openPayer} (`0x00`) for open mode.
+   */
+  payer?: AaPayer | undefined
+  /**
+   * Sender authorization. Recovered sender (`from` omitted): raw 65-byte ECDSA
+   * signature. Named sender: `authenticator (20 bytes) || data`.
    */
   senderAuth?: Hex | undefined
   /**
-   * Payer authorization. Omit for self-pay; otherwise `authenticator || data`
-   * (same format as `senderAuth`).
+   * Payer authorization. Omit for self-pay. Open payer: raw 65-byte ECDSA
+   * signature. Named payer: `authenticator (20 bytes) || data`.
    */
   payerAuth?: Hex | undefined
 }
 
-/** A serialized EIP-8130 transaction (hex envelope). */
+/** A serialized AA transaction (hex envelope). */
 export type TransactionSerialized8130 = Hex

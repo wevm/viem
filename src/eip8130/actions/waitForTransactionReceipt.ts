@@ -4,6 +4,7 @@ import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import { TransactionExpiredError } from '../errors.js'
+import { normalizeTimestampMs } from '../utils/normalizeTimestampMs.js'
 import { getTransaction } from './getTransaction.js'
 import {
   type GetTransactionReceiptReturnType,
@@ -102,8 +103,12 @@ export async function waitForTransactionReceipt<
 
     if (validBefore !== undefined) {
       const blockTimestamp = await getLatestBlockTimestamp(client)
-      // `validBefore` is unix milliseconds; block timestamps are unix seconds.
-      if (blockTimestamp !== undefined && blockTimestamp * 1000n > validBefore)
+      // `validBefore` may be seconds or milliseconds; block timestamps are unix
+      // seconds.
+      if (
+        blockTimestamp !== undefined &&
+        blockTimestamp * 1000n > normalizeTimestampMs(validBefore)
+      )
         throw new TransactionExpiredError({
           hash,
           validBefore,

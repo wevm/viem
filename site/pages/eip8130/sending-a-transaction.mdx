@@ -6,6 +6,19 @@ description: Estimate, sign, and submit an EIP-8130 AA_TX_TYPE transaction
 
 An EIP-8130 transaction is an `AA_TX_TYPE` (`0x79`) envelope. `sendTransaction` handles the full lifecycle: it fills the nonce and fees, encodes the calls, signs `sender_auth` (and `payer_auth` when sponsored), serializes, and submits via `eth_sendRawTransaction`.
 
+## Create an Account
+
+The AA transaction type has no account factory: the account is an EOA whose secp256k1 key signs `sender_auth`. Wrap the key with `toEoaAccount`:
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+import { toEoaAccount } from 'viem/experimental/keystore'
+
+const account = toEoaAccount(privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`))
+```
+
+Smart accounts (P-256 and passkey keys, session keys, sub-accounts) are built on the Keystore, which is experimental and lives in `viem/experimental/keystore`. See [Creating an Account](/eip8130/creating-an-account).
+
 ## Native Core Actions
 
 If your chain is defined with [`eip8130ChainConfig`](/eip8130#1-native-core-actions-eip8130chainconfig), core `client.sendTransaction` submits an `AA_TX_TYPE` for an EIP-8130 account. Gas is estimated for you (the config prices it via the EIP-8130 `eth_estimateGas` extension), so a send is just an account and calls:
@@ -14,7 +27,7 @@ If your chain is defined with [`eip8130ChainConfig`](/eip8130#1-native-core-acti
 import { client } from './viem.config' // chain includes ...eip8130ChainConfig
 
 const hash = await client.sendTransaction({
-  account,                       // toAccount(...) / newSmartAccount(...)
+  account,                       // toEoaAccount(...)
   calls: [{ to: recipient, data }],
   // gas is optional here — omit to auto-estimate, or pin it to skip the call
 })
@@ -23,7 +36,7 @@ const receipt = await client.getTransactionReceipt({ hash })
 receipt.eip8130.phaseStatuses    // ['0x1']
 ```
 
-For session-key or non-K1 sends, pass `senderActorId` / `senderAuthAuthenticator` to refine the auto-estimate. Sponsored (`payer`) sends do not ride core `sendTransaction`: use `client.eip8130.sendTransaction` (local payer) or `client.eip8168.sendTransaction` (payer service). See [Sponsoring Transactions](/eip8130/sponsoring-transactions).
+For Keystore accounts (session keys or non-k1 authenticators), pass `senderActorId` and `senderAuthAuthenticator` to refine the auto-estimate. Sponsored (`payer`) sends do not ride core `sendTransaction`: use `client.eip8130.sendTransaction` (local payer) or `client.eip8168.sendTransaction` (payer service). See [Sponsoring Transactions](/eip8130/sponsoring-transactions).
 
 ### Attribution and Metadata
 
@@ -43,63 +56,46 @@ The field is opaque bytes: pass whatever your indexer expects. (If you want a sh
 
 The rest of this guide uses the standalone `viem/eip8130` actions, which are explicit about each step and require a `gas` budget. They are equivalent to the `client.eip8130.*` decorator methods.
 
-## Estimate gas
+## Estimate Gas
 
-Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas` prices authentication gas from the *shape* of the auth blob — never a real signature — so you can estimate before signing. Pass a `senderAuthAuthenticator` hint matching your signer so the node prices the right authenticator:
+Unlike EVM transactions, the gas budget for an `AA_TX_TYPE` transaction is node-computed and required up front. `estimateGas` prices authentication gas from the *shape* of the auth blob, never a real signature, so you can estimate before signing. A k1 sender is priced by default:
 
 ```ts
 import { parseEther } from 'viem'
-import { canonicalAuthenticators, estimateGas } from 'viem/eip8130'
+import { estimateGas } from 'viem/eip8130'
 
 const gas = await estimateGas(client, {
   sender: account.address,
-  // Include `createChange` only on the first (deploying) transaction.
-  accountChanges: [account.createChange],
-  // Phased calls: each inner array is one atomic `executeBatch` phase.
+  // Phased calls: each inner array is one atomic phase.
   calls: [[{ to: recipient, value: parseEther('0.001') }]],
-  senderAuthAuthenticator: canonicalAuthenticators.k1, // .p256 / .passkey for other signers
 })
 ```
 
-Pick the authenticator from the signer kind:
-
-```ts
-import { canonicalAuthenticators } from 'viem/eip8130'
-const senderAuthAuthenticator =
-  kind === 'p256' ? canonicalAuthenticators.p256
-  : kind === 'passkey' ? canonicalAuthenticators.passkey
-  : canonicalAuthenticators.k1
-```
+For any other authenticator, pass `senderAuthAuthenticator` together with `senderAuthSize` (the Keystore exports `canonicalAuthDataLength` for its canonical authenticators).
 
 :::tip
-An EIP-8130 estimate returns the charged gas **even when an inner call reverts** (a reverted 8130 tx is still included — nonce consumed, fee paid). Because the node can converge on the gas where an inner call runs out of gas, add headroom (e.g. `gas * 120n / 100n`) for transactions whose inner calls must succeed.
+Like standard `eth_estimateGas`, the estimate fails with the revert data if any phase reverts, even though a reverted AA transaction would still be included (nonce consumed, fee paid). To send a transaction whose phase may revert, pass an explicit `gas` budget.
 :::
 
-## Deploy on first use
+## Delegate Code
 
-Deploy the account and run its first calls in a single transaction by including `account.createChange` in `accountChanges`. `waitForTransactionReceipt` surfaces the EIP-8130 receipt fields (per-phase statuses, `payer`, `metadata`).
+Include a `delegation` entry in `accountChanges` to set EIP-7702-style code on the account (or clear it with the zero address). It is authorized by the transaction's own `sender_auth`, applies before the calls run, and a transaction may carry at most one. Nothing is delegated automatically. `waitForTransactionReceipt` surfaces the EIP-8130 receipt fields (per-phase statuses, `payer`, `metadata`).
 
 ```ts
-import { parseEther } from 'viem'
-import {
-  canonicalAuthenticators,
-  estimateGas,
-  sendTransaction,
-  waitForTransactionReceipt,
-} from 'viem/eip8130'
+import { estimateGas, sendTransaction, waitForTransactionReceipt } from 'viem/eip8130'
 
-const calls = [{ to: recipient, value: parseEther('0.001') }]
+const accountChanges = [account.delegate(implementation)]
+const calls = [{ to: account.address, data: initData }]
 
 const gas = await estimateGas(client, {
   sender: account.address,
-  accountChanges: [account.createChange],
+  accountChanges,
   calls: [calls],
-  senderAuthAuthenticator: canonicalAuthenticators.k1,
 })
 
 const hash = await sendTransaction(client, {
   account,
-  accountChanges: [account.createChange], // deploy — omit on later txs
+  accountChanges,
   calls,
   gas: (gas * 120n) / 100n,
 })
@@ -108,9 +104,9 @@ const receipt = await waitForTransactionReceipt(client, { hash })
 receipt.eip8130.phaseStatuses // e.g. ['0x1']
 ```
 
-## Follow-up transactions
+## Follow-Up Transactions
 
-Once the account is deployed, drop `accountChanges` and just pass `calls`. The nonce sequence is read automatically via the 2D channel-nonce RPC extension.
+Later transactions just pass `calls`. The nonce sequence is read automatically via the 2D channel-nonce RPC extension.
 
 ```ts
 import { encodeFunctionData } from 'viem'
@@ -128,9 +124,9 @@ const hash = await sendTransaction(client, {
 })
 ```
 
-## Batching calls
+## Batching Calls
 
-A flat `calls` array runs as one atomic phase. Pass a nested array to control phases explicitly (each phase is a separate `executeBatch`) — see [Calls & Batching](/eip8130/calls-and-batching) for the full phased model:
+A flat `calls` array runs as one atomic phase. Pass a nested array to control phases explicitly (each phase commits independently). See [Calls & Batching](/eip8130/calls-and-batching) for the full phased model:
 
 ```ts
 import { sendTransaction } from 'viem/eip8130'
@@ -145,7 +141,7 @@ const hash = await sendTransaction(client, {
 })
 ```
 
-## Sponsored (payer) gas
+## Sponsored (Payer) Gas
 
 A `payer` account can co-sign the transaction and pay its gas — either a key you hold or a payer web service:
 
@@ -162,7 +158,7 @@ const hash = await sendTransaction(client, {
 
 See [Sponsoring Transactions](/eip8130/sponsoring-transactions) for the co-signing mechanism (and token payment), and [Payer Services (ERC-8168)](/eip8130/payer-services) to negotiate sponsorship with a service.
 
-## Lower-level control
+## Lower-Level Control
 
 `sendTransaction` composes two primitives you can use directly:
 
@@ -171,5 +167,5 @@ See [Sponsoring Transactions](/eip8130/sponsoring-transactions) for the co-signi
 
 ## Next
 
-- [Rotate owners](/eip8130/rotating-owners) by authorizing and revoking actors.
-- Add scoped [session keys](/eip8130/session-keys).
+- Send native value and control phases in [Calls & Batching](/eip8130/calls-and-batching).
+- Let a third party pay gas with [Sponsoring Transactions](/eip8130/sponsoring-transactions).

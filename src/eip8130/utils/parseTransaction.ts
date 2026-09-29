@@ -2,7 +2,6 @@ import type { Address } from 'abitype'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import { decodeAbiParameters } from '../../utils/abi/decodeAbiParameters.js'
 import { type SliceErrorType, sliceHex } from '../../utils/data/slice.js'
 import {
   type HexToBigIntErrorType,
@@ -15,16 +14,17 @@ import type { RecursiveArray } from '../../utils/encoding/toRlp.js'
 import {
   aaTransactionType,
   accountChangeType,
-  changeType,
+  openPayer,
 } from '../constants.js'
 import type {
   AaAccountChange,
   AaActor,
+  AaCall,
   AaCalls,
   AaChange,
   TransactionSerializable8130,
 } from '../types/transaction.js'
-import { decodeAuthorizeActorPayload } from './actorChangeData.js'
+import { decodeChange } from './actorChangeData.js'
 
 export type ParseTransactionErrorType =
   | SliceErrorType
@@ -47,8 +47,11 @@ function parseCalls(value: RlpHex): AaCalls {
   const phases = value as RlpHex[]
   return phases.map((phase) =>
     (phase as RlpHex[]).map((call) => {
-      const [to, data] = call as Hex[]
-      return { to: to as Address, data: data === '0x' ? undefined : data }
+      const [to, value, data] = call as Hex[]
+      const parsed: AaCall = { to: to as Address }
+      if (value && value !== '0x') parsed.value = hexToBigInt(value)
+      if (data && data !== '0x') parsed.data = data
+      return parsed
     }),
   )
 }
@@ -64,37 +67,13 @@ function parseActor(value: RlpHex): AaActor {
 
 function parseChange(value: RlpHex): AaChange {
   const [opByte, payload] = value as [Hex, Hex]
-  const type = opByte === '0x' ? 0 : hexToNumber(opByte)
-  if (type === changeType.authorizeActor) {
-    const { actorId, authenticator, scope, expiry, policyData } =
-      decodeAuthorizeActorPayload(payload)
-    const change: AaChange = {
-      changeType: changeType.authorizeActor,
-      actorId,
-      authenticator,
-    }
-    if (scope !== 0) change.scope = scope
-    if (expiry !== 0n) change.expiry = expiry
-    if (policyData !== '0x') change.policyData = policyData
-    return change
-  }
-  if (type === changeType.revokeActor) {
-    const [actorId] = decodeAbiParameters([{ type: 'bytes32' }], payload)
-    return { changeType: changeType.revokeActor, actorId }
-  }
-  if (type === changeType.lock) {
-    const [unlockDelay] = decodeAbiParameters([{ type: 'uint16' }], payload)
-    return { changeType: changeType.lock, unlockDelay }
-  }
-  if (type === changeType.unlock) return { changeType: changeType.unlock }
-  return { changeType: changeType.incrementLocalEpoch }
+  return decodeChange(opByte === '0x' ? 0 : hexToNumber(opByte), payload)
 }
 
 function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
-  // Wire format (base/base #3985): each AccountChange is a single flat RLP list
-  // rlp([type_byte, ...body_fields]); the type byte is the first list element,
-  // RLP-encoded as an integer (create=0 -> 0x80 -> '0x'). After RLP decoding the
-  // outer list we receive one sub-list per entry.
+  // Each AccountChange is a single flat RLP list rlp([type_byte, ...body_fields]);
+  // the type byte is the first list element, RLP-encoded as an integer. After
+  // RLP decoding the outer list we receive one sub-list per entry.
   const entries = value as RlpHex[]
   const result: AaAccountChange[] = []
   for (const entry of entries) {
@@ -132,14 +111,14 @@ function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
 }
 
 /**
- * Parses a serialized EIP-8130 (`AA_TX_TYPE`) transaction back into a
+ * Parses a serialized AA (`AA_TX_TYPE`) transaction back into a
  * {@link TransactionSerializable8130}.
  */
 export function parseTransaction(serialized: Hex): TransactionSerializable8130 {
   const type = sliceHex(serialized, 0, 1)
   if (type !== aaTransactionType)
     throw new BaseError(
-      `Serialized transaction type "${type}" is not an EIP-8130 transaction.`,
+      `Serialized transaction type "${type}" is not an AA (\`0x79\`) transaction.`,
     )
 
   const fields = fromRlp(sliceHex(serialized, 1), 'hex') as RlpHex[]
@@ -192,8 +171,11 @@ export function parseTransaction(serialized: Hex): TransactionSerializable8130 {
   if ((calls as RlpHex[]).length > 0) transaction.calls = parseCalls(calls)
   if ((metadata as Hex) !== '0x') transaction.metadata = metadata as Hex
 
-  const payerAddress = toOptionalAddress(payer as Hex)
-  if (payerAddress) transaction.payer = payerAddress
+  if ((payer as Hex) === openPayer) transaction.payer = openPayer
+  else {
+    const payerAddress = toOptionalAddress(payer as Hex)
+    if (payerAddress) transaction.payer = payerAddress
+  }
   if ((senderAuth as Hex) !== '0x') transaction.senderAuth = senderAuth as Hex
   if ((payerAuth as Hex) !== '0x') transaction.payerAuth = payerAuth as Hex
 

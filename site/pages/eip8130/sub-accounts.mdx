@@ -4,6 +4,10 @@ description: Derive multiple EIP-8130 accounts per owner and link them with dele
 
 # Sub Accounts
 
+:::warning[Experimental]
+The Keystore ([EIP-8130](https://github.com/base/eip-8130) Keystore Accounts) is experimental and ships separately from the AA transaction type. Its APIs live in `viem/experimental/keystore` and may change.
+:::
+
 EIP-8130 has no dedicated "sub account" type — instead you compose two primitives:
 
 1. **Derive many accounts from one owner** — each `salt` yields a distinct, independent account address controlled by the same signer.
@@ -15,7 +19,7 @@ The account address is a deterministic function of the salt (plus the wallet cod
 
 ```ts
 import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts'
-import { newSmartAccount } from 'viem/eip8130'
+import { newSmartAccount } from 'viem/experimental/keystore'
 
 const owner = privateKeyToAccount(generatePrivateKey())
 
@@ -27,19 +31,15 @@ const savings = newSmartAccount({ signer: owner, proxy: 'erc1167', salt: saltFor
 main.address !== trading.address // distinct accounts, same owner key
 ```
 
-Each sub account is deployed independently on its first transaction (see [Sending a Transaction](/eip8130/sending-a-transaction#deploy-on-first-use)).
+Each sub account is deployed independently on its first transaction (see [Sending a Transaction](/eip8130/creating-an-account#deploy-on-first-use)).
 
 ## Linking with delegate actors
 
 A **delegate actor** authorizes signatures that are valid for another account to act for *this* account. Add `key.delegate(primary)` to a sub account and the primary account's keys can drive it — a "controlled by" link, without sharing raw private keys.
 
 ```ts
-import {
-  actorScope,
-  authorizeActor,
-  key,
-  sendTransaction,
-} from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { actorScope, authorizeActor, key } from 'viem/experimental/keystore'
 
 // On the sub account, authorize the primary account as a delegate.
 const link = await subAccount.change(
@@ -62,11 +62,8 @@ const hash = await sendTransaction(client, {
 Once linked, build an account handle that signs for the sub account using the **primary** signer via the delegate authenticator:
 
 ```ts
-import {
-  canonicalAuthenticators,
-  sendTransaction,
-  toAccount,
-} from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { canonicalAuthenticators, toAccount } from 'viem/experimental/keystore'
 
 // Drive `subAccount.address` with `main`'s key through the delegate authenticator.
 const subAsDelegate = toAccount({
@@ -91,7 +88,7 @@ The delegate authenticator validates a signature produced for the linked account
 Revoke the delegate actor to unlink a sub account at any time:
 
 ```ts
-import { key, revokeActor } from 'viem/eip8130'
+import { key, revokeActor } from 'viem/experimental/keystore'
 
 const unlink = await subAccount.change(
   [revokeActor(key.delegate(main.address))],
@@ -104,7 +101,8 @@ const unlink = await subAccount.change(
 When a dApp asks a wallet to create a sub account via [ERC-7895](https://eips.ethereum.org/EIPS/eip-7895) `wallet_addSubAccount` (`type: 'create'`), `fulfillAddSubAccount` builds the two primitives above in one step: a **distinct** account whose owner set is the requested `keys` **plus** `key.delegate(parent)` — the link installed at creation, so no separate change transaction is needed.
 
 ```ts
-import { fulfillAddSubAccount, sendTransaction } from 'viem/eip8130'
+import { sendTransaction } from 'viem/eip8130'
+import { fulfillAddSubAccount } from 'viem/experimental/keystore'
 
 // `keys` are the owner keys the dApp requested (wallet_addSubAccount).
 const sub = fulfillAddSubAccount({
@@ -131,7 +129,7 @@ The returned handle is a full account (its own `address`, `createChange`, and `s
 By default the requested `keys` are unrestricted **co-owners**. Pass `keyScope` (and optionally `keyPolicy`) to register them as **scoped** actors instead — so the parent stays the sole full owner while the dApp key is a bounded session key:
 
 ```ts
-import { actorScope, defineSessionPolicy, encodeSessionPolicyConfig } from 'viem/eip8130'
+import { actorScope, defineSessionPolicy, encodeSessionPolicyConfig } from 'viem/experimental/keystore'
 
 const session = defineSessionPolicy({
   account: subAddress, // the sub-account address you're creating

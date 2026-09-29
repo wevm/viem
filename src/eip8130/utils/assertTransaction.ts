@@ -1,7 +1,8 @@
 import { BaseError } from '../../errors/base.js'
 import { InvalidChainIdError } from '../../errors/chain.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { nonceKeyMax } from '../constants.js'
+import { size } from '../../utils/data/size.js'
+import { nonceKeyMax, openPayer } from '../constants.js'
 import type { TransactionSerializable8130 } from '../types/transaction.js'
 
 export type AssertTransactionErrorType =
@@ -10,34 +11,23 @@ export type AssertTransactionErrorType =
   | ErrorType
 
 /**
- * Validates the structural invariants of an EIP-8130 transaction prior to
+ * Validates the structural invariants of an AA transaction prior to
  * serialization or hashing.
  */
 export function assertTransaction(
   transaction: TransactionSerializable8130,
 ): void {
   const {
+    accountChanges,
     chainId,
     nonceKey,
     nonceSequence,
     validBefore,
     payer,
     payerAuth,
-    calls,
   } = transaction
 
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
-
-  // EIP-8130 calls carry no value on the wire. A non-zero `value` here means it
-  // was not realized through the wallet bytecode (e.g. `executeBatch`) and would
-  // be silently dropped — reject instead. See `encodeWalletCalls`.
-  if (calls)
-    for (const phase of calls)
-      for (const call of phase)
-        if (call.value && call.value !== 0n)
-          throw new BaseError(
-            'EIP-8130 calls cannot carry `value` on the wire. Route value-bearing calls through the account wallet (e.g. `encodeWalletCalls` / `sendTransaction`).',
-          )
 
   // Nonce-free mode (`NONCE_KEY_MAX`): sequence must be 0 and validBefore non-zero.
   if (typeof nonceKey === 'bigint' && nonceKey === nonceKeyMax) {
@@ -51,9 +41,22 @@ export function assertTransaction(
       )
   }
 
+  if (
+    accountChanges &&
+    accountChanges.filter((entry) => entry.type === 'delegation').length > 1
+  )
+    throw new BaseError('At most one `delegation` account change is allowed.')
+
   // Self-pay (no `payer`) must not carry a `payerAuth`.
   if (!payer && payerAuth && payerAuth !== '0x')
     throw new BaseError(
       '`payerAuth` must be empty for self-pay transactions (no `payer` set).',
     )
+
+  // Open payer: the payer is recovered, so `payerAuth` is a raw 65-byte signature.
+  if (payer === openPayer && payerAuth && payerAuth !== '0x')
+    if (size(payerAuth) !== 65)
+      throw new BaseError(
+        '`payerAuth` must be a raw 65-byte signature in open payer mode (`payer: openPayer`).',
+      )
 }

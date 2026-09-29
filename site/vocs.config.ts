@@ -1653,10 +1653,6 @@ export default defineConfig({
               link: '/eip8130',
             },
             {
-              text: 'Creating an Account',
-              link: '/eip8130/creating-an-account',
-            },
-            {
               text: 'Sending a Transaction',
               link: '/eip8130/sending-a-transaction',
             },
@@ -1673,28 +1669,38 @@ export default defineConfig({
               link: '/eip8130/metadata',
             },
             {
-              text: 'Rotating Owners',
-              link: '/eip8130/rotating-owners',
-            },
-            {
-              text: 'Session Keys',
-              link: '/eip8130/session-keys',
-            },
-            {
-              text: 'Sub Accounts',
-              link: '/eip8130/sub-accounts',
-            },
-            {
-              text: 'Signing Messages',
-              link: '/eip8130/signing-messages',
-            },
-            {
               text: 'Sponsoring Transactions',
               link: '/eip8130/sponsoring-transactions',
             },
             {
               text: 'Payer Services (ERC-8168)',
               link: '/eip8130/payer-services',
+            },
+            {
+              text: 'Keystore (Experimental)',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Creating an Account',
+                  link: '/eip8130/creating-an-account',
+                },
+                {
+                  text: 'Rotating Owners',
+                  link: '/eip8130/rotating-owners',
+                },
+                {
+                  text: 'Session Keys',
+                  link: '/eip8130/session-keys',
+                },
+                {
+                  text: 'Sub Accounts',
+                  link: '/eip8130/sub-accounts',
+                },
+                {
+                  text: 'Signing Messages',
+                  link: '/eip8130/signing-messages',
+                },
+              ],
             },
           ],
         },

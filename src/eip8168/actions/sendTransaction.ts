@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { ToAccountReturnType } from '../../eip8130/accounts/toAccount.js'
+import type { AaAccount } from '../../eip8130/accounts/types.js'
 import { estimateGas } from '../../eip8130/actions/estimateGas.js'
 import { prepareTransactionRequest as prepareEip8130Request } from '../../eip8130/actions/sendTransaction.js'
 import {
@@ -62,7 +62,7 @@ export type PaymasterServiceCapability = {
 
 export type PrepareTransactionRequestParameters = {
   /** The sending account (drives actor/nonce resolution). */
-  account: ToAccountReturnType
+  account: AaAccount
   /** Payer service client (single service or an aggregate). */
   payerClient: PayerClient
   /** The user's intended calls (run in the final phase). */
@@ -158,7 +158,11 @@ export async function prepareTransactionRequest(
   const terms: GetTermsReturnType = await payerClient.getTerms({
     chainId: numberToHex(chainId),
     from: account.address,
-    calls: calls.map((call) => ({ to: call.to, data: call.data ?? '0x' })),
+    calls: calls.map((call) => ({
+      to: call.to,
+      data: call.data ?? '0x',
+      ...(call.value ? { value: numberToHex(call.value) } : {}),
+    })),
     ...(paymasterService?.preferredTokens
       ? { preferredTokens: paymasterService.preferredTokens }
       : {}),
@@ -238,7 +242,7 @@ export type SendTransactionCapabilities = {
 
 export type SendTransactionParameters = {
   /** The sending account (signs `sender_auth`). */
-  account: ToAccountReturnType
+  account: AaAccount
   /** Payer service client (ERC-8168). */
   payerClient: PayerClient
   /** The user's intended calls (run in the final phase). */

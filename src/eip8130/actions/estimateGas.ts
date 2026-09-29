@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { zeroAddress } from '../../constants/address.js'
 import { BaseError } from '../../errors/base.js'
 import type { Account } from '../../types/account.js'
 import type { BlockTag } from '../../types/block.js'
@@ -12,11 +13,17 @@ import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import {
   aaTransactionType,
-  canonicalAuthDataLength,
-  changeType,
+  k1AuthDataLength,
+  k1Authenticator,
+  openPayer,
 } from '../constants.js'
-import type { AaAccountChange, AaCall, AaCalls } from '../types/transaction.js'
-import { encodeChangePayload } from '../utils/actorChangeData.js'
+import type {
+  AaAccountChange,
+  AaCall,
+  AaCalls,
+  AaPayer,
+} from '../types/transaction.js'
+import { toRpcAccountChange } from '../utils/rpcAccountChanges.js'
 import { toPhases } from '../utils/toPhases.js'
 
 export type EstimateGasParameters = {
@@ -36,7 +43,9 @@ export type EstimateGasParameters = {
 
   // ── Simplified mode (no accountChanges/calls) ─────────────────────────────
   // Use this when the caller only needs to price a call from an
-  // already-deployed account without knowing the full transaction shape.
+  // already-deployed account without knowing the full transaction shape. The
+  // call is sent as a single-call phase: the node builds calls only from
+  // `calls` and ignores a top-level `to`/`data`/`value`.
   /** Target of the (representative) call being estimated. */
   to?: Address | undefined
   /** Calldata of the call being estimated. */
@@ -46,8 +55,8 @@ export type EstimateGasParameters = {
 
   // ── Full-body mode (accountChanges + calls) ────────────────────────────────
   // When `accountChanges` or `calls` is provided, the request is sent as a
-  // full EIP-8130 tx body (sender + nonceKey + nonceSequence + accountChanges +
-  // calls + metadata). The node routes this through the real EIP-8130 executor
+  // full EIP-8130 tx body (sender + nonceKey + accountChanges + calls +
+  // metadata). The node routes this through the real EIP-8130 executor
   // simulation, which is required to correctly price account-creation
   // (`create` account-change) and per-phase call overhead. The simplified
   // `to`/`data`/`value` fields are ignored in this mode.
@@ -69,10 +78,15 @@ export type EstimateGasParameters = {
    */
   nonceKey?: bigint | undefined
   /**
-   * Nonce sequence within `nonceKey`. Defaults to `0` (first tx / deploy).
-   * Pass the account's current sequence for follow-up-tx estimation.
+   * Lower validity bound (unix seconds or milliseconds). Only affects the
+   * estimate through its calldata cost.
    */
-  nonceSequence?: number | undefined
+  validAfter?: bigint | undefined
+  /**
+   * Upper validity bound (unix seconds or milliseconds). Pass the deadline you
+   * will sign with (required for nonce-free sends) so its calldata is priced.
+   */
+  validBefore?: bigint | undefined
 
   // ── Sender authentication ───────────────────────────────────────────────
   // The node prices authentication gas from the *shape* of the auth blob it
@@ -86,11 +100,10 @@ export type EstimateGasParameters = {
    */
   senderAuth?: Hex | undefined
   /**
-   * Authenticator (authenticator contract) address hint. The blob is synthesized
-   * as `authenticator || filler`, where `filler` is `senderAuthSize` bytes if
-   * given, else a representative default length for known canonical
-   * authenticators ({@link canonicalAuthenticators}) — pass `senderAuthSize`
-   * explicitly for a custom authenticator with no known default.
+   * Authenticator address hint. The blob is synthesized as
+   * `authenticator || filler`, where `filler` is `senderAuthSize` bytes if
+   * given, else 65 bytes for `K1_AUTHENTICATOR`. Pass `senderAuthSize` for any
+   * other (Keystore) authenticator.
    */
   senderAuthAuthenticator?: Address | undefined
   /**
@@ -100,23 +113,24 @@ export type EstimateGasParameters = {
    */
   senderAuthSize?: number | undefined
   /**
-   * Acting-actor hint for simulation. Estimation never recovers a signature, so
-   * without this the node publishes the account's self-actor to the `TxContext`
-   * precompile — which makes policy-gated session-key calls look up the wrong
-   * policy and revert. Pass the session (or other non-self) actor id you intend
-   * to sign with; the node resolves that actor's policy after applying
-   * `accountChanges`, so an actor authorized in the same estimate request is
-   * visible. Orthogonal to {@link EstimateGasParameters.senderAuthAuthenticator}
-   * (auth-gas pricing) — accept both when estimating a session-key send.
+   * EIP-8130 Keystore integration: the sender actor to simulate. Estimation
+   * never recovers a signature, so without this the node simulates the
+   * account's own secp256k1 key. Pass a session (or other non-self) actor id so
+   * scope checks and the policy gate apply as they would for the real send.
+   * The node resolves it after applying `accountChanges`, so an actor
+   * authorized in the same request is visible.
    */
   senderActorId?: Hex | undefined
 
   // ── Common ────────────────────────────────────────────────────────────────
-  /** Optional sponsoring payer; priced into the estimate when set. */
-  payer?: Address | undefined
   /**
-   * The full raw `payerAuth` blob to price verbatim (always the prefixed
-   * `authenticator(20) || data` form). See `senderAuth`.
+   * Optional sponsoring payer (an address, or `openPayer` for open mode);
+   * priced into the estimate when set.
+   */
+  payer?: AaPayer | undefined
+  /**
+   * The full raw `payerAuth` blob to price verbatim: `authenticator(20) || data`
+   * for a named payer, or a bare 65-byte signature in open mode.
    */
   payerAuth?: Hex | undefined
   /** Payer authenticator address hint. See `senderAuthAuthenticator`. */
@@ -124,8 +138,8 @@ export type EstimateGasParameters = {
   /** Payer auth-payload byte length override. See `senderAuthSize`. */
   payerAuthSize?: number | undefined
   /**
-   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field in
-   * full-body mode (not appended to call calldata). Takes precedence over
+   * Attribution / opaque suffix. Written to the EIP-8130 `metadata` field
+   * (not appended to call calldata). Takes precedence over
    * `client.dataSuffix`.
    */
   dataSuffix?: Hex | undefined
@@ -141,15 +155,13 @@ export type EstimateGasReturnType = bigint
 const maxAuthSize = 8_192
 
 /**
- * Estimates gas for an EIP-8130 (`AA_TX_TYPE`) call via `eth_estimateGas`.
+ * Estimates gas for an AA (`AA_TX_TYPE`) call via `eth_estimateGas`.
  *
- * Requires a node with the EIP-8130 `eth_estimateGas` extension
- * (base `feat(eip8130-rpc): price estimateGas from raw sender/payer auth
- * blobs`). The estimate runs a read-only `simulate` on the executor: no
- * signature verification, no fee settlement, all state reverted. It shares
- * the pre-call pipeline (account-change apply, auto-delegation, intrinsic
- * gas) with the verifying `execute` path, so the estimate cannot drift from
- * real execution gas.
+ * Requires a node with the AA transaction `eth_estimateGas` extension. The
+ * estimate runs a read-only simulation: no signature verification, no fee
+ * settlement, all state reverted. It shares the pre-call pipeline
+ * (account-change apply, intrinsic gas) with real execution, so the estimate
+ * cannot drift from execution gas.
  *
  * Two request modes:
  *
@@ -162,15 +174,14 @@ const maxAuthSize = 8_192
  * account-change) and per-phase call overhead.
  *
  * In both modes, the node prices authentication gas from the auth blob's
- * *shape*, never a real signature — pass `senderAuthAuthenticator` (or a raw
- * `senderAuth`) for a configured account, and leave both unset for the
- * default EOA. For policy-gated actors (session keys), also pass
- * `senderActorId` so the simulate path publishes the intended acting actor
- * instead of the account's self-actor. See {@link EstimateGasParameters}.
+ * *shape*, never a real signature. Leave the auth fields unset for the default
+ * secp256k1 key. With the EIP-8130 Keystore, pass `senderAuthAuthenticator` +
+ * `senderAuthSize` (or a raw `senderAuth`) and `senderActorId` for a non-self
+ * actor. See {@link EstimateGasParameters}.
  *
- * Note: an EIP-8130 estimate that reverts a phase surfaces the revert (like
- * standard `eth_estimateGas`), even though a reverted EIP-8130 tx would still
- * be included onchain (nonce consumed, fee paid).
+ * Note: an estimate that reverts a phase surfaces the revert (like standard
+ * `eth_estimateGas`), even though a reverted AA tx would still be included
+ * onchain (nonce consumed, fee paid).
  */
 export async function estimateGas<
   chain extends Chain | undefined,
@@ -192,7 +203,8 @@ export async function estimateGas<
     accountChanges,
     calls,
     nonceKey = 0n,
-    nonceSequence = 0,
+    validAfter,
+    validBefore,
     payer,
     payerAuth: payerAuthExplicit,
     payerAuthAuthenticator,
@@ -229,67 +241,54 @@ export async function estimateGas<
     senderAuthAuthenticator,
     senderAuthSize,
   )
-  const payerAuth = buildAuthBlob(
-    payerAuthExplicit,
-    payerAuthAuthenticator,
-    payerAuthSize,
-  )
+  const payerAuth =
+    payer === openPayer &&
+    payerAuthExplicit === undefined &&
+    payerAuthAuthenticator === undefined &&
+    payerAuthSize === undefined
+      ? openPayerAuthStub
+      : buildAuthBlob(payerAuthExplicit, payerAuthAuthenticator, payerAuthSize)
 
   const useFullBody = accountChanges !== undefined || calls !== undefined
 
-  let request: Record<string, unknown>
+  const request: Record<string, unknown> = {
+    type: aaTransactionType,
+    sender: account_,
+    nonceKey: numberToHex(nonceKey),
+  }
+  if (validAfter !== undefined) request.validAfter = numberToHex(validAfter)
+  if (validBefore !== undefined) request.validBefore = numberToHex(validBefore)
+
+  const phases: AaCalls | undefined = useFullBody
+    ? calls !== undefined
+      ? toPhases(calls)
+      : [[{ to: account_, data: '0x' }]]
+    : to !== undefined
+      ? [[{ to, value, data }]]
+      : undefined
+  if (phases)
+    request.calls = phases.map((phase) =>
+      phase.map((c) => ({
+        to: c.to,
+        value: numberToHex(c.value ?? 0n),
+        data: c.data ?? '0x',
+      })),
+    )
 
   if (useFullBody) {
     // Full-body mode: send the complete EIP-8130 tx body so the node routes
     // through the real executor simulation (required for create estimation).
-    // nonceKey / nonceSequence use integers (not hex) per the node's JSON
-    // deserialiser (expects u64, not a hex string).
-    request = {
-      type: aaTransactionType,
-      sender: account_,
-      nonceKey: Number(nonceKey),
-      nonceSequence,
-      validAfter: 0,
-      validBefore: 0,
-      // Reasonable fee defaults — the estimate skips fee validation.
-      maxFeePerGas: numberToHex(1_000_000_000n),
-      maxPriorityFeePerGas: numberToHex(1_000_000n),
-      // Large gas cap so the simulation isn't capped below real execution.
-      gasLimit: 30_000_000,
-      accountChanges: (accountChanges ?? []).map(serializeAccountChange),
-      calls: (calls !== undefined
-        ? toPhases(calls)
-        : [[{ to: account_, value: 0n, data: '0x' as Hex }]]
-      ).map((phase) =>
-        phase.map((c) => ({
-          to: c.to,
-          value: numberToHex(c.value ?? 0n),
-          data: c.data ?? '0x',
-        })),
-      ),
-      metadata: dataSuffix ?? '0x',
-      payer: payer ?? null,
-    }
-    if (senderAuth !== undefined) request.senderAuth = senderAuth
-    if (payerAuth !== undefined) request.payerAuth = payerAuth
-    if (senderActorId !== undefined) request.senderActorId = senderActorId
-  } else {
-    // Simplified mode. `sender` is always set so the node recognizes the
-    // request as an EIP-8130 estimate even when no auth blob is supplied
-    // (an absent auth blob is a valid default-EOA/configured-k1 request, not
-    // an indication this is a plain, non-8130 request).
-    request = {
-      type: aaTransactionType,
-      sender: account_,
-    }
-    if (to !== undefined) request.to = to
-    if (data !== undefined) request.data = data
-    if (value !== undefined) request.value = numberToHex(value)
-    if (payer !== undefined) request.payer = payer
-    if (senderAuth !== undefined) request.senderAuth = senderAuth
-    if (payerAuth !== undefined) request.payerAuth = payerAuth
-    if (senderActorId !== undefined) request.senderActorId = senderActorId
-  }
+    request.accountChanges = (accountChanges ?? []).map(toRpcAccountChange)
+    request.metadata = dataSuffix ?? '0x'
+    // Reasonable fee defaults: the estimate skips fee validation.
+    request.maxFeePerGas = numberToHex(1_000_000_000n)
+    request.maxPriorityFeePerGas = numberToHex(1_000_000n)
+  } else if (dataSuffix !== undefined) request.metadata = dataSuffix
+
+  if (payer !== undefined) request.payer = toRpcPayer(payer)
+  if (senderAuth !== undefined) request.senderAuth = senderAuth
+  if (payerAuth !== undefined) request.payerAuth = payerAuth
+  if (senderActorId !== undefined) request.senderActorId = senderActorId
 
   const block = blockNumber !== undefined ? numberToHex(blockNumber) : blockTag
 
@@ -304,12 +303,25 @@ export async function estimateGas<
 }
 
 /**
+ * A valid secp256k1 signature (key `1` over the zero hash). An open payer is
+ * recovered from `payer_auth`, so the node cannot stub it and rejects a filler
+ * blob that does not recover; any recoverable signature prices the same.
+ */
+const openPayerAuthStub =
+  '0xa0b37f8fba683cc68f6574cd43b39f0343a50008bf6ccea9d13231d9e7e2e1e411edc8d307254296264aebfc3dc76cd8b668373a072fd64665b50000e9fcce521c' as const
+
+/** JSON-RPC carries open payer mode as the zero address (the wire uses `0x00`). */
+function toRpcPayer(payer: AaPayer | undefined): Address | undefined {
+  return payer === openPayer ? zeroAddress : payer
+}
+
+/**
  * Builds the raw `senderAuth`/`payerAuth` blob to price, in priority order:
  *
  * 1. `explicit` — pass the caller's raw blob through verbatim.
  * 2. `authenticator` set — synthesize `authenticator || filler`, where `filler` is
- *    `size` bytes if given, else the authenticator's known default length
- *    ({@link canonicalAuthDataLength}). Throws if neither is available.
+ *    `size` bytes if given, else 65 bytes for `K1_AUTHENTICATOR`. Throws for
+ *    any other authenticator without a size.
  * 3. `size` alone (no authenticator) — a bare (unprefixed) filler blob of `size`
  *    bytes, pricing the default-EOA path at a specific length.
  * 4. All unset — `undefined` (no auth blob on the request; the node applies
@@ -331,73 +343,17 @@ function buildAuthBlob(
     return filler(size)
   }
   const dataLength =
-    size ?? canonicalAuthDataLength[authenticator.toLowerCase()]
+    size ??
+    (authenticator.toLowerCase() === k1Authenticator
+      ? k1AuthDataLength
+      : undefined)
   if (dataLength === undefined)
     throw new BaseError(
-      `No default auth-payload length is known for authenticator ${authenticator}. Pass an explicit auth size.`,
+      `No default auth-payload length is known for authenticator ${authenticator}. Pass an explicit auth size (see \`canonicalAuthDataLength\` in \`viem/experimental/keystore\`).`,
     )
   return concatHex([authenticator, filler(dataLength)])
 }
 
 function filler(length: number): Hex {
   return `0x${'ff'.repeat(length)}` as Hex
-}
-
-/**
- * Converts a typed `AaAccountChange` to the plain JSON object the node's
- * `eth_estimateGas` deserialiser expects. For `create` changes, all fields are
- * passed through directly. For `delegation`, only `target` is required (the
- * node does not need the proxy bytecode for gas pricing). For `config`, the
- * node tags the variant as `configChange` and expects the `SignedAccountChanges`
- * batch shape (`channel` / `sequence` / `changes[{changeType, payload}]` /
- * `signature`) — the ABI-encoded opaque `payload`, not the typed fields.
- */
-function serializeAccountChange(
-  change: AaAccountChange,
-): Record<string, unknown> {
-  if (change.type === 'create') {
-    return {
-      type: 'create',
-      userSalt: change.userSalt,
-      code: change.code,
-      // The node deserializes each entry directly into the consensus
-      // `InitialActor` struct, whose `scope` and `policyData` fields are
-      // non-optional with no serde default — omitting them makes the whole
-      // `eth_estimateGas` request fail deserialization with `-32602 invalid
-      // params` before it ever reaches the estimator. Always send both, with
-      // the same defaults used for address derivation: `scope` as a JSON
-      // NUMBER (u8; 0 = unrestricted admin), and `policyData` as hex bytes
-      // (`0x` unless `scope & SCOPE_POLICY`, then `manager || commitment`).
-      initialActors: change.initialActors.map((a) => ({
-        actorId: a.actorId,
-        authenticator: a.authenticator,
-        scope: a.scope ?? 0,
-        policyData: a.policyData ?? '0x',
-      })),
-    }
-  }
-  if (change.type === 'delegation') {
-    return { type: 'delegation', target: change.target }
-  }
-  // config → RPC tag `configChange`. Simulate does not verify the signature, but
-  // still prices the batch's byte-length into intrinsic gas and applies it. The
-  // node deserializes the consensus `SignedAccountChanges` (serde camelCase),
-  // whose `channel` / `changeType` are the enum variant names.
-  const changeTypeName: Record<number, string> = {
-    [changeType.authorizeActor]: 'AuthorizeActor',
-    [changeType.revokeActor]: 'RevokeActor',
-    [changeType.incrementLocalEpoch]: 'IncrementLocalEpoch',
-    [changeType.lock]: 'Lock',
-    [changeType.unlock]: 'Unlock',
-  }
-  return {
-    type: 'configChange',
-    channel: change.channel === 'multichain' ? 'Multichain' : 'Local',
-    sequence: Number(change.sequence),
-    changes: change.changes.map((c) => ({
-      changeType: changeTypeName[c.changeType],
-      payload: encodeChangePayload(c),
-    })),
-    signature: change.signature,
-  }
 }

@@ -1,8 +1,7 @@
 import { BaseError } from '../errors/base.js'
 import { hexToBigInt } from '../utils/encoding/fromHex.js'
 import { bytesToHex } from '../utils/encoding/toHex.js'
-import { nonceFreeMaxExpiryWindow, nonceKeyMax } from './constants.js'
-import { isNoncelessOnly } from './keys.js'
+import { nonceKeyMax } from './constants.js'
 
 /**
  * A resolved EIP-8130 nonce selection: the channel key and (for nonce-free
@@ -49,8 +48,9 @@ export type Nonce = {
  * // Fire-and-forget parallel txs on random channels.
  * await sendTransaction(client, { account, calls, gas, ...nonce.randomChannel() })
  *
- * // Nonce-free: valid for the next 10 minutes, no sequencing.
- * await sendTransaction(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 600 }) })
+ * // Nonce-free: valid for the next 15 seconds, no sequencing. The node admits
+ * // a nonce-free transaction at most `nonceFreeMaxExpiryWindow` (20s) ahead.
+ * await sendTransaction(client, { account, calls, gas, ...nonce.nonceless({ expiresIn: 15 }) })
  * ```
  */
 export const nonce = {
@@ -125,45 +125,5 @@ export const nonce = {
       nonceSequence: 0n,
       validBefore: resolvedValidBefore,
     }
-  },
-
-  /**
-   * Selects the default nonce strategy for an actor's `scope`, mirroring the
-   * node rule. Admin actors (`scope == 0`) and actors holding `SCOPE_NONCE` may
-   * use ordered *or* nonce-free nonces; only a restricted actor **without**
-   * `SCOPE_NONCE` is confined to nonce-free.
-   *
-   * - Admin (`scope == 0`) **or** `SCOPE_NONCE` set → sequenced
-   *   {@link nonce.channel} (default channel `0`, i.e. {@link nonce.sequential}).
-   * - Restricted actor **without** `SCOPE_NONCE` → {@link nonce.nonceless},
-   *   defaulting the window to `NONCE_FREE_MAX_EXPIRY_WINDOW` from now.
-   *
-   * @param scope - The signing actor's scope bitmask.
-   * @param parameters.key - Sequenced channel selector (ignored in nonce-free
-   *   mode). @default 0n
-   * @param parameters.validBefore - Absolute upper validity bound (unix ms) for
-   *   nonce-free mode. Overrides `expiresIn`.
-   * @param parameters.expiresIn - Relative validity window (seconds) for
-   *   nonce-free mode. @default Number(NONCE_FREE_MAX_EXPIRY_WINDOW) / 1000
-   */
-  forScope(
-    scope: number,
-    parameters: {
-      key?: bigint | undefined
-      validBefore?: bigint | undefined
-      expiresIn?: number | undefined
-    } = {},
-  ): Nonce {
-    if (isNoncelessOnly(scope))
-      return nonce.nonceless(
-        parameters.validBefore !== undefined
-          ? { validBefore: parameters.validBefore }
-          : {
-              // `nonceFreeMaxExpiryWindow` is milliseconds; `expiresIn` seconds.
-              expiresIn:
-                parameters.expiresIn ?? Number(nonceFreeMaxExpiryWindow) / 1000,
-            },
-      )
-    return nonce.channel(parameters.key ?? 0n)
   },
 } as const

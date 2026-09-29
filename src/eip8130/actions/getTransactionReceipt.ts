@@ -7,15 +7,20 @@ import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex } from '../../types/misc.js'
 
 /**
- * EIP-8130 receipt fields surfaced by `eth_getTransactionReceipt`
- * (base `feat(eip8130): RPC support for ... AA receipts`).
+ * AA receipt fields surfaced by `eth_getTransactionReceipt`.
  *
- * These are present only for `AA_TX_TYPE` (`0x79`) receipts on a node with the
- * extension; they are `undefined` for standard receipts or older nodes.
+ * The receipt payload itself is a standard EIP-1559 receipt: `status` is `1`
+ * only if every call phase succeeded (or `calls` was empty). `status == 0`
+ * does not mean nothing happened: committed earlier phases, applied account
+ * changes, nonce consumption, and fee payment persist.
+ *
+ * These fields are present only for `AA_TX_TYPE` (`0x79`) receipts on a node
+ * with the extension; they are `undefined` for standard receipts or older nodes.
  */
 export type ReceiptFields = {
   /**
-   * Gas payer: the sender for self-pay, or the named payer for a sponsored tx.
+   * Resolved gas payer: the sender for self-pay, the named payer, or the payer
+   * recovered in open mode.
    */
   payer?: Address | undefined
   /**
@@ -23,11 +28,11 @@ export type ReceiptFields = {
    * Phases after a revert are reported `0x0`. Empty when `calls` is empty.
    */
   phaseStatuses?: readonly Hex[] | undefined
-  /** Opaque EIP-8130 transaction metadata, echoed from the signed tx. */
+  /** Opaque transaction metadata, echoed from the signed tx. */
   metadata?: Hex | undefined
 }
 
-/** Raw JSON-RPC receipt with optional EIP-8130 fields (hex-encoded). */
+/** Raw JSON-RPC receipt with optional AA fields (hex-encoded). */
 type RawReceipt = {
   status?: Hex
   payer?: Address
@@ -60,7 +65,10 @@ export function parseReceiptFields(
   }
 }
 
-/** Returns `true` when every reported call phase succeeded. */
+/**
+ * Returns `true` when every reported call phase succeeded. Equivalent to
+ * `receipt.status === 'success'` for AA receipts.
+ */
 export function allPhasesSucceeded(
   fields: Pick<ReceiptFields, 'phaseStatuses'>,
 ): boolean {
