@@ -332,14 +332,17 @@ describe.runIf(
       client: caller,
       plugins: [Relay.multisig({ store: Store.memory() })],
     })
+
     const server = await createHttpServer(createRequestListener(relay.fetch))
     onTestFinished(async () => {
       await server.close()
     })
+
     const client = Tempo.getClient({
       chain: Tempo.chain,
       transport: http(server.url),
     })
+
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
     const account = Account.fromMultisig({
@@ -348,17 +351,21 @@ describe.runIf(
       salt: toHex(0x109701, { size: 32 }),
       threshold: 2,
     })
+
     const token = Tempo.addresses.alphaUsd
+
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
       token,
       to: account.address,
       amount: parseUnits('1', 6),
     })
+
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
       token,
     })
+
     const pending = await sendTransactionSync(client, {
       account,
       owner: owner_1,
@@ -371,12 +378,14 @@ describe.runIf(
         }),
       ],
     })
+
     expect(pending.status).toMatchInlineSnapshot(`"pending"`)
     expect(pending.multisig).toMatchObject({
       signatureCount: 1,
       threshold: 2,
       weight: 1,
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -391,12 +400,14 @@ describe.runIf(
       hash: pending.transactionHash,
       owner: owner_2,
     })
+
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     expect(receipt.multisig).toMatchObject({
       signatureCount: 2,
       threshold: 2,
       weight: 2,
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -405,6 +416,7 @@ describe.runIf(
         })
       ).amount - balance.amount,
     ).toMatchInlineSnapshot(`1n`)
+
     expect(
       await Actions.multisig.getOperation(client, {
         hash: pending.transactionHash,

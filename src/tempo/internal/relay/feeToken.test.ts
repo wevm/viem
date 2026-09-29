@@ -364,22 +364,27 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
       resolveTokens: () => localnetTokens,
       plugins: [Relay.feeToken()],
     })
+
     const server = await createHttpServer(createRequestListener(relay.fetch))
     onTestFinished(async () => {
       await server.close()
     })
+
     const client = Tempo.getClient({
       chain: Tempo.chain,
       transport: http(server.url),
     })
+
     const account = Account.fromSecp256k1(generatePrivateKey())
     const token = Tempo.addresses.alphaUsd
+
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
       token,
       to: account.address,
       amount: parseUnits('1', 6),
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -388,10 +393,12 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
         })
       ).amount,
     ).toMatchInlineSnapshot(`0n`)
+
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
       token,
     })
+
     const receipt = await sendTransactionSync(client, {
       account,
       calls: [
@@ -406,6 +413,7 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     expect(receipt.feeToken).toBe(token)
     expect(receipt.feePayer).toBe(account.address.toLowerCase())
+
     expect(
       (
         await Actions.token.getBalance(client, {

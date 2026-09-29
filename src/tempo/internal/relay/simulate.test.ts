@@ -563,19 +563,23 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
       client: caller,
       plugins: [Relay.simulate()],
     })
+
     const server = await createHttpServer(createRequestListener(relay.fetch))
     onTestFinished(async () => {
       await server.close()
     })
+
     const client = Tempo.getClient({
       chain: Tempo.chain,
       transport: http(server.url),
     })
+
     const token = Tempo.addresses.alphaUsd
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
       token,
     })
+
     const result = await fillTransaction(client, {
       account: userAccount.address,
       feeToken: token,
@@ -594,10 +598,12 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
           address.toLowerCase() === userAccount.address.toLowerCase(),
       )?.[1],
     ).toMatchObject([{ address: token, direction: 'outgoing', value: '0x64' }])
+
     expect(result.capabilities?.fee).toMatchObject({
       decimals: 6,
       symbol: 'AlphaUSD',
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {

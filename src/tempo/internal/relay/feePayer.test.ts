@@ -829,22 +829,27 @@ test
         }),
       ],
     })
+
     const server = await createHttpServer(createRequestListener(relay.fetch))
     onTestFinished(async () => {
       await server.close()
     })
+
     const client = Tempo.getClient({
       chain: Tempo.chain,
       transport: http(server.url),
     })
+
     const account = Account.fromSecp256k1(generatePrivateKey())
     const token = Tempo.addresses.alphaUsd
+
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
       token,
       to: account.address,
       amount: 1n,
     })
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -853,14 +858,17 @@ test
         })
       ).amount,
     ).toMatchInlineSnapshot(`0n`)
+
     const balance = await Actions.token.getBalance(client, {
       account: recipient.address,
       token,
     })
+
     const sponsorBalance = await Actions.token.getBalance(client, {
       account: feePayerAccount.address,
       token: Addresses.pathUsd,
     })
+
     const parameters = {
       account,
       calls: [
@@ -872,6 +880,7 @@ test
       ],
       feePayer: true,
     } as const
+
     const receipt =
       action === 'sendTransactionSync'
         ? await sendTransactionSync(client, parameters)
@@ -882,6 +891,7 @@ test
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
     expect(receipt.feeToken).toBe(Addresses.pathUsd)
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -890,6 +900,7 @@ test
         })
       ).amount,
     ).toMatchInlineSnapshot(`0n`)
+
     expect(
       (
         await Actions.token.getBalance(client, {
@@ -898,6 +909,7 @@ test
         })
       ).amount - balance.amount,
     ).toMatchInlineSnapshot(`1n`)
+
     expect(
       (
         await Actions.token.getBalance(client, {
