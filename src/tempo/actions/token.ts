@@ -3505,7 +3505,7 @@ export namespace transfer {
     parameters: transfer.Parameters<chain, account>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
-      ...pickWriteParameters(parameters as never),
+      ...pickWriteParameters(parameters),
       ...transfer.call(client, parameters as never),
     } as never)
   }
@@ -3587,7 +3587,7 @@ export async function transferSync<
   parameters: transferSync.Parameters<chain, account>,
 ): Promise<transferSync.ReturnValue> {
   const { amount, token, throwOnReceiptRevert = true } = parameters
-  const { decimals } = resolveToken(client, { token })
+  const { address, decimals } = resolveToken(client, { token })
   const resolved = internal_Token.resolveAmountDecimals(amount, decimals)
   const receipt = await transfer.inner(writeContractSync, client, {
     ...parameters,
@@ -3595,7 +3595,25 @@ export async function transferSync<
   } as never)
   if ((receipt as TransactionReceipt).status === 'pending')
     return { receipt } as never
-  const { args } = transfer.extractEvent(receipt.logs)
+  const [event] = parseEventLogs({
+    abi: Abis.tip20,
+    eventName: 'Transfer',
+    logs: receipt.logs,
+  })
+    .filter(
+      (log) =>
+        log.address.toLowerCase() === address.toLowerCase() &&
+        (log.args.to?.toLowerCase() === parameters.to.toLowerCase() ||
+          // Receive policies escrow blocked transfers in the guard.
+          (log.args.to?.toLowerCase() ===
+            Addresses.receivePolicyGuard.toLowerCase() &&
+            log.args.from?.toLowerCase() ===
+              (parameters.from ?? receipt.from).toLowerCase())) &&
+        log.args.amount === internal_Token.toBaseUnits(amount, decimals),
+    )
+    .reverse()
+  if (!event) throw new Error('`Transfer` event not found.')
+  const { args } = event
   return {
     ...args,
     ...(resolved === undefined

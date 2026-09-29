@@ -22,8 +22,8 @@ import {
   MethodNotSupportedRpcError,
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
+import type { Assign } from '../types/utils.js'
 import type { ChainConfig } from './chainConfig.js'
-import * as Plugin_ from './internal/relay/plugin.js'
 import * as Request_ from './internal/relay/request.js'
 import type * as Relay_ from './Relay.js'
 import type { Store } from './Store.js'
@@ -91,6 +91,7 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
 /**
  * Creates a relay transport that routes requests between
  * the default transport or the relay transport.
+ * Calls and gas estimates with funding requirements are routed to the relay.
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
@@ -143,12 +144,11 @@ export function withRelay(
             chainId: config.chain?.id,
             ...options,
           })) as typeof transport.request,
-        value: {
-          ...transport.value,
-          ...(relayTransport.plugins?.some(Plugin_.isMultisig)
-            ? { multisig: true }
-            : {}),
-        },
+        value: Object.assign(
+          {},
+          transport.value,
+          ...(relayTransport.plugins ?? []).map((plugin) => plugin.transport),
+        ),
       }
     }
 
@@ -162,8 +162,39 @@ export function withRelay(
       key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
-        if (method === 'eth_fillTransaction')
+        if (
+          method === 'eth_fillTransaction' ||
+          method === 'eth_fillKeyAuthorization' ||
+          method === 'funding_registerPolicyRules'
+        )
           return transport_relay.request({ method, params }, options) as never
+
+        if (method === 'eth_call' || method === 'eth_estimateGas') {
+          const [transaction, ...rest] = params as readonly [
+            Relay_.funding.Transaction,
+            ...unknown[],
+          ]
+          const requirements = transaction?.requireFunds
+          if (
+            requirements &&
+            (!Array.isArray(requirements) || requirements.length)
+          )
+            return transport_relay.request(
+              {
+                method,
+                params: [
+                  {
+                    ...transaction,
+                    ...(transaction.chainId === undefined && config.chain
+                      ? { chainId: Hex.fromNumber(config.chain.id) }
+                      : {}),
+                  },
+                  ...rest,
+                ],
+              },
+              options,
+            ) as never
+        }
 
         if (
           method === 'eth_getTransactionByHash' ||
@@ -281,18 +312,26 @@ export declare namespace withRelay {
     transport extends Transport,
     plugins extends readonly Relay_.Plugin[] = readonly [],
   > = transport extends Transport<infer type, infer attributes, infer request>
-    ? Transport<
-        type,
-        attributes &
-          (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
-            ? {}
-            : { multisig: true }),
-        request
-      >
+    ? Transport<type, PluginAttributes<plugins, attributes>, request>
     : never
 
   export type ReturnValue = Relay
 }
+
+type PluginAttributes<
+  plugins extends readonly Relay_.Plugin[],
+  attributes,
+> = plugins extends readonly [
+  infer plugin extends Relay_.Plugin,
+  ...infer rest extends readonly Relay_.Plugin[],
+]
+  ? PluginAttributes<
+      rest,
+      Assign<attributes, plugin extends { transport: infer value } ? value : {}>
+    >
+  : number extends plugins['length']
+    ? Assign<attributes, Partial<NonNullable<plugins[number]['transport']>>>
+    : attributes
 
 /** @deprecated Use `withRelay` instead. */
 export function withFeePayer(

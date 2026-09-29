@@ -75,6 +75,7 @@ export type WriteParameters<
     | 'keyAuthorization'
     | 'nonceKey'
     | 'owner'
+    | 'requireFunds'
     | 'validAfter'
     | 'validBefore'
   >

@@ -209,14 +209,18 @@ describe('blocked transfer lifecycle', () => {
     })
 
     // transfer is blocked (still succeeds).
-    const { receipt: transferReceipt } = await actions.token.transferSync(
-      client,
-      {
+    const { receipt: transferReceipt, ...transfer } =
+      await actions.token.transferSync(client, {
         token,
         to: receiverAccount.address,
         amount,
-      },
-    )
+      })
+
+    expect(transfer).toEqual({
+      amount,
+      from: account.address,
+      to: Addresses.receivePolicyGuard,
+    })
 
     const receipts =
       ReceivePolicyReceipt.fromTransactionReceipt(transferReceipt)

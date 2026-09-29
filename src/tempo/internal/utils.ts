@@ -198,6 +198,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     nonce,
     nonceKey,
     owner,
+    requireFunds,
     validAfter,
     validBefore,
   } = parameters
@@ -213,6 +214,7 @@ export function pickWriteParameters(parameters: Record<string, unknown>) {
     nonce,
     nonceKey,
     owner,
+    requireFunds,
     validAfter,
     validBefore,
   }

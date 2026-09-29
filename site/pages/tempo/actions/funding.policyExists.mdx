@@ -1,0 +1,56 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `funding.policyExists`
+
+Checks whether a funding policy ID exists.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const exists = await client.funding.policyExists({ policyId: 1n })
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const exists = await Actions.funding.policyExists(client, { policyId: 1n })
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnType = boolean
+```
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+Funding policy ID.
+
+<ReadAccountParameters />

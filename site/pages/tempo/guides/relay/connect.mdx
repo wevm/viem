@@ -4,9 +4,9 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-[`withRelay`](/tempo/transports/withRelay) connects a Viem client to a remote
-relay or applies plugins directly to its transport. Choose remote coordination
-when independent owners need to share an approval mailbox.
+Connect to a remote relay with an [`http`](/docs/clients/transports/http) transport,
+or run plugins in your application with [`withRelay`](/tempo/transports/withRelay).
+Choose a remote relay when independent owners need to share an approval mailbox.
 
 ## Recipes
 
@@ -14,18 +14,18 @@ These recipes assume you have [set up a Tempo client](/tempo).
 
 ### Connect to a Remote Relay
 
-Pass a relay transport to `withRelay` to use a remote service for transaction
-preparation, fee sponsorship, and multisig coordination.
+Pass the relay URL to `http` to use a remote service for transaction preparation,
+fee sponsorship, and multisig coordination. The relay forwards ordinary RPC requests
+to the execution node.
 
 ```ts twoslash
 import { createClient, http } from 'viem'
 import { tempo } from 'viem/chains'
-import { withRelay } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   chain: tempo,
-  transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 

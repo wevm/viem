@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["../src/**/*.bench-d.ts"],
+  "compilerOptions": {
+    "composite": false
+  }
+}

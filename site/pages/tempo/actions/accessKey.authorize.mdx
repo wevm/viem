@@ -2,7 +2,7 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `accessKey.authorize`
 
-Authorizes an access key by signing a key authorization and sending a transaction.
+Authorizes an access key through a local signing account or a connected wallet. Local accounts submit a transaction; JSON-RPC accounts request a wallet authorization.
 
 ## Usage
 
@@ -68,6 +68,30 @@ const { receipt } = await client.token.transferSync({
 // [!code focus:end]
 ```
 :::
+
+### Authorize Through a Wallet
+
+For a JSON-RPC account, `authorize` calls `wallet_authorizeAccessKey`. Omit `accessKey` to let the wallet generate and store the key. The wallet returns a signed authorization and its root address; this request does not require a transaction. `authorizeSync` remains an onchain action.
+
+```ts
+import { createClient, custom } from 'viem'
+import { tempo } from 'viem/chains'
+import { Addresses, Expiry, tempoActions } from 'viem/tempo'
+
+const client = createClient({
+  account: '0x0000000000000000000000000000000000000001',
+  chain: tempo,
+  transport: custom(window.ethereum),
+}).extend(tempoActions())
+
+const { keyAuthorization, rootAddress } = await client.accessKey.authorize({
+  expiry: Expiry.hours(1),
+  limits: [{ token: Addresses.pathUsd, limit: 1_000_000_000n }],
+  fundingPolicy: true,
+})
+```
+
+`fundingPolicy: true` asks the wallet to resolve its default funding policy. The wallet must support `wallet_authorizeAccessKey`; unsupported methods and rejected requests propagate without falling back to transaction submission.
 
 ### With Expiry and Spending Limits
 
@@ -305,17 +329,31 @@ const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const hash = await client.accessKey.authorize({
+const { hash } = await client.accessKey.authorize({
   accessKey,
   expiry: Expiry.hours(1),
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await client.waitForTransactionReceipt({ hash: hash! })
 
 const { args }
   = Actions.accessKey.authorize.extractEvent(receipt.logs)
 ```
 
 ## Return Type
+
+`authorize` always returns the same shape:
+
+```ts
+type ReturnValue = {
+  rootAddress: Address
+  keyAuthorization: KeyAuthorization.Signed
+  hash: Hex | undefined
+}
+```
+
+Local accounts submit the signed authorization and return its transaction hash. JSON-RPC accounts return the wallet's signed authorization with `hash: undefined`. Numeric authorization fields are decoded.
+
+`authorizeSync` returns the onchain event and receipt:
 
 ```ts
 type ReturnType = {
@@ -338,7 +376,7 @@ type ReturnType = {
 
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`. Optional for JSON-RPC accounts, where omission asks the wallet to generate and store a key.
 
 ### admin (optional)
 
@@ -350,7 +388,23 @@ Whether to authorize the key as an admin key. Admin keys are unrestricted and ca
 
 - **Type:** `number`
 
-Unix timestamp when the key expires.
+Unix timestamp when the key expires. Required for JSON-RPC accounts.
+
+### fundingPolicy (optional)
+
+- **Type:** `true | bigint | FundingPolicy.Inline`
+
+Use an existing policy ID, an inline `{ admins, rules }` policy, or `true` to select the funding handler's configured `policyId`. The default is resolved before signing; explicit IDs and inline policies are unchanged.
+
+The policy's administrators can change its rules for all attached access keys. `Relay.funding` supplies current registered `policyRules` when filling payments.
+
+See [access key funding](/tempo/guides/funding/source#fund-with-an-access-key) for a complete example.
+
+### keyType (optional)
+
+- **Type:** `'secp256k1' | 'p256' | 'webAuthn'`
+
+For JSON-RPC accounts, selects the type of wallet-generated key. Defaults to the wallet's preferred type. A supplied `accessKey` determines its own key type.
 
 ### limits (optional)
 

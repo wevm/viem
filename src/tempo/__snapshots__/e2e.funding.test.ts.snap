@@ -1,0 +1,170 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (p256) 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
+
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (secp256k1) 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
+
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: \`keyAuthorization\` on transaction > funds with an existing policy (webAuthn) 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
+
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: expired 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following reason:
+Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
+
+Details: Revm error: keychain precompile error: Account keychain error: ExpiryInPast(ExpiryInPast)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: input 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x7fb703f1
+
+Unable to decode signature "0x7fb703f1" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x7fb703f1.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: limit 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x8a9e71ea
+
+Unable to decode signature "0x8a9e71ea" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x8a9e71ea.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: missing 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
+
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: output 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x94403b70
+
+Unable to decode signature "0x94403b70" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x94403b70.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Funding policy error: TokenNotAllowed(TokenNotAllowed { token: 0x20c0000000000000000000000000000000000002 })
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: revoked 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following reason:
+Revm error: keychain validation failed: AccountKeychainError(KeyAlreadyRevoked(KeyAlreadyRevoked))
+
+Details: Revm error: keychain validation failed: AccountKeychainError(KeyAlreadyRevoked(KeyAlreadyRevoked))
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: slippage 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x6521424e
+
+Unable to decode signature "0x6521424e" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x6521424e.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: TIP20 funding error: InvalidFundingContext(InvalidFundingContext)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects invalid delegated funding: tampered 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
+
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > rejects sources supplied in reverse policy order 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0x7fb703f1
+
+Unable to decode signature "0x7fb703f1" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x7fb703f1.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: TIP20 funding error: FundingNotAuthorized(FundingNotAuthorized { source: 0x1120000000000000000000000000000000000001 })
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: access key > requires current rules after updates, including when the balance is already sufficient 1`] = `
+[ContractFunctionRevertedError: The contract function "transfer" reverted with the following signature:
+0xf96d908c
+
+Unable to decode signature "0xf96d908c" as it was not found on the provided ABI.
+Make sure you are using the correct ABI and that the error exists on it.
+You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf96d908c.
+
+Docs: https://viem.sh/docs/contract/decodeErrorResult
+Details: execution reverted: Funding policy error: InvalidPolicyData(InvalidPolicyData)
+Version: viem@2.56.9]
+`;
+
+exports[`behavior: owner-authorized > funding cannot pay transaction fees 1`] = `[Error: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.]`;
+
+exports[`behavior: owner-authorized > rejects a source without liquidity 1`] = `[Error: Execution reverted with reason: Stablecoin DEX error: PairDoesNotExist(PairDoesNotExist).]`;
+
+exports[`behavior: owner-authorized > rejects insufficient input capacity without moving funds 1`] = `[Error: Execution reverted with reason: TIP20 funding error: InsufficientFunding(InsufficientFunding { required: 50000000, available: 30000000 }).]`;
+
+exports[`funding source: earn > rejects execution caps above the access key policy 1`] = `[Error: FundingNotAuthorized]`;
+
+exports[`funding source: earn > rejects execution caps above the access key policy 2`] = `[Error: FundingNotAuthorized]`;

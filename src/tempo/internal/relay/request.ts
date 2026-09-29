@@ -4,12 +4,12 @@ import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
+import { getDefaultTokens } from '../../plugins/feeToken.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
 import * as Deadline from './deadline.js'
 import { formatError, isExecutionError } from './error.js'
-import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
 import {
   extractCalls,
@@ -163,7 +163,7 @@ export function compose(
           requestOptions.signal?.throwIfAborted()
           state.result = await downstream(request, {
             ...state.options,
-            ...(isFill ? { signal: requestOptions.signal } : {}),
+            ...(requestOptions.signal ? { signal: requestOptions.signal } : {}),
           })
           return
         }
@@ -347,7 +347,9 @@ export function compose(
       message: 'The fill timeout cannot exceed 2147483647 milliseconds.',
     })
   return (request, requestOptions = {}) =>
-    request.method === 'eth_fillTransaction'
+    request.method === 'eth_fillTransaction' ||
+    request.method === 'eth_call' ||
+    request.method === 'eth_estimateGas'
       ? Deadline.run(handle, request, requestOptions, options)
       : handle(request, requestOptions)
 }

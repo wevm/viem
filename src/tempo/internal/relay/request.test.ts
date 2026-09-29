@@ -587,9 +587,16 @@ test.each(['none', 'explicit', 'resolved'])(
   },
 )
 
-test.each(['handler', 'create', 'transport'])(
-  'bounds nested callbacks that ignore the fill deadline: %s',
-  async (mode) => {
+test.each(
+  ['handler', 'create', 'transport'].flatMap((mode) =>
+    ['eth_fillTransaction', 'eth_call', 'eth_estimateGas'].map((method) => ({
+      mode,
+      method,
+    })),
+  ),
+)(
+  'bounds nested callbacks that ignore the deadline: $mode $method',
+  async ({ mode, method }) => {
     const release = Promise.withResolvers<void>()
     const completed = Promise.withResolvers<unknown>()
     const rpc = http('http://127.0.0.1:1', { retryCount: 0 })({})
@@ -621,10 +628,7 @@ test.each(['handler', 'create', 'transport'])(
       plugins: [Relay.simulate()],
     })
     await expect(
-      relay(
-        { method: 'eth_fillTransaction', params: [{}] },
-        { chainId: tempoLocalnet.id },
-      ),
+      relay({ method, params: [{}] }, { chainId: tempoLocalnet.id }),
     ).rejects.toMatchObject({
       code: -32005,
       message: 'Relay fill exceeded its deadline.',

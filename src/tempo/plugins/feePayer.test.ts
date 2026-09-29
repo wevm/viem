@@ -22,8 +22,8 @@ import {
 import { beforeAll, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
-import type * as Request from './request.js'
-import * as Utils from './utils.js'
+import type * as Request from '../internal/relay/request.js'
+import * as Utils from '../internal/relay/utils.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!

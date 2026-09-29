@@ -212,6 +212,21 @@ const status: Relay.Plugin = {
 }
 ```
 
+### Transport Metadata
+
+`transport` declares metadata for local `withRelay` transports. Metadata merges in plugin order, with later values taking precedence. Custom fields are inferred on the client's transport.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = {
+  transport: { service: 'payments' as const },
+  async handleRequest(_context, next) {
+    await next()
+  },
+} satisfies Relay.Plugin
+```
+
 ### Request Context
 
 `context.request` and `context.options` are forwarded by `next()`, which returns

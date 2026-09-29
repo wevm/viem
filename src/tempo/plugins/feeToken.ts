@@ -1,15 +1,28 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
-import { tokens as tokenSets } from '../../../tokens/sets.js'
-import * as Actions from '../../actions/index.js'
-import type * as Relay from '../../Relay.js'
-import * as Store from './cache.js'
-import * as Preflight from './preflight.js'
-import * as Utils from './utils.js'
-import { extractCalls, getVirtualAddressTargets } from './virtualAddress.js'
+import type { Client } from '../../clients/createClient.js'
+import { tokens as tokenSets } from '../../tokens/sets.js'
+import * as Actions from '../actions/index.js'
+import * as Store from '../internal/relay/cache.js'
+import * as Preflight from '../internal/relay/preflight.js'
+import * as Utils from '../internal/relay/utils.js'
+import {
+  extractCalls,
+  getVirtualAddressTargets,
+} from '../internal/relay/virtualAddress.js'
+import type * as Relay from '../Relay.js'
 
-export function create(): Relay.Plugin {
+/**
+ * Resolves fee tokens from user preferences and token balances.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.feeToken()
+ * ```
+ * @returns A fee-token relay plugin.
+ */
+export function feeToken(): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       const { request } = context

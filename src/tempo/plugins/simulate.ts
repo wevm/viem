@@ -1,22 +1,37 @@
 import type { Address } from 'abitype'
 import { AbiEvent, Hex } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import type { Call } from '../../../types/calls.js'
-import type { Log } from '../../../types/log.js'
-import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
-import * as Abis from '../../Abis.js'
-import * as Actions from '../../actions/index.js'
-import type * as Capabilities from '../../Capabilities.js'
-import type * as Relay from '../../Relay.js'
-import type * as Store from './cache.js'
-import { formatError, isExecutionError } from './error.js'
+import type { Client } from '../../clients/createClient.js'
+import { zeroAddress } from '../../constants/address.js'
+import type { Call } from '../../types/calls.js'
+import type { Log } from '../../types/log.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { formatLog } from '../../utils/formatters/log.js'
+import { formatUnits } from '../../utils/unit/formatUnits.js'
+import * as Abis from '../Abis.js'
+import * as Actions from '../actions/index.js'
+import type * as Capabilities from '../Capabilities.js'
+import { simulateFunding } from '../internal/funding.js'
+import type * as Store from '../internal/relay/cache.js'
+import { formatError, isExecutionError } from '../internal/relay/error.js'
+import * as Utils from '../internal/relay/utils.js'
+import { extractCalls } from '../internal/relay/virtualAddress.js'
+import type * as Relay from '../Relay.js'
 import { resolveTokenMetadata } from './feeToken.js'
-import * as Utils from './utils.js'
-import { extractCalls } from './virtualAddress.js'
 
-export function create(options: Relay.simulate.Options): Relay.Plugin {
+/**
+ * Adds balance changes, estimated fees, and execution errors to fill capabilities.
+ *
+ * Runs after transaction middleware to simulate the final filled result.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugin = Relay.simulate()
+ * ```
+ * @param options - Optional metadata store.
+ * @returns A simulation relay plugin.
+ */
+export function simulate(options: simulate.Options = {}): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       if (context.request.method !== 'eth_fillTransaction') return next()
@@ -50,6 +65,10 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
           ? await simulateAndParseDiffs(context.client, {
               account: parameters.from as Address | undefined,
               calls: extractCalls(transaction),
+              transaction: {
+                ...result.tx,
+                from: parameters.from,
+              } as Relay.funding.Transaction,
               feeToken,
               gas: transaction.gas,
               maxFeePerGas: transaction.maxFeePerGas,
@@ -73,11 +92,28 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
   }
 }
 
+export declare namespace simulate {
+  /** Simulation configuration. */
+  export type Options = {
+    /** Store for cached metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
+  }
+}
+
 export async function simulateAndParseDiffs(
   client: Client,
   options: simulateAndParseDiffs.Options,
 ) {
-  const { account, calls, feeToken, gas, store, maxFeePerGas, signal } = options
+  const {
+    account,
+    calls,
+    feeToken,
+    gas,
+    store,
+    maxFeePerGas,
+    signal,
+    transaction,
+  } = options
   signal?.throwIfAborted()
 
   try {
@@ -92,11 +128,43 @@ export async function simulateAndParseDiffs(
             }),
           ]
         : []
-    const simulation = await Actions.simulate.simulateCalls(client, {
-      account: account === zeroAddress ? undefined : account,
-      calls: [...calls, ...probe] as Call[],
-      traceTransfers: true,
-    })
+    const simulation = await (async () => {
+      if (
+        Array.isArray(transaction?.requireFunds) &&
+        transaction.requireFunds.length
+      ) {
+        const batch = transaction.calls?.length
+          ? transaction.calls
+          : [
+              {
+                to: transaction.to ?? undefined,
+                data: transaction.data,
+                value: transaction.value,
+              },
+            ]
+        const result = await simulateFunding(client, {
+          transaction: {
+            ...transaction,
+            calls: [...batch, ...probe.map(({ to, data }) => ({ to, data }))],
+          },
+        })
+        if (result.status !== '0x1')
+          throw new Error(
+            result.error?.message ?? 'Funded simulation reverted.',
+          )
+        return {
+          results: [
+            { ...result, logs: result.logs.map((log) => formatLog(log)) },
+          ],
+          tokenMetadata: result.tokenMetadata,
+        }
+      }
+      return Actions.simulate.simulateCalls(client, {
+        account: account === zeroAddress ? undefined : account,
+        calls: [...calls, ...probe] as Call[],
+        traceTransfers: true,
+      })
+    })()
     const results = simulation.results.slice(0, calls.length)
     const { tokenMetadata } = simulation
 
@@ -150,6 +218,7 @@ export declare namespace simulateAndParseDiffs {
   type Options = {
     account?: Address | undefined
     calls: readonly Call[]
+    transaction?: Relay.funding.Transaction | undefined
     feeToken?: Address | undefined
     gas?: bigint | undefined
     store?: Store.Store | undefined

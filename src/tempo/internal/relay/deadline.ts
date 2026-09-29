@@ -1,7 +1,7 @@
 import { RpcResponse } from 'ox'
 import type * as Relay from '../../Relay.js'
 
-/** Bounds the complete fill, including callbacks that do not observe abort signals. */
+/** Bounds the complete request, including callbacks that do not observe abort signals. */
 export async function run(
   handler: Relay.handleRequest.Handler,
   request: Relay.handleRequest.Request,

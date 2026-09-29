@@ -732,8 +732,8 @@ describe('getVault', { timeout: 30_000 }, () => {
     expect(isAddressEqual(shareToken, stack.shareToken)).toBe(true)
     expect(engineMeta).toMatchInlineSnapshot(`
       {
-        "name": "Tempo Earn Test Vault",
-        "symbol": "teTEST",
+        "name": "Earn Funding Test Vault",
+        "symbol": "eftVAULT",
         "totalAssets": 100000000n,
       }
     `)
@@ -921,7 +921,7 @@ describe('redeem', { timeout: 30_000 }, () => {
     expect(isAddressEqual(receiver, account.address)).toBe(true)
     expect(eventArgs).toMatchInlineSnapshot(`
       {
-        "assets": 150000000n,
+        "assets": 149999999n,
         "earnShares": 100000000n,
       }
     `)
@@ -1004,7 +1004,8 @@ describe('redeem', { timeout: 30_000 }, () => {
       vault: stack.adapter,
     })
 
-    expect(assetAmount).toBe(parseUnits('150', 6))
+    // The venue's virtual share retains one base unit after the donation.
+    expect(assetAmount).toBe(parseUnits('150', 6) - 1n)
   })
 
   test('behavior: forwards the live preview floor as the onchain bound', async () => {

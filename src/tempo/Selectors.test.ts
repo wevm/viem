@@ -25,6 +25,18 @@ const selectorDefinitions = {
   },
   feeAmm: { abi: Abis.feeAmm, selectors: Selectors.feeAmm },
   feeManager: { abi: Abis.feeManager, selectors: Selectors.feeManager },
+  fundingDiscovery: {
+    abi: Abis.fundingDiscovery,
+    selectors: Selectors.fundingDiscovery,
+  },
+  fundingPolicy: {
+    abi: Abis.fundingPolicy,
+    selectors: Selectors.fundingPolicy,
+  },
+  fundingSource: {
+    abi: Abis.fundingSource,
+    selectors: Selectors.fundingSource,
+  },
   nativeMultisig: {
     abi: Abis.nativeMultisig,
     selectors: Selectors.nativeMultisig,

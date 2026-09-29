@@ -5,6 +5,8 @@
 [`Relay.simulate`](#relaysimulate) adds balance changes and estimated fees to
 filled transactions. It simulates calls with `tempo_simulateV1`.
 
+With [`Relay.funding`](/tempo/relay/plugins/funding), the preview executes resolved funding sources and application calls as one transaction. This path requires `tempo_simulateV1`; if unavailable, the relay omits balance diffs rather than simulating unfunded calls.
+
 ## Recipes
 
 Choose a local relay to run plugins in your application, or connect to a remote

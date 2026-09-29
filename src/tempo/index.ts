@@ -14,6 +14,11 @@ export type {
 export {
   Channel,
   EarnShares,
+  FundingPolicy,
+  FundingRequirement,
+  FundingSource,
+  FundingSourceDex,
+  FundingSourceEarn,
   MultisigConfig,
   MultisigOperation,
   Period,
@@ -72,6 +77,8 @@ export * as ExecutionError from './ExecutionError.js'
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
+/** Owner-authorized funding relay handling. */
+export * as Funding from './Funding.js'
 export * as Hardfork from './Hardfork.js'
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'

@@ -1,16 +1,19 @@
 import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
-import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
-import * as Sponsorship from './internal/relay/feePayer.js'
-import * as FeeToken from './internal/relay/feeToken.js'
-import * as Multisig from './internal/relay/multisig.js'
 import * as Request_ from './internal/relay/request.js'
-import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
+import type * as Sponsorship from './plugins/feePayer.js'
 import type * as Store from './Store.js'
+
+// biome-ignore lint/performance/noBarrelFile: Relay exposes its plugin factories.
+export { feePayer } from './plugins/feePayer.js'
+export { feeToken } from './plugins/feeToken.js'
+export { funding } from './plugins/funding.js'
+export { multisig } from './plugins/multisig.js'
+export { simulate } from './plugins/simulate.js'
 
 /**
  * Creates a relay with RPC and Fetch handlers backed by a client or chain resolver.
@@ -226,7 +229,7 @@ export declare namespace handleRequest {
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
-    /** Deadline in milliseconds for a plugin-handled fill, including callbacks. Defaults to 10,000. */
+    /** Deadline in milliseconds for plugin-handled fills, calls, and gas estimates, including callbacks. Defaults to 10,000. */
     timeout?: number | undefined
   }
 
@@ -251,6 +254,8 @@ export declare namespace handleRequest {
 
 /** Hooks extending relay request processing and filled transaction responses. */
 export type Plugin = {
+  /** Metadata merged into local transport attributes in plugin order. Later values take precedence. */
+  transport?: Readonly<Record<string, unknown>> | undefined
   /** Processes an RPC request. Await next(), then read or replace context.result. */
   handleRequest?:
     | ((context: Plugin.Context, next: () => Promise<void>) => Promise<unknown>)
@@ -304,124 +309,6 @@ export declare namespace Plugin {
     r: `0x${string}`
     s: `0x${string}`
     yParity: `0x${string}`
-  }
-}
-
-declare const multisigBrand: unique symbol
-
-/**
- * Coordinates native multisig approvals using shared atomic storage.
- *
- * Memory storage is process-local. Independent clients and multiple server
- * instances must use the same persistent store to share pending approvals.
- *
- * @example
- * ```ts
- * import { http } from 'viem'
- * import { Relay, Store, withRelay } from 'viem/tempo'
- *
- * const transport = withRelay(http(), {
- *   plugins: [Relay.multisig({ store: Store.memory() })],
- * })
- * ```
- *
- * @param options - Shared atomic storage.
- * @returns A plugin that coordinates multisig requests and forwards other calls.
- */
-export function multisig(options: multisig.Options): multisig.ReturnType {
-  return Multisig.create(options)
-}
-
-export declare namespace multisig {
-  /** Multisig coordination options. */
-  export type Options = {
-    /** Store shared by multisig coordinators, with atomic compare-and-set support. */
-    store: Store.Atomic
-  }
-  /** Middleware advertising native multisig coordination. */
-  export type ReturnType = Plugin & { readonly [multisigBrand]: true }
-}
-
-/**
- * Sponsors transactions with a local account or an external fee-payer relay.
- *
- * Place multisig before this plugin and fee-token selection after it.
- *
- * @example
- * ```ts
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
- * ```
- * @param options - Sponsor account, policy, and display metadata.
- * @returns A fee-payer relay plugin.
- */
-export function feePayer(options: feePayer.Options = {}): Plugin {
-  return Sponsorship.create(options)
-}
-
-export declare namespace feePayer {
-  /** Fee sponsorship configuration. */
-  export type Options = {
-    /** Local sponsor. Omit when requests use an external fee-payer URL. */
-    account?: LocalAccount | undefined
-    /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
-    allowedFeePayers?: readonly string[] | undefined
-    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
-    feeToken?: Address | undefined
-    /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
-    internal_allowUnsafeUrls?: boolean | undefined
-    /** Display name returned in sponsor capabilities. */
-    name?: string | undefined
-    /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
-    onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined
-    /** Sponsor display URL. */
-    url?: string | undefined
-    /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
-    validate?: Sponsorship.Validate | undefined
-  }
-  /** Result of a sponsorship policy check. */
-  export type Validation = Sponsorship.Validation
-  /** Facts passed to the sponsorship callback. */
-  export type SponsoredEvent = Sponsorship.SponsoredEvent
-}
-
-/**
- * Resolves fee tokens from user preferences and token balances.
- *
- * @example
- * ```ts
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feeToken()
- * ```
- * @returns A fee-token relay plugin.
- */
-export function feeToken(): Plugin {
-  return FeeToken.create()
-}
-
-/**
- * Adds balance changes, estimated fees, and execution errors to fill capabilities.
- *
- * Runs after transaction middleware to simulate the final filled result.
- *
- * @example
- * ```ts
- * import { Relay } from 'viem/tempo'
- * const plugin = Relay.simulate()
- * ```
- * @param options - Optional metadata store.
- * @returns A simulation relay plugin.
- */
-export function simulate(options: simulate.Options = {}): Plugin {
-  return Simulate.create(options)
-}
-
-export declare namespace simulate {
-  /** Simulation configuration. */
-  export type Options = {
-    /** Store for cached metadata. Omit to read metadata for each request. */
-    store?: Store.Store | undefined
   }
 }
 

@@ -1,6 +1,9 @@
 # `withRelay`
 
-Connects to a remote Tempo relay or applies relay plugins directly to a transport.
+Splits requests between an execution RPC and a Tempo relay, or applies relay plugins directly to a transport.
+
+To send all requests through a remote relay, use [`http`](/docs/clients/transports/http)
+with the relay URL. See [Connect to a Remote Relay](/tempo/guides/relay/connect#connect-to-a-remote-relay).
 
 - [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
 - [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
@@ -18,9 +21,11 @@ Transaction and receipt lookups query the default transport first. If no result 
 Viem asks the relay whether the hash identifies a multisig operation and routes a
 matching operation lookup through the relay. Other lookups retain the default result.
 
+Requests to `eth_call` and `eth_estimateGas` with `requireFunds` also go to the relay for funding resolution. Calls and estimates without funding requirements use the default transport.
+
 ## Usage
 
-### Remote Mode
+### Split Requests Between an RPC and a Relay
 
 :::code-group
 
@@ -65,16 +70,13 @@ Connect to a relay configured with the
 
 ```ts twoslash [client.ts]
 import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, http, withRelay } from 'viem/tempo'
+import { createClient, http } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   account: privateKeyToAccount('0x...'),
   testnet: true,
-  transport: withRelay(
-    http(),
-    http('http://localhost:3000'),
-  ),
+  transport: http('http://localhost:3000'),
 })
 
 const hash = await client.sendTransactionSync({

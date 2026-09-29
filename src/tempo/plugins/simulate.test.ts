@@ -14,7 +14,7 @@ import { Abis, Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
-import * as Cache from './cache.js'
+import * as Cache from '../internal/relay/cache.js'
 import { buildBalanceDiffs } from './simulate.js'
 
 const userAccount = Tempo.accounts[9]!

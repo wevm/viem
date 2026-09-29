@@ -28,6 +28,72 @@ import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction_ from './Transaction.js'
 import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
+describe('Relay.funding', () => {
+  const client = getClient({
+    transport: withRelay(http(), {
+      plugins: [Relay.funding({ store: Store.memory() })],
+    }),
+  })
+
+  test('passes unrelated RPC methods through and retains transport metadata', async () => {
+    expect(client.transport).toMatchInlineSnapshot(
+      { url: expect.any(String) },
+      `
+      {
+        "fetchOptions": undefined,
+        "funding": true,
+        "key": "http",
+        "methods": undefined,
+        "name": "HTTP JSON-RPC",
+        "request": [Function],
+        "retryCount": 3,
+        "retryDelay": 150,
+        "timeout": 10000,
+        "type": "http",
+        "url": Any<String>,
+      }
+    `,
+    )
+    expect(
+      await client.request({ method: 'eth_chainId' }),
+    ).toMatchInlineSnapshot(`"0x539"`)
+  })
+
+  test('reports getRoute failures as relay errors', async () => {
+    const client = getClient({
+      transport: withRelay(http(), {
+        plugins: [
+          Relay.funding({
+            store: Store.memory(),
+            getRoute: async () => {
+              throw new Error('Route configuration unavailable.')
+            },
+          }),
+        ],
+      }),
+    })
+    await expect(
+      client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            chainId: '0x539',
+            from: accounts[0].address,
+            requireFunds: [
+              {
+                amount: '0x1',
+                token: '0x20c0000000000000000000000000000000000000',
+              },
+            ],
+          },
+        ],
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InternalError: Internal error]`,
+    )
+  })
+})
+
 describe('withRelay local plugins', () => {
   test('default', async () => {
     const client = getClient({
@@ -61,6 +127,27 @@ describe('withRelay local plugins', () => {
     expect(nested.transport.multisig).toBe(true)
     expect(nested.transport.type).toBe(underlying.transport.type)
     expect(nested.transport.name).toBe(underlying.transport.name)
+  })
+
+  test('merges custom plugin transport metadata in order', async () => {
+    const client = getClient({
+      transport: withRelay(http(), {
+        plugins: [
+          { transport: { service: 'first', version: 1 } },
+          { ...Relay.funding() },
+          { ...Relay.multisig({ store: Store.memory() }) },
+          { transport: { service: 'second' } },
+        ],
+      }),
+    })
+    expect(client.transport).toMatchObject({
+      type: 'http',
+      service: 'second',
+      version: 1,
+      funding: true,
+      multisig: true,
+    })
+    expect(await client.request({ method: 'eth_chainId' })).toBe('0x539')
   })
 
   test('error: non-atomic store', () => {

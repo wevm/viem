@@ -1,0 +1,125 @@
+---
+description: Configure automatic funding for Tempo transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Funding
+
+## Overview
+
+Funding lets a transaction use other sources to supply the token balance it needs.
+
+For example, if an account lacks enough PathUSD for a payment, the transaction can swap its USDC and redeem its Earn vault shares to cover the shortfall before making the payment.
+
+:::warning
+**Experimental.** Transaction funding requires a TIP-1120-enabled node.
+:::
+
+## Recipes
+
+### Set Up a Client
+
+[`Relay.funding`](/tempo/relay/plugins/funding) is a relay plugin that infers the token balances a transaction needs and discovers sources to cover shortfalls. Run it locally with [`withRelay`](/tempo/transports/withRelay), or connect to a [remote relay](/tempo/guides/relay/run) configured with the plugin.
+
+:::code-group
+
+```ts [viem.config.ts (Local Relay)]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
+```
+
+:::
+
+:::info[Funding policy storage]
+Funding policies store a hash of their rules onchain, reducing onchain storage costs. The relay's [store](/tempo/utilities/Store) retains the full rules so it can retrieve them for access-key funding and verify them against the hash. Persistent storage keeps those rules available across relay restarts.
+:::
+
+### Fund a Transfer
+
+Set `requireFunds: true` to automatically source assets to fund the transfer. If the account has less than 50 PathUSD, Viem finds other supported tokens in the account to swap for the missing amount before sending the payment.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: true,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts (Local Relay)]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
+```
+
+:::
+
+#### Choose Funding Sources
+
+List [`FundingSource.earn`](/tempo/utilities/FundingSource.earn) before [`FundingSource.dex`](/tempo/utilities/FundingSource.dex) to redeem Earn shares before swapping tokens. This example redeems up to 30 PathUSD of underlying value, then covers the remaining shortfall with AlphaUSD.
+
+Replace `source` and `vault` with deployed addresses. The Earn vault must hold PathUSD.
+
+:::code-group
+
+```ts [example.ts]
+import { parseUnits } from 'viem'
+import { Addresses, FundingSource } from 'viem/tempo'
+import { client } from './viem.config'
+
+const source = '0x...'
+const vault = '0x...'
+
+await client.token.transferSync({
+  amount: parseUnits('50', 6),
+  requireFunds: [{
+    slippageBps: 100,
+    sources: [
+      FundingSource.earn({ maxValueIn: parseUnits('30', 6), source, vault }),
+      FundingSource.dex({ tokenIn: Addresses.alphaUsd }),
+    ],
+  }],
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: Addresses.pathUsd,
+})
+```
+
+```ts [viem.config.ts (Local Relay)]
+// [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
+```
+
+:::
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Source Funds for Transactions"
+    description="Use defaults, configure routes, or override individual sources and limits."
+    to="/tempo/guides/funding/source"
+  />
+  <Card
+    icon="lucide:search"
+    title="Discovering Funds"
+    description="Preview funding or explicitly discover sources before a transaction."
+    to="/tempo/guides/funding/discover"
+  />
+</Cards>

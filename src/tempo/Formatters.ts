@@ -1,6 +1,7 @@
 // TODO: Find opportunities to make this file less duplicated + more simplified with Viem v3.
 
 import type { Address } from 'abitype'
+import * as Address_ from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import {
   MultisigOperation,
@@ -13,6 +14,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account, MultisigAccount } from './Account.js'
+import { getDefaults, normalizeRequireFunds } from './internal/funding.js'
 import {
   isTempo,
   type Transaction,
@@ -150,10 +152,60 @@ export function formatTransactionRequest(
   // Client-only TIP-1061 fields drive local signing and envelope assembly.
   const { owner: _owner, signatures: _signatures, ...rpcRequest } = request
 
+  const normalized = normalizeRequireFunds(
+    request.requireFunds,
+    Boolean(account && account.source !== 'accessKey' && !request.keyId),
+  )
   const rpc = ox_TransactionRequest.toRpc({
     ...rpcRequest,
+    requireFunds: normalized,
     type: 'tempo',
   } as never)
+  const defaults =
+    normalized !== true &&
+    normalized?.some(
+      (requirement) =>
+        requirement.token === undefined || requirement.amount === undefined,
+    )
+      ? getDefaults(rpc)
+      : undefined
+  const requireFunds =
+    rpc.requireFunds === true
+      ? true
+      : rpc.requireFunds?.map((requirement) => ({
+          ...requirement,
+          ...(requirement.token === undefined && defaults
+            ? { token: defaults.token }
+            : {}),
+          ...(requirement.amount === undefined &&
+          defaults &&
+          (requirement.token === undefined ||
+            Address_.isEqual(requirement.token, defaults.token))
+            ? { amount: Hex.fromNumber(defaults.amount) }
+            : {}),
+        }))
+  const unresolved =
+    requireFunds === true ||
+    requireFunds?.some(
+      (requirement) =>
+        requirement.token === undefined ||
+        requirement.amount === undefined ||
+        requirement.sources === undefined,
+    )
+  // JSON-RPC wallets resolve funding before signing, just like local accounts.
+  if (
+    unresolved &&
+    action &&
+    action !== 'fillTransaction' &&
+    action !== 'sendTransaction' &&
+    action !== 'call' &&
+    action !== 'estimateGas'
+  )
+    throw new Error(
+      'Resolve omitted funding fields with `eth_fillTransaction` before signing.',
+    )
+
+  rpc.requireFunds = requireFunds
 
   if (action === 'estimateGas') {
     rpc.maxFeePerGas = undefined

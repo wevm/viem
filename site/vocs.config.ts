@@ -2482,6 +2482,22 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Funding',
+              collapsed: true,
+              items: [
+                { text: 'Overview', link: '/tempo/guides/funding' },
+                {
+                  text: 'Discovering Funds',
+                  link: '/tempo/guides/funding/discover',
+                },
+                {
+                  text: 'Source Funds for Transactions',
+                  link: '/tempo/guides/funding/source',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'PropAMM',
               collapsed: true,
               items: [
@@ -2580,6 +2596,10 @@ export default defineConfig({
                 {
                   text: 'burnWitness',
                   link: '/tempo/actions/accessKey.burnWitness',
+                },
+                {
+                  text: 'getFundingPolicyId',
+                  link: '/tempo/actions/accessKey.getFundingPolicyId',
                 },
                 {
                   text: 'getMetadata',
@@ -2879,6 +2899,40 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'updateConfigSync',
                   link: '/tempo/actions/multisig.updateConfigSync',
+                },
+              ],
+            },
+            {
+              text: 'Funding',
+              collapsed: true,
+              items: [
+                {
+                  text: 'discover',
+                  link: '/tempo/actions/funding.discover',
+                },
+                {
+                  text: 'createPolicy',
+                  link: '/tempo/actions/funding.createPolicy',
+                },
+                {
+                  text: 'getPolicy',
+                  link: '/tempo/actions/funding.getPolicy',
+                },
+                {
+                  text: 'policyExists',
+                  link: '/tempo/actions/funding.policyExists',
+                },
+                {
+                  text: 'policyIdCounter',
+                  link: '/tempo/actions/funding.policyIdCounter',
+                },
+                {
+                  text: 'setPolicyAdmins',
+                  link: '/tempo/actions/funding.setPolicyAdmins',
+                },
+                {
+                  text: 'setPolicyRules',
+                  link: '/tempo/actions/funding.setPolicyRules',
                 },
               ],
             },
@@ -3400,9 +3454,9 @@ export default defineConfig({
                   link: '/tempo/relay/plugins/multisig',
                 },
                 {
-                  badge: { text: '🚧', variant: 'warning' },
-                  disabled: true,
+                  badge: { text: 'EXP', variant: 'warning' },
                   text: 'Funding',
+                  link: '/tempo/relay/plugins/funding',
                 },
                 {
                   badge: { text: '🚧', variant: 'warning' },
@@ -3473,6 +3527,15 @@ export default defineConfig({
                   text: 'validate',
                   link: '/tempo/utilities/TempoAddress.validate',
                 },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'FundingSource',
+              collapsed: true,
+              items: [
+                { text: 'dex', link: '/tempo/utilities/FundingSource.dex' },
+                { text: 'earn', link: '/tempo/utilities/FundingSource.earn' },
               ],
             },
             {

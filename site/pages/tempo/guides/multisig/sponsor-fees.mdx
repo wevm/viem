@@ -21,7 +21,7 @@ Choose how the transaction gets its fee-payer signature:
 
 ### Relay
 
-Use [`withRelay`](/tempo/transports/withRelay) to send approvals to a relay that coordinates the
+Use [`http`](/docs/clients/transports/http) to send approvals to a relay that coordinates the
 multisig and sponsors its fees. The owners approve a request with `feePayer: true`. After quorum,
 the relay signs and broadcasts the final transaction.
 
@@ -61,19 +61,19 @@ const receipt = await client.sendTransactionSync({
 ```
 
 ```ts twoslash [relay.config.ts] filename="relay.config.ts"
-import { createClient, http, withRelay } from 'viem/tempo'
+import { createClient, http } from 'viem/tempo'
 
 // 1. Use the relay for coordination and fee sponsorship.
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com')),
+  transport: http('https://relay.example.com/rpc'),
 })
 ```
 
 :::
 
 The remote relay owns the shared multisig store. The client does not need a local multisig
-plugin when `withRelay` points to a relay that handles multisig coordination.
+plugin when its transport points to a relay that handles multisig coordination.
 
 ### Local Account
 

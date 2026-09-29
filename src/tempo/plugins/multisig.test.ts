@@ -25,9 +25,9 @@ import {
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
-import { nativeMultisigFactory } from '../../Addresses.js'
-import * as Operation from '../../multisig/Operation.js'
-import { parseApproval } from '../../multisig/Signature.js'
+import { nativeMultisigFactory } from '../Addresses.js'
+import * as Operation from '../multisig/Operation.js'
+import { parseApproval } from '../multisig/Signature.js'
 
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!

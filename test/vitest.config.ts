@@ -15,6 +15,10 @@ export default defineConfig({
         find: /^viem\/tempo$/,
         replacement: join(__dirname, '../src/tempo/index.ts'),
       },
+      {
+        find: /^viem\/(actions|accounts|chains|tokens|utils|tempo\/chains)$/,
+        replacement: join(__dirname, '../src/$1/index.ts'),
+      },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
     benchmark: {
@@ -84,7 +88,8 @@ export default defineConfig({
           name: 'tempo',
           exclude: [
             '**/*.multisig.test.ts',
-            'src/tempo/internal/relay/multisig.test.ts',
+            '**/*.funding.test.ts',
+            'src/tempo/plugins/multisig.test.ts',
             process.env.VITE_TEMPO_MULTISIG === 'true'
               ? 'src/tempo/Relay.compat.test.ts'
               : '',
@@ -100,6 +105,22 @@ export default defineConfig({
           testTimeout: 10_000,
         },
       },
+      {
+        extends: true,
+        test: {
+          name: 'tempo-funding',
+          include: ['src/tempo/**/*.funding.test.ts'],
+          globalSetup: [join(__dirname, './src/tempo/setup.global.funding.ts')],
+          env: {
+            VITE_TEMPO_ENV: 'localnet',
+            VITE_TEMPO_PORT: '9546',
+          },
+          retry: 0,
+          sequence: { groupOrder: 2 },
+          hookTimeout: 180_000,
+          testTimeout: 30_000,
+        },
+      },
       ...((process.env.VITE_TEMPO_MULTISIG === 'true'
         ? [
             {
@@ -109,7 +130,7 @@ export default defineConfig({
                 include: [
                   'src/tempo/**/*.multisig.test.ts',
                   'src/tempo/Relay.compat.test.ts',
-                  'src/tempo/internal/relay/multisig.test.ts',
+                  'src/tempo/plugins/multisig.test.ts',
                 ],
                 setupFiles: [join(__dirname, './src/tempo/setup.ts')],
                 globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],

@@ -17,6 +17,21 @@ test('validator addresses', () => {
   )
 })
 
+test('funding addresses', () => {
+  expect(Addresses.tip20Funder).toBe(
+    '0x1120000000000000000000000000000000000000',
+  )
+  expect(Addresses.dexFundingSource).toBe(
+    '0x1120000000000000000000000000000000000001',
+  )
+  expect(Addresses.fundingPolicy).toBe(
+    '0x1120000000000000000000000000000000000002',
+  )
+  expect(Addresses.fundingDiscovery).toBe(
+    '0x1120000000000000000000000000000000000003',
+  )
+})
+
 describe('portal', () => {
   test.each([
     [1, '0x5ad0000000000000000000000000000000000001'],
