@@ -1408,7 +1408,8 @@ describe('behavior', () => {
 
     test.each([
       { sources: [] },
-      { token: Addresses.betaUsd, sources: [] },
+      { token: Addresses.pathUsd, sources: [] },
+      { token: Addresses.betaUsd, amount: '0x2', sources: [] },
       { amount: '0x0', sources: [] },
     ] satisfies Funding.RequirementRpc[])(
       'resolves raw RPC partial requirements and preserves overrides (%j)',
@@ -1442,6 +1443,60 @@ describe('behavior', () => {
         ])
       },
     )
+
+    test('rejects a mismatched token before source discovery', async () => {
+      const methods: string[] = []
+      let routes = 0
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          plugins: [
+            Relay.funding({
+              getRoute: () => {
+                routes++
+                return { sources: [] }
+              },
+            }),
+          ],
+        },
+      )
+      for (const call of [
+        Actions.token.transfer.call({
+          token: Addresses.pathUsd,
+          amount: 50n,
+          to: accounts[1].address,
+        }),
+        Actions.token.burn.call({ token: Addresses.pathUsd, amount: 50n }),
+        Actions.dex.sell.call({
+          tokenIn: Addresses.pathUsd,
+          tokenOut: Addresses.alphaUsd,
+          amountIn: 50n,
+          minAmountOut: 0n,
+        }),
+      ])
+        await expect(
+          handler({
+            method: 'eth_fillTransaction',
+            params: [
+              TransactionRequest.toRpc({
+                from: accounts[0].address,
+                chainId: 1337,
+                calls: [call],
+                requireFunds: [{ token: Addresses.betaUsd }],
+              }),
+            ],
+          }),
+        ).rejects.toMatchObject({
+          code: -32602,
+          message:
+            'Cannot unambiguously infer the funding requirement; specify `token` and `amount` explicitly.',
+        })
+      expect(methods).toEqual([])
+      expect(routes).toBe(0)
+    })
 
     test('resolves a zero transfer without requiring transfer logs', async () => {
       const result = (await handler({

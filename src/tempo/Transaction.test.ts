@@ -527,6 +527,35 @@ describe('formatTransactionRequest', () => {
     ])
   })
 
+  test('does not default amounts for a different funding token', () => {
+    for (const call of [
+      Actions.token.transfer.call({
+        token,
+        amount: 50n,
+        to: Addresses.alphaUsd,
+      }),
+      Actions.token.burn.call({ token, amount: 50n }),
+      Actions.dex.sell.call({
+        tokenIn: token,
+        tokenOut: Addresses.alphaUsd,
+        amountIn: 50n,
+        minAmountOut: 0n,
+      }),
+    ]) {
+      const formatted = Formatters.formatTransactionRequest(
+        {
+          calls: [call],
+          requireFunds: [{ token: Addresses.betaUsd }, { token, sources: [] }],
+        },
+        'fillTransaction',
+      )
+      expect(formatted.requireFunds).toEqual([
+        { token: Addresses.betaUsd },
+        { token, amount: '0x32', sources: [] },
+      ])
+    }
+  })
+
   test('preserves partial fields for relay resolution', () => {
     const formatted = Formatters.formatTransactionRequest(
       {

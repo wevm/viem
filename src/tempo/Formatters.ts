@@ -1,6 +1,7 @@
 // TODO: Find opportunities to make this file less duplicated + more simplified with Viem v3.
 
 import type { Address } from 'abitype'
+import * as Address_ from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import {
   MultisigOperation,
@@ -176,7 +177,10 @@ export function formatTransactionRequest(
           ...(requirement.token === undefined && defaults
             ? { token: defaults.token }
             : {}),
-          ...(requirement.amount === undefined && defaults
+          ...(requirement.amount === undefined &&
+          defaults &&
+          (requirement.token === undefined ||
+            Address_.isEqual(requirement.token, defaults.token))
             ? { amount: Hex.fromNumber(defaults.amount) }
             : {}),
         }))

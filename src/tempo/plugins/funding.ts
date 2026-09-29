@@ -425,9 +425,8 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
             requirement.amount !== undefined
           )
             return requirement
-          const target = defaults
-            ? inferred[0]
-            : requirement.token === undefined
+          const target =
+            requirement.token === undefined
               ? inferred.length === 1
                 ? inferred[0]
                 : undefined
