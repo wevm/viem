@@ -86,10 +86,34 @@ type ReturnType = {
 
 Addresses permitted to update this policy.
 
+```ts twoslash
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// ---cut---
+await client.funding.createPolicySync({
+  admins: [client.account.address], // [!code focus]
+  rules: { maxSlippageBps: 0, sources: {} },
+})
+```
+
 ### rules
 
 - **Type:** `FundingPolicy.Rules`
 
 Token-keyed source routes and the maximum aggregate slippage. Source order within each route is preserved.
+
+```ts twoslash
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+import { Addresses, FundingSource } from 'viem/tempo'
+// ---cut---
+await client.funding.createPolicySync({
+  admins: [client.account.address],
+  rules: { // [!code focus]
+    maxSlippageBps: 100, // [!code focus]
+    sources: { // [!code focus]
+      [Addresses.pathUsd]: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })], // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
 
 <WriteParameters />
