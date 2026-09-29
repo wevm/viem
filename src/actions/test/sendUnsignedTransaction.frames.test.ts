@@ -23,12 +23,19 @@ describe('frames: Frame', () => {
     await expect(
       sendUnsignedTransaction(client, {
         from: accounts[0].address,
+        nonceKeys: [123n, 456n],
         frames: [
           Frame.expiry(1_800_000_000),
           Frame.calls([{ value: 1n }, { value: 2n }]),
         ],
       }),
     ).rejects.toThrow()
+    expect(requests[0]?.nonceKeys).toMatchInlineSnapshot(`
+      [
+        "0x7b",
+        "0x1c8",
+      ]
+    `)
     expect(requests[0]?.frames).toMatchInlineSnapshot(`
       [
         {
