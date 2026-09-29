@@ -1,5 +1,9 @@
 import { Signature } from 'ox'
-import { nonceManager as sharedNonceManager } from 'viem'
+import {
+  http,
+  type RpcTransactionRequest,
+  nonceManager as sharedNonceManager,
+} from 'viem'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import {
   fillTransaction,
@@ -17,6 +21,7 @@ import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts as constants } from '~test/constants.js'
 import { accounts, getClient } from '~test/frames/config.js'
+import { rpcUrl } from '~test/frames/prool.js'
 
 const client = getClient({ account: accounts[0] })
 const request = {
@@ -28,6 +33,33 @@ const request = {
 } as const
 
 describe('frames: Frame', () => {
+  test.each([sendTransaction, sendTransactionSync])(
+    'forwards explicit chain IDs without a chain assertion (%s)',
+    async (send) => {
+      const requests: RpcTransactionRequest[] = []
+      const client = getClient({
+        account: accounts[0].address,
+        transport: http(rpcUrl, {
+          onFetchRequest: async (request) => {
+            const body = await request.clone().json()
+            if (
+              body.method.endsWith('sendTransaction') ||
+              body.method.endsWith('sendTransactionSync')
+            )
+              requests.push(body.params[0])
+          },
+        }),
+      })
+      await expect(
+        send(client, { ...request, chain: null, chainId: 99999 }),
+      ).rejects.toThrow()
+      expect(requests.length).toBeGreaterThan(0)
+      expect(
+        requests.every((request) => request.chainId === '0x1869f'),
+      ).toMatchInlineSnapshot(`true`)
+    },
+  )
+
   test('uses explicit keyed sequences with a nonce manager', async () => {
     const request = {
       nonce: 0,

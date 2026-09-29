@@ -280,7 +280,7 @@ export async function sendTransactionSync<
       (account?.type === 'json-rpc' || account === null) &&
       !hasSigningFrames
     ) {
-      let chainId: number | undefined
+      let chainId: number | undefined = parameters.chainId
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
         if (assertChainId)
