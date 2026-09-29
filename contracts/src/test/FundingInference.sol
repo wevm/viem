@@ -8,6 +8,10 @@ interface IFundingInferenceToken {
 }
 
 contract FundingInference {
+    function revertWithData(bytes memory data) external pure {
+        assembly { revert(add(data, 32), mload(data)) }
+    }
+
     function roundTrip(IFundingInferenceToken token) external {
         token.transferFrom(msg.sender, address(this), 100);
         token.transfer(msg.sender, 90);

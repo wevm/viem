@@ -297,21 +297,23 @@ export async function infer(
     if (result.status === '0x1') return getRequirements(result.logs, from)
 
     const data = result.error?.data
-    if (
-      !data ||
-      !data.startsWith(AbiError.getSelector(insufficientBalance)) ||
-      failures.has(`${data}:${result.gasUsed}`)
-    )
+    const shortfall = (() => {
+      if (!data || !data.startsWith(AbiError.getSelector(insufficientBalance)))
+        return undefined
+      try {
+        return AbiError.decode(insufficientBalance, data)
+      } catch {
+        return undefined
+      }
+    })()
+    if (!shortfall || failures.has(`${data}:${result.gasUsed}`))
       throw new RpcResponse.InvalidParamsError({
         message: `Funding inference failed: ${result.error?.message ?? 'simulation reverted'}. Supply explicit token and amount requirements.`,
       })
 
     failures.add(`${data}:${result.gasUsed}`)
 
-    const [available, required, token_] = AbiError.decode(
-      insufficientBalance,
-      data,
-    )
+    const [available, required, token_] = shortfall
     const token = Address.checksum(token_)
 
     if (!token.toLowerCase().startsWith('0x20c0') || required <= available)

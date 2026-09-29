@@ -1,4 +1,4 @@
-import { Hash, Hex } from 'ox'
+import { AbiError, Hash, Hex } from 'ox'
 import { TransactionRequest } from 'ox/tempo'
 import { encodeFunctionData, getAddress, parseUnits } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
@@ -7,7 +7,7 @@ import {
   getStorageAt,
   waitForTransactionReceipt,
 } from 'viem/actions'
-import { Abis, Account, Actions, Addresses } from 'viem/tempo'
+import { Abis, Account, Actions, Addresses, Relay } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { FundingInference } from '~contracts/generated.js'
 import { accounts, getClient } from '~test/tempo/config.js'
@@ -43,6 +43,52 @@ describe('infer', () => {
       token: Addresses.alphaUsd,
       amount: 1000n,
     })
+  })
+
+  test('reports malformed shortfall reverts as invalid parameters', async () => {
+    const selector = AbiError.getSelector(
+      AbiError.fromAbi(Abis.tip20, 'InsufficientBalance'),
+    )
+    const methods: string[] = []
+    const handler = Relay.handleRequest(
+      (request, options) => {
+        methods.push(request.method)
+        return client.request(request as never, options)
+      },
+      { plugins: [Relay.funding()] },
+    )
+    for (const data of [
+      selector,
+      Hex.concat(selector, Hex.fromNumber(1, { size: 32 })),
+    ]) {
+      methods.length = 0
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [
+            TransactionRequest.toRpc({
+              from: account.address,
+              chainId: 1337,
+              requireFunds: true,
+              calls: [
+                {
+                  to: contract,
+                  data: encodeFunctionData({
+                    abi: FundingInference.abi,
+                    functionName: 'revertWithData',
+                    args: [data],
+                  }),
+                },
+              ],
+            }),
+          ],
+        }),
+      ).rejects.toMatchObject({
+        code: -32602,
+        message: expect.stringContaining('Funding inference failed:'),
+      })
+      expect(methods).toEqual(['tempo_simulateV1'])
+    }
   })
 
   const recipient = '0x9999999999999999999999999999999999999999'
