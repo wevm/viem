@@ -145,7 +145,7 @@ This document contains general guidelines for AI agents working on the Viem code
 
 ## Testing Conventions
 
-- **Keep new relay integration coverage separate**; use `Relay.http.test.ts` for HTTP integration tests and reserve `Relay.compat.test.ts` for migrated compatibility coverage.
+- **Colocate relay plugin integration tests**; add HTTP coverage to each plugin's existing test file under `src/tempo/internal/relay/`, not a shared relay suite.
 
 - **Use `pnpm test` for tests**; run tests through package scripts, not `vitest` directly.
 - **No mocks, ever**; tests must not use mocks, stubs, or `vi`.

@@ -1,3 +1,4 @@
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex } from 'ox'
 import {
   createClient,
@@ -10,8 +11,9 @@ import {
 import { fillTransaction } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import { Abis, Actions, Relay, Store, withRelay } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { createHttpServer } from '~test/utils.js'
 import * as Cache from './cache.js'
 import { buildBalanceDiffs } from './simulate.js'
 
@@ -551,5 +553,58 @@ test.each([50n, 100n, 200n])(
       { direction: 'incoming', value: Hex.fromNumber(amount) },
       { direction: 'outgoing', value: '0x64', recipients: [recipient.address] },
     ])
+  },
+)
+
+test.skipIf(Tempo.nodeEnv !== 'localnet')(
+  'plain HTTP transport: returns balance changes without executing the transaction',
+  async () => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.simulate()],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+    const token = Tempo.addresses.alphaUsd
+    const balance = await Actions.token.getBalance(client, {
+      account: recipient.address,
+      token,
+    })
+    const result = await fillTransaction(client, {
+      account: userAccount.address,
+      feeToken: token,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 100n,
+        }),
+      ],
+    })
+
+    expect(
+      Object.entries(result.capabilities?.balanceDiffs ?? {}).find(
+        ([address]) =>
+          address.toLowerCase() === userAccount.address.toLowerCase(),
+      )?.[1],
+    ).toMatchObject([{ address: token, direction: 'outgoing', value: '0x64' }])
+    expect(result.capabilities?.fee).toMatchObject({
+      decimals: 6,
+      symbol: 'AlphaUSD',
+    })
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient.address,
+          token,
+        })
+      ).amount,
+    ).toBe(balance.amount)
   },
 )
