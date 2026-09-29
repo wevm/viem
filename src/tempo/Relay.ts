@@ -4,6 +4,7 @@ import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import * as Budget from './internal/relay/budget.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
@@ -90,14 +91,18 @@ export function create(
     }
   }
   const handle = Request_.compose(
-    async (request, requestOptions) => {
+    Budget.boundary(async (request, requestOptions) => {
       const { chainId, response: _, ...rest } = requestOptions ?? {}
       if (chainId === undefined)
         throw new RpcResponse.InvalidParamsError({
           message: 'A chain ID is required to resolve the downstream client.',
         })
-      return getClient(chainId).request(request as never, rest)
-    },
+      return Budget.request(
+        getClient(chainId).request as handleRequest.Handler,
+        request,
+        rest,
+      )
+    }),
     options,
     getClient,
   )
@@ -122,7 +127,7 @@ export function create(
     return handle(request, { ...requestOptions, chainId })
   }
   return {
-    request,
+    request: Budget.boundary(request),
     fetch: (request_, options: create.RequestOptions = {}) =>
       internal.fetch(request_, request, options),
   }

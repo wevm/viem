@@ -6,7 +6,15 @@ import type * as Relay from '../../Relay.js'
 
 type Budget = { remaining: number }
 const budgets = new WeakMap<AbortSignal, readonly Budget[]>()
-const handlers = new WeakSet<Relay.handleRequest.Handler>()
+const handlers = new WeakSet<(...args: never[]) => unknown>()
+
+/** Marks forwarding wrappers that delegate request accounting to their downstream handler. */
+export function boundary<handler extends (...args: never[]) => unknown>(
+  handler: handler,
+): handler {
+  handlers.add(handler)
+  return handler
+}
 
 /** Marks relay boundaries so only downstream I/O consumes request budgets. */
 export function wrap(
@@ -17,8 +25,7 @@ export function wrap(
     request.method === 'eth_fillTransaction'
       ? run(handler, request, options, config)
       : handler(request, options)
-  handlers.add(wrapped)
-  return wrapped
+  return boundary(wrapped)
 }
 
 /** Runs downstream I/O with retries charged to every enclosing fill. */

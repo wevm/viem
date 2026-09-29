@@ -23,6 +23,7 @@ import {
 } from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Budget from './internal/relay/budget.js'
 import * as Plugin_ from './internal/relay/plugin.js'
 import * as Request_ from './internal/relay/request.js'
 import type * as Relay_ from './Relay.js'
@@ -129,8 +130,14 @@ export function withRelay(
   if (typeof relayTransport !== 'function')
     return (config) => {
       const transport = defaultTransport(config)
-      const next: Relay_.handleRequest.Handler = (request, options) =>
-        transport.request(request as never, options)
+      const next: Relay_.handleRequest.Handler = Budget.boundary(
+        (request, options) =>
+          Budget.request(
+            transport.request as Relay_.handleRequest.Handler,
+            request,
+            options,
+          ),
+      )
       const request = Request_.compose(
         next,
         relayTransport,
@@ -138,11 +145,12 @@ export function withRelay(
       )
       return {
         ...transport,
-        request: ((request_, options) =>
+        request: Budget.boundary((request_, options) =>
           request(request_ as Relay_.handleRequest.Request, {
             chainId: config.chain?.id,
             ...options,
-          })) as typeof transport.request,
+          }),
+        ) as typeof transport.request,
         value: {
           ...transport.value,
           ...(relayTransport.plugins?.some(Plugin_.isMultisig)

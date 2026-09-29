@@ -1,6 +1,6 @@
 import { Secp256k1 } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, http } from 'viem'
+import { createClient, getAddress, http } from 'viem'
 import { fillTransaction } from 'viem/actions'
 import {
   Actions,
@@ -439,12 +439,16 @@ test.each(['none', 'accept', 'reject'] as const)(
   },
 )
 
-test.each([
-  { outer: 4, inner: 10, requests: 4, succeeds: true },
-  { outer: 3, inner: 10, requests: 3, succeeds: false },
-  { outer: 10, inner: 2, requests: 3, succeeds: false },
-])(
-  'shares nested relay budgets: outer $outer, inner $inner',
+test.each(
+  [
+    { outer: 4, inner: 10, requests: 4, succeeds: true },
+    { outer: 3, inner: 10, requests: 3, succeeds: false },
+    { outer: 10, inner: 2, requests: 3, succeeds: false },
+  ].flatMap((limits) =>
+    ['handler', 'create', 'transport'].map((mode) => ({ ...limits, mode })),
+  ),
+)(
+  'shares nested relay budgets: $mode, outer $outer, inner $inner',
   async (limits) => {
     const requests: string[] = []
     const rpc = http(rpcUrl, {
@@ -453,7 +457,7 @@ test.each([
         requests.push(JSON.parse(init.body as string).method)
       },
     })({})
-    const inner = Relay.handleRequest(rpc.request, {
+    const options = {
       maxRequests: limits.inner,
       plugins: [
         {
@@ -466,7 +470,19 @@ test.each([
           },
         },
       ],
-    })
+    } satisfies Relay.handleRequest.Options
+    const inner =
+      limits.mode === 'handler'
+        ? Relay.handleRequest(rpc.request, options)
+        : limits.mode === 'create'
+          ? Relay.create<number>({
+              client: Tempo.getClient({
+                chain: Tempo.chain,
+                transport: () => rpc,
+              }),
+              ...options,
+            }).request
+          : withRelay(() => rpc, options)({ chain: Tempo.chain }).request
     const outer = Relay.handleRequest(inner, {
       maxRequests: limits.outer,
       plugins: [
@@ -509,3 +525,77 @@ test.each([
     )
   },
 )
+
+test('preserves deficit metadata within four requests with virtual recipients', async () => {
+  const { token } = await Actions.token.createSync(caller, {
+    account: userAccount,
+    admin: userAccount.address,
+    name: 'Budget Deficit',
+    symbol: 'DEF',
+    currency: 'USD',
+  })
+  await Actions.token.grantRolesSync(caller, {
+    account: userAccount,
+    token,
+    roles: ['issuer'],
+    to: userAccount.address,
+  })
+  await Actions.token.mintSync(caller, {
+    account: userAccount,
+    token,
+    to: userAccount.address,
+    amount: 40_000_000n,
+  })
+  const requests: string[] = []
+  const rpc = Tempo.getClient({
+    transport: http(rpcUrl, {
+      retryCount: 0,
+      onFetchRequest(_request, init) {
+        requests.push(JSON.parse(init.body as string).method)
+      },
+    }),
+  })
+  const virtual = VirtualAddress.from({
+    masterId: '0xffffffff',
+    userTag: '0x000000000001',
+  })
+  const relay = Relay.create({
+    client: rpc,
+    resolveTokens: () => [Tempo.addresses.alphaUsd],
+    plugins: [Relay.feeToken(), Relay.simulate()],
+  })
+  const result = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [
+      {
+        from: userAccount.address,
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token,
+            to: recipient.address,
+            amount: 100_000_000n,
+          }),
+          { to: virtual, value: '0x0', data: '0x' },
+        ],
+        capabilities: { errors: true },
+      },
+    ],
+  })) as Relay.Plugin.FillResult
+  expect(result.capabilities).toMatchObject({
+    error: { errorName: 'InsufficientBalance' },
+    insufficientFunds: {
+      amount: '0x3938700',
+      decimals: 6,
+      formatted: '60',
+      symbol: 'DEF',
+      token: getAddress(token),
+    },
+    virtualAddresses: { [virtual]: null },
+  })
+  expect(requests).toEqual([
+    'eth_call',
+    'eth_fillTransaction',
+    'tempo_simulateV1',
+    'eth_call',
+  ])
+})

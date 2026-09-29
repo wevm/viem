@@ -63,7 +63,12 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
               store,
               signal,
             }).then((fee) => ({ balanceDiffs: undefined, fee }))
-      return { capabilities: simulation }
+      return {
+        capabilities: {
+          balanceDiffs: simulation.balanceDiffs,
+          fee: simulation.fee,
+        },
+      }
     },
   }
 }
@@ -125,7 +130,7 @@ export async function simulateAndParseDiffs(
       tokenMetadata: tokenMetadata as never,
     })
 
-    return { balanceDiffs, fee }
+    return { balanceDiffs, fee, tokenMetadata }
   } catch {
     signal?.throwIfAborted()
     // Simulation failures should not block the fill response —
@@ -137,7 +142,7 @@ export async function simulateAndParseDiffs(
       maxFeePerGas,
       signal,
     })
-    return { balanceDiffs: undefined, fee }
+    return { balanceDiffs: undefined, fee, tokenMetadata: undefined }
   }
 }
 
