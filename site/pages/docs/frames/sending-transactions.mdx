@@ -37,7 +37,7 @@ const receipt = await client.sendTransactionSync({
 
 ### Use Keyed Nonces
 
-On networks with EIP-8250 enabled, `nonceKeys` selects independent counters for the sender. All selected keys share the transaction's `nonce`. Preparation reads their current sequence; the keys must have matching counters.
+`nonceKeys` selects independent counters for the sender. All selected keys share the transaction's `nonce`. Preparation reads their current sequence; the keys must have matching counters.
 
 :::code-group
 
