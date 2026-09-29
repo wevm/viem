@@ -236,7 +236,7 @@ const plugin = Relay.simulate()
 - **Type:** `Store.Store`
 
 Optional [store](/tempo/utilities/Store) for token metadata, cached for 24 hours.
-Simulation results are never cached. TIP-20 metadata supplied by `tempo_simulateV1` is used directly, including for the fee token. The relay requires `tempo_simulateV1` for previews and no longer retries with `eth_simulateV1` when it is unavailable.
+Simulation results are never cached.
 
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'
