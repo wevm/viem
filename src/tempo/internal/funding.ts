@@ -319,6 +319,8 @@ export async function infer(
         message: 'Funding inference could not resolve a TIP-20 shortfall.',
       })
 
+    if (attempt === 15) break
+
     const current =
       balances.get(token) ??
       BigInt(

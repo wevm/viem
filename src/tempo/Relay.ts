@@ -229,7 +229,7 @@ export declare namespace handleRequest {
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
-    /** Deadline in milliseconds for a plugin-handled fill, including callbacks. Defaults to 10,000. */
+    /** Deadline in milliseconds for plugin-handled fills, calls, and gas estimates, including callbacks. Defaults to 10,000. */
     timeout?: number | undefined
   }
 

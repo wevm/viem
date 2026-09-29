@@ -1688,6 +1688,297 @@ describe('behavior', () => {
       ).rejects.toThrow('InsufficientFunding')
     })
   })
+
+  describe('funding RPC performance', () => {
+    const tokens = [
+      Addresses.pathUsd,
+      Addresses.alphaUsd,
+      Addresses.betaUsd,
+      Addresses.thetaUsd,
+    ] as const
+    const calls = tokens.map((token) =>
+      Actions.token.transfer.call({
+        token,
+        amount: 1n,
+        to: accounts[1].address,
+      }),
+    )
+
+    test('discovers multiple outputs in one RPC and preserves explicit sources', async () => {
+      const methods: string[] = []
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        { plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })] },
+      )
+      const result = (await handler({
+        method: 'eth_fillTransaction',
+        params: [
+          TransactionRequest.toRpc({
+            from: accounts[0].address,
+            chainId: 1337,
+            calls,
+            requireFunds: tokens.map((token, index) => ({
+              token,
+              amount: 1n,
+              ...(index === 1 ? { sources: [] } : {}),
+            })),
+          }),
+        ],
+      })) as Relay.Plugin.FillResult
+      expect(methods).toEqual(['eth_call', 'eth_fillTransaction'])
+      expect(result.tx.requireFunds).toEqual(
+        tokens.map((token, index) => ({
+          token,
+          amount: '0x1',
+          ...(index === 1 ? {} : { slippageBps: '0x0' }),
+          sources: [],
+        })),
+      )
+    })
+
+    test('rejects oversized discovery batches before resolving routes', async () => {
+      const methods: string[] = []
+      let routes = 0
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          plugins: [
+            Relay.funding({
+              getRoute: () => {
+                routes++
+                return { sources: [] }
+              },
+            }),
+          ],
+        },
+      )
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              from: accounts[0].address,
+              chainId: '0x539',
+              requireFunds: Array.from({ length: 65 }, () => ({
+                token: Addresses.pathUsd,
+                amount: '0x1',
+              })),
+            },
+          ],
+        }),
+      ).rejects.toThrow('at most 64 output requirements')
+      expect(routes).toBe(0)
+      expect(methods).toEqual([])
+    })
+
+    test('bounds discovery calldata before dispatching', async () => {
+      const methods: string[] = []
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        {
+          plugins: [
+            Relay.funding({
+              getRoute: () => ({
+                sources: [
+                  {
+                    target: Addresses.pathUsd,
+                    data: `0x${'00'.repeat(131072)}`,
+                  },
+                ],
+              }),
+            }),
+          ],
+        },
+      )
+      await expect(
+        handler({
+          method: 'eth_call',
+          params: [
+            {
+              from: accounts[0].address,
+              chainId: '0x539',
+              requireFunds: [{ token: Addresses.pathUsd, amount: '0x1' }],
+            },
+          ],
+        }),
+      ).rejects.toThrow('calldata exceeds 128 KiB')
+      expect(methods).toEqual([])
+    })
+
+    test('bounds return data from discovery', async () => {
+      const handler = Relay.handleRequest(
+        (request, options) => client.request(request as never, options),
+        {
+          plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })],
+        },
+      )
+      await expect(
+        handler({
+          method: 'eth_call',
+          params: [
+            {
+              from: accounts[0].address,
+              chainId: '0x539',
+              requireFunds: [{ token: Addresses.pathUsd, amount: '0x1' }],
+            },
+            'latest',
+            {
+              // Return 1 MiB + 1 byte from the discovery contract.
+              [Addresses.fundingDiscovery]: { code: '0x621000016000f3' },
+            },
+          ],
+        }),
+      ).rejects.toThrow('Funding return data exceeds limit')
+    })
+
+    test('reads installed key authority once and reuses cached policy rules', async () => {
+      const rules = {
+        maxSlippageBps: 0,
+        sources: Object.fromEntries(tokens.map((token) => [token, []])),
+      }
+      const { policyId } = await Actions.funding.createPolicySync(client, {
+        account: accounts[0],
+        admins: [accounts[0].address],
+        rules,
+      })
+      const key = Account.fromSecp256k1(generatePrivateKey(), {
+        access: accounts[0],
+      })
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account: accounts[0],
+          accessKey: key,
+          fundingPolicy: policyId,
+        },
+      )
+      await sendTransactionSync(client, {
+        account: accounts[0],
+        keyAuthorization,
+        calls: [{ to: accounts[0].address }],
+      })
+      const operations: string[] = []
+      const memory = Store.memory()
+      const store: Store.Store = {
+        getItem: (key) => {
+          operations.push('get')
+          return memory.getItem(key)
+        },
+        setItem: (key, value) => {
+          operations.push('set')
+          return memory.setItem(key, value)
+        },
+        removeItem: (key) => memory.removeItem(key),
+      }
+      const methods: string[] = []
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        { plugins: [Relay.funding({ policyRules: rules, store })] },
+      )
+      const transaction = {
+        ...TransactionRequest.toRpc({
+          from: accounts[0].address,
+          chainId: 1337,
+          calls,
+          requireFunds: true,
+        }),
+        keyId: key.accessKeyAddress,
+      }
+      for (let i = 0; i < 2; i++) {
+        methods.length = 0
+        operations.length = 0
+        const result = (await handler({
+          method: 'eth_fillTransaction',
+          params: [transaction],
+        })) as Relay.Plugin.FillResult
+        expect(methods).toEqual(['eth_call', 'eth_call', 'eth_fillTransaction'])
+        expect(operations).toEqual(i === 0 ? ['get', 'set'] : ['get'])
+        expect(result.tx.requireFunds).toHaveLength(4)
+      }
+      const tampered = FundingPolicy.encode({ ...rules, maxSlippageBps: 1 })
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [
+            {
+              ...transaction,
+              requireFunds: tokens.map((token, i) => ({
+                token,
+                amount: '0x1',
+                ...(i === 1 ? { policyRules: tampered } : {}),
+              })),
+            },
+          ],
+        }),
+      ).rejects.toThrow('do not match the current onchain commitment')
+    })
+
+    test('stops before reading storage after the last inference attempt', async () => {
+      const fresh = Account.fromSecp256k1(generatePrivateKey())
+      const unknown = []
+      for (let i = 0; i < 16; i++) {
+        const { token } = await Actions.token.createSync(client, {
+          account: accounts[0],
+          admin: accounts[0],
+          currency: 'USD',
+          name: `Inference ${i}`,
+          symbol: `I${i}`,
+        })
+        unknown.push(
+          Actions.token.transfer.call({
+            token,
+            amount: 1n,
+            to: accounts[1].address,
+          }),
+        )
+      }
+      const methods: string[] = []
+      const handler = Relay.handleRequest(
+        (request, options) => {
+          methods.push(request.method)
+          return client.request(request as never, options)
+        },
+        { plugins: [Relay.funding()], resolveTokens: () => [] },
+      )
+      await expect(
+        handler({
+          method: 'eth_fillTransaction',
+          params: [
+            TransactionRequest.toRpc({
+              from: fresh.address,
+              chainId: 1337,
+              requireFunds: true,
+              calls: [
+                ...unknown,
+                Actions.token.getBalance.call({
+                  token: Addresses.pathUsd,
+                  account: fresh.address,
+                }),
+              ],
+            }),
+          ],
+        }),
+      ).rejects.toThrow('exceeded 16 simulations')
+      expect(
+        methods.filter((method) => method === 'tempo_simulateV1'),
+      ).toHaveLength(16)
+      expect(
+        methods.filter((method) => method === 'eth_getStorageAt'),
+      ).toHaveLength(15)
+    }, 120_000)
+  })
 })
 
 async function setupAccount() {

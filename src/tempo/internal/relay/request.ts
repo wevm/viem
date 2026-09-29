@@ -163,7 +163,7 @@ export function compose(
           requestOptions.signal?.throwIfAborted()
           state.result = await downstream(request, {
             ...state.options,
-            ...(isFill ? { signal: requestOptions.signal } : {}),
+            ...(requestOptions.signal ? { signal: requestOptions.signal } : {}),
           })
           return
         }
@@ -347,7 +347,9 @@ export function compose(
       message: 'The fill timeout cannot exceed 2147483647 milliseconds.',
     })
   return (request, requestOptions = {}) =>
-    request.method === 'eth_fillTransaction'
+    request.method === 'eth_fillTransaction' ||
+    request.method === 'eth_call' ||
+    request.method === 'eth_estimateGas'
       ? Deadline.run(handle, request, requestOptions, options)
       : handle(request, requestOptions)
 }

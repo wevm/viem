@@ -9,16 +9,14 @@ import {
   KeyAuthorization,
   type TransactionRequest,
 } from 'ox/tempo'
-import { getBlock } from '../../actions/public/getBlock.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
-import type { BlockTag } from '../../types/block.js'
 import type { Hex } from '../../types/misc.js'
 import * as Addresses from '../Addresses.js'
-import { getFundingPolicyId, getMetadata } from '../actions/accessKey.js'
-import { discover, getPolicy, policyExists } from '../actions/funding.js'
+import { type discover, policyExists } from '../actions/funding.js'
 import * as Funding from '../Funding.js'
 import * as internal from '../internal/funding.js'
+import * as FundingRead from '../internal/relay/funding.js'
 import type * as Relay from '../Relay.js'
 import * as Store from '../Store.js'
 import type { TransactionRequestTempo, TransactionRpc } from '../Transaction.js'
@@ -286,26 +284,6 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
               'Access key funding requires the transaction sender (`from`).',
           })
 
-        const selected = context.block
-        const block = await getBlock(client, {
-          ...(typeof selected === 'object'
-            ? 'blockHash' in selected
-              ? { blockHash: selected.blockHash }
-              : { blockNumber: BigInt(selected.blockNumber) }
-            : selected?.startsWith('0x')
-              ? { blockNumber: BigInt(selected) }
-              : { blockTag: selected as BlockTag | undefined }),
-        })
-        const metadata = await getMetadata(client, {
-          account: transaction.from,
-          accessKey: transaction.keyId,
-          blockNumber: block.number ?? undefined,
-        })
-        if (metadata.isRevoked)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'The funding access key is revoked.',
-          })
-
         const authorization = (() => {
           if (!transaction.keyAuthorization) return undefined
           try {
@@ -336,7 +314,20 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
               '`keyAuthorization` must match the funding account, access key, and chain.',
           })
 
-        const installed = Address_.isEqual(metadata.address, transaction.keyId)
+        const preflight = await FundingRead.preflight(client, {
+          account: transaction.from,
+          keyId: transaction.keyId,
+          policyId:
+            typeof authorization?.fundingPolicy === 'bigint'
+              ? authorization.fundingPolicy
+              : 0n,
+        })
+        const { metadata, blockNumber } = preflight
+        if (metadata.isRevoked)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'The funding access key is revoked.',
+          })
+        const installed = Address_.isEqual(metadata.keyId, transaction.keyId)
         if (!installed && !authorization)
           throw new RpcResponse.InvalidParamsError({
             message:
@@ -348,18 +339,14 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
           BigInt(expiry) <=
             (blockOverrides?.time
               ? BigInt(blockOverrides.time)
-              : block.timestamp)
+              : preflight.timestamp)
         )
           throw new RpcResponse.InvalidParamsError({
             message: 'The funding access key has expired.',
           })
 
         const policy = installed
-          ? await getFundingPolicyId(client, {
-              account: transaction.from,
-              accessKey: transaction.keyId,
-              blockNumber: block.number ?? undefined,
-            })
+          ? preflight.policyId
           : authorization?.fundingPolicy
         if (policy === undefined || policy === 0n)
           throw new RpcResponse.InvalidParamsError({
@@ -369,13 +356,9 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
           return {
             rulesHash: FundingPolicy.hash(policy.rules),
             rules: FundingPolicy.encode(policy.rules),
-            blockNumber: block.number ?? undefined,
+            blockNumber,
           }
-        const { rulesHash } = await getPolicy(client, {
-          policyId: policy,
-          blockNumber: block.number ?? undefined,
-        })
-        return { rulesHash, policyId: policy, blockNumber: block.number }
+        return { rulesHash: preflight.rulesHash, policyId: policy, blockNumber }
       })()
 
       const intent = transaction.requireFunds
@@ -463,109 +446,131 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
           }
         })
       })()
-      const requireFunds: FundingRequirement.Rpc[] = []
-
-      for (const requirement of requirements) {
-        const decoded = (() => {
-          try {
-            return FundingRequirement.fromRpc({
-              ...requirement,
-              token: requirement.token!,
-              amount: requirement.amount!,
-              sources: requirement.sources ?? [],
-            })
-          } catch {
-            throw new RpcResponse.InvalidParamsError({
-              message:
-                'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `target` and `data` fields.',
-            })
-          }
-        })()
-
-        if (transaction.multisigSimulation && requirement.sources === undefined)
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Multisig funding requires explicit sources.',
-          })
-
-        const policyRules = policy
-          ? await resolvePolicyRules({
-              ...policy,
-              chainId,
-              rules: decoded.policyRules ?? policy.rules,
-              defaultRules: parameters.policyRules,
-              store,
-            })
-          : undefined
-        const rules = policyRules
-          ? FundingPolicy.decode(policyRules)
-          : undefined
-        const sources =
-          rules &&
-          Object.entries(rules.sources).find(([token]) =>
-            Address_.isEqual(token as Address, decoded.token),
-          )?.[1]
-        if (rules && !sources)
-          throw new RpcResponse.InvalidParamsError({
-            message: `The funding policy does not allow output token ${decoded.token}.`,
-          })
-        if (
-          rules &&
-          decoded.slippageBps !== undefined &&
-          decoded.slippageBps > rules.maxSlippageBps
-        )
-          throw new RpcResponse.InvalidParamsError({
-            message: '`slippageBps` exceeds the funding policy maximum.',
-          })
-
-        if (requirement.sources !== undefined) {
-          requireFunds.push(
-            FundingRequirement.toRpc({
-              ...decoded,
-              ...(policyRules ? { policyRules } : {}),
-            }),
-          )
-          continue
-        }
-
-        if (!transaction.from)
-          throw new RpcResponse.InvalidParamsError({
-            message:
-              'Funding discovery requires the transaction sender (`from`).',
-          })
-
-        const route =
-          rules && sources
-            ? { slippageBps: rules.maxSlippageBps, sources }
-            : await (parameters.getRoute ?? Funding.defaultRoute)({
-                chainId,
-                token: Address_.checksum(decoded.token),
-                transaction,
-              })
-        if (!route)
-          throw new RpcResponse.InvalidParamsError({
-            message: `No funding route configured for ${requirement.token}.`,
-          })
-
-        const discovery = await discover(client, {
-          account: transaction.from,
-          amount: decoded.amount,
-          slippageBps: decoded.slippageBps ?? route.slippageBps ?? 0,
-          sources: route.sources,
-          token: decoded.token,
+      if (
+        requirements.filter((requirement) => requirement.sources === undefined)
+          .length > 64
+      )
+        throw new RpcResponse.InvalidParamsError({
+          message: 'Funding discovery supports at most 64 output requirements.',
         })
+      const policyRulesCache = new Map<
+        Hex | undefined,
+        ReturnType<typeof resolvePolicyRules>
+      >()
+      const prepared = await Promise.all(
+        requirements.map(async (requirement) => {
+          const decoded = (() => {
+            try {
+              return FundingRequirement.fromRpc({
+                ...requirement,
+                token: requirement.token!,
+                amount: requirement.amount!,
+                sources: requirement.sources ?? [],
+              })
+            } catch {
+              throw new RpcResponse.InvalidParamsError({
+                message:
+                  'Invalid funding requirement: check `token`, `amount`, `slippageBps`, `policyRules`, and source `target` and `data` fields.',
+              })
+            }
+          })()
 
-        requireFunds.push(
-          FundingRequirement.toRpc({
+          if (
+            transaction.multisigSimulation &&
+            requirement.sources === undefined
+          )
+            throw new RpcResponse.InvalidParamsError({
+              message: 'Multisig funding requires explicit sources.',
+            })
+
+          const resolvedPolicy = await (() => {
+            if (!policy) return undefined
+            const supplied = decoded.policyRules ?? policy.rules
+            let result = policyRulesCache.get(supplied)
+            if (!result) {
+              result = resolvePolicyRules({
+                ...policy,
+                chainId,
+                rules: supplied,
+                defaultRules: parameters.policyRules,
+                store,
+              })
+              policyRulesCache.set(supplied, result)
+            }
+            return result
+          })()
+          const rules = resolvedPolicy?.rules
+          const policyRules = resolvedPolicy?.encoded
+          const sources =
+            rules &&
+            Object.entries(rules.sources).find(([token]) =>
+              Address_.isEqual(token as Address, decoded.token),
+            )?.[1]
+          if (rules && !sources)
+            throw new RpcResponse.InvalidParamsError({
+              message: `The funding policy does not allow output token ${decoded.token}.`,
+            })
+          if (
+            rules &&
+            decoded.slippageBps !== undefined &&
+            decoded.slippageBps > rules.maxSlippageBps
+          )
+            throw new RpcResponse.InvalidParamsError({
+              message: '`slippageBps` exceeds the funding policy maximum.',
+            })
+
+          const resolved = {
             ...decoded,
             ...(policyRules ? { policyRules } : {}),
-            slippageBps: discovery.slippageBps,
-            sources: discovery.sources.map(({ target, data }) => ({
-              target,
-              data,
-            })),
-          }),
-        )
-      }
+          }
+          if (requirement.sources !== undefined)
+            return { resolved, discovery: undefined }
+
+          if (!transaction.from)
+            throw new RpcResponse.InvalidParamsError({
+              message:
+                'Funding discovery requires the transaction sender (`from`).',
+            })
+
+          const route =
+            rules && sources
+              ? { slippageBps: rules.maxSlippageBps, sources }
+              : await (parameters.getRoute ?? Funding.defaultRoute)({
+                  chainId,
+                  token: Address_.checksum(decoded.token),
+                  transaction,
+                })
+          if (!route)
+            throw new RpcResponse.InvalidParamsError({
+              message: `No funding route configured for ${requirement.token}.`,
+            })
+
+          return {
+            resolved,
+            discovery: {
+              account: transaction.from,
+              amount: decoded.amount,
+              slippageBps: decoded.slippageBps ?? route.slippageBps ?? 0,
+              sources: route.sources,
+              token: decoded.token,
+            } satisfies discover.Args,
+          }
+        }),
+      )
+      const discoveries = await FundingRead.discover(
+        client,
+        prepared.flatMap(({ discovery }) => (discovery ? [discovery] : [])),
+      )
+      let index = 0
+      const requireFunds = prepared.map(({ resolved, discovery }) => {
+        if (!discovery) return FundingRequirement.toRpc(resolved)
+        const result = discoveries[index++]!
+        return FundingRequirement.toRpc({
+          ...resolved,
+          slippageBps: result.slippageBps,
+          sources: result.sources.map(({ target, data }) => ({ target, data })),
+        })
+      })
 
       relay.request = {
         ...request,
@@ -637,12 +642,14 @@ async function resolvePolicyRules(parameters: {
   defaultRules?: FundingPolicy.Rules | undefined
   rulesHash: Hex
   store: Store.Store
-}): Promise<Hex> {
+}) {
   const { chainId, rulesHash, store } = parameters
   const key = `funding:${chainId}:${Addresses.fundingPolicy.toLowerCase()}:rules:${rulesHash.toLowerCase()}`
+  const cached =
+    parameters.rules === undefined ? await store.getItem(key) : undefined
   const rules =
     parameters.rules ??
-    (await store.getItem(key)) ??
+    cached ??
     (parameters.defaultRules
       ? FundingPolicy.encode(parameters.defaultRules)
       : undefined)
@@ -654,8 +661,8 @@ async function resolvePolicyRules(parameters: {
           'Funding policy rules do not match the current onchain commitment.',
       })
     const encoded = FundingPolicy.encode(decoded)
-    await store.setItem(key, encoded)
-    return encoded
+    if (encoded !== cached) await store.setItem(key, encoded)
+    return { encoded, rules: decoded }
   }
 
   throw new RpcResponse.InvalidParamsError({
