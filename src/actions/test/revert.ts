@@ -43,8 +43,10 @@ export async function revert<
   client: TestClient<TestClientMode, Transport, chain, account, false>,
   { id }: RevertParameters,
 ) {
-  await client.request({
+  const success = await client.request({
     method: 'evm_revert',
     params: [id],
   })
+
+  if (!success) throw new Error(`Failed to revert to snapshot "${id}".`)
 }
