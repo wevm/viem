@@ -42,7 +42,7 @@ const transport = withRelay(http(), {
   plugins: [
     Relay.funding({ store }),
     Relay.feePayer({ account: sponsor }),
-    Relay.feeToken({ store }),
+    Relay.feeToken(),
     Relay.simulate({ store }),
   ],
   resolveTokens: async (chainId) => [

@@ -61,6 +61,7 @@ test('handleRequest accepts readonly plugins and exact optional properties', () 
     },
   ] as const satisfies readonly Relay.Plugin[]
   const handle = Relay.handleRequest(async () => null, {
+    timeout: 10_000,
     plugins,
     resolveTokens: (chainId) => {
       expectTypeOf(chainId).toEqualTypeOf<number>()

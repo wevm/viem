@@ -591,8 +591,11 @@ describe('behavior', () => {
                 sources: [FundingSource.dex({ tokenIn: Addresses.alphaUsd })],
               }),
             }),
-            Relay.feePayer({ account: accounts[0] }),
-            Relay.feeToken({ store }),
+            Relay.feePayer({
+              account: accounts[0],
+              feeToken: Addresses.betaUsd,
+            }),
+            Relay.feeToken(),
             Relay.simulate({ store }),
           ],
         },
@@ -618,6 +621,7 @@ describe('behavior', () => {
       expect(result.tx.feePayerSignature).toBeDefined()
       expect(result.capabilities).toMatchObject({
         sponsored: true,
+        fee: { symbol: 'BetaUSD' },
         balanceDiffs: {
           [sender.address]: [
             expect.objectContaining({

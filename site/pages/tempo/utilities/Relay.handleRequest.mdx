@@ -160,6 +160,28 @@ const handle = Relay.handleRequest(rpc.request, {
 })
 ```
 
+#### options.timeout
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+Deadline in milliseconds for a plugin-handled fill, including token resolution, validation, signing, and enrichment. Expiry aborts downstream requests and rejects the fill.
+
+Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and multisig polling use their existing timeouts.
+
+The timeout must be a positive integer no greater than `2_147_483_647` milliseconds. Exceeding the deadline rejects the fill with RPC error code `-32005`. Transport retries run within the same deadline.
+
+```ts twoslash
+import { http } from 'viem'
+import { Relay } from 'viem/tempo'
+
+const rpc = http('https://rpc.tempo.xyz')({})
+const handle = Relay.handleRequest(rpc.request, {
+  plugins: [Relay.feeToken(), Relay.simulate()],
+  timeout: 5_000, // [!code focus]
+})
+```
+
 ### Return Value
 
 `Relay.handleRequest.Handler`

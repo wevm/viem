@@ -1,11 +1,15 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import { tokens as tokenSets } from '../../tokens/sets.js'
 import * as Actions from '../actions/index.js'
 import * as Store from '../internal/relay/cache.js'
+import * as Preflight from '../internal/relay/preflight.js'
 import * as Utils from '../internal/relay/utils.js'
+import {
+  extractCalls,
+  getVirtualAddressTargets,
+} from '../internal/relay/virtualAddress.js'
 import type * as Relay from '../Relay.js'
 
 /**
@@ -16,10 +20,9 @@ import type * as Relay from '../Relay.js'
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.feeToken()
  * ```
- * @param options - Optional preference store.
  * @returns A fee-token relay plugin.
  */
-export function feeToken(options: feeToken.Options = {}): Relay.Plugin {
+export function feeToken(): Relay.Plugin {
   return {
     async handleRequest(context, next) {
       const { request } = context
@@ -48,30 +51,35 @@ export function feeToken(options: feeToken.Options = {}): Relay.Plugin {
         ),
       ]
 
-      const feeToken = transaction.feePayer
-        ? (transaction.feeToken ?? tokens[0])
+      const resolved = transaction.feePayer
+        ? { feeToken: tokens[0], virtualAddresses: undefined }
         : await resolveFeeToken(context.client, {
             account: transaction.from as Address | undefined,
             feeToken: transaction.feeToken as Address | undefined,
-            store: context.getStore(options.store),
+            targets: getVirtualAddressTargets(extractCalls(transaction)),
             tokens: candidates,
           })
 
+      const { feeToken, virtualAddresses } = resolved
       const selected = { ...transaction, ...(feeToken ? { feeToken } : {}) }
       context.request = {
         ...request,
         params: [Utils.formatFillTransactionRequest(context.client, selected)],
       }
-      return next()
+      await next()
+      const result = context.result as Relay.Plugin.FillResult
+      context.result = {
+        ...result,
+        // Unsigned sponsored estimates can omit the fee token selected by this plugin.
+        tx: {
+          ...result.tx,
+          ...(!result.tx.feeToken && feeToken ? { feeToken } : {}),
+        },
+        ...(virtualAddresses
+          ? { capabilities: { ...result.capabilities, virtualAddresses } }
+          : {}),
+      }
     },
-  }
-}
-
-export declare namespace feeToken {
-  /** Fee-token selection configuration. */
-  export type Options = {
-    /** Store for cached user fee-token preferences. */
-    store?: Store.Store | undefined
   }
 }
 
@@ -88,11 +96,9 @@ export async function getDefaultTokens(
 export async function resolveFeeToken(
   client: Client,
   options: resolveFeeToken.Options,
-): Promise<Address | undefined> {
-  const { feeToken, account, exclude, store, tokens } = options
-  if (feeToken) return feeToken
-  if (!account) return undefined
-
+) {
+  const { feeToken, account, exclude, tokens } = options
+  if (feeToken || !account) return { feeToken, virtualAddresses: undefined }
   const candidates = [
     ...new Set(tokens?.map((token) => token.toLowerCase() as Address)),
   ]
@@ -100,75 +106,19 @@ export async function resolveFeeToken(
     throw new RpcResponse.InvalidParamsError({
       message: 'Fee-token candidates exceed the limit of 100 tokens.',
     })
+  const { preferredToken, preferredBalance, balances, virtualAddresses } =
+    await Preflight.read(client, {
+      account,
+      tokens: candidates,
+      targets: options.targets,
+    })
   const minimumBalance = options.minimumBalance ?? 1n
+  if (
+    preferredToken.toLowerCase() !== exclude?.toLowerCase() &&
+    preferredBalance >= minimumBalance
+  )
+    return { feeToken: preferredToken, virtualAddresses }
 
-  // Cache the preference briefly; always check current balances before selecting it.
-  const getUserToken = () =>
-    Actions.fee.getUserToken(client, { account }).catch(() => null)
-  const userTokenPromise = store
-    ? Store.memoize(
-        async () => {
-          const result = await getUserToken()
-          return result ? { address: result.address } : null
-        },
-        {
-          key: `fee.userToken:${client.chain?.id ?? 0}:${account.toLowerCase()}`,
-          store,
-          ttl: (options.userTokenCacheTtl ?? 60) * 1000,
-        },
-      )
-    : getUserToken()
-
-  const [userToken, balances] = await Promise.all([
-    userTokenPromise,
-    (async () => {
-      const balances = new Array<{ address: Address; balance: bigint }>(
-        candidates.length,
-      )
-      let index = 0
-      await Promise.all(
-        Array.from({ length: Math.min(10, candidates.length) }, async () => {
-          while (index < candidates.length) {
-            const current = index++
-            const token = candidates[current]!
-            balances[current] = {
-              address: token,
-              balance: await readContract(
-                client,
-                Actions.token.getBalance.call(client, { account, token }),
-              ).catch(() => 0n),
-            }
-          }
-        }),
-      )
-      return balances
-    })(),
-  ])
-
-  // If on-chain preference is set and user has balance, use it.
-  if (userToken && userToken.address.toLowerCase() !== exclude?.toLowerCase()) {
-    const match = balances.find(
-      (b: { address: Address; balance: bigint }) =>
-        b.address.toLowerCase() === userToken.address.toLowerCase(),
-    )
-    if (match && match.balance >= minimumBalance) return userToken.address
-
-    // Token list may not include the preference: check on-chain directly.
-    if (!match) {
-      try {
-        const balance = await readContract(
-          client,
-          Actions.token.getBalance.call(client, {
-            account,
-            token: userToken.address,
-          }),
-        )
-        if (balance >= minimumBalance) return userToken.address
-      } catch {}
-    }
-  }
-
-  // Pick the token with the highest balance.
   let best: { address: Address; balance: bigint } | undefined
   for (const asset of balances) {
     if (
@@ -178,8 +128,7 @@ export async function resolveFeeToken(
       continue
     if (!best || asset.balance > best.balance) best = asset
   }
-  if (best) return best.address
-  return undefined
+  return { feeToken: best?.address, virtualAddresses }
 }
 
 export declare namespace resolveFeeToken {
@@ -188,10 +137,8 @@ export declare namespace resolveFeeToken {
     exclude?: Address | undefined
     feeToken?: Address | undefined
     account?: Address | undefined
-    store?: Store.Store | undefined
     tokens?: readonly Address[] | undefined
-    /** TTL in seconds for the cached `userTokens` lookup. @default 60 */
-    userTokenCacheTtl?: number | undefined
+    targets?: readonly Address[] | undefined
   }
 }
 
@@ -225,6 +172,9 @@ export async function resolveTokenMetadata(
   const { token, tokenMetadata, store } = options
   const meta =
     tokenMetadata?.[token] ?? tokenMetadata?.[token.toLowerCase() as Address]
+  // Tempo simulation metadata covers TIP-20 tokens, whose decimals are always six.
+  if (token.toLowerCase().startsWith('0x20c0') && meta)
+    return { decimals: 6, symbol: meta.symbol, name: meta.name }
   // TIP-20 metadata (decimals/symbol/name) is immutable per token, so cache
   // long-term. Skips the multicall RPC on cache hits.
   const fetcher = () => Actions.token.getMetadata(client, { token })

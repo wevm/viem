@@ -5,7 +5,7 @@ import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoLocalnet } from 'viem/chains'
-import { Addresses, Relay, Store, VirtualAddress } from 'viem/tempo'
+import { Addresses, Relay, Store, VirtualAddress, withRelay } from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
 
@@ -435,7 +435,7 @@ test('keeps a sponsored fill when optional virtual-address metadata is unavailab
   expect(result.capabilities?.virtualAddresses).toBeUndefined()
 })
 
-test.each(['tempo_simulateV1', 'eth_simulateV1', 'eth_call'])(
+test.each(['tempo_simulateV1', 'eth_call'])(
   'propagates cancellation during %s',
   async (method) => {
     const started = Promise.withResolvers<void>()
@@ -584,5 +584,235 @@ test.each(['none', 'explicit', 'resolved'])(
     expect(Signature.fromRpc(result.tx.feePayerSignature as never).r).not.toBe(
       1n,
     )
+  },
+)
+
+test.each(['handler', 'create', 'transport'])(
+  'bounds nested callbacks that ignore the fill deadline: %s',
+  async (mode) => {
+    const release = Promise.withResolvers<void>()
+    const completed = Promise.withResolvers<unknown>()
+    const rpc = http('http://127.0.0.1:1', { retryCount: 0 })({})
+    const options = {
+      timeout: 60_000,
+      plugins: [
+        {
+          async handleRequest(context) {
+            await release.promise
+            completed.resolve(context.client.request({ method: 'eth_chainId' }))
+          },
+        },
+      ],
+    } satisfies Relay.handleRequest.Options
+    const inner =
+      mode === 'handler'
+        ? Relay.handleRequest(rpc.request, options)
+        : mode === 'create'
+          ? Relay.create<number>({
+              client: createClient({
+                chain: tempoLocalnet,
+                transport: () => rpc,
+              }),
+              ...options,
+            }).request
+          : withRelay(() => rpc, options)({ chain: tempoLocalnet }).request
+    const relay = Relay.handleRequest(inner, {
+      timeout: 20,
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay(
+        { method: 'eth_fillTransaction', params: [{}] },
+        { chainId: tempoLocalnet.id },
+      ),
+    ).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+    const rejected = expect(completed.promise).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+    release.resolve()
+    await rejected
+  },
+)
+
+test('allows transport retries beyond four attempts', async () => {
+  let requests = 0
+  const server = await createHttpServer((_request, response) => {
+    requests++
+    if (requests <= 5) {
+      response.writeHead(503)
+      response.end()
+      return
+    }
+    response.setHeader('Content-Type', 'application/json')
+    response.end(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        error: { code: -32602, message: 'Permanently unavailable' },
+      }),
+    )
+  })
+  try {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http(server.url),
+      }),
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay.request(
+        { method: 'eth_fillTransaction', params: [{}] },
+        {
+          retryCount: 10,
+          retryDelay: 0,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: -32602,
+      message: 'Permanently unavailable',
+    })
+    expect(requests).toBe(6)
+  } finally {
+    await server.close()
+  }
+})
+
+test('aborts a Retry-After delay at the fill deadline', async () => {
+  const server = await createHttpServer((_request, response) => {
+    response.writeHead(503, { 'Retry-After': '60' })
+    response.end()
+  })
+  try {
+    const relay = Relay.create({
+      client: createClient({
+        chain: tempoLocalnet,
+        transport: http(server.url),
+      }),
+      timeout: 100,
+      plugins: [Relay.simulate()],
+    })
+    await expect(
+      relay.request(
+        { method: 'eth_fillTransaction', params: [{}] },
+        {
+          retryCount: 10,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: -32005,
+      message: 'Relay fill exceeded its deadline.',
+    })
+  } finally {
+    await server.close()
+  }
+})
+
+test('rejects invalid timeouts', () => {
+  for (const timeout of [0, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])
+    expect(() =>
+      Relay.handleRequest(async () => null, {
+        timeout,
+        plugins: [Relay.simulate()],
+      }),
+    ).toThrow('Expected a positive integer for timeout.')
+})
+
+test('rejects a timeout that would overflow the runtime timer', () => {
+  expect(() =>
+    Relay.handleRequest(async () => null, {
+      plugins: [Relay.simulate()],
+      timeout: 2 ** 31,
+    }),
+  ).toThrow('The fill timeout cannot exceed 2147483647 milliseconds.')
+})
+
+test('rejects an already aborted fill without starting callbacks', async () => {
+  const controller = new AbortController()
+  controller.abort()
+  const relay = Relay.handleRequest(async () => null, {
+    plugins: [
+      {
+        async handleRequest() {
+          throw new Error('Unexpected callback')
+        },
+      },
+    ],
+  })
+  await expect(
+    relay(
+      { method: 'eth_fillTransaction', params: [{}] },
+      { signal: controller.signal },
+    ),
+  ).rejects.toMatchObject({ name: 'AbortError' })
+})
+
+test.each(['create', 'transport'])(
+  'retries downstream I/O without rerunning %s middleware',
+  async (mode) => {
+    const requests: string[] = []
+    const server = await createHttpServer(async (request, response) => {
+      let raw = ''
+      for await (const chunk of request) raw += chunk
+      const body = JSON.parse(raw)
+      requests.push(body.method)
+      if (body.method === 'eth_fillTransaction') {
+        response.writeHead(503)
+        response.end()
+        return
+      }
+      response.setHeader('Content-Type', 'application/json')
+      response.end(
+        JSON.stringify({ jsonrpc: '2.0', id: body.id, result: '0x7a69' }),
+      )
+    })
+    try {
+      const options = {
+        plugins: [
+          {
+            async handleRequest(context, next) {
+              if (context.request.method === 'eth_fillTransaction')
+                await context.client.request({ method: 'eth_chainId' })
+              await next()
+            },
+          },
+        ],
+      } satisfies Relay.handleRequest.Options
+      const inner =
+        mode === 'create'
+          ? Relay.create<number>({
+              client: createClient({
+                chain: tempoLocalnet,
+                transport: http(server.url),
+              }),
+              ...options,
+            }).request
+          : withRelay(http(server.url), options)({ chain: tempoLocalnet })
+              .request
+      const relay = Relay.handleRequest(inner, {
+        plugins: [Relay.simulate()],
+      })
+      await expect(
+        relay(
+          { method: 'eth_fillTransaction', params: [{}] },
+          {
+            chainId: tempoLocalnet.id,
+            retryCount: 1,
+            retryDelay: 0,
+          },
+        ),
+      ).rejects.toMatchObject({ code: -32603 })
+      expect(requests).toEqual([
+        'eth_chainId',
+        'eth_fillTransaction',
+        'eth_fillTransaction',
+      ])
+    } finally {
+      await server.close()
+    }
   },
 )

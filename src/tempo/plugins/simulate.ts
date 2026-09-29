@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 import { AbiEvent, Hex } from 'ox'
-import { simulateCalls } from '../../actions/public/simulateCalls.js'
 import type { Client } from '../../clients/createClient.js'
 import { zeroAddress } from '../../constants/address.js'
 import type { Call } from '../../types/calls.js'
@@ -83,7 +82,12 @@ export function simulate(options: simulate.Options = {}): Relay.Plugin {
               store,
               signal,
             }).then((fee) => ({ balanceDiffs: undefined, fee }))
-      return { capabilities: simulation }
+      return {
+        capabilities: {
+          balanceDiffs: simulation.balanceDiffs,
+          fee: simulation.fee,
+        },
+      }
     },
   }
 }
@@ -93,55 +97,6 @@ export declare namespace simulate {
   export type Options = {
     /** Store for cached metadata. Omit to read metadata for each request. */
     store?: Store.Store | undefined
-  }
-}
-
-// biome-ignore lint/correctness/noUnusedVariables: declaration merge
-async function simulateTransaction(
-  client: Client,
-  options: simulateTransaction.Options,
-) {
-  const { account, calls, transaction } = options
-  if (
-    Array.isArray(transaction?.requireFunds) &&
-    transaction.requireFunds.length
-  ) {
-    const result = await simulateFunding(client, { transaction })
-    if (result.status !== '0x1')
-      throw new Error(result.error?.message ?? 'Funded simulation reverted.')
-    return {
-      results: [{ ...result, logs: result.logs.map((log) => formatLog(log)) }],
-      tokenMetadata: result.tokenMetadata,
-    }
-  }
-  try {
-    return await Actions.simulate.simulateCalls(client, {
-      ...(account ? { account } : {}),
-      calls: calls as Call[],
-      traceTransfers: true,
-    })
-  } catch (error) {
-    // TODO: Remove fallback once all nodes support tempo_simulateV1.
-    // Fall back to viem's simulateCalls (eth_simulateV1) if the Tempo
-    // method (tempo_simulateV1) is not supported.
-    const code =
-      (error as { code?: number | undefined }).code ??
-      (error as { cause?: { code?: number | undefined } | undefined }).cause
-        ?.code
-    if (code !== -32601) throw error
-    const { results } = await simulateCalls(client, {
-      ...(account ? { account } : {}),
-      calls: calls as Call[],
-    })
-    return { results, tokenMetadata: undefined }
-  }
-}
-
-declare namespace simulateTransaction {
-  type Options = {
-    account?: Address | undefined
-    calls: readonly Call[]
-    transaction?: Relay.funding.Transaction | undefined
   }
 }
 
@@ -162,11 +117,56 @@ export async function simulateAndParseDiffs(
   signal?.throwIfAborted()
 
   try {
-    const { results, tokenMetadata } = await simulateTransaction(client, {
-      account: account === zeroAddress ? undefined : account,
-      calls,
-      transaction,
-    })
+    // Including the fee token as a read target asks the node to return its metadata too.
+    const probe =
+      feeToken &&
+      !calls.some((call) => call.to?.toLowerCase() === feeToken.toLowerCase())
+        ? [
+            Actions.token.getBalance.call(client, {
+              account: account ?? zeroAddress,
+              token: feeToken,
+            }),
+          ]
+        : []
+    const simulation = await (async () => {
+      if (
+        Array.isArray(transaction?.requireFunds) &&
+        transaction.requireFunds.length
+      ) {
+        const batch = transaction.calls?.length
+          ? transaction.calls
+          : [
+              {
+                to: transaction.to ?? undefined,
+                data: transaction.data,
+                value: transaction.value,
+              },
+            ]
+        const result = await simulateFunding(client, {
+          transaction: {
+            ...transaction,
+            calls: [...batch, ...probe.map(({ to, data }) => ({ to, data }))],
+          },
+        })
+        if (result.status !== '0x1')
+          throw new Error(
+            result.error?.message ?? 'Funded simulation reverted.',
+          )
+        return {
+          results: [
+            { ...result, logs: result.logs.map((log) => formatLog(log)) },
+          ],
+          tokenMetadata: result.tokenMetadata,
+        }
+      }
+      return Actions.simulate.simulateCalls(client, {
+        account: account === zeroAddress ? undefined : account,
+        calls: [...calls, ...probe] as Call[],
+        traceTransfers: true,
+      })
+    })()
+    const results = simulation.results.slice(0, calls.length)
+    const { tokenMetadata } = simulation
 
     signal?.throwIfAborted()
 
@@ -198,7 +198,7 @@ export async function simulateAndParseDiffs(
       tokenMetadata: tokenMetadata as never,
     })
 
-    return { balanceDiffs, fee }
+    return { balanceDiffs, fee, tokenMetadata }
   } catch {
     signal?.throwIfAborted()
     // Simulation failures should not block the fill response —
@@ -210,7 +210,7 @@ export async function simulateAndParseDiffs(
       maxFeePerGas,
       signal,
     })
-    return { balanceDiffs: undefined, fee }
+    return { balanceDiffs: undefined, fee, tokenMetadata: undefined }
   }
 }
 

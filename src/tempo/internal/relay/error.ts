@@ -64,7 +64,7 @@ export async function formatError(
 
     // Simulate from zero address for optimistic balance diffs.
     const optimisticCalls = normalized ? extractCalls(normalized) : undefined
-    const [{ balanceDiffs }, virtualAddresses] = optimisticCalls
+    const [{ balanceDiffs, tokenMetadata }, virtualAddresses] = optimisticCalls
       ? await Promise.all([
           simulateAndParseDiffs(client, {
             account: zeroAddress,
@@ -75,7 +75,7 @@ export async function formatError(
             () => undefined,
           ),
         ])
-      : [{ balanceDiffs: undefined }, undefined]
+      : [{ balanceDiffs: undefined, tokenMetadata: undefined }, undefined]
 
     // Re-key balance diffs from zero address to the real sender.
     const senderDiffs =
@@ -85,6 +85,7 @@ export async function formatError(
 
     const metadata = await resolveTokenMetadata(client, {
       token,
+      tokenMetadata,
       store: simulateStore,
     }).catch(() => undefined)
     const deficit = required - available

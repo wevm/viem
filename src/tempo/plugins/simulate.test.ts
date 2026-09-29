@@ -395,6 +395,45 @@ describe('metadata', () => {
       )
   }
 
+  test('uses simulation metadata for 100 TIP-20 tokens without RPC or cache reads', async () => {
+    const logs = Array.from({ length: 100 }, (_, index) => ({
+      ...transfer(index),
+      address: `0x20c0${(index + 100).toString(16).padStart(36, '0')}` as const,
+    }))
+    let requests = 0
+    const client = createClient({
+      chain: tempoLocalnet,
+      transport: http('http://127.0.0.1:1', {
+        retryCount: 0,
+        onFetchRequest() {
+          requests++
+        },
+      }),
+    })
+    const result = await buildBalanceDiffs(client, {
+      account,
+      logs,
+      tokenMetadata: Object.fromEntries(
+        logs.map((log) => [
+          log.address,
+          {
+            name: 'Dollar',
+            symbol: 'USD',
+            currency: 'USD',
+          },
+        ]),
+      ),
+    })
+    expect(requests).toBe(0)
+    expect(result?.[account]).toHaveLength(100)
+    expect(result?.[account]?.[0]).toMatchObject({
+      decimals: 6,
+      formatted: '1',
+      name: 'Dollar',
+      symbol: 'USD',
+    })
+  })
+
   test('omits the entire preview when its token count exceeds the budget', async () => {
     const store = Store.memory()
     const logs = Array.from({ length: 101 }, (_, i) => transfer(i))
