@@ -1,5 +1,11 @@
 # viem
 
+## 2.57.2
+
+### Patch Changes
+
+- [#5154](https://github.com/wevm/viem/pull/5154) [`5b370512cd323d4ca2a8ffa7e6dae79abc4bf494`](https://github.com/wevm/viem/commit/5b370512cd323d4ca2a8ffa7e6dae79abc4bf494) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Updated fee-token discovery tests for OUSD deployments on Ethereum and Base.
+
 ## 2.57.1
 
 ### Patch Changes
