@@ -103,7 +103,11 @@ export function resolve<
     signatures?: Transaction['signatures'] | undefined
   },
 >(transaction: transaction): transaction {
-  if (transaction.frames)
+  if (
+    transaction.frames &&
+    (transaction.nonceKeys === undefined ||
+      transaction.nonceKeys.includes('random'))
+  )
     transaction = {
       ...transaction,
       nonceKeys: resolveNonceKeys(transaction.nonceKeys),
