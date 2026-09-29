@@ -626,42 +626,50 @@ test('bounds callbacks that do not observe the fill deadline', async () => {
   expect(forwarded).toBe(false)
 })
 
-test('charges retries against one fill request budget', async () => {
-  let requests = 0
-  const server = await createHttpServer((_request, response) => {
-    requests++
-    response.writeHead(503)
-    response.end()
-  })
-  try {
-    const relay = Relay.create({
-      client: createClient({
-        chain: tempoLocalnet,
-        transport: http(server.url),
-      }),
-      maxRequests: 4,
-      plugins: [
-        {
-          async handleRequest(_context, next) {
-            await next()
-          },
-        },
-      ],
+test.each([false, true])(
+  'stops retries at the fill budget with Retry-After: %s',
+  async (retryAfter) => {
+    let requests = 0
+    const server = await createHttpServer((_request, response) => {
+      requests++
+      if (retryAfter && requests === 4) response.setHeader('Retry-After', '60')
+      response.writeHead(503)
+      response.end()
     })
-    await expect(
-      relay.request(
-        {
-          method: 'eth_fillTransaction',
-          params: [{ from: '0x0000000000000000000000000000000000000001' }],
-        },
-        { retryCount: 10, retryDelay: 0 },
-      ),
-    ).rejects.toMatchObject({ code: -32005 })
-    expect(requests).toBe(4)
-  } finally {
-    await server.close()
-  }
-})
+    try {
+      const relay = Relay.create({
+        client: createClient({
+          chain: tempoLocalnet,
+          transport: http(server.url),
+        }),
+        maxRequests: 4,
+        timeout: 2_000,
+        plugins: [
+          {
+            async handleRequest(_context, next) {
+              await next()
+            },
+          },
+        ],
+      })
+      await expect(
+        relay.request(
+          {
+            method: 'eth_fillTransaction',
+            params: [{ from: '0x0000000000000000000000000000000000000001' }],
+          },
+          { retryCount: 10, retryDelay: 10 },
+        ),
+      ).rejects.toMatchObject({
+        code: -32005,
+        message: 'Relay fill exceeded its RPC request budget.',
+      })
+      expect(requests).toBe(4)
+    } finally {
+      await server.close()
+    }
+  },
+)
 
 test.each(['maxRequests', 'timeout'] as const)(
   'rejects invalid %s',

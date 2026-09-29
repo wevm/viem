@@ -346,10 +346,7 @@ export function compose(
     throw new RpcResponse.InvalidParamsError({
       message: 'The fill timeout cannot exceed 2147483647 milliseconds.',
     })
-  return (request, requestOptions = {}) =>
-    request.method === 'eth_fillTransaction'
-      ? Budget.run(handle, request, requestOptions, options)
-      : handle(request, requestOptions)
+  return Budget.wrap(handle, options)
 }
 
 /** Prevent hooks from mutating the transaction another hook signs. */

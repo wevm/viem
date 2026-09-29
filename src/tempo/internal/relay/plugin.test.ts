@@ -438,3 +438,74 @@ test.each(['none', 'accept', 'reject'] as const)(
     )
   },
 )
+
+test.each([
+  { outer: 4, inner: 10, requests: 4, succeeds: true },
+  { outer: 3, inner: 10, requests: 3, succeeds: false },
+  { outer: 10, inner: 2, requests: 3, succeeds: false },
+])(
+  'shares nested relay budgets: outer $outer, inner $inner',
+  async (limits) => {
+    const requests: string[] = []
+    const rpc = http(rpcUrl, {
+      retryCount: 0,
+      onFetchRequest(_request, init) {
+        requests.push(JSON.parse(init.body as string).method)
+      },
+    })({})
+    const inner = Relay.handleRequest(rpc.request, {
+      maxRequests: limits.inner,
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            if (context.request.method === 'eth_fillTransaction') {
+              await context.client.request({ method: 'eth_blockNumber' })
+              await context.client.request({ method: 'eth_blockNumber' })
+            }
+            await next()
+          },
+        },
+      ],
+    })
+    const outer = Relay.handleRequest(inner, {
+      maxRequests: limits.outer,
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            if (context.request.method === 'eth_fillTransaction')
+              await context.client.request({ method: 'eth_blockNumber' })
+            await next()
+          },
+        },
+      ],
+    })
+    const result = outer(
+      {
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            feeToken: Tempo.addresses.alphaUsd,
+            calls: [{ to: recipient.address, data: '0x', value: '0x0' }],
+          },
+        ],
+      },
+      { chainId: Tempo.chain.id },
+    )
+    if (limits.succeeds)
+      await expect(result).resolves.toMatchObject({
+        tx: { feeToken: Tempo.addresses.alphaUsd },
+      })
+    else
+      await expect(result).rejects.toMatchObject({
+        code: -32005,
+        message: 'Relay fill exceeded its RPC request budget.',
+      })
+    expect(requests).toEqual(
+      [
+        ...Array.from({ length: 3 }, () => 'eth_blockNumber'),
+        'eth_fillTransaction',
+      ].slice(0, limits.requests),
+    )
+  },
+)
