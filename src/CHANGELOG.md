@@ -1,5 +1,45 @@
 # viem
 
+## 2.57.0
+
+### Minor Changes
+
+- [#5138](https://github.com/wevm/viem/pull/5138) [`6599af365a27476c9f9b7b6f2950941709807393`](https://github.com/wevm/viem/commit/6599af365a27476c9f9b7b6f2950941709807393) Thanks [@jxom](https://github.com/jxom)! - Added `createClientResolver` to lazily resolve and cache typed clients across configured chains using a transport map or callback.
+
+- [#5140](https://github.com/wevm/viem/pull/5140) [`8a5ef5b06400530e7a45b6b52ed01e49c42f34dd`](https://github.com/wevm/viem/commit/8a5ef5b06400530e7a45b6b52ed01e49c42f34dd) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added a Relay RPC handler with a composable plugin mechanism.
+
+  ```ts
+  import { createClient, Relay, Store } from "viem/tempo";
+
+  const relay = Relay.create({
+    client: createClient(),
+    plugins: [
+      Relay.multisig({ store: Store.memory() }),
+      Relay.simulate(),
+      Relay.feePayer(),
+      Relay.feeToken(),
+    ],
+  });
+
+  export default { fetch: relay.fetch };
+  ```
+
+### Patch Changes
+
+- [#5136](https://github.com/wevm/viem/pull/5136) [`d3b492aa4769a8fe05177799e3983bea2ae650ec`](https://github.com/wevm/viem/commit/d3b492aa4769a8fe05177799e3983bea2ae650ec) Thanks [@Lukecele](https://github.com/Lukecele)! - Added Kortana chain.
+
+- [#5128](https://github.com/wevm/viem/pull/5128) [`51f9ad9595507c3a5032254b3bc1ed342af2ba68`](https://github.com/wevm/viem/commit/51f9ad9595507c3a5032254b3bc1ed342af2ba68) Thanks [@cryptocandyio](https://github.com/cryptocandyio)! - Added CandyChain.
+
+- [#5133](https://github.com/wevm/viem/pull/5133) [`1106809071cea88eca868262ee7bab8a82081338`](https://github.com/wevm/viem/commit/1106809071cea88eca868262ee7bab8a82081338) Thanks [@garywilson87](https://github.com/garywilson87)! - Added the BlockDAG chain definition.
+
+- [#5145](https://github.com/wevm/viem/pull/5145) [`f0bf794c2903663c8cf4c006ba1598bab6075ec1`](https://github.com/wevm/viem/commit/f0bf794c2903663c8cf4c006ba1598bab6075ec1) Thanks [@fe-dudu](https://github.com/fe-dudu)! - Updated the Multicall3 deployment metadata for Creditcoin Devnet, Testnet, and Mainnet.
+
+- [#5130](https://github.com/wevm/viem/pull/5130) [`33e3777a5291ec3553efcde025cf5d6037960002`](https://github.com/wevm/viem/commit/33e3777a5291ec3553efcde025cf5d6037960002) Thanks [@HereForTheTechNFT](https://github.com/HereForTheTechNFT)! - Fixed `getGame`, `getGames`, `getTimeToNextGame` and `getTimeToNextL2Output` to treat a dispute game (or L2 output) at exactly the requested L2 block number as covering it.
+
+- [#5132](https://github.com/wevm/viem/pull/5132) [`e713dba3b7e2751457952dc2ed6fde1fca2fbfeb`](https://github.com/wevm/viem/commit/e713dba3b7e2751457952dc2ed6fde1fca2fbfeb) Thanks [@gjija](https://github.com/gjija)! - Fixed `parseSiweMessage` losing or truncating `resources` when `Resources:` appeared in the statement, URI, Request ID or a resource.
+
+- [#5142](https://github.com/wevm/viem/pull/5142) [`e65f6640031af871622a4929d58a1593695c488c`](https://github.com/wevm/viem/commit/e65f6640031af871622a4929d58a1593695c488c) Thanks [@rubenmarcus](https://github.com/rubenmarcus)! - Fixed `waitForTransactionReceipt` so concurrent calls for the same hash on one client each honor their own `timeout`, `confirmations`, `pollingInterval`, `retryCount` and `checkReplacement` instead of inheriting the first call's options.
+
 ## 2.56.9
 
 ### Patch Changes
