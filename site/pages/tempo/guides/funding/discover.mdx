@@ -40,8 +40,12 @@ const { transaction } = await client.fillTransaction({
 console.log(transaction.requireFunds)
 ```
 
-```ts [viem.config.ts]
+```ts [viem.config.ts (Local Relay)]
 // [!include ~/snippets/tempo/funding.config.ts:setup]
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
 ```
 
 :::
@@ -75,7 +79,7 @@ await client.token.transferSync({
 })
 ```
 
-```ts [viem.config.ts]
+```ts [viem.config.ts (Local Relay)]
 import { http } from 'viem'
 import { Account, createClient, Relay, withRelay } from 'viem/tempo'
 import { store } from './store'
@@ -85,6 +89,11 @@ export const client = createClient({
   transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
 })
 ```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
+```
+
 :::
 
 ### Discover Against a Funding Policy
@@ -118,7 +127,7 @@ const discovery = await client.funding.discover({
 })
 ```
 
-```ts [viem.config.ts]
+```ts [viem.config.ts (Local Relay)]
 import { http } from 'viem'
 import { Account, createClient, Relay, withRelay } from 'viem/tempo'
 import { store } from './store'
@@ -127,6 +136,10 @@ export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
   transport: withRelay(http(), { plugins: [Relay.funding({ store })] }),
 })
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+// [!include ~/snippets/tempo/funding.remote.config.ts:setup]
 ```
 
 :::
