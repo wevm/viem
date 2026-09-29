@@ -39,4 +39,10 @@ test('reverts', async () => {
       address: sourceAccount.address,
     }),
   ).toBe(balance)
+
+  await expect(
+    revert(client, { id }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[Error: Failed to revert to snapshot "${id}".]`,
+  )
 })
