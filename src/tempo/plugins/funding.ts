@@ -575,8 +575,8 @@ export function funding(parameters: funding.Options = {}): funding.ReturnType {
       await next()
       if (request.method === 'eth_fillTransaction') {
         const result = relay.result as Relay.Plugin.FillResult
-        // Nodes can omit empty requirements; keep resolved intent for later plugins.
-        if (result.tx && result.tx.requireFunds === undefined)
+        // Keep resolved requirements authoritative for post-fill hooks and signing.
+        if (result.tx)
           relay.result = { ...result, tx: { ...result.tx, requireFunds } }
       }
     },

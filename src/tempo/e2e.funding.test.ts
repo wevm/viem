@@ -350,7 +350,12 @@ describe('prepareTransactionRequest', () => {
       requireFunds: true,
     } as const
     expect(await prepareTransactionRequest(relay, parameters)).toMatchObject({
-      requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+      requireFunds: [
+        {
+          token: '0x20C0000000000000000000000000000000000000',
+          amount: parseUnits('50', 6),
+        },
+      ],
     })
     expect(
       (
@@ -564,7 +569,12 @@ describe('fillTransaction', () => {
     expect(
       (await fillTransaction(relay, parameters)).transaction,
     ).toMatchObject({
-      requireFunds: [{ token: Addresses.pathUsd, amount: parseUnits('50', 6) }],
+      requireFunds: [
+        {
+          token: '0x20C0000000000000000000000000000000000000',
+          amount: parseUnits('50', 6),
+        },
+      ],
     })
     expect(
       (
@@ -718,6 +728,53 @@ describe('funding error decoding', () => {
 })
 
 describe('relay funding integrity', () => {
+  test.each(['client', 'chain', 'chainId'] as const)(
+    'rejects a relay fill that changes the %s chain ID',
+    async (source) => {
+      const handler = Relay.handleRequest(
+        (request, options) => client.request(request as never, options),
+        { plugins: [Relay.funding({ getRoute: () => ({ sources: [] }) })] },
+      )
+      const server = await createHttpServer(
+        createRequestListener(async (request) => {
+          const body = await request.json()
+          const result = (await handler(body)) as Relay.Plugin.FillResult
+          return Response.json(
+            RpcResponse.from({
+              id: body.id,
+              jsonrpc: body.jsonrpc,
+              result:
+                body.method === 'eth_fillTransaction'
+                  ? { ...result, tx: { ...result.tx, chainId: '0x1079' } }
+                  : result,
+            }),
+          )
+        }),
+      )
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const relay = getClient({
+        transport: withRelay(http(), http(server.url)),
+      })
+      await expect(
+        prepareTransactionRequest(relay, {
+          account: accounts[0],
+          ...(source === 'chainId' ? { chainId: 1337 } : {}),
+          ...(source === 'chain' ? { chain: client.chain } : {}),
+          calls: [
+            Actions.token.transfer.call({
+              token: Addresses.pathUsd,
+              amount: 1n,
+              to: recipient,
+            }),
+          ],
+          requireFunds: true,
+        }),
+      ).rejects.toThrow('Funding relay changed the chain ID from 1337 to 4217.')
+    },
+  )
+
   test.each([true, [{ token: Addresses.pathUsd }]] as const)(
     'infers a generic batch through HTTP for new and installed access keys (%j)',
     async (requireFunds) => {

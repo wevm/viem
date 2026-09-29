@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
+import * as RpcResponse from 'ox/RpcResponse'
 import {
   MultisigConfig,
   MultisigOperation,
@@ -314,12 +315,17 @@ export const chainConfig = {
               requirement.policyRules === undefined),
         )
       ) {
+        const chainId = request.chainId ?? request.chain?.id ?? client.chain?.id
         const result = await fillTransaction(client, {
           ...request,
-          chainId: request.chainId ?? request.chain?.id ?? client.chain?.id,
+          chainId,
         } as never)
         const filled =
           result.transaction as unknown as Transaction.TransactionTempo
+        if (chainId !== undefined && filled.chainId !== chainId)
+          throw new RpcResponse.InvalidParamsError({
+            message: `Funding relay changed the chain ID from ${chainId} to ${filled.chainId}.`,
+          })
         assertRequireFunds(request.requireFunds, filled.requireFunds)
         return {
           ...request,

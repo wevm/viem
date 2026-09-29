@@ -332,7 +332,11 @@ describe('behavior', () => {
         ],
       })) as Relay.Plugin.FillResult
       expect(result.tx.requireFunds).toMatchObject([
-        { token: Addresses.pathUsd, amount: '0xa', sources: [] },
+        {
+          token: '0x20C0000000000000000000000000000000000000',
+          amount: '0xa',
+          sources: [],
+        },
       ])
       expect(methods).toEqual(['eth_call', 'eth_fillTransaction'])
     })
@@ -400,6 +404,68 @@ describe('behavior', () => {
       expect(result.tx.requireFunds).toEqual([])
     })
 
+    test.each([
+      { replacement: undefined },
+      { replacement: [] },
+      {
+        replacement: [
+          { token: Addresses.alphaUsd, amount: '0x2', sources: [] },
+        ],
+      },
+    ])(
+      'restores inferred requirements replaced downstream with $replacement',
+      async ({ replacement }) => {
+        const handler = Relay.handleRequest(
+          async (request, options) => {
+            const result = await client.request(request as never, options)
+            if (request.method !== 'eth_fillTransaction') return result
+            const filled = result as unknown as Relay.Plugin.FillResult
+            return {
+              ...filled,
+              tx: { ...filled.tx, requireFunds: replacement },
+            }
+          },
+          {
+            plugins: [
+              Relay.funding({ getRoute: () => ({ sources: [] }) }),
+              {
+                afterFill: async (result) => ({
+                  capabilities: { resolvedFunding: result.tx.requireFunds },
+                }),
+              },
+            ],
+          },
+        )
+        const result = (await handler({
+          method: 'eth_fillTransaction',
+          params: [
+            TransactionRequest.toRpc({
+              from: accounts[0].address,
+              chainId: 1337,
+              calls: [
+                Actions.token.transfer.call({
+                  token: Addresses.pathUsd,
+                  amount: 10n,
+                  to: accounts[1].address,
+                }),
+              ],
+              requireFunds: true,
+            }),
+          ],
+        })) as Relay.Plugin.FillResult
+        const expected = [
+          {
+            token: '0x20C0000000000000000000000000000000000000',
+            amount: '0xa',
+            slippageBps: '0x0',
+            sources: [],
+          },
+        ]
+        expect(result.tx.requireFunds).toEqual(expected)
+        expect(result.capabilities?.resolvedFunding).toEqual(expected)
+      },
+    )
+
     test('shares token resolution between fee selection and inference', async () => {
       const methods: string[] = []
       const downstream: Relay.handleRequest.Handler = (request, options) => {
@@ -436,7 +502,11 @@ describe('behavior', () => {
         ],
       })) as Relay.Plugin.FillResult
       expect(result.tx.requireFunds).toMatchObject([
-        { token: Addresses.alphaUsd, amount: '0x64', sources: [] },
+        {
+          token: '0x20C0000000000000000000000000000000000001',
+          amount: '0x64',
+          sources: [],
+        },
       ])
       expect(methods.filter((method) => method === 'eth_chainId')).toHaveLength(
         1,
@@ -1317,7 +1387,10 @@ describe('behavior', () => {
           ],
         })) as Relay.Plugin.FillResult
         expect(result.tx.requireFunds).toMatchObject([
-          { token: Addresses.pathUsd, amount: '0x64' },
+          {
+            token: '0x20C0000000000000000000000000000000000000',
+            amount: '0x64',
+          },
         ])
         expect(methods.includes('tempo_simulateV1')).toBe(unknown)
         expect(methods).toContain('eth_fillTransaction')
@@ -1462,7 +1535,7 @@ describe('behavior', () => {
       })) as Relay.Plugin.FillResult
       expect(result.tx.requireFunds).toMatchObject([
         {
-          token: Addresses.pathUsd,
+          token: '0x20C0000000000000000000000000000000000000',
           amount: '0x7d',
           sources: [],
         },
