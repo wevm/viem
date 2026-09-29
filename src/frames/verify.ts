@@ -11,13 +11,7 @@ import * as internal from './internal/transaction.js'
  * @param options - The private-key account and optional frame gas budgets.
  * @returns A verification helper that signs the finalized transaction.
  */
-export function verify({
-  account,
-  ...frame
-}: { account: PrivateKeyAccount } & Pick<
-  Frame,
-  'executionGas' | 'stateGas'
->): Frame {
+export function verify({ account, ...frame }: verify.Options): Frame {
   return from(function prepare({ frames }) {
     const hasPayer = frames.some(
       (candidate) =>
@@ -52,4 +46,12 @@ export function verify({
       ],
     }
   })
+}
+
+export declare namespace verify {
+  /** Account and gas budgets for execution approval. */
+  type Options = {
+    /** Account that signs the transaction. */
+    account: PrivateKeyAccount
+  } & Pick<Frame, 'executionGas' | 'stateGas'>
 }
