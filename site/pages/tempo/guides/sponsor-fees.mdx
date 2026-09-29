@@ -49,21 +49,18 @@ const receipt = await client.sendTransactionSync({
 
 ### Sponsor via a Relay
 
-To keep the fee payer's key server-side, route requests through a relay with the
-[`withRelay`](/tempo/transports/withRelay) transport, then set `feePayer: true` to ask the
+To keep the fee payer's key server-side, connect to a relay with the
+[`http`](/docs/clients/transports/http) transport, then set `feePayer: true` to ask the
 relay to sponsor the transaction.
 
 ```ts twoslash
-import { Account, createClient, http, withRelay } from 'viem/tempo'
+import { Account, createClient, http } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 const client = createClient({
   account: Account.fromSecp256k1('0x...'),
   testnet: true,
-  transport: withRelay( // [!code focus]
-    http(), // default transport // [!code focus]
-    http('https://relay.example.com'), // relay transport // [!code focus]
-  ), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 
 const receipt = await client.sendTransactionSync({
@@ -104,9 +101,9 @@ Sponsorship and stablecoin fees compose: the fee payer can settle the sponsored 
   />
   <Card
     icon="lucide:square-function"
-    title="withRelay"
-    description="Route relay traffic so a server-side fee payer can sponsor transactions."
-    to="/tempo/transports/withRelay"
+    title="Connect to a Relay"
+    description="Connect your client to a remote relay for fee sponsorship."
+    to="/tempo/guides/relay/connect"
   />
   <Card
     icon="lucide:book-open"
