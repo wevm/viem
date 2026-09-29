@@ -1,9 +1,19 @@
-import { createClient } from 'viem'
-import { fillTransaction } from 'viem/actions'
+import { createRequestListener } from '@remix-run/node-fetch-server'
+import { createClient, http, parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { fillTransaction, sendTransactionSync } from 'viem/actions'
 import { tempo, tempoModerato } from 'viem/chains'
-import { Actions, Relay, Store, withRelay } from 'viem/tempo'
-import { beforeAll, expect, test } from 'vitest'
+import {
+  Account,
+  Actions,
+  Addresses,
+  Relay,
+  Store,
+  withRelay,
+} from 'viem/tempo'
+import { beforeAll, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { createHttpServer } from '~test/utils.js'
 import { getDefaultTokens, resolveFeeToken } from './feeToken.js'
 
 const userAccount = Tempo.accounts[9]!
@@ -345,3 +355,72 @@ test('uses a funded call target outside the configured candidates', async () => 
   })
   expect(transaction.feeToken?.toLowerCase()).toBe(localnetTokens[2])
 })
+
+test.skipIf(Tempo.nodeEnv !== 'localnet')(
+  'plain HTTP transport: selects a funded token and broadcasts the transaction',
+  async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => localnetTokens,
+      plugins: [Relay.feeToken()],
+    })
+
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const token = Tempo.addresses.alphaUsd
+
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token,
+      to: account.address,
+      amount: parseUnits('1', 6),
+    })
+
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: account.address,
+          token: Addresses.pathUsd,
+        })
+      ).amount,
+    ).toMatchInlineSnapshot(`0n`)
+
+    const balance = await Actions.token.getBalance(client, {
+      account: recipient.address,
+      token,
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      account,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt.feeToken).toBe(token)
+    expect(receipt.feePayer).toBe(account.address.toLowerCase())
+
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient.address,
+          token,
+        })
+      ).amount - balance.amount,
+    ).toMatchInlineSnapshot(`1n`)
+  },
+)

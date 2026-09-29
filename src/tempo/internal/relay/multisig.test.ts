@@ -1,10 +1,18 @@
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import {
   KeyAuthorization,
   MultisigConfig,
   MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
-import { createClient, createClientResolver, http, toHex } from 'viem'
+import {
+  createClient,
+  createClientResolver,
+  http,
+  parseUnits,
+  toHex,
+} from 'viem'
+import { sendTransactionSync } from 'viem/actions'
 import { tempo, tempoModerato } from 'viem/chains'
 import {
   Account,
@@ -14,8 +22,9 @@ import {
   Transaction,
   withRelay,
 } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { createHttpServer } from '~test/utils.js'
 import { nativeMultisigFactory } from '../../Addresses.js'
 import * as Operation from '../../multisig/Operation.js'
 import { parseApproval } from '../../multisig/Signature.js'
@@ -317,4 +326,101 @@ describe.runIf(
       ).toBe(1n)
     },
   )
+
+  test('plain HTTP transport: collects approvals and broadcasts at quorum', async () => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.multisig({ store: Store.memory() })],
+    })
+
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
+    const account = Account.fromMultisig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x109701, { size: 32 }),
+      threshold: 2,
+    })
+
+    const token = Tempo.addresses.alphaUsd
+
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token,
+      to: account.address,
+      amount: parseUnits('1', 6),
+    })
+
+    const balance = await Actions.token.getBalance(client, {
+      account: recipient.address,
+      token,
+    })
+
+    const pending = await sendTransactionSync(client, {
+      account,
+      owner: owner_1,
+      feeToken: token,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+    expect(pending.multisig).toMatchObject({
+      signatureCount: 1,
+      threshold: 2,
+      weight: 1,
+    })
+
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient.address,
+          token,
+        })
+      ).amount,
+    ).toBe(balance.amount)
+
+    const receipt = await sendTransactionSync(client, {
+      account,
+      hash: pending.transactionHash,
+      owner: owner_2,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt.multisig).toMatchObject({
+      signatureCount: 2,
+      threshold: 2,
+      weight: 2,
+    })
+
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient.address,
+          token,
+        })
+      ).amount - balance.amount,
+    ).toMatchInlineSnapshot(`1n`)
+
+    expect(
+      await Actions.multisig.getOperation(client, {
+        hash: pending.transactionHash,
+      }),
+    ).toMatchObject({ status: 'success' })
+  })
 })
