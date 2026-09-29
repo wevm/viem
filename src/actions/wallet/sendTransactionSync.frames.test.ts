@@ -2,6 +2,7 @@ import { Signature } from 'ox'
 import { nonceManager as sharedNonceManager } from 'viem'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import {
+  fillTransaction,
   getBalance,
   getTransaction,
   getTransactionCount,
@@ -27,6 +28,26 @@ const request = {
 } as const
 
 describe('frames: Frame', () => {
+  test('uses explicit keyed sequences with a nonce manager', async () => {
+    const request = {
+      nonce: 0,
+      nonceKeys: [54321n],
+      nonceManager: sharedNonceManager,
+      frames: [Frame.verify({ account: accounts[0] })],
+    }
+    const prepared = await prepareTransactionRequest(client, request)
+    expect(prepared.nonce).toMatchInlineSnapshot(`0`)
+    const filled = await fillTransaction(client, request)
+    expect(filled.transaction.nonce).toMatchInlineSnapshot(`0`)
+    const receipt = await sendTransactionSync(client, {
+      ...prepared,
+      account: privateKeyToAccount(constants[0].privateKey, {
+        nonceManager: sharedNonceManager,
+      }),
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
   test.each([
     { nonceKeys: [0n, 'random'] },
     { nonceKeys: [1n, 1n, 'random'] },

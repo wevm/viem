@@ -407,7 +407,7 @@ export async function prepareTransactionRequest<
   }
 
   if (request.frames && keys && !(keys.length === 1 && keys[0] === 0n)) {
-    if (nonceManager)
+    if (nonceManager && nonce === undefined && parameters.includes('nonce'))
       throw new BaseError(
         'Nonce managers do not support keyed frame transactions.',
       )

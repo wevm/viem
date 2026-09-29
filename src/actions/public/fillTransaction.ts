@@ -140,6 +140,7 @@ export async function fillTransaction<
 
   if (
     nonceManager &&
+    nonce_ === undefined &&
     nonceKeys &&
     !(nonceKeys.length === 1 && nonceKeys[0] === 0n)
   )
