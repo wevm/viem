@@ -153,14 +153,28 @@ export async function waitForTransactionReceipt<
     timeout = 180_000,
   } = parameters
 
-  const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
-
   const pollingInterval = (() => {
     if (parameters.pollingInterval) return parameters.pollingInterval
     if (client.chain?.experimental_preconfirmationTime)
       return client.chain.experimental_preconfirmationTime
     return client.pollingInterval
   })()
+
+  const observerId = stringify([
+    'waitForTransactionReceipt',
+    client.uid,
+    hash,
+    // Concurrent calls with different behavior-defining options must not
+    // share an observer: the first call's polling closure decides timeout,
+    // confirmations, polling interval and replacement checks for everyone.
+    {
+      checkReplacement,
+      confirmations,
+      pollingInterval,
+      retryCount,
+      timeout,
+    },
+  ])
 
   let transaction: GetTransactionReturnType<chain> | undefined
   let replacedTransaction: GetTransactionReturnType<chain> | undefined
