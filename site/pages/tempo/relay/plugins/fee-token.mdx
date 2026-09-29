@@ -9,7 +9,7 @@ preferred token has no balance, it selects the highest-balance candidate.
 ## Recipes
 
 Choose a local relay to run plugins in your application, or connect to a remote
-relay at `/relay`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+relay at `https://relay.example.com/rpc`. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
 with the plugins shown in the local configuration.
 
 ### Select the Best Fee Token
@@ -57,7 +57,7 @@ import { createClient } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 export const client = createClient({
-  transport: http('/relay'), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
@@ -116,7 +116,7 @@ import { createClient } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 export const client = createClient({
-  transport: http('/relay'), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
@@ -154,7 +154,7 @@ import { createClient } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
 export const client = createClient({
-  transport: http('/relay'), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
