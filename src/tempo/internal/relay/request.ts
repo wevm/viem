@@ -7,6 +7,7 @@ import { custom } from '../../../clients/transports/custom.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
 import * as Store from './cache.js'
+import * as Deadline from './deadline.js'
 import { formatError, isExecutionError } from './error.js'
 import { getDefaultTokens } from './feeToken.js'
 import * as Utils from './utils.js'
@@ -34,7 +35,10 @@ export function compose(
   if (plugins.filter((plugin) => plugin.signTransaction).length > 1)
     throw new Error('Only one relay transaction signer may be configured.')
 
-  return async (request, requestOptions = {}) => {
+  const handle: Relay.handleRequest.Handler = async (
+    request,
+    requestOptions = {},
+  ) => {
     const stores = new Map<Store.Store, Store.Store>()
     const tokens = new Map<number, Promise<readonly Address[]>>()
     const scoped = (store: Store.Store | undefined) => {
@@ -156,7 +160,11 @@ export function compose(
                   params: [{ ...parameters, feeToken: undefined }],
                 }
               : state.request
-          state.result = await downstream(request, state.options)
+          requestOptions.signal?.throwIfAborted()
+          state.result = await downstream(request, {
+            ...state.options,
+            ...(isFill ? { signal: requestOptions.signal } : {}),
+          })
           return
         }
         const plugin = plugins[index]!
@@ -245,6 +253,10 @@ export function compose(
         ),
       }
       const snapshot = freeze(structuredClone(final))
+      const targets = getVirtualAddressTargets(extractCalls(transaction))
+      const resolved = final.capabilities?.virtualAddresses as
+        | Record<Address, Address | null>
+        | undefined
       const [patches, signatures, virtualAddresses] = await Promise.all([
         Promise.all(
           plugins.map((plugin, index) =>
@@ -256,7 +268,8 @@ export function compose(
             plugin.signTransaction?.(snapshot, root!.contextAt(index)),
           ),
         ),
-        getVirtualAddressTargets(extractCalls(transaction)).length > 0
+        targets.length > 0 &&
+        !targets.every((target) => resolved && target in resolved)
           ? resolveVirtualAddresses(root.contextAt(-1).client, {
               calls: extractCalls(transaction),
             }).catch(() => {
@@ -310,6 +323,7 @@ export function compose(
                   ...requestOptions,
                   ...options,
                   chainId: id,
+                  signal: requestOptions.signal,
                 }),
             },
             { retryCount: 0 },
@@ -321,6 +335,21 @@ export function compose(
       throw Utils.toRpcError(error)
     }
   }
+  if (
+    options.timeout !== undefined &&
+    (!Number.isSafeInteger(options.timeout) || options.timeout <= 0)
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected a positive integer for timeout.',
+    })
+  if (options.timeout !== undefined && options.timeout > 2_147_483_647)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'The fill timeout cannot exceed 2147483647 milliseconds.',
+    })
+  return (request, requestOptions = {}) =>
+    request.method === 'eth_fillTransaction'
+      ? Deadline.run(handle, request, requestOptions, options)
+      : handle(request, requestOptions)
 }
 
 /** Prevent hooks from mutating the transaction another hook signs. */

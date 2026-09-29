@@ -103,12 +103,7 @@ test('cached metadata preserves bigint fields', async () => {
     transport: withRelay(Tempo.http(), {
       resolveTokens: () => [Tempo.addresses.alphaUsd],
 
-      plugins: [
-        Relay.feeToken({
-          store,
-        }),
-        Relay.simulate({ store }),
-      ],
+      plugins: [Relay.feeToken(), Relay.simulate({ store })],
     }),
   })
   const first = await fillTransaction(client, {
@@ -291,7 +286,7 @@ test('selects a funded token within a downstream concurrency budget', async () =
       exclude: Tempo.addresses.pathUsd,
       tokens,
     }),
-  ).resolves.toBe(Tempo.addresses.alphaUsd)
+  ).resolves.toMatchObject({ feeToken: Tempo.addresses.alphaUsd })
 })
 
 test('uses a funded preference outside the configured candidates', async () => {

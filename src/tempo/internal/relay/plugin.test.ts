@@ -1,16 +1,18 @@
 import { Secp256k1 } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, encodeFunctionData } from 'viem'
+import { createClient, getAddress, http } from 'viem'
 import { fillTransaction } from 'viem/actions'
 import {
   Actions,
   type Capabilities,
   Relay,
+  Store,
   VirtualAddress,
   withRelay,
 } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 
 const userAccount = Tempo.accounts[9]!
 const feePayerAccount = Tempo.accounts[0]!
@@ -264,9 +266,6 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
     masterId: '0xffffffff',
     userTag: '0x000000000001',
   })
-  const masterCall = encodeFunctionData(
-    Actions.virtualAddress.getMasterAddress.call({ masterId: '0xffffffff' }),
-  )
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), {
@@ -288,11 +287,7 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
             await next()
             const result = context.result
             if (request.method === 'tempo_simulateV1') simulated.resolve()
-            if (
-              request.method === 'eth_call' &&
-              JSON.stringify(request.params).includes(masterCall.slice(2))
-            )
-              resolved.resolve()
+            if (request.method === 'eth_call') resolved.resolve()
             return result
           },
         },
@@ -355,4 +350,235 @@ test.each([
     code: -32602,
     message: 'Invalid transaction chain ID.',
   })
+})
+
+test.each(['none', 'accept', 'reject'] as const)(
+  'fills within four HTTP requests with cold caches and maximum candidates: %s',
+  async (sponsorship) => {
+    const requests: string[] = []
+    const rpc = Tempo.getClient({
+      transport: http(rpcUrl, {
+        retryCount: 0,
+        onFetchRequest(_request, init) {
+          const body = JSON.parse(init.body as string)
+          expect(Array.isArray(body)).toBe(false)
+          requests.push(body.method)
+        },
+      }),
+    })
+    const targets = Array.from({ length: 100 }, (_, index) =>
+      VirtualAddress.from({
+        masterId: '0xffffffff',
+        userTag: `0x${(index + 1).toString(16).padStart(12, '0')}`,
+      }),
+    )
+    const relay = Relay.create({
+      client: rpc,
+      resolveTokens: () => [
+        localnetTokens[2],
+        ...Array.from(
+          { length: 99 },
+          (_, index) =>
+            `0x20c0${(index + 100).toString(16).padStart(36, '0')}` as const,
+        ),
+      ],
+      plugins: [
+        ...(sponsorship === 'none'
+          ? []
+          : [
+              Relay.feePayer({
+                account: feePayerAccount,
+                validate: () => sponsorship === 'accept',
+              }),
+            ]),
+        Relay.feeToken(),
+        Relay.simulate({ store: Store.memory() }),
+      ],
+    })
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          from: userAccount.address,
+          calls: [
+            Actions.token.transfer.call(caller, {
+              token: localnetTokens[2],
+              to: recipient.address,
+              amount: 1n,
+            }),
+            ...targets.map((to) => ({ to })),
+          ],
+        },
+      ],
+    })) as Relay.Plugin.FillResult
+    expect(result.capabilities?.sponsored).toBe(sponsorship === 'accept')
+    expect(result.capabilities?.virtualAddresses).toEqual(
+      Object.fromEntries(targets.map((target) => [target, null])),
+    )
+    expect(result.capabilities?.balanceDiffs).toMatchObject({
+      [userAccount.address]: [
+        expect.objectContaining({
+          address: localnetTokens[2],
+          value: '0x1',
+        }),
+      ],
+    })
+    expect(result.capabilities?.fee).toBeDefined()
+    expect(requests).toEqual(
+      sponsorship === 'reject'
+        ? [
+            'eth_fillTransaction',
+            'eth_call',
+            'eth_fillTransaction',
+            'tempo_simulateV1',
+          ]
+        : sponsorship === 'none'
+          ? ['eth_call', 'eth_fillTransaction', 'tempo_simulateV1']
+          : ['eth_fillTransaction', 'tempo_simulateV1', 'eth_call'],
+    )
+  },
+)
+
+test.each(['handler', 'create', 'transport'])(
+  'allows more than four requests through nested relays: %s',
+  async (mode) => {
+    const requests: string[] = []
+    const rpc = http(rpcUrl, {
+      retryCount: 0,
+      onFetchRequest(_request, init) {
+        requests.push(JSON.parse(init.body as string).method)
+      },
+    })({})
+    const options = {
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            if (context.request.method === 'eth_fillTransaction') {
+              await context.client.request({ method: 'eth_blockNumber' })
+              await context.client.request({ method: 'eth_blockNumber' })
+            }
+            await next()
+          },
+        },
+      ],
+    } satisfies Relay.handleRequest.Options
+    const inner =
+      mode === 'handler'
+        ? Relay.handleRequest(rpc.request, options)
+        : mode === 'create'
+          ? Relay.create<number>({
+              client: Tempo.getClient({
+                chain: Tempo.chain,
+                transport: () => rpc,
+              }),
+              ...options,
+            }).request
+          : withRelay(() => rpc, options)({ chain: Tempo.chain }).request
+    const outer = Relay.handleRequest(inner, {
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            if (context.request.method === 'eth_fillTransaction')
+              for (let i = 0; i < 3; i++)
+                await context.client.request({ method: 'eth_blockNumber' })
+            await next()
+          },
+        },
+      ],
+    })
+    const result = outer(
+      {
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            from: userAccount.address,
+            feeToken: Tempo.addresses.alphaUsd,
+            calls: [{ to: recipient.address, data: '0x', value: '0x0' }],
+          },
+        ],
+      },
+      { chainId: Tempo.chain.id },
+    )
+    await expect(result).resolves.toMatchObject({
+      tx: { feeToken: Tempo.addresses.alphaUsd },
+    })
+    expect(requests).toEqual([
+      ...Array.from({ length: 5 }, () => 'eth_blockNumber'),
+      'eth_fillTransaction',
+    ])
+  },
+)
+
+test('preserves deficit metadata within four requests with virtual recipients', async () => {
+  const { token } = await Actions.token.createSync(caller, {
+    account: userAccount,
+    admin: userAccount.address,
+    name: 'Budget Deficit',
+    symbol: 'DEF',
+    currency: 'USD',
+  })
+  await Actions.token.grantRolesSync(caller, {
+    account: userAccount,
+    token,
+    roles: ['issuer'],
+    to: userAccount.address,
+  })
+  await Actions.token.mintSync(caller, {
+    account: userAccount,
+    token,
+    to: userAccount.address,
+    amount: 40_000_000n,
+  })
+  const requests: string[] = []
+  const rpc = Tempo.getClient({
+    transport: http(rpcUrl, {
+      retryCount: 0,
+      onFetchRequest(_request, init) {
+        requests.push(JSON.parse(init.body as string).method)
+      },
+    }),
+  })
+  const virtual = VirtualAddress.from({
+    masterId: '0xffffffff',
+    userTag: '0x000000000001',
+  })
+  const relay = Relay.create({
+    client: rpc,
+    resolveTokens: () => [Tempo.addresses.alphaUsd],
+    plugins: [Relay.feeToken(), Relay.simulate()],
+  })
+  const result = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [
+      {
+        from: userAccount.address,
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token,
+            to: recipient.address,
+            amount: 100_000_000n,
+          }),
+          { to: virtual, value: '0x0', data: '0x' },
+        ],
+        capabilities: { errors: true },
+      },
+    ],
+  })) as Relay.Plugin.FillResult
+  expect(result.capabilities).toMatchObject({
+    error: { errorName: 'InsufficientBalance' },
+    insufficientFunds: {
+      amount: '0x3938700',
+      decimals: 6,
+      formatted: '60',
+      symbol: 'DEF',
+      token: getAddress(token),
+    },
+    virtualAddresses: { [virtual]: null },
+  })
+  expect(requests).toEqual([
+    'eth_call',
+    'eth_fillTransaction',
+    'tempo_simulateV1',
+    'eth_call',
+  ])
 })
