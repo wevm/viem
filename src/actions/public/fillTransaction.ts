@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -130,12 +130,22 @@ export async function fillTransaction<
     maxPriorityFeePerGas,
     nonce: nonce_,
     nonceManager,
+    nonceKeys,
     signatures,
     to,
     type,
     value,
     ...rest
   } = parameters
+
+  if (
+    nonceManager &&
+    nonceKeys &&
+    !(nonceKeys.length === 1 && nonceKeys[0] === 0n)
+  )
+    throw new BaseError(
+      'Nonce managers do not support keyed frame transactions.',
+    )
 
   const nonce = await (async () => {
     if (!account) return nonce_
@@ -175,6 +185,7 @@ export async function fillTransaction<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceKeys,
       signatures,
       to,
       type,

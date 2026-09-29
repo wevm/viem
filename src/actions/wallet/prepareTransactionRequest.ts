@@ -1,4 +1,8 @@
 import type { Address } from 'abitype'
+import * as AbiParameters from 'ox/AbiParameters'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
+import * as TransactionRequest_ox from 'ox/TransactionRequest'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -77,6 +81,10 @@ import {
   fillTransaction,
 } from '../public/fillTransaction.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
+import {
+  type GetStorageAtErrorType,
+  getStorageAt,
+} from '../public/getStorageAt.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
@@ -258,6 +266,11 @@ export type PrepareTransactionRequestErrorType =
   | AssertRequestErrorType
   | ParseAccountErrorType
   | GetBlockErrorType
+  | GetStorageAtErrorType
+  | AbiParameters.encode.ErrorType
+  | Hash.keccak256.ErrorType
+  | Hex.toNumber.ErrorType
+  | TransactionRequest_ox.toRpc.ErrorType
   | GetTransactionCountErrorType
   | EstimateGasErrorType
   | EstimateFeesPerGasErrorType
@@ -381,6 +394,44 @@ export async function prepareTransactionRequest<
     nonce ??= request.nonce
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
+  }
+
+  const keys = request.nonceKeys
+  if (keys) TransactionRequest_ox.toRpc({ nonceKeys: keys })
+
+  if (request.frames && keys && !(keys.length === 1 && keys[0] === 0n)) {
+    if (nonceManager)
+      throw new BaseError(
+        'Nonce managers do not support keyed frame transactions.',
+      )
+
+    if (parameters.includes('nonce') && nonce === undefined && account) {
+      const sequences = await Promise.all(
+        keys.map(async (key) => {
+          const value = await getAction(
+            client,
+            getStorageAt,
+            'getStorageAt',
+          )({
+            address: '0x0000000000000000000000000000000000008250',
+            slot: Hash.keccak256(
+              AbiParameters.encode(
+                [{ type: 'address' }, { type: 'uint256' }],
+                [account.address, key],
+              ),
+            ),
+            blockTag: 'pending',
+          })
+          return Hex.toNumber(value ?? '0x0')
+        }),
+      )
+      if (
+        !sequences.length ||
+        sequences.some((value) => value !== sequences[0])
+      )
+        throw new BaseError('Nonce keys must share the same sequence.')
+      nonce = sequences[0]
+    }
   }
 
   const frames = request.frames

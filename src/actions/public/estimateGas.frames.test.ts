@@ -13,7 +13,7 @@ describe('frames: Frame', () => {
       frames: [Frame.verify({ account: accounts[0] })],
     })
 
-    expect(result).toBe(16_555n)
+    expect(result).toMatchInlineSnapshot(`16747n`)
   })
 })
 
@@ -24,7 +24,7 @@ describe('frames: explicit', () => {
       frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
     })
 
-    expect(result).toMatchInlineSnapshot(`15375n`)
+    expect(result).toMatchInlineSnapshot(`15467n`)
   })
 
   test('args: signatures', async () => {
@@ -79,7 +79,7 @@ describe('frames: explicit', () => {
     } as const
 
     expect(await estimateGas(client, parameters)).toMatchInlineSnapshot(
-      `173329n`,
+      `173365n`,
     )
 
     await expect(

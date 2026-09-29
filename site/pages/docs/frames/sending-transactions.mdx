@@ -35,6 +35,30 @@ const receipt = await client.sendTransactionSync({
 
 :::
 
+### Use Keyed Nonces
+
+On networks with EIP-8250 enabled, `nonceKeys` selects independent counters for the sender. All selected keys share the transaction's `nonce`. Preparation reads their current sequence; the keys must have matching counters.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  nonceKeys: [123n, 456n], // [!code focus]
+  frames: [calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }])],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+Omitting `nonceKeys` defaults to `[0n]`. Use `[0n]` to select the sender's ordinary account nonce. Other key sets contain 1–16 strictly increasing nonzero 256-bit integers. Successful payment approval advances every selected counter together. Nonzero keys do not advance the ordinary account nonce, and account nonce managers cannot allocate their sequences.
+
 ### Set an Expiry
 
 Place [`expiry`](/docs/frames/expiry) first. Use `'1d'` for a deadline one day from now, inclusive. Viem inserts automatic account verification after this frame.

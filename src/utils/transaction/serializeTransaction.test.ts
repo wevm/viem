@@ -60,6 +60,7 @@ describe('eip8141', () => {
     maxFeePerGas: 20n,
     maxPriorityFeePerGas: 1n,
     nonce: 7,
+    nonceKeys: [0n],
     sender: accounts[0].address,
     signatures: [{ scheme: 'secp256k1' }],
   } satisfies TransactionSerializableEIP8141
@@ -80,9 +81,41 @@ describe('eip8141', () => {
     },
   )
 
+  test('keyed nonce envelope', () => {
+    const serialized = serializeTransaction({
+      ...transaction,
+      nonceKeys: [123n, 456n],
+    })
+    const parsed = parseTransaction(serialized)
+    expect(parsed.nonceKeys).toMatchInlineSnapshot(`
+      [
+        123n,
+        456n,
+      ]
+    `)
+    expect(parsed.nonce).toMatchInlineSnapshot(`7`)
+    expect(serializeTransaction(parsed)).toEqual(serialized)
+    expect(serialized).not.toEqual(serializeTransaction(transaction))
+  })
+
+  test.each([[], [1n, 1n], [2n, 1n], [0n, 1n], [-1n], [2n ** 256n]])(
+    'rejects invalid nonce keys %#',
+    (...nonceKeys) => {
+      expect(() =>
+        serializeTransaction({ ...transaction, nonceKeys }),
+      ).toThrow()
+    },
+  )
+
+  test('defaults to the zero nonce key', () => {
+    expect(
+      serializeTransaction({ ...transaction, nonceKeys: undefined }),
+    ).toEqual(serializeTransaction(transaction))
+  })
+
   test('unsigned', () => {
     expect(serializeTransaction(transaction)).toMatchInlineSnapshot(
-      `"0x06f84d010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0"`,
+      `"0x06f84f01c1800794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180c5c401808080c3011480c0"`,
     )
   })
 
@@ -93,7 +126,7 @@ describe('eip8141', () => {
     })
     const payload = TxEnvelopeEip8141.getSignPayload(envelope)
     expect(payload).toMatchInlineSnapshot(
-      `"0x063021765780860ccd7ce32ef36ca5df8518a9366e454d4224157610865eecac"`,
+      `"0x20b80b461b39d0c075b208f2ab674b6f4f4bd106ecef99de80bd4c2f475ad5a9"`,
     )
     const signature = Secp256k1.sign({
       payload,
@@ -106,7 +139,7 @@ describe('eip8141', () => {
     const before = structuredClone(signed)
     const serialized = serializeTransaction(signed)
     expect(serialized).toMatchInlineSnapshot(
-      `"0x06f891010794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180f848f846018080b841013553a87c90c71fdfaa10259da1a98414f9dfb62b427ee7116ed865284109e0b635870bd58b419cb8b81792bdca11e0bcbdc94feebfd651fef2453dc0fb615acac3011480c0"`,
+      `"0x06f89301c1800794f39fd6e51aad88f6f4ce6ab8827279cfffb92266eaca010380c482c350808080de02809470997970c51812dc3a010c7d01b50e0d17dc79c8c482c350800180f848f846018080b84101bd261d41e586fa8a6954354766109efb4c75667a69ba377e2207f21c244c87684815861279a026a02fd4c6b880d4c3c6774c9a35992a72386ed16391e48021cdc3011480c0"`,
     )
     expect(
       TxEnvelopeEip8141.getSignPayload(TxEnvelopeEip8141.from(serialized)),
@@ -125,7 +158,7 @@ describe('eip8141', () => {
         sender: accounts[0].address,
       }),
     ).toMatchInlineSnapshot(
-      `"0x06e7808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8808080c280808080c0c3808080c0"`,
+      `"0x06e980c1808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8808080c280808080c0c3808080c0"`,
     )
   })
 

@@ -96,6 +96,8 @@ export function formatTransaction(
 
   if (transaction.frames)
     transaction_.frames = transaction.frames.map(Frame.fromRpc)
+  if (transaction.nonceKeys)
+    transaction_.nonceKeys = transaction.nonceKeys.map((key) => BigInt(key))
   if (transaction.signatures)
     transaction_.signatures = transaction.signatures.map(FrameSignature.fromRpc)
 

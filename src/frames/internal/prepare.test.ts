@@ -66,7 +66,10 @@ test.each(['approveExecution', 'approveExecutionAndPayment', 2, 3] as const)(
   'preserves explicit execution approval: %s',
   (flags) => {
     const transaction = { frames: [{ flags, mode: 'verify' as const }] }
-    expect(prepare(transaction, account)).toBe(transaction)
+    expect(prepare(transaction, account)).toEqual({
+      ...transaction,
+      nonceKeys: [0n],
+    })
   },
 )
 
@@ -100,8 +103,14 @@ test('preserves raw frames with explicit signature entries', () => {
     frames: [{ mode: 'sender' as const, to: sponsor.address }],
     signatures: [{ scheme: 'secp256k1' as const }],
   }
-  expect(prepare(transaction, account.address)).toBe(transaction)
-  expect(prepare(transaction, account)).toBe(transaction)
+  expect(prepare(transaction, account.address)).toEqual({
+    ...transaction,
+    nonceKeys: [0n],
+  })
+  expect(prepare(transaction, account)).toEqual({
+    ...transaction,
+    nonceKeys: [0n],
+  })
 })
 
 test('recognizes custom verification before inserting default verification', () => {

@@ -15,6 +15,7 @@ import {
 
 export function prepare<
   transaction extends {
+    nonceKeys?: readonly bigint[] | undefined
     frames?: readonly Frame[] | undefined
     signatures?: Transaction['signatures'] | undefined
   },
@@ -24,9 +25,12 @@ export function prepare<
 ): transaction {
   if (!transaction.frames) return transaction
 
+  if (transaction.nonceKeys === undefined)
+    transaction = { ...transaction, nonceKeys: [0n] }
+
   if (
     transaction.signatures?.length &&
-    !transaction.frames.some((frame) => (frame as SigningFrame)[signing])
+    !transaction.frames?.some((frame) => (frame as SigningFrame)[signing])
   )
     return transaction
 

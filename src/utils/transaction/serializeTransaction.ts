@@ -137,6 +137,7 @@ export function serializeTransaction<
   if (
     transaction.frames !== undefined ||
     transaction.sender !== undefined ||
+    transaction.nonceKeys !== undefined ||
     transaction.signatures !== undefined
   )
     throw new InvalidTypeError()
@@ -190,6 +191,7 @@ function serializeTransactionEIP8141(
 
   return TxEnvelopeEip8141.serialize({
     ...transaction,
+    nonceKeys: transaction.nonceKeys ?? [0n],
     nonce: BigInt(transaction.nonce ?? 0),
   })
 }

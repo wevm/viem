@@ -1,5 +1,6 @@
 import * as Frame from 'ox/Frame'
 import * as FrameSignature from 'ox/FrameSignature'
+import * as TransactionRequest_ox from 'ox/TransactionRequest'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
@@ -47,6 +48,7 @@ export const rpcTransactionType = {
 } as const
 
 export type FormatTransactionRequestErrorType =
+  | TransactionRequest_ox.toRpc.ErrorType
   | Frame.toRpc.ErrorType
   | FrameSignature.toRpc.ErrorType
   | ErrorType
@@ -103,6 +105,14 @@ export function formatTransactionRequest(
     rpcRequest.maxPriorityFeePerGas = numberToHex(request.maxPriorityFeePerGas)
   if (typeof request.nonce !== 'undefined')
     rpcRequest.nonce = numberToHex(request.nonce)
+  if (
+    request.frames ||
+    request.type === 'eip8141' ||
+    request.nonceKeys !== undefined
+  )
+    rpcRequest.nonceKeys = TransactionRequest_ox.toRpc({
+      nonceKeys: request.nonceKeys ?? [0n],
+    }).nonceKeys
   if (typeof request.signatures !== 'undefined')
     rpcRequest.signatures = request.signatures.map(FrameSignature.toRpc)
   if (typeof request.to !== 'undefined') rpcRequest.to = request.to

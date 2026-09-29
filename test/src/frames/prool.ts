@@ -4,8 +4,8 @@ import * as TestContainers from 'prool/testcontainers'
 import { GenericContainer, Wait } from 'testcontainers'
 
 export const image =
-  'ghcr.io/paradigmxyz/reth:16d6069793a8b7ccc83dee467fe4b86891818a2e'
-export const revision = '16d6069793a8b7ccc83dee467fe4b86891818a2e'
+  'ghcr.io/paradigmxyz/reth:692d9e3e5a84ca385e47ba0a48049763d198f86d'
+export const revision = '692d9e3e5a84ca385e47ba0a48049763d198f86d'
 
 export const port = Number(import.meta.env.VITE_FRAMES_PORT ?? 10545)
 export const rpcUrl = `http://localhost:${port}/${Number(import.meta.env.VITEST_POOL_ID ?? 1)}`

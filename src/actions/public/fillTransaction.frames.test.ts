@@ -35,11 +35,14 @@ describe('frames: Frame', () => {
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": undefined,
         "gasPrice": undefined,
-        "hash": "0xaf264d22e7672ed063d238ad7b98f490a9d123594a2dd16fa305b4a5b0cdaaae",
+        "hash": "0x471c3a4f0c980e9ec9d06a6450462473ead305211e3830bb8b8976315a0e5c87",
         "maxFeePerBlobGas": 0n,
         "maxFeePerGas": 3600000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 0,
+        "nonceKeys": [
+          0n,
+        ],
         "signatures": [
           {
             "payload": "0x",
@@ -132,7 +135,7 @@ describe('frames: explicit', () => {
 
     expect(result).toMatchInlineSnapshot(`
       {
-        "raw": "0x06f6821fcd8094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8010380c264808080c5c401808080cb843b9aca0084b2d05e0080c0",
+        "raw": "0x06f838821fcdc1808094f39fd6e51aad88f6f4ce6ab8827279cfffb92266c9c8010380c264808080c5c401808080cb843b9aca0084b2d05e0080c0",
         "transaction": {
           "blobVersionedHashes": [],
           "chainId": 8141,
@@ -150,11 +153,14 @@ describe('frames: explicit', () => {
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gas": undefined,
           "gasPrice": undefined,
-          "hash": "0xf1d8ee86866e8b51157bd085bac887c4d5fc6660ea12210f88b2839d7765cfaa",
+          "hash": "0xe23e06ddb70bccd295a46087afea90b6ba4e2934232a70042ba909d7472d9181",
           "maxFeePerBlobGas": 0n,
           "maxFeePerGas": 3600000000n,
           "maxPriorityFeePerGas": 1000000000n,
           "nonce": 0,
+          "nonceKeys": [
+            0n,
+          ],
           "signatures": [
             {
               "payload": "0x",

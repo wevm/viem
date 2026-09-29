@@ -21,6 +21,27 @@ const base: TransactionRequest = {
   value: 1n,
 }
 
+test('keyed frame nonce quantities', () => {
+  expect(
+    formatTransactionRequest({
+      type: 'eip8141',
+      frames: [],
+      nonce: 3,
+      nonceKeys: [123n, 456n],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "frames": [],
+      "nonce": "0x3",
+      "nonceKeys": [
+        "0x7b",
+        "0x1c8",
+      ],
+      "type": "0x6",
+    }
+  `)
+})
+
 test('legacy transaction', () => {
   expect(
     formatTransactionRequest({
@@ -421,6 +442,9 @@ test('eip8141 transaction', () => {
       "maxFeePerGas": "0xa",
       "maxPriorityFeePerGas": "0x1",
       "nonce": "0x0",
+      "nonceKeys": [
+        "0x0",
+      ],
       "signatures": [
         {
           "msg": "0x",
@@ -454,6 +478,9 @@ test('eip8141 defaults', () => {
           "value": "0x0",
         },
       ],
+      "nonceKeys": [
+        "0x0",
+      ],
       "signatures": [],
       "type": "0x6",
     }
@@ -464,6 +491,7 @@ test('eip8141 explicit zero gas', () => {
   expect(
     formatTransactionRequest({ frames: [{ executionGas: 0n, stateGas: 0n }] }),
   ).toEqual({
+    nonceKeys: ['0x0'],
     frames: [
       {
         data: '0x',

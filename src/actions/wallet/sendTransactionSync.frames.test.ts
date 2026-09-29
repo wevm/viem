@@ -27,6 +27,77 @@ const request = {
 } as const
 
 describe('frames: Frame', () => {
+  test('keyed nonces advance independently of the account nonce', async () => {
+    const initial = await getTransactionCount(client, {
+      address: accounts[0].address,
+    })
+    for (const expected of [0, 1]) {
+      const prepared = await prepareTransactionRequest(client, {
+        nonceKeys: [123n, 456n],
+        frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+      })
+      expect(prepared.nonce).toEqual(expected)
+      const receipt = await sendTransactionSync(client, prepared)
+      expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.nonceKeys).toMatchInlineSnapshot(`
+        [
+          123n,
+          456n,
+        ]
+      `)
+      expect(transaction.nonce).toEqual(expected)
+    }
+    expect(
+      await getTransactionCount(client, { address: accounts[0].address }),
+    ).toEqual(initial)
+  })
+
+  test('rejects keys at different sequences', async () => {
+    await sendTransactionSync(client, {
+      nonceKeys: [789n],
+      frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+    })
+    await expect(
+      prepareTransactionRequest(client, {
+        nonceKeys: [789n, 790n],
+        frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+      }),
+    ).rejects.toThrow('Nonce keys must share the same sequence.')
+  })
+
+  test('rejects account nonce managers for keyed transactions', async () => {
+    await expect(
+      prepareTransactionRequest(client, {
+        nonceKeys: [999n],
+        nonceManager: sharedNonceManager,
+        frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+      }),
+    ).rejects.toThrow('Nonce managers do not support keyed frame transactions.')
+  })
+
+  test('zero nonce key uses the account nonce', async () => {
+    const nonce = await getTransactionCount(client, {
+      address: accounts[0].address,
+    })
+    const receipt = await sendTransactionSync(client, {
+      nonceKeys: [0n],
+      frames: [Frame.calls([{ to: accounts[1].address, value: 1n }])],
+    })
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.nonceKeys).toMatchInlineSnapshot(`
+      [
+        0n,
+      ]
+    `)
+    expect(transaction.nonce).toEqual(nonce)
+  })
+
   test.each(['sendTransaction', 'sendTransactionSync'] as const)(
     'applies outer data suffixes to calls: %s',
     async (action) => {

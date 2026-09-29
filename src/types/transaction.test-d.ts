@@ -35,6 +35,7 @@ test('frame transaction requests compose with public actions', () => {
       },
     ],
     nonce: 0,
+    nonceKeys: [123n, 456n],
     signatures: [{ scheme: 'secp256k1' }],
     type: 'eip8141',
   } as const satisfies TransactionRequest
@@ -61,6 +62,9 @@ test('frame transaction response narrows by type', () => {
   expectTypeOf<FrameTransaction['frames']>().toEqualTypeOf<readonly Frame[]>()
   expectTypeOf<FrameTransaction['from']>().toEqualTypeOf<Address>()
   expectTypeOf<FrameTransaction['nonce']>().toEqualTypeOf<number>()
+  expectTypeOf<FrameTransaction['nonceKeys']>().toEqualTypeOf<
+    readonly bigint[] | undefined
+  >()
   expectTypeOf<FrameTransaction['signatures']>().toEqualTypeOf<
     readonly FrameSignature[]
   >()

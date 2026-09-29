@@ -118,6 +118,7 @@ export async function signTransaction<
       hash: TxEnvelopeEip8141.getSignPayload({
         ...envelope,
         signatures: [{ ...entry, signature: undefined }, ...rest],
+        nonceKeys: envelope.nonceKeys ?? [0n],
         nonce: BigInt(envelope.nonce ?? 0),
       }),
       privateKey,

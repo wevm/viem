@@ -210,6 +210,9 @@ describe('frames: explicit', () => {
         "maxFeePerGas": 3600000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 0,
+        "nonceKeys": [
+          0n,
+        ],
         "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "signatures": [
           {

@@ -153,18 +153,21 @@ describe('frames: explicit', () => {
         ],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": undefined,
-        "hash": "0xe70f44501a0e0f01b8ae1b1481dd5a3b0607e704d304a737474ca8dd254a7513",
+        "hash": "0x5611d7d09b586aff3161025c1829b88beeea87af3a79e06e15bccb2d2be7652b",
         "maxFeePerBlobGas": 0n,
         "maxFeePerGas": 10000000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 0,
+        "nonceKeys": [
+          0n,
+        ],
         "signatures": [
           {
             "payload": "0x",
             "scheme": "secp256k1",
             "signature": {
-              "r": 7254845690343915716480686244332180995932457107647172481084334145393611542947n,
-              "s": 52537098450574467549177330597654798682922701812395653262853474263587830361037n,
+              "r": 34883883193174456886567325468288701124386578821508397517286648522184130631843n,
+              "s": 39195177611924012430887606493339487356409497160306722281900555655576716997729n,
               "yParity": 1,
             },
           },
@@ -206,7 +209,7 @@ describe('frames: explicit', () => {
         "blobGasPrice": 1n,
         "blobGasUsed": 0n,
         "contractAddress": null,
-        "cumulativeGasUsed": 25910n,
+        "cumulativeGasUsed": 26102n,
         "frameReceipts": [
           {
             "executionGasUsed": 100n,
@@ -234,7 +237,7 @@ describe('frames: explicit', () => {
           },
         ],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "gasUsed": 25910n,
+        "gasUsed": 26102n,
         "logs": [
           {
             "address": "0xfffffffffffffffffffffffffffffffffffffffe",
@@ -246,7 +249,7 @@ describe('frames: explicit', () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
             ],
-            "transactionHash": "0xe70f44501a0e0f01b8ae1b1481dd5a3b0607e704d304a737474ca8dd254a7513",
+            "transactionHash": "0x5611d7d09b586aff3161025c1829b88beeea87af3a79e06e15bccb2d2be7652b",
             "transactionIndex": 0,
           },
         ],
@@ -254,7 +257,7 @@ describe('frames: explicit', () => {
         "payer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "status": "success",
         "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "transactionHash": "0xe70f44501a0e0f01b8ae1b1481dd5a3b0607e704d304a737474ca8dd254a7513",
+        "transactionHash": "0x5611d7d09b586aff3161025c1829b88beeea87af3a79e06e15bccb2d2be7652b",
         "transactionIndex": 0,
         "type": "eip8141",
       }
@@ -341,7 +344,7 @@ describe('frames: explicit', () => {
         "blobGasPrice": 1n,
         "blobGasUsed": 0n,
         "contractAddress": null,
-        "cumulativeGasUsed": 35916n,
+        "cumulativeGasUsed": 35952n,
         "frameReceipts": [
           {
             "executionGasUsed": 100n,
@@ -373,13 +376,13 @@ describe('frames: explicit', () => {
           },
         ],
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "gasUsed": 35916n,
+        "gasUsed": 35952n,
         "logs": [],
         "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
         "payer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "status": "reverted",
         "to": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "transactionHash": "0xddfcff41dbe7f79808fee93270aa99923efb8cd30de70a007efd676c0807c729",
+        "transactionHash": "0xbeaab0742eac392b23e5c15513df5a19efc0c5b063564f6bddf5df7907221c8e",
         "transactionIndex": 0,
         "type": "eip8141",
       }

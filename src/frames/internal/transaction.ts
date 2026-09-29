@@ -94,10 +94,14 @@ export function applyDataSuffix<
 
 export function resolve<
   transaction extends {
+    nonceKeys?: readonly bigint[] | undefined
     frames?: readonly Frame[] | undefined
     signatures?: Transaction['signatures'] | undefined
   },
 >(transaction: transaction): transaction {
+  if (transaction.frames && transaction.nonceKeys === undefined)
+    transaction = { ...transaction, nonceKeys: [0n] }
+
   const frames = transaction.frames as readonly SigningFrame[] | undefined
   if (!frames?.some((frame) => frame[signing])) return transaction
 
@@ -253,6 +257,7 @@ function getHash(transaction: Transaction) {
 
   return TxEnvelopeEip8141.getSignPayload({
     ...transaction,
+    nonceKeys: transaction.nonceKeys ?? [0n],
     nonce: BigInt(transaction.nonce),
   })
 }

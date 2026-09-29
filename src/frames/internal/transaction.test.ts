@@ -43,7 +43,10 @@ describe('resolve', () => {
       { frames: [] },
       { frames: [{ mode: 'sender' as const }] },
     ])
-      expect(resolve(request)).toBe(request)
+      expect(resolve(request)).toEqual({
+        ...request,
+        ...('frames' in request ? { nonceKeys: [0n] } : {}),
+      })
   })
 
   test('prepares with resolved peers and caches the result without signing', () => {
@@ -292,6 +295,9 @@ describe('signFrame', () => {
     expect(() => resolve({ ...result, nonce: 1 })).toThrow(
       'transaction changed',
     )
+    expect(() => resolve({ ...result, nonceKeys: [123n] })).toThrow(
+      'transaction changed',
+    )
   })
 
   test('signs entries sequentially with allocated indices and one hash', async () => {
@@ -335,6 +341,9 @@ describe('signFrame', () => {
     expect(await signFrame(result.frames[0]!, result)).toBe(result.frames[0])
     expect(events).toHaveLength(4)
     expect(() => resolve({ ...result, nonce: 1 })).toThrow(
+      'transaction changed',
+    )
+    expect(() => resolve({ ...result, nonceKeys: [123n] })).toThrow(
       'transaction changed',
     )
   })

@@ -75,6 +75,7 @@ export function assertTransactionEIP8141(
 
   TxEnvelopeEip8141.assert({
     ...transaction,
+    nonceKeys: transaction.nonceKeys ?? [0n],
     nonce: hexToBigInt(numberToHex(transaction.nonce ?? 0)),
   })
 }

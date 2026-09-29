@@ -139,6 +139,7 @@ export type TransactionLegacy<
   /** Chain ID that this transaction is valid on. */
   chainId?: index | undefined
   frames?: undefined
+  nonceKeys?: undefined
   signatures?: undefined
   yParity?: undefined
   type: type
@@ -157,6 +158,7 @@ export type TransactionEIP2930<
   /** Chain ID that this transaction is valid on. */
   chainId: index
   frames?: undefined
+  nonceKeys?: undefined
   signatures?: undefined
   type: type
 } & FeeValuesLegacy<quantity>
@@ -174,6 +176,7 @@ export type TransactionEIP1559<
   /** Chain ID that this transaction is valid on. */
   chainId: index
   frames?: undefined
+  nonceKeys?: undefined
   signatures?: undefined
   type: type
 } & FeeValuesEIP1559<quantity>
@@ -192,6 +195,7 @@ export type TransactionEIP4844<
   /** Chain ID that this transaction is valid on. */
   chainId: index
   frames?: undefined
+  nonceKeys?: undefined
   signatures?: undefined
   type: type
 } & FeeValuesEIP4844<quantity>
@@ -210,6 +214,7 @@ export type TransactionEIP7702<
   /** Chain ID that this transaction is valid on. */
   chainId: index
   frames?: undefined
+  nonceKeys?: undefined
   signatures?: undefined
   type: type
 } & FeeValuesEIP1559<quantity>
@@ -239,6 +244,8 @@ export type TransactionEIP8141<
   maxFeePerGas: quantity
   /** Maximum priority fee per gas, in wei. */
   maxPriorityFeePerGas: quantity
+  /** EIP-8250 nonce domains sharing the transaction nonce. */
+  nonceKeys?: readonly quantity[] | undefined
   /** Frame signature entries. */
   signatures: readonly signature[]
   /** Transaction type. */
@@ -355,6 +362,8 @@ export type TransactionRequestEIP8141<
     blobVersionedHashes?: readonly Hex[] | undefined
     /** Frames in execution order. */
     frames: readonly frame[]
+    /** EIP-8250 nonce domains sharing the transaction nonce. Defaults to `[0n]` for requests. */
+    nonceKeys?: readonly quantity[] | undefined
     /** PeerDAS blob sidecars included in the network wrapper. */
     sidecars?: TransactionSerializableEIP8141['sidecars'] | undefined
     /** Signature entries, including unsigned placeholders. */
@@ -378,6 +387,7 @@ export type TransactionRequestGeneric<
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   frames?: readonly Frame<quantity>[] | undefined
+  nonceKeys?: readonly quantity[] | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
@@ -499,8 +509,10 @@ export type TransactionSerializableEIP8141<
   maxFeePerGas?: quantity | undefined
   /** Maximum priority fee per gas, in wei. */
   maxPriorityFeePerGas?: quantity | undefined
-  /** Sender nonce. Defaults to zero. */
+  /** Sender nonce or shared keyed sequence. Defaults to zero. */
   nonce?: index | undefined
+  /** EIP-8250 nonce domains. Defaults to `[0n]`, the account nonce. */
+  nonceKeys?: readonly quantity[] | undefined
   /** Account authorizing execution. */
   sender: Address
   /** PeerDAS sidecars, excluded from the signing hash. */
@@ -534,6 +546,7 @@ export type TransactionSerializableGeneric<
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
   maxPriorityFeePerGas?: quantity | undefined
+  nonceKeys?: readonly quantity[] | undefined
   sender?: Address | undefined
   sidecars?:
     | readonly BlobSidecar<Hex>[]

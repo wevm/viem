@@ -848,7 +848,7 @@ test('eip8141 transaction', () => {
       maxPriorityFeePerGas: '0x1',
       nonce: '0x0',
       signatures: [
-        { msg: '0x', scheme: '0x1', signature: '0x', signer: null },
+        { msg: '0x', scheme: '0x1', signature: '0x', signer: '0x' },
         {
           msg: '0x1111111111111111111111111111111111111111111111111111111111111111',
           scheme: '0x0',
