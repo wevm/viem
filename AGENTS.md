@@ -198,6 +198,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `describe` to separate multiple distinct exports in one file.
 - **Inline snapshots over direct assertions**; prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Test behavior, not call-tracking**; assert observable outputs.
+  - Test preparation hook outputs as well as public actions; the generic preparation action retains the caller's nonce separately and can hide a hook overwriting it.
   - Do not assert that a hook or function was invoked.
   - Do not use `let xCalled = false` flags or counters.
   - Make hooks produce distinguishable, verifiable results.

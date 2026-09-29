@@ -136,6 +136,7 @@ export type TransactionRequestTempo<
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     multisigSimulation?: MultisigSimulation.Spec | undefined
+    /** Nonce lane, or `'expiring'` for time-bounded transactions. After TIP-1106 activation, `nonce` can distinguish otherwise identical expiring transactions. */
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
