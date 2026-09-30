@@ -153,6 +153,10 @@ This document contains general guidelines for AI agents working on the Viem code
 
 ## Testing Conventions
 
+- **Separate test phases with blank lines**; keep setup, execution, and assertion groups visually distinct.
+
+- **Colocate relay plugin integration tests**; add HTTP coverage to each plugin's existing test file under `src/tempo/internal/relay/`, not a shared relay suite.
+
 - **Use `pnpm test` for tests**; run tests through package scripts, not `vitest` directly.
 - **No mocks, ever**; tests must not use mocks, stubs, or `vi`.
   - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
@@ -162,6 +166,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --run <paths>` for focused runs.
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
+- **Synchronize polling tests with observations**; await the initial callback before mining and await each expected emission. Fork startup can exceed the polling interval.
 - **Verify type-test discovery**; if `pnpm test:typecheck` reports no files, temporarily
   enable `typecheck` on the selected Vitest project with an explicit `.test-d.ts` include
   and a targeted tsconfig extending `test/tsconfig.json` (`composite: false`). Restore
@@ -206,6 +211,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `describe` to separate multiple distinct exports in one file.
 - **Inline snapshots over direct assertions**; prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Test behavior, not call-tracking**; assert observable outputs.
+  - Test preparation hook outputs as well as public actions; the generic preparation action retains the caller's nonce separately and can hide a hook overwriting it.
   - Do not assert that a hook or function was invoked.
   - Do not use `let xCalled = false` flags or counters.
   - Make hooks produce distinguishable, verifiable results.
@@ -239,6 +245,8 @@ This document contains general guidelines for AI agents working on the Viem code
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 - **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
+- **Preserve canonical token definitions during generation**; match hand-authored tokens by
+  chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 
 ## Changeset Conventions
 

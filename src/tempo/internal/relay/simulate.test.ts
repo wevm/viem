@@ -1,3 +1,4 @@
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex } from 'ox'
 import {
   createClient,
@@ -10,8 +11,9 @@ import {
 import { fillTransaction } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import { Abis, Actions, Relay, Store, withRelay } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import { createHttpServer } from '~test/utils.js'
 import * as Cache from './cache.js'
 import { buildBalanceDiffs } from './simulate.js'
 
@@ -395,6 +397,45 @@ describe('metadata', () => {
       )
   }
 
+  test('uses simulation metadata for 100 TIP-20 tokens without RPC or cache reads', async () => {
+    const logs = Array.from({ length: 100 }, (_, index) => ({
+      ...transfer(index),
+      address: `0x20c0${(index + 100).toString(16).padStart(36, '0')}` as const,
+    }))
+    let requests = 0
+    const client = createClient({
+      chain: tempoLocalnet,
+      transport: http('http://127.0.0.1:1', {
+        retryCount: 0,
+        onFetchRequest() {
+          requests++
+        },
+      }),
+    })
+    const result = await buildBalanceDiffs(client, {
+      account,
+      logs,
+      tokenMetadata: Object.fromEntries(
+        logs.map((log) => [
+          log.address,
+          {
+            name: 'Dollar',
+            symbol: 'USD',
+            currency: 'USD',
+          },
+        ]),
+      ),
+    })
+    expect(requests).toBe(0)
+    expect(result?.[account]).toHaveLength(100)
+    expect(result?.[account]?.[0]).toMatchObject({
+      decimals: 6,
+      formatted: '1',
+      name: 'Dollar',
+      symbol: 'USD',
+    })
+  })
+
   test('omits the entire preview when its token count exceeds the budget', async () => {
     const store = Store.memory()
     const logs = Array.from({ length: 101 }, (_, i) => transfer(i))
@@ -512,5 +553,64 @@ test.each([50n, 100n, 200n])(
       { direction: 'incoming', value: Hex.fromNumber(amount) },
       { direction: 'outgoing', value: '0x64', recipients: [recipient.address] },
     ])
+  },
+)
+
+test.skipIf(Tempo.nodeEnv !== 'localnet')(
+  'plain HTTP transport: returns balance changes without executing the transaction',
+  async () => {
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.simulate()],
+    })
+
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+
+    const token = Tempo.addresses.alphaUsd
+    const balance = await Actions.token.getBalance(client, {
+      account: recipient.address,
+      token,
+    })
+
+    const result = await fillTransaction(client, {
+      account: userAccount.address,
+      feeToken: token,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 100n,
+        }),
+      ],
+    })
+
+    expect(
+      Object.entries(result.capabilities?.balanceDiffs ?? {}).find(
+        ([address]) =>
+          address.toLowerCase() === userAccount.address.toLowerCase(),
+      )?.[1],
+    ).toMatchObject([{ address: token, direction: 'outgoing', value: '0x64' }])
+
+    expect(result.capabilities?.fee).toMatchObject({
+      decimals: 6,
+      symbol: 'AlphaUSD',
+    })
+
+    expect(
+      (
+        await Actions.token.getBalance(client, {
+          account: recipient.address,
+          token,
+        })
+      ).amount,
+    ).toBe(balance.amount)
   },
 )

@@ -79,6 +79,34 @@ const hash2 = await client.sendTransaction({
 
 :::
 
+### Distinguish Expiring Transactions
+
+Pass `nonceKey: 'expiring'` and a distinct `nonce` to distinguish otherwise identical
+transactions. This nonce is an identifier and does not need to be sequential.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.sendTransaction({
+  nonceKey: 'expiring', // [!code focus]
+  nonce: 42, // [!code focus]
+  to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Viem defaults an omitted nonce to `0`.
+Use integers between `0` and `Number.MAX_SAFE_INTEGER`; Viem's nonce API uses JavaScript
+`number` and does not support the full `uint64` range. For retries, reuse the signed transaction
+so its nonce, validity window, and other signed fields stay identical.
+
 ### Read a Nonce
 
 Read the current nonce for an account and nonce key with

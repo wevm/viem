@@ -226,6 +226,8 @@ export declare namespace handleRequest {
     resolveTokens?:
       | ((chainId: number) => readonly Address[] | Promise<readonly Address[]>)
       | undefined
+    /** Deadline in milliseconds for a plugin-handled fill, including callbacks. Defaults to 10,000. */
+    timeout?: number | undefined
   }
 
   /** RPC request passed to a handler. */
@@ -392,19 +394,10 @@ export declare namespace feePayer {
  * import { Relay } from 'viem/tempo'
  * const plugin = Relay.feeToken()
  * ```
- * @param options - Optional preference store.
  * @returns A fee-token relay plugin.
  */
-export function feeToken(options: feeToken.Options = {}): Plugin {
-  return FeeToken.create(options)
-}
-
-export declare namespace feeToken {
-  /** Fee-token selection configuration. */
-  export type Options = {
-    /** Store for cached user fee-token preferences. */
-    store?: Store.Store | undefined
-  }
+export function feeToken(): Plugin {
+  return FeeToken.create()
 }
 
 /**

@@ -6,7 +6,7 @@ import type { Call } from '../../../types/calls.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { isAddress } from '../../../utils/address/isAddress.js'
 import * as Abis from '../../Abis.js'
-import * as Actions from '../../actions/index.js'
+import * as Preflight from './preflight.js'
 
 export async function resolveVirtualAddresses(
   client: Client,
@@ -15,36 +15,8 @@ export async function resolveVirtualAddresses(
   const targets = getVirtualAddressTargets(options.calls)
   if (targets.length === 0) return undefined
 
-  const masters = new Map<string, { addresses: Address[]; masterId: Hex.Hex }>()
-  for (const address of targets) {
-    const { masterId } = VirtualAddress.parse(address)
-    const lower = masterId.toLowerCase()
-    const entry = masters.get(lower) ?? { addresses: [] as Address[], masterId }
-    entry.addresses.push(address)
-    masters.set(lower, entry)
-  }
-
-  const groups = [...masters.values()]
-  const entries = new Array<readonly (readonly [Address, Address | null])[]>(
-    groups.length,
-  )
-  let index = 0
-  await Promise.all(
-    Array.from({ length: Math.min(10, groups.length) }, async () => {
-      while (index < groups.length) {
-        const current = index++
-        const { addresses, masterId } = groups[current]!
-        const master = await Actions.virtualAddress.getMasterAddress(client, {
-          masterId,
-        })
-        entries[current] = addresses.map(
-          (address) => [address, master] as const,
-        )
-      }
-    }),
-  )
-
-  return Object.fromEntries(entries.flat()) as Record<Address, Address | null>
+  const result = await Preflight.read(client, { targets })
+  return result.virtualAddresses
 }
 
 export function getVirtualAddressTargets(
