@@ -64,6 +64,9 @@ export default defineConfig({
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
       : process.env.VERCEL_URL,
+  head: {
+    base: false,
+  },
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:
