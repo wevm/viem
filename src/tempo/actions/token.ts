@@ -546,9 +546,20 @@ export namespace burn {
   export type Args = {
     /** Amount of tokens to burn, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
-    /** Memo to include in the transfer. */
-    memo?: Hex.Hex | undefined
-  } & TokenParameter
+  } & TokenParameter &
+    OneOf<
+      | {
+          /** Memo to include in the transfer. */
+          memo?: Hex.Hex | undefined
+        }
+      | {
+          /**
+           * Address to burn tokens from. Requires `BURN_AT_ROLE` (T12+).
+           * Omit to burn from the caller's balance.
+           */
+          from: Address
+        }
+    >
 
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
@@ -570,8 +581,8 @@ export namespace burn {
     client: Client<Transport, chain, account>,
     parameters: burn.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { amount, memo, token, ...rest } = parameters
-    const call = burn.call(client, { amount, memo, token } as never)
+    const { amount, from, memo, token, ...rest } = parameters
+    const call = burn.call(client, { amount, from, memo, token } as never)
     return (await action(client, {
       ...rest,
       ...call,
@@ -579,7 +590,7 @@ export namespace burn {
   }
 
   /**
-   * Defines a call to the `burn` or `burnWithMemo` function.
+   * Defines a call to the `burn`, `burnWithMemo`, or `burnAt` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -616,9 +627,16 @@ export namespace burn {
     ...parameters: CallParameters<Args, Client<Transport, chain>>
   ) {
     const [client, args] = resolveCallParameters(parameters)
-    const { amount, memo, token } = args
+    const { amount, from, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
     const value = internal_Token.toBaseUnits(amount, decimals)
+    if (from)
+      return defineCall({
+        address,
+        abi: Abis.tip20,
+        functionName: 'burnAt',
+        args: [from, value],
+      })
     const callArgs = memo
       ? ({
           functionName: 'burnWithMemo',
@@ -645,9 +663,9 @@ export namespace burn {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
       logs,
-      eventName: 'Burn',
+      eventName: ['Burn', 'BurnAt'],
     })
-    if (!log) throw new Error('`Burn` event not found.')
+    if (!log) throw new Error('`Burn` or `BurnAt` event not found.')
     return log
   }
 }
@@ -716,6 +734,8 @@ export namespace burnSync {
         Required: true
       }
     > & {
+      /** `BURN_AT_ROLE` holder that performed the burn. Set when `from` is provided. */
+      burner?: Address | undefined
       receipt: TransactionReceipt
     }
   >
