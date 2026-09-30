@@ -211,7 +211,7 @@ const receipt = await client.sendTransactionSync(request)
 
 :::
 
-`frameIndex` is the helper's first index in the complete transaction. `entries` contains all resolved frames, and `client` is available for reads such as [`readContract`](/docs/actions/public/readContract). Return `undefined` when no patch is needed. Different hooks cannot patch the same frame index.
+`frameIndex` is the helper's first index in the complete transaction. `entries` contains all resolved frames, and `client` is available for reads such as [`readContract`](/docs/contract/readContract). Return `undefined` when no patch is needed. Different hooks cannot patch the same frame index.
 
 ### Validate Refilled Gas Budgets
 
