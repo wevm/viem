@@ -174,6 +174,47 @@ describe('resolve', () => {
 })
 
 describe('Frame.sign', () => {
+  test.each([false, true])(
+    'allocates reused shared frames independently (expanded: %s)',
+    async (expanded) => {
+      const shared = { ...gas, mode: 'sender' as const }
+      const helper = Frame.from(() => ({
+        ...(expanded ? { frames: [shared] } : { frame: shared }),
+        signatures: [
+          {
+            scheme: 'arbitrary',
+            async sign(context) {
+              return context.signatureIndex === 0 ? '0xaa' : '0xbb'
+            },
+          },
+        ],
+      }))
+      const prepared = transaction([helper, helper])
+      expect(prepared.frames[0]).not.toBe(prepared.frames[1])
+      expect(prepared.frames[1]).not.toBe(shared)
+      const second = await Frame.sign(prepared.frames[1]!, {
+        transaction: prepared,
+      })
+      expect(second.signatureIndex).toBe(1)
+      const signed = FrameTransaction.resolve({
+        ...prepared,
+        frames: [prepared.frames[0]!, second],
+      })
+      const first = await Frame.sign(signed.frames[0]!, { transaction: signed })
+      expect(first.signatures[0]!.signature).toBe('0xaa')
+      expect(second.signatures[0]!.signature).toBe('0xbb')
+      const account = privateKeyToAccount(
+        '0x0123456789012345678901234567890123456789012345678901234567890123',
+      )
+      const serialized = await account.signTransaction(prepared)
+      expect(
+        parseTransaction(serialized).signatures?.map(
+          (entry) => entry.signature,
+        ),
+      ).toEqual(['0xaa', '0xbb'])
+    },
+  )
+
   test('reuses completed transaction slots without storing witnesses in entries', async () => {
     let count = 0
     const prepared = transaction([
@@ -681,6 +722,25 @@ describe('unsigned helpers', () => {
   })
 })
 
+describe('hasSigningFrames', () => {
+  test('routes resolved unsigned post-fill hooks through local preparation', () => {
+    const prepared = FrameTransaction.resolve({
+      frames: [
+        Frame.from(() => ({
+          frame: { mode: 'sender' },
+          async afterFill() {
+            return undefined
+          },
+        })),
+      ],
+    })
+    expect(FrameTransaction.hasSigningFrames(prepared)).toBe(true)
+    expect(
+      FrameTransaction.hasSigningFrames({ frames: [{ mode: 'sender' }] }),
+    ).toBe(false)
+  })
+})
+
 describe('getSimulationSignatures', () => {
   test.each(['arbitrary', 0] as const)(
     'preserves real signatures for scheme %s',
@@ -737,6 +797,27 @@ describe('signing expansions', () => {
     signer: '0x0000000000000000000000000000000000000001',
     sign: async () => '0xaa',
   }
+
+  test('prepares unsigned expansions after peer names are available', () => {
+    const prepared = FrameTransaction.resolve({
+      frames: [
+        Frame.from((context) => ({
+          frames: [
+            {
+              mode: 'sender',
+              data: context.entries.some((entry) => entry.name === 'peer')
+                ? '0x01'
+                : '0x00',
+            },
+          ],
+        })),
+        Frame.from(() => ({ name: 'peer', frame: { mode: 'sender' } })),
+      ],
+    })
+    expect(prepared.frames[0]!.data).toMatchInlineSnapshot('"0x01"')
+    expect(prepared.frameContext!.entries[0]!.frameCount).toBe(1)
+    expect(prepared.frameContext!.entries[0]!.prepare).toBeTypeOf('function')
+  })
 
   test('allows empty unsigned expansions', () => {
     expect(

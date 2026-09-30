@@ -1,10 +1,14 @@
 import { http, numberToHex } from 'viem'
-import { prepareTransactionRequest, sendTransactionSync } from 'viem/actions'
+import {
+  prepareTransactionRequest,
+  sendTransaction,
+  sendTransactionSync,
+} from 'viem/actions'
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
 import { rpcUrl } from '~test/frames/prool.js'
-import type * as FrameTransaction from './internal/transaction.js'
+import * as FrameTransaction from './internal/transaction.js'
 
 describe('from: afterFill', () => {
   test('refills returned updates and keeps hooks out of protocol frames', async () => {
@@ -65,6 +69,55 @@ describe('from: afterFill', () => {
     expect(methods).toEqual([])
     expect((await sendTransactionSync(client, prepared)).status).toBe('success')
   })
+
+  test('preserves unsigned expansion hooks when adding automatic verification', async () => {
+    const client = getClient({ account: accounts[0] })
+    let calls = 0
+    const prepared = await prepareTransactionRequest(client, {
+      frames: [
+        Frame.from(() => ({
+          frames: [
+            { mode: 'sender', to: accounts[1].address },
+            { mode: 'sender', to: accounts[1].address },
+          ],
+          async afterFill(context) {
+            calls++
+            return { frames: [{ index: context.frameIndex, data: '0xabcd' }] }
+          },
+        })),
+      ],
+    })
+    expect(calls).toBe(1)
+    expect(prepared.frames.length).toBe(3)
+    expect(prepared.frames[1]!.data).toMatchInlineSnapshot('"0xabcd"')
+    expect((await sendTransactionSync(client, prepared)).status).toBe('success')
+  })
+
+  test.each([sendTransaction, sendTransactionSync])(
+    'runs resolved unsigned hooks for JSON-RPC accounts (%s)',
+    async (send) => {
+      const client = getClient({ account: accounts[0].address })
+      const resolved = FrameTransaction.resolve({
+        frames: [
+          {
+            mode: 'verify',
+            flags: 'approveExecutionAndPayment',
+            to: accounts[0].address,
+          },
+          Frame.from(() => ({
+            frame: { mode: 'sender', to: accounts[1].address },
+            async afterFill() {
+              throw new Error('Post-fill validation rejected the transaction.')
+            },
+          })),
+        ],
+        signatures: [{ scheme: 'secp256k1', signer: accounts[0].address }],
+      })
+      await expect(send(client, resolved)).rejects.toThrow(
+        'Post-fill validation rejected the transaction.',
+      )
+    },
+  )
 
   test('reuses a definition across independent preparations', async () => {
     const client = getClient({ account: accounts[0] })

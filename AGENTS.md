@@ -189,6 +189,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.
 - **Import public APIs from package entrypoints in tests**; use aliases for public exports.
+  - Point namespace aliases at source `index.ts` files so built package exports cannot bypass regression coverage.
   - Use entrypoints such as `'viem'`, `'viem/actions'`, `'viem/tempo'`, and `'viem/node'`.
   - Avoid relative imports for public surface tests.
   - Internal helpers may stay relative.

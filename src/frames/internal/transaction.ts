@@ -28,7 +28,9 @@ export function hasSigningFrames(transaction: {
     transaction.frames?.some(
       (frame) => typeof frame === 'function' || 'frame' in frame,
     ) ||
-    transaction.frameContext?.entries.some((entry) => entry.signatures.length)
+    transaction.frameContext?.entries.some(
+      (entry) => entry.signatures.length || entry.afterFill,
+    )
   )
 }
 
@@ -222,7 +224,7 @@ export function resolve(
         )
       for (const [i, frame] of result.frames.entries()) {
         const entry: Frames.Entry = {
-          frame,
+          frame: { ...frame },
           frameIndex: entries.length,
           signatureIndex,
           signatures: i === 0 ? signatures : [],
@@ -230,10 +232,8 @@ export function resolve(
           dataSuffix: result.dataSuffix,
           dataSuffixIndex: i,
           afterFill: i === 0 ? result.afterFill : undefined,
-          prepare: i === 0 && signatures.length ? prepare : undefined,
-          ...(i === 0 && signatures.length
-            ? { frameCount: result.frames.length }
-            : {}),
+          prepare: i === 0 ? prepare : undefined,
+          ...(i === 0 ? { frameCount: result.frames.length } : {}),
         }
         entries.push(entry)
         if (entry.prepare) {
@@ -253,7 +253,7 @@ export function resolve(
       )
     const entry: Frames.Entry = {
       ...result,
-      frame: result.frame,
+      frame: { ...result.frame },
       frameIndex: entries.length,
       signatureIndex,
       signatures,
@@ -293,7 +293,7 @@ export function resolve(
       for (const [offset, frame] of result.frames.entries())
         entries[entry.frameIndex + offset] = {
           ...entries[entry.frameIndex + offset]!,
-          frame,
+          frame: { ...frame },
           dataSuffix: result.dataSuffix,
           dataSuffixIndex: offset,
         }
@@ -324,7 +324,7 @@ export function resolve(
     entries[index] = {
       ...entry,
       ...result,
-      frame: result.frames?.[0] ?? result.frame!,
+      frame: { ...(result.frames?.[0] ?? result.frame!) },
       frameIndex: index,
       signatures: (result.signatures ?? []).map((signature) => ({
         ...signature,
