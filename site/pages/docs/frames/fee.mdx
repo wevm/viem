@@ -1,0 +1,99 @@
+---
+description: Pay frame transaction fees through a contract using an ERC-20 token.
+---
+
+# Token Fees
+
+## Overview
+
+`Frame.fee` approves gas payment from an ETH-funded contract and reimburses the contract with an ERC-20 transfer from the transaction sender. The helper keeps both protocol frames together and quotes the token charge during preparation.
+
+The payer contract must authorize the payer's signature and accept the token through its pricing contract. Deploy and fund the contract before preparing a transaction.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { erc20Abi } from 'viem'
+import { Frame } from 'viem/frames'
+import { client, sponsor, payerContract, usdc, recipient } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [
+    Frame.fee({ // [!code focus]
+      payer: sponsor, // [!code focus]
+      token: usdc, // [!code focus]
+      contractAddress: payerContract, // [!code focus]
+    }), // [!code focus]
+    Frame.calls([{ to: usdc, abi: erc20Abi, functionName: 'transfer', args: [recipient, 1_000_000n] }]),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+
+export const sponsor = privateKeyToAccount('0x...')
+export const payerContract = '0x0000000000000000000000000000000000000001'
+export const usdc = '0x0000000000000000000000000000000000000002'
+export const recipient = '0x0000000000000000000000000000000000000003'
+```
+
+:::
+
+Omit `payer` to use the transaction account. The contract must authorize that account. The account signs both execution approval and gas payment approval.
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+
+Frame.fee({
+  token: '0x0000000000000000000000000000000000000001',
+  contractAddress: '0x0000000000000000000000000000000000000002',
+})
+```
+
+Send actions prepare automatically. For standalone signing, call `prepareTransactionRequest` first. Preparation fills gas and fees, reads a token quote and contract authentication, then fills the finalized frames. A larger gas estimate can trigger another quote and fill.
+
+## Parameters
+
+### contractAddress
+
+- **Type:** `Address`
+
+Deployed, ETH-funded payer contract that authenticates payment and receives token reimbursement.
+
+### executionGas
+
+- **Type:** `bigint | undefined`
+
+Optional execution gas budget for the payment-approval frame.
+
+### payer
+
+- **Type:** `fee.Payer | undefined`
+- **Default:** Transaction account.
+
+Local private-key account or signature adapter authorized by the contract. Native adapters support `secp256k1` and `p256`. Arbitrary adapters specify a verifier and require explicit gas budgets or a verifier-supported simulation placeholder.
+
+### stateGas
+
+- **Type:** `bigint | undefined`
+
+Optional state gas budget for the payment-approval frame.
+
+### token
+
+- **Type:** `Address`
+
+ERC-20 reimbursement token accepted by the contract's pricing configuration. The sender must have enough tokens to cover the quoted charge.
+
+## Return Value
+
+- **Type:** `Frame.Frame`
+
+Expands into adjacent payment approval and reimbursement frames. Only one `fee` helper is supported per transaction. Reimbursement calldata is excluded from transaction-wide `dataSuffix`.
+
+:::warning
+Gas payment approval can spend contract ETH even if the later reimbursement transfer fails. Use a payer contract and authorization policy appropriate for this risk.
+:::

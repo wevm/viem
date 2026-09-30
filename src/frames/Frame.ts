@@ -14,6 +14,7 @@ import * as internal from './internal/transaction.js'
 // biome-ignore lint/performance/noBarrelFile: public frame namespace
 export { calls } from './calls.js'
 export { expiry } from './expiry.js'
+export { fee } from './fee.js'
 export { verify } from './verify.js'
 
 /** A protocol frame, preparation callback, or completed signed frame. */

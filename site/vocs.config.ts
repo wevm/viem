@@ -1049,6 +1049,7 @@ export default defineConfig({
         items: [
           { text: 'calls', link: '/docs/frames/calls' },
           { text: 'expiry', link: '/docs/frames/expiry' },
+          { text: 'fee', link: '/docs/frames/fee' },
           { text: 'verify', link: '/docs/frames/verify' },
           {
             text: 'Utilities',
