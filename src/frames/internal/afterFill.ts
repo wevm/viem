@@ -14,7 +14,7 @@ export async function afterFill(
   if (!request.frameContext?.entries.some((entry) => entry.afterFill))
     return request
 
-  const hash = FrameTransaction.getHash(request)
+  const hash = getPreparedHash(request)
   if (request.frameContext.afterFillHash === hash) return request
   if (
     request.signatures?.some(
@@ -91,11 +91,22 @@ export async function afterFill(
         ...request,
         frameContext: {
           ...request.frameContext!,
-          afterFillHash: FrameTransaction.getHash(request),
+          afterFillHash: getPreparedHash(request),
         },
       }
   }
   throw new BaseError(
     'Frame.from: `afterFill` gas validation failed after three fill attempts.',
   )
+}
+
+function getPreparedHash(transaction: FrameTransaction.Transaction) {
+  return FrameTransaction.getHash({
+    ...transaction,
+    // Explicit-payload witnesses affect the signing hash, but not prepared transaction fields.
+    signatures: transaction.signatures?.map((entry) => ({
+      ...entry,
+      signature: '0x',
+    })),
+  })
 }

@@ -47,6 +47,59 @@ describe('afterFill', () => {
     expect(original.frameContext?.afterFillHash).toBeUndefined()
   })
 
+  test('preserves the marker after explicit-payload signing and rejects mutations', async () => {
+    const original = FrameTransaction.resolve({
+      ...request(async () => undefined),
+      frameContext: undefined,
+      frames: [
+        Frame.from(() => ({
+          frame: { mode: 'sender', executionGas: 100n, stateGas: 0n },
+          signatures: [
+            {
+              scheme: 'arbitrary',
+              payload: `0x${'11'.repeat(32)}`,
+              sign: async () => '0xabcd',
+            },
+          ],
+          afterFill: async () => undefined,
+        })),
+      ],
+    })
+    const prepared = await FrameAfterFill.afterFill(
+      client,
+      original,
+      original.frames,
+    )
+    const signed = await Frame.sign(prepared.frames[0]!, {
+      transaction: prepared,
+    })
+    const transaction = FrameTransaction.resolve({
+      ...prepared,
+      frames: [signed],
+    })
+
+    expect(FrameTransaction.getHash(transaction)).not.toBe(
+      FrameTransaction.getHash(prepared),
+    )
+    expect(
+      await FrameAfterFill.afterFill(client, transaction, original.frames),
+    ).toEqual(transaction)
+    for (const mutation of [
+      { nonce: 1 },
+      { maxFeePerGas: 2n },
+      { frames: [{ ...transaction.frames[0]!, data: '0x12' as const }] },
+    ])
+      await expect(
+        FrameAfterFill.afterFill(
+          client,
+          { ...transaction, ...mutation },
+          original.frames,
+        ),
+      ).rejects.toThrow(
+        'Frame.from: `afterFill` cannot update a transaction containing completed signatures.',
+      )
+  })
+
   test.each([-1, 1, 0.5])('rejects frame index %s', async (index) => {
     const transaction = request(async () => ({
       frames: [{ index, data: '0x12' }],
