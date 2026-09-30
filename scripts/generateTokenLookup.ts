@@ -96,7 +96,7 @@ function getTokenLookupToken(
     decimals: token.decimals,
     importName,
     name: token.name ?? token.symbol ?? importName,
-    ...(token.popular ? { popular: token.popular } : {}),
+    ...(token.popular || importName === 'ousd' ? { popular: true } : {}),
     symbol: token.symbol ?? importName,
   }
 }

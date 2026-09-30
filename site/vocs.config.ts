@@ -91,6 +91,8 @@ export default defineConfig({
     // Strip legacy `.html` suffix from old bookmarked URLs.
     { source: '/:path*.html', destination: '/:path', status: 308 },
 
+    { source: '/tokens/tokens', destination: '/tokens/list', status: 308 },
+
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/zones',
@@ -2070,7 +2072,8 @@ export default defineConfig({
           text: 'Introduction',
           items: [
             { text: 'Getting Started', link: '/tokens' },
-            { text: 'Tokens', link: '/tokens/tokens' },
+            { text: 'Tokens', link: '/tokens/list' },
+            { text: 'OpenUSD (OUSD)', link: '/tokens/ousd' },
           ],
         },
         {
