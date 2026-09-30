@@ -1,3 +1,4 @@
+import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
@@ -15,6 +16,7 @@ import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
+import { chainConfig } from './chainConfig.js'
 import {
   Account,
   Addresses,
@@ -30,6 +32,143 @@ const client = getClient({
 const maxUint256 = 2n ** 256n - 1n
 
 describe('prepareTransactionRequest', () => {
+  describe('behavior: expiring nonce discriminators', () => {
+    test.each([
+      { nonceKey: 'expiring' as const },
+      { nonceKey: maxUint256 },
+      { feePayer: true as const },
+    ])(
+      'preserves caller input in the preparation hook for %o',
+      async (mode) => {
+        const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
+        const requests = await Promise.all(
+          nonces.map((nonce) => {
+            const request = { ...mode, nonce, chain: client.chain }
+            return chainConfig.prepareTransactionRequest[0](request, {
+              client,
+              phase: 'beforeFillTransaction',
+            })
+          }),
+        )
+
+        expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+        [
+          0,
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      },
+    )
+
+    test.each([
+      { nonceKey: 'expiring' as const },
+      { nonceKey: maxUint256 },
+      { feePayer: true as const },
+    ])('preserves caller input for %o', async (mode) => {
+      const nonces = [undefined, 0, 42, Number.MAX_SAFE_INTEGER] as const
+      const requests = await Promise.all(
+        nonces.map((nonce) =>
+          prepareTransactionRequest(client, {
+            ...mode,
+            nonce,
+            parameters: [],
+            validAfter: 1_800_000_000,
+            validBefore: 1_800_000_025,
+          }),
+        ),
+      )
+
+      expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+        [
+          0,
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      for (const request of requests) {
+        expect(request.nonceKey).toBe(maxUint256)
+        expect(request.validAfter).toBe(1_800_000_000)
+        expect(request.validBefore).toBe(1_800_000_025)
+      }
+    })
+
+    test('preserves caller input when concurrency enables expiring nonces', async () => {
+      const requests = await Promise.all(
+        [42, 43].map((nonce) =>
+          prepareTransactionRequest(client, {
+            nonce,
+            parameters: ['nonce'],
+          }),
+        ),
+      )
+
+      expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+        [
+          42,
+          43,
+        ]
+      `)
+      for (const request of requests) expect(request.nonceKey).toBe(maxUint256)
+    })
+
+    test('preserves discriminators through signing and repeated preparation', async () => {
+      const transaction = {
+        chainId: client.chain.id,
+        calls: [{ to: accounts[1].address }],
+        gas: 100_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 0n,
+        nonceKey: maxUint256,
+        validAfter: 1_800_000_000,
+        validBefore: 1_800_000_025,
+      } as const
+      const serialized = await Promise.all(
+        [0, 42, Number.MAX_SAFE_INTEGER].map(async (nonce) => {
+          const request = await prepareTransactionRequest(client, {
+            ...transaction,
+            nonce,
+            parameters: ['nonce'],
+          })
+          const repeated = await prepareTransactionRequest(client, {
+            ...request,
+            parameters: ['nonce'],
+          })
+
+          expect(repeated).toEqual(request)
+
+          const signed = await client.account.signTransaction({
+            ...transaction,
+            nonce: request.nonce,
+          })
+
+          expect(
+            await client.account.signTransaction({
+              ...transaction,
+              nonce: repeated.nonce,
+            }),
+          ).toBe(signed)
+          return signed
+        }),
+      )
+
+      expect(
+        serialized.map(
+          (transaction) => Transaction.deserialize(transaction).nonce,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          0,
+          42,
+          9007199254740991,
+        ]
+      `)
+      expect(new Set(serialized).size).toBe(3)
+    })
+  })
+
   test('behavior: expiring nonces for feePayer transactions', async () => {
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([

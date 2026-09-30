@@ -234,7 +234,7 @@ export const chainConfig = {
         request.nonce = 0
       } else if (useExpiringNonce) {
         request.nonceKey = maxUint256
-        request.nonce = 0
+        request.nonce ??= 0
         if (typeof request.validAfter === 'undefined')
           request.validAfter = randomValidAfter()
         if (typeof request.validBefore === 'undefined')
