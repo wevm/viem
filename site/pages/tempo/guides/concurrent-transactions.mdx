@@ -81,8 +81,7 @@ const hash2 = await client.sendTransaction({
 
 ### Distinguish Expiring Transactions
 
-After [TIP-1106](https://github.com/tempoxyz/tempo/blob/main/tips/tip-1106.md) activates on your
-network, pass `nonceKey: 'expiring'` and a distinct `nonce` to distinguish otherwise identical
+Pass `nonceKey: 'expiring'` and a distinct `nonce` to distinguish otherwise identical
 transactions. This nonce is an identifier and does not need to be sequential.
 
 :::code-group
@@ -103,7 +102,7 @@ const hash = await client.sendTransaction({
 
 :::
 
-Viem defaults an omitted nonce to `0`. Nonzero expiring nonces are rejected before activation.
+Viem defaults an omitted nonce to `0`.
 Use integers between `0` and `Number.MAX_SAFE_INTEGER`; Viem's nonce API uses JavaScript
 `number` and does not support the full `uint64` range. For retries, reuse the signed transaction
 so its nonce, validity window, and other signed fields stay identical.
