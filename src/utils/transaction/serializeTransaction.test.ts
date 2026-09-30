@@ -862,6 +862,36 @@ describe('legacy', () => {
     })
   })
 
+  test('signature (yParity)', () => {
+    const r =
+      '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
+    const s =
+      '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
+    expect(serializeTransaction(baseLegacy, { r, s, yParity: 1 })).toEqual(
+      '0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ca060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+    expect(serializeTransaction(baseLegacy, { r, s, yParity: 0 })).toEqual(
+      '0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ba060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+    )
+  })
+
+  test('signed w/ chainId (yParity)', async () => {
+    const args = {
+      ...baseLegacy,
+      chainId: 69,
+    }
+    const { r, s, yParity } = await sign({
+      hash: keccak256(serializeTransaction(args)),
+      privateKey: accounts[0].privateKey,
+    })
+    const expected =
+      '0xf86c8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a76400008081ada02f43314322cf4c5dd645b028aa0b0dadff0fb73c41a6f0620ff1dfb11601ac30a066f37a65e139fa4b6df33a42ab5ccaeaa7a109382e7430caefd1deee63962626'
+    expect(serializeTransaction(args, { r, s, yParity })).toEqual(expected)
+    expect(serializeTransaction(args, { r, s, v: BigInt(yParity) })).toEqual(
+      expected,
+    )
+  })
+
   describe('errors', () => {
     test('invalid v', () => {
       expect(() =>
