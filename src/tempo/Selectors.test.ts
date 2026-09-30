@@ -10,88 +10,18 @@ import * as Selectors from './Selectors.js'
 type AbiFunction = Extract<(typeof Abis.all)[number], { type: 'function' }>
 type SelectorMap = Record<string, string | Record<string, string>>
 
-const selectorDefinitions = {
-  accountKeychain: {
-    abi: Abis.accountKeychain,
-    selectors: Selectors.accountKeychain,
-  },
-  addressRegistry: {
-    abi: Abis.addressRegistry,
-    selectors: Selectors.addressRegistry,
-  },
-  currentCommittee: {
-    abi: Abis.currentCommittee,
-    selectors: Selectors.currentCommittee,
-  },
-  feeAmm: { abi: Abis.feeAmm, selectors: Selectors.feeAmm },
-  feeManager: { abi: Abis.feeManager, selectors: Selectors.feeManager },
-  nativeMultisig: {
-    abi: Abis.nativeMultisig,
-    selectors: Selectors.nativeMultisig,
-  },
-  nonce: { abi: Abis.nonce, selectors: Selectors.nonce },
-  receivePolicyGuard: {
-    abi: Abis.receivePolicyGuard,
-    selectors: Selectors.receivePolicyGuard,
-  },
-  signatureVerifier: {
-    abi: Abis.signatureVerifier,
-    selectors: Selectors.signatureVerifier,
-  },
-  stablecoinDex: {
-    abi: Abis.stablecoinDex,
-    selectors: Selectors.stablecoinDex,
-  },
-  storageCredits: {
-    abi: Abis.storageCredits,
-    selectors: Selectors.storageCredits,
-  },
-  tip20: { abi: Abis.tip20, selectors: Selectors.tip20 },
-  tip20ChannelReserve: {
-    abi: Abis.tip20ChannelReserve,
-    selectors: Selectors.tip20ChannelReserve,
-  },
-  tip20Factory: {
-    abi: Abis.tip20Factory,
-    selectors: Selectors.tip20Factory,
-  },
-  tip403Registry: {
-    abi: Abis.tip403Registry,
-    selectors: Selectors.tip403Registry,
-  },
-  validatorConfig: {
-    abi: Abis.validatorConfig,
-    selectors: Selectors.validatorConfig,
-  },
-  validatorConfigV2: {
-    abi: Abis.validatorConfigV2,
-    selectors: Selectors.validatorConfigV2,
-  },
-  zoneFactory: {
-    abi: Abis.zoneFactory,
-    selectors: Selectors.zoneFactory,
-  },
-  zoneMessenger: {
-    abi: Abis.zoneMessenger,
-    selectors: Selectors.zoneMessenger,
-  },
-  zoneOutbox: {
-    abi: Abis.zoneOutbox,
-    selectors: Selectors.zoneOutbox,
-  },
-  zonePortal: {
-    abi: Abis.zonePortal,
-    selectors: Selectors.zonePortal,
-  },
-  zoneVerifier: {
-    abi: Abis.zoneVerifier,
-    selectors: Selectors.zoneVerifier,
-  },
-} satisfies Record<string, { abi: readonly unknown[]; selectors: SelectorMap }>
+const selectorAbis = new Set<unknown>([...Abis.core, ...Abis.zone])
+const selectorMaps: Record<string, SelectorMap> = Selectors
+const selectorFixtures = Object.entries(Abis)
+  .filter(([name, abi]) => {
+    if (['all', 'core', 'earn', 'zone', 'propAmm'].includes(name)) return false
 
-const selectorFixtures = Object.entries(selectorDefinitions)
-  .map(([name, { abi, selectors }]) => ({ name, abi, selectors }))
-  .filter(({ abi }) => getFunctions(abi).length > 0)
+    const functions = getFunctions(abi)
+    return (
+      functions.length > 0 && functions.every((item) => selectorAbis.has(item))
+    )
+  })
+  .map(([name, abi]) => ({ name, abi, selectors: selectorMaps[name]! }))
 
 function getFunctions(abi: readonly unknown[]) {
   return (abi as readonly AbiFunction[]).filter(
@@ -113,9 +43,6 @@ describe('Selectors', () => {
   })
 
   test('exports one selector map per ABI', () => {
-    expect(Object.keys(Selectors).sort()).toEqual(
-      Object.keys(selectorDefinitions),
-    )
     expect(Object.keys(Selectors).sort()).toEqual(
       selectorFixtures.map((fixture) => fixture.name).sort(),
     )
