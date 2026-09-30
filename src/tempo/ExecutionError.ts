@@ -141,6 +141,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidThreshold()': 'Invalid threshold.',
   'InvalidTick()': 'The price tick is invalid.',
   'InvalidToken()': 'This token is not supported on the exchange.',
+  'InvalidTokenEnablementTransition()': 'Invalid token enablement transition.',
   'InvalidTransferPolicyId()': 'Invalid transfer policy.',
   'InvalidValidatorAddress()': 'Invalid validator address.',
   'InvalidWeight()': 'Invalid weight.',
@@ -208,6 +209,8 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'TokenAlreadyExists(address)': 'Token {0} already exists.',
   'TokenEnablementBlockCapacityExceeded(uint64)':
     'The token enablement capacity per block exceeds the maximum ({0}).',
+  'TokenEnablementCursorNotInitialized()':
+    'The token enablement cursor is not initialized.',
   'TokenMetadataTooLong()': 'Token metadata is too long.',
   'TokenNotEnabled()': 'The token is not enabled.',
   'TokenTransferPolicyNotSet()': 'The token transfer policy is not set.',
