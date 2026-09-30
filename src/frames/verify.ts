@@ -1,9 +1,8 @@
 import * as Frame_ox from 'ox/Frame'
 import type { PrivateKeyAccount } from '../accounts/types.js'
 import { BaseError } from '../errors/base.js'
-import type { Frame } from '../types/frame.js'
-import { from } from './Frame.js'
-import * as internal from './internal/transaction.js'
+import type { Frame as Frame_ } from '../types/frame.js'
+import * as Frame from './Frame.js'
 
 /**
  * Creates execution approval for a default account, including payment unless another frame approves payment.
@@ -11,16 +10,18 @@ import * as internal from './internal/transaction.js'
  * @param options - The private-key account and optional frame gas budgets.
  * @returns A verification helper that signs the finalized transaction.
  */
-export function verify({ account, ...frame }: verify.Options): Frame {
-  return from(function prepare({ frames }) {
-    const hasPayer = frames.some(
+export function verify(options: verify.Options) {
+  const { account, ...frame } = options
+
+  return Frame.from(function prepare(context) {
+    const { entries } = context
+    const hasPayer = entries.some(
       (candidate) =>
-        (candidate as internal.SigningFrame)[internal.signing]?.prepare !==
-          prepare &&
-        (candidate.flags === 'approvePayment' ||
-          candidate.flags === 'approveExecutionAndPayment' ||
-          (typeof candidate.flags === 'number' &&
-            (candidate.flags & Frame_ox.flags.approvePayment) !== 0)),
+        candidate.prepare !== prepare &&
+        (candidate.frame.flags === 'approvePayment' ||
+          candidate.frame.flags === 'approveExecutionAndPayment' ||
+          (typeof candidate.frame.flags === 'number' &&
+            (candidate.frame.flags & Frame_ox.flags.approvePayment) !== 0)),
     )
 
     return {
@@ -34,10 +35,11 @@ export function verify({ account, ...frame }: verify.Options): Frame {
         {
           scheme: 'secp256k1',
           signer: account.address,
-          async sign({ hash, signatureIndex }) {
+          async sign(parameters) {
+            const { hash, signatureIndex } = parameters
             if (signatureIndex !== 0)
               throw new BaseError(
-                'Default-account execution approval requires signature index 0.',
+                'Frame.verify: default-account execution approval requires `signatureIndex` 0.',
               )
 
             return account.sign({ hash })
@@ -53,5 +55,5 @@ export declare namespace verify {
   type Options = {
     /** Account that signs the transaction. */
     account: PrivateKeyAccount
-  } & Pick<Frame, 'executionGas' | 'stateGas'>
+  } & Pick<Frame_, 'executionGas' | 'stateGas'>
 }

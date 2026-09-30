@@ -5,6 +5,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type {
   ByteArray,
   Hex,
@@ -187,12 +188,13 @@ function serializeTransactionEIP8141(
       'EIP-8141 transactions use the signatures array, not an outer signature.',
     )
 
-  assertTransactionEIP8141(transaction)
+  const request = FrameTransaction.resolve(transaction)
+  assertTransactionEIP8141(request)
 
   return TxEnvelopeEip8141.serialize({
-    ...transaction,
-    nonceKeys: transaction.nonceKeys ?? [0n],
-    nonce: BigInt(transaction.nonce ?? 0),
+    ...request,
+    nonceKeys: request.nonceKeys ?? [0n],
+    nonce: BigInt(request.nonce ?? 0),
   })
 }
 

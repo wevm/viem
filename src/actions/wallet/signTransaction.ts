@@ -9,11 +9,8 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
-import {
-  type SigningFrame,
-  signing,
-} from '../../frames/internal/transaction.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -135,11 +132,16 @@ export async function signTransaction<
   > = SignTransactionRequest<chain, chainOverride>,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SignTransactionParameters<chain, account, chainOverride, request>,
+  parameters_: SignTransactionParameters<
+    chain,
+    account,
+    chainOverride,
+    request
+  >,
 ): Promise<SignTransactionReturnType<request>> {
-  parameters = prepareFrames(
-    parameters,
-    parameters.account === undefined ? client.account : parameters.account,
+  const parameters = FramePrepare.prepare(
+    parameters_,
+    parameters_.account === undefined ? client.account : parameters_.account,
   )
 
   const {
@@ -170,7 +172,7 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
-  if (transaction.frames?.some((frame) => (frame as SigningFrame)[signing]))
+  if (FrameTransaction.hasSigningFrames(transaction))
     return (await signFrameTransaction(
       {
         ...transaction,

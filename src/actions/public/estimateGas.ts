@@ -110,9 +110,11 @@ export async function estimateGas<
   account extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: EstimateGasParameters<chain>,
+  args_: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
-  args = frameTransaction.resolve(args)
+  const args = frameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
 
   const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -211,7 +213,10 @@ export async function estimateGas<
         maxPriorityFeePerGas,
         nonce,
         nonceKeys,
-        signatures,
+        signatures: frameTransaction.getSimulationSignatures({
+          frameContext: args.frameContext,
+          signatures,
+        }),
         to,
         type,
         value,

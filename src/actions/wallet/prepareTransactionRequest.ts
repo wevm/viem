@@ -34,8 +34,9 @@ import {
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
-import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
-import { resolveNonceKeys } from '../../frames/internal/transaction.js'
+import * as FrameAfterFill from '../../frames/internal/afterFill.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -44,6 +45,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { Frame } from '../../types/frame.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,
@@ -122,7 +124,9 @@ type PrepareTransactionRequestRequired<
   input,
 > = request extends { frames: readonly unknown[] }
   ? 'frames' extends keyof input
-    ? request & ExactRequired<Pick<request, Exclude<keys, 'gas'>>>
+    ? Omit<request, 'frames'> & {
+        frames: readonly Frame[]
+      } & ExactRequired<Pick<request, Exclude<keys, 'gas' | 'frames'>>>
     : never
   : request & ExactRequired<Pick<request, keys>>
 
@@ -341,10 +345,10 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = prepareFrames(
+  let request = FramePrepare.prepare(
     { ...args },
     args.account === undefined ? client.account : args.account,
-  ) as PrepareTransactionRequestParameters
+  ) as FrameTransaction.Prepared<PrepareTransactionRequestParameters>
   request.account ??= client.account
   request.parameters ??= defaultParameters
 
@@ -399,7 +403,7 @@ export async function prepareTransactionRequest<
   }
 
   const keys = request.nonceKeys
-    ? resolveNonceKeys(request.nonceKeys)
+    ? FrameTransaction.resolveNonceKeys(request.nonceKeys)
     : undefined
   if (keys) {
     TransactionRequest_ox.toRpc({ nonceKeys: keys })
@@ -441,7 +445,7 @@ export async function prepareTransactionRequest<
     }
   }
 
-  const frames = request.frames
+  const frames = FrameTransaction.resolve(request).frames
   const signed =
     frames &&
     request.signatures?.some(
@@ -853,7 +857,7 @@ export async function prepareTransactionRequest<
 
   if (
     parameters.includes('gas') &&
-    request.frames?.some(
+    FrameTransaction.resolve(request).frames?.some(
       (frame) =>
         frame.executionGas === undefined || frame.stateGas === undefined,
     )
@@ -884,7 +888,35 @@ export async function prepareTransactionRequest<
     )
 
   if (frames && account && !(signed && 'sender' in request))
-    request = { ...request, sender: account.address } as typeof request
+    Object.assign(request, { sender: account.address })
+
+  if (request.frameContext?.entries.some((entry) => entry.afterFill)) {
+    if (!account)
+      throw new BaseError('Frame preparation requires a sender account.')
+    if (
+      'sender' in args &&
+      typeof args.sender === 'string' &&
+      args.sender.toLowerCase() !== account.address.toLowerCase()
+    )
+      throw new BaseError('The sender must match the preparing account.')
+    const prepared = await FrameAfterFill.afterFill(
+      client,
+      {
+        ...request,
+        chainId: request.chainId!,
+        sender: account.address,
+        frames: request.frames!,
+        nonceKeys: FrameTransaction.resolveNonceKeys(request.nonceKeys),
+        type: 'eip8141',
+      } as FrameTransaction.Transaction,
+      frames!,
+    )
+    request = {
+      ...request,
+      frames: prepared.frames,
+      frameContext: prepared.frameContext,
+    } as typeof request
+  }
 
   assertRequest(request as AssertRequestParameters)
 

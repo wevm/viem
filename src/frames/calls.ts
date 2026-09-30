@@ -1,11 +1,10 @@
 import { BaseError } from '../errors/base.js'
 import type { Call as Call_ } from '../types/calls.js'
-import type { Frame } from '../types/frame.js'
+import type { Frame as Frame_ } from '../types/frame.js'
 import type { UnionOmit } from '../types/utils.js'
 import { encodeFunctionData } from '../utils/abi/encodeFunctionData.js'
 import { concat } from '../utils/data/concat.js'
-import { from } from './Frame.js'
-import * as internal from './internal/transaction.js'
+import * as Frame from './Frame.js'
 
 /**
  * Creates one atomic batch of sender calls.
@@ -27,22 +26,31 @@ import * as internal from './internal/transaction.js'
  */
 export function calls<const batch extends readonly unknown[]>(
   batch: batch & { [index in keyof batch]: calls.Call<batch[index]> },
-): Frame {
+) {
   if (!Array.isArray(batch) || !batch.length)
-    throw new BaseError('Expected a nonempty array of calls.')
+    throw new BaseError(
+      'Frame.calls: `batch` must be a nonempty array of call objects.',
+    )
 
-  return from(() => ({
-    frames: batch.map((call: unknown, index): Frame => {
+  return Frame.from(() => ({
+    dataSuffix(context) {
+      const { index, suffix } = context
+      if ((batch[index] as calls.Call).dataSuffix !== undefined)
+        return undefined
+      return suffix
+    },
+
+    frames: batch.map((call: unknown, index): Frame_ => {
       if (
         !call ||
         typeof call !== 'object' ||
         Array.isArray(call) ||
         'mode' in call ||
         'flags' in call ||
-        internal.signing in call
+        'prepare' in call
       )
         throw new BaseError(
-          'Batches accept only plain calls without mode or flags.',
+          'Frame.calls: each batch entry must be a call object without `mode`, `flags`, or `prepare` properties.',
         )
 
       const { abi, args, functionName, dataSuffix, ...frame } =
@@ -56,7 +64,6 @@ export function calls<const batch extends readonly unknown[]>(
         ...(data !== undefined || dataSuffix !== undefined
           ? { data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data }
           : {}),
-        ...(dataSuffix !== undefined ? { [internal.dataSuffix]: true } : {}),
         ...(index < batch.length - 1 ? { flags: 'atomicBatch' as const } : {}),
         mode: 'sender',
       }
@@ -67,9 +74,9 @@ export function calls<const batch extends readonly unknown[]>(
 export declare namespace calls {
   /** A sender call whose mode and atomic grouping are assigned by the helper. */
   type Call<call = unknown> = UnionOmit<Call_<call, Properties>, 'to'> &
-    Pick<Frame, 'to'>
+    Pick<Frame_, 'to'>
 
-  type Properties = Pick<Frame, 'executionGas' | 'stateGas'> & {
+  type Properties = Pick<Frame_, 'executionGas' | 'stateGas'> & {
     flags?: never
     mode?: never
   }

@@ -8,9 +8,11 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Use [`Frame.from`](/docs/frames/from) when the built-in helpers do not express your execution or verification logic. Its callback returns one frame with optional signatures, or multiple unsigned frames.
+Use [`Frame.from`](/docs/frames/from) when the built-in helpers do not express your execution or verification logic. Its callback returns one frame with optional signatures, or a group of frames with signatures allocated to its first frame.
 
 ## Recipes
+
+These recipes assume you have [set up a wallet client](/docs/clients/wallet) on a network that supports Frame Transactions.
 
 ### Define a Frame
 
@@ -44,7 +46,7 @@ For ordinary calls, prefer the built-in [`calls`](/docs/frames/calls) helper.
 
 ### Expand into Multiple Frames
 
-Return `frames` to expand one helper into several unsigned frames.
+Return `frames` to expand one helper into several protocol frames. Optional signature entries belong to the first frame in the group.
 
 :::code-group
 
@@ -84,16 +86,16 @@ import { account } from './viem.config'
 
 // This ABI is illustrative; use your deployed account's validation ABI.
 const abi = parseAbi(['function validate(uint256 signatureIndex)'])
-const frame = Frame.from(({ signatureIndex }) => ({ // [!code focus]
+const frame = Frame.from((context) => ({ // [!code focus]
   frame: { // [!code focus]
     mode: 'verify', // [!code focus]
     flags: 'approveExecutionAndPayment', // [!code focus]
-    data: encodeFunctionData({ abi, functionName: 'validate', args: [BigInt(signatureIndex)] }), // [!code focus]
+    data: encodeFunctionData({ abi, functionName: 'validate', args: [BigInt(context.signatureIndex)] }), // [!code focus]
   }, // [!code focus]
   signatures: [{ // [!code focus]
     scheme: 'secp256k1', // [!code focus]
     signer: account.address, // [!code focus]
-    sign: ({ hash }) => account.sign({ hash }), // [!code focus]
+    sign: (parameters) => account.sign({ hash: parameters.hash }), // [!code focus]
   }], // [!code focus]
 })) // [!code focus]
 ```
@@ -108,11 +110,212 @@ const frame = Frame.from(({ signatureIndex }) => ({ // [!code focus]
 Supplying [approval flags](/docs/frames/raw-frames#flags) only permits approval; it does not perform it.
 :::
 
+### Use the Transaction Account
+
+The preparation callback receives the transaction account, including an account configured on the client. Use this value when a helper should default to the sender rather than require a separate account argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { BaseError } from 'viem'
+import { parseAccount } from 'viem/accounts'
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const transfer = Frame.from((context) => {
+  if (!context.account) throw new BaseError('Frame.from: transfer requires a transaction account.')
+  const account = parseAccount(context.account) // [!code focus]
+
+  return {
+    frame: { mode: 'sender', to: account.address, value: 1n }, // [!code focus]
+  }
+})
+const receipt = await client.sendTransactionSync({ frames: [transfer] })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+An account may be an address or an account object. An address identifies the sender but does not provide signing callbacks.
+
+### Find Named Peer Frames
+
+Return `name` so another helper can identify its frames through `entries`. The example checks the resolved peers in `afterFill`, before signing, and rejects requests that omit or duplicate the payment frame.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { BaseError } from 'viem'
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const payment = Frame.from(() => ({
+  name: 'payment', // [!code focus]
+  frame: { mode: 'sender', to: client.account.address, value: 1n },
+}))
+const requirePayment = Frame.from(() => ({
+  frame: { mode: 'sender', to: client.account.address },
+
+  async afterFill(context) {
+    const payments = context.entries.filter((entry) => entry.name === 'payment') // [!code focus]
+    if (payments.length !== 1) // [!code focus]
+      throw new BaseError('Frame.from: payment guard requires exactly one payment frame.') // [!code focus]
+    return undefined
+  },
+}))
+const receipt = await client.sendTransactionSync({ frames: [payment, requirePayment] })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+Names are local metadata and need not be unique. A multi-frame helper assigns its name to each expanded frame. Preparation also receives `entries`; the first pass can contain unresolved peer declarations, so defer checks that require resolved peers to `afterFill`.
+
+### Update Calldata After Filling
+
+Use `afterFill` when calldata depends on populated gas or fees. Return indexed protocol-frame patches; Viem applies them and fills the updated transaction before requesting signatures.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { numberToHex } from 'viem'
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const feeData = Frame.from(() => ({
+  frame: { mode: 'sender', to: client.account.address, data: '0x' },
+
+  async afterFill(context) { // [!code focus]
+    const { transaction, frameIndex } = context // [!code focus]
+    return { // [!code focus]
+      frames: [{ // [!code focus]
+        index: frameIndex, // [!code focus]
+        data: numberToHex(transaction.maxFeePerGas!, { size: 32 }), // [!code focus]
+      }], // [!code focus]
+    } // [!code focus]
+  }, // [!code focus]
+}))
+const request = await client.prepareTransactionRequest({ frames: [feeData] })
+const receipt = await client.sendTransactionSync(request)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+`frameIndex` is the helper's first index in the complete transaction. `entries` contains all resolved frames, and `client` is available for reads such as [`readContract`](/docs/actions/public/readContract). Return `undefined` when no patch is needed. Different hooks cannot patch the same frame index.
+
+### Validate Refilled Gas Budgets
+
+Return `validate` with the patches when the updated calldata may require more gas than the initial estimate. Viem passes the refilled transaction to this callback and repeats `afterFill` if validation fails.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { BaseError, numberToHex } from 'viem'
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const gasData = Frame.from(() => ({
+  frame: { mode: 'sender', to: client.account.address, data: '0x' },
+
+  async afterFill(context) {
+    const { transaction, frameIndex } = context
+    const budget = transaction.frames[frameIndex]?.executionGas
+    if (budget === undefined) throw new BaseError('Frame.from: gas data requires filled execution gas.')
+
+    return {
+      frames: [{ index: frameIndex, data: numberToHex(budget, { size: 32 }) }],
+      validate(request) { // [!code focus]
+        const executionGas = request.frames[frameIndex]?.executionGas // [!code focus]
+        return executionGas !== undefined && executionGas <= budget // [!code focus]
+      }, // [!code focus]
+    }
+  },
+}))
+const request = await client.prepareTransactionRequest({ frames: [gasData] })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+Preparation fails if validation still rejects the budgets after three attempts. Hook errors propagate to the caller. Updates finish before canonical signing; hooks cannot change a transaction that already contains completed signatures.
+
+### Control the Data Suffix
+
+Return a synchronous `dataSuffix` hook to choose the bytes appended to each frame. The example omits the transaction suffix from the first frame and applies it to the second frame before gas filling and signing.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Frame } from 'viem/frames'
+import { client } from './viem.config'
+
+const calls = Frame.from(() => ({
+  frames: [
+    { mode: 'sender', to: client.account.address, data: '0x1234' },
+    { mode: 'sender', to: client.account.address, data: '0x5678' },
+  ],
+
+  dataSuffix(context) { // [!code focus]
+    if (context.index === 0) return undefined // [!code focus]
+    return context.suffix // [!code focus]
+  }, // [!code focus]
+}))
+const receipt = await client.sendTransactionSync({ frames: [calls], dataSuffix: '0xabcd' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+The hook receives `{ frame, index, suffix }`. `index` starts at zero within this helper's returned frames. Return hex bytes to append, or `undefined` or `'0x'` to append nothing. The hook does not replace existing calldata and does not run without a supplied suffix or after canonical signing.
+
+Without a hook, the transaction suffix is appended to sender frames. [`calls`](/docs/frames/calls#batchdatasuffix) also supports per-call suffixes. A prepared frame receives its suffix only once.
+
+### Supply an Arbitrary Signature Placeholder
+
+An arbitrary verifier may need witness bytes during unsigned simulation. Declare `placeholder` beside that entry's `sign` callback. The verifier must accept the chosen bytes for simulation; a placeholder does not bypass verification.
+
+```ts twoslash
+import type { Address, Hex } from 'viem'
+import { Frame } from 'viem/frames'
+
+// Supply your deployed verifier and its simulation and signing adapters.
+declare const verifier: Address
+declare const placeholder: Hex
+declare const signWitness: (options: { hash: Hex }) => Promise<Hex>
+
+const verification = Frame.from(() => ({
+  frame: { mode: 'verify', to: verifier, flags: 'approveExecutionAndPayment' },
+  signatures: [{
+    scheme: 'arbitrary',
+    placeholder, // [!code focus]
+    sign: signWitness, // [!code focus]
+  }],
+}))
+```
+
+[`call`](/docs/actions/public/call), [`estimateGas`](/docs/actions/public/estimateGas), and [`fillTransaction`](/docs/actions/public/fillTransaction) use the placeholder during simulation. Prepared signature entries remain unsigned, and signing uses the callback's actual result. Native `secp256k1` and `p256` signatures do not need placeholders.
+
 ## Best Practices
 
 Preparation may invoke the definition more than once. Keep it free of side effects and keep its return shape and signature metadata stable. Put signing inside each signature entry’s `sign` callback.
 
-The `signatureIndex` provided to the definition is its first allocated signature slot. Each signing callback receives its own slot, so signature metadata and signing stay together. Multi-frame definitions cannot declare signatures.
+The `signatureIndex` provided to the definition is its first allocated signature slot. Each signing callback receives its own slot, so signature metadata and signing stay together. For a multi-frame definition, declared signatures belong to its first frame. Keep the prepared request intact when passing it to a signing action.
 
 ## See More
 

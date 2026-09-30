@@ -27,6 +27,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Follow local import style**; viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
 - **Classes for errors only**; all other APIs use functions and plain data.
 - **Errors live next to the code that throws them**; keep module-specific failure classes local.
+- **Frame errors identify the public API**; include the API name, relevant parameter, and failed technical condition. Include a corrective action when applicable.
   - Put error classes near the bottom of the owning module.
   - Keep public functions and types first.
   - Set `name` to the namespaced form.
@@ -38,6 +39,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Examples: `from.Options`, `serialize.ErrorType`.
   - Do not lift params to sibling exports by default.
 - **`options` over `args`**; use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
+- **Do not destructure function parameters**; name option bags `options` and destructure inside the body. This applies to functions, methods, and callbacks.
 - **Minimal variable names**; prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
 - **No redundant type annotations**; if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
 - **No inline object types on locals**; when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
@@ -100,6 +102,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **Relay plugins are objects**; use `(context, next)` middleware and explicit post-fill hooks; keep request state off handler functions.
 - **Relay forwarding transports do not retry**; keep retry policy at downstream I/O, including explicit per-request overrides.
+- **Frame suffix hooks return suffix bytes**; `dataSuffix` appends its returned bytes to existing calldata. Returning `undefined` or `'0x'` appends nothing.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions

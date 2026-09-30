@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import type { TxEnvelopeEip8141 } from 'ox'
+import type * as Frames from '../frames/Frame.js'
 
 import type {
   AuthorizationList,
@@ -351,7 +352,7 @@ export type TransactionRequestEIP8141<
   quantity = bigint,
   index = number,
   type = 'eip8141',
-  frame = Frame<quantity>,
+  frame = Frames.Input<quantity>,
   signature = FrameSignature,
 > = Omit<
   TransactionRequestBase<quantity, index, type>,
@@ -388,7 +389,7 @@ export type TransactionRequestGeneric<
   accessList?: AccessList | undefined
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
-  frames?: readonly Frame<quantity>[] | undefined
+  frames?: readonly Frames.Input<quantity>[] | undefined
   nonceKeys?:
     | readonly (quantity | (quantity extends bigint ? 'random' : never))[]
     | undefined
@@ -502,13 +503,14 @@ export type TransactionSerializableEIP7702<
 export type TransactionSerializableEIP8141<
   quantity = bigint,
   index = number,
+  frame = Frames.Input<quantity>,
 > = {
   /** Versioned blob hashes. */
   blobVersionedHashes?: readonly Hex[] | undefined
   /** Chain ID. */
   chainId: number
   /** Frames to execute, in order. */
-  frames: readonly Frame<quantity>[]
+  frames: readonly frame[]
   /** Maximum fee per blob gas, in wei. */
   maxFeePerBlobGas?: quantity | undefined
   /** Maximum fee per gas, in wei. */
@@ -529,13 +531,17 @@ export type TransactionSerializableEIP8141<
   type?: 'eip8141' | undefined
 }
 
-export type TransactionSerializable<quantity = bigint, index = number> = OneOf<
+export type TransactionSerializable<
+  quantity = bigint,
+  index = number,
+  frame = Frames.Input<quantity>,
+> = OneOf<
   | TransactionSerializableLegacy<quantity, index>
   | TransactionSerializableEIP2930<quantity, index>
   | TransactionSerializableEIP1559<quantity, index>
   | TransactionSerializableEIP4844<quantity, index>
   | TransactionSerializableEIP7702<quantity, index>
-  | TransactionSerializableEIP8141<quantity, index>
+  | TransactionSerializableEIP8141<quantity, index, frame>
 >
 
 export type TransactionSerializableGeneric<
@@ -547,7 +553,7 @@ export type TransactionSerializableGeneric<
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined
-  frames?: readonly Frame<quantity>[] | undefined
+  frames?: readonly Frames.Input<quantity>[] | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined

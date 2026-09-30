@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -104,14 +105,17 @@ export async function fillTransaction<
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: FillTransactionParameters<
+  parameters_: FillTransactionParameters<
     chain,
     account,
     chainOverride,
     accountOverride
   >,
 ): Promise<FillTransactionReturnType<chain, chainOverride>> {
-  parameters = frameTransaction.resolve(parameters)
+  const parameters = frameTransaction.resolve(parameters_, {
+    account:
+      parameters_.account === undefined ? client.account : parameters_.account,
+  })
 
   const {
     account = client.account,
@@ -168,6 +172,10 @@ export async function fillTransaction<
   const chainFormat = chain?.formatters?.transactionRequest?.format
   const format = chainFormat || formatTransactionRequest
 
+  const simulationSignatures = frameTransaction.getSimulationSignatures({
+    frameContext: parameters.frameContext,
+    signatures,
+  })
   const request = format(
     {
       // Pick out extra data that might exist on the chain's transaction request type.
@@ -187,7 +195,7 @@ export async function fillTransaction<
       maxPriorityFeePerGas,
       nonce,
       nonceKeys,
-      signatures,
+      signatures: simulationSignatures,
       to,
       type,
       value,
@@ -202,14 +210,11 @@ export async function fillTransaction<
     })
     const format = chain?.formatters?.transaction?.format || formatTransaction
 
-    const transaction = format(response.tx)
+    const transaction = format(response.tx) as frameTransaction.Prepared<
+      ReturnType<typeof format>
+    >
 
-    if (
-      frames?.some(
-        (frame) =>
-          (frame as frameTransaction.SigningFrame)[frameTransaction.signing],
-      )
-    ) {
+    if (parameters.frameContext && frames) {
       if (transaction.frames?.length !== frames.length)
         throw new BaseError('Filled transaction must preserve the frame count.')
 
@@ -220,6 +225,15 @@ export async function fillTransaction<
         stateGas: frame.stateGas ?? transaction.frames![index]!.stateGas,
       }))
     }
+
+    if (parameters.frameContext)
+      transaction.frameContext = {
+        ...parameters.frameContext,
+        entries: parameters.frameContext.entries.map((entry) => ({
+          ...entry,
+          frame: transaction.frames![entry.frameIndex]!,
+        })),
+      }
 
     // Remove unnecessary fields.
     delete transaction.blockHash
@@ -294,8 +308,21 @@ export async function fillTransaction<
         transaction.gasPrice = multiplyFee(transaction.gasPrice)
     }
 
+    let raw = response.raw
+    if (simulationSignatures !== signatures) {
+      if (!raw.startsWith('0x06'))
+        throw new BaseError('Expected a filled frame transaction.')
+      const envelope = {
+        ...TxEnvelopeEip8141.deserialize(raw as TxEnvelopeEip8141.Serialized),
+        signatures,
+      }
+      raw = TxEnvelopeEip8141.serialize(envelope)
+      transaction.signatures = signatures
+      transaction.hash = TxEnvelopeEip8141.hash(envelope)
+    }
+
     return {
-      raw: response.raw,
+      raw,
       transaction: {
         from: request.from,
         ...transaction,

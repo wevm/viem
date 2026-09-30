@@ -35,7 +35,7 @@ const receipt = await client.sendTransactionSync({ // [!code focus]
 :::
 ## `Frame.sign`
 
-Returns a signed copy of a frame without mutating the input or transaction.
+Returns a signed frame containing the protocol frame and its completed signature entries, without mutating the input.
 
 ### Usage
 
@@ -106,9 +106,9 @@ const signed = await Frame.sign(request.frames[0]!, { transaction: request }) //
 :::
 ### Return Value
 
-`Promise<Frame>`
+`Promise<Frame.Signed>`
 
-A signed frame to place back at the same position in the transaction. An already signed frame is returned without signing again. Later changes to the signed transaction are rejected; signature bytes for other entries may still be populated.
+A signed result containing `frame`, completed `signatures`, their allocated `signatureIndex`, and the canonical `hash` when applicable. Replace the original frame at the same position in the prepared transaction. Completed signatures are reused. Later changes to the signed transaction are rejected; signature bytes for other entries may still be populated.
 
 ### Errors
 

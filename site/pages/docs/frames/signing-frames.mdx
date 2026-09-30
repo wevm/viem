@@ -37,7 +37,7 @@ const receipt = await client.sendRawTransactionSync({ serializedTransaction }) /
 
 ### Sign a Frame Explicitly
 
-Use [`Frame.sign`](/docs/frames/sign) to sign one frame before the final transaction signing call. Select the resolved frame from the prepared request, and replace that entry with the returned frame. Already signed frames are preserved.
+Use [`Frame.sign`](/docs/frames/sign) to sign one frame before the final transaction signing call. Select the resolved frame from the prepared request, then replace that frame with the signed result. Keep the prepared transaction context. Completed signature slots are preserved.
 
 :::code-group
 

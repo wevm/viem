@@ -178,9 +178,11 @@ export type CallErrorType = GetCallErrorReturnType<
  */
 export async function call<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  args: CallParameters<chain>,
+  args_: CallParameters<chain>,
 ): Promise<CallReturnType> {
-  args = frameTransaction.resolve(args)
+  const args = frameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
 
   const {
     account: account_ = client.account,
@@ -283,7 +285,10 @@ export async function call<chain extends Chain | undefined>(
         maxPriorityFeePerGas,
         nonce,
         nonceKeys,
-        signatures,
+        signatures: frameTransaction.getSimulationSignatures({
+          frameContext: args.frameContext,
+          signatures,
+        }),
         to: deploylessCall ? undefined : to,
         type,
         value,

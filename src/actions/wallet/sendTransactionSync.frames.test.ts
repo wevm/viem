@@ -257,7 +257,7 @@ describe('frames: Frame', () => {
 
     const receipt = await sendTransactionSync(client, {
       ...prepared,
-      frames: [signedOwner, prepared.frames[1]!, prepared.frames[2]!],
+      frames: [signedOwner, ...prepared.frames.slice(1)],
     })
 
     expect(receipt.status).toBe('success')
@@ -285,29 +285,40 @@ describe('frames: Frame', () => {
     const signed = await Frame.sign(prepared.frames[0]!, {
       transaction: prepared,
     })
-    const request = { ...prepared, frames: [signed, prepared.frames[1]!] }
+    const request = {
+      ...prepared,
+      frames: [signed, ...prepared.frames.slice(1)],
+    }
 
     await expect(
       sendTransactionSync(client, { ...request, nonce: prepared.nonce + 1 }),
-    ).rejects.toThrow('transaction changed')
+    ).rejects.toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
     await expect(
       sendTransactionSync(client, {
         ...request,
         maxFeePerGas: prepared.maxFeePerGas! + 1n,
       }),
-    ).rejects.toThrow('transaction changed')
+    ).rejects.toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
     await expect(
       sendTransactionSync(client, {
         ...request,
         frames: [signed, { ...prepared.frames[1]!, value: 2n }],
       }),
-    ).rejects.toThrow('transaction changed')
+    ).rejects.toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
     await expect(
       sendTransactionSync(client, {
         ...request,
         frames: [...request.frames].reverse(),
       }),
-    ).rejects.toThrow('transaction changed')
+    ).rejects.toThrow(
+      'Frame.sign: signed frame index, signature index, or signature count differs from its prepared allocation.',
+    )
 
     const receipt = await sendTransactionSync(client, request)
     expect(receipt.status).toBe('success')

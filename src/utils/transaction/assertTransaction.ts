@@ -25,6 +25,7 @@ import {
   type TipAboveFeeCapErrorType,
 } from '../../errors/node.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type {
   TransactionSerializableEIP1559,
   TransactionSerializableEIP2930,
@@ -74,7 +75,7 @@ export function assertTransactionEIP8141(
       )
 
   TxEnvelopeEip8141.assert({
-    ...transaction,
+    ...FrameTransaction.resolve(transaction),
     nonceKeys: transaction.nonceKeys ?? [0n],
     nonce: hexToBigInt(numberToHex(transaction.nonce ?? 0)),
   })
