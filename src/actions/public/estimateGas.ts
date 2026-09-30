@@ -158,6 +158,7 @@ export async function estimateGas<
       chainId,
       data,
       frames,
+      frameContext,
       gas,
       gasPrice,
       maxFeePerBlobGas,
@@ -175,7 +176,7 @@ export async function estimateGas<
           ...args,
           parameters,
           to,
-        } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
+        } as PrepareTransactionRequestParameters)) as frameTransaction.Prepared<EstimateGasParameters>)
       : args
 
     // If we get `gas` back from the prepared transaction request, which is
@@ -214,7 +215,7 @@ export async function estimateGas<
         nonce,
         nonceKeys,
         signatures: frameTransaction.getSimulationSignatures({
-          frameContext: args.frameContext,
+          frameContext,
           signatures,
         }),
         to,

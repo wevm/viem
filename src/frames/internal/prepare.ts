@@ -87,6 +87,12 @@ export function prepare<
     {
       ...transaction,
       frameContext: undefined,
+      signatures: prepared.signatures
+        ? [
+            { scheme: 'secp256k1', signer: account.address },
+            ...prepared.signatures,
+          ]
+        : undefined,
       frames: [
         ...inputs.slice(0, offset),
         Frame.verify({ account: account as PrivateKeyAccount }),

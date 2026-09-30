@@ -1,12 +1,70 @@
-import { parseTransaction, type TransactionSerializableEIP8141 } from 'viem'
+import {
+  http,
+  parseTransaction,
+  type TransactionSerializableEIP8141,
+} from 'viem'
 import { estimateGas, getBalance, getTransactionCount } from 'viem/actions'
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts, chain, getClient } from '~test/frames/config.js'
 
+import { rpcUrl } from '~test/frames/prool.js'
+
 const client = getClient({ account: accounts[0].address })
 
 describe('frames: Frame', () => {
+  test('uses the shifted placeholder allocation after automatic verification', async () => {
+    const witnesses: unknown[] = []
+    const client = getClient({
+      account: accounts[0],
+      transport: http(rpcUrl, {
+        async onFetchRequest(request) {
+          const body = await request.clone().json()
+          if (body.method === 'eth_estimateGas')
+            witnesses.push(body.params[0].signatures)
+        },
+      }),
+    })
+
+    const gas = await estimateGas(client, {
+      frames: [
+        Frame.from(() => ({
+          frame: {
+            mode: 'sender',
+            to: accounts[1].address,
+            executionGas: 50_000n,
+            stateGas: 0n,
+          },
+          signatures: [
+            {
+              scheme: 'arbitrary',
+              placeholder: '0xaabb',
+              sign: async () => '0xccdd',
+            },
+          ],
+        })),
+      ],
+    })
+
+    expect(gas).toBeGreaterThan(0n)
+    expect(witnesses).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "msg": "0x",
+            "scheme": "0x1",
+            "signer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          },
+          {
+            "msg": "0x",
+            "scheme": "0x0",
+            "signature": "0xaabb",
+          },
+        ],
+      ]
+    `)
+  })
+
   test.each([true, false])('prepare: %s', async (prepare) => {
     const result = await estimateGas(client, {
       prepare,
