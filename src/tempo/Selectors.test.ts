@@ -83,6 +83,10 @@ const selectorDefinitions = {
     abi: Abis.zonePortal,
     selectors: Selectors.zonePortal,
   },
+  zonePortalPreT13Retired: {
+    abi: Abis.zonePortalPreT13Retired,
+    selectors: Selectors.zonePortalPreT13Retired,
+  },
   zoneVerifier: {
     abi: Abis.zoneVerifier,
     selectors: Selectors.zoneVerifier,
