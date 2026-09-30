@@ -234,8 +234,6 @@ This document contains general guidelines for AI agents working on the Viem code
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
-- **Token popularity belongs in token definitions**; set `popular: true` on the token instead of
-  special-casing it in lookup generators.
 
 ## Changeset Conventions
 
@@ -261,7 +259,6 @@ Guidelines for authoring docs and guides under `site/pages/`.
 ### Prose
 
 - **Keep paragraphs concise**; aim for 30–40 words, with no more than 3 paragraphs per section. Split longer sections under additional headings.
-- **Write `Open USD` in docs prose**; keep `OpenUSD` only in code snippets and examples.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
 - **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.

@@ -137,7 +137,7 @@ const client = createPublicClient({
 // ---cut---
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
-  token: 'usdc',
+  token: 'ousd',
 })
 // @log: {
 // @log:   amount: 1234560000n,
@@ -147,7 +147,7 @@ const balance = await client.token.getBalance({
 ```
 
 :::info
-Symbol selectors like `token: 'usdc'` are only available when the token exists
+Symbol selectors like `token: 'ousd'` are only available when the token exists
 on the Client's `tokens` array. See [Defining Tokens](/tokens/guides/defining-tokens) for
 how to define reusable tokens and attach them to a Client. If the symbol is not
 declared, pass the token address instead:
@@ -155,7 +155,7 @@ declared, pass the token address instead:
 ```ts twoslash
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  token: '0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436',
 })
 ```
 :::
