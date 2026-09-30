@@ -21,5 +21,6 @@ export const ousd = /*#__PURE__*/ defineToken({
   currency: 'USD',
   decimals: 6,
   name: 'OpenUSD',
+  popular: true,
   symbol: 'OUSD',
 })
