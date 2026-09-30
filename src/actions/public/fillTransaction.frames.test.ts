@@ -9,11 +9,7 @@ import {
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
-import {
-  type SigningFrame,
-  signing,
-  type Transaction,
-} from '../../frames/internal/transaction.js'
+import type * as FrameTransaction from '../../frames/internal/transaction.js'
 
 const client = getClient({ account: accounts[0].address })
 
@@ -23,12 +19,10 @@ describe('frames: Frame', () => {
       frames: [Frame.verify({ account: accounts[0] })],
     })
 
-    expect({
-      ...result.transaction,
-      frames: result.transaction.frames?.map(
-        ({ [signing]: _signing, ...frame }: SigningFrame) => frame,
-      ),
-    }).toMatchInlineSnapshot(`
+    const { frameContext, ...transaction } =
+      result.transaction as FrameTransaction.Prepared<typeof result.transaction>
+    expect(frameContext?.entries.length).toBeGreaterThan(0)
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "blobVersionedHashes": [],
         "chainId": 8141,
@@ -98,11 +92,7 @@ describe('frames: Frame', () => {
     ]
     const result = await fillTransaction(client, { frames })
 
-    expect(
-      result.transaction.frames?.map(
-        ({ [signing]: _signing, ...frame }: SigningFrame) => frame,
-      ),
-    ).toMatchInlineSnapshot(`
+    expect(result.transaction.frames).toMatchInlineSnapshot(`
       [
         {
           "executionGas": 50000n,
@@ -319,7 +309,7 @@ describe('filled signing helpers', () => {
       const prepared = {
         ...request,
         sender: accounts[0].address,
-      } as Transaction
+      } as FrameTransaction.Transaction
       const signed =
         kind === 'verify'
           ? await Frame.sign(prepared.frames[0]!, { transaction: prepared })

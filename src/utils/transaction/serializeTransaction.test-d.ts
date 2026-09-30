@@ -46,9 +46,9 @@ test('eip8141', () => {
     getTransactionType({ ...transaction, type: 'eip1559' }),
   ).toEqualTypeOf<'eip1559'>()
   expectTypeOf(getSerializedTransactionType('0x06')).toEqualTypeOf<'eip8141'>()
-  expectTypeOf(
-    parseTransaction('0x06'),
-  ).toEqualTypeOf<TransactionSerializableEIP8141>()
+  expectTypeOf(parseTransaction('0x06')).toEqualTypeOf<
+    TransactionSerializableEIP8141<bigint, number, Frame>
+  >()
   expectTypeOf<
     TransactionSerializableEIP8141['chainId']
   >().toEqualTypeOf<number>()

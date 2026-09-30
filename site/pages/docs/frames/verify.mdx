@@ -80,7 +80,7 @@ const verification = verify({ account, stateGas: 0n }) // [!code focus]
 
 ### Return Value
 
-`Frame`
+`Frame.Frame`
 
 A verification helper with one signature entry. Signing uses `account.sign` with the final canonical signing hash. It must occupy signature index zero; unsigned frames such as expiry may precede it.
 

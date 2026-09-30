@@ -1,7 +1,6 @@
 import * as Hex from 'ox/Hex'
 import { BaseError } from '../errors/base.js'
-import type { Frame } from '../types/frame.js'
-import { from } from './Frame.js'
+import * as Frame from './Frame.js'
 import * as internal from './internal/transaction.js'
 
 /**
@@ -25,7 +24,7 @@ export function expiry(
     | bigint
     | `${number}${'s' | 'm' | 'h' | 'd' | 'w' | 'y'}`
     | (string & {}),
-): Frame {
+) {
   if (typeof deadline === 'string') {
     const match = /^(\d+(?:\.\d+)?)(s|m|h|d|w|y)$/.exec(deadline)
     if (match && match[2] === 'y') {
@@ -34,7 +33,9 @@ export function expiry(
         !Number.isSafeInteger(Number(match[1]!)) ||
         !Number.isSafeInteger(months)
       )
-        throw new BaseError('Expiry years must be safe whole numbers.')
+        throw new BaseError(
+          'Frame.expiry: a year duration must contain a safe integer number of years and resolve to a safe integer number of months.',
+        )
 
       const date = new Date()
       const day = date.getUTCDate()
@@ -50,7 +51,7 @@ export function expiry(
       const seconds = Number(match[1]!) * units[match[2]! as keyof typeof units]
       if (!Number.isSafeInteger(seconds))
         throw new BaseError(
-          'Expiry duration must resolve to a safe whole number of seconds.',
+          'Frame.expiry: duration must resolve to a safe integer number of seconds.',
         )
 
       deadline = Math.floor(Date.now() / 1000) + seconds
@@ -61,21 +62,25 @@ export function expiry(
         )
       )
         throw new BaseError(
-          'Expiry must be a duration or ISO date with an explicit timezone for date-times.',
+          'Frame.expiry: `deadline` must be a duration or ISO date; date-time strings must include a UTC offset or "Z".',
         )
 
       const timestamp = Date.parse(deadline)
       if (!Number.isFinite(timestamp))
-        throw new BaseError('Expiry date is invalid.')
+        throw new BaseError(
+          'Frame.expiry: `deadline` cannot be parsed as a finite ISO date timestamp.',
+        )
 
       deadline = Math.floor(timestamp / 1000)
     }
   }
 
   if (typeof deadline === 'number' && !Number.isSafeInteger(deadline))
-    throw new BaseError('Expiry must be a safe integer or bigint timestamp.')
+    throw new BaseError(
+      'Frame.expiry: numeric `deadline` must be a safe integer Unix timestamp in seconds, or a bigint timestamp.',
+    )
 
-  return from(() => ({
+  return Frame.from(() => ({
     frame: {
       data: Hex.fromNumber(deadline, { size: 8 }),
       flags: 'none',

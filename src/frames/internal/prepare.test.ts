@@ -2,7 +2,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { Frame } from 'viem/frames'
 import { expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
-import { prepare } from './prepare.js'
+import * as FramePrepare from './prepare.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 const sponsor = privateKeyToAccount(accounts[1].privateKey)
@@ -11,7 +11,7 @@ test('prepends execution and payment approval', () => {
   const transaction = {
     frames: [Frame.calls([{ to: sponsor.address, value: 1n }])],
   }
-  const result = prepare(transaction, account)
+  const result = FramePrepare.prepare(transaction, account)
 
   expect(result.frames[0]).toMatchObject({
     flags: 'approveExecutionAndPayment',
@@ -24,11 +24,11 @@ test('prepends execution and payment approval', () => {
     value: 1n,
   })
   expect(transaction.frames).toHaveLength(1)
-  expect(prepare(result, account).frames).toHaveLength(2)
+  expect(FramePrepare.prepare(result, account).frames).toHaveLength(2)
 })
 
 test('payment approval does not suppress execution approval', () => {
-  const result = prepare(
+  const result = FramePrepare.prepare(
     {
       frames: [
         Frame.from(() => ({
@@ -41,7 +41,9 @@ test('payment approval does not suppress execution approval', () => {
             {
               scheme: 'secp256k1',
               signer: sponsor.address,
-              async sign({ hash }) {
+              async sign(options) {
+                const { hash } = options
+
                 return sponsor.sign({ hash })
               },
             },
@@ -66,7 +68,7 @@ test.each(['approveExecution', 'approveExecutionAndPayment', 2, 3] as const)(
   'preserves explicit execution approval: %s',
   (flags) => {
     const transaction = { frames: [{ flags, mode: 'verify' as const }] }
-    expect(prepare(transaction, account)).toEqual({
+    expect(FramePrepare.prepare(transaction, account)).toEqual({
       ...transaction,
       nonceKeys: [0n],
     })
@@ -75,22 +77,22 @@ test.each(['approveExecution', 'approveExecutionAndPayment', 2, 3] as const)(
 
 test('a verify frame without execution approval does not suppress it', () => {
   const transaction = { frames: [{ mode: 'verify' as const }] }
-  expect(prepare(transaction, account).frames).toHaveLength(2)
+  expect(FramePrepare.prepare(transaction, account).frames).toHaveLength(2)
 })
 
 test('does not alter ordinary transactions', () => {
   const transaction = { frames: undefined }
-  expect(prepare(transaction, undefined)).toBe(transaction)
+  expect(FramePrepare.prepare(transaction, undefined)).toBe(transaction)
 })
 
 test('requires explicit verification for an account address', () => {
   expect(() =>
-    prepare(
+    FramePrepare.prepare(
       { frames: [Frame.calls([{ to: sponsor.address }])] },
       account.address,
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [BaseError: Cannot add verification automatically for this account.
+    [BaseError: Frame.verify: automatic execution approval requires a local private-key account.
 
     Pass an account created with \`privateKeyToAccount\` as the transaction account, or add a verification frame with \`mode: 'verify'\` and \`flags: 'approveExecution'\` or \`'approveExecutionAndPayment'\`.
 
@@ -103,18 +105,20 @@ test('preserves raw frames with explicit signature entries', () => {
     frames: [{ mode: 'sender' as const, to: sponsor.address }],
     signatures: [{ scheme: 'secp256k1' as const }],
   }
-  expect(prepare(transaction, account.address)).toEqual({
+  expect(FramePrepare.prepare(transaction, account.address)).toEqual({
     ...transaction,
     nonceKeys: [0n],
   })
-  expect(prepare(transaction, account)).toEqual({
+  expect(FramePrepare.prepare(transaction, account)).toEqual({
     ...transaction,
     nonceKeys: [0n],
   })
 })
 
 test('recognizes custom verification before inserting default verification', () => {
-  const frame = Frame.from(({ signatureIndex }) => {
+  const frame = Frame.from((options) => {
+    const { signatureIndex } = options
+
     return {
       frame: {
         mode: 'verify',
@@ -123,13 +127,15 @@ test('recognizes custom verification before inserting default verification', () 
       },
     }
   })
-  const prepared = prepare({ frames: [frame] }, account.address)
+  const prepared = FramePrepare.prepare({ frames: [frame] }, account.address)
   expect(prepared.frames).toHaveLength(1)
   expect(prepared.frames[0]?.data).toBe('0x00')
 })
 
 test('reallocates custom entries after automatic verification is inserted', () => {
-  const frame = Frame.from(({ signatureIndex }) => {
+  const frame = Frame.from((options) => {
+    const { signatureIndex } = options
+
     return {
       frame: { mode: 'sender', data: signatureIndex === 1 ? '0x01' : '0x00' },
       signatures: [
@@ -142,7 +148,7 @@ test('reallocates custom entries after automatic verification is inserted', () =
       ],
     }
   })
-  const prepared = prepare({ frames: [frame] }, account)
+  const prepared = FramePrepare.prepare({ frames: [frame] }, account)
   expect(prepared.frames).toHaveLength(2)
   expect(prepared.frames[1]?.data).toBe('0x01')
 })
@@ -156,16 +162,20 @@ test('detects payment approval declared only during custom preparation', () => {
   const verifier = Frame.verify({ account })
   expect(verifier).not.toHaveProperty('flags')
   expect(payer).not.toHaveProperty('flags')
-  const prepared = prepare({ frames: [verifier, payer] }, account)
-  expect(prepared.frames.map(({ flags }) => flags)).toEqual([
-    'approveExecution',
-    'approvePayment',
-  ])
-  const automatic = prepare({ frames: [payer] }, account)
-  expect(automatic.frames.map(({ flags }) => flags)).toEqual([
-    'approveExecution',
-    'approvePayment',
-  ])
+  const prepared = FramePrepare.prepare({ frames: [verifier, payer] }, account)
+  expect(
+    prepared.frames.map((frame) => {
+      const { flags } = frame
+      return flags
+    }),
+  ).toEqual(['approveExecution', 'approvePayment'])
+  const automatic = FramePrepare.prepare({ frames: [payer] }, account)
+  expect(
+    automatic.frames.map((frame) => {
+      const { flags } = frame
+      return flags
+    }),
+  ).toEqual(['approveExecution', 'approvePayment'])
 })
 
 test('inserts automatic verification after expiry', () => {
@@ -178,7 +188,9 @@ test('inserts automatic verification after expiry', () => {
           {
             scheme: 'secp256k1',
             signer: sponsor.address,
-            async sign({ hash }) {
+            async sign(options) {
+              const { hash } = options
+
               return sponsor.sign({ hash })
             },
           },
@@ -187,18 +199,18 @@ test('inserts automatic verification after expiry', () => {
       Frame.calls([{ to: sponsor.address, value: 1n }]),
     ],
   }
-  const prepared = prepare(transaction, account)
+  const prepared = FramePrepare.prepare(transaction, account)
 
-  expect(prepared.frames.map(({ flags }) => flags)).toEqual([
-    'none',
-    'approveExecution',
-    'approvePayment',
-    undefined,
-  ])
+  expect(
+    prepared.frames.map((frame) => {
+      const { flags } = frame
+      return flags
+    }),
+  ).toEqual(['none', 'approveExecution', 'approvePayment', undefined])
   expect(prepared.frames[0]?.to).toBe(
     '0x0000000000000000000000000000000000008141',
   )
   expect(prepared.frames[1]?.to).toBe(account.address)
-  expect(prepare(prepared, account).frames).toHaveLength(4)
+  expect(FramePrepare.prepare(prepared, account).frames).toHaveLength(4)
   expect(transaction.frames).toHaveLength(3)
 })

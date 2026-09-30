@@ -1,5 +1,6 @@
 import {
   concatHex,
+  formatTransactionRequest,
   numberToHex,
   parseTransaction,
   serializeTransaction,
@@ -9,12 +10,12 @@ import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { TransactionSerializableEIP8141 } from '../types/transaction.js'
-import { resolve } from './internal/transaction.js'
+import * as FrameTransaction from './internal/transaction.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
 
 function transaction() {
-  return resolve({
+  return FrameTransaction.resolve({
     chainId: 8141,
     frames: [verify({ account, executionGas: 50_000n, stateGas: 0n })],
     maxFeePerGas: 20n,
@@ -31,13 +32,17 @@ describe('sign', () => {
       Frame.sign(request.frames[0]!, {
         transaction: { ...request, nonce: undefined },
       }),
-    ).rejects.toThrow('Prepare the transaction')
+    ).rejects.toThrow(
+      'Frame.sign: transaction hashing requires `chainId`, `nonce`, fee parameters, and execution/state gas budgets for every frame. Call `prepareTransactionRequest` first.',
+    )
   })
 
   test('rejects a frame from another transaction', async () => {
     await expect(
       Frame.sign(transaction().frames[0]!, { transaction: transaction() }),
-    ).rejects.toThrow('from the prepared transaction')
+    ).rejects.toThrow(
+      'Frame.sign: `frame` must reference a prepared transaction frame with allocated signing callbacks.',
+    )
   })
 
   test('preserves the prepared transaction and can reuse a signed frame', async () => {
@@ -49,11 +54,59 @@ describe('sign', () => {
     const request = { ...prepared, frames: [signed] }
 
     expect(prepared).toEqual(before)
-    expect(signed).not.toBe(prepared.frames[0])
+    expect(signed.frame).toBe(prepared.frames[0])
+    expect(Object.keys(signed)).toMatchInlineSnapshot(`
+      [
+        "frame",
+        "signatures",
+        "signatureIndex",
+        "hash",
+      ]
+    `)
+    expect(signed.signatures[0]).not.toHaveProperty('sign')
+    expect(signed.frame).not.toHaveProperty('prepare')
     expect(await Frame.sign(signed, { transaction: request })).toBe(signed)
     await expect(
-      Frame.sign(signed, { transaction: { ...request, chainId: 1 } }),
-    ).rejects.toThrow('transaction changed')
+      Frame.sign(signed, {
+        transaction: { ...request, chainId: 1 },
+      }),
+    ).rejects.toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
+  })
+
+  test('requires the original context and signature metadata', async () => {
+    const prepared = transaction()
+    const signed = await Frame.sign(prepared.frames[0]!, {
+      transaction: prepared,
+    })
+    expect(() =>
+      FrameTransaction.resolve({
+        ...prepared,
+        frameContext: undefined,
+        frames: [signed],
+      }),
+    ).toThrow(
+      'Frame.sign: signed frame index, signature index, or signature count differs from its prepared allocation.',
+    )
+    expect(() =>
+      FrameTransaction.resolve({
+        ...prepared,
+        frames: [
+          {
+            ...signed,
+            signatures: [
+              { scheme: 'arbitrary' as const, signature: '0xaa' as const },
+            ],
+          },
+        ],
+      }),
+    ).toThrow(
+      'Frame.sign: signed signature scheme, signer, or payload differs from its prepared allocation.',
+    )
+    expect(
+      FrameTransaction.resolve({ ...prepared, frames: [signed] }).frames,
+    ).toEqual(prepared.frames)
   })
 
   test('rejects modified signed scope', async () => {
@@ -63,11 +116,15 @@ describe('sign', () => {
     })
 
     expect(() =>
-      resolve({
+      FrameTransaction.resolve({
         ...prepared,
-        frames: [{ ...signed, flags: 'approvePayment' }],
+        frames: [
+          { ...signed, frame: { ...signed.frame, flags: 'approvePayment' } },
+        ],
       }),
-    ).toThrow('transaction changed')
+    ).toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
   })
 })
 
@@ -80,14 +137,18 @@ test('rejects ambiguous signature slots', async () => {
       ...base,
       frames: [verify({ account, ...gas }), verify({ account, ...gas })],
     }),
-  ).rejects.toThrow('signature index 0')
+  ).rejects.toThrow(
+    'Frame.verify: default-account execution approval requires `signatureIndex` 0.',
+  )
 
   expect(() =>
-    resolve({
+    FrameTransaction.resolve({
       ...transaction(),
       signatures: [{ scheme: 'arbitrary', signature: '0x' }],
     } satisfies TransactionSerializableEIP8141),
-  ).toThrow('through the signing frames')
+  ).toThrow(
+    'Frame.from: transaction `signatures` conflict with the declared frame signature allocations. Supply signatures through frame signing callbacks.',
+  )
 })
 
 test('account signing serializes frame witnesses through a custom serializer', async () => {
@@ -106,7 +167,9 @@ test('account signing serializes frame witnesses through a custom serializer', a
 })
 
 test('custom frames resolve and sign multiple allocated entries', async () => {
-  const custom = Frame.from(({ signatureIndex }) => {
+  const custom = Frame.from((options) => {
+    const { signatureIndex } = options
+
     return {
       frame: {
         mode: 'default',
@@ -120,10 +183,9 @@ test('custom frames resolve and sign multiple allocated entries', async () => {
       },
       signatures: ['0xaa', '0xbb'].map((value, index) => ({
         scheme: 'arbitrary' as const,
-        async sign({
-          signatureIndex,
-          transaction,
-        }: Parameters<Frame.Signature['sign']>[0]) {
+        async sign(options: Parameters<Frame.Signature['sign']>[0]) {
+          const { signatureIndex, transaction } = options
+
           expect(signatureIndex).toBe(index + 1)
           expect(transaction.frames[1]?.data).toBe('0x0102')
           expect(transaction.nonce).toBe(0)
@@ -132,7 +194,7 @@ test('custom frames resolve and sign multiple allocated entries', async () => {
       })),
     }
   })
-  const prepared = resolve({
+  const prepared = FrameTransaction.resolve({
     ...transaction(),
     frames: [...transaction().frames, custom],
   })
@@ -168,14 +230,16 @@ test('rejects an invalid signature value from an entry', async () => {
   })
   const { signatures: _, ...base } =
     transaction() as TransactionSerializableEIP8141
-  const prepared = resolve({ ...base, frames: [frame] })
+  const prepared = FrameTransaction.resolve({ ...base, frames: [frame] })
   await expect(
     Frame.sign(prepared.frames[0]!, { transaction: prepared }),
   ).rejects.toThrow()
 })
 
 test('unsigned helpers do not consume signature slots', async () => {
-  const unsigned = Frame.from(({ signatureIndex }) => {
+  const unsigned = Frame.from((options) => {
+    const { signatureIndex } = options
+
     return {
       frame: {
         mode: 'sender',
@@ -185,7 +249,9 @@ test('unsigned helpers do not consume signature slots', async () => {
       },
     }
   })
-  const signer = Frame.from(({ signatureIndex }) => {
+  const signer = Frame.from((options) => {
+    const { signatureIndex } = options
+
     return {
       frame: {
         mode: 'default',
@@ -196,14 +262,16 @@ test('unsigned helpers do not consume signature slots', async () => {
       signatures: [
         {
           scheme: 'arbitrary',
-          async sign({ signatureIndex }) {
+          async sign(options) {
+            const { signatureIndex } = options
+
             return numberToHex(signatureIndex, { size: 1 })
           },
         },
       ],
     }
   })
-  const prepared = resolve({
+  const prepared = FrameTransaction.resolve({
     ...transaction(),
     frames: [...transaction().frames, unsigned, signer],
   })
@@ -219,7 +287,7 @@ test('retains filled gas and prepared calldata through signing', async () => {
   const definition = () => {
     return { frame: { mode: 'sender' as const, data: '0x1234' as const } }
   }
-  const prepared = resolve({
+  const prepared = FrameTransaction.resolve({
     ...transaction(),
     frames: [...transaction().frames, Frame.from(definition)],
   })
@@ -230,7 +298,7 @@ test('retains filled gas and prepared calldata through signing', async () => {
       { ...prepared.frames[1]!, executionGas: 100n, stateGas: 0n },
     ],
   }
-  const resolved = resolve(filled)
+  const resolved = FrameTransaction.resolve(filled)
   expect(resolved.frames[1]).toMatchObject({
     data: '0x1234',
     executionGas: 100n,
@@ -253,8 +321,8 @@ test('requires signing for declared entries', () => {
       signatures: [{ scheme: 'arbitrary' }],
     }
   })
-  expect(() => resolve({ frames: [frame] })).toThrow(
-    'must provide a sign callback',
+  expect(() => FrameTransaction.resolve({ frames: [frame] })).toThrow(
+    'Frame.from: each `signatures` entry must define a `sign` function.',
   )
 })
 
@@ -275,19 +343,63 @@ test('signing callbacks cannot replace their prepared metadata', async () => {
   })
   const { signatures: _, ...base } =
     transaction() as TransactionSerializableEIP8141
-  const prepared = resolve({ ...base, frames: [frame] })
+  const prepared = FrameTransaction.resolve({ ...base, frames: [frame] })
   const signed = await Frame.sign(prepared.frames[0]!, {
     transaction: prepared,
   })
-  expect(resolve({ ...prepared, frames: [signed] })).toMatchObject({
+  expect(
+    FrameTransaction.resolve({ ...prepared, frames: [signed] }),
+  ).toMatchObject({
     signatures: [{ scheme: 'arbitrary', signature: '0xaa', payload: '0x' }],
   })
 })
 
 describe('from', () => {
+  test('returns the definition directly and resolves it into protocol frames', () => {
+    const definition: Frame.Frame = () => ({
+      frame: { mode: 'sender', value: 1n },
+    })
+    const helper = Frame.from(definition)
+    expect(helper).toBe(definition)
+    expect(typeof helper).toBe('function')
+    expect(Object.keys(helper)).toEqual([])
+    expect(
+      FrameTransaction.resolve({ frames: [helper] }).frames,
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "mode": "sender",
+          "value": 1n,
+        },
+      ]
+    `)
+  })
+
+  test('formats definition functions without exposing callbacks', () => {
+    const helper = Frame.from(() => ({ frame: { mode: 'sender', value: 1n } }))
+    expect(
+      formatTransactionRequest({ frames: [helper] }),
+    ).toMatchInlineSnapshot(`
+      {
+        "frames": [
+          {
+            "data": "0x",
+            "flags": "0x0",
+            "mode": "0x2",
+            "value": "0x1",
+          },
+        ],
+        "nonceKeys": [
+          "0x0",
+        ],
+        "type": "0x6",
+      }
+    `)
+  })
+
   test('expands multiple frames and preserves explicit signatures', () => {
     const signatures = [{ scheme: 'secp256k1' as const }]
-    const prepared = resolve({
+    const prepared = FrameTransaction.resolve({
       frames: [
         Frame.from(() => ({
           frames: [
@@ -303,11 +415,11 @@ describe('from', () => {
       { mode: 'sender', to: account.address, value: 2n },
     ])
     expect(prepared.signatures).toBe(signatures)
-    expect(resolve(prepared)).toBe(prepared)
+    expect(FrameTransaction.resolve(prepared)).toBe(prepared)
   })
 
   test('resolves approval peers after a multi-frame expansion', () => {
-    const prepared = resolve({
+    const prepared = FrameTransaction.resolve({
       frames: [
         calls([{ value: 1n }, { value: 2n }]),
         verify({ account }),
@@ -321,7 +433,9 @@ describe('from', () => {
             {
               scheme: 'secp256k1',
               signer: account.address,
-              async sign({ hash }) {
+              async sign(options) {
+                const { hash } = options
+
                 return account.sign({ hash })
               },
             },

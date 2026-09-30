@@ -1,6 +1,7 @@
 import {
   deployContract,
   getBalance,
+  getTransaction,
   getTransactionCount,
   readContract,
   sendTransactionSync,
@@ -14,6 +15,39 @@ import { accounts, getClient } from '~test/frames/config.js'
 const client = getClient({ account: accounts[0] })
 
 describe('calls', () => {
+  test('applies custom suffix hooks before filling and signing', async () => {
+    const receipt = await sendTransactionSync(client, {
+      dataSuffix: '0xab',
+      frames: [
+        Frame.from(() => ({
+          frames: [
+            { mode: 'sender', to: accounts[1].address, data: '0x12' },
+            { mode: 'sender', to: accounts[1].address, data: '0x34' },
+          ],
+          dataSuffix(context) {
+            const { index, suffix } = context
+            return index === 0 ? undefined : suffix
+          },
+        })),
+        Frame.calls([{ to: accounts[1].address, data: '0x56' }]),
+      ],
+    })
+    expect(receipt.status).toMatchInlineSnapshot('"success"')
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(
+      transaction.frames?.map((frame) => frame.data),
+    ).toMatchInlineSnapshot(`
+      [
+        "0x",
+        "0x12",
+        "0x34ab",
+        "0x56ab",
+      ]
+    `)
+  })
+
   test('executes independent atomic call groups', async () => {
     const balance = await getBalance(client, { address: accounts[1].address })
     const receipt = await sendTransactionSync(client, {
@@ -62,7 +96,12 @@ describe('calls', () => {
     expect(await getBalance(client, { address: accounts[1].address })).toBe(
       balance + 12n,
     )
-    expect(receipt.frameReceipts?.map(({ status }) => status)).toEqual([
+    expect(
+      receipt.frameReceipts?.map((frame) => {
+        const { status } = frame
+        return status
+      }),
+    ).toEqual([
       'success',
       'success',
       'reverted',
@@ -96,12 +135,12 @@ describe('calls', () => {
     })
 
     expect(receipt.status).toBe('success')
-    expect(receipt.frameReceipts?.map(({ status }) => status)).toEqual([
-      'success',
-      'success',
-      'success',
-      'success',
-    ])
+    expect(
+      receipt.frameReceipts?.map((frame) => {
+        const { status } = frame
+        return status
+      }),
+    ).toEqual(['success', 'success', 'success', 'success'])
     expect(
       await readContract(client, {
         address: to,

@@ -21,12 +21,8 @@ import {
   type TransactionReceiptRevertedErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { prepare as prepareFrames } from '../../frames/internal/prepare.js'
-import {
-  applyDataSuffix,
-  type SigningFrame,
-  signing,
-} from '../../frames/internal/transaction.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -189,18 +185,18 @@ export async function sendTransactionSync<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SendTransactionSyncParameters<
+  parameters_: SendTransactionSyncParameters<
     chain,
     account,
     chainOverride,
     request
   >,
 ): Promise<SendTransactionSyncReturnType<chain>> {
-  parameters = prepareFrames(
-    parameters,
-    parameters.account === undefined ? client.account : parameters.account,
+  let parameters = FramePrepare.prepare(
+    parameters_,
+    parameters_.account === undefined ? client.account : parameters_.account,
   )
-  parameters = applyDataSuffix(
+  parameters = FrameTransaction.applyDataSuffix(
     parameters,
     parameters.dataSuffix ??
       (typeof client.dataSuffix === 'string'
@@ -243,12 +239,10 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
-  const hasSigningFrames = frames?.some(
-    (frame) => (frame as SigningFrame)[signing],
-  )
-  const hasSignedFrames = frames?.some(
-    (frame) => (frame as SigningFrame)[signing]?.hash,
-  )
+  const hasSigning = FrameTransaction.hasSigningFrames(parameters)
+  const hasSignedFrames = (
+    parameters as FrameTransaction.Prepared<typeof parameters>
+  ).frameContext?.entries.some((entry) => entry.hash)
   let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
@@ -276,10 +270,7 @@ export async function sendTransactionSync<
       return undefined
     })()
 
-    if (
-      (account?.type === 'json-rpc' || account === null) &&
-      !hasSigningFrames
-    ) {
+    if ((account?.type === 'json-rpc' || account === null) && !hasSigning) {
       let chainId: number | undefined = parameters.chainId
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
@@ -394,7 +385,7 @@ export async function sendTransactionSync<
 
     if (
       account?.type === 'local' ||
-      (account?.type === 'json-rpc' && hasSigningFrames)
+      (account?.type === 'json-rpc' && hasSigning)
     ) {
       const nonceManager = ((): NonceManager | undefined => {
         if (!account.nonceManager || typeof nonce !== 'undefined')
@@ -452,7 +443,7 @@ export async function sendTransactionSync<
 
       const serializer = chain?.serializers?.transaction
       const signedTransaction = (
-        hasSigningFrames
+        hasSigning
           ? await signFrameTransaction(
               request as TransactionSerializableEIP8141,
               serializer,

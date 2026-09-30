@@ -8,7 +8,7 @@ import {
 import { Frame } from 'viem/frames'
 import { expect, test } from 'vitest'
 import { accounts, getClient } from '~test/frames/config.js'
-import { resolve } from './internal/transaction.js'
+import * as FrameTransaction from './internal/transaction.js'
 
 const client = getClient({ account: accounts[0] })
 
@@ -23,11 +23,12 @@ test('sends an expiring transaction with automatic verification', async () => {
   })
 
   expect(receipt.status).toBe('success')
-  expect(receipt.frameReceipts?.map(({ status }) => status)).toEqual([
-    'success',
-    'success',
-    'success',
-  ])
+  expect(
+    receipt.frameReceipts?.map((frame) => {
+      const { status } = frame
+      return status
+    }),
+  ).toEqual(['success', 'success', 'success'])
   expect(await getBalance(client, { address: accounts[1].address })).toBe(
     balance + 1n,
   )
@@ -55,7 +56,8 @@ test('rejects expired transactions before broadcasting', async () => {
 test('expiry verifier includes the deadline and rejects the following second', async () => {
   const { timestamp } = await getBlock(client)
   const deadline = timestamp + 3600n
-  const frame = resolve({ frames: [Frame.expiry(deadline)] }).frames[0]!
+  const frame = FrameTransaction.resolve({ frames: [Frame.expiry(deadline)] })
+    .frames[0]!
 
   await expect(
     call(client, {

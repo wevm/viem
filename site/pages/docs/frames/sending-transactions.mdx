@@ -114,8 +114,7 @@ A receipt's outer status alone does not establish that every call succeeded.
 
 For Frame Transactions, action-level or client-level `dataSuffix` is appended to each
 sender frame before gas estimation and signing. A per-call `dataSuffix` overrides
-that default, including `'0x'` to disable it. Verification frames and already-signed
-transactions are unchanged.
+that default, including `'0x'` to disable it. Custom helpers can [customize the suffix with a `dataSuffix` hook](/docs/frames/from#customize-a-data-suffix). Without a hook, verification frames are unchanged. Already-signed transactions are unchanged.
 
 ## Best Practices
 

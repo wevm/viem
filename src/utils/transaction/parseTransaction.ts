@@ -16,6 +16,7 @@ import type {
   SerializedAuthorizationList,
   SignedAuthorizationList,
 } from '../../types/authorization.js'
+import type { Frame } from '../../types/frame.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
@@ -83,9 +84,11 @@ export type ParseTransactionReturnType<
           ? TransactionSerializableEIP4844<bigint, number, false>
           : never)
       | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
-      | (type extends 'eip8141' ? TransactionSerializableEIP8141 : never)
+      | (type extends 'eip8141'
+          ? TransactionSerializableEIP8141<bigint, number, Frame>
+          : never)
       | (type extends 'legacy' ? TransactionSerializableLegacy : never)
-  : TransactionSerializable
+  : TransactionSerializable<bigint, number, Frame>
 
 export type ParseTransactionErrorType =
   | GetSerializedTransactionTypeErrorType
@@ -139,7 +142,7 @@ type ParseTransactionEIP8141ErrorType =
 
 function parseTransactionEIP8141(
   serializedTransaction: TransactionSerializedEIP8141,
-): TransactionSerializableEIP8141 {
+): TransactionSerializableEIP8141<bigint, number, Frame> {
   const transaction = TxEnvelopeEip8141.deserialize(serializedTransaction)
   return {
     ...transaction,

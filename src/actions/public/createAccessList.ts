@@ -9,7 +9,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { resolve } from '../../frames/internal/transaction.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
@@ -101,9 +101,11 @@ export type CreateAccessListErrorType = GetCallErrorReturnType<
  */
 export async function createAccessList<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  args: CreateAccessListParameters<chain>,
+  args_: CreateAccessListParameters<chain>,
 ): Promise<CreateAccessListReturnType> {
-  args = resolve(args)
+  const args = FrameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
 
   const {
     account: account_ = client.account,
@@ -120,7 +122,7 @@ export async function createAccessList<chain extends Chain | undefined>(
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonceKeys,
-    signatures,
+    signatures: _signatures,
     to,
     type,
     value,
@@ -154,7 +156,7 @@ export async function createAccessList<chain extends Chain | undefined>(
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonceKeys,
-        signatures,
+        signatures: FrameTransaction.getSimulationSignatures(args),
         to,
         type,
         value,

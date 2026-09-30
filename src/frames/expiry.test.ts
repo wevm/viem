@@ -1,7 +1,7 @@
 import * as Frame_ox from 'ox/Frame'
 import { Frame } from 'viem/frames'
 import { describe, expect, test } from 'vitest'
-import { resolve } from './internal/transaction.js'
+import * as FrameTransaction from './internal/transaction.js'
 
 describe('expiry', () => {
   test.each([
@@ -16,7 +16,9 @@ describe('expiry', () => {
     const before = Math.floor(Date.now() / 1_000)
     const helper = Frame.expiry(duration)
     const after = Math.floor(Date.now() / 1_000)
-    const deadline = Number(resolve({ frames: [helper] }).frames[0]!.data!)
+    const deadline = Number(
+      FrameTransaction.resolve({ frames: [helper] }).frames[0]!.data!,
+    )
 
     expect(deadline).toBeGreaterThanOrEqual(before + seconds)
     expect(deadline).toBeLessThanOrEqual(after + seconds)
@@ -28,7 +30,9 @@ describe('expiry', () => {
       const before = new Date()
       const helper = Frame.expiry(duration)
       const after = new Date()
-      const deadline = Number(resolve({ frames: [helper] }).frames[0]!.data!)
+      const deadline = Number(
+        FrameTransaction.resolve({ frames: [helper] }).frames[0]!.data!,
+      )
       const years = Number(duration.slice(0, -1))
       for (const date of [before, after]) {
         const month = date.getUTCMonth()
@@ -45,9 +49,11 @@ describe('expiry', () => {
 
   test('keeps the creation deadline when prepared later', async () => {
     const helper = Frame.expiry('1h')
-    const first = resolve({ frames: [helper] }).frames[0]!.data
+    const first = FrameTransaction.resolve({ frames: [helper] }).frames[0]!.data
     await new Promise((resolve) => setTimeout(resolve, 1_100))
-    expect(resolve({ frames: [helper] }).frames[0]!.data).toEqual(first)
+    expect(
+      FrameTransaction.resolve({ frames: [helper] }).frames[0]!.data,
+    ).toEqual(first)
   })
 
   test.each([
@@ -75,7 +81,8 @@ describe('expiry', () => {
     ['2026-12-31T19:00:00-05:00', 1_798_761_600n],
     ['2027-01-01T00:00:00.999Z', 1_798_761_600n],
   ] as const)('encodes date %s', (deadline, expected) => {
-    const frame = resolve({ frames: [Frame.expiry(deadline)] }).frames[0]!
+    const frame = FrameTransaction.resolve({ frames: [Frame.expiry(deadline)] })
+      .frames[0]!
     expect(BigInt(frame.data!)).toBe(expected)
   })
 
@@ -94,7 +101,8 @@ describe('expiry', () => {
     [1_800_000_000, '0x000000006b49d200'],
     [18_446_744_073_709_551_615n, '0xffffffffffffffff'],
   ] as const)('encodes deadline %s', (deadline, data) => {
-    const frame = resolve({ frames: [Frame.expiry(deadline)] }).frames[0]!
+    const frame = FrameTransaction.resolve({ frames: [Frame.expiry(deadline)] })
+      .frames[0]!
 
     expect(frame).toMatchObject({
       data,
@@ -119,7 +127,9 @@ describe('expiry', () => {
     Number.MAX_SAFE_INTEGER + 1,
     18_446_744_073_709_551_616n,
   ])('rejects invalid deadline %s', (deadline) => {
-    expect(() => resolve({ frames: [Frame.expiry(deadline)] })).toThrow()
+    expect(() =>
+      FrameTransaction.resolve({ frames: [Frame.expiry(deadline)] }),
+    ).toThrow()
   })
 
   test('rejects misplaced and duplicate expiry frames', () => {
@@ -127,8 +137,8 @@ describe('expiry', () => {
       [Frame.calls([{ value: 1n }]), Frame.expiry(1n)],
       [Frame.expiry(1n), Frame.expiry(2n)],
     ])
-      expect(() => resolve({ frames })).toThrow(
-        'must be first and appear only once',
+      expect(() => FrameTransaction.resolve({ frames })).toThrow(
+        'Frame.expiry: the expiry verifier must occupy frame index 0 and occur exactly once.',
       )
   })
 })

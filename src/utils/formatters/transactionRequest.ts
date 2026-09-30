@@ -2,7 +2,7 @@ import * as Frame from 'ox/Frame'
 import * as FrameSignature from 'ox/FrameSignature'
 import * as TransactionRequest_ox from 'ox/TransactionRequest'
 import type { ErrorType } from '../../errors/utils.js'
-import { resolveNonceKeys } from '../../frames/internal/transaction.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
 import type {
@@ -55,9 +55,12 @@ export type FormatTransactionRequestErrorType =
   | ErrorType
 
 export function formatTransactionRequest(
-  request: ExactPartial<TransactionRequest> & { account?: Account | undefined },
+  request_: ExactPartial<TransactionRequest> & {
+    account?: Account | undefined
+  },
   _?: string | undefined,
 ) {
+  const request = FrameTransaction.resolve(request_)
   const rpcRequest = {} as RpcTransactionRequest
 
   if (typeof request.authorizationList !== 'undefined')
@@ -112,7 +115,7 @@ export function formatTransactionRequest(
     request.nonceKeys !== undefined
   )
     rpcRequest.nonceKeys = TransactionRequest_ox.toRpc({
-      nonceKeys: resolveNonceKeys(request.nonceKeys),
+      nonceKeys: FrameTransaction.resolveNonceKeys(request.nonceKeys),
     }).nonceKeys
   if (typeof request.signatures !== 'undefined')
     rpcRequest.signatures = request.signatures.map(FrameSignature.toRpc)

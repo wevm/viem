@@ -121,7 +121,9 @@ describe('frames: Frame', () => {
         frames: [signed],
         nonce: prepared.nonce + 1,
       }),
-    ).rejects.toThrow('transaction changed')
+    ).rejects.toThrow(
+      'Frame.sign: transaction hash differs from the signed frame hash. Prepare and sign the modified transaction again.',
+    )
   })
 
   test('propagates frame signing rejection', async () => {

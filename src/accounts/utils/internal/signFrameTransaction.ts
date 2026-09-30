@@ -1,10 +1,5 @@
-import {
-  resolve,
-  type SigningFrame,
-  signFrame,
-  signing,
-} from '../../../frames/internal/transaction.js'
-import type { Frame } from '../../../types/frame.js'
+import * as Frame from '../../../frames/Frame.js'
+import * as FrameTransaction from '../../../frames/internal/transaction.js'
 import type { TransactionSerializableEIP8141 } from '../../../types/transaction.js'
 import {
   type SerializeTransactionFn,
@@ -16,24 +11,33 @@ export async function signFrameTransaction(
   transaction: TransactionSerializableEIP8141,
   serializer: SerializeTransactionFn = serializeTransaction,
 ) {
-  transaction = resolve(transaction)
+  let request = FrameTransaction.resolve(transaction)
 
-  for (const payloadsOnly of [true, false]) {
-    const frames: Frame[] = []
-    for (const frame of transaction.frames)
-      frames.push(
-        (frame as SigningFrame)[signing]
-          ? await signFrame(frame, transaction, { payloadsOnly })
-          : frame,
-      )
-    transaction = resolve({ ...transaction, frames })
-  }
+  for (const payloadsOnly of [true, false])
+    for (const frame of request.frames)
+      if (
+        request.frameContext?.entries.some(
+          (entry) => entry.frame === frame && entry.signatures.length,
+        )
+      ) {
+        const signed = await Frame.sign(frame, {
+          transaction: request,
+          payloadsOnly,
+        })
+        request = FrameTransaction.resolve({
+          ...request,
+          frames: request.frames.map((candidate) =>
+            candidate === frame ? signed : candidate,
+          ),
+        })
+      }
 
   const {
+    frameContext: _frameContext,
     from: _from,
     gas: _gas,
     ...envelope
-  } = transaction as TransactionSerializableEIP8141 & {
+  } = request as FrameTransaction.Transaction & {
     from?: string | undefined
     gas?: bigint | undefined
   }

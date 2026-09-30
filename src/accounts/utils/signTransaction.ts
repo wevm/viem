@@ -1,15 +1,10 @@
 import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import {
-  resolve as resolveFrames,
-  type SigningFrame,
-  signing,
-} from '../../frames/internal/transaction.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { Hex } from '../../types/misc.js'
 import type {
   TransactionSerializable,
-  TransactionSerializableEIP8141,
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { MaybePromise } from '../../types/utils.js'
@@ -65,11 +60,13 @@ export async function signTransaction<
     serializer: serializer_ = serializeTransaction,
   } = parameters
   const serializer = serializer_ as SerializeTransactionFn
-  const transaction = resolveFrames(transaction_ as TransactionSerializable)
+  const transaction = FrameTransaction.resolve(
+    transaction_ as TransactionSerializable,
+  )
 
-  if (transaction.frames?.some((frame) => (frame as SigningFrame)[signing]))
+  if (FrameTransaction.hasSigningFrames(transaction))
     return (await signFrameTransaction(
-      transaction as TransactionSerializableEIP8141,
+      transaction as FrameTransaction.Transaction,
       serializer,
     )) as SignTransactionReturnType<serializer, transaction>
 
@@ -81,7 +78,7 @@ export async function signTransaction<
       from: _from,
       gas: _gas,
       ...envelope
-    } = transaction as TransactionSerializableEIP8141 & {
+    } = transaction as FrameTransaction.Transaction & {
       from?: Hex | undefined
       gas?: bigint | undefined
     }
