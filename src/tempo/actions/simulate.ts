@@ -14,6 +14,7 @@ import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { UnknownNodeError } from '../../errors/node.js'
 import type { ErrorType as ErrorType_ } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { Account } from '../../types/account.js'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { Call, Calls } from '../../types/calls.js'
@@ -176,8 +177,12 @@ export async function simulateBlocks<
                 from: call.from ?? account?.address,
               } as const)
         ) as Parameters<typeof formatTransactionRequest>[0]
-        assertRequest(request)
-        return formatTransactionRequest(request)
+        const resolved = FrameTransaction.resolve(request)
+        assertRequest(resolved)
+        return formatTransactionRequest({
+          ...resolved,
+          signatures: FrameTransaction.getSimulationSignatures(resolved),
+        } as Parameters<typeof formatTransactionRequest>[0])
       })
       const stateOverrides = block.stateOverrides
         ? serializeStateOverride(block.stateOverrides)
