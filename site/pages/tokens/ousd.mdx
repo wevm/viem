@@ -1,101 +1,74 @@
 ---
-description: Use OpenUSD (OUSD) with Viem.
+description: Use Open USD (OUSD) with Viem.
 ---
 
-# OpenUSD (OUSD)
+# Open USD (OUSD)
 
 ## Overview
 
-[OpenUSD (OUSD)](https://joinopenstandard.com) is a shared stablecoin designed as open
-infrastructure for global financial activity. Viem includes an `ousd` token definition with
-canonical addresses on Ethereum, Tempo, and Base.
+[Open USD (OUSD)](https://joinopenstandard.com) is a USD stablecoin available through
+`viem/tokens`.
 
-Import `ousd` from `viem/tokens` and add it to a Client's `tokens` array. You can then select it
-with `token: 'ousd'` in [Token Actions](/tokens/actions). Viem resolves the address for the
-Client's chain and uses OUSD's six decimals to format balances and amounts.
+Add `ousd` to a Client to use it with [Token Actions](/tokens/actions).
 
-```ts twoslash
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { ousd } from 'viem/tokens'
-
-const client = createPublicClient({
-  chain: mainnet,
-  tokens: [ousd],
-  transport: http(),
-})
-```
-
-## Supported Chains
-
-The built-in definition includes these contracts:
-
-| Chain | Chain ID | Address |
-| ----- | -------- | ------- |
-| Ethereum | `1` | `0x9f6F3991D525015a6F8CaF062C83b62fD3AC4436` |
-| Tempo | `4217` | `0x20c0000000000000000000006a37DA5C996874BE` |
-| Base | `8453` | `0xB2000000000000000000002fEb517dFeC7415344` |
-
-Pass a chain ID to the definition to get its address and metadata:
-
-```ts twoslash
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { tempo } from 'viem/chains'
 import { ousd } from 'viem/tokens'
 
-const { address, decimals } = ousd(tempo.id)
-// @log: { address: '0x20c0000000000000000000006a37DA5C996874BE', decimals: 6 }
-```
-
-## Read a Balance
-
-Use [`token.getBalance`](/tokens/actions/getBalance) to read an account's OUSD balance. The result
-includes the base-unit amount, decimals, and a formatted string. Replace the account with the
-address you want to check; the response below is illustrative.
-
-```ts twoslash
-import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { ousd } from 'viem/tokens'
-
-const client = createPublicClient({
-  chain: mainnet,
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
   tokens: [ousd],
   transport: http(),
 })
+```
 
-const balance = await client.token.getBalance({
+## Read Open USD Balances
+
+Use [`getBalance`](/tokens/actions/getBalance) to read an account's balance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { token } from 'viem/actions'
+import { client } from './viem.config'
+
+const balance = await token.getBalance(client, {
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'ousd', // [!code focus]
 })
 // @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
 ```
 
-To read on Base or Tempo, import `base` or `tempo` from `viem/chains` and use it as the Client's
-`chain`. The token definition stays the same.
-
-## Send OUSD
-
-Use [`token.transfer`](/tokens/actions/transfer) on a
-[Wallet Client](/docs/clients/wallet) to send OUSD. This browser example connects an injected
-wallet and sends 10.5 OUSD on Ethereum. Replace the recipient before running it.
-
-```ts twoslash
-import { createWalletClient, custom } from 'viem'
-import { mainnet } from 'viem/chains'
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
 import { ousd } from 'viem/tokens'
-import 'viem/window'
 
-const client = createWalletClient({
-  chain: mainnet,
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
   tokens: [ousd],
-  transport: custom(window.ethereum!),
+  transport: http(),
 })
+```
 
-const [account] = await client.requestAddresses()
-if (!account) throw new Error('Connect a wallet account.')
+:::
 
-const hash = await client.token.transfer({
-  account,
+## Send Open USD
+
+Use [`transfer`](/tokens/actions/transfer) to send Open USD to another account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { token } from 'viem/actions'
+import { client } from './viem.config'
+
+const hash = await token.transfer(client, {
   amount: { formatted: '10.5' }, // [!code focus]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'ousd', // [!code focus]
@@ -103,13 +76,28 @@ const hash = await client.token.transfer({
 // @log: '0x…'
 ```
 
-The wallet must be connected to Ethereum and hold enough OUSD for the transfer and ETH for gas.
-The returned hash identifies the submitted transaction; use
-[`waitForTransactionReceipt`](/docs/actions/public/waitForTransactionReceipt) to wait for confirmation.
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
+  tokens: [ousd],
+  transport: http(),
+})
+```
+
+:::
 
 ## See More
 
-- [OpenUSD Website](https://joinopenstandard.com)
+Learn more about Open USD and how to use it with Viem.
+
+- [Open USD Website](https://joinopenstandard.com)
+- [OUSD Reserves Dashboard](https://ousd.fyi)
 - [Getting Started with Tokens](/tokens)
 - [Token Lookup and Selection](/tokens/list)
 - [Transfer Tokens](/tokens/guides/transfer-tokens)

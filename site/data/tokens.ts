@@ -85,6 +85,11 @@ export const tokenLookupData = [
         name: 'Sonic',
       },
       {
+        address: '0xB6CEceAB302E2E4948951eE7843FC24E92933061',
+        id: 196,
+        name: 'X Layer Mainnet',
+      },
+      {
         address: '0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4',
         id: 324,
         name: 'ZKsync Era',
@@ -115,9 +120,19 @@ export const tokenLookupData = [
         name: 'Morph',
       },
       {
+        address: '0x3600000000000000000000000000000000000000',
+        id: 5042,
+        name: 'Arc',
+      },
+      {
         address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
         id: 8453,
         name: 'Base',
+      },
+      {
+        address: '0x2d661C89D812261039AF9764eceaAee884f5F67F',
+        id: 9745,
+        name: 'Plasma',
       },
       {
         address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
@@ -211,6 +226,11 @@ export const tokenLookupData = [
         id: 1,
         name: 'Ethereum',
       },
+      {
+        address: '0x171A4217b86A807A64eB94757Db6849fb4bDbAA0',
+        id: 5042,
+        name: 'Arc',
+      },
     ],
     currency: 'BTC',
     decimals: 8,
@@ -278,9 +298,19 @@ export const tokenLookupData = [
         name: 'World Chain',
       },
       {
+        address: '0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1',
+        id: 5042,
+        name: 'Arc',
+      },
+      {
         address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
         id: 8453,
         name: 'Base',
+      },
+      {
+        address: '0x3EE196E78d4d4248b849B8E1C7F44C5457FAFD2C',
+        id: 9745,
+        name: 'Plasma',
       },
       {
         address: '0xC891EB4cbdEFf6e073e859e987815Ed1505c2ACD',

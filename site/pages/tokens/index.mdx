@@ -53,12 +53,12 @@ Next, we will configure a Viem Client. Token **read** Actions (like `getBalance`
 
 ```ts twoslash [Public Client]
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { ousd, usdc } from 'viem/tokens'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
 
 export const client = createPublicClient({
-  chain: mainnet,
-  tokens: [ousd, usdc],
+  chain: tempo,
+  tokens: [ousd],
   transport: http(),
 })
 ```
@@ -66,13 +66,13 @@ export const client = createPublicClient({
 ```ts twoslash [Wallet Client]
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
-import { ousd, usdc } from 'viem/tokens'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
 
 export const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  chain: mainnet,
-  tokens: [ousd, usdc],
+  chain: tempo,
+  tokens: [ousd],
   transport: http(),
 })
 ```
@@ -106,13 +106,13 @@ To use both read and write Token Actions on a single Client, extend a Client wit
 ```ts twoslash
 import { createClient, http, publicActions, walletActions } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
-import { ousd, usdc } from 'viem/tokens'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
 // ---cut---
 const client = createClient({
   account: privateKeyToAccount('0x...'),
-  chain: mainnet,
-  tokens: [ousd, usdc],
+  chain: tempo,
+  tokens: [ousd],
   transport: http(),
 })
   .extend(publicActions)
@@ -126,18 +126,18 @@ Now that you have a Client set up, you can interact with tokens.
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
-import { mainnet } from 'viem/chains'
-import { ousd, usdc } from 'viem/tokens'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
 
 const client = createPublicClient({
-  chain: mainnet,
-  tokens: [ousd, usdc],
+  chain: tempo,
+  tokens: [ousd],
   transport: http(),
 })
 // ---cut---
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
-  token: 'usdc',
+  token: 'ousd',
 })
 // @log: {
 // @log:   amount: 1234560000n,
@@ -147,7 +147,7 @@ const balance = await client.token.getBalance({
 ```
 
 :::info
-Symbol selectors like `token: 'usdc'` are only available when the token exists
+Symbol selectors like `token: 'ousd'` are only available when the token exists
 on the Client's `tokens` array. See [Defining Tokens](/tokens/guides/defining-tokens) for
 how to define reusable tokens and attach them to a Client. If the symbol is not
 declared, pass the token address instead:
@@ -155,7 +155,7 @@ declared, pass the token address instead:
 ```ts twoslash
 const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
-  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  token: '0x20c0000000000000000000006a37DA5C996874BE',
 })
 ```
 :::

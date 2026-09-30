@@ -2073,7 +2073,7 @@ export default defineConfig({
           items: [
             { text: 'Getting Started', link: '/tokens' },
             { text: 'Tokens', link: '/tokens/list' },
-            { text: 'OpenUSD (OUSD)', link: '/tokens/ousd' },
+            { text: 'Open USD (OUSD)', link: '/tokens/ousd' },
           ],
         },
         {

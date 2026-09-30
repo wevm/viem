@@ -259,6 +259,7 @@ Guidelines for authoring docs and guides under `site/pages/`.
 ### Prose
 
 - **Keep paragraphs concise**; aim for 30–40 words, with no more than 3 paragraphs per section. Split longer sections under additional headings.
+- **Write `Open USD` in docs prose**; keep `OpenUSD` only in code snippets and examples.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
 - **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.
