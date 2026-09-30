@@ -71,7 +71,7 @@ const tokenTerms: GetTermsReturnType = {
           decimals: 6,
           paymentAmount: '0x30D40',
           feeRecipient: FEE_RECIPIENT,
-          rate: { numerator: '0x7A308480', denominator: '0xDE0B6B3A7640000' },
+          rate: '0x7A308480',
         },
       ],
     },

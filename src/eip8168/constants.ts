@@ -45,6 +45,10 @@ export const payerErrorCode = {
   expiryOutOfBounds: 'EXPIRY_OUT_OF_BOUNDS',
   /** Payer lacks ETH to cover gas at the protocol level. */
   payerBalanceInsufficient: 'PAYER_BALANCE_INSUFFICIENT',
+  /** Sender's token balance is below the phase-0 transfer; SHOULD carry a `shortfall`. */
+  senderBalanceInsufficient: 'SENDER_BALANCE_INSUFFICIENT',
+  /** Simulating the phase-0 payment reverted (paused token, blocked sender, ...). */
+  executionReverted: 'EXECUTION_REVERTED',
 } as const
 
 export type PayerErrorCode =

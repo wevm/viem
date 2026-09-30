@@ -12,7 +12,7 @@ The AA transaction type has no account factory: the account is an EOA whose secp
 
 ```ts
 import { privateKeyToAccount } from 'viem/accounts'
-import { toEoaAccount } from 'viem/experimental/keystore'
+import { toEoaAccount } from 'viem/eip8130'
 
 const account = toEoaAccount(privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`))
 ```

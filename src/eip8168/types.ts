@@ -127,9 +127,8 @@ export type BaseOffer = {
   /** Co-sign URL for this offer; OPTIONAL, defaults to the called URL. */
   endpoint?: string | undefined
   /**
-   * Additive list of OPTIONAL offer-scoped `payer_*` methods beyond the
-   * always-implied required pair (`payer_getTerms`, `payer_sendTransaction`) —
-   * chiefly `payer_signTransaction`. The required pair MUST NOT be restated.
+   * Co-sign methods this offer supports (`payer_sendTransaction`,
+   * `payer_signTransaction`). Absent means `payer_sendTransaction` only.
    */
   methods?: readonly string[] | undefined
   /** How long this quote (rates included) stays valid, in seconds. */
@@ -185,12 +184,14 @@ export type TokenChoice = {
   paymentAmount: Hex
   /** Optional phase-0 destination; defaults to the offer's `payer`. Per-token by design. */
   feeRecipient?: Address | undefined
-  rate: {
-    /** Token atomic units... */
-    numerator: Hex
-    /** ...per this many native wei. */
-    denominator: Hex
-  }
+  /**
+   * Binding price as a WAD: token atomic units per 1e18 native wei. The phase-0
+   * transfer must cover `ceil(gasLimit × maxFeePerGas × rate / 1e18)` at the
+   * gas and fee the transaction is signed with.
+   */
+  rate: Hex
+  /** Advisory gas the phase-0 payment call adds, already included in `gasEstimate`. */
+  paymentGas?: Hex | undefined
   /**
    * Optional: the PAYMENT TOKEN's price in the response's `fiatCurrency`,
    * 6-decimal fixed-point hex integer (e.g. `0xF4240` = 1.00 for a USD
@@ -332,7 +333,8 @@ export type PayerRequote = {
   paymentAmount: Hex
   /** Defaults to the offer's `payer`. */
   feeRecipient?: Address | undefined
-  rate?: { numerator: Hex; denominator: Hex } | undefined
+  /** WAD rate the corrected amount was priced at (see {@link TokenChoice.rate}). */
+  rate?: Hex | undefined
   /** Relative seconds this corrected amount holds. */
   ttl?: number | undefined
 }
@@ -367,4 +369,16 @@ export type PayerRejectedData = {
   minGasLimit?: Hex | undefined
   /** Present (SHOULD) for `PAYMENT_INSUFFICIENT`: the corrected phase-0 transfer. */
   requote?: PayerRequote | undefined
+  /** Present (SHOULD) for `SENDER_BALANCE_INSUFFICIENT`: how far the sender is short. */
+  shortfall?:
+    | {
+        token: Address
+        /** Amount the phase-0 transfer moves. */
+        required: Hex
+        /** Sender's current balance of `token`. */
+        available: Hex
+      }
+    | undefined
+  /** Fresh offers the wallet MAY pick from instead of calling `payer_getTerms` again. */
+  options?: readonly PaymentOption[] | undefined
 }
