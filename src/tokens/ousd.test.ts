@@ -18,7 +18,7 @@ test('OUSD metadata', () => {
       "currency": "USD",
       "decimals": 6,
       "name": "OpenUSD",
-      "popular": undefined,
+      "popular": true,
       "symbol": "OUSD",
     }
   `)
@@ -26,6 +26,7 @@ test('OUSD metadata', () => {
 
 test.each([
   { name: 'all', set: tokens.all },
+  { name: 'popular', set: tokens.popular },
   { name: 'tempo', set: tokens.tempo },
 ])('includes one canonical OUSD definition in tokens.$name', ({ set }) => {
   expect(set.filter((token) => token.symbol === 'OUSD')).toEqual([ousd])

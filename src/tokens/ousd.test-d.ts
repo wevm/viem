@@ -8,7 +8,7 @@ test('preserves OUSD metadata and chain-specific addresses', () => {
     currency: 'USD'
     decimals: 6
     name: 'OpenUSD'
-    popular: undefined
+    popular: true
     symbol: 'OUSD'
   }>()
 })

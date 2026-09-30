@@ -234,6 +234,8 @@ This document contains general guidelines for AI agents working on the Viem code
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
+- **Token popularity belongs in token definitions**; set `popular: true` on the token instead of
+  special-casing it in lookup generators.
 
 ## Changeset Conventions
 
