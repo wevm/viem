@@ -744,6 +744,17 @@ describe('mint', () => {
     ).toEqual([amount])
 
     expect(
+      actions.token.burn.call(client, {
+        amount: { formatted: '1.25' },
+        from: account2.address,
+        token: addresses.alphaUsd,
+      }),
+    ).toMatchObject({
+      args: [account2.address, amount],
+      functionName: 'burnAt',
+    })
+
+    expect(
       actions.token.burnBlocked.call(client, {
         amount: { formatted: '1.25' },
         from: account2.address,
