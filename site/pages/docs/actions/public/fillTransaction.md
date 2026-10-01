@@ -91,7 +91,7 @@ const { transaction } = await publicClient.fillTransaction({
 
 - **Type:** [`Address`](/docs/glossary/types#address)
 
-The transaction recipient.
+The transaction recipient. For Frame Transactions, set `to` on each frame instead.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]
@@ -140,6 +140,12 @@ const { transaction } = await publicClient.fillTransaction({
 })
 ```
 
+### signatures (optional)
+
+- **Type:** [`readonly FrameSignature[]`](/docs/glossary/types#framesignature)
+
+Signature entries for explicit EIP-8141 frames. Leave this field to Viem when using signing helpers; they allocate and populate their own entries.
+
 ### value (optional)
 
 - **Type:** `bigint`
@@ -157,6 +163,12 @@ const { transaction } = await publicClient.fillTransaction({
   value: parseEther('1'), // [!code focus]
 })
 ```
+
+### frames (optional)
+
+- **Type:** [`readonly Frame[]`](/docs/frames/raw-frames)
+
+EIP-8141 frames, either explicit objects or helpers from `viem/frames`. Put call destinations, calldata, values, and gas budgets inside each frame. See [Frame Transactions](/docs/frames).
 
 ### gas (optional)
 
@@ -275,9 +287,9 @@ const { transaction } = await publicClient.fillTransaction({
 
 ### type (optional)
 
-- **Type:** `"legacy" | "eip2930" | "eip1559" | "eip4844" | "eip7702"`
+- **Type:** `"legacy" | "eip2930" | "eip1559" | "eip4844" | "eip7702" | "eip8141"`
 
-The transaction type to fill.
+The transaction type to fill. `frames` infers `eip8141` when `type` is omitted.
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]

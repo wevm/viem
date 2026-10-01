@@ -97,7 +97,7 @@ export type SimulateContractParameters<
   args
 > &
   UnionOmit<
-    callParameters,
+    Exclude<callParameters, { frames: readonly unknown[] }>,
     | 'account'
     | 'batch'
     | 'code'

@@ -7,6 +7,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -109,13 +110,18 @@ export async function estimateGas<
   account extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: EstimateGasParameters<chain>,
+  args_: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
+  const args = frameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
+
   const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
 
   const parameters = (() => {
     if (Array.isArray(prepare)) return prepare
+    if (args.frames) return ['blobVersionedHashes']
     // Some RPC Providers do not compute versioned hashes from blobs. We will need
     // to compute them.
     if (account?.type !== 'local') return ['blobVersionedHashes']
@@ -149,13 +155,19 @@ export async function estimateGas<
       blobVersionedHashes,
       blockNumber,
       blockTag,
+      chainId,
       data,
+      frames,
+      frameContext,
       gas,
       gasPrice,
       maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceKeys,
+      signatures,
+      type,
       value,
       stateOverride,
       ...rest
@@ -164,7 +176,7 @@ export async function estimateGas<
           ...args,
           parameters,
           to,
-        } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
+        } as PrepareTransactionRequestParameters)) as frameTransaction.Prepared<EstimateGasParameters>)
       : args
 
     // If we get `gas` back from the prepared transaction request, which is
@@ -193,13 +205,21 @@ export async function estimateGas<
         authorizationList,
         blobs,
         blobVersionedHashes,
+        chainId,
         data,
+        frames,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKeys,
+        signatures: frameTransaction.getSimulationSignatures({
+          frameContext,
+          signatures,
+        }),
         to,
+        type,
         value,
       } as TransactionRequest,
       'estimateGas',

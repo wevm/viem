@@ -17,21 +17,19 @@ import type {
   Account as viem_Account,
 } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
-import type { TransactionSerializable } from '../types/transaction.js'
-import type { OneOf, RequiredBy } from '../types/utils.js'
+import type { MaybePromise, OneOf, RequiredBy } from '../types/utils.js'
 import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
-import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import { nativeMultisigFactory } from './Addresses.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import { parseApproval } from './multisig/Signature.js'
 import * as Transaction from './Transaction.js'
 
 export type Account_base<source extends string = string> = RequiredBy<
-  LocalAccount<source>,
-  'sign' | 'signAuthorization' | 'signTransaction'
+  Omit<LocalAccount<source>, 'signTransaction'>,
+  'sign' | 'signAuthorization'
 > & {
   /** Key type. */
   keyType: SignatureEnvelope.Type
@@ -39,8 +37,12 @@ export type Account_base<source extends string = string> = RequiredBy<
   sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
-    serializer extends
-      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
+    serializer extends (...args: never[]) => MaybePromise<Hex.Hex> = (
+      transaction: Exclude<
+        Transaction.TransactionSerializable,
+        { frames: readonly unknown[] }
+      >,
+    ) => MaybePromise<Hex.Hex>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
@@ -404,8 +406,10 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
     async signMessage() {
       throw new Error('`signMessage` is not supported for multisig accounts.')
     },
-    async signTransaction(transaction, options) {
-      const { serializer = Transaction.serialize } = options ?? {}
+    async signTransaction(transaction_, options) {
+      const transaction = transaction_ as Transaction.TransactionSerializable
+      const { serializer: serializer_ = Transaction.serialize } = options ?? {}
+      const serializer = serializer_ as typeof Transaction.serialize
       const request = transaction as Transaction.TransactionSerializableTempo
       if (request.owner) {
         const owner = parseAccount(request.owner)
@@ -506,12 +510,13 @@ export type MultisigAccount<
   config extends MultisigConfig.Config | undefined =
     | MultisigConfig.Config
     | undefined,
-> = RequiredBy<LocalAccount<'multisig'>, 'sign'> & {
-  /** Normalized config, or `undefined` for an address-only account. */
-  config: config
-  /** @internal Local owner accounts available for signing. */
-  owners: readonly LocalAccount[]
-}
+> = Omit<RequiredBy<LocalAccount<'multisig'>, 'sign'>, 'signTransaction'> &
+  Pick<Account_base, 'signTransaction'> & {
+    /** Normalized config, or `undefined` for an address-only account. */
+    config: config
+    /** @internal Local owner accounts available for signing. */
+    owners: readonly LocalAccount[]
+  }
 
 function isMultisigAccount(account: LocalAccount): account is MultisigAccount {
   return account.source === 'multisig'
@@ -956,8 +961,10 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       const { message } = parameters
       return await sign({ hash: hashMessage(message) })
     },
-    async signTransaction(transaction, options) {
-      const { serializer = Transaction.serialize } = options ?? {}
+    async signTransaction(transaction_, options) {
+      const transaction = transaction_ as Transaction.TransactionSerializable
+      const { serializer: serializer_ = Transaction.serialize } = options ?? {}
+      const serializer = serializer_ as typeof Transaction.serialize
       const presign = (() => {
         if ('feePayerSignature' in transaction && transaction.feePayerSignature)
           return { ...transaction, feePayerSignature: null }

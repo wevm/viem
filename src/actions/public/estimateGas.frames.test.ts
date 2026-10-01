@@ -1,0 +1,157 @@
+import {
+  http,
+  parseTransaction,
+  type TransactionSerializableEIP8141,
+} from 'viem'
+import { estimateGas, getBalance, getTransactionCount } from 'viem/actions'
+import { Frame } from 'viem/frames'
+import { describe, expect, test } from 'vitest'
+import { accounts, chain, getClient } from '~test/frames/config.js'
+
+import { rpcUrl } from '~test/frames/prool.js'
+
+const client = getClient({ account: accounts[0].address })
+
+describe('frames: Frame', () => {
+  test('uses the shifted placeholder allocation after automatic verification', async () => {
+    const witnesses: unknown[] = []
+    const client = getClient({
+      account: accounts[0],
+      transport: http(rpcUrl, {
+        async onFetchRequest(request) {
+          const body = await request.clone().json()
+          if (body.method === 'eth_estimateGas')
+            witnesses.push(body.params[0].signatures)
+        },
+      }),
+    })
+
+    const gas = await estimateGas(client, {
+      frames: [
+        Frame.from(() => ({
+          frame: {
+            mode: 'sender',
+            to: accounts[1].address,
+            executionGas: 50_000n,
+            stateGas: 0n,
+          },
+          signatures: [
+            {
+              scheme: 'arbitrary',
+              placeholder: '0xaabb',
+              sign: async () => '0xccdd',
+            },
+          ],
+        })),
+      ],
+    })
+
+    expect(gas).toBeGreaterThan(0n)
+    expect(witnesses).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "msg": "0x",
+            "scheme": "0x1",
+            "signer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          },
+          {
+            "msg": "0x",
+            "scheme": "0x0",
+            "signature": "0xaabb",
+          },
+        ],
+      ]
+    `)
+  })
+
+  test.each([true, false])('prepare: %s', async (prepare) => {
+    const result = await estimateGas(client, {
+      prepare,
+      frames: [Frame.verify({ account: accounts[0] })],
+    })
+
+    expect(result).toMatchInlineSnapshot(`16747n`)
+  })
+})
+
+describe('frames: explicit', () => {
+  test('default', async () => {
+    const result = await estimateGas(client, {
+      signatures: [{ scheme: 'secp256k1' }],
+      frames: [{ flags: 'approveExecutionAndPayment', mode: 'verify' }],
+    })
+
+    expect(result).toMatchInlineSnapshot(`15467n`)
+  })
+
+  test('args: signatures', async () => {
+    const balance = await getBalance(client, { address: accounts[1].address })
+
+    const nonce = await getTransactionCount(client, {
+      address: accounts[0].address,
+    })
+
+    const transaction = {
+      blobVersionedHashes: [],
+      maxFeePerBlobGas: 0n,
+      chainId: chain.id,
+      frames: [
+        {
+          flags: 'approveExecutionAndPayment',
+          executionGas: 50_000n,
+          stateGas: 0n,
+          mode: 'verify',
+        },
+        {
+          executionGas: 50_000n,
+          stateGas: 0n,
+          mode: 'sender',
+          to: accounts[1].address,
+          value: 1n,
+        },
+        {
+          data: '0xdeadbeef',
+          executionGas: 50_000n,
+          stateGas: 0n,
+          mode: 'sender',
+          to: '0x0000000000000000000000000000000000000004',
+        },
+      ],
+      maxFeePerGas: 10_000_000_000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      nonce,
+      sender: accounts[0].address,
+      signatures: [{ scheme: 'secp256k1' }],
+    } satisfies TransactionSerializableEIP8141
+
+    const serialized = await accounts[0].signTransaction(transaction)
+    const parsed = parseTransaction(serialized)
+    if (parsed.type !== 'eip8141')
+      throw new Error('Expected a frame transaction.')
+    const { sender, ...request } = transaction
+    const parameters = {
+      ...request,
+      account: sender,
+      signatures: parsed.signatures,
+    } as const
+
+    expect(await estimateGas(client, parameters)).toMatchInlineSnapshot(
+      `173365n`,
+    )
+
+    await expect(
+      estimateGas(client, {
+        ...parameters,
+        frames: [{ executionGas: 50_000n, stateGas: 0n, mode: 255 }],
+      }),
+    ).rejects.toMatchObject({ cause: { code: -32602 } })
+
+    expect(await getBalance(client, { address: accounts[1].address })).toBe(
+      balance,
+    )
+    expect(
+      await getTransactionCount(client, { address: accounts[0].address }),
+    ).toBe(nonce)
+  })
+})

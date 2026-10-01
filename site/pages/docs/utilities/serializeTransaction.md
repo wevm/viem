@@ -4,7 +4,7 @@ description: Serializes a transaction object.
 
 # serializeTransaction
 
-Serializes a transaction object. Supports EIP-1559, EIP-2930, and Legacy transactions.
+Serializes a transaction object.
 
 ## Import
 
@@ -36,6 +36,7 @@ Returns a template `Hex` value based on transaction type:
 - `eip2930`: [TransactionSerializedEIP2930](/docs/glossary/types#TransactionSerializedEIP2930)
 - `eip4844`: [TransactionSerializedEIP4844](/docs/glossary/types#TransactionSerializedEIP4844)
 - `eip7702`: [TransactionSerializedEIP7702](/docs/glossary/types#TransactionSerializedEIP7702)
+- `eip8141`: `TransactionSerializedEIP8141` (`0x06${string}`)
 - `legacy`: [TransactionSerializedLegacy](/docs/glossary/types#TransactionSerializedLegacy) 
 
 ## Parameters

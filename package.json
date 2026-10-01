@@ -71,7 +71,7 @@
     "fast-check": "^4.9.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.45",
+    "ox": "0.14.52",
     "permissionless": "^0.2.57",
     "prool": "~0.2.16",
     "publint": "^0.2.12",
@@ -124,7 +124,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tokens,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,frames,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tokens,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -143,13 +143,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "87 kB",
+      "limit": "96 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "112 kB"
+      "limit": "123.5 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -160,7 +160,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "61 kB",
+      "limit": "66.5 kB",
       "import": "*"
     },
     {
@@ -172,19 +172,19 @@
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "22 kB",
+      "limit": "29 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
       "name": "import { mnemonicToAccount } from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
-      "limit": "30 kB",
+      "limit": "35.5 kB",
       "import": "{ mnemonicToAccount }"
     },
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "69 kB",
+      "limit": "79.5 kB",
       "import": "*"
     },
     {
@@ -196,7 +196,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "119 kB",
+      "limit": "128.5 kB",
       "import": "*"
     },
     {
@@ -208,7 +208,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "76 kB",
+      "limit": "84.5 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -220,31 +220,31 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "53 kB",
+      "limit": "59.5 kB",
       "import": "*"
     },
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "28 kB",
+      "limit": "34.5 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "49 kB",
+      "limit": "49.5 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "48 kB",
+      "limit": "48.5 kB",
       "import": "{ verifySiweMessage }"
     },
     {
       "name": "import { verifyHash } from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "47 kB",
+      "limit": "47.5 kB",
       "import": "{ verifyHash }"
     }
   ]

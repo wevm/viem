@@ -1,4 +1,8 @@
 import type { Address } from 'abitype'
+import * as AbiParameters from 'ox/AbiParameters'
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
+import * as TransactionRequest_ox from 'ox/TransactionRequest'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -24,12 +28,15 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
+import * as FrameAfterFill from '../../frames/internal/afterFill.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -38,6 +45,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { Frame } from '../../types/frame.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,
@@ -45,10 +53,10 @@ import type {
 } from '../../types/transaction.js'
 import type {
   ExactPartial,
+  ExactRequired,
   IsNever,
   Prettify,
   UnionOmit,
-  UnionRequiredBy,
 } from '../../types/utils.js'
 import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
@@ -76,6 +84,10 @@ import {
   fillTransaction,
 } from '../public/fillTransaction.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
+import {
+  type GetStorageAtErrorType,
+  getStorageAt,
+} from '../public/getStorageAt.js'
 
 export const defaultParameters = [
   'blobVersionedHashes',
@@ -105,6 +117,18 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
+
+type PrepareTransactionRequestRequired<
+  request,
+  keys extends keyof request,
+  input,
+> = request extends { frames: readonly unknown[] }
+  ? 'frames' extends keyof input
+    ? Omit<request, 'frames'> & {
+        frames: readonly Frame[]
+      } & ExactRequired<Pick<request, Exclude<keys, 'gas' | 'frames'>>>
+    : never
+  : request & ExactRequired<Pick<request, keys>>
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -202,7 +226,7 @@ export type PrepareTransactionRequestReturnType<
     { type?: _transactionType extends string ? _transactionType : undefined }
   >,
 > = Prettify<
-  UnionRequiredBy<
+  PrepareTransactionRequestRequired<
     Extract<
       UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
         (_derivedChain extends Chain
@@ -214,12 +238,22 @@ export type PrepareTransactionRequestReturnType<
       IsNever<_transactionRequest> extends true
         ? unknown
         : ExactPartial<_transactionRequest>
-    > & { chainId?: number | undefined },
+    > & {
+      chainId?: number | undefined
+      nonceKeys?: readonly bigint[] | undefined
+    } & (IsNever<_transactionType> extends true
+        ? {}
+        : _transactionType extends 'eip8141'
+          ? _derivedAccount extends Account | Address
+            ? { sender: Address }
+            : { sender?: undefined }
+          : {}),
     ParameterTypeToParameters<
       request['parameters'] extends readonly PrepareTransactionRequestParameterType[]
         ? request['parameters'][number]
         : (typeof defaultParameters)[number]
-    >
+    >,
+    request
   > &
     (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
       // TODO(v3): Extract `prepareTransactionRequest` response into a named object of `{ capabilities, request }.
@@ -230,10 +264,19 @@ export type PrepareTransactionRequestReturnType<
 >
 
 export type PrepareTransactionRequestErrorType =
+  | BaseErrorType
+  | SignedFrameTransactionError
+  | FrameCountMismatchError
+  | FrameGasMissingError
   | AccountNotFoundErrorType
   | AssertRequestErrorType
   | ParseAccountErrorType
   | GetBlockErrorType
+  | GetStorageAtErrorType
+  | AbiParameters.encode.ErrorType
+  | Hash.keccak256.ErrorType
+  | Hex.toNumber.ErrorType
+  | TransactionRequest_ox.toRpc.ErrorType
   | GetTransactionCountErrorType
   | EstimateGasErrorType
   | EstimateFeesPerGasErrorType
@@ -302,8 +345,10 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = args as PrepareTransactionRequestParameters
-
+  let request = FramePrepare.prepare(
+    { ...args },
+    args.account === undefined ? client.account : args.account,
+  ) as FrameTransaction.Prepared<PrepareTransactionRequestParameters>
   request.account ??= client.account
   request.parameters ??= defaultParameters
 
@@ -356,6 +401,87 @@ export async function prepareTransactionRequest<
     const sender = request.account ?? (request as TransactionRequest).from
     account = sender ? parseAccount(sender) : undefined
   }
+
+  const keys = request.nonceKeys
+    ? FrameTransaction.resolveNonceKeys(request.nonceKeys)
+    : undefined
+  if (keys) {
+    TransactionRequest_ox.toRpc({ nonceKeys: keys })
+    request.nonceKeys = keys
+  }
+
+  if (request.frames && keys && !(keys.length === 1 && keys[0] === 0n)) {
+    if (nonceManager && nonce === undefined && parameters.includes('nonce'))
+      throw new BaseError(
+        'Nonce managers do not support keyed frame transactions.',
+      )
+
+    if (parameters.includes('nonce') && nonce === undefined && account) {
+      const sequences = await Promise.all(
+        keys.map(async (key) => {
+          const value = await getAction(
+            client,
+            getStorageAt,
+            'getStorageAt',
+          )({
+            address: '0x0000000000000000000000000000000000008250',
+            slot: Hash.keccak256(
+              AbiParameters.encode(
+                [{ type: 'address' }, { type: 'uint256' }],
+                [account.address, key],
+              ),
+            ),
+            blockTag: 'pending',
+          })
+          return Hex.toNumber(value ?? '0x0')
+        }),
+      )
+      if (
+        !sequences.length ||
+        sequences.some((value) => value !== sequences[0])
+      )
+        throw new BaseError('Nonce keys must share the same sequence.')
+      nonce = sequences[0]
+    }
+  }
+
+  const frames = FrameTransaction.resolve(request).frames
+  const signed =
+    frames &&
+    request.signatures?.some(
+      (entry) =>
+        (!entry.payload || entry.payload === '0x') &&
+        entry.signature !== undefined &&
+        entry.signature !== '0x',
+    )
+  if (
+    signed &&
+    parameters.some((parameter) => {
+      switch (parameter) {
+        case 'blobVersionedHashes':
+          return (
+            !!request.blobs && !!request.kzg && !request.blobVersionedHashes
+          )
+        case 'chainId':
+          return request.chainId === undefined
+        case 'fees':
+          return (
+            request.maxFeePerGas === undefined ||
+            request.maxPriorityFeePerGas === undefined
+          )
+        case 'gas':
+          return frames?.some(
+            (frame) =>
+              frame.executionGas === undefined || frame.stateGas === undefined,
+          )
+        case 'nonce':
+          return nonce === undefined
+        default:
+          return false
+      }
+    })
+  )
+    throw new SignedFrameTransactionError()
 
   if (
     parameters.includes('nonce') &&
@@ -428,7 +554,19 @@ export async function prepareTransactionRequest<
         typeof (request as any).maxPriorityFeePerGas !== 'bigint')
     )
       return true
-    if (parameters.includes('gas') && typeof request.gas !== 'bigint')
+    if (
+      parameters.includes('gas') &&
+      frames?.some(
+        (frame) =>
+          frame.executionGas === undefined || frame.stateGas === undefined,
+      )
+    )
+      return true
+    if (
+      parameters.includes('gas') &&
+      !frames &&
+      typeof request.gas !== 'bigint'
+    )
       return true
     return false
   })()
@@ -439,7 +577,46 @@ export async function prepareTransactionRequest<
         fillTransaction,
         'fillTransaction',
       )({ ...request, nonce } as FillTransactionParameters)
+        .catch((e) => {
+          if (
+            frames &&
+            parameters.includes('gas') &&
+            frames.some(
+              (frame) =>
+                frame.executionGas === undefined ||
+                frame.stateGas === undefined,
+            )
+          )
+            throw e
+          const error = e as FillTransactionErrorType
+
+          if (error.name !== 'TransactionExecutionError') return undefined
+
+          const nonceMismatch = error.walk?.(
+            (error) => error instanceof FeePayerNonceMismatchError,
+          )
+          if (nonceMismatch) throw e
+
+          const executionReverted = error.walk?.((e) => {
+            const error = e as BaseError
+            return error.name === 'ExecutionRevertedError'
+          })
+          if (executionReverted) throw e
+
+          const unsupported = error.walk?.((e) => {
+            const error = e as BaseError
+            return (
+              error.name === 'MethodNotFoundRpcError' ||
+              error.name === 'MethodNotSupportedRpcError' ||
+              error.message?.includes('eth_fillTransaction is not available')
+            )
+          })
+          if (unsupported) supportsFillTransaction.set(client.uid, false)
+
+          return undefined
+        })
         .then((result) => {
+          if (!result) return request
           const {
             chainId,
             from,
@@ -452,6 +629,13 @@ export async function prepareTransactionRequest<
             type,
             ...rest
           } = result.transaction
+          const filledFrames = result.transaction.frames
+          if (
+            frames &&
+            parameters.includes('gas') &&
+            filledFrames?.length !== frames.length
+          )
+            throw new FrameCountMismatchError()
           const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
           const hasFilledFeePayerSignature =
             'feePayerSignature' in rest &&
@@ -464,11 +648,23 @@ export async function prepareTransactionRequest<
           supportsFillTransaction.set(client.uid, true)
           return {
             ...request,
+            ...(frames && parameters.includes('gas')
+              ? {
+                  frames: frames.map((frame, index) => ({
+                    ...frame,
+                    executionGas:
+                      frame.executionGas ?? filledFrames?.[index]?.executionGas,
+                    stateGas: frame.stateGas ?? filledFrames?.[index]?.stateGas,
+                  })),
+                }
+              : {}),
             ...(from ? { from } : {}),
             ...(type && !request.type ? { type } : {}),
-            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
+            ...(typeof chainId !== 'undefined'
+              ? { chainId: request.chainId ?? chainId }
+              : {}),
             ...(typeof gas !== 'undefined' ? { gas } : {}),
-            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
+            ...(typeof gasPrice !== 'undefined' && !frames ? { gasPrice } : {}),
             ...(typeof nonce !== 'undefined' ? { nonce } : {}),
             ...(typeof maxFeePerBlobGas !== 'undefined' &&
             request.type !== 'legacy' &&
@@ -504,34 +700,6 @@ export async function prepareTransactionRequest<
               ? { _capabilities: result.capabilities }
               : {}),
           }
-        })
-        .catch((e) => {
-          const error = e as FillTransactionErrorType
-
-          if (error.name !== 'TransactionExecutionError') return request
-
-          const nonceMismatch = error.walk?.(
-            (error) => error instanceof FeePayerNonceMismatchError,
-          )
-          if (nonceMismatch) throw e
-
-          const executionReverted = error.walk?.((e) => {
-            const error = e as BaseError
-            return error.name === 'ExecutionRevertedError'
-          })
-          if (executionReverted) throw e
-
-          const unsupported = error.walk?.((e) => {
-            const error = e as BaseError
-            return (
-              error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError' ||
-              error.message?.includes('eth_fillTransaction is not available')
-            )
-          })
-          if (unsupported) supportsFillTransaction.set(client.uid, false)
-
-          return request
         })
     : request
 
@@ -591,7 +759,10 @@ export async function prepareTransactionRequest<
   ) {
     const commitments = blobsToCommitments({ blobs, kzg })
 
-    if (parameters.includes('blobVersionedHashes')) {
+    if (
+      parameters.includes('blobVersionedHashes') &&
+      (!signed || request.blobVersionedHashes === undefined)
+    ) {
       const versionedHashes = commitmentsToVersionedHashes({
         commitments,
         to: 'hex',
@@ -684,7 +855,16 @@ export async function prepareTransactionRequest<
     }
   }
 
-  if (parameters.includes('gas') && typeof gas === 'undefined')
+  if (
+    parameters.includes('gas') &&
+    FrameTransaction.resolve(request).frames?.some(
+      (frame) =>
+        frame.executionGas === undefined || frame.stateGas === undefined,
+    )
+  )
+    throw new FrameGasMissingError()
+
+  if (parameters.includes('gas') && !frames && typeof gas === 'undefined')
     request.gas = await getAction(
       client,
       estimateGas,
@@ -707,9 +887,67 @@ export async function prepareTransactionRequest<
       },
     )
 
+  if (frames && account && !(signed && 'sender' in request))
+    Object.assign(request, { sender: account.address })
+
+  if (request.frameContext?.entries.some((entry) => entry.afterFill)) {
+    if (!account)
+      throw new BaseError('Frame preparation requires a sender account.')
+    if (
+      'sender' in args &&
+      typeof args.sender === 'string' &&
+      args.sender.toLowerCase() !== account.address.toLowerCase()
+    )
+      throw new BaseError('The sender must match the preparing account.')
+    const prepared = await FrameAfterFill.afterFill(
+      client,
+      {
+        ...request,
+        chainId: request.chainId!,
+        sender: account.address,
+        frames: request.frames!,
+        nonceKeys: FrameTransaction.resolveNonceKeys(request.nonceKeys),
+        type: 'eip8141',
+      } as FrameTransaction.Transaction,
+      frames!,
+    )
+    request = {
+      ...request,
+      frames: prepared.frames,
+      frameContext: prepared.frameContext,
+    } as typeof request
+  }
+
   assertRequest(request as AssertRequestParameters)
 
   delete request.parameters
 
   return request as any
+}
+
+class SignedFrameTransactionError extends BaseError {
+  override readonly name =
+    'PrepareTransactionRequest.SignedFrameTransactionError'
+
+  constructor() {
+    super('Signed frame transactions must be sent with sendRawTransaction.')
+  }
+}
+
+class FrameCountMismatchError extends BaseError {
+  override readonly name = 'PrepareTransactionRequest.FrameCountMismatchError'
+
+  constructor() {
+    super('The node returned an unexpected number of frames.')
+  }
+}
+
+class FrameGasMissingError extends BaseError {
+  override readonly name = 'PrepareTransactionRequest.FrameGasMissingError'
+
+  constructor() {
+    super(
+      'Provide executionGas and stateGas for every frame, or use a node that supports filling frame gas limits.',
+    )
+  }
 }

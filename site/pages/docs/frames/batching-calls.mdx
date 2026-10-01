@@ -1,0 +1,77 @@
+---
+description: Group frame calls into independent atomic batches.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Batch Calls
+
+## Overview
+
+[`calls`](/docs/frames/calls) accepts a flat, nonempty array. Calls in that array form one atomic group: if a call fails, the group's earlier changes revert and its remaining calls are skipped. A later independent group can still execute.
+
+## Recipes
+
+### Batch Contract Calls
+
+Approve a spender and transfer tokens in one atomic group. Provide an ABI and function arguments to encode calldata with type inference. Use the address of a deployed token and an account with enough tokens for the transfer.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { erc20Abi } from 'viem'
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const token = '0x0000000000000000000000000000000000000001'
+const receipt = await client.sendTransactionSync({
+  frames: [calls([ // [!code focus]
+    { to: token, abi: erc20Abi, functionName: 'approve', args: ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', 1n] }, // [!code focus]
+    { to: token, abi: erc20Abi, functionName: 'transfer', args: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 2n] }, // [!code focus]
+  ])], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Separate Atomic Groups
+
+Use multiple `calls` helpers instead of nested arrays. A singleton creates an independent call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [ // [!code focus]
+    calls([ // [!code focus]
+      { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }, // [!code focus]
+      { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 2n }, // [!code focus]
+    ]), // [!code focus]
+    calls([{ to: client.account.address, value: 1n }]), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+Do not rely on a failed group preventing subsequent groups from running. Put every operation that must succeed together in one group. Verification frames belong outside call groups.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Call Reference" description="Raw calldata, ABI arguments, and gas budgets." to="/docs/frames/calls" />
+  <Card icon="lucide:book-open" title="Send Transactions" description="Read individual frame results." to="/docs/frames/sending-transactions" />
+</Cards>

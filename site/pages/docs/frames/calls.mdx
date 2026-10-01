@@ -1,0 +1,130 @@
+---
+description: Build one atomic group with calls.
+---
+
+# Batch Calls Reference
+
+## Overview
+
+`calls` expands a flat array into sender frames. All calls in one helper are atomic. See the [batching guide](/docs/frames/batching-calls) for multiple groups and ABI-inferred calls.
+
+## Recipes
+
+### Create a Call
+
+Pass one call to transfer native currency or execute encoded calldata.
+
+```ts twoslash
+import { calls } from 'viem/frames'
+
+const frame = calls([ // [!code focus]
+  { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }, // [!code focus]
+]) // [!code focus]
+```
+
+### Batch Calls
+
+Approve a spender and transfer tokens in one atomic group.
+
+```ts twoslash
+import { erc20Abi } from 'viem'
+import { calls } from 'viem/frames'
+
+// Replace with a deployed token address.
+const token = '0x0000000000000000000000000000000000000001'
+const spender = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
+const recipient = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+const frame = calls([ // [!code focus]
+  { to: token, abi: erc20Abi, functionName: 'approve', args: [spender, 1n] }, // [!code focus]
+  { to: token, abi: erc20Abi, functionName: 'transfer', args: [recipient, 2n] }, // [!code focus]
+]) // [!code focus]
+```
+
+:::info
+If a call fails, the group's earlier changes revert and its remaining calls are skipped. Use multiple `calls` helpers for [independent groups](/docs/frames/batching-calls#separate-atomic-groups).
+:::
+
+### Set Call Gas
+
+```ts twoslash
+import { calls } from 'viem/frames'
+
+const frame = calls([{
+  to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  value: 1n,
+  executionGas: 50_000n, // [!code focus]
+  stateGas: 0n, // [!code focus]
+}])
+```
+
+## `calls`
+
+Creates one atomic group of sender calls.
+
+### Usage
+
+```ts twoslash
+import { calls } from 'viem/frames'
+
+const frame = calls([
+  { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }, // [!code focus]
+])
+```
+
+### Parameters
+
+#### batch
+
+- **Type:** `readonly Call[]`
+
+A nonempty, flat array of calls. Each call accepts optional `to`, `data`, `value`, `executionGas`, and `stateGas`. Omitting `to` targets the transaction sender. Calls cannot contain `mode`, `flags`, or other frame helpers.
+
+```ts twoslash
+import { calls } from 'viem/frames'
+
+const frame = calls([
+  { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }, // [!code focus]
+])
+```
+
+#### batch[].abi / functionName / args
+
+- **Type:** `Abi / string / readonly unknown[]`
+
+Provide an ABI to infer the function name and arguments. ABI encoding takes precedence over `data`. Encoding errors propagate from [`encodeFunctionData`](/docs/contract/encodeFunctionData).
+
+```ts twoslash
+import { erc20Abi } from 'viem'
+import { calls } from 'viem/frames'
+
+const frame = calls([{
+  to: '0x0000000000000000000000000000000000000001',
+  abi: erc20Abi, // [!code focus]
+  functionName: 'transfer', // [!code focus]
+  args: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 1n], // [!code focus]
+}])
+```
+
+#### batch[].dataSuffix
+
+- **Type:** `Hex | undefined`
+
+Appends bytes to supplied or ABI-encoded calldata. It does not create calldata when neither `data` nor `abi` is supplied.
+
+```ts twoslash
+import { calls } from 'viem/frames'
+
+const frame = calls([{ data: '0x1234', dataSuffix: '0xabcd' }]) // [!code focus]
+```
+
+### Return Value
+
+`Frame.Frame`
+
+An unresolved helper. Preparation expands it into sender frames, placing `atomicBatch` on every frame except the last. A singleton has no atomic flag.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | The batch is empty or a call contains a nested array, mode, flags, or another helper. |

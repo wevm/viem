@@ -1,6 +1,5 @@
+import { formatTransactionReceipt } from 'viem'
 import { expect, test } from 'vitest'
-
-import { formatTransactionReceipt } from './transactionReceipt.js'
 
 test('formats', () => {
   expect(
@@ -177,6 +176,110 @@ test('nullish values', () => {
       "transactionHash": "0xa4b1f606b66105fa45cb5db23d2f6597075701e7f0e2367f4e6a39d17a8cf98b",
       "transactionIndex": null,
       "type": null,
+    }
+  `)
+})
+
+test('eip8141 frame receipts', () => {
+  expect(
+    formatTransactionReceipt({
+      frameReceipts: [
+        {
+          gasUsed: '0x526c',
+          executionGasUsed: '0x5208',
+          logs: [
+            {
+              address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+              data: '0xdeadbeef',
+              topics: ['0x1234'],
+            },
+          ],
+          stateGasUsed: '0x64',
+          status: '0x1',
+        },
+        {
+          gasUsed: '0x100',
+          executionGasUsed: '0x100',
+          logs: [],
+          stateGasUsed: '0x0',
+          status: '0x0',
+        },
+        {
+          gasUsed: '0x0',
+          executionGasUsed: '0x0',
+          logs: [],
+          stateGasUsed: '0x0',
+          status: '0x2',
+        },
+      ],
+      payer: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      status: '0x1',
+      type: '0x6',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blockNumber": null,
+      "contractAddress": null,
+      "cumulativeGasUsed": null,
+      "effectiveGasPrice": null,
+      "frameReceipts": [
+        {
+          "executionGasUsed": 21000n,
+          "gasUsed": 21100n,
+          "logs": [
+            {
+              "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "data": "0xdeadbeef",
+              "topics": [
+                "0x1234",
+              ],
+            },
+          ],
+          "stateGasUsed": 100n,
+          "status": "success",
+        },
+        {
+          "executionGasUsed": 256n,
+          "gasUsed": 256n,
+          "logs": [],
+          "stateGasUsed": 0n,
+          "status": "reverted",
+        },
+        {
+          "executionGasUsed": 0n,
+          "gasUsed": 0n,
+          "logs": [],
+          "stateGasUsed": 0n,
+          "status": "skipped",
+        },
+      ],
+      "gasUsed": null,
+      "logs": null,
+      "payer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "status": "success",
+      "to": null,
+      "transactionIndex": null,
+      "type": "eip8141",
+    }
+  `)
+})
+
+test('eip8141 empty frame receipts', () => {
+  expect(
+    formatTransactionReceipt({ frameReceipts: [], type: '0x6' }),
+  ).toMatchInlineSnapshot(`
+    {
+      "blockNumber": null,
+      "contractAddress": null,
+      "cumulativeGasUsed": null,
+      "effectiveGasPrice": null,
+      "frameReceipts": [],
+      "gasUsed": null,
+      "logs": null,
+      "status": null,
+      "to": null,
+      "transactionIndex": null,
+      "type": "eip8141",
     }
   `)
 })

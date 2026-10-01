@@ -1016,6 +1016,8 @@ describe('without `eth_fillTransaction`', () => {
         chain: defineChain({
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args) {
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xdeadbeef',
@@ -1079,6 +1081,8 @@ describe('without `eth_fillTransaction`', () => {
         chain: defineChain({
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args) {
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xcafebabe',
@@ -1106,6 +1110,8 @@ describe('without `eth_fillTransaction`', () => {
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args, options) {
             phases.push(options?.phase ?? 'beforeFillTransaction')
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xdeadbeef',
@@ -1133,6 +1139,8 @@ describe('without `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data: '0xdeadbeef',
@@ -1162,6 +1170,8 @@ describe('without `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data: '0xdeadbeef',
@@ -1191,6 +1201,8 @@ describe('without `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data:
@@ -1926,6 +1938,8 @@ describe('with `eth_fillTransaction`', () => {
         chain: defineChain({
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args) {
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xdeadbeef',
@@ -1966,6 +1980,8 @@ describe('with `eth_fillTransaction`', () => {
         chain: defineChain({
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args) {
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xcafebabe',
@@ -1993,6 +2009,8 @@ describe('with `eth_fillTransaction`', () => {
           ...anvilMainnet.chain,
           async prepareTransactionRequest(args, options) {
             phases.push(options?.phase ?? 'beforeFillTransaction')
+            if (args.frames) return args
+
             return {
               ...args,
               data: '0xdeadbeef',
@@ -2019,6 +2037,8 @@ describe('with `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data: '0xdeadbeef',
@@ -2047,6 +2067,8 @@ describe('with `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data: '0xdeadbeef',
@@ -2075,6 +2097,8 @@ describe('with `eth_fillTransaction`', () => {
           prepareTransactionRequest: [
             async (args, options) => {
               phases.push(options?.phase ?? 'unknown')
+              if (args.frames) return args
+
               return {
                 ...args,
                 data:

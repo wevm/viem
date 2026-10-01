@@ -1,4 +1,8 @@
+import * as Frame from 'ox/Frame'
+import * as FrameSignature from 'ox/FrameSignature'
+import * as TransactionRequest_ox from 'ox/TransactionRequest'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
 import type {
@@ -41,14 +45,22 @@ export const rpcTransactionType = {
   eip1559: '0x2',
   eip4844: '0x3',
   eip7702: '0x4',
+  eip8141: '0x6',
 } as const
 
-export type FormatTransactionRequestErrorType = ErrorType
+export type FormatTransactionRequestErrorType =
+  | TransactionRequest_ox.toRpc.ErrorType
+  | Frame.toRpc.ErrorType
+  | FrameSignature.toRpc.ErrorType
+  | ErrorType
 
 export function formatTransactionRequest(
-  request: ExactPartial<TransactionRequest> & { account?: Account | undefined },
+  request_: ExactPartial<TransactionRequest> & {
+    account?: Account | undefined
+  },
   _?: string | undefined,
 ) {
+  const request = FrameTransaction.resolve(request_)
   const rpcRequest = {} as RpcTransactionRequest
 
   if (typeof request.authorizationList !== 'undefined')
@@ -66,7 +78,23 @@ export function formatTransactionRequest(
       )
     else rpcRequest.blobs = request.blobs
   }
+  if (
+    (request.type === 'eip8141' || request.frames !== undefined) &&
+    typeof request.chainId !== 'undefined'
+  )
+    rpcRequest.chainId = numberToHex(request.chainId)
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
+  if (typeof request.frames !== 'undefined') {
+    rpcRequest.frames = request.frames.map((frame) => {
+      const { executionGas, stateGas, ...rest } = Frame.toRpc(frame)
+      return {
+        ...rest,
+        ...(frame.executionGas === undefined ? {} : { executionGas }),
+        ...(frame.stateGas === undefined ? {} : { stateGas }),
+      }
+    })
+    rpcRequest.type = rpcTransactionType.eip8141
+  }
   if (request.account) rpcRequest.from = request.account.address
   if (typeof request.from !== 'undefined') rpcRequest.from = request.from
   if (typeof request.gas !== 'undefined')
@@ -81,6 +109,16 @@ export function formatTransactionRequest(
     rpcRequest.maxPriorityFeePerGas = numberToHex(request.maxPriorityFeePerGas)
   if (typeof request.nonce !== 'undefined')
     rpcRequest.nonce = numberToHex(request.nonce)
+  if (
+    request.frames ||
+    request.type === 'eip8141' ||
+    request.nonceKeys !== undefined
+  )
+    rpcRequest.nonceKeys = TransactionRequest_ox.toRpc({
+      nonceKeys: FrameTransaction.resolveNonceKeys(request.nonceKeys),
+    }).nonceKeys
+  if (typeof request.signatures !== 'undefined')
+    rpcRequest.signatures = request.signatures.map(FrameSignature.toRpc)
   if (typeof request.to !== 'undefined') rpcRequest.to = request.to
   if (typeof request.type !== 'undefined')
     rpcRequest.type = rpcTransactionType[request.type]

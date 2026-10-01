@@ -1,3 +1,4 @@
+import { formatTransactionRequest } from 'viem'
 import { expect, test } from 'vitest'
 
 import type {
@@ -9,10 +10,7 @@ import type {
   TransactionRequestLegacy,
 } from '../../types/transaction.js'
 
-import {
-  formatTransactionRequest,
-  rpcTransactionType,
-} from './transactionRequest.js'
+import { rpcTransactionType } from './transactionRequest.js'
 
 const base: TransactionRequest = {
   data: '0x1',
@@ -22,6 +20,27 @@ const base: TransactionRequest = {
   to: '0x1',
   value: 1n,
 }
+
+test('keyed frame nonce quantities', () => {
+  expect(
+    formatTransactionRequest({
+      type: 'eip8141',
+      frames: [],
+      nonce: 3,
+      nonceKeys: [123n, 456n],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "frames": [],
+      "nonce": "0x3",
+      "nonceKeys": [
+        "0x7b",
+        "0x1c8",
+      ],
+      "type": "0x6",
+    }
+  `)
+})
 
 test('legacy transaction', () => {
   expect(
@@ -356,7 +375,139 @@ test('rpcTransactionType', () => {
       "eip2930": "0x1",
       "eip4844": "0x3",
       "eip7702": "0x4",
+      "eip8141": "0x6",
       "legacy": "0x0",
     }
   `)
+})
+
+test('eip8141 transaction', () => {
+  expect(
+    formatTransactionRequest({
+      chainId: 8141,
+      frames: [
+        {
+          flags: 'approveExecutionAndPayment',
+          executionGas: 50_000n,
+          mode: 'verify',
+        },
+        {
+          data: '0xdeadbeef',
+          executionGas: 40_000n,
+          mode: 'sender',
+          stateGas: 100n,
+          to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          value: 1n,
+        },
+      ],
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      maxFeePerBlobGas: 0n,
+      maxFeePerGas: 10n,
+      maxPriorityFeePerGas: 1n,
+      nonce: 0,
+      signatures: [
+        { scheme: 'secp256k1' },
+        {
+          payload:
+            '0x1111111111111111111111111111111111111111111111111111111111111111',
+          scheme: 'arbitrary',
+          signature: '0xdeadbeef',
+        },
+        { scheme: 'p256' },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "chainId": "0x1fcd",
+      "frames": [
+        {
+          "data": "0x",
+          "executionGas": "0xc350",
+          "flags": "0x3",
+          "mode": "0x1",
+          "value": "0x0",
+        },
+        {
+          "data": "0xdeadbeef",
+          "executionGas": "0x9c40",
+          "flags": "0x0",
+          "mode": "0x2",
+          "stateGas": "0x64",
+          "target": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "value": "0x1",
+        },
+      ],
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "maxFeePerBlobGas": "0x0",
+      "maxFeePerGas": "0xa",
+      "maxPriorityFeePerGas": "0x1",
+      "nonce": "0x0",
+      "nonceKeys": [
+        "0x0",
+      ],
+      "signatures": [
+        {
+          "msg": "0x",
+          "scheme": "0x1",
+        },
+        {
+          "msg": "0x1111111111111111111111111111111111111111111111111111111111111111",
+          "scheme": "0x0",
+          "signature": "0xdeadbeef",
+        },
+        {
+          "msg": "0x",
+          "scheme": "0x2",
+        },
+      ],
+      "type": "0x6",
+    }
+  `)
+})
+
+test('eip8141 defaults', () => {
+  expect(
+    formatTransactionRequest({ frames: [{}], signatures: [], type: 'eip8141' }),
+  ).toMatchInlineSnapshot(`
+    {
+      "frames": [
+        {
+          "data": "0x",
+          "flags": "0x0",
+          "mode": "0x0",
+          "value": "0x0",
+        },
+      ],
+      "nonceKeys": [
+        "0x0",
+      ],
+      "signatures": [],
+      "type": "0x6",
+    }
+  `)
+})
+
+test('eip8141 explicit zero gas', () => {
+  expect(
+    formatTransactionRequest({ frames: [{ executionGas: 0n, stateGas: 0n }] }),
+  ).toEqual({
+    nonceKeys: ['0x0'],
+    frames: [
+      {
+        data: '0x',
+        executionGas: '0x0',
+        flags: '0x0',
+        mode: '0x0',
+        stateGas: '0x0',
+        value: '0x0',
+      },
+    ],
+    type: '0x6',
+  })
+})
+
+test('omits chain ID for non-frame requests', () => {
+  expect(formatTransactionRequest({ chainId: 1, type: 'eip1559' })).toEqual({
+    type: '0x2',
+  })
 })

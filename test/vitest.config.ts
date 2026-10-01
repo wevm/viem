@@ -15,6 +15,10 @@ export default defineConfig({
         find: /^viem\/tempo$/,
         replacement: join(__dirname, '../src/tempo/index.ts'),
       },
+      {
+        find: /^viem\/(actions|accounts|frames)$/,
+        replacement: join(__dirname, '../src/$1/index.ts'),
+      },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
     benchmark: {
@@ -61,6 +65,7 @@ export default defineConfig({
         test: {
           name: 'core',
           exclude: [
+            '**/*.frames.test.ts',
             process.env.TEST_RLP !== 'true'
               ? '**/utils/encoding/toRlp.test.ts'
               : '',
@@ -76,6 +81,21 @@ export default defineConfig({
           hookTimeout: 60_000,
           testTimeout: 60_000,
           sequence: { groupOrder: 0 },
+        },
+      },
+      // TODO: remove once frame txs in anvil
+      {
+        extends: true,
+        test: {
+          globalSetup: [join(__dirname, './src/frames/setup.global.ts')],
+          hookTimeout: 180_000,
+          include: ['src/**/*.frames.test.ts', 'test/src/frames/**/*.test.ts'],
+          maxWorkers: 4,
+          name: 'tmp_frames',
+          retry: 0,
+          sequence: { groupOrder: 1 },
+          setupFiles: [join(__dirname, './src/frames/setup.ts')],
+          testTimeout: 180_000,
         },
       },
       {

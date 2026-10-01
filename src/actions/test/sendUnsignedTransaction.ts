@@ -4,6 +4,7 @@ import type {
 } from '../../clients/createTestClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
@@ -53,18 +54,27 @@ export async function sendUnsignedTransaction<
   account extends Account | undefined,
 >(
   client: TestClient<TestClientMode, Transport, chain, account, false>,
-  args: SendUnsignedTransactionParameters<chain>,
+  args_: SendUnsignedTransactionParameters<chain>,
 ): Promise<SendUnsignedTransactionReturnType> {
+  const args = FrameTransaction.resolve(args_)
+
   const {
     accessList,
+    blobVersionedHashes,
+    chainId,
     data,
+    frames,
     from,
     gas,
     gasPrice,
+    maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    nonceKeys,
+    signatures,
     to,
+    type,
     value,
     ...rest
   } = args
@@ -77,14 +87,21 @@ export async function sendUnsignedTransaction<
       // Pick out extra data that might exist on the chain's transaction request type.
       ...extract(rest, { format: chainFormat }),
       accessList,
+      blobVersionedHashes,
+      chainId,
       data,
+      frames,
       from,
       gas,
       gasPrice,
+      maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceKeys,
+      signatures,
       to,
+      type,
       value,
     } as TransactionRequest,
     'sendUnsignedTransaction',

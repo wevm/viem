@@ -37,3 +37,6 @@ site/pages.gen.ts
 .vercel
 vocs.config.tsx.timestamp*
 _
+
+# Local agent plans and temporary files
+.agents/tmp/

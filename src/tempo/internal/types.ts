@@ -58,7 +58,7 @@ export type ReadParameters = Pick<
 export type WriteParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-> = UnionPick<
+> = Pick<
   viem_WriteContractSyncParameters<never, never, never, chain, account>,
   | 'account'
   | 'chain'
@@ -82,7 +82,7 @@ export type WriteParameters<
 export type WriteSyncParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-> = UnionPick<
+> = Pick<
   viem_WriteContractSyncParameters<never, never, never, chain, account>,
   'pollingInterval' | 'timeout'
 >

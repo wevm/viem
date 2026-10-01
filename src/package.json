@@ -94,6 +94,11 @@
       "import": "./_esm/linea/index.js",
       "default": "./_cjs/linea/index.js"
     },
+    "./frames": {
+      "types": "./_types/frames/index.d.ts",
+      "import": "./_esm/frames/index.js",
+      "default": "./_cjs/frames/index.js"
+    },
     "./node": {
       "types": "./_types/node/index.d.ts",
       "import": "./_esm/node/index.js",
@@ -186,6 +191,9 @@
       "experimental/erc7895": [
         "./_types/experimental/erc7895/index.d.ts"
       ],
+      "frames": [
+        "./_types/frames/index.d.ts"
+      ],
       "node": [
         "./_types/node/index.d.ts"
       ],
@@ -230,7 +238,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.14.45",
+    "ox": "0.14.52",
     "ws": "8.21.0"
   },
   "license": "MIT",

@@ -1,0 +1,128 @@
+---
+description: Send Frame Transactions and inspect their results.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Send Transactions
+
+## Overview
+
+Use [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) to prepare, sign, and submit Frame Transactions. The `frames` property selects the transaction type without an explicit `type` field.
+
+## Recipes
+
+### Transfer Native Currency
+
+Put the recipient and value inside [`calls`](/docs/frames/calls), rather than on the outer request.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [ // [!code focus]
+    calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }]), // [!code focus]
+  ], // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Use Keyed Nonces
+
+`nonceKeys` selects independent counters for the sender. All selected keys share the transaction's `nonce`. Preparation reads their current sequence; the keys must have matching counters.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  nonceKeys: [123n, 456n], // [!code focus]
+  frames: [calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }])],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+Use `nonceKeys: ['random']` to generate a fresh nonzero key during preparation. You can mix `'random'` with explicit keys; preparation sorts the resulting keys and preserves them for signing and sending.
+
+Omitting `nonceKeys` defaults to `[0n]`. Use `[0n]` to select the sender's ordinary account nonce. Other key sets contain 1–16 strictly increasing nonzero 256-bit integers. Successful payment approval advances every selected counter together. Nonzero keys do not advance the ordinary account nonce, and account nonce managers cannot allocate their sequences.
+
+### Set an Expiry
+
+Place [`expiry`](/docs/frames/expiry) first. Use `'1d'` for a deadline one day from now, inclusive. Viem inserts automatic account verification after this frame.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, expiry } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [
+    expiry('1d'), // [!code focus]
+    calls([{ to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n }]),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+### Inspect Frame Results
+
+[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) returns the payer and individual frame receipts for EIP-8141 transactions.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [calls([{ to: client.account.address, value: 1n }])],
+})
+console.log(receipt.payer) // [!code focus]
+console.log(receipt.frameReceipts) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+A receipt's outer status alone does not establish that every call succeeded.
+:::
+
+For Frame Transactions, action-level or client-level `dataSuffix` is appended to each
+sender frame before gas estimation and signing. A per-call `dataSuffix` overrides
+that default, including `'0x'` to disable it. Custom helpers can [customize the suffix with a `dataSuffix` hook](/docs/frames/from#customize-a-data-suffix). Without a hook, verification frames are unchanged. Already-signed transactions are unchanged.
+
+## Best Practices
+
+Keep dependent calls in the same atomic group. Use the frame receipt status to distinguish successful, reverted, and skipped frames. An expiry verifier failure invalidates the transaction; it is not an ordinary failed call.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:book-open" title="Batch Calls" description="Group dependent operations." to="/docs/frames/batching-calls" />
+  <Card icon="lucide:book-open" title="Signing Frames" description="Inspect requests before signing." to="/docs/frames/signing-frames" />
+</Cards>

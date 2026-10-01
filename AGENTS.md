@@ -27,6 +27,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Follow local import style**; viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
 - **Classes for errors only**; all other APIs use functions and plain data.
 - **Errors live next to the code that throws them**; keep module-specific failure classes local.
+- **Frame errors identify the public API**; include the API name, relevant parameter, and failed technical condition. Include a corrective action when applicable.
   - Put error classes near the bottom of the owning module.
   - Keep public functions and types first.
   - Set `name` to the namespaced form.
@@ -38,6 +39,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Examples: `from.Options`, `serialize.ErrorType`.
   - Do not lift params to sibling exports by default.
 - **`options` over `args`**; use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
+- **Do not destructure function parameters**; name option bags `options` and destructure inside the body. This applies to functions, methods, and callbacks.
 - **Minimal variable names**; prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
 - **No redundant type annotations**; if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
 - **No inline object types on locals**; when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
@@ -45,6 +47,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **IIFE expressions for fallible local derivations**; prefer IIFEs for local `try`/`catch` parsing.
   - Avoid `let value: T` followed by assignment inside `try`.
 - **Skip braces for single-statement blocks**; omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
+- **Separate logical blocks with a blank line**; visually separate validation and early returns, preparation, execution or signing, and final results.
+  - Keep closely related declarations and their checks together. Do not add blank lines between every statement or use multiple blank lines.
 - **No section separator comments**; do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
 - **No internal-tracking references in code or comments**; code must read standalone.
   - Avoid planning phases, task IDs, and internal labels.
@@ -92,10 +96,13 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Public entrypoint docs**; when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
 - **Alphabetical exports**; barrel/entrypoint export statements sort by module specifier; named-export lists and the exported declaration blocks of action/module files sort by exported name.
 - **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
+- **Core transaction formats use existing modules**; add EIP variants to `src/types/transaction.ts` and `src/utils/transaction/`, without separate protocol entrypoints or conversion facades.
+- **Shared request fields belong on the base type**; variant-only copies can make `OneOf` exclude ordinary transactions when intersected with shared preparation fields.
 - **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
 - **Bound CCIP batch fan-out**; cap total queries, nesting, and concurrent requests. Share one budget across recursive local batches.
 - **Relay plugins are objects**; use `(context, next)` middleware and explicit post-fill hooks; keep request state off handler functions.
 - **Relay forwarding transports do not retry**; keep retry policy at downstream I/O, including explicit per-request overrides.
+- **Frame suffix hooks return suffix bytes**; `dataSuffix` appends its returned bytes to existing calldata. Returning `undefined` or `'0x'` appends nothing.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions
@@ -117,6 +124,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Applies to hand-written docs only.
 - **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
+  - Skip type comments that only restate the type name.
   - Public type properties get TSDoc too.
 - **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.
   - Use the same docs as the underlying action.
@@ -163,6 +171,10 @@ This document contains general guidelines for AI agents working on the Viem code
   enable `typecheck` on the selected Vitest project with an explicit `.test-d.ts` include
   and a targeted tsconfig extending `test/tsconfig.json` (`composite: false`). Restore
   the test configuration afterward; a no-files run does not verify inference.
+- **Frame transaction tests use `tmp_frames`**; run `pnpm test --run --project tmp_frames` with Docker available.
+  - Colocate integration tests as `*.frames.test.ts` and use `~test/frames/config.js` for funded accounts and clients.
+  - Start simulation and filling tests with a minimal unsigned `default` case; cover signed requests separately.
+  - Prool starts an isolated Reth instance per worker and destroys it after each test file.
 - **Check for orphaned harness listeners before full-suite runs**; a killed test run can leave
   its proxy holding ports 8545/8645/8745/8845/9545/4337/4338, making later runs fail at global setup
   (`EADDRINUSE`) or time out en masse against the wedged instance. Check them with `lsof -nP`
@@ -182,6 +194,7 @@ This document contains general guidelines for AI agents working on the Viem code
 - **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
   - Once a facade gains project logic, add sibling tests.
 - **Import public APIs from package entrypoints in tests**; use aliases for public exports.
+  - Point namespace aliases at source `index.ts` files so built package exports cannot bypass regression coverage.
   - Use entrypoints such as `'viem'`, `'viem/actions'`, `'viem/tempo'`, and `'viem/node'`.
   - Avoid relative imports for public surface tests.
   - Internal helpers may stay relative.

@@ -130,3 +130,23 @@ test('eip2930', () => {
     type: 'eip2930',
   })
 })
+
+test('frame requests accept PeerDAS sidecars', () => {
+  sendTransaction(walletClient, {
+    frames: [{ mode: 'sender' }],
+    blobVersionedHashes: ['0x01'],
+    sidecars: { blobs: ['0x'], commitments: ['0x'], cellProofs: ['0x'] },
+  })
+})
+
+test('frame requests exclude outer call fields', () => {
+  // @ts-expect-error Frame destinations belong inside frames.
+  sendTransaction(walletClient, {
+    frames: [{}],
+    to: '0x0000000000000000000000000000000000000001',
+  })
+  // @ts-expect-error Frame calldata belongs inside frames.
+  sendTransaction(walletClient, { frames: [{}], data: '0x1234' })
+  // @ts-expect-error Frame values belong inside frames.
+  sendTransaction(walletClient, { frames: [{}], value: 1n })
+})
