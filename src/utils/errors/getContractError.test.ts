@@ -448,6 +448,38 @@ describe('getContractError', () => {
       })
     })
 
+    test('preserves a string cause', () => {
+      const originalError = new BaseError('An unknown RPC error occurred.', {
+        cause: 'timeout' as unknown as Error,
+      })
+      const error = getContractError(originalError, {
+        abi: baycContractConfig.abi,
+        functionName: 'mintApe',
+        args: [1n],
+        sender: accounts[0].address,
+      })
+      expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+      expect(error.cause).toBe(originalError)
+      expect(originalError.cause).toBe('timeout')
+    })
+
+    test('preserves a JSON string cause', () => {
+      const cause =
+        '{"code":-32000,"message":"nonce too low: next nonce 429, tx nonce 428"}'
+      const originalError = new BaseError('An unknown RPC error occurred.', {
+        cause: cause as unknown as Error,
+      })
+      const error = getContractError(originalError, {
+        abi: baycContractConfig.abi,
+        functionName: 'mintApe',
+        args: [1n],
+        sender: accounts[0].address,
+      })
+      expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+      expect(error.cause).toBe(originalError)
+      expect(originalError.cause).toBe(cause)
+    })
+
     test('preserves the cause as the direct error.cause on every other case', () => {
       const originalError = new BaseError('some unknown error')
       const error = getContractError(originalError, {
