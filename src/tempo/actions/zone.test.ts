@@ -31,6 +31,7 @@ import { addresses, chain, http, nodeEnv } from '~test/tempo/config.js'
 import { deployEarnGateway, deployEarnStack } from '~test/tempo/earn.js'
 import { defineZone, zoneAdminKey } from '~test/tempo/prool.js'
 import {
+  expectedSequencers,
   factoryAddress,
   getClient as getZoneClient,
   unredactedRpcUrl,
@@ -337,8 +338,19 @@ describe('getZoneInfo', () => {
 
     expect(info.zoneId).toBe(zoneId)
     expect(info.chainId).toBe(zoneClient.chain.id)
-    expect(info.sequencers).toHaveLength(1)
-    expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(true)
+    if (expectedSequencers) {
+      expect(info.sequencers).toHaveLength(expectedSequencers.length)
+      expect(
+        expectedSequencers.every((expected) =>
+          info.sequencers.some((actual) => isAddressEqual(actual, expected)),
+        ),
+      ).toBe(true)
+    } else {
+      expect(info.sequencers).toHaveLength(1)
+      expect(isAddressEqual(info.sequencers[0]!, portalAdmin.address)).toBe(
+        true,
+      )
+    }
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
   })
