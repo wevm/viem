@@ -2542,6 +2542,15 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ],
       })
 
+      // Both candidates need fee liquidity so their balances determine the selection.
+      for (const token of [lowUsd, highUsd])
+        await Actions.amm.mintSync(rpc, {
+          userTokenAddress: token,
+          validatorTokenAddress: Tempo.addresses.pathUsd,
+          validatorTokenAmount: parseUnits('10', 6),
+          to: rpc.account.address,
+        })
+
       const customRelay = Relay.create({
         resolveTokens: () => [lowUsd, highUsd],
 
