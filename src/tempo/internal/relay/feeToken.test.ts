@@ -438,6 +438,7 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
 test.each(['direct', 'quote'] as const)(
   'skips illiquid preferences and candidates until the %s route is funded',
   async (route) => {
+    // Fresh tokens start without pools, so the test controls when each route becomes usable.
     const account = Account.fromSecp256k1(generatePrivateKey())
     const { token: quoteToken } = await Actions.token.createSync(caller, {
       account: userAccount,
@@ -477,6 +478,7 @@ test.each(['direct', 'quote'] as const)(
       roles: ['issuer'],
       to: userAccount.address,
     })
+    // The illiquid preference has the largest balance; AlphaUSD provides a smaller, liquid fallback.
     await Actions.token.mintSync(caller, {
       account: userAccount,
       feeToken: Tempo.addresses.alphaUsd,
@@ -496,6 +498,8 @@ test.each(['direct', 'quote'] as const)(
       feeToken: Tempo.addresses.alphaUsd,
       token,
     })
+
+    // Observe real RPC requests to ensure liquidity checks stay within the single preflight call.
     const requests: string[] = []
     const client = createClient({
       chain: Tempo.chain,
@@ -506,6 +510,7 @@ test.each(['direct', 'quote'] as const)(
       }),
     })
 
+    // Reject the illiquid preference whether or not it also appears in the candidate list.
     for (const tokens of [
       [Tempo.addresses.alphaUsd],
       [token, Tempo.addresses.alphaUsd],
@@ -529,6 +534,7 @@ test.each(['direct', 'quote'] as const)(
       `)
     }
 
+    // A full relay fill must use AlphaUSD even when the transfer targets the illiquid token.
     const relayClient = createClient({
       chain: Tempo.chain,
       transport: withRelay(Tempo.http(), {
@@ -551,6 +557,7 @@ test.each(['direct', 'quote'] as const)(
       `"0x20c0000000000000000000000000000000000001"`,
     )
 
+    // Without a liquid fallback, leave selection to the execution node.
     const empty = await resolveFeeToken(client, {
       account: account.address,
       tokens: [token],
@@ -563,6 +570,7 @@ test.each(['direct', 'quote'] as const)(
       }
     `)
 
+    // Fund either the direct route to pathUSD or the first leg through the quote token.
     await Actions.amm.mintSync(caller, {
       account: userAccount,
       feeToken: Tempo.addresses.alphaUsd,
@@ -573,6 +581,7 @@ test.each(['direct', 'quote'] as const)(
       to: userAccount.address,
     })
     if (route === 'quote') {
+      // The first leg alone is insufficient: the quote token still needs a pool into pathUSD.
       const incomplete = await resolveFeeToken(client, {
         account: account.address,
         tokens: [token],
@@ -594,6 +603,8 @@ test.each(['direct', 'quote'] as const)(
         to: userAccount.address,
       })
     }
+
+    // Once the route is complete, the preference wins outside the candidate list with no extra RPC.
     requests.length = 0
     const liquid = await resolveFeeToken(client, {
       account: account.address,
