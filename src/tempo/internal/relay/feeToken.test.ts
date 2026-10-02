@@ -434,3 +434,203 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
     ).toMatchInlineSnapshot(`1n`)
   },
 )
+
+test.each(['direct', 'quote'] as const)(
+  'skips illiquid preferences and candidates until the %s route is funded',
+  async (route) => {
+    // Fresh tokens start without pools, so the test controls when each route becomes usable.
+    const account = Account.fromSecp256k1(generatePrivateKey())
+    const { token: quoteToken } = await Actions.token.createSync(caller, {
+      account: userAccount,
+      admin: userAccount.address,
+      feeToken: Tempo.addresses.alphaUsd,
+      name: 'Quote Test',
+      symbol: 'QUOTE',
+      currency: 'USD',
+    })
+    await Actions.token.grantRolesSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      token: quoteToken,
+      roles: ['issuer'],
+      to: userAccount.address,
+    })
+    await Actions.token.mintSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      token: quoteToken,
+      to: userAccount.address,
+      amount: parseUnits('10', 6),
+    })
+    const { token } = await Actions.token.createSync(caller, {
+      account: userAccount,
+      admin: userAccount.address,
+      feeToken: Tempo.addresses.alphaUsd,
+      name: 'Liquidity Test',
+      symbol: 'LIQ',
+      currency: 'USD',
+      quoteToken,
+    })
+    await Actions.token.grantRolesSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      token,
+      roles: ['issuer'],
+      to: userAccount.address,
+    })
+    // The illiquid preference has the largest balance; AlphaUSD provides a smaller, liquid fallback.
+    await Actions.token.mintSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      token,
+      to: account.address,
+      amount: parseUnits('1000', 6),
+    })
+    await Actions.token.transferSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      token: Tempo.addresses.alphaUsd,
+      to: account.address,
+      amount: parseUnits('1', 6),
+    })
+    await Actions.fee.setUserTokenSync(caller, {
+      account,
+      feeToken: Tempo.addresses.alphaUsd,
+      token,
+    })
+
+    // Observe real RPC requests to ensure liquidity checks stay within the single preflight call.
+    const requests: string[] = []
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: http(Tempo.chain.rpcUrls.default.http[0], {
+        onFetchRequest(_request, init) {
+          requests.push(JSON.parse(init!.body as string).method)
+        },
+      }),
+    })
+
+    // Reject the illiquid preference whether or not it also appears in the candidate list.
+    for (const tokens of [
+      [Tempo.addresses.alphaUsd],
+      [token, Tempo.addresses.alphaUsd],
+    ]) {
+      requests.length = 0
+      const result = await resolveFeeToken(client, {
+        account: account.address,
+        tokens,
+      })
+
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "virtualAddresses": undefined,
+        }
+      `)
+      expect(requests).toMatchInlineSnapshot(`
+        [
+          "eth_call",
+        ]
+      `)
+    }
+
+    // A full relay fill must use AlphaUSD even when the transfer targets the illiquid token.
+    const relayClient = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        resolveTokens: () => [token, Tempo.addresses.alphaUsd],
+        plugins: [Relay.feeToken()],
+      }),
+    })
+    const { transaction } = await fillTransaction(relayClient, {
+      account: account.address,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+
+    expect(transaction.feeToken).toMatchInlineSnapshot(
+      `"0x20c0000000000000000000000000000000000001"`,
+    )
+
+    // Without a liquid fallback, leave selection to the execution node.
+    const empty = await resolveFeeToken(client, {
+      account: account.address,
+      tokens: [token],
+    })
+
+    expect(empty).toMatchInlineSnapshot(`
+      {
+        "feeToken": undefined,
+        "virtualAddresses": undefined,
+      }
+    `)
+
+    // Fund either the direct route to pathUSD or the first leg through the quote token.
+    await Actions.amm.mintSync(caller, {
+      account: userAccount,
+      feeToken: Tempo.addresses.alphaUsd,
+      userTokenAddress: token,
+      validatorTokenAddress:
+        route === 'direct' ? Tempo.addresses.pathUsd : quoteToken,
+      validatorTokenAmount: parseUnits('1', 6),
+      to: userAccount.address,
+    })
+    if (route === 'quote') {
+      // The first leg alone is insufficient: the quote token still needs a pool into pathUSD.
+      const incomplete = await resolveFeeToken(client, {
+        account: account.address,
+        tokens: [token],
+      })
+
+      expect(incomplete).toMatchInlineSnapshot(`
+        {
+          "feeToken": undefined,
+          "virtualAddresses": undefined,
+        }
+      `)
+
+      await Actions.amm.mintSync(caller, {
+        account: userAccount,
+        feeToken: Tempo.addresses.alphaUsd,
+        userTokenAddress: quoteToken,
+        validatorTokenAddress: Tempo.addresses.pathUsd,
+        validatorTokenAmount: parseUnits('1', 6),
+        to: userAccount.address,
+      })
+    }
+
+    // Once the route is complete, the preference wins outside the candidate list with no extra RPC.
+    requests.length = 0
+    const liquid = await resolveFeeToken(client, {
+      account: account.address,
+      tokens: [Tempo.addresses.alphaUsd],
+    })
+
+    expect(liquid.feeToken?.toLowerCase()).toBe(token.toLowerCase())
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        "eth_call",
+      ]
+    `)
+  },
+)
+
+test('the validator token needs no pool', async () => {
+  const result = await resolveFeeToken(caller, {
+    account: feePayerAccount.address,
+    exclude: Tempo.addresses.alphaUsd,
+    tokens: [Tempo.addresses.pathUsd],
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    {
+      "feeToken": "0x20c0000000000000000000000000000000000000",
+      "virtualAddresses": undefined,
+    }
+  `)
+})
