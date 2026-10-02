@@ -22,7 +22,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 23_093_073n,
+    blockNumber: 25_382_400n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await setVitalikResolver()
@@ -136,6 +136,22 @@ describe('primary name with non-contract resolver', () => {
       }),
     ).rejects.toThrow('The contract function "reverseWithGateways" reverted')
   })
+})
+
+test('primary name with offchain resolver', async () => {
+  await expect(
+    getEnsName(client, {
+      address: '0xEB4200f750335eFb67E726485445d302D64B1c8A',
+    }),
+  ).resolves.toMatchInlineSnapshot('"test.antistupid.com"')
+})
+
+test('unnormalized primary name', async () => {
+  await expect(
+    getEnsName(client, {
+      address: '0xb404Af9A235Be881335d8898B5B487dc9Cd5ed9D',
+    }),
+  ).resolves.toMatchInlineSnapshot('null')
 })
 
 describe('http error', () => {
