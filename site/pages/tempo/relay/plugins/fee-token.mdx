@@ -4,7 +4,8 @@
 
 [`Relay.feeToken`](#relayfeetoken) selects a fee token the sender holds. It honors
 an explicit request token, then checks the sender's onchain preference. If the
-preferred token has no balance, it selects the highest-balance candidate.
+preferred token has no balance or fee AMM liquidity, it selects the highest-balance
+candidate with liquidity.
 
 ## Recipes
 
@@ -126,11 +127,21 @@ The fee is illustrative. Selection follows this order:
 
 1. An explicit `feeToken` skips discovery. A local sponsor's configured token
    overrides it on sponsored fills.
-2. A funded onchain preference wins, even when it is absent from the candidate list.
-3. Otherwise, select the candidate with the highest balance. TIP-20 call targets
-   are included, and candidate order breaks ties.
-4. If no candidate has a positive balance, leave fee-token selection to the
-   execution node.
+2. A funded onchain preference with liquidity wins, even when it is absent from
+   the candidate list.
+3. Otherwise, select the candidate with liquidity and the highest balance. TIP-20
+   call targets are included, and candidate order breaks ties.
+4. If no candidate has both a positive balance and liquidity, leave fee-token
+   selection to the execution node.
+
+Liquidity checks use the current block validator's preferred token and accept a
+direct pool or a two-hop route through the candidate's quote token. Paying in the
+validator's token requires no pool. These reads share the existing preflight RPC
+request; unfunded tokens skip pool reads.
+
+The check requires a positive output reserve in each pool. It does not reserve
+liquidity or guarantee enough liquidity for the final fee. The execution node
+validates the transaction against its fee and validator at execution time.
 
 ### Configure Tokens
 

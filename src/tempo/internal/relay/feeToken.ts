@@ -79,7 +79,7 @@ export async function getDefaultTokens(
   })
 }
 
-/** Resolves a funded fee-token candidate. @internal */
+/** Resolves a funded fee-token candidate with fee AMM liquidity. @internal */
 export async function resolveFeeToken(
   client: Client,
   options: resolveFeeToken.Options,

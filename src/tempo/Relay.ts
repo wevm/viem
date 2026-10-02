@@ -387,7 +387,7 @@ export declare namespace feePayer {
 }
 
 /**
- * Resolves fee tokens from user preferences and token balances.
+ * Resolves fee tokens from user preferences, balances, and available fee AMM liquidity.
  *
  * @example
  * ```ts
