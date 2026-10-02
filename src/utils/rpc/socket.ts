@@ -288,11 +288,12 @@ export async function getSocketRpcClient<socket extends {}>(
           }
         },
         requestAsync({ body, timeout = 10_000 }) {
+          const id = body.id ?? idCache.take()
           return withTimeout(
             () =>
               new Promise<RpcResponse>((onResponse, onError) =>
                 this.request({
-                  body,
+                  body: { ...body, id },
                   onError,
                   onResponse,
                 }),
@@ -301,7 +302,7 @@ export async function getSocketRpcClient<socket extends {}>(
               errorInstance: new TimeoutError({ body, url }),
               timeout,
             },
-          )
+          ).finally(() => requests.delete(id))
         },
         requests,
         subscriptions,
