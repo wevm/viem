@@ -1,5 +1,13 @@
 # viem
 
+## 2.57.3
+
+### Patch Changes
+
+- [#5168](https://github.com/wevm/viem/pull/5168) [`d6f63b57b4cc9b93654ca20f848b46a1080551d3`](https://github.com/wevm/viem/commit/d6f63b57b4cc9b93654ca20f848b46a1080551d3) Thanks [@bearpong](https://github.com/bearpong)! - Fixed `getContractError` throwing when an error cause is not an object.
+
+- [#5173](https://github.com/wevm/viem/pull/5173) [`26d5bd227ba532ceff83bd76e807ea605c703e8b`](https://github.com/wevm/viem/commit/26d5bd227ba532ceff83bd76e807ea605c703e8b) Thanks [@jxom](https://github.com/jxom)! - Updated automatic relay fee-token selection to skip tokens without fee AMM liquidity in the existing preflight request.
+
 ## 2.57.2
 
 ### Patch Changes
