@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { Mnemonic } from 'ox'
 import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
@@ -108,11 +109,22 @@ export const feeToken = (() => {
   return addresses.pathUsd
 })()
 
-export const http = (url = rpcUrl) =>
-  viem_http(url, {
-    ...debugOptions({
-      rpcUrl: url,
-    }),
+let nextRequestAt = 0
+
+export const http = (url = rpcUrl) => {
+  const debug = debugOptions({ rpcUrl: url })
+  return viem_http(url, {
+    ...debug,
+    async onFetchRequest(request, init) {
+      // Deployed RPCs rate-limit bursts, including non-retried transaction submissions.
+      if (nodeEnv !== 'localnet' && url === rpcUrl) {
+        const now = Date.now()
+        const delay = Math.max(0, nextRequestAt - now)
+        nextRequestAt = now + delay + 250
+        await setTimeout(delay)
+      }
+      return debug?.onFetchRequest?.(request, init)
+    },
     ...(import.meta.env.VITE_TEMPO_CREDENTIALS
       ? {
           fetchOptions: {
@@ -123,6 +135,7 @@ export const http = (url = rpcUrl) =>
         }
       : {}),
   })
+}
 
 export function getClient<
   chain_ extends Chain | undefined = typeof tempoLocalnet,
@@ -142,7 +155,7 @@ export function getClient<
     : accountOrAddress
 > {
   return createClient({
-    pollingInterval: 100,
+    pollingInterval: nodeEnv === 'localnet' ? 100 : 1_000,
     chain,
     tokens,
     transport: http(rpcUrl),
