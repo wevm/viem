@@ -1,5 +1,25 @@
 # viem
 
+## 2.57.3
+
+### Patch Changes
+
+- [#5180](https://github.com/wevm/viem/pull/5180) [`031f5e2445031fed4328f32cb201f779b9101265`](https://github.com/wevm/viem/commit/031f5e2445031fed4328f32cb201f779b9101265) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCalls` with `experimental_fallback` enabled to recognize Base RPC's unsupported-method response.
+
+- [#5168](https://github.com/wevm/viem/pull/5168) [`d6f63b57b4cc9b93654ca20f848b46a1080551d3`](https://github.com/wevm/viem/commit/d6f63b57b4cc9b93654ca20f848b46a1080551d3) Thanks [@bearpong](https://github.com/bearpong)! - Fixed `getContractError` throwing when an error cause is not an object.
+
+- [#5173](https://github.com/wevm/viem/pull/5173) [`26d5bd227ba532ceff83bd76e807ea605c703e8b`](https://github.com/wevm/viem/commit/26d5bd227ba532ceff83bd76e807ea605c703e8b) Thanks [@jxom](https://github.com/jxom)! - Updated automatic relay fee-token selection to skip tokens without fee AMM liquidity in the existing preflight request.
+
+- [#5171](https://github.com/wevm/viem/pull/5171) [`bbd9c15a1de604cc4948f6033456c7f7f15a5f9a`](https://github.com/wevm/viem/commit/bbd9c15a1de604cc4948f6033456c7f7f15a5f9a) Thanks [@Iretse](https://github.com/Iretse)! - Fixed IPC response framing for JSON strings containing braces and escaped quotes.
+
+- [#5160](https://github.com/wevm/viem/pull/5160) [`ed89bfdf5c4595fbd7b38346c8dfb7b1250dbfcb`](https://github.com/wevm/viem/commit/ed89bfdf5c4595fbd7b38346c8dfb7b1250dbfcb) Thanks [@KJdayo](https://github.com/KJdayo)! - Updated Jasmy Chain and Jasmy Chain Testnet RPC URLs (`rpc.jasmyscan.net` / `jasmy-chain-testnet.alt.technology`) and added their block explorers.
+
+- [#5179](https://github.com/wevm/viem/pull/5179) [`60951cb0166d8f55615294b2b71de4c3526128e9`](https://github.com/wevm/viem/commit/60951cb0166d8f55615294b2b71de4c3526128e9) Thanks [@jxom](https://github.com/jxom)! - Fixed `waitForTransactionReceipt` treating the awaited transaction as its own replacement when its receipt was unavailable.
+
+- [#5172](https://github.com/wevm/viem/pull/5172) [`69e9facaba86a4a171b473fdc19419b12ff4ed74`](https://github.com/wevm/viem/commit/69e9facaba86a4a171b473fdc19419b12ff4ed74) Thanks [@Iretse](https://github.com/Iretse)! - Fixed retention of timed-out IPC and WebSocket request callbacks.
+
+- [#5176](https://github.com/wevm/viem/pull/5176) [`2f97c5e1639969179e76ea61f5b10641f6f101f8`](https://github.com/wevm/viem/commit/2f97c5e1639969179e76ea61f5b10641f6f101f8) Thanks [@Kshot3000](https://github.com/Kshot3000)! - Fixed `waitForUserOperationReceipt` hanging until timeout on a later call for the same hash after concurrent calls for that hash had settled.
+
 ## 2.57.2
 
 ### Patch Changes
