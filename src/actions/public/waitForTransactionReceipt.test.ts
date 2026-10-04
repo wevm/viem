@@ -1,11 +1,18 @@
-import { describe, expect, test, vi } from 'vitest'
+import { Instance, Pool } from 'prool'
+import {
+  createPublicClient,
+  createTestClient,
+  custom,
+  http,
+  type ReplacementReturnType,
+} from 'viem'
+import { getTransactionReceipt } from 'viem/actions'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import { mainnet } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { custom } from '../../clients/transports/custom.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/index.js'
@@ -60,6 +67,60 @@ test('waits for transaction (send -> mine -> wait)', async () => {
   })
   expect(status).toBe('success')
 })
+
+test.each([2, 3])(
+  'waits for a mined transaction after %i unavailable receipts without reporting a replacement',
+  async (missingReceipts) => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const laggingNode = await pool.start(2)
+    const minedClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    const hash = await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    await mine(minedClient, { blocks: 1 })
+    const receipt = await getTransactionReceipt(minedClient, { hash })
+    await setIntervalMining(minedClient, { interval: 1 })
+
+    // Route receipt reads to a lagging node while transaction and block reads are current.
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            missingReceipts-- > 0
+          )
+            return laggingClient.request(options)
+          return minedClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const result = await client.waitForTransactionReceipt({
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 10_000,
+    })
+
+    expect(result).toEqual(receipt)
+    expect(replacements).toMatchInlineSnapshot('[]')
+  },
+)
 
 test('waits for transaction (multiple waterfall)', async () => {
   setup()

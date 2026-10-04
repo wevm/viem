@@ -328,8 +328,9 @@ export async function waitForTransactionReceipt<
                 const replacementTransaction = (
                   block.transactions as {} as Transaction[]
                 ).find(
-                  ({ from, nonce }) =>
+                  ({ from, hash, nonce }) =>
                     from === replacedTransaction!.from &&
+                    hash !== replacedTransaction!.hash &&
                     nonce === replacedTransaction!.nonce,
                 )
 
