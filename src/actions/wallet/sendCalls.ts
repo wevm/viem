@@ -173,6 +173,8 @@ export async function sendCalls<
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
         error.name === 'UnknownRpcError' ||
+        error.details.toLowerCase() ===
+          'this request method is not supported' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
