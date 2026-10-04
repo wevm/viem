@@ -1,0 +1,201 @@
+# Fee Token Plugin
+
+## Overview
+
+[`Relay.feeToken`](#relayfeetoken) selects a fee token the sender holds. It honors
+an explicit request token, then checks the sender's onchain preference. If the
+preferred token has no balance or fee AMM liquidity, it selects the highest-balance
+candidate with liquidity.
+
+## Recipes
+
+Choose a local relay to run plugins in your application, or connect to a remote
+relay. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
+### Select the Best Fee Token
+
+Send a transfer with [`token.transferSync`](/tempo/actions/token.transfer) and
+omit `feeToken`. The relay selects the best fee token under the hood, and the
+action waits for the transaction receipt. Replace the key and addresses with your own.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Account } from 'viem'
+import { client } from './viem.config'
+
+// [!code focus:start]
+const { receipt } = await client.token.transferSync({
+  account: Account.fromPrivateKey('0x...'),
+  token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+  to: '0x2222222222222222222222222222222222222222',
+  amount: Value.from('100', 6),
+})
+
+receipt.status
+// @log: 'success'
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.feeToken(), // [!code focus]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+### Inspect Fee Token
+
+Use [`Actions.transaction.prepare`](/docs/actions/transaction/prepare)
+to inspect the selected fee token before signing and sending. Add
+[`Relay.simulate`](/tempo/relay/plugins/simulate) to include the fee estimate.
+This example assumes the sender holds USDC.e and has no funded preference or
+higher-balance candidate. Replace the sender and recipient addresses.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Actions as CoreActions } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { capabilities, request: transaction } = await CoreActions.transaction.prepare(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: Value.from('100', 6),
+  })],
+})
+
+// [!code focus:start]
+transaction.feeToken
+// @log: '0x20c000000000000000000000b9537d11c60e8b50'
+capabilities?.fee
+// @log: { amount: '0x6b86', decimals: 6, formatted: '0.027526', symbol: 'USDC.e' }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.simulate(),
+      Relay.feeToken(), // [!code focus]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+The fee is illustrative. Selection follows this order:
+
+1. An explicit `feeToken` skips discovery. A local sponsor's configured token
+   overrides it on sponsored fills.
+2. A funded onchain preference with liquidity wins, even when it is absent from
+   the candidate list.
+3. Otherwise, select the candidate with liquidity and the highest balance. TIP-20
+   call targets are included, and candidate order breaks ties.
+4. If no candidate has both a positive balance and liquidity, leave fee-token
+   selection to the execution node.
+
+Liquidity checks use the current block validator's preferred token and accept a
+direct pool or a two-hop route through the candidate's quote token. Paying in the
+validator's token requires no pool. These reads share the existing preflight RPC
+request; unfunded tokens skip pool reads.
+
+The check requires a positive output reserve in each pool. It does not reserve
+liquidity or guarantee enough liquidity for the final fee. The execution node
+validates the transaction against its fee and validator at execution time.
+
+### Configure Tokens
+
+:::code-group
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Addresses, Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    resolveTokens: () => [Addresses.pathUsd], // [!code focus]
+    plugins: [Relay.feeToken()],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+TIP-20 tokens targeted by the transaction's calls also become candidates for
+sender-paid fills. Candidate order breaks equal-balance ties. Guaranteed
+sponsorship skips sender-balance resolution; rejected sponsorship falls back to it.
+
+## `Relay.feeToken`
+
+Creates a fee-token selection plugin.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.feeToken()
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Error` | The token resolver fails. |
+| `RpcRequestError` | The selected token cannot pay for the transaction. |

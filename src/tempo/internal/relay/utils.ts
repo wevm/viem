@@ -1,0 +1,213 @@
+import { Address, Hex, RpcResponse } from 'ox'
+import {
+  Transaction as core_Transaction,
+  KeyAuthorization,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
+import type { Client } from '../../../core/Client.js'
+import { UnknownRpcError } from '../../../core/RpcError.js'
+
+export function resolveChainId(value: unknown) {
+  if (typeof value === 'number') return value
+  if (typeof value === 'bigint') return Number(value)
+  if (typeof value === 'string') {
+    if (!/^(?:0x[0-9a-f]+|[0-9]+)$/i.test(value)) return undefined
+    const n = Number(value)
+    if (Number.isFinite(n)) return n
+  }
+  return undefined
+}
+
+export function formatFillTransactionRequest(
+  client: Client,
+  value: Record<string, unknown>,
+) {
+  if (value.type === '0x76') return { ...value }
+  const format = client.chain?.codecs?.transactionRequest?.toRpc
+  if (!format) return value
+  return {
+    ...(format({ ...value } as never) as Record<string, unknown>),
+    // Keep the selected token until the request leaves the plugin pipeline.
+    ...(value.feeToken !== undefined ? { feeToken: value.feeToken } : {}),
+  } as Record<string, unknown>
+}
+
+export function normalizeFillTransactionRequest(
+  tx: Record<string, unknown>,
+): Record<string, unknown> & { calls: unknown[] } {
+  const { to, data, value, ...rest } = tx
+  const keyAuthorization = normalizeKeyAuthorization(tx.keyAuthorization)
+  const withKeyAuthorization = keyAuthorization ? { keyAuthorization } : {}
+  if (Array.isArray(tx.calls))
+    return {
+      ...tx,
+      ...withKeyAuthorization,
+      calls: tx.calls.map((call) => {
+        if (!call || typeof call !== 'object' || Array.isArray(call))
+          throw new RpcResponse.InvalidParamsError({
+            message: 'Expected a transaction call object.',
+          })
+        assertCallTarget(call.to)
+        return { ...call, value: normalizeFillValue(call.value) }
+      }),
+    }
+  assertCallTarget(to)
+  const call = {
+    ...(typeof to !== 'undefined' ? { to } : {}),
+    ...(typeof data !== 'undefined' ? { data } : {}),
+    ...(typeof value !== 'undefined'
+      ? { value: normalizeFillValue(value) }
+      : {}),
+  }
+  return { ...rest, ...withKeyAuthorization, calls: [call] }
+}
+
+/**
+ * Forwards `keyAuthorization` to the chain in RPC shape. Pass-through
+ * when already RPC; convert via `KeyAuthorization.toRpc` when internal.
+ */
+function normalizeKeyAuthorization(value: unknown) {
+  if (!value || typeof value !== 'object') return undefined
+  const ka = value as Record<string, unknown>
+  const signature = ka.signature as Record<string, unknown> | undefined
+  if (!signature || typeof signature !== 'object') return undefined
+  const isInternal =
+    typeof signature.signature === 'object' && signature.signature !== null
+  return isInternal ? KeyAuthorization.toRpc(value as never) : value
+}
+
+function assertCallTarget(to: unknown) {
+  if (to === undefined || to === null) return
+  if (typeof to !== 'string' || !Address.validate(to, { strict: false }))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Invalid transaction call target.',
+    })
+}
+
+function normalizeFillValue(value: unknown) {
+  if (typeof value !== 'string' || !value.startsWith('0x')) return value
+  if (!/^0x[\da-f]*$/i.test(value))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Invalid transaction value.',
+    })
+  return BigInt(value === '0x' ? '0x0' : value)
+}
+
+/** Returns whether a raw transaction uses a Tempo sender or fee-payer wire prefix. */
+export function isSerializedTempoTransaction(
+  value: unknown,
+): value is `0x76${string}` | `0x78${string}` {
+  if (typeof value !== 'string') return false
+  // `0x78` is Tempo's fee-payer handoff magic, not a separate EIP-2718 type.
+  return (
+    value.startsWith(TxEnvelopeTempo.serializedType) ||
+    value.startsWith(TxEnvelopeTempo.feePayerMagic)
+  )
+}
+
+export function normalizeTempoTransaction(
+  value: Record<string, unknown> | undefined,
+) {
+  if (!value) throw new Error('Expected `tx` in eth_fillTransaction response.')
+  return core_Transaction.fromRpc({
+    type: '0x76',
+    ...value,
+  } as core_Transaction.Rpc)!
+}
+
+/** Preserves the nonce domain when serializing filled Tempo transactions. */
+export function formatTempoTransaction(
+  transaction: core_Transaction.Transaction,
+) {
+  return {
+    ...core_Transaction.toRpc(transaction),
+    ...('nonceKey' in transaction && transaction.nonceKey !== undefined
+      ? { nonceKey: Hex.fromNumber(transaction.nonceKey) }
+      : {}),
+  }
+}
+
+/** Preserves upstream RPC errors and the relay's expired-transaction contract. */
+export function toRpcError(error: unknown): RpcResponse.BaseError {
+  let current: unknown = error
+  let deepest: { code: number; message: string; data?: unknown } | undefined
+  const seen = new Set<unknown>()
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current)
+    const candidate = current as Record<string, unknown>
+    if (
+      !(current instanceof UnknownRpcError) &&
+      typeof candidate.code === 'number' &&
+      typeof candidate.message === 'string'
+    )
+      deepest =
+        current instanceof RpcResponse.BaseError
+          ? current
+          : {
+              code: candidate.code,
+              message: candidate.message,
+              data: candidate.data,
+            }
+    // The RPC parser wraps unrecognized codes in an InternalError with the original error as data.
+    const data = candidate.data
+    current =
+      current instanceof RpcResponse.InternalError &&
+      data &&
+      typeof data === 'object' &&
+      'code' in data &&
+      typeof data.code === 'number' &&
+      'message' in data &&
+      data.message === candidate.message
+        ? data
+        : candidate.cause
+  }
+  if (!deepest)
+    return new RpcResponse.InternalError({
+      message: 'Internal error',
+      data: { code: 'internal_error' },
+    })
+  if (
+    deepest.code === -32603 &&
+    /^Revm error: transaction expired(?:\.|: .+)?$/.test(deepest.message)
+  )
+    return new RpcResponse.TransactionRejectedError({
+      message: 'Transaction expired.',
+      data: { code: 'transaction_expired' },
+    })
+  return deepest instanceof RpcResponse.BaseError
+    ? deepest
+    : new RpcResponse.BaseError(deepest)
+}
+
+/** Preserves envelope inputs omitted by the node, including calls and chain ID. Filled fields take precedence; legacy calls are normalized separately. */
+export function mergeCallsFromRequest(
+  resultTx: Record<string, unknown>,
+  request: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...request, ...resultTx }
+  const resultCalls = resultTx.calls
+  if (Array.isArray(resultCalls) && resultCalls.length > 0) return merged
+
+  const reqCalls = request.calls
+  if (Array.isArray(reqCalls)) {
+    merged.calls = reqCalls
+    return merged
+  }
+
+  const { to, data, value } = request
+  if (
+    typeof to === 'undefined' &&
+    typeof data === 'undefined' &&
+    typeof value === 'undefined'
+  )
+    return merged
+
+  merged.calls = [
+    {
+      ...(typeof to !== 'undefined' ? { to } : {}),
+      ...(typeof data !== 'undefined' ? { data } : {}),
+      ...(typeof value !== 'undefined' ? { value } : {}),
+    },
+  ]
+  return merged
+}

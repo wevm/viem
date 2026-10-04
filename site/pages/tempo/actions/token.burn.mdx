@@ -68,6 +68,30 @@ const { receipt } = await client.token.burnSync({
 
 :::
 
+### Burn From Another Address
+
+Pass `from` to burn from another address with `burnAt`. The caller must hold the token's
+`BURN_AT_ROLE`. Available from the T12 network upgrade
+([TIP-1006](https://github.com/tempoxyz/tempo/blob/main/tips/tip-1006.md)).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { burner, from, receipt } = await client.token.burnSync({
+  amount: { formatted: '10.5' },
+  from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'pathusd',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
 ### Asynchronous Usage
 
 The examples above use a `*Sync` variant of the action, that will wait for the transaction to be included before returning.

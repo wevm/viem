@@ -118,6 +118,7 @@ export default defineConfig({
     ],
   },
   redirects: [
+    { source: '/tokens/tokens', destination: '/tokens/list', status: 308 },
     // Strip legacy `.html` suffix from old bookmarked URLs.
     { source: '/:path*.html', destination: '/:path', status: 308 },
 
@@ -1843,7 +1844,8 @@ export default defineConfig({
         text: 'Introduction',
         items: [
           { text: 'Getting Started', link: '/tokens' },
-          { text: 'Tokens', link: '/tokens/tokens' },
+          { text: 'Tokens', link: '/tokens/list' },
+          { text: 'OUSD', link: '/tokens/ousd' },
         ],
       },
       {
@@ -3573,11 +3575,21 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Transports',
+        text: 'Relay',
         items: [
-          { text: 'withMultisig', link: '/tempo/transports/withMultisig' },
-          { text: 'withRelay', link: '/tempo/transports/withRelay' },
+          { text: 'Overview', link: '/tempo/relay' },
+          { text: 'Guide', link: '/tempo/guides/relay' },
+          { text: 'Connect', link: '/tempo/guides/relay/connect' },
+          { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+          { text: 'Fee Payer', link: '/tempo/relay/plugins/fee-payer' },
+          { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+          { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
+          { text: 'Multisig', link: '/tempo/relay/plugins/multisig' },
         ],
+      },
+      {
+        text: 'Transports',
+        items: [{ text: 'withRelay', link: '/tempo/transports/withRelay' }],
       },
       {
         text: 'Utilities',
@@ -3592,17 +3604,11 @@ export default defineConfig({
             text: 'Selectors',
             link: '/tempo/utilities/Selectors',
           },
+          { text: 'Execution Errors', link: '/tempo/utilities/ExecutionError' },
+          { text: 'Create Relay', link: '/tempo/utilities/Relay.create' },
           {
-            badge: { text: 'EXP', variant: 'warning' },
-            text: 'Multisig',
-            collapsed: true,
-            items: [
-              { text: 'Overview', link: '/tempo/utilities/Multisig' },
-              {
-                text: 'handleRequest',
-                link: '/tempo/utilities/Multisig.handleRequest',
-              },
-            ],
+            text: 'Compose Relay',
+            link: '/tempo/utilities/Relay.handleRequest',
           },
           {
             text: 'Store',

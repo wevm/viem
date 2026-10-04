@@ -463,8 +463,16 @@ export const utilities = {
           link: '/docs/utilities/aesgcm/decrypt',
         },
         {
+          text: 'fromMnemonic',
+          link: '/docs/utilities/aesgcm/fromMnemonic',
+        },
+        {
           text: 'fromPrf',
           link: '/docs/utilities/aesgcm/fromPrf',
+        },
+        {
+          text: 'fromSeed',
+          link: '/docs/utilities/aesgcm/fromSeed',
         },
         {
           text: 'getKey',
@@ -1209,12 +1217,24 @@ export const utilities = {
               link: '/docs/utilities/p256/createKeyPair',
             },
             {
+              text: 'fromMnemonic',
+              link: '/docs/utilities/p256/fromMnemonic',
+            },
+            {
+              text: 'fromSeed',
+              link: '/docs/utilities/p256/fromSeed',
+            },
+            {
               text: 'getSharedSecret',
               link: '/docs/utilities/p256/getSharedSecret',
             },
             {
               text: 'recoverPublicKey',
               link: '/docs/utilities/p256/recoverPublicKey',
+            },
+            {
+              text: 'Errors',
+              link: '/docs/utilities/p256/errors',
             },
           ],
         },
@@ -1311,8 +1331,16 @@ export const utilities = {
               link: '/docs/utilities/secp256k1/createKeyPair',
             },
             {
+              text: 'fromMnemonic',
+              link: '/docs/utilities/secp256k1/fromMnemonic',
+            },
+            {
               text: 'fromPrf',
               link: '/docs/utilities/secp256k1/fromPrf',
+            },
+            {
+              text: 'fromSeed',
+              link: '/docs/utilities/secp256k1/fromSeed',
             },
             {
               text: 'getSharedSecret',
@@ -1631,8 +1659,16 @@ export const utilities = {
               link: '/docs/utilities/mldsa44/createKeyPair',
             },
             {
+              text: 'fromMnemonic',
+              link: '/docs/utilities/mldsa44/fromMnemonic',
+            },
+            {
               text: 'fromPrf',
               link: '/docs/utilities/mldsa44/fromPrf',
+            },
+            {
+              text: 'fromSeed',
+              link: '/docs/utilities/mldsa44/fromSeed',
             },
             {
               text: 'getPublicKey',

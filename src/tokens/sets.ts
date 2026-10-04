@@ -16,6 +16,7 @@ import { frxusd } from './definitions/frxusd.js'
 import { gbpa } from './definitions/gbpa.js'
 import { gusd } from './definitions/gusd.js'
 import { iusd } from './definitions/iusd.js'
+import { ousd } from './definitions/ousd.js'
 import { pathusd } from './definitions/pathusd.js'
 import { reusd } from './definitions/reusd.js'
 import { rusd } from './definitions/rusd.js'
@@ -51,6 +52,7 @@ const all = [
   gbpa,
   gusd,
   iusd,
+  ousd,
   pathusd,
   reusd,
   rusd,
@@ -71,7 +73,7 @@ const all = [
 ] as const satisfies Tokens
 
 /** Tokens flagged as popular. */
-const popular = [usdc] as const satisfies Tokens
+const popular = [ousd, usdc] as const satisfies Tokens
 
 /** All tokens available on Tempo chains. */
 const tempo = [
@@ -88,6 +90,7 @@ const tempo = [
   gbpa,
   gusd,
   iusd,
+  ousd,
   pathusd,
   reusd,
   rusd,

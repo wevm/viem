@@ -17,7 +17,7 @@
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:internal-types": "bun scripts/exports:internal-types.ts",
     "exports:update": "bun scripts/exports:update.ts",
-    "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts && vp fmt src/tempo/Abis.ts src/tempo/Selectors.ts test/src/tempo/earnContracts.ts",
+    "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts && vp fmt src/tempo/Abis.ts src/tempo/Selectors.ts test/src/tempo/earnContracts.ts && bun scripts/checkTempoErrors.ts",
     "gen:tokenlist": "bun scripts/gen:tokenlist.ts && vp check --fix src/tokens",
     "knip": "knip --production --no-tag-hints",
     "postinstall": "pnpm dev",

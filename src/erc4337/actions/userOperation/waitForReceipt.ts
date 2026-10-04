@@ -98,7 +98,7 @@ export async function waitForReceipt<
     return unpoll
   })
 
-  return promise
+  return promise.finally(() => unobserve())
 }
 
 export declare namespace waitForReceipt {

@@ -58,6 +58,9 @@ export { tempoActions, type Decorator as TempoActions } from './Decorator.js'
 /** Tempo errors. */
 export * from './errors.js'
 
+/** Decodes Tempo precompile reverts into readable execution errors. */
+export * as ExecutionError from './ExecutionError.js'
+
 /** Helpers producing unix timestamps for key expiries. */
 export * as Expiry from './Expiry.js'
 
@@ -70,6 +73,9 @@ export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 /** P256 (secp256r1) key utilities. Re-exports `ox/P256`. */
 export * as P256 from './P256.js'
 
+/** Composable relay request handlers. */
+export * as Relay from './Relay.js'
+
 /** Call scopes restricting access keys to targets & selectors. */
 export * as Scopes from './Scopes.js'
 
@@ -80,7 +86,7 @@ export * as Selectors from './Selectors.js'
 export * as Store from './Store.js'
 
 /** Relay transport: routes fee sponsorship traffic to a fee payer service. */
-export { withMultisig, withRelay, type Relay } from './Transport.js'
+export { withRelay } from './Transport.js'
 
 /** WebAuthn P256 credential creation & signing. */
 export * as WebAuthnP256 from './WebAuthnP256.js'
@@ -92,9 +98,6 @@ export * as WebCryptoP256 from './WebCryptoP256.js'
 // export tables of modules the consumer imports, and a consumer importing only
 // `viem/tempo` never imports `viem`. See `internal/inference.ts`.
 export type * from '../internal/inference.js'
-
-/** Coordinates native multisig approvals over JSON-RPC. */
-export * as Multisig from './Multisig.js'
 
 /** Tempo Zone chains. */
 export * as Zone from './Zone.js'

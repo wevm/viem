@@ -151,6 +151,9 @@ This document contains general guidelines for AI agents working on the Viem code
     (`client.chain?.codecs?.…`).
   - Build RPC `params` inline in the `client.request` call; hoisted params lose contextual
     tuple typing against the schema's mutable param tuples.
+- **Relay plugins are objects**; use `(context, next)` middleware and explicit post-fill hooks; keep request state off handler functions.
+- **Relay forwarding transports do not retry**; keep retry policy at downstream I/O, including explicit per-request overrides.
+- **Preserve nested RPC execution errors**; Ox can wrap code `3` in `InternalError.data`. Relay forwarding must retain the original code and revert data.
 - **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions
@@ -179,6 +182,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages**; human-written docs live under `site/pages/`.
@@ -202,6 +206,10 @@ This document contains general guidelines for AI agents working on the Viem code
 
 ## Testing Conventions
 
+- **Separate test phases with blank lines**; keep setup, execution, and assertion groups visually distinct.
+
+- **Colocate relay plugin integration tests**; add HTTP coverage to each plugin's existing test file under `src/tempo/internal/relay/`, not a shared relay suite.
+
 - **Use `pnpm test` for tests**; run tests through package scripts, not `vitest` directly.
 - **No mocks, ever**; tests must not use mocks, stubs, or `vi`.
   - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
@@ -214,6 +222,8 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
   - Use `OFFLINE=true` for offline runs that do not need anvil.
+- **Synchronize polling tests with observations**; await the initial callback before mining and await each expected emission. Fork startup can exceed the polling interval.
+- **Mine pending transactions before balance baselines**; shared Anvil tests may leave pending transfers. Mine before measuring a balance delta so earlier tests cannot affect it.
 - **Verify type-test discovery**; if `pnpm test:typecheck` reports no files, temporarily
   enable `typecheck` on the selected Vitest project with an explicit `.test-d.ts` include
   and a targeted tsconfig extending `test/tsconfig.json` (`composite: false`). Restore
@@ -268,6 +278,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `describe` to separate multiple distinct exports in one file.
 - **Inline snapshots over direct assertions**; prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Test behavior, not call-tracking**; assert observable outputs.
+  - Test preparation hook outputs as well as public actions; the generic preparation action retains the caller's nonce separately and can hide a hook overwriting it.
   - Do not assert that a hook or function was invoked.
   - Do not use `let xCalled = false` flags or counters.
   - Make hooks produce distinguishable, verifiable results.
@@ -302,6 +313,8 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Contract deps come from npm, not submodules**; `contracts/foundry.toml` remaps to
   `node_modules` packages (`solady-v153`, `account-abstraction-v07`, ...). `pnpm contracts:build`
   needs Foundry and runs on demand; `contracts/generated.ts` is committed.
+- **Preserve canonical token definitions during generation**; match hand-authored tokens by
+  chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 
 ## Changeset Conventions
 
@@ -326,8 +339,11 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 ### Prose
 
+- **Keep paragraphs concise**; aim for 30–40 words, with no more than 3 paragraphs per section. Split longer sections under additional headings.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
+- **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.
+- **Prebundle Mermaid for docs development**; keep `mermaid` in `site/vite.config.ts`'s `optimizeDeps.include`. Use `pnpm docs:dev`, since `vocs dev` ignores that config.
 
 ### Headings
 

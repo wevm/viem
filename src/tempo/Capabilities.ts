@@ -1,7 +1,8 @@
-import type { AbiItem, Address, Hex } from 'ox'
+import type * as ExecutionError from './ExecutionError.js'
+import type { Address, Hex } from 'ox'
 import type { TransactionRequest } from 'ox/tempo'
 
-import type { ExactPartial, OneOf } from '../core/internal/types.js'
+import type { ExactPartial } from '../core/internal/types.js'
 
 /** Tempo capability schema, keyed by RPC method. */
 export type Schema = {
@@ -18,6 +19,8 @@ export type Schema = {
 export type FillTransactionRequestCapabilities = {
   /** Whether to include `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
+  /** Whether execution reverts return error capabilities instead of throwing. */
+  errors?: boolean | undefined
 }
 
 /** Capabilities returned by `eth_fillTransaction`. */
@@ -37,18 +40,7 @@ export type FillTransactionCapabilities = {
   balanceDiffs?:
     | Readonly<Record<Address.Address, readonly BalanceDiff[]>>
     | undefined
-  error?:
-    | OneOf<
-        | {
-            abiItem: AbiItem.AbiItem
-            args: readonly unknown[] | undefined
-            data: Hex.Hex
-            errorName: string
-            message: string
-          }
-        | { errorName: 'unknown'; message: string }
-      >
-    | undefined
+  error?: ExecutionError.Rpc | undefined
   fee?:
     | {
         amount: Hex.Hex
@@ -57,7 +49,7 @@ export type FillTransactionCapabilities = {
         symbol: string
       }
     | undefined
-  requireFunds?:
+  insufficientFunds?:
     | {
         amount: Hex.Hex
         decimals: number

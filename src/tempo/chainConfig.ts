@@ -293,6 +293,9 @@ export const chainConfig = {
             )
           Object.assign(request, {
             ...storedTransaction,
+            gas: storedTransaction.gas ?? 0n,
+            maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
+            maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
             nonce: Number(storedTransaction.nonce ?? 0n),
             account: request.account,
             from: operation.account,
@@ -436,7 +439,7 @@ export const chainConfig = {
           request.nonce = 0
         } else if (useExpiringNonce) {
           request.nonceKey = maxUint256
-          request.nonce = 0
+          request.nonce ??= 0
           if (typeof request.validAfter === 'undefined')
             request.validAfter = randomValidAfter()
           if (typeof request.validBefore === 'undefined')
@@ -765,6 +768,7 @@ function encodeRequest(
   // fee payer commits to it when co-signing. (ox withholds `feeToken` only
   // for external sponsorship, where the fee payer picks the token.)
   if (typeof feePayer === 'object') rpc.feePayer = true
+  if (typeof feePayer === 'string') Object.assign(rpc, { feePayer })
 
   return rpc
 }

@@ -77,13 +77,13 @@ by its operation hash.
 Enable multisig coordination with a store that every coordinating process can access:
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Client, type Store } from 'viem/tempo'
+import { Client, http, Relay, withRelay, type Store } from 'viem/tempo'
 
 // Supply an atomic store shared by every coordinating process.
 declare const store: Store.Atomic
 
 export const client = Client.create({
-  experimental_multisig: { store },
+  transport: withRelay(http(), { plugins: [Relay.multisig({ store })] }),
 })
 ```
 

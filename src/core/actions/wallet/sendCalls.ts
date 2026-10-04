@@ -133,6 +133,7 @@ export async function sendCalls<
       (error.name === 'RpcResponse.MethodNotFoundError' ||
         error.name === 'RpcResponse.MethodNotSupportedError' ||
         error.name === 'RpcError.UnknownRpcError' ||
+        details === 'this request method is not supported' ||
         details.includes('does not exist / is not available') ||
         details.includes('missing or invalid. request()') ||
         details.includes('did not match any variant of untagged enum') ||

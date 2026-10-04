@@ -1,0 +1,88 @@
+import { Card, Cards } from 'vocs'
+
+# Connect to a Relay
+
+## Overview
+
+[`withRelay`](/tempo/transports/withRelay) connects a Viem client to a remote
+relay or applies plugins directly to its transport. Choose remote coordination
+when independent owners need to share an approval mailbox.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Connect to a Remote Relay
+
+Pass a relay transport to `withRelay` to use a remote service for transaction
+preparation, fee sponsorship, and multisig coordination.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+const client = Client.create({
+  chain: tempo,
+  transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
+})
+```
+
+### Connect to a Local Relay
+
+Pass plugins to `withRelay` to run a relay inside the application. Requests pass
+through the plugins before reaching the execution RPC, without a separate HTTP service.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay, Store, withRelay } from 'viem/tempo'
+
+const client = Client.create({
+  chain: tempo,
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  }),
+})
+```
+
+Local mode preserves the underlying transport.
+
+<Cards>
+  <Card
+    icon="lucide:wallet"
+    title="Fee Payer"
+    description="Sponsor transaction fees with a local account or an external relay."
+    to="/tempo/relay/plugins/fee-payer"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Fee Token"
+    description="Choose a funded fee token using the sender's preference and balances."
+    to="/tempo/relay/plugins/fee-token"
+  />
+  <Card
+    icon="lucide:scan"
+    title="Simulate"
+    description="Preview token balance changes and estimate fees before sending a transaction."
+    to="/tempo/relay/plugins/simulate"
+  />
+  <Card
+    icon="lucide:users"
+    title="Multisig"
+    description="Coordinate owner approvals and share pending multisig transactions."
+    to="/tempo/relay/plugins/multisig"
+  />
+</Cards>
+
+## Best Practices
+
+A process-local store cannot coordinate independent applications. Use a remote
+relay backed by shared persistent storage, or supply the same atomic store to
+each local coordinator. Keep sponsor signing keys in a trusted server environment.
+
+## See More
+
+- [Run a Relay](/tempo/guides/relay/run)
+- [Send Multisig Transactions](/tempo/guides/multisig/send)

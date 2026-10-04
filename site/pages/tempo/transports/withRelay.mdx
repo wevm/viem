@@ -1,11 +1,11 @@
 # `withRelay`
 
-Creates a transport that routes Tempo relay traffic between a default transport and a relay service.
+Connects to a remote Tempo relay or applies relay plugins directly to a transport.
 
 - [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
 - [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
 
-`withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's
+In remote mode, `withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's
 `feePayer` value so the relay can decide whether to sponsor the transaction. It also forwards
 multisig approvals, config and operation reads, and operation-aware transaction lookups. The relay
 can therefore own the shared multisig store instead of each client.
@@ -14,11 +14,13 @@ can therefore own the shared multisig store instead of each client.
 - If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
 - An explicit `feePayer` address is preserved.
 
-The relay must handle the `multisig_*` methods and proxy ordinary transaction and receipt lookups
-to its upstream RPC. Viem sends `eth_getTransactionByHash` and `eth_getTransactionReceipt` through
-the relay because a pending operation hash exists only in the relay's store.
+Transaction and receipt lookups query the default transport first. If no result exists,
+Viem asks the relay whether the hash identifies a multisig operation and routes a
+matching operation lookup through the relay. Other lookups retain the default result.
 
 ## Usage
+
+### Remote Mode
 
 :::code-group
 
@@ -53,11 +55,10 @@ const receipt2 = await client.transaction.sendSync({ // [!code hl]
 
 :::
 
-### Example Relay Service
+#### Example Relay Service
 
-Below is an end-to-end example of a client/server relay setup.
-
-See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `accounts/server`](https://docs.tempo.xyz/accounts/server/handler.relay) to handle relay requests.
+Connect to a relay configured with the
+[fee-payer plugin](/tempo/relay/plugins/fee-payer) to sponsor requests.
 
 :::code-group
 
@@ -103,13 +104,15 @@ const server = createServer(handler.listener)
 server.listen(3000)
 ```
 
-:::
+Local plugins wrap the default transport directly. See the [available plugins](/tempo/guides/relay/connect#connect-to-a-local-relay)
+for sponsorship, fee-token resolution, simulation, and multisig coordination.
+Memory storage is process-local; independent multisig clients must share persistent atomic storage.
 
 ## Return Type
 
-```ts
-type ReturnType = Transport<'relay', { multisig: true }>
-```
+Remote mode returns `Transport<'relay', { multisig: true }>`. Local mode preserves
+the default transport's attributes and RPC schema. It advertises multisig support
+when a multisig plugin or the underlying transport provides it.
 
 ## Parameters
 
@@ -117,10 +120,23 @@ type ReturnType = Transport<'relay', { multisig: true }>
 
 - **Type:** `Transport`
 
-The default transport to use for regular relay traffic and for broadcasting transactions when `policy` is `'sign-only'`.
+The execution transport. Local mode wraps this transport directly. Remote mode
+uses it for ordinary requests and broadcasting with the `sign-only` policy.
 
 ### relayTransport
 
-- **Type:** `Transport`
+- **Type:** `Transport | Transport.withRelay.LocalOptions`
 
-The relay transport to use for fee sponsorship and multisig coordination.
+Pass a transport to connect to a remote relay, or an options object to run plugins
+locally. Plugins run in array order; an empty array forwards requests unchanged.
+Local options also accept `resolveTokens`, shared by fee selection and sponsorship.
+
+### parameters.policy
+
+- **Type:** `'sign-only' | 'sign-and-broadcast'`
+- **Default:** `'sign-only'`
+
+Available only in remote mode. For sponsored non-multisig transactions,
+`sign-only` requests a signature from the relay and broadcasts through the default
+transport. `sign-and-broadcast` submits through the relay. Multisig submissions
+always use the relay for coordination.

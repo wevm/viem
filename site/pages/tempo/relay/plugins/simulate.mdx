@@ -1,0 +1,250 @@
+# Simulate Plugin
+
+## Overview
+
+[`Relay.simulate`](#relaysimulate) adds balance changes and estimated fees to
+filled transactions. It simulates calls with `tempo_simulateV1`.
+
+## Recipes
+
+Choose a local relay to run plugins in your application, or connect to a remote
+relay. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
+These examples use Tempo mainnet. Replace the sender and recipient with your
+addresses. The sender needs pathUSD for fees and enough USDC.e for successful
+transfers. [`Actions.transaction.prepare`](/docs/actions/transaction/prepare)
+prepares a transaction without signing or broadcasting it.
+
+### Preview Balance Diffs
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Actions as CoreActions } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { capabilities } = await CoreActions.transaction.prepare(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: Value.from('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.balanceDiffs
+// @log: {
+// @log:   '0x1111111111111111111111111111111111111111': [{
+// @log:     address: '0x20c000000000000000000000b9537d11c60e8b50',
+// @log:     decimals: 6,
+// @log:     direction: 'outgoing',
+// @log:     formatted: '100',
+// @log:     name: 'Bridged USDC (Stargate)',
+// @log:     recipients: ['0x2222222222222222222222222222222222222222'],
+// @log:     symbol: 'USDC.e',
+// @log:     value: '0x5f5e100',
+// @log:   }],
+// @log: }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+`balanceDiffs` groups net token transfers and final approval exposure by account.
+Outgoing amounts include approval exposure. Incoming funds use a separate entry
+for the same token, so they do not cancel outgoing approval exposure.
+
+### Report Missing Funds
+
+If the sender holds 40 USDC.e and attempts to transfer 100, the deficit is
+60 USDC.e. Set `errors: true` to receive that deficit in the response instead of
+an RPC error. The sender still needs pathUSD to pay fees.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Actions as CoreActions } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { capabilities } = await CoreActions.transaction.fill(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  capabilities: { errors: true }, // [!code focus]
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: Value.from('100', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.insufficientFunds
+// @log: {
+// @log:   amount: '0x3938700',
+// @log:   decimals: 6,
+// @log:   formatted: '60',
+// @log:   token: '0x20c000000000000000000000b9537d11c60e8b50',
+// @log:   symbol: 'USDC.e',
+// @log: }
+capabilities?.error?.errorName
+// @log: 'InsufficientBalance'
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+`insufficientFunds` reports the missing amount when token metadata is available.
+Optimistic balance diffs on a failed fill depend on the execution node and can
+be empty.
+
+### Handle Execution Errors
+
+With `errors: true`, execution reverts return a transaction stub and a decoded
+`capabilities.error`. Inspect its `errorName`, `message`, and, for known errors,
+`abiItem` and `data`. A failed fill is not a transaction ready to sign.
+
+This example attempts to mint tokens without permission and inspects the decoded
+revert. The sender still needs pathUSD for fees.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Actions as CoreActions } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { capabilities } = await CoreActions.transaction.prepare(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  feeToken: Addresses.pathUsd,
+  capabilities: { errors: true }, // [!code focus]
+  calls: [Actions.token.mint.call(client, {
+    token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+    to: '0x2222222222222222222222222222222222222222',
+    amount: Value.from('100', 6),
+  })],
+})
+
+// [!code focus:start]
+console.error(capabilities?.error)
+// @log: {
+// @log:   errorName: 'Unauthorized',
+// @log:   abiItem: { type: 'error', name: 'Unauthorized', inputs: [] },
+// @log:   message: 'Unauthorized.',
+// @log:   data: '0x82b42900',
+// @log: }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [Relay.simulate()], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+Omitting `errors` or setting it to `false` preserves RPC errors. Invalid requests
+and operational failures remain RPC errors in either mode. Unexpected callback
+and storage errors return `Internal error`.
+
+Simulation failures do not block a successful fill; unavailable balance changes
+are omitted. Place `simulate` before plugins that change the transaction so it
+reports their final calls and fee estimate.
+
+## `Relay.simulate`
+
+Creates a transaction simulation plugin.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.simulate()
+```
+
+### Parameters
+
+#### options.store
+
+- **Type:** `Store.Store`
+
+Optional [store](/tempo/utilities/Store) for token metadata, cached for 24 hours.
+Simulation results are never cached.
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+// ---cut---
+Relay.simulate({ store: Store.memory() }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.

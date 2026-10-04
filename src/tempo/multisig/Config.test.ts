@@ -173,7 +173,10 @@ describe('read', () => {
 
     await expect(
       Config.read(store, { address, commitment: zeroCommitment }),
-    ).rejects.toThrowError(Config.InvalidStoreValueError)
+    ).rejects.toMatchObject({
+      name: 'Multisig.Config.InvalidStoreValueError',
+      shortMessage: 'Stored multisig config is malformed or mismatched.',
+    })
   })
 })
 
@@ -185,7 +188,10 @@ describe('write', () => {
         commitment: zeroCommitment,
         config: initialConfig,
       }),
-    ).rejects.toThrowError(Config.InvalidStoreValueError)
+    ).rejects.toMatchObject({
+      name: 'Multisig.Config.InvalidStoreValueError',
+      shortMessage: 'Stored multisig config is malformed or mismatched.',
+    })
   })
 
   test('error: rejects a current config under another commitment', async () => {
@@ -195,6 +201,9 @@ describe('write', () => {
         commitment: zeroCommitment,
         config: currentConfig,
       }),
-    ).rejects.toThrowError(Config.InvalidStoreValueError)
+    ).rejects.toMatchObject({
+      name: 'Multisig.Config.InvalidStoreValueError',
+      shortMessage: 'Stored multisig config is malformed or mismatched.',
+    })
   })
 })

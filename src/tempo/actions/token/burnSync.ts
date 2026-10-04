@@ -65,6 +65,8 @@ export namespace burnSync {
   export type Args = burn.Args
   export type Options = burn.Options & WriteSyncParameters
   export type ReturnType = {
+    /** BURN_AT_ROLE holder that performed the burn. */
+    burner?: Address.Address | undefined
     /** Address tokens were burned from. */
     from: Address.Address
     /** Burned amount, in base units. */

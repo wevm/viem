@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/copy-vocs-theme.mjs && vocs build",
-    "dev": "vocs dev",
+    "dev": "vite dev",
     "og:generate": "node --import tsx og/generate-home.tsx",
     "prebuild": "node ../scripts/docs:sync-utils.ts --if-needed",
     "preview": "vocs preview",
@@ -19,6 +19,7 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "mermaid": "^12.0.0",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-server-dom-webpack": "catalog:",
