@@ -159,6 +159,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
 - **Synchronize polling tests with observations**; await the initial callback before mining and await each expected emission. Fork startup can exceed the polling interval.
+- **Mine pending transactions before balance baselines**; shared Anvil tests may leave pending transfers. Mine before measuring a balance delta so earlier tests cannot affect it.
 - **Verify type-test discovery**; if `pnpm test:typecheck` reports no files, temporarily
   enable `typecheck` on the selected Vitest project with an explicit `.test-d.ts` include
   and a targeted tsconfig extending `test/tsconfig.json` (`composite: false`). Restore
