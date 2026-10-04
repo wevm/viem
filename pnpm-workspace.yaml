@@ -43,6 +43,8 @@ strictPeerDependencies: false
 
 auditConfig:
   ignoreGhsas:
+    # braces has no patched release and is only used by development tooling.
+    - GHSA-vfj7-8cjw-p6xm
     # image-size has no patched release.
     - GHSA-5p2g-fcmc-qvqq
     - GHSA-w3rx-r6r6-pgpr
