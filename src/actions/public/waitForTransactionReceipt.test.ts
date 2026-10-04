@@ -10,24 +10,16 @@ import { getTransactionReceipt } from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { keccak256 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import {
-  sendRawTransaction,
-  setIntervalMining,
-  signTransaction,
-} from '../index.js'
+import { setIntervalMining } from '../index.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
-import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const client = anvilMainnet.getClient()
@@ -175,90 +167,66 @@ test('waits for transaction (multiple parallel)', async () => {
 })
 
 test('waits for transaction (polling many blocks while others waiting does not trigger race condition)', async () => {
-  const getTransaction = vi.spyOn(getTransactionModule, 'getTransaction')
-
-  // create a transaction to use it only as a template for the mocks
-
-  const templateHash = await sendTransaction(client, {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const pending = new Set<string>()
+  const client = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    pollingInterval: 50,
+    transport: http(node.url, {
+      batch: true,
+      async onFetchResponse(response) {
+        const responses = await response.clone().json()
+        for (const { result } of responses)
+          if (result?.blockHash === null && result.hash)
+            pending.add(result.hash)
+      },
+    }),
+  })
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  const template = await getTransactionModule.getTransaction(client, {
-    hash: templateHash,
-  })
-
-  // Prepare and calculate hash of problematic transaction. Will send it later
-
-  const prepareProblematic = await prepareTransactionRequest(client, {
-    account: privateKeyToAccount(accounts[0].privateKey),
-    to: targetAccount.address,
-    value: parseEther('1'),
-  })
-  const problematicTx = await signTransaction(client, prepareProblematic)
-  const problematicTxHash = keccak256(problematicTx)
-
-  // Prepare a good transaction. Will send it later
-
-  const prepareGood = await prepareTransactionRequest(client, {
-    account: privateKeyToAccount(accounts[0].privateKey),
-    to: targetAccount.address,
+  const confirmedHash = await sendTransaction(client, {
+    account: targetAccount.address,
+    to: sourceAccount.address,
     value: parseEther('0.0001'),
-    nonce: prepareProblematic.nonce + 1,
-  })
-  const goodTx = await signTransaction(client, prepareGood)
-  const goodTxHash = keccak256(goodTx)
-
-  // important step: we need to mock the getTransaction to simulate a transaction that is in the mempool but
-  // is not yet mined.
-  getTransaction.mockResolvedValueOnce({
-    ...template,
-    hash: goodTxHash,
-    nonce: 1233,
   })
 
-  // Start looking for the receipt of the good transaction but did not send it yet. Here it will start polling
-  const goodReceiptPromise = waitForTransactionReceipt(client, {
-    hash: goodTxHash,
-    timeout: 30_000,
+  const confirmedReceipt = waitForTransactionReceipt(client, {
+    confirmations: 102,
+    hash: confirmedHash,
+    timeout: 10_000,
     retryCount: 0,
   })
-  await wait(200)
-
-  // to simulate a transaction that is in the mempool but not yet mined
-  getTransaction.mockResolvedValueOnce({
-    ...template,
-    hash: problematicTxHash,
-    nonce: 1234,
+  const receipt = waitForTransactionReceipt(client, {
+    hash,
+    timeout: 10_000,
+    retryCount: 0,
+  })
+  const receipts = Promise.allSettled([receipt, confirmedReceipt])
+  onTestFinished(async () => {
+    await receipts
   })
 
-  // Start polling the problematic transaction receipt
-  waitForTransactionReceipt(client, { hash: problematicTxHash, retryCount: 0 })
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  // Send the problematic transaction and mine it so we will have the receipt
-  await sendRawTransaction(client, { serializedTransaction: problematicTx })
-  await wait(200)
-
-  // important step: Mine a bunch of blocks together to trigger getTransactionReceipt many times for the same receipt.
-  // getting many receipt will trigger many unwatch from the same listener
+  // Observe both pending transactions before emitting missed blocks to the shared poller.
+  await expect
+    .poll(() => [...pending].sort())
+    .toEqual([hash, confirmedHash].sort())
   await mine(client, { blocks: 100 })
-  await wait(200)
+  expect(await receipt).toEqual(await getTransactionReceipt(client, { hash }))
 
-  // Send good transaction and mine, if the polling is working fine should get the receipt but if not we will get a timeout.
-  await sendRawTransaction(client, { serializedTransaction: goodTx })
-  await mine(client, { blocks: 1 })
-  await wait(200)
+  await mine(client, { blocks: 2 })
 
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  const { status } = await goodReceiptPromise
-  expect(status).toBe('success')
+  expect(await confirmedReceipt).toEqual(
+    await getTransactionReceipt(client, { hash: confirmedHash }),
+  )
+  expect((await confirmedReceipt).blockNumber).toMatchInlineSnapshot('1n')
 })
 
 describe('replaced transactions', () => {
