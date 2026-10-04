@@ -1,0 +1,69 @@
+---
+description: Require a transaction deadline with expiry.
+---
+
+# Expiry Reference
+
+## Overview
+
+`expiry` calls the EIP-8141 expiry verifier. Put it first and include it at most once. Execution is allowed when the block timestamp equals the deadline.
+
+## Recipes
+
+### Set a Deadline
+
+```ts twoslash
+import { calls, expiry } from 'viem/frames'
+
+const frames = [
+  expiry('1d'), // [!code focus]
+  calls([{ value: 1n }]),
+]
+```
+
+## `expiry`
+
+Creates an expiry verification frame.
+
+### Usage
+
+```ts twoslash
+import { expiry } from 'viem/frames'
+
+const frame = expiry(1_900_000_000) // [!code focus]
+```
+
+### Parameters
+
+#### deadline
+
+- **Type:** `number | bigint | string`
+
+A duration string such as `'1h'` or `'1d'`, or an unsigned 64-bit Unix timestamp in seconds. Duration strings support `s`, `m`, `h`, `d`, and `w`; fractional values must resolve to whole seconds.
+
+Use `'1y'` for one calendar year. Years require whole numbers and use UTC, preserving the time of day. February 29 becomes February 28 when the target year is not a leap year.
+
+ISO date strings are also accepted: `expiry('2027-01-01')` uses midnight UTC, and `expiry('2027-01-01T12:00:00+02:00')` uses the specified offset. Date-times require `Z` or an explicit offset. Dates use JavaScript's `Date.parse` semantics; milliseconds are rounded down to seconds.
+
+Durations are resolved when `expiry()` is called and remain fixed during preparation.
+
+Numbers must be safe integers; use bigint for larger values. Do not pass milliseconds or a `Date`.
+
+```ts twoslash
+import { expiry } from 'viem/frames'
+
+const frame = expiry(1_900_000_000) // [!code focus]
+```
+
+### Return Value
+
+`Frame.Frame`
+
+An unresolved verification frame targeting `0x0000000000000000000000000000000000008141`, with an eight-byte deadline, no approval flags, and zero state gas.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | A date string is invalid or lacks a required timezone, a duration is invalid or does not resolve to safe whole seconds, a numeric deadline is not a safe integer, or the expiry frame is duplicated or misplaced during preparation. |
+| `IntegerOutOfRangeError` | The deadline is outside the unsigned 64-bit range when encoded during preparation. |

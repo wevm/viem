@@ -1,11 +1,13 @@
 import type { Address } from 'abitype'
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
 import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
@@ -103,13 +105,18 @@ export async function fillTransaction<
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: FillTransactionParameters<
+  parameters_: FillTransactionParameters<
     chain,
     account,
     chainOverride,
     accountOverride
   >,
 ): Promise<FillTransactionReturnType<chain, chainOverride>> {
+  const parameters = frameTransaction.resolve(parameters_, {
+    account:
+      parameters_.account === undefined ? client.account : parameters_.account,
+  })
+
   const {
     account = client.account,
     accessList,
@@ -117,7 +124,9 @@ export async function fillTransaction<
     chain = client.chain,
     blobVersionedHashes,
     blobs,
+    chainId,
     data,
+    frames,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -125,11 +134,23 @@ export async function fillTransaction<
     maxPriorityFeePerGas,
     nonce: nonce_,
     nonceManager,
+    nonceKeys,
+    signatures,
     to,
     type,
     value,
     ...rest
   } = parameters
+
+  if (
+    nonceManager &&
+    nonce_ === undefined &&
+    nonceKeys &&
+    !(nonceKeys.length === 1 && nonceKeys[0] === 0n)
+  )
+    throw new BaseError(
+      'Nonce managers do not support keyed frame transactions.',
+    )
 
   const nonce = await (async () => {
     if (!account) return nonce_
@@ -151,6 +172,10 @@ export async function fillTransaction<
   const chainFormat = chain?.formatters?.transactionRequest?.format
   const format = chainFormat || formatTransactionRequest
 
+  const simulationSignatures = frameTransaction.getSimulationSignatures({
+    frameContext: parameters.frameContext,
+    signatures,
+  })
   const request = format(
     {
       // Pick out extra data that might exist on the chain's transaction request type.
@@ -160,13 +185,17 @@ export async function fillTransaction<
       authorizationList,
       blobs,
       blobVersionedHashes,
+      chainId,
       data,
+      frames,
       gas,
       gasPrice,
       maxFeePerBlobGas,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceKeys,
+      signatures: simulationSignatures,
       to,
       type,
       value,
@@ -181,7 +210,30 @@ export async function fillTransaction<
     })
     const format = chain?.formatters?.transaction?.format || formatTransaction
 
-    const transaction = format(response.tx)
+    const transaction = format(response.tx) as frameTransaction.Prepared<
+      ReturnType<typeof format>
+    >
+
+    if (parameters.frameContext && frames) {
+      if (transaction.frames?.length !== frames.length)
+        throw new BaseError('Filled transaction must preserve the frame count.')
+
+      transaction.frames = frames.map((frame, index) => ({
+        ...frame,
+        executionGas:
+          frame.executionGas ?? transaction.frames![index]!.executionGas,
+        stateGas: frame.stateGas ?? transaction.frames![index]!.stateGas,
+      }))
+    }
+
+    if (parameters.frameContext)
+      transaction.frameContext = {
+        ...parameters.frameContext,
+        entries: parameters.frameContext.entries.map((entry) => ({
+          ...entry,
+          frame: transaction.frames![entry.frameIndex]!,
+        })),
+      }
 
     // Remove unnecessary fields.
     delete transaction.blockHash
@@ -256,8 +308,21 @@ export async function fillTransaction<
         transaction.gasPrice = multiplyFee(transaction.gasPrice)
     }
 
+    let raw = response.raw
+    if (simulationSignatures !== signatures) {
+      if (!raw.startsWith('0x06'))
+        throw new BaseError('Expected a filled frame transaction.')
+      const envelope = {
+        ...TxEnvelopeEip8141.deserialize(raw as TxEnvelopeEip8141.Serialized),
+        signatures,
+      }
+      raw = TxEnvelopeEip8141.serialize(envelope)
+      transaction.signatures = signatures
+      transaction.hash = TxEnvelopeEip8141.hash(envelope)
+    }
+
     return {
-      raw: response.raw,
+      raw,
       transaction: {
         from: request.from,
         ...transaction,

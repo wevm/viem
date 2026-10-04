@@ -9,6 +9,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
@@ -100,20 +101,30 @@ export type CreateAccessListErrorType = GetCallErrorReturnType<
  */
 export async function createAccessList<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  args: CreateAccessListParameters<chain>,
+  args_: CreateAccessListParameters<chain>,
 ): Promise<CreateAccessListReturnType> {
+  const args = FrameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
+
   const {
     account: account_ = client.account,
     blockNumber,
     blockTag = 'latest',
+    blobVersionedHashes,
     blobs,
+    chainId,
     data,
+    frames,
     gas,
     gasPrice,
     maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
+    nonceKeys,
+    signatures: _signatures,
     to,
+    type,
     value,
     ...rest
   } = args
@@ -135,13 +146,19 @@ export async function createAccessList<chain extends Chain | undefined>(
         ...extract(rest, { format: chainFormat }),
         account,
         blobs,
+        blobVersionedHashes,
+        chainId,
         data,
+        frames,
         gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
+        nonceKeys,
+        signatures: FrameTransaction.getSimulationSignatures(args),
         to,
+        type,
         value,
       } as TransactionRequest,
       'createAccessList',

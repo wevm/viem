@@ -12,6 +12,7 @@
       "viem/actions": ["../src/actions/index.ts"],
       "viem/accounts": ["../src/accounts/index.ts"],
       "viem/chains": ["../src/chains/index.ts"],
+      "viem/frames": ["../src/frames/index.ts"],
       "viem/tempo": ["../src/tempo/index.ts"],
       "viem/tempo/chains": ["../src/tempo/chains/index.ts"],
       "viem/tokens": ["../src/tokens/index.ts"],

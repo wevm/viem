@@ -30,6 +30,7 @@ import {
   getAbortError,
   isAbortError,
 } from '../../errors/utils.js'
+import * as frameTransaction from '../../frames/internal/transaction.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestOptions } from '../../types/eip1193.js'
@@ -177,8 +178,12 @@ export type CallErrorType = GetCallErrorReturnType<
  */
 export async function call<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  args: CallParameters<chain>,
+  args_: CallParameters<chain>,
 ): Promise<CallReturnType> {
+  const args = frameTransaction.resolve(args_, {
+    account: args_.account === undefined ? client.account : args_.account,
+  })
+
   const {
     account: account_ = client.account,
     authorizationList,
@@ -188,12 +193,15 @@ export async function call<chain extends Chain | undefined>(
     blockTag = client.experimental_blockTag ?? 'latest',
     requireCanonical,
     accessList,
+    blobVersionedHashes,
     blobs,
     blockOverrides,
+    chainId,
     code,
     data: data_,
     factory,
     factoryData,
+    frames,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -201,7 +209,10 @@ export async function call<chain extends Chain | undefined>(
     maxPriorityFeePerGas,
     nonce,
     requestOptions,
+    nonceKeys,
+    signatures,
     to,
+    type,
     value,
     stateOverride,
     ...rest
@@ -263,14 +274,23 @@ export async function call<chain extends Chain | undefined>(
         account,
         authorizationList,
         blobs,
+        blobVersionedHashes,
+        chainId,
         data,
+        frames,
         gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceKeys,
+        signatures: frameTransaction.getSimulationSignatures({
+          frameContext: args.frameContext,
+          signatures,
+        }),
         to: deploylessCall ? undefined : to,
+        type,
         value,
       } as TransactionRequest,
       'call',

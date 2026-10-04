@@ -125,3 +125,7 @@ A transaction receipt contains information about the transaction, including:
 ## Transport
 
 A Transport is the intermediary layer that is responsible for executing outgoing requests (ie. RPC requests) in viem.
+
+## Frame Transaction
+
+An EIP-8141 transaction (type `0x06`) containing ordered verification and execution frames, per-frame gas budgets, and a transaction-level signature list. See [Frame Transactions](/docs/frames).

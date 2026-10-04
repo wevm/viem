@@ -195,6 +195,9 @@ export type TransactionType = viem_TransactionType | 'tempo'
 export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
+  if (transaction.type === 'eip8141' || transaction.frames !== undefined)
+    return viem_getTransactionType(transaction) as never
+
   const account = transaction.account as
     | { keyType?: string | undefined; source?: string | undefined }
     | undefined

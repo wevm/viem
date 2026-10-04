@@ -1,7 +1,7 @@
+import { getSerializedTransactionType } from 'viem'
 import { assertType, expect, test } from 'vitest'
 
 import type { Hex, TransactionType } from '../../index.js'
-import { getSerializedTransactionType } from './getSerializedTransactionType.js'
 
 test('eip1559', () => {
   const type = getSerializedTransactionType('0x02abc')
@@ -41,4 +41,10 @@ test('invalid', () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+test('eip8141', () => {
+  expect(getSerializedTransactionType('0x06')).toMatchInlineSnapshot(
+    `"eip8141"`,
+  )
 })

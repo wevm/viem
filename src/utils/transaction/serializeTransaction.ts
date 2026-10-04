@@ -1,8 +1,11 @@
+import * as TxEnvelopeEip8141 from 'ox/TxEnvelopeEip8141'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type {
   ByteArray,
   Hex,
@@ -15,6 +18,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -22,6 +26,7 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
@@ -60,11 +65,13 @@ import {
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
   type AssertTransactionEIP7702ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -84,7 +91,10 @@ export type SerializedTransactionReturnType<
 > = TransactionSerialized<_transactionType>
 
 export type SerializeTransactionFn<
-  transaction extends TransactionSerializableGeneric = TransactionSerializable,
+  transaction extends Omit<
+    TransactionSerializableGeneric,
+    'signatures'
+  > = TransactionSerializable,
   ///
   _transactionType extends TransactionType = never,
 > = (
@@ -98,11 +108,14 @@ export type SerializeTransactionFn<
 >
 
 export type SerializeTransactionErrorType =
+  | InvalidTypeError
+  | BaseErrorType
   | GetTransactionTypeErrorType
   | SerializeTransactionEIP1559ErrorType
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
   | SerializeTransactionEIP7702ErrorType
+  | SerializeTransactionEIP8141ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
@@ -115,6 +128,20 @@ export function serializeTransaction<
   signature?: Signature | undefined,
 ): SerializedTransactionReturnType<transaction, _transactionType> {
   const type = getTransactionType(transaction) as GetTransactionType
+
+  if (type === 'eip8141')
+    return serializeTransactionEIP8141(
+      transaction as TransactionSerializableEIP8141,
+      signature,
+    ) as SerializedTransactionReturnType<transaction>
+
+  if (
+    transaction.frames !== undefined ||
+    transaction.sender !== undefined ||
+    transaction.nonceKeys !== undefined ||
+    transaction.signatures !== undefined
+  )
+    throw new InvalidTypeError()
 
   if (type === 'eip1559')
     return serializeTransactionEIP1559(
@@ -144,6 +171,31 @@ export function serializeTransaction<
     transaction as TransactionSerializableLegacy,
     signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
+}
+
+type SerializeTransactionEIP8141ErrorType =
+  | AssertTransactionEIP8141ErrorType
+  | BaseErrorType
+  | TxEnvelopeEip8141.serialize.ErrorType
+  | ErrorType
+
+function serializeTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+  signature?: Signature | undefined,
+): TransactionSerializedEIP8141 {
+  if (signature)
+    throw new BaseError(
+      'EIP-8141 transactions use the signatures array, not an outer signature.',
+    )
+
+  const request = FrameTransaction.resolve(transaction)
+  assertTransactionEIP8141(request)
+
+  return TxEnvelopeEip8141.serialize({
+    ...request,
+    nonceKeys: request.nonceKeys ?? [0n],
+    nonce: BigInt(request.nonce ?? 0),
+  })
 }
 
 type SerializeTransactionEIP7702ErrorType =
@@ -469,4 +521,13 @@ export function toYParitySignatureArray(
   })()
 
   return [yParity_, r === '0x00' ? '0x' : r, s === '0x00' ? '0x' : s]
+}
+
+/** Frame transaction fields require type "eip8141". */
+class InvalidTypeError extends BaseError {
+  override readonly name = 'SerializeTransaction.InvalidTypeError'
+
+  constructor() {
+    super('Frame transaction fields require type "eip8141".')
+  }
 }

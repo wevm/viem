@@ -1,4 +1,6 @@
 import type { Address } from 'abitype'
+import type { TxEnvelopeEip8141 } from 'ox'
+import type * as Frames from '../frames/Frame.js'
 
 import type {
   AuthorizationList,
@@ -10,6 +12,7 @@ import type {
   FeeValuesEIP4844,
   FeeValuesLegacy,
 } from './fee.js'
+import type { Frame, FrameReceipt, FrameSignature } from './frame.js'
 import type { Kzg } from './kzg.js'
 import type { Log } from './log.js'
 import type { ByteArray, Hash, Hex, Signature } from './misc.js'
@@ -33,6 +36,7 @@ export type TransactionType =
   | 'eip2930'
   | 'eip4844'
   | 'eip7702'
+  | 'eip8141'
   | (string & {})
 
 export type TransactionReceipt<
@@ -40,6 +44,7 @@ export type TransactionReceipt<
   index = number,
   status = 'success' | 'reverted',
   type = TransactionType,
+  frameReceipt = FrameReceipt<quantity>,
 > = {
   /** The actual value per gas deducted from the sender's account for blob gas. Only specified for blob transactions as defined by EIP-4844. */
   blobGasPrice?: quantity | undefined
@@ -57,6 +62,8 @@ export type TransactionReceipt<
   cumulativeGasUsed: quantity
   /** Pre-London, it is equal to the transaction's gasPrice. Post-London, it is equal to the actual gas price paid for inclusion. */
   effectiveGasPrice: quantity
+  /** Results for individual frames, in execution order. */
+  frameReceipts?: readonly frameReceipt[] | undefined
   /** Transaction sender */
   from: Address
   /** Gas used by this transaction */
@@ -65,6 +72,8 @@ export type TransactionReceipt<
   logs: Log<quantity, index, false>[]
   /** Logs bloom filter */
   logsBloom: Hex
+  /** Account paying for a frame transaction. */
+  payer?: Address | undefined
   /** The post-transaction state root. Only specified for transactions included before the Byzantium upgrade. */
   root?: Hash | undefined
   /** `success` if this transaction was successful or `reverted` if it failed */
@@ -130,6 +139,9 @@ export type TransactionLegacy<
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId?: index | undefined
+  frames?: undefined
+  nonceKeys?: undefined
+  signatures?: undefined
   yParity?: undefined
   type: type
 } & FeeValuesLegacy<quantity>
@@ -146,6 +158,9 @@ export type TransactionEIP2930<
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
+  frames?: undefined
+  nonceKeys?: undefined
+  signatures?: undefined
   type: type
 } & FeeValuesLegacy<quantity>
 
@@ -161,6 +176,9 @@ export type TransactionEIP1559<
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
+  frames?: undefined
+  nonceKeys?: undefined
+  signatures?: undefined
   type: type
 } & FeeValuesEIP1559<quantity>
 
@@ -177,6 +195,9 @@ export type TransactionEIP4844<
   blobVersionedHashes: readonly Hex[]
   /** Chain ID that this transaction is valid on. */
   chainId: index
+  frames?: undefined
+  nonceKeys?: undefined
+  signatures?: undefined
   type: type
 } & FeeValuesEIP4844<quantity>
 
@@ -193,8 +214,44 @@ export type TransactionEIP7702<
   blobVersionedHashes?: undefined
   /** Chain ID that this transaction is valid on. */
   chainId: index
+  frames?: undefined
+  nonceKeys?: undefined
+  signatures?: undefined
   type: type
 } & FeeValuesEIP1559<quantity>
+
+export type TransactionEIP8141<
+  quantity = bigint,
+  index = number,
+  isPending extends boolean = boolean,
+  type = 'eip8141',
+  frame = Frame<quantity>,
+  signature = FrameSignature,
+> = Omit<
+  TransactionBase<quantity, index, isPending>,
+  'r' | 's' | 'v' | 'yParity'
+> & {
+  /** Versioned blob hashes. */
+  blobVersionedHashes: readonly Hex[]
+  /** Chain ID that this transaction is valid on. */
+  chainId: index
+  /** Frames in execution order. */
+  frames: readonly frame[]
+  /** Effective gas price. */
+  gasPrice?: quantity | undefined
+  /** Maximum fee per blob gas, in wei. */
+  maxFeePerBlobGas: quantity
+  /** Maximum fee per gas, in wei. */
+  maxFeePerGas: quantity
+  /** Maximum priority fee per gas, in wei. */
+  maxPriorityFeePerGas: quantity
+  /** EIP-8250 nonce domains sharing the transaction nonce. */
+  nonceKeys?: readonly quantity[] | undefined
+  /** Frame signature entries. */
+  signatures: readonly signature[]
+  /** Transaction type. */
+  type: type
+}
 
 export type Transaction<
   quantity = bigint,
@@ -206,6 +263,7 @@ export type Transaction<
   | TransactionEIP1559<quantity, index, isPending>
   | TransactionEIP4844<quantity, index, isPending>
   | TransactionEIP7702<quantity, index, isPending>
+  | TransactionEIP8141<quantity, index, isPending>
 >
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +275,8 @@ export type TransactionRequestBase<
   index = number,
   type = string,
 > = {
+  /** Chain ID that this transaction is valid on. */
+  chainId?: index | undefined
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
@@ -288,12 +348,38 @@ export type TransactionRequestEIP7702<
     authorizationList?: AuthorizationList<index, boolean> | undefined
   }
 
+export type TransactionRequestEIP8141<
+  quantity = bigint,
+  index = number,
+  type = 'eip8141',
+  frame = Frames.Input<quantity>,
+  signature = FrameSignature,
+> = Omit<
+  TransactionRequestBase<quantity, index, type>,
+  'data' | 'to' | 'value'
+> &
+  ExactPartial<FeeValuesEIP4844<quantity>> & {
+    /** Versioned blob hashes. */
+    blobVersionedHashes?: readonly Hex[] | undefined
+    /** Frames in execution order. */
+    frames: readonly frame[]
+    /** Nonce domains sharing the transaction nonce. Defaults to `[0n]`. Use `'random'` to generate a key during preparation. */
+    nonceKeys?:
+      | readonly (quantity | (quantity extends bigint ? 'random' : never))[]
+      | undefined
+    /** PeerDAS blob sidecars included in the network wrapper. */
+    sidecars?: TransactionSerializableEIP8141['sidecars'] | undefined
+    /** Signature entries, including unsigned placeholders. */
+    signatures?: readonly signature[] | undefined
+  }
+
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<
   | TransactionRequestLegacy<quantity, index>
   | TransactionRequestEIP2930<quantity, index>
   | TransactionRequestEIP1559<quantity, index>
   | TransactionRequestEIP4844<quantity, index>
   | TransactionRequestEIP7702<quantity, index>
+  | TransactionRequestEIP8141<quantity, index>
 >
 
 export type TransactionRequestGeneric<
@@ -303,10 +389,16 @@ export type TransactionRequestGeneric<
   accessList?: AccessList | undefined
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
+  frames?: readonly Frames.Input<quantity>[] | undefined
+  nonceKeys?:
+    | readonly (quantity | (quantity extends bigint ? 'random' : never))[]
+    | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
   maxPriorityFeePerGas?: quantity | undefined
+  sidecars?: TransactionSerializableGeneric['sidecars'] | undefined
+  signatures?: readonly FrameSignature[] | undefined
   type?: string | undefined
 }
 
@@ -318,6 +410,8 @@ export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
 export type TransactionSerializedEIP7702 = `0x04${string}`
+/** An RLP-encoded EIP-8141 transaction prefixed with transaction type 0x06. */
+export type TransactionSerializedEIP8141 = `0x06${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
 export type TransactionSerialized<
@@ -327,13 +421,14 @@ export type TransactionSerialized<
     | (type extends 'eip2930' ? TransactionSerializedEIP2930 : never)
     | (type extends 'eip4844' ? TransactionSerializedEIP4844 : never)
     | (type extends 'eip7702' ? TransactionSerializedEIP7702 : never)
+    | (type extends 'eip8141' ? TransactionSerializedEIP8141 : never)
     | (type extends 'legacy' ? TransactionSerializedLegacy : never),
 > = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
 export type TransactionSerializableBase<
   quantity = bigint,
   index = number,
-> = Omit<TransactionRequestBase<quantity, index>, 'from'> &
+> = Omit<TransactionRequestBase<quantity, index>, 'chainId' | 'from'> &
   ExactPartial<Signature>
 
 export type TransactionSerializableLegacy<
@@ -405,12 +500,48 @@ export type TransactionSerializableEIP7702<
     yParity?: number | undefined
   }
 
-export type TransactionSerializable<quantity = bigint, index = number> = OneOf<
+export type TransactionSerializableEIP8141<
+  quantity = bigint,
+  index = number,
+  frame = Frames.Input<quantity>,
+> = {
+  /** Versioned blob hashes. */
+  blobVersionedHashes?: readonly Hex[] | undefined
+  /** Chain ID. */
+  chainId: number
+  /** Frames to execute, in order. */
+  frames: readonly frame[]
+  /** Maximum fee per blob gas, in wei. */
+  maxFeePerBlobGas?: quantity | undefined
+  /** Maximum fee per gas, in wei. */
+  maxFeePerGas?: quantity | undefined
+  /** Maximum priority fee per gas, in wei. */
+  maxPriorityFeePerGas?: quantity | undefined
+  /** Sender nonce or shared keyed sequence. Defaults to zero. */
+  nonce?: index | undefined
+  /** EIP-8250 nonce domains. Defaults to `[0n]`, the account nonce. */
+  nonceKeys?: readonly quantity[] | undefined
+  /** Account authorizing execution. */
+  sender: Address
+  /** PeerDAS sidecars, excluded from the signing hash. */
+  sidecars?: TxEnvelopeEip8141.TxEnvelopeEip8141['sidecars'] | undefined
+  /** Signature entries, including unsigned placeholders. */
+  signatures?: readonly FrameSignature[] | undefined
+  /** Transaction type. Inferred when frames are present. */
+  type?: 'eip8141' | undefined
+}
+
+export type TransactionSerializable<
+  quantity = bigint,
+  index = number,
+  frame = Frames.Input<quantity>,
+> = OneOf<
   | TransactionSerializableLegacy<quantity, index>
   | TransactionSerializableEIP2930<quantity, index>
   | TransactionSerializableEIP1559<quantity, index>
   | TransactionSerializableEIP4844<quantity, index>
   | TransactionSerializableEIP7702<quantity, index>
+  | TransactionSerializableEIP8141<quantity, index, frame>
 >
 
 export type TransactionSerializableGeneric<
@@ -422,10 +553,19 @@ export type TransactionSerializableGeneric<
   blobs?: readonly Hex[] | readonly ByteArray[] | undefined
   blobVersionedHashes?: readonly Hex[] | undefined
   chainId?: number | undefined
+  frames?: readonly Frames.Input<quantity>[] | undefined
   gasPrice?: quantity | undefined
   maxFeePerBlobGas?: quantity | undefined
   maxFeePerGas?: quantity | undefined
   maxPriorityFeePerGas?: quantity | undefined
-  sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
+  nonceKeys?: readonly quantity[] | undefined
+  sender?: Address | undefined
+  sidecars?:
+    | readonly BlobSidecar<Hex>[]
+    | TransactionSerializableEIP8141['sidecars']
+    | false
+    | undefined
+  /** Frame signature entries, including unsigned placeholders. */
+  signatures?: readonly FrameSignature[] | undefined
   type?: string | undefined
 }

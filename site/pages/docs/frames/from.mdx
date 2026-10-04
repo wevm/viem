@@ -1,0 +1,189 @@
+---
+description: Define frame preparation and signature callbacks with from.
+---
+
+# Custom Frames
+
+## Overview
+
+`Frame.from` defines a callback that produces a frame or a group of frames. Use it when the built-in helpers do not express your call or validation logic.
+
+## Recipes
+
+### Define an Unsigned Frame
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+
+const frame = Frame.from(() => ({ // [!code focus]
+  frame: { mode: 'sender', value: 1n }, // [!code focus]
+})) // [!code focus]
+```
+
+### Declare a Signature
+
+The example assumes a deployed account contract implements `validate(uint256)`, checks the referenced signature, and performs the required approvals. Use that contract's address as the transaction account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData, parseAbi } from 'viem'
+import { Frame } from 'viem/frames'
+import { account } from './viem.config'
+
+// This ABI is illustrative; use your deployed account's validation ABI.
+const abi = parseAbi(['function validate(uint256 signatureIndex)'])
+const frame = Frame.from(({ signatureIndex }) => ({ // [!code focus]
+  frame: { // [!code focus]
+    mode: 'verify', // [!code focus]
+    flags: 'approveExecutionAndPayment', // [!code focus]
+    data: encodeFunctionData({ abi, functionName: 'validate', args: [BigInt(signatureIndex)] }), // [!code focus]
+  }, // [!code focus]
+  signatures: [{ // [!code focus]
+    scheme: 'secp256k1', // [!code focus]
+    signer: account.address, // [!code focus]
+    sign: ({ hash }) => account.sign({ hash }), // [!code focus]
+  }], // [!code focus]
+})) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+:::info
+Supplying [approval flags](/docs/frames/raw-frames#flags) only permits approval; it does not perform it.
+:::
+
+### Customize a Data Suffix
+
+Return a synchronous `dataSuffix` hook to control the appended suffix when an action or client supplies a suffix. The hook runs before the first gas fill. It receives the resolved `frame`, the supplied `suffix`, and an `index` within this helper's returned frames.
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+
+const frame = Frame.from(() => ({
+  frames: [{ mode: 'sender', data: '0x1234' }, { mode: 'sender', data: '0x5678' }],
+
+  dataSuffix(context) { // [!code focus]
+    const { index, suffix } = context // [!code focus]
+    if (index === 0) return undefined // [!code focus]
+    return suffix // [!code focus]
+  }, // [!code focus]
+}))
+```
+
+Return `undefined` or `'0x'` to append nothing, or return hex bytes to append to existing calldata. Without a hook, Viem appends the suffix to sender frames and leaves other modes unchanged. Hooks do not run without a suffix or after canonical signing, and reusing a prepared request does not apply the suffix again.
+
+### Update a Frame After Filling
+
+Return `afterFill` beside `frame` and `signatures` when calldata depends on filled transaction fields. The hook returns indexed frame patches; Viem applies the patches and fills the resulting transaction before signing.
+
+```ts twoslash
+import { numberToHex } from 'viem'
+import { Frame } from 'viem/frames'
+
+const frame = Frame.from(() => ({
+  name: 'feeData',
+  frame: { mode: 'sender' },
+  async afterFill({ transaction, frameIndex }) {
+    return {
+      frames: [{
+        index: frameIndex,
+        data: numberToHex(transaction.maxFeePerGas!, { size: 32 }),
+      }],
+    }
+  },
+}))
+```
+
+Preparation runs twice so helpers can discover named peers through `entries`. Names are not required to be unique. Post-fill hooks run in frame order and cannot patch the same frame. An optional `validate(transaction)` result checks the refilled transaction; a failed check repeats the hooks, up to three attempts.
+
+Resolved `transaction.frames` contain protocol fields only. The returned `frameContext` retains callbacks for later signing; keep it when passing the prepared request to a signing action. It is excluded from RPC requests and serialized transactions.
+
+## `Frame.from`
+
+Creates a helper whose callback runs during frame preparation.
+
+### Usage
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+
+const frame = Frame.from(() => ({ // [!code focus]
+  frame: { mode: 'sender', value: 1n }, // [!code focus]
+})) // [!code focus]
+```
+
+### Parameters
+
+#### definition
+
+- **Type:** `Frame.Frame`
+
+A synchronous callback receiving `{ account, entries, signatureIndex }`. `account` is the transaction account when available. `entries` contains peer definitions with their names, resolved frames, and frame indexes, and `signatureIndex` is the first global signature slot allocated to this helper. Return `{ name?, frame, signatures?, dataSuffix?, afterFill? }` or `{ name?, frames, signatures?, dataSuffix?, afterFill? }`. For a group, signature entries belong to its first frame.
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+
+const frame = Frame.from(() => ({
+  frames: [{ mode: 'sender', value: 1n }, { mode: 'sender', value: 2n }], // [!code focus]
+}))
+```
+
+Preparation may invoke the callback again after expanding peers. Keep it free of signing and other side effects. Its return shape and signature metadata must remain stable between passes. Returned frames use the [raw frame fields](/docs/frames/raw-frames), including `mode` and `flags`.
+
+### Return Value
+
+`Frame.Frame`
+
+The definition callback itself. Transaction actions invoke it during preparation and resolve its result into protocol frames.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `BaseError` | Preparation changes its return shape or allocated signature entries, or a signature entry has no signing callback. |
+
+## `Frame.Frame`
+
+The callback type accepted by `Frame.from`. It receives a readonly array of peer entries and a numeric signature index, and returns either a single frame with optional signatures or a readonly array of frames with optional signatures on the first frame.
+
+## `Frame.DataSuffix`
+
+A synchronous suffix hook receiving `{ frame, index, suffix }`. `index` starts at zero within the helper's returned frames. Return hex bytes to append, or `undefined` to leave calldata unchanged. The hook replaces the default suffix append and runs once per prepared frame when a suffix is supplied.
+
+## `Frame.Signature`
+
+A signature declaration paired with a `sign` callback. `scheme`, `signer`, and optional `payload` describe the entry. Supported schemes are `secp256k1`, `p256`, and `arbitrary`; signer requirements depend on the scheme.
+
+`sign({ hash, signatureIndex, transaction })` returns a promise of signature bytes or a supported signature object. `hash` is the entry’s nonempty custom `payload`, or the canonical transaction signing hash when no custom payload is provided. Explicit payload signatures are finalized before the canonical hash is computed. The callback receives its own global index, so no separate signature array needs to be aligned. `transaction` contains finalized transaction fields; other signature slots may still be unsigned when this callback runs.
+
+Declare signatures through helpers rather than also supplying a transaction-level signature array. Signing and preparation errors propagate to the caller.
+
+### Signature Placeholders
+
+For an `arbitrary` signature, `placeholder` supplies witness bytes to `call`, `estimateGas`, and `fillTransaction`, including gas filling during `prepareTransactionRequest`.
+
+```ts twoslash
+import { Frame } from 'viem/frames'
+import type { Hex } from 'viem'
+
+const placeholder: Hex = '0xaabb'
+declare const sign: (options: { hash: Hex }) => Promise<Hex>
+
+const frame = Frame.from(() => ({
+  frame: { mode: 'verify' },
+  signatures: [{
+    scheme: 'arbitrary',
+    placeholder, // [!code focus]
+    sign,
+  }],
+}))
+```
+
+Choose bytes that match your verifier's simulation requirements. A placeholder does not bypass verification; a verifier that rejects it still causes simulation to fail. Native `secp256k1` and `p256` schemes use unsigned estimation without this field.
+
+Placeholders remain helper metadata. Prepared signatures stay unsigned, and signing uses the `sign` callback's result. `fillTransaction` removes placeholders from both its returned signatures and raw transaction.

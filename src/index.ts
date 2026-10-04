@@ -1215,6 +1215,7 @@ export type {
   FeeValuesType,
 } from './types/fee.js'
 export type { Filter, FilterType } from './types/filter.js'
+export type { Frame, FrameReceipt, FrameSignature } from './types/frame.js'
 export type { GetTransactionRequestKzgParameter, Kzg } from './types/kzg.js'
 export type { Log } from './types/log.js'
 export type {
@@ -1243,6 +1244,9 @@ export type {
   RpcBlockNumber,
   RpcFeeHistory,
   RpcFeeValues,
+  RpcFrame,
+  RpcFrameReceipt,
+  RpcFrameSignature,
   RpcLog,
   RpcProof,
   RpcStateMapping,
@@ -1265,6 +1269,7 @@ export type {
   TransactionEIP2930,
   TransactionEIP4844,
   TransactionEIP7702,
+  TransactionEIP8141,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequest,
@@ -1273,6 +1278,7 @@ export type {
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
   TransactionRequestEIP7702,
+  TransactionRequestEIP8141,
   TransactionRequestGeneric,
   TransactionRequestLegacy,
   TransactionSerializable,
@@ -1281,6 +1287,7 @@ export type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -1288,6 +1295,7 @@ export type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedGeneric,
   TransactionSerializedLegacy,
   TransactionType,
@@ -1921,9 +1929,11 @@ export {
 export {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './utils/transaction/assertTransaction.js'
 export {

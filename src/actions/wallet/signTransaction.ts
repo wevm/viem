@@ -1,4 +1,5 @@
 import type { Account } from '../../accounts/types.js'
+import { signFrameTransaction } from '../../accounts/utils/internal/signFrameTransaction.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -8,6 +9,8 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -19,6 +22,7 @@ import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type {
   TransactionRequest,
   TransactionSerializable,
+  TransactionSerializableEIP8141,
   TransactionSerialized,
 } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -128,8 +132,18 @@ export async function signTransaction<
   > = SignTransactionRequest<chain, chainOverride>,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SignTransactionParameters<chain, account, chainOverride, request>,
+  parameters_: SignTransactionParameters<
+    chain,
+    account,
+    chainOverride,
+    request
+  >,
 ): Promise<SignTransactionReturnType<request>> {
+  const parameters = FramePrepare.prepare(
+    parameters_,
+    parameters_.account === undefined ? client.account : parameters_.account,
+  )
+
   const {
     account: account_ = client.account,
     chain = client.chain,
@@ -158,11 +172,22 @@ export async function signTransaction<
   const format =
     formatters?.transactionRequest?.format || formatTransactionRequest
 
+  if (FrameTransaction.hasSigningFrames(transaction))
+    return (await signFrameTransaction(
+      {
+        ...transaction,
+        chainId,
+        sender: account.address,
+      } as TransactionSerializableEIP8141,
+      chain?.serializers?.transaction,
+    )) as SignTransactionReturnType<request>
+
   if (account.signTransaction)
     return account.signTransaction(
       {
         ...transaction,
         account,
+        ...(transaction.frames ? { sender: account.address } : {}),
         chainId,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },

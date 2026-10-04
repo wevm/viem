@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
+import { signFrameTransaction } from '../../accounts/utils/internal/signFrameTransaction.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
@@ -20,6 +21,8 @@ import {
   type TransactionReceiptRevertedErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
+import * as FramePrepare from '../../frames/internal/prepare.js'
+import * as FrameTransaction from '../../frames/internal/transaction.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
@@ -28,7 +31,10 @@ import type {
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { TransactionRequest } from '../../types/transaction.js'
+import type {
+  TransactionRequest,
+  TransactionSerializableEIP8141,
+} from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
   type RecoverAuthorizationAddressErrorType,
@@ -97,7 +103,10 @@ export type SendTransactionSyncParameters<
   GetTransactionRequestKzgParameter<request> & {
     /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
-    /** Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`. */
+    /**
+     * Data to append to calldata, including sender frames. Takes precedence over `client.dataSuffix`.
+     * Per-call suffixes take precedence. Signed frames are not modified.
+     */
     dataSuffix?: Hex | undefined
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined
@@ -176,24 +185,38 @@ export async function sendTransactionSync<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: SendTransactionSyncParameters<
+  parameters_: SendTransactionSyncParameters<
     chain,
     account,
     chainOverride,
     request
   >,
 ): Promise<SendTransactionSyncReturnType<chain>> {
+  let parameters = FramePrepare.prepare(
+    parameters_,
+    parameters_.account === undefined ? client.account : parameters_.account,
+  )
+  parameters = FrameTransaction.applyDataSuffix(
+    parameters,
+    parameters.dataSuffix ??
+      (typeof client.dataSuffix === 'string'
+        ? client.dataSuffix
+        : client.dataSuffix?.value),
+  )
+
   const {
     account: account_ = client.account,
     assertChainId = true,
     chain = client.chain,
     accessList,
     authorizationList,
+    blobVersionedHashes,
     blobs,
     data,
     dataSuffix = typeof client.dataSuffix === 'string'
       ? client.dataSuffix
       : client.dataSuffix?.value,
+    frames,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -201,6 +224,8 @@ export async function sendTransactionSync<
     maxPriorityFeePerGas,
     nonce,
     pollingInterval,
+    nonceKeys,
+    signatures,
     throwOnReceiptRevert,
     type,
     value,
@@ -214,6 +239,10 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
+  const hasSigning = FrameTransaction.hasSigningFrames(parameters)
+  const hasSignedFrames = (
+    parameters as FrameTransaction.Prepared<typeof parameters>
+  ).frameContext?.entries.some((entry) => entry.hash)
   let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
@@ -241,8 +270,8 @@ export async function sendTransactionSync<
       return undefined
     })()
 
-    if (account?.type === 'json-rpc' || account === null) {
-      let chainId: number | undefined
+    if ((account?.type === 'json-rpc' || account === null) && !hasSigning) {
+      let chainId: number | undefined = parameters.chainId
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
         if (assertChainId)
@@ -262,15 +291,20 @@ export async function sendTransactionSync<
           accessList,
           account,
           authorizationList,
+          blobVersionedHashes,
           blobs,
           chainId,
-          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          data:
+            dataSuffix && !frames ? concat([data ?? '0x', dataSuffix]) : data,
+          frames,
           gas,
           gasPrice,
           maxFeePerBlobGas,
           maxFeePerGas,
           maxPriorityFeePerGas,
           nonce,
+          nonceKeys,
+          signatures,
           to,
           type,
           value,
@@ -349,7 +383,10 @@ export async function sendTransactionSync<
       return receipt
     }
 
-    if (account?.type === 'local') {
+    if (
+      account?.type === 'local' ||
+      (account?.type === 'json-rpc' && hasSigning)
+    ) {
       const nonceManager = ((): NonceManager | undefined => {
         if (!account.nonceManager || typeof nonce !== 'undefined')
           return account.nonceManager
@@ -383,9 +420,11 @@ export async function sendTransactionSync<
         account,
         accessList,
         authorizationList,
+        blobVersionedHashes,
         blobs,
         chain,
-        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+        data: dataSuffix && !frames ? concat([data ?? '0x', dataSuffix]) : data,
+        frames,
         gas,
         gasPrice,
         maxFeePerBlobGas,
@@ -393,7 +432,9 @@ export async function sendTransactionSync<
         maxPriorityFeePerGas,
         nonce,
         nonceManager,
-        parameters: [...defaultParameters, 'sidecars'],
+        parameters: hasSignedFrames ? [] : [...defaultParameters, 'sidecars'],
+        nonceKeys,
+        signatures,
         type,
         value,
         ...rest,
@@ -401,12 +442,14 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const signedTransaction = (await account.signTransaction(
-        request as never,
-        {
-          serializer,
-        },
-      )) as Hash
+      const signedTransaction = (
+        hasSigning
+          ? await signFrameTransaction(
+              request as TransactionSerializableEIP8141,
+              serializer,
+            )
+          : await account.signTransaction!(request as never, { serializer })
+      ) as Hash
       const transactionEnvelope = (chain ?? client.chain)?.serializers
         ?.transactionEnvelope
       const serializedTransaction = transactionEnvelope

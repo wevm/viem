@@ -1,0 +1,57 @@
+---
+description: Send, batch, prepare, and sign Frame Transactions with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Frame Transactions
+
+## Overview
+
+Frame Transactions (EIP-8141) bring native account abstraction to Ethereum. They let an
+account define how a transaction is authorized and allow another account to pay its fees.
+This supports custom wallet permissions and sponsored transactions within Ethereum's
+transaction format.
+
+A frame is one step in a transaction. Frames run in order to verify authorization, approve
+gas payment, and execute calls. You can combine several contract interactions in one
+transaction and group dependent calls so they either all succeed or revert together.
+
+The following transaction expires after one day and groups two transfers atomically.
+Use a client connected to an EIP-8141-enabled node.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { calls, expiry } from 'viem/frames'
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  frames: [
+    expiry('1d'),
+    calls([
+      { to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', value: 1n },
+      { to: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC', value: 2n },
+    ]),
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/frames/viem.config.ts:setup]
+```
+
+:::
+
+Viem prepares the transaction and adds verification for the client's account automatically.
+
+<Cards>
+  <Card icon="lucide:send" title="Send Transactions" description="Transfer value, set deadlines, and inspect frame results." to="/docs/frames/sending-transactions" />
+  <Card icon="lucide:layers" title="Batch Calls" description="Compose raw and ABI-encoded calls into atomic groups." to="/docs/frames/batching-calls" />
+  <Card icon="lucide:pen-line" title="Signing Frames" description="Sign transactions and individual prepared frames." to="/docs/frames/signing-frames" />
+  <Card icon="lucide:binary" title="Raw Frames" description="Understand modes, flags, and gas budgets." to="/docs/frames/raw-frames" />
+  <Card icon="lucide:code" title="Custom Frames" description="Define preparation and signature callbacks." to="/docs/frames/from" />
+  <Card icon="lucide:book-open" title="Simulating & Inspecting Frames" description="Simulate requests and inspect frame results." to="/docs/frames/simulating-inspecting-frames" />
+  <Card icon="lucide:book-open" title="Interacting with Contracts" description="Encode contract calls with an ABI." to="/docs/frames/interacting-with-contracts" />
+  <Card icon="lucide:book-open" title="Building Frames" description="Define custom frames and signature callbacks." to="/docs/frames/building-frames" />
+</Cards>
