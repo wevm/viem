@@ -170,6 +170,8 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage/lcov.info
           use_oidc: true
+          use_pypi: true
+          version: v11.3.1
 
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
@@ -301,6 +303,8 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage/lcov.info
           use_oidc: true
+          use_pypi: true
+          version: v11.3.1
 
   test-envs:
     name: Test Environments
