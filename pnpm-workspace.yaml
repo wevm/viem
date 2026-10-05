@@ -18,6 +18,11 @@ allowBuilds:
 
 auditConfig:
   ignoreGhsas:
+    - GHSA-667r-xxjv-c9mm # Alto's Fastify major has no patched release.
+    - GHSA-p68q-wchp-6fh7 # Alto's Fastify major has no patched release.
+    - GHSA-hwr6-493r-vm6h # Alto's Fastify major has no patched release.
+    - GHSA-9q9j-q6p8-xq58 # Alto's Fastify major has no patched release.
+    - GHSA-4mh8-r7rc-xpvc # Alto's Fastify major has no patched release.
     - GHSA-vfj7-8cjw-p6xm # braces has no published patched release.
     - GHSA-5p2g-fcmc-qvqq # image-size has no published patched release.
     - GHSA-444r-cwp2-x5xf # Alto's Fastify major has no patched release.
