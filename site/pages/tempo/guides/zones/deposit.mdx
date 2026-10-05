@@ -102,8 +102,8 @@ const info = await client.zone.waitForTempoBlock({
 
 After the zone imports a Tempo block, use [`getContractEvents`](/docs/contract/getContractEvents)
 with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. Match a
-`DepositProcessed`, `DepositFailed`, or `DepositRejected` event to the deposit queue hash emitted by
-the portal. Importing a block alone does not establish that its deposits were credited.
+`DepositProcessed`, `DepositFailed`, or `DepositRejected` event to the deposit's hash. Importing a
+block alone does not establish that its deposits were credited.
 
 :::code-group
 
