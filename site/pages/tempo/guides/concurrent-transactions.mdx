@@ -85,7 +85,7 @@ transactions. This nonce is an identifier and does not need to be sequential.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.sendTransaction({
+const hash = await client.transaction.send({
   nonceKey: 'expiring', // [!code focus]
   nonce: 42, // [!code focus]
   to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',

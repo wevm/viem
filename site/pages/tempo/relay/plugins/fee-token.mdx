@@ -66,7 +66,7 @@ export const client = Client.create({
 
 ### Inspect Fee Token
 
-Use [`Actions.transaction.prepare`](/docs/actions/transaction/prepare)
+Use [`Actions.transaction.fill`](/docs/actions/public/transaction/fill)
 to inspect the selected fee token before signing and sending. Add
 [`Relay.simulate`](/tempo/relay/plugins/simulate) to include the fee estimate.
 This example assumes the sender holds USDC.e and has no funded preference or
@@ -80,7 +80,7 @@ import { Actions as CoreActions } from 'viem'
 import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
-const { capabilities, request: transaction } = await CoreActions.transaction.prepare(client, {
+const { capabilities, transaction } = await CoreActions.transaction.fill(client, {
   account: '0x1111111111111111111111111111111111111111',
   calls: [Actions.token.transfer.call(client, {
     token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet

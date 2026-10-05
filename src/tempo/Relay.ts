@@ -187,7 +187,7 @@ export declare namespace create {
  * import { http } from 'viem'
  * import { Relay } from 'viem/tempo'
  *
- * const rpc = http('https://rpc.tempo.xyz')({})
+ * const rpc = http('https://rpc.tempo.xyz').setup()
  * const handle = Relay.handleRequest(rpc.request, {
  *   plugins: [
  *     {

@@ -21,7 +21,7 @@ without changing that address.
 
 When one process holds enough owner accounts to reach the threshold, pass those accounts to
 [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig) and use
-[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync). The account creates the complete
+[`transaction.sendSync`](/docs/actions/wallet/transaction/send). The account creates the complete
 multisig signature locally.
 
 ```ts twoslash
@@ -54,7 +54,7 @@ When owners sign independently, configure [`withRelay`](/tempo/transports/withRe
 when your application passes one prepared request between every owner.
 
 When owners sign independently, configure the [multisig relay plugin](/tempo/relay/plugins/multisig) and use
-[`transaction.sendSync`](/docs/actions/wallet/transaction/sendSync). The first owner passes the
+[`transaction.sendSync`](/docs/actions/wallet/transaction/send). The first owner passes the
 transaction fields with the multisig `account` and local `owner`. Every later owner passes the
 same account, the operation hash from the pending receipt, and their signer.
 
