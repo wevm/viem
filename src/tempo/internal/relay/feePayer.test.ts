@@ -416,7 +416,7 @@ test.each([false, true])(
             : parameters),
           chain: chain_,
           feeToken: Tempo.alphaUsd,
-          feePayer: server.url as never,
+          feePayer: server.url,
         },
       )
       expect(transaction.feePayerSignature).toBeDefined()
@@ -941,3 +941,39 @@ test
     ).toBeLessThan(sponsorBalance.amount)
   },
 )
+
+test('transferSync uses an external sponsor through withRelay', async () => {
+  const upstream = Relay.create({
+    client: caller,
+    plugins: [Relay.feePayer({ account: feePayerAccount })],
+  })
+  const server = await createHttpServer(createRequestListener(upstream.fetch))
+  onTestFinished(async () => {
+    await server.close()
+  })
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      plugins: [
+        Relay.feePayer({
+          allowedFeePayers: [server.url],
+          internal_allowUnsafeUrls: true,
+        }),
+      ],
+    }),
+  })
+
+  const { receipt } = await Actions.token.transferSync(client, {
+    account: userAccount,
+    token: Tempo.alphaUsd,
+    to: recipient.address,
+    amount: 1n,
+    feeToken: Tempo.alphaUsd,
+    feePayer: server.url,
+  })
+
+  expect(receipt).toMatchObject({
+    status: 'success',
+    feePayer: feePayerAccount.address.toLowerCase(),
+  })
+})

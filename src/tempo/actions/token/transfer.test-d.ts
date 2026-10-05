@@ -69,3 +69,16 @@ describe('transfer.call', () => {
     transfer.call(client, { amount: 1n, to: '0x', token })
   })
 })
+
+test('accepts an external fee payer URL', () => {
+  const result = client.token.transferSync({
+    amount: 1n,
+    to: '0x',
+    token,
+    feePayer: 'https://sponsor.example/relay',
+  })
+
+  expectTypeOf(result).toExtend<
+    Promise<{ receipt: { status: 'success' | 'reverted' } }>
+  >()
+})

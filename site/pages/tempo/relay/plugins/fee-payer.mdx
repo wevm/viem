@@ -236,38 +236,56 @@ export const client = Client.create({
 
 ### Use an External Sponsor
 
-Pass the sponsor's URL as `feePayer` in an `eth_fillTransaction` request. Allow
-the same full URL in the relay configuration. The response contains the sponsored
-transaction for the sender to sign and submit.
+Pass the sponsor's URL as `feePayer` when sending the transfer. Allow the same
+full URL in the relay configuration.
 
-```ts twoslash
-import { AbiFunction, Value } from 'ox'
-import { http } from 'viem'
-import { Abis, Relay } from 'viem/tempo'
+:::code-group
 
-const rpc = http('https://rpc.tempo.xyz').setup()
-const handle = Relay.handleRequest(rpc.request, {
-  plugins: [Relay.feePayer({
-    allowedFeePayers: ['https://sponsor.example/relay'], // [!code focus]
-  })],
+```ts twoslash [example.ts]
+import { Value } from 'ox'
+import { Account } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  account: Account.fromPrivateKey('0x...'),
+  token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
+  to: '0x2222222222222222222222222222222222222222',
+  amount: Value.from('100', 6),
+  feePayer: 'https://sponsor.example/relay', // [!code focus]
 })
 
-const result = await handle({
-  method: 'eth_fillTransaction',
-  params: [{
-    from: '0x1111111111111111111111111111111111111111',
-    calls: [{
-      to: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
-      data: AbiFunction.encodeData(AbiFunction.fromAbi(Abis.tip20, 'transfer'), [
-        '0x2222222222222222222222222222222222222222',
-        Value.from('100', 6),
-      ]),
-    }],
-    feePayer: 'https://sponsor.example/relay', // [!code focus]
-  }],
-})
-// @log: { raw: '0x76...', transaction: { ... }, capabilities: { sponsored: true, ... } }
+receipt.status
+// @log: 'success'
 ```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [Relay.feePayer({
+      allowedFeePayers: ['https://sponsor.example/relay'], // [!code focus]
+    })],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+No local sponsor account is required.
+The external service supplies the signature and sponsor metadata. Its URL must
+match the configured allowlist, including the path and query.
 
 ### Record Sponsorship
 

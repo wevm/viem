@@ -175,6 +175,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Applies to hand-written docs only.
   - Generated `utilities/` pages are synced from Ox.
 - **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
+- **Preserve example behavior when fixing Twoslash**; check public types against supported runtime behavior before replacing an example with a lower-level API.
 - **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
   - Public type properties get TSDoc too.
 - **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.

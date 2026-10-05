@@ -1029,7 +1029,7 @@ function fromBase(parameters: fromBase.Parameters): Base {
       // request metadata.
       const envelope =
         envelope_ as unknown as TxEnvelopeTempo.TxEnvelopeTempo & {
-          feePayer?: viem_Account.Account | boolean | undefined
+          feePayer?: Envelope['feePayer'] | undefined
           multisigSimulation?: Envelope['multisigSimulation'] | undefined
         }
 

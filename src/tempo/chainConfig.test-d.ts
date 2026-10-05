@@ -15,7 +15,7 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
     Address.Address | undefined
   >()
   expectTypeOf<Request['feePayer']>().toEqualTypeOf<
-    Account.Account | boolean | undefined
+    Account.Account | boolean | string | undefined
   >()
   expectTypeOf<Request['keyType']>().toEqualTypeOf<
     'multisig' | 'secp256k1' | 'p256' | 'webAuthn' | undefined
@@ -60,7 +60,7 @@ test('transaction hooks: envelope round-trips through the chain type', () => {
     Envelope | undefined
   >()
   expectTypeOf<Envelope['feePayer']>().toEqualTypeOf<
-    Account.Account | boolean | undefined
+    Account.Account | boolean | string | undefined
   >()
 })
 

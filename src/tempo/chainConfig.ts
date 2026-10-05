@@ -58,11 +58,10 @@ export type TransactionRequest = Omit<
   /** Capabilities to pass to `eth_fillTransaction`. */
   capabilities?: Capabilities.FillTransactionRequestCapabilities | undefined
   /**
-   * Fee payer of the transaction (TIP-1 gas sponsorship). Pass `true` to defer the fee
-   * token to an external fee payer (e.g. a relay), or a local Account to
-   * co-sign the transaction as the fee payer.
+   * Fee payer for TIP-1 gas sponsorship. Pass `true` for relay sponsorship,
+   * an Account to co-sign locally, or an external sponsor URL allowed by the relay.
    */
-  feePayer?: viem_Account.Account | boolean | undefined
+  feePayer?: viem_Account.Account | boolean | string | undefined
   /** Stored multisig operation to approve. */
   hash?: Hex.Hex | undefined
   /** Owner signing a multisig approval. */
@@ -90,7 +89,7 @@ export type TransactionRequestRpc = TransactionRequestTempo.Rpc
  */
 export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
   /** Fee payer of the transaction (TIP-1 gas sponsorship). */
-  feePayer?: viem_Account.Account | boolean | undefined
+  feePayer?: viem_Account.Account | boolean | string | undefined
   /** Owner signing a multisig approval. */
   owner?: RootAccount | undefined
   /** Multisig account, config, and modeled approvals for gas estimation. */
