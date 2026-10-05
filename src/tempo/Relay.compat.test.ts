@@ -338,8 +338,13 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
   })
 
   test('behavior: missing from remains an RPC error when errors capability is enabled', async () => {
+    const anonymous = CoreClient_.create({
+      chain: chain_,
+      transport: tempoHttp_(server.url),
+    })
+
     await expect(
-      CoreActions_.transaction.fill(client, {
+      CoreActions_.transaction.fill(anonymous, {
         calls: [
           Actions.token.transfer.call(caller, {
             token: Tempo.alphaUsd,
@@ -350,7 +355,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
         capabilities: { errors: true },
       }),
     ).rejects.toMatchObject({
-      cause: { code: -32602, details: 'unknown account' },
+      cause: { code: -32602, message: 'unknown account' },
     })
   })
 })
