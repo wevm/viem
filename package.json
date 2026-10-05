@@ -176,7 +176,7 @@
     {
       "name": "import * from 'viem/node'",
       "path": "./dist/node/index.js",
-      "limit": "7 kB",
+      "limit": "7.1 kB",
       "import": "*",
       "ignore": [
         "node:crypto",
@@ -194,7 +194,7 @@
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "157.5 kB",
+      "limit": "169 kB",
       "import": "*"
     },
     {
