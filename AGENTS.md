@@ -207,6 +207,8 @@ This document contains general guidelines for AI agents working on the Viem code
 
 ## Testing Conventions
 
+- **Use fresh accounts for empty-balance tests**; deterministic development accounts may be funded in Tempo genesis. Generate a new account when fee-token selection depends on having no existing balance or preference.
+
 - **Separate test phases with blank lines**; keep setup, execution, and assertion groups visually distinct.
 
 - **Colocate relay plugin integration tests**; add HTTP coverage to each plugin's existing test file under `src/tempo/internal/relay/`, not a shared relay suite.
