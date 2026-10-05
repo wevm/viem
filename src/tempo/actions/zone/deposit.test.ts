@@ -304,6 +304,22 @@ describe('deposit.calls', () => {
             {
               "inputs": [
                 {
+                  "name": "from",
+                  "type": "address",
+                },
+                {
+                  "name": "amount",
+                  "type": "uint256",
+                },
+              ],
+              "name": "burnAt",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function",
+            },
+            {
+              "inputs": [
+                {
                   "name": "to",
                   "type": "address",
                 },
@@ -478,6 +494,17 @@ describe('deposit.calls', () => {
             {
               "inputs": [],
               "name": "BURN_BLOCKED_ROLE",
+              "outputs": [
+                {
+                  "type": "bytes32",
+                },
+              ],
+              "stateMutability": "view",
+              "type": "function",
+            },
+            {
+              "inputs": [],
+              "name": "BURN_AT_ROLE",
               "outputs": [
                 {
                   "type": "bytes32",
@@ -735,6 +762,27 @@ describe('deposit.calls', () => {
                 },
               ],
               "name": "BurnBlocked",
+              "type": "event",
+            },
+            {
+              "inputs": [
+                {
+                  "indexed": true,
+                  "name": "burner",
+                  "type": "address",
+                },
+                {
+                  "indexed": true,
+                  "name": "from",
+                  "type": "address",
+                },
+                {
+                  "indexed": true,
+                  "name": "amount",
+                  "type": "uint256",
+                },
+              ],
+              "name": "BurnAt",
               "type": "event",
             },
             {
@@ -1878,6 +1926,28 @@ describe('deposit.calls', () => {
             },
             {
               "inputs": [],
+              "name": "MAX_UNPROCESSED_DEPOSITS",
+              "outputs": [
+                {
+                  "type": "uint64",
+                },
+              ],
+              "stateMutability": "view",
+              "type": "function",
+            },
+            {
+              "inputs": [],
+              "name": "MAX_UNPROCESSED_TOKEN_ENABLEMENTS",
+              "outputs": [
+                {
+                  "type": "uint64",
+                },
+              ],
+              "stateMutability": "view",
+              "type": "function",
+            },
+            {
+              "inputs": [],
               "name": "MAX_WITHDRAWAL_GAS_LIMIT",
               "outputs": [
                 {
@@ -2049,6 +2119,92 @@ describe('deposit.calls', () => {
                     },
                   ],
                   "name": "depositQueueTransition",
+                  "type": "tuple",
+                },
+                {
+                  "name": "withdrawalQueueHash",
+                  "type": "bytes32",
+                },
+                {
+                  "name": "verifierConfig",
+                  "type": "bytes",
+                },
+                {
+                  "name": "proof",
+                  "type": "bytes",
+                },
+                {
+                  "name": "nextZoneHeight",
+                  "type": "uint256",
+                },
+                {
+                  "name": "signatures",
+                  "type": "bytes[]",
+                },
+              ],
+              "name": "submitBatch",
+              "outputs": [],
+              "stateMutability": "nonpayable",
+              "type": "function",
+            },
+            {
+              "inputs": [
+                {
+                  "name": "tempoBlockNumber",
+                  "type": "uint64",
+                },
+                {
+                  "name": "recentTempoBlockNumber",
+                  "type": "uint64",
+                },
+                {
+                  "components": [
+                    {
+                      "name": "prevBlockHash",
+                      "type": "bytes32",
+                    },
+                    {
+                      "name": "nextBlockHash",
+                      "type": "bytes32",
+                    },
+                  ],
+                  "name": "blockTransition",
+                  "type": "tuple",
+                },
+                {
+                  "components": [
+                    {
+                      "name": "prevProcessedHash",
+                      "type": "bytes32",
+                    },
+                    {
+                      "name": "nextProcessedHash",
+                      "type": "bytes32",
+                    },
+                    {
+                      "name": "prevDepositNumber",
+                      "type": "uint64",
+                    },
+                    {
+                      "name": "nextDepositNumber",
+                      "type": "uint64",
+                    },
+                  ],
+                  "name": "depositQueueTransition",
+                  "type": "tuple",
+                },
+                {
+                  "components": [
+                    {
+                      "name": "prevProcessedTokenCount",
+                      "type": "uint64",
+                    },
+                    {
+                      "name": "nextProcessedTokenCount",
+                      "type": "uint64",
+                    },
+                  ],
+                  "name": "tokenEnablementTransition",
                   "type": "tuple",
                 },
                 {
@@ -2351,6 +2507,28 @@ describe('deposit.calls', () => {
               "outputs": [
                 {
                   "type": "uint256",
+                },
+              ],
+              "stateMutability": "view",
+              "type": "function",
+            },
+            {
+              "inputs": [],
+              "name": "lastProcessedEnabledTokenCount",
+              "outputs": [
+                {
+                  "type": "uint64",
+                },
+              ],
+              "stateMutability": "view",
+              "type": "function",
+            },
+            {
+              "inputs": [],
+              "name": "tokenEnablementCursorInitialized",
+              "outputs": [
+                {
+                  "type": "bool",
                 },
               ],
               "stateMutability": "view",
@@ -2763,6 +2941,42 @@ describe('deposit.calls', () => {
               "inputs": [
                 {
                   "indexed": true,
+                  "name": "withdrawalBatchIndex",
+                  "type": "uint64",
+                },
+                {
+                  "indexed": true,
+                  "name": "withdrawalQueueIndex",
+                  "type": "uint256",
+                },
+                {
+                  "name": "nextProcessedDepositQueueHash",
+                  "type": "bytes32",
+                },
+                {
+                  "name": "nextBlockHash",
+                  "type": "bytes32",
+                },
+                {
+                  "name": "withdrawalQueueHash",
+                  "type": "bytes32",
+                },
+                {
+                  "name": "lastProcessedDepositNumber",
+                  "type": "uint64",
+                },
+                {
+                  "name": "lastProcessedEnabledTokenCount",
+                  "type": "uint64",
+                },
+              ],
+              "name": "BatchSubmitted",
+              "type": "event",
+            },
+            {
+              "inputs": [
+                {
+                  "indexed": true,
                   "name": "to",
                   "type": "address",
                 },
@@ -3142,7 +3356,17 @@ describe('deposit.calls', () => {
             },
             {
               "inputs": [],
+              "name": "TokenEnablementCursorNotInitialized",
+              "type": "error",
+            },
+            {
+              "inputs": [],
               "name": "InvalidDepositTransition",
+              "type": "error",
+            },
+            {
+              "inputs": [],
+              "name": "InvalidTokenEnablementTransition",
               "type": "error",
             },
             {

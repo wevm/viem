@@ -1,3 +1,4 @@
+import { RpcResponse } from 'ox'
 import { Client as CoreClient_, Actions as CoreActions_, http } from 'viem'
 import { createServer } from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
@@ -3184,7 +3185,9 @@ describe('stateful', () => {
               fail = false
               broadcast.resolve()
               await release.promise
-              throw new Error('Submission failed.')
+              throw new RpcResponse.InternalError({
+                message: 'Submission failed.',
+              })
             }
             return await value.request(request as never, requestOptions)
           },
