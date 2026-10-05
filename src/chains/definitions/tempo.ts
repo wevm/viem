@@ -1,16 +1,16 @@
+import * as Contracts from '../../core/internal/contracts.js'
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../tempo/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const tempo = /*#__PURE__*/ defineChain({
+export const tempo = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 4217,
   blockExplorers: {
-    default: {
-      name: 'Tempo Explorer',
-      url: 'https://explore.tempo.xyz',
-    },
+    name: 'Tempo Explorer',
+    url: 'https://explore.tempo.xyz',
   },
   contracts: {
+    create2: Contracts.create2,
     earnFactory: {
       address: '0xb5889A96114014d4C032ebD76772c10bF3b97137',
     },
@@ -25,9 +25,7 @@ export const tempo = /*#__PURE__*/ defineChain({
     decimals: 6,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.tempo.xyz'],
-      webSocket: ['wss://rpc.tempo.xyz'],
-    },
+    http: 'https://rpc.tempo.xyz',
+    ws: 'wss://rpc.tempo.xyz',
   },
 })

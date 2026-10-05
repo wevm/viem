@@ -1,3 +1,12 @@
+import type { TransactionReceipt as TempoReceipt_ } from '../../chainConfig.js'
+import { http as tempoHttp_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { from as parseUnits } from 'ox/Value'
+import { fromNumber as toHex } from 'ox/Hex'
+import { Actions as CoreActions_ } from 'viem'
+import * as Transaction from 'ox/tempo/TxEnvelopeTempo'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account as TempoAccount_ } from 'viem/tempo'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import {
   KeyAuthorization,
@@ -5,33 +14,22 @@ import {
   MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
-import {
-  createClient,
-  createClientResolver,
-  http,
-  parseUnits,
-  toHex,
-} from 'viem'
-import { sendTransactionSync } from 'viem/actions'
+import { http } from 'viem'
+
 import { tempo, tempoModerato } from 'viem/chains'
-import {
-  Account,
-  Actions,
-  Relay,
-  Store,
-  Transaction,
-  withRelay,
-} from 'viem/tempo'
+import { Account, Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
-import { createHttpServer } from '~test/utils.js'
+import * as Tempo from '~test/tempo.js'
+import { createServer as createHttpServer } from '~test/http.js'
 import { nativeMultisigFactory } from '../../Addresses.js'
 import * as Operation from '../../multisig/Operation.js'
 import { parseApproval } from '../../multisig/Signature.js'
 
-const feePayerAccount = Tempo.accounts[0]!
-const recipient = Tempo.accounts[7]!
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const feePayerAccount = TempoAccount_.fromSecp256k1(
+  Tempo.accounts[0]!.privateKey,
+)
+const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
+const caller = Tempo.getClient({})
 
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -44,7 +42,11 @@ const account = MultisigConfig.getAddress(config, {
   factory: nativeMultisigFactory,
 })
 const approval = SignatureEnvelope.from({
-  signature: { r: 1n, s: 2n, yParity: 0 },
+  signature: {
+    r: `0x${'00'.repeat(31)}01`,
+    s: `0x${'00'.repeat(31)}02`,
+    yParity: 0,
+  },
   type: 'secp256k1',
 })
 const serializedApproval = SignatureEnvelope.serialize(approval)
@@ -55,7 +57,7 @@ test('behavior: resolves the chain from a Tempo transaction', async () => {
     { plugins: [Relay.multisig({ store: Store.memory() })] },
   )
   const transaction = await Transaction.serialize({
-    calls: [],
+    calls: [{ to: recipient.address }],
     chainId: 4217,
   })
 
@@ -96,17 +98,15 @@ test('behavior: resolves the chain from a key authorization', async () => {
       method: 'multisig_approveKeyAuthorization',
       params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [UnknownRpcError: An unknown RPC error occurred.
-
-    Details: eth_blockNumber:4217
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: eth_blockNumber:4217]`)
 })
 
 test('behavior: resolves the chain from a stored transaction operation', async () => {
   const store = Store.memory()
-  const transaction = await Transaction.serialize({ calls: [], chainId: 4217 })
+  const transaction = await Transaction.serialize({
+    calls: [{ to: recipient.address }],
+    chainId: 4217,
+  })
   const hash = MultisigOperation.getHash({
     account,
     config,
@@ -188,12 +188,7 @@ test('behavior: resolves the chain from a stored key authorization operation', a
       method: 'multisig_approveKeyAuthorization',
       params: [{ hash, signature: serializedApproval }],
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [UnknownRpcError: An unknown RPC error occurred.
-
-    Details: eth_blockNumber:4217
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: eth_blockNumber:4217]`)
 })
 
 test('error: rejects conflicting chain ids', async () => {
@@ -201,7 +196,7 @@ test('error: rejects conflicting chain ids', async () => {
     plugins: [Relay.multisig({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({
-    calls: [],
+    calls: [{ to: recipient.address }],
     chainId: 4217,
   })
 
@@ -219,7 +214,7 @@ test('error: rejects conflicting chain ids', async () => {
 })
 
 test('multisig infers the chain before client resolution', async () => {
-  const resolver = createClientResolver({
+  const resolver = CoreClient_.createResolver({
     chains: [tempo, tempoModerato],
     transport: () => http(),
   })
@@ -227,7 +222,10 @@ test('multisig infers the chain before client resolution', async () => {
     getClient: resolver.getClient,
     plugins: [Relay.multisig({ store: Store.memory() })],
   })
-  const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
+  const transaction = await Transaction.serialize({
+    calls: [{ to: recipient.address }],
+    chainId: 1,
+  })
   await expect(
     relay.request({ method: 'eth_sendRawTransaction', params: [transaction] }),
   ).rejects.toThrow('Chain with id 1 is not configured')
@@ -238,15 +236,18 @@ test('rejects a signed payload conflicting with the client chain', async () => {
     client: caller,
     plugins: [Relay.multisig({ store: Store.memory() })],
   })
-  const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
+  const transaction = await Transaction.serialize({
+    calls: [{ to: recipient.address }],
+    chainId: 1,
+  })
   await expect(
     relay.request({ method: 'eth_sendRawTransaction', params: [transaction] }),
   ).rejects.toThrow('Conflicting chain ids')
 })
 
 describe.runIf(
-  import.meta.env.VITE_TEMPO_MULTISIG === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+  process.env.VITE_TEMPO_MULTISIG === 'true' &&
+    process.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
 )('plugin: multisig', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
@@ -258,7 +259,10 @@ describe.runIf(
   test.each([false, true])(
     'collects approvals with fee sponsorship: %s',
     async (sponsored) => {
-      const owners = [Tempo.accounts[1]!, Tempo.accounts[2]!]
+      const owners = [
+        TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey),
+        TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey),
+      ]
       const account = Account.fromMultisig({
         owners,
         salt: toHex(sponsored ? 0x514001 : 0x514000, { size: 32 }),
@@ -266,14 +270,14 @@ describe.runIf(
       })
       await Actions.token.transferSync(caller, {
         account: feePayerAccount,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: account.address,
         amount: 100_000n,
       })
-      const client = createClient({
-        chain: Tempo.chain,
+      const client = CoreClient_.create({
+        chain: chain_,
         pollingInterval: 100,
-        transport: withRelay(Tempo.http(), {
+        transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
           plugins: [
             Relay.multisig({ store: Store.memory() }),
             ...(sponsored
@@ -284,43 +288,43 @@ describe.runIf(
       })
       const before = await Actions.token.getBalance(caller, {
         account: recipient.address,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
       })
       const { receipt: pending } = await Actions.token.transferSync(client, {
         account,
         owner: owners[0]!,
-        token: Tempo.addresses.alphaUsd,
-        feeToken: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
+        feeToken: Tempo.alphaUsd,
         feePayer: sponsored || undefined,
         to: recipient.address,
         amount: 1n,
       })
       expect(pending.status).toBe('pending')
-      expect(pending.multisig?.signatureCount).toBe(1)
+      expect((pending as TempoReceipt_).multisig?.signatureCount).toBe(1)
       expect(
         await Actions.token.getBalance(caller, {
           account: recipient.address,
-          token: Tempo.addresses.alphaUsd,
+          token: Tempo.alphaUsd,
         }),
       ).toEqual(before)
       const { receipt } = await Actions.token.transferSync(client, {
         account,
         owner: owners[1]!,
         hash: pending.transactionHash,
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       } as never)
       expect(receipt.status).toBe('success')
-      expect(receipt.multisig?.signatureCount).toBe(2)
-      expect(receipt.feePayer).toBe(
+      expect((receipt as TempoReceipt_).multisig?.signatureCount).toBe(2)
+      expect((receipt as TempoReceipt_).feePayer).toBe(
         (sponsored ? feePayerAccount.address : account.address).toLowerCase(),
       )
       expect(
         (
           await Actions.token.getBalance(caller, {
             account: recipient.address,
-            token: Tempo.addresses.alphaUsd,
+            token: Tempo.alphaUsd,
           })
         ).amount - before.amount,
       ).toBe(1n)
@@ -339,12 +343,11 @@ describe.runIf(
     })
 
     const client = Tempo.getClient({
-      chain: Tempo.chain,
       transport: http(server.url),
     })
 
-    const owner_1 = Tempo.accounts[1]!
-    const owner_2 = Tempo.accounts[2]!
+    const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
+    const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
@@ -352,7 +355,7 @@ describe.runIf(
       threshold: 2,
     })
 
-    const token = Tempo.addresses.alphaUsd
+    const token = Tempo.alphaUsd
 
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
@@ -366,7 +369,7 @@ describe.runIf(
       token,
     })
 
-    const pending = await sendTransactionSync(client, {
+    const pending = await CoreActions_.transaction.sendSync(client, {
       account,
       owner: owner_1,
       feeToken: token,
@@ -380,7 +383,7 @@ describe.runIf(
     })
 
     expect(pending.status).toMatchInlineSnapshot(`"pending"`)
-    expect(pending.multisig).toMatchObject({
+    expect((pending as TempoReceipt_).multisig).toMatchObject({
       signatureCount: 1,
       threshold: 2,
       weight: 1,
@@ -395,14 +398,14 @@ describe.runIf(
       ).amount,
     ).toBe(balance.amount)
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await CoreActions_.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
     })
 
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
-    expect(receipt.multisig).toMatchObject({
+    expect((receipt as TempoReceipt_).multisig).toMatchObject({
       signatureCount: 2,
       threshold: 2,
       weight: 2,

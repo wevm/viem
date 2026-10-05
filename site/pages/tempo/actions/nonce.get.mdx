@@ -1,0 +1,107 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# Get Nonce [nonce.get]
+
+Gets the nonce for an account and nonce key.
+
+Nonce key `0` is reserved for protocol nonces. Use keys greater than `0` for 2D nonces.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nonce = await client.nonce.get({
+  nonceKey: 1n,
+})
+
+console.log('Nonce:', nonce)
+// @log: Nonce: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Recipes
+
+### Prepare a Transaction on a Dedicated Lane
+
+Read the lane's current nonce and pass both `nonce` and `nonceKey` to [`transaction.prepare`](/docs/actions/public/transaction/prepare), since the node does not fill keyed nonces for manually prepared requests.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nonceKey = 7n // this worker's payout lane
+const nonce = await client.nonce.get({ nonceKey }) // [!code focus]
+
+const { request } = await client.transaction.prepare({
+  data: '0xcafebabe00000000000000000000000000000001',
+  nonce: Number(nonce), // [!code focus]
+  nonceKey, // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Reconcile Dispatched Payouts from a Monitor
+
+Pass `account` to audit a lane of an account you do not sign for, such as a payout dispatcher's hot wallet: a lane's nonce counts its confirmed transactions.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const dispatched = 45n // payouts submitted, from your job queue
+
+const confirmed = await client.nonce.get({
+  account: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', // [!code focus]
+  nonceKey: 7n,
+})
+
+console.log(`${dispatched - confirmed} payouts pending`)
+// @log: 3 payouts pending
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+```ts
+type ReturnType = bigint
+```
+
+The nonce value for the account and nonce key.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account to read the nonce of. Defaults to the Client's account.
+
+### nonceKey
+
+- **Type:** `bigint`
+
+Nonce key to read. Key `0` is reserved for protocol nonces.
+
+<ReadParameters />

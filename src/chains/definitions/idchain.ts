@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const idchain = /*#__PURE__*/ defineChain({
+export const idchain = /*#__PURE__*/ Chain.from({
   id: 74,
   name: 'IDChain Mainnet',
   nativeCurrency: {
@@ -9,16 +10,15 @@ export const idchain = /*#__PURE__*/ defineChain({
     symbol: 'EIDI',
   },
   rpcUrls: {
-    default: {
-      http: ['https://idchain.one/rpc'],
-      webSocket: ['wss://idchain.one/ws'],
-    },
+    http: 'https://idchain.one/rpc',
+    ws: 'wss://idchain.one/ws',
   },
   blockExplorers: {
-    default: {
-      name: 'IDChain Explorer',
-      url: 'https://explorer.idchain.one',
-    },
+    name: 'IDChain Explorer',
+    url: 'https://explorer.idchain.one',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

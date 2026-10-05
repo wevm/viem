@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const nomina = /*#__PURE__*/ defineChain({
+export const nomina = /*#__PURE__*/ Chain.from({
   id: 166,
   name: 'Nomina',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const nomina = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://mainnet.nomina.io'],
-      webSocket: ['wss://mainnet.nomina.io'],
-    },
+    http: 'https://mainnet.nomina.io',
+    ws: 'wss://mainnet.nomina.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Nomina Explorer',
-      url: 'https://nomscan.io',
-    },
+    name: 'Nomina Explorer',
+    url: 'https://nomscan.io',
   },
   testnet: false,
 })

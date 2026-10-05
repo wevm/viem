@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const donatuz = /*#__PURE__*/ defineChain({
+export const donatuz = /*#__PURE__*/ Chain.from({
   id: 42_026,
   name: 'Donatuz',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const donatuz = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.donatuz.com'] },
-  },
+  rpcUrls: { http: 'https://rpc.donatuz.com' },
   blockExplorers: {
-    default: {
-      name: 'Donatuz Explorer',
-      url: 'https://explorer.donatuz.com',
-    },
+    name: 'Donatuz Explorer',
+    url: 'https://explorer.donatuz.com',
   },
   contracts: {
     multicall3: {

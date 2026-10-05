@@ -57,7 +57,7 @@ const scopes = [
 ]
 ```
 
-## Return Type
+## Return Value
 
 Each builder returns a scope object.
 
@@ -71,12 +71,6 @@ type Scope = {
 
 ## Functions
 
-### `Scopes.tip20`
-
-- **Type:** `(address: Address) => Scopes.Tip20`
-
-Creates a typed scope builder for a TIP-20 token using [`Selectors.tip20`](/tempo/utilities/Selectors).
-
 ### `Scopes.contract`
 
 - **Type:** `(address: Address, selectors: Scopes.SelectorMap) => Scopes.Contract`
@@ -87,8 +81,13 @@ Creates a typed scope builder from any selector map.
 
 - **Type:** `(address: Address) => Scopes.Target`
 
-Creates a scope builder for an arbitrary target. Use `target.any()` to allow any selector on the
-target, or `target.selector(selector, options)` to allow a specific selector.
+Creates a scope builder for an arbitrary target. Use `target.any()` to allow any selector on the target, or `target.selector(selector, options)` to allow a specific selector.
+
+### `Scopes.tip20`
+
+- **Type:** `(address: Address) => Scopes.Tip20`
+
+Creates a typed scope builder for a TIP-20 token using [`Selectors.tip20`](/tempo/utilities/Selectors).
 
 ## Parameters
 
@@ -102,8 +101,7 @@ Contract address the access key can call.
 
 - **Type:** `Scopes.SelectorMap`
 
-Selector map used by [`Scopes.contract`](#scopescontract). Generated selector maps are exported from
-[`Selectors`](/tempo/utilities/Selectors).
+Selector map used by [`Scopes.contract`](#scopescontract). Generated selector maps are exported from [`Selectors`](/tempo/utilities/Selectors).
 
 ### recipients
 

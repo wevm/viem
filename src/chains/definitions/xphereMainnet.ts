@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const xphereMainnet = /*#__PURE__*/ defineChain({
+export const xphereMainnet = /*#__PURE__*/ Chain.from({
   id: 20250217,
   name: 'Xphere Mainnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const xphereMainnet = /*#__PURE__*/ defineChain({
     symbol: 'XP',
   },
   rpcUrls: {
-    default: {
-      http: ['https://en-bkk.x-phere.com'],
-    },
+    http: 'https://en-bkk.x-phere.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Xphere Tamsa Explorer',
-      url: 'https://xp.tamsa.io',
-    },
+    name: 'Xphere Tamsa Explorer',
+    url: 'https://xp.tamsa.io',
   },
   testnet: false,
 })

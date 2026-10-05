@@ -7,16 +7,16 @@ These accounts are fully backwards compatible with Viem APIs, meaning you can us
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, createClient, WebAuthnP256 } from 'viem/tempo'
+import { Account, Client, WebAuthnP256 } from 'viem/tempo'
 
 // Create a passkey account
 const credential = await WebAuthnP256.createCredential({ label: 'Example' })
 const account = Account.fromWebAuthnP256(credential)
 
-const client = createClient()
+const client = Client.create()
 
 // Use with Viem APIs
-const hash = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account,
   data: '0xcafebabe',
   to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',

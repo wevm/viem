@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const mantleSepoliaTestnet = /*#__PURE__*/ defineChain({
+export const mantleSepoliaTestnet = /*#__PURE__*/ Chain.from({
   id: 5003,
   name: 'Mantle Sepolia Testnet',
   nativeCurrency: {
@@ -8,17 +9,14 @@ export const mantleSepoliaTestnet = /*#__PURE__*/ defineChain({
     name: 'MNT',
     symbol: 'MNT',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.sepolia.mantle.xyz'] },
-  },
+  rpcUrls: { http: 'https://rpc.sepolia.mantle.xyz' },
   blockExplorers: {
-    default: {
-      name: 'Mantle Testnet Explorer',
-      url: 'https://explorer.sepolia.mantle.xyz/',
-      apiUrl: 'https://explorer.sepolia.mantle.xyz/api',
-    },
+    name: 'Mantle Testnet Explorer',
+    url: 'https://explorer.sepolia.mantle.xyz/',
+    apiUrl: 'https://explorer.sepolia.mantle.xyz/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 4584012,

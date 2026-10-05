@@ -26,11 +26,11 @@ returns a swap `request` containing the route, quoted limit, and oracle observat
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
+import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const { amountOut, price, updatedAt } = await client.propAmm.getSwapQuote({
-  amountIn: parseUnits('1', 6), // Use the base token's decimals.
+  amountIn: Value.from('1', 6), // Use the base token's decimals.
   mode: 'exactInput',
   pool: '0x...',
 })
@@ -55,11 +55,11 @@ five minutes after the call. Set `baseToQuote`, `recipient`, or `deadline` to ov
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
+import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const { request } = await client.propAmm.getSwapQuote({
-  amountIn: parseUnits('1', 6),
+  amountIn: Value.from('1', 6),
   mode: 'exactInput',
   pool: '0x...',
 })
@@ -85,11 +85,11 @@ call, so add an approval when assembling a batch manually.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
+import { Value } from 'viem/utils'
 import { client } from './viem.config'
 
 const { request } = await client.propAmm.getSwapQuote({
-  amountOut: parseUnits('1', 6),
+  amountOut: Value.from('1', 6),
   mode: 'exactOutput',
   pool: '0x...',
 })

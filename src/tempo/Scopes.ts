@@ -1,24 +1,28 @@
-import type { Address } from 'abitype'
+import type { Address } from 'ox'
 import type { KeyAuthorization } from 'ox/tempo'
+
 import * as Selectors from './Selectors.js'
 
+/** A 4-byte function selector. */
 export type Selector = NonNullable<KeyAuthorization.Scope['selector']>
 
 export type Options = {
   /** Recipient allowlist for selectors that support recipient restrictions. */
-  recipients?: readonly Address[] | undefined
+  recipients?: readonly Address.Address[] | undefined
 }
 
+/** A call scope restricting an access key to a target (and optional selector). */
 export type Scope<
-  address extends Address = Address,
+  address extends Address.Address = Address.Address,
   selector extends Selector | undefined = Selector | undefined,
 > = Omit<KeyAuthorization.Scope, 'address' | 'recipients' | 'selector'> & {
   address: address
-  recipients?: readonly Address[] | undefined
+  recipients?: readonly Address.Address[] | undefined
   selector?: selector | undefined
 }
 
-export type Target<address extends Address = Address> = {
+/** Scope builders for an arbitrary target. */
+export type Target<address extends Address.Address = Address.Address> = {
   /** Allows any selector on the target. */
   any: () => Scope<address, undefined>
   /** Allows calls matching the selector on the target. */
@@ -28,10 +32,12 @@ export type Target<address extends Address = Address> = {
   ) => Scope<address, selector>
 }
 
+/** Map of function names to selectors (or overload signature maps). */
 export type SelectorMap = Record<string, Selector | Record<string, Selector>>
 
+/** Typed scope builders derived from a selector map. */
 export type Contract<
-  address extends Address = Address,
+  address extends Address.Address = Address.Address,
   selectors extends SelectorMap = SelectorMap,
 > = Target<address> & {
   readonly [name in keyof selectors]: selectors[name] extends Selector
@@ -41,8 +47,9 @@ export type Contract<
       : never
 }
 
+/** Scope builders for an overloaded function, keyed by signature. */
 export type OverloadedSelector<
-  address extends Address = Address,
+  address extends Address.Address = Address.Address,
   selectors extends Record<string, Selector> = Record<string, Selector>,
 > = {
   readonly [signature in keyof selectors]: (
@@ -55,7 +62,8 @@ export type OverloadedSelector<
   ) => Scope<address, selectors[signature]>
 }
 
-export type Tip20<address extends Address = Address> = Contract<
+/** Typed scope builders for a TIP-20 token. */
+export type Tip20<address extends Address.Address = Address.Address> = Contract<
   address,
   typeof Selectors.tip20
 >
@@ -65,7 +73,7 @@ export type Tip20<address extends Address = Address> = Contract<
  *
  * @experimental
  */
-export function target<address extends Address>(
+export function target<address extends Address.Address>(
   address: address,
 ): Target<address> {
   return {
@@ -86,7 +94,7 @@ export function target<address extends Address>(
  * @experimental
  */
 export function contract<
-  address extends Address,
+  address extends Address.Address,
   selectors extends SelectorMap,
 >(address: address, selectors: selectors): Contract<address, selectors> {
   const target_ = target(address)
@@ -117,7 +125,7 @@ export function contract<
  *
  * @experimental
  */
-export function tip20<address extends Address>(
+export function tip20<address extends Address.Address>(
   address: address,
 ): Tip20<address> {
   return contract(address, Selectors.tip20)

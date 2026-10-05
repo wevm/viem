@@ -1,0 +1,85 @@
+# TypedData.recoverAddress
+
+Recovers the signing address of signed [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+
+## Imports
+
+```ts
+import { TypedData } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { TypedData } from 'viem/utils'
+
+const address = TypedData.recoverAddress({
+  domain: {
+    name: 'Ether Mail',
+    version: '1',
+    chainId: 1,
+    verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+  },
+  types: {
+    Mail: [
+      { name: 'from', type: 'address' },
+      { name: 'to', type: 'address' },
+      { name: 'contents', type: 'string' },
+    ],
+  },
+  primaryType: 'Mail',
+  message: {
+    from: '0xa0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    to: '0xa0Cf798816D4b9b9866b5330EEa46a18382f251e',
+    contents: 'hello world',
+  },
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function recoverAddress(
+  options: recoverAddress.Options,
+): Address
+```
+
+## Parameters
+
+### options.domain
+
+- **Type:** `TypedDataDomain`
+
+The typed data domain.
+
+### options.types
+
+- **Type:** `TypedData`
+
+The type definitions for the typed data.
+
+### options.primaryType
+
+- **Type:** `string`
+
+The primary type to extract from `types` and use in `message`.
+
+### options.message
+
+- **Type:** `Record<string, unknown>`
+
+The message that was signed.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+
+Signature of the typed data.
+
+## Return Type
+
+The recovered signing address.
+
+`Address`

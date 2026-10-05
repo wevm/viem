@@ -1,0 +1,187 @@
+# Get Resolver Address [ens.getResolver]
+
+Gets the resolver address for an ENS name (via the ENS Universal Resolver's `findResolver`).
+
+## Usage
+
+This example gets the resolver address for an ENS name (via the ENS Universal Resolver's `findResolver`).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const resolver = await client.ens.getResolver({
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.ens.getResolver` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const resolver = await Actions.ens.getResolver(client, {
+  name: Ens.normalize('wevm.eth'),
+})
+// @log: '0x4976fb03C32e5B8cfe2b6cCB31c09Ba78EBaBa41'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Use a Custom Universal Resolver
+
+Pass a Universal Resolver address to query a specific deployment. Add a block number when the resolver lookup must use historical state.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Ens } from 'viem/utils'
+import { client } from './viem.config'
+
+const resolver = await client.ens.getResolver({
+  blockNumber: 23_085_558n,
+  name: Ens.normalize('wevm.eth'),
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Address`
+
+The resolver address for the name.
+
+## Parameters
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Resolves against the state at a given block number.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const resolver = await Actions.ens.getResolver(client, {
+  blockNumber: 23_085_558n, // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Resolves against the state at a given block tag.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const resolver = await Actions.ens.getResolver(client, {
+  blockTag: 'finalized', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+### name
+
+- **Type:** `string`
+
+The ENS name to get the resolver for.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const resolver = await Actions.ens.getResolver(client, {
+  name: Ens.normalize('wevm.eth'), // [!code focus]
+})
+```
+
+### universalResolverAddress
+
+- **Type:** `Address`
+- **Default:** `client.chain.contracts.ensUniversalResolver.address`
+
+Address of the ENS Universal Resolver contract.
+
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Ens } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const resolver = await Actions.ens.getResolver(client, {
+  universalResolverAddress: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee', // [!code focus]
+  name: Ens.normalize('wevm.eth'),
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Errors.BaseError` | The name does not match the chain's `ensTlds`. |
+| `ContractError.ContractFunctionExecutionError` | The Universal Resolver call failed. |

@@ -1,17 +1,17 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const swan = /*#__PURE__*/ defineChain({
+export const swan = /*#__PURE__*/ Chain.from({
   id: 254,
   name: 'Swan Chain Mainnet',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://mainnet-rpc.swanchain.org'] },
-  },
+  rpcUrls: { http: 'https://mainnet-rpc.swanchain.org' },
   blockExplorers: {
-    default: {
-      name: 'Swan Explorer',
-      url: 'https://swanscan.io',
-    },
+    name: 'Swan Explorer',
+    url: 'https://swanscan.io',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

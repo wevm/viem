@@ -1,4 +1,5 @@
-import { encodeErrorResult, RawContractError } from 'viem'
+import { AbiError } from 'ox'
+import { ContractError as ContractError_ } from 'viem'
 import { Abis, ExecutionError } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
@@ -11,10 +12,11 @@ const tokenAlreadyExistsData =
 
 describe('from', () => {
   test('decodes nested RawContractError data', () => {
-    const error = new RawContractError({ data: { data: unauthorizedData } })
-    expect(
-      ExecutionError.serialize(ExecutionError.from(error)),
-    ).toMatchInlineSnapshot(`
+    const error = new ContractError_.RawContractError({
+      data: { data: unauthorizedData },
+    })
+    expect(ExecutionError.serialize(ExecutionError.from(error)))
+      .toMatchInlineSnapshot(`
       {
         "abiItem": {
           "inputs": [],
@@ -42,7 +44,7 @@ describe('from', () => {
     (data) => {
       const error = Object.assign(new Error('reverted'), {
         data: { data },
-        cause: new RawContractError({ data: unauthorizedData }),
+        cause: new ContractError_.RawContractError({ data: unauthorizedData }),
       })
       expect(ExecutionError.serialize(ExecutionError.from(error))).toEqual(
         ExecutionError.serialize(ExecutionError.from(unauthorizedData)),
@@ -53,9 +55,8 @@ describe('from', () => {
   test('handles cyclic error objects', () => {
     const error = new Error('reverted')
     error.cause = error
-    expect(
-      ExecutionError.serialize(ExecutionError.from(error)),
-    ).toMatchInlineSnapshot(`
+    expect(ExecutionError.serialize(ExecutionError.from(error)))
+      .toMatchInlineSnapshot(`
       {
         "errorName": "unknown",
         "message": "reverted",
@@ -170,10 +171,12 @@ describe('from', () => {
   test('uses the zero-argument InsufficientBalance template', () => {
     expect(
       ExecutionError.from(
-        encodeErrorResult({
-          abi: [{ type: 'error', name: 'InsufficientBalance', inputs: [] }],
-          errorName: 'InsufficientBalance',
-        }),
+        AbiError.encode(
+          AbiError.fromAbi(
+            [{ type: 'error', name: 'InsufficientBalance', inputs: [] }],
+            'InsufficientBalance',
+          ),
+        ),
       ),
     ).toMatchObject({
       errorName: 'InsufficientBalance',
@@ -196,11 +199,13 @@ describe('from', () => {
   ])(
     'formats the NotIpPort overload: $message',
     ({ inputs, args, message }) => {
-      const data = encodeErrorResult({
-        abi: [{ type: 'error', name: 'NotIpPort', inputs }],
-        errorName: 'NotIpPort',
+      const data = AbiError.encode(
+        AbiError.fromAbi(
+          [{ type: 'error', name: 'NotIpPort', inputs }],
+          'NotIpPort',
+        ),
         args,
-      })
+      )
       expect(ExecutionError.from(data)).toMatchObject({
         errorName: 'NotIpPort',
         args,
@@ -221,11 +226,10 @@ describe('from', () => {
   })
 
   test('formats errors added to the core ABI', () => {
-    const data = encodeErrorResult({
-      abi: Abis.core,
-      errorName: 'InvalidCiphertextLength',
-      args: [3n, 32n],
-    })
+    const data = AbiError.encode(
+      AbiError.fromAbi(Abis.core, 'InvalidCiphertextLength'),
+      [3n, 32n],
+    )
     expect(
       ExecutionError.from(Object.assign(new Error('reverted'), { data })),
     ).toMatchObject({

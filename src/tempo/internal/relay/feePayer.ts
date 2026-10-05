@@ -1,11 +1,12 @@
 import type { Address } from 'abitype'
 import { Hash, type Hex, RpcResponse, Signature } from 'ox'
 import { type Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import type { LocalAccount } from '../../../accounts/types.js'
-import { type Client, createClient } from '../../../clients/createClient.js'
-import { http } from '../../../clients/transports/http.js'
+import type { Local as LocalAccount } from '../../../core/Account.js'
+import { type Client, create as createClient } from '../../../core/Client.js'
+import { http } from '../../../core/transports/http.js'
 import type * as Relay from '../../Relay.js'
-import * as Transaction from '../../Transaction.js'
+import * as Transaction from 'ox/tempo/TxEnvelopeTempo'
+import type * as TransactionRequest from 'ox/tempo/TransactionRequest'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -228,7 +229,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
 
 /** Checks a prepared transaction with its chain ID. Rejected fills fall back to sender payment; rejected raw submissions return a refusal. */
 export type Validate = (
-  request: Transaction.TransactionRequest & {
+  request: TransactionRequest.TransactionRequest & {
     chainId?: number | Hex.Hex | undefined
   },
 ) => Validation | Promise<Validation>
@@ -298,7 +299,7 @@ async function shouldSponsor(options: shouldSponsor.Options) {
   const verdict = await validate({
     ...transaction,
     from: sender,
-  } as Transaction.TransactionRequest)
+  } as TransactionRequest.TransactionRequest)
   return verdict === true
 }
 
@@ -446,7 +447,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
 
   if (validate) {
     const verdict = await validate(
-      transaction_sponsored as Transaction.TransactionRequest,
+      transaction_sponsored as TransactionRequest.TransactionRequest,
     )
     if (verdict !== true)
       throw new RpcResponse.InvalidParamsError(

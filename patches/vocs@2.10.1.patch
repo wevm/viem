@@ -1,0 +1,18 @@
+diff --git a/dist/react/internal/Outline.js b/dist/react/internal/Outline.js
+--- a/dist/react/internal/Outline.js
++++ b/dist/react/internal/Outline.js
+@@ -104,3 +104,3 @@
+ export function Outline(props) {
+-    const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props;
++    const { className, minLevel = 2, maxLevel: maxLevelProp = 4, footer: Footer } = props;
+     const { frontmatter } = MdxPageContext.use();
+diff --git a/src/react/internal/Outline.tsx b/src/react/internal/Outline.tsx
+--- a/src/react/internal/Outline.tsx
++++ b/src/react/internal/Outline.tsx
+@@ -124,4 +124,4 @@
+ export function Outline(props: Outline.Props) {
+-  const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props
+-
++  const { className, minLevel = 2, maxLevel: maxLevelProp = 4, footer: Footer } = props
++
+   const { frontmatter } = MdxPageContext.use()

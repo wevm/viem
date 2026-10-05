@@ -1,11 +1,10 @@
 import type { Address } from 'abitype'
-import { AbiEvent, Hex } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import type { Call } from '../../../types/calls.js'
-import type { Log } from '../../../types/log.js'
-import { parseEventLogs } from '../../../utils/abi/parseEventLogs.js'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import { AbiEvent, AbiFunction, Hex, Log as Log_ } from 'ox'
+import * as TransactionRequest from 'ox/TransactionRequest'
+import type { Client } from '../../../core/Client.js'
+import type { Call } from 'ox/tempo/TxEnvelopeTempo'
+import type { Log } from 'ox/Log'
+import { format as formatUnits } from 'ox/Value'
 import * as Abis from '../../Abis.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
@@ -15,6 +14,8 @@ import { formatError, isExecutionError } from './error.js'
 import { resolveTokenMetadata } from './feeToken.js'
 import * as Utils from './utils.js'
 import { extractCalls } from './virtualAddress.js'
+
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 export function create(options: Relay.simulate.Options): Relay.Plugin {
   return {
@@ -92,22 +93,48 @@ export async function simulateAndParseDiffs(
             }),
           ]
         : []
-    const simulation = await Actions.simulate.simulateCalls(client, {
-      account: account === zeroAddress ? undefined : account,
-      calls: [...calls, ...probe] as Call[],
-      traceTransfers: true,
-    })
-    const results = simulation.results.slice(0, calls.length)
-    const { tokenMetadata } = simulation
-
+    const simulation = (await client.request({
+      method: 'tempo_simulateV1',
+      params: [
+        {
+          blockStateCalls: [
+            {
+              calls: [...calls, ...probe].map((call) =>
+                TransactionRequest.toRpc({
+                  ...call,
+                  ...('abi' in call
+                    ? {
+                        to: call.address,
+                        data: AbiFunction.encodeData(
+                          AbiFunction.fromAbi(call.abi, call.functionName),
+                          call.args,
+                        ),
+                      }
+                    : {}),
+                  from: account === zeroAddress ? undefined : account,
+                }),
+              ),
+            },
+          ],
+          traceTransfers: true,
+        },
+        'latest',
+      ],
+    })) as {
+      blocks: readonly {
+        calls?:
+          | readonly { logs?: readonly Log_.Rpc[] | undefined }[]
+          | undefined
+      }[]
+      tokenMetadata?:
+        | Record<string, { name: string; symbol: string; currency: string }>
+        | undefined
+    }
+    const tokenMetadata = simulation.tokenMetadata ?? {}
     signal?.throwIfAborted()
-
-    // Collect all logs across all call results.
-    const logs: (typeof results)[number]['logs'] = []
-    for (const result of results as {
-      logs?: (typeof logs)[number][] | undefined
-    }[])
-      if (result.logs) logs.push(...result.logs)
+    const logs = (simulation.blocks[0]?.calls ?? [])
+      .slice(0, calls.length)
+      .flatMap((result) => result.logs?.map((log) => Log_.fromRpc(log)) ?? [])
 
     // Build per-token balance diffs relative to the sender.
     const balanceDiffs = account
@@ -167,16 +194,16 @@ export async function buildBalanceDiffs(
   signal?.throwIfAborted()
   const accountLower = account.toLowerCase()
 
-  const transferLogs = parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
-    eventName: 'Transfer',
+  const transferLogs = AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Transfer')],
     logs,
-  })
-  const approvalLogs = parseEventLogs({
-    abi: [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
-    eventName: 'Approval',
+    { eventName: 'Transfer' },
+  )
+  const approvalLogs = AbiEvent.extractLogs(
+    [AbiEvent.fromAbi(Abis.tip20, 'Approval')],
     logs,
-  })
+    { eventName: 'Approval' },
+  )
 
   // Track net movement per token: incoming vs outgoing.
   const tokenMap = new Map<
@@ -317,7 +344,7 @@ export declare namespace buildBalanceDiffs {
     account: Address
     store?: Store.Store | undefined
     signal?: AbortSignal | undefined
-    logs: Log[]
+    logs: readonly Log<boolean>[]
     tokenMetadata: Record<
       Address,
       { name: string; symbol: string; currency: string }

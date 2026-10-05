@@ -1,0 +1,446 @@
+import { Card, Cards } from 'vocs'
+
+# Public Actions
+
+## Overview
+
+Public Actions read chain state and simulate calls without sending transactions. They map to public Ethereum RPC methods and decode JSON-RPC responses into typed values.
+
+Extend a [Client](/docs/clients) with [`publicActions`](/docs/actions/public) to call each action as a method.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const block = await client.block.get()
+// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+Choose an action based on the state or operation that you need.
+
+### Address
+
+<Cards>
+  <Card
+    title="getBalance"
+    description="Returns the balance of an address in wei."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getBalance"
+  />
+  <Card
+    title="getCode"
+    description="Retrieves the bytecode at an address."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getCode"
+  />
+  <Card
+    title="getDelegation"
+    description="Returns an EIP-7702 delegation address, or undefined."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getDelegation"
+  />
+  <Card
+    title="getProof"
+    description="Returns the account and storage values of the specified account, including the Merkle proof."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getProof"
+  />
+  <Card
+    title="getStorageAt"
+    description="Returns the value from a storage slot at a given address."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getStorageAt"
+  />
+  <Card
+    title="getTransactionCount"
+    description="Returns the number of transactions an Account has sent (its nonce)."
+    icon="lucide:wallet-cards"
+    to="/docs/actions/public/address/getTransactionCount"
+  />
+</Cards>
+
+### Blocks
+
+<Cards>
+  <Card
+    title="createFilter"
+    description="Creates a filter to listen for new block hashes."
+    icon="lucide:box"
+    to="/docs/actions/public/block/createFilter"
+  />
+  <Card
+    title="get"
+    description="Returns information about a block at a block number, hash, or tag."
+    icon="lucide:box"
+    to="/docs/actions/public/block/get"
+  />
+  <Card
+    title="getNumber"
+    description="Returns the number of the most recent block seen."
+    icon="lucide:box"
+    to="/docs/actions/public/block/getNumber"
+  />
+  <Card
+    title="getReceipts"
+    description="Returns the transaction receipts of a block at a block number, hash, or tag."
+    icon="lucide:box"
+    to="/docs/actions/public/block/getReceipts"
+  />
+  <Card
+    title="getTransactionCount"
+    description="Returns the number of transactions at a block number, hash, or tag."
+    icon="lucide:box"
+    to="/docs/actions/public/block/getTransactionCount"
+  />
+  <Card
+    title="simulate"
+    description="Simulates a sequence of blocks with optional block and state overrides (eth_simulateV1)."
+    icon="lucide:box"
+    to="/docs/actions/public/block/simulate"
+  />
+  <Card
+    title="watch"
+    description="Watches incoming blocks, returning a watcher handle."
+    icon="lucide:box"
+    to="/docs/actions/public/block/watch"
+  />
+  <Card
+    title="watchNumber"
+    description="Watches incoming block numbers, returning a watcher handle."
+    icon="lucide:box"
+    to="/docs/actions/public/block/watchNumber"
+  />
+</Cards>
+
+### Calls
+
+<Cards>
+  <Card
+    title="call"
+    description="Executes a new message call without submitting a transaction to the network (eth_call)."
+    icon="lucide:phone-call"
+    to="/docs/actions/public/call"
+  />
+  <Card
+    title="multicall"
+    description="Simulates execution of a batch of calls, returning typed per-call results."
+    icon="lucide:phone-call"
+    to="/docs/actions/public/multicall"
+  />
+</Cards>
+
+### Chains
+
+<Cards>
+  <Card
+    title="getId"
+    description="Returns the chain ID associated with the current network."
+    icon="lucide:link"
+    to="/docs/actions/public/chains/getId"
+  />
+</Cards>
+
+### Contracts
+
+<Cards>
+  <Card
+    title="createEventFilter"
+    description="Creates a filter to listen for new event logs emitted by a contract."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/createEventFilter"
+  />
+  <Card
+    title="estimateGas"
+    description="Estimates the gas required to successfully execute a contract write (nonpayable/payable) function call."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/estimateGas"
+  />
+  <Card
+    title="getEip712Domain"
+    description="Reads the EIP-712 domain from a contract, based on the ERC-5267 specification."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/getEip712Domain"
+  />
+  <Card
+    title="getLogs"
+    description="Returns a list of event logs emitted by a contract."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/getLogs"
+  />
+  <Card
+    title="read"
+    description="Calls a read-only (pure/view) function on a contract, and returns the decoded response."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/read"
+  />
+  <Card
+    title="simulate"
+    description="Simulates a contract write and returns its result and transaction request."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/simulate"
+  />
+  <Card
+    title="watchEvent"
+    description="Watches incoming contract event logs, returning a watcher handle."
+    icon="lucide:file-code-2"
+    to="/docs/actions/public/contract/watchEvent"
+  />
+</Cards>
+
+### ENS
+
+<Cards>
+  <Card
+    title="getAddress"
+    description="Gets the address for an ENS name (via the ENS Universal Resolver's resolveWithGateways)."
+    icon="lucide:at-sign"
+    to="/docs/actions/public/ens/getAddress"
+  />
+  <Card
+    title="getAvatar"
+    description="Gets the avatar image URI for an ENS name."
+    icon="lucide:at-sign"
+    to="/docs/actions/public/ens/getAvatar"
+  />
+  <Card
+    title="getName"
+    description="Gets the primary ENS name for an address (via the ENS Universal Resolver's reverseWithGateways)."
+    icon="lucide:at-sign"
+    to="/docs/actions/public/ens/getName"
+  />
+  <Card
+    title="getResolver"
+    description="Gets the resolver address for an ENS name (via the ENS Universal Resolver's findResolver)."
+    icon="lucide:at-sign"
+    to="/docs/actions/public/ens/getResolver"
+  />
+  <Card
+    title="getText"
+    description="Gets a text record for an ENS name (via the ENS Universal Resolver's resolveWithGateways)."
+    icon="lucide:at-sign"
+    to="/docs/actions/public/ens/getText"
+  />
+</Cards>
+
+### Events
+
+<Cards>
+  <Card
+    title="createFilter"
+    description="Creates a filter to listen for new event logs."
+    icon="lucide:radio"
+    to="/docs/actions/public/event/createFilter"
+  />
+  <Card
+    title="getLogs"
+    description="Returns a list of event logs matching the provided parameters."
+    icon="lucide:radio"
+    to="/docs/actions/public/event/getLogs"
+  />
+  <Card
+    title="watch"
+    description="Watches incoming event logs, returning a watcher handle."
+    icon="lucide:radio"
+    to="/docs/actions/public/event/watch"
+  />
+</Cards>
+
+### Fees
+
+<Cards>
+  <Card
+    title="estimateFeesPerGas"
+    description="Estimates per-gas fees for inclusion in the next block."
+    icon="lucide:receipt-text"
+    to="/docs/actions/public/fee/estimateFeesPerGas"
+  />
+  <Card
+    title="estimateMaxPriorityFeePerGas"
+    description="Estimates the priority fee for inclusion in the next block."
+    icon="lucide:receipt-text"
+    to="/docs/actions/public/fee/estimateMaxPriorityFeePerGas"
+  />
+  <Card
+    title="getBlobBaseFee"
+    description="Returns the base fee per blob gas (in wei)."
+    icon="lucide:receipt-text"
+    to="/docs/actions/public/fee/getBlobBaseFee"
+  />
+  <Card
+    title="getGasPrice"
+    description="Returns the current price of gas (in wei)."
+    icon="lucide:receipt-text"
+    to="/docs/actions/public/fee/getGasPrice"
+  />
+  <Card
+    title="getHistory"
+    description="Returns a collection of historical gas information."
+    icon="lucide:receipt-text"
+    to="/docs/actions/public/fee/getHistory"
+  />
+</Cards>
+
+### Filters
+
+<Cards>
+  <Card
+    title="getChanges"
+    description="Returns the changes for a filter since it was created or last polled."
+    icon="lucide:list-filter"
+    to="/docs/actions/public/filter/getChanges"
+  />
+  <Card
+    title="getLogs"
+    description="Returns the logs matching an event filter."
+    icon="lucide:list-filter"
+    to="/docs/actions/public/filter/getLogs"
+  />
+  <Card
+    title="uninstall"
+    description="Destroys a filter and returns whether it was uninstalled."
+    icon="lucide:list-filter"
+    to="/docs/actions/public/filter/uninstall"
+  />
+</Cards>
+
+### Tokens
+
+<Cards>
+  <Card
+    title="getAllowance"
+    description="Returns an ERC-20 allowance for an owner and spender."
+    icon="lucide:coins"
+    to="/docs/actions/public/token/getAllowance"
+  />
+  <Card
+    title="getBalance"
+    description="Gets the ERC-20 token balance of an account, returned in base units and human-readable form."
+    icon="lucide:coins"
+    to="/docs/actions/public/token/getBalance"
+  />
+  <Card
+    title="getMetadata"
+    description="Returns ERC-20 decimals, name, symbol, and total supply."
+    icon="lucide:coins"
+    to="/docs/actions/public/token/getMetadata"
+  />
+  <Card
+    title="getTotalSupply"
+    description="Gets the total supply of an ERC-20 token, returned in base units and human-readable form."
+    icon="lucide:coins"
+    to="/docs/actions/public/token/getTotalSupply"
+  />
+</Cards>
+
+### Transactions
+
+<Cards>
+  <Card
+    title="createAccessList"
+    description="Creates an EIP-2930 access list covering the storage a transaction touches (eth_createAccessList)."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/createAccessList"
+  />
+  <Card
+    title="createPendingFilter"
+    description="Creates a filter to listen for new pending transaction hashes."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/createPendingFilter"
+  />
+  <Card
+    title="estimateGas"
+    description="Estimates the gas necessary to complete a transaction without submitting it to the network (eth_estimateGas)."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/estimateGas"
+  />
+  <Card
+    title="fill"
+    description="Fills a transaction request with the fields required to be signed over, via eth_fillTransaction."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/fill"
+  />
+  <Card
+    title="get"
+    description="Returns information about a transaction given a hash or block identifier."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/get"
+  />
+  <Card
+    title="getConfirmations"
+    description="Returns the number of blocks passed (confirmations) since the transaction was processed on a block."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/getConfirmations"
+  />
+  <Card
+    title="getRaw"
+    description="Returns the raw, serialized transaction for a given transaction hash."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/getRaw"
+  />
+  <Card
+    title="getReceipt"
+    description="Returns the transaction receipt for a given transaction hash."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/getReceipt"
+  />
+  <Card
+    title="prepare"
+    description="Populates transaction fields required for signing."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/prepare"
+  />
+  <Card
+    title="waitForReceipt"
+    description="Returns a watcher that resolves with a confirmed transaction receipt."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/waitForReceipt"
+  />
+  <Card
+    title="watchPending"
+    description="Watches incoming pending transaction hashes, returning a watcher handle."
+    icon="lucide:send"
+    to="/docs/actions/public/transaction/watchPending"
+  />
+</Cards>
+
+### Verification
+
+<Cards>
+  <Card
+    title="verifyHash"
+    description="Verifies a hash signature from a smart contract or externally owned account."
+    icon="lucide:badge-check"
+    to="/docs/actions/public/verifyHash"
+  />
+  <Card
+    title="verifyMessage"
+    description="Verifies a message signature from a smart contract or externally owned account."
+    icon="lucide:badge-check"
+    to="/docs/actions/public/verifyMessage"
+  />
+  <Card
+    title="siwe.verify"
+    description="Verifies a Sign-In with Ethereum message signature."
+    icon="lucide:badge-check"
+    to="/docs/actions/public/siwe/verify"
+  />
+  <Card
+    title="typedData.verify"
+    description="Verifies an EIP-712 typed data signature."
+    icon="lucide:badge-check"
+    to="/docs/actions/public/typedData/verify"
+  />
+</Cards>

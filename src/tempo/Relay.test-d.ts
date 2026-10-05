@@ -1,12 +1,13 @@
-import {
-  createClient,
-  createClientResolver,
-  type EIP1193RequestOptions,
-  http,
-} from 'viem'
+import { Client as CoreClient_ } from 'viem'
+import type { Transport as CoreTransport_ } from 'viem'
+import { http } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
 import { Relay } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
+
+type EIP1193RequestOptions = NonNullable<
+  Parameters<CoreTransport_.RequestFn>[1]
+>
 
 test('handleRequest contextually types plugins and downstream handlers', () => {
   const handle = Relay.handleRequest(
@@ -81,14 +82,14 @@ test('handleRequest accepts readonly plugins and exact optional properties', () 
 })
 
 test('create infers client and resolver chains', () => {
-  const client = createClient({ chain: tempo, transport: http() })
+  const client = CoreClient_.create({ chain: tempo, transport: http() })
   const relay = Relay.create({ client })
   expectTypeOf(relay).toEqualTypeOf<Relay.create.ReturnType<typeof tempo.id>>()
   relay.request({ method: 'eth_chainId' })
   relay.fetch(new Request('https://relay.example'))
   // @ts-expect-error The single client has a different chain.
   relay.request({ method: 'eth_chainId' }, { chainId: tempoModerato.id })
-  const resolver = createClientResolver({
+  const resolver = CoreClient_.createResolver({
     chains: [tempo, tempoModerato],
     transport: () => http(),
   })
@@ -104,14 +105,14 @@ test('create infers client and resolver chains', () => {
   // @ts-expect-error Only one client selection strategy is allowed.
   Relay.create({ client, getClient: resolver.getClient })
   // @ts-expect-error Single clients must have a configured chain.
-  Relay.create({ client: createClient({ transport: http() }) })
+  Relay.create({ client: { request: client.request, chain: undefined } })
 })
 
 test('create contextually types inline client resolvers', () => {
   const relay = Relay.create({
     getClient({ chainId }) {
       expectTypeOf(chainId).toEqualTypeOf<number>()
-      return createClient({ chain: tempo, transport: http() })
+      return CoreClient_.create({ chain: tempo, transport: http() })
     },
   })
   expectTypeOf(relay).toEqualTypeOf<Relay.create.ReturnType<number>>()

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const chang = /*#__PURE__*/ defineChain({
+export const chang = /*#__PURE__*/ Chain.from({
   id: 5858,
   name: 'Chang Chain Foundation Mainnet',
   nativeCurrency: {
@@ -9,14 +9,10 @@ export const chang = /*#__PURE__*/ defineChain({
     symbol: 'CTH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.cthscan.com'],
-    },
+    http: 'https://rpc.cthscan.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Chang Chain explorer',
-      url: 'https://cthscan.com',
-    },
+    name: 'Chang Chain explorer',
+    url: 'https://cthscan.com',
   },
 })

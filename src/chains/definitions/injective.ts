@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const injective = /*#__PURE__*/ defineChain({
+export const injective = /*#__PURE__*/ Chain.from({
   id: 1776,
   name: 'Injective',
   nativeCurrency: {
@@ -9,17 +10,16 @@ export const injective = /*#__PURE__*/ defineChain({
     symbol: 'INJ',
   },
   rpcUrls: {
-    default: {
-      http: ['https://sentry.evm-rpc.injective.network'],
-      webSocket: ['wss://sentry.evm-ws.injective.network'],
-    },
+    http: 'https://sentry.evm-rpc.injective.network',
+    ws: 'wss://sentry.evm-ws.injective.network',
   },
   blockExplorers: {
-    default: {
-      name: 'Injective Explorer',
-      url: 'https://blockscout.injective.network',
-      apiUrl: 'https://blockscout.injective.network/api',
-    },
+    name: 'Injective Explorer',
+    url: 'https://blockscout.injective.network',
+    apiUrl: 'https://blockscout.injective.network/api',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

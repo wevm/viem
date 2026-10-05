@@ -1,0 +1,251 @@
+# Get Balance [token.getBalance]
+
+Gets the ERC-20 token balance of an account, returned in base units and human-readable form.
+
+## Usage
+
+This example gets the ERC-20 token balance of an account, returned in base units and human-readable form.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 424122000000n, decimals: 6, formatted: '424122' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.token.getBalance` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: { amount: 424122000000n, decimals: 6, formatted: '424122' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+```
+
+:::
+
+## Recipes
+
+### Format a Historical Token Balance
+
+Set `blockNumber` to read past balance state. When the token is not declared on the Client, pass known decimals to avoid a separate `decimals` contract call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockNumber: 20_000_000n, // [!code focus]
+  decimals: 6, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Amount`
+
+The token balance as `{ amount, decimals, formatted }`, where `amount` is in base units and `formatted` is the human-readable decimal string.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+The Account object or address whose balance to read.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Reads the balance at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  blockNumber: 42069n, // [!code focus]
+})
+```
+
+### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+Overrides block fields for the contract read without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockOverrides: { number: 42069n }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Reads the balance at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+### decimals
+
+- **Type:** `number`
+
+Token decimals used to derive `formatted`. When omitted, decimals are taken from a declared token, or fetched from the contract.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  decimals: 6, // [!code focus]
+})
+```
+
+### stateOverride
+
+- **Type:** `StateOverrides`
+
+Overrides account state for the contract read without changing chain state.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const balance = await Actions.token.getBalance(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  stateOverride: { // [!code focus]
+    '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e': { balance: 1n }, // [!code focus]
+  }, // [!code focus]
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+```
+
+### token
+
+- **Type:** `Address | string`
+
+The token to read: a contract `address`, or a symbol declared on the client's [`tokens`](/docs/clients/create) array.
+
+```ts twoslash
+// @noErrors
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+}).extend(publicActions())
+// ---cut---
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: 'usdc', // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No `account` was provided and the client has no account. |
+| `ContractError.ContractFunctionExecutionError` | The `balanceOf` call could not be executed. |

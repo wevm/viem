@@ -1,23 +1,19 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const zircuitGarfieldTestnet = /*#__PURE__*/ defineChain({
+export const zircuitGarfieldTestnet = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 48898,
   name: 'Zircuit Garfield Testnet',
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://garfield-testnet.zircuit.com/'],
-    },
+    http: 'https://garfield-testnet.zircuit.com/',
   },
   blockExplorers: {
-    default: {
-      name: 'Zircuit Garfield Testnet Explorer',
-      url: 'https://explorer.garfield-testnet.zircuit.com',
-    },
+    name: 'Zircuit Garfield Testnet Explorer',
+    url: 'https://explorer.garfield-testnet.zircuit.com',
   },
   contracts: {
     ...chainConfig.contracts,

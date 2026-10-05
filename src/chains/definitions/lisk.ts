@@ -1,32 +1,29 @@
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const lisk = /*#__PURE__*/ defineChain({
+export const lisk = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 1135,
   name: 'Lisk',
-  network: 'lisk',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.api.lisk.com'],
-    },
+    http: 'https://rpc.api.lisk.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Blockscout',
-      url: 'https://blockscout.lisk.com',
-      apiUrl: 'https://blockscout.lisk.com/api',
-    },
+    name: 'Blockscout',
+    url: 'https://blockscout.lisk.com',
+    apiUrl: 'https://blockscout.lisk.com/api',
   },
   contracts: {
     ...chainConfig.contracts,
+    create2: Contracts.create2,
     disputeGameFactory: {
       [sourceId]: {
         address: '0x0CF7D3706a27CCE2017aEB11E8a9c8b5388c282C',

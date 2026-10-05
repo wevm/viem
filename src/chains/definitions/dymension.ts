@@ -1,6 +1,6 @@
-import { defineChain } from '../utils.js'
+import * as Chain from '../../core/Chain.js'
 
-export const dymension = /*#__PURE__*/ defineChain({
+export const dymension = /*#__PURE__*/ Chain.from({
   id: 1100,
   name: 'Dymension',
   nativeCurrency: {
@@ -9,16 +9,12 @@ export const dymension = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://dymension-evm-rpc.publicnode.com'],
-      webSocket: ['wss://dymension-evm-rpc.publicnode.com'],
-    },
+    http: 'https://dymension-evm-rpc.publicnode.com',
+    ws: 'wss://dymension-evm-rpc.publicnode.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Dym FYI',
-      url: 'https://dym.fyi',
-    },
+    name: 'Dym FYI',
+    url: 'https://dym.fyi',
   },
   testnet: false,
 })

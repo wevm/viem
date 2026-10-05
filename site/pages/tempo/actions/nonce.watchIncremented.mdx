@@ -1,0 +1,167 @@
+# Watch Nonce Increments [nonce.watchIncremented]
+
+Watches `NonceIncremented` events on the nonce manager.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.nonce.watchIncremented()
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.args)
+  // @log: {
+  // @log:   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  // @log:   nonceKey: 1n,
+  // @log:   newNonce: 42n
+  // @log: }
+})
+
+// Later, tear down the watcher.
+watcher.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+Also callable standalone: `Actions.nonce.watchIncremented(client, options)`, with `Actions` imported from `'viem/tempo'`.
+
+## Recipes
+
+### Follow Payout Lane Confirmations
+
+Filter `args` to your own account to turn nonce increments into per-lane confirmation events, for example to drive a payout dashboard.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const watcher = client.nonce.watchIncremented({
+  args: { account: client.account.address }, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs)
+    console.log(`Lane ${log.args.nonceKey}: ${log.args.newNonce} confirmed`)
+  // @log: Lane 7: 46 confirmed
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Backfill Missed Increments After a Restart
+
+Pass `fromBlock` from a persisted checkpoint so increments emitted while your service was down are still delivered before live events.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const checkpoint = 1_204_560n // last processed block, from your store
+
+const watcher = client.nonce.watchIncremented({
+  args: { account: '0x8ba1f109551bD432803012645Ac136ddd64DBA72' },
+  fromBlock: checkpoint + 1n, // [!code focus]
+})
+
+watcher.onLogs((logs) => {
+  for (const log of logs) console.log(log.blockNumber, log.args.newNonce)
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+Returns a watcher handle. Watching starts when the first listener (or async iterator) attaches, and stops when `off` is called.
+
+```ts
+type ReturnType = {
+  /** Registers a log listener. Starts the watcher on first registration. Returns an unregister function. */
+  onLogs: (fn: (logs: readonly Log[]) => void) => () => void
+  /** Registers an error listener. Returns an unregister function. */
+  onError: (fn: (error: Error) => void) => () => void
+  /** Tears down the watcher: removes listeners, ends iterators, stops the poll or subscription. */
+  off: () => void
+  /** Async-iterates emitted log batches (latest-only stream). */
+  [Symbol.asyncIterator]: () => AsyncIterableIterator<{ logs: readonly Log[] }>
+}
+```
+
+Each log is decoded, with the event arguments on `args`:
+
+```ts
+type Log = {
+  /** Decoded `NonceIncremented` event arguments. */
+  args: {
+    /** Account whose nonce was incremented. */
+    account: Address
+    /** Nonce key that was incremented. */
+    nonceKey: bigint
+    /** New nonce value. */
+    newNonce: bigint
+  }
+  /** Name of the emitted event. */
+  eventName: 'NonceIncremented'
+  // ...standard log fields (address, blockHash, blockNumber, logIndex, transactionHash, ...)
+}
+```
+
+## Parameters
+
+### args
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by account address. */
+  account?: Address | Address[] | null
+  /** Filter by nonce key. */
+  nonceKey?: bigint | bigint[] | null
+}
+```
+
+Indexed argument values to filter logs by.
+
+### batch
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+### fromBlock
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs.
+
+### poll
+
+- **Type:** `boolean`
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in ms).

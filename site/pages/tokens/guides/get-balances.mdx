@@ -57,22 +57,22 @@ const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
 ### Read Multiple Balances at Once
 
 Each read Action exposes a `.call` helper that builds a contract call, ready to pass to
-[`multicall`](/docs/contract/multicall) to batch reads in a single request.
+[`multicall`](/docs/actions/public/multicall) to batch reads in a single request.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { multicall } from 'viem/actions'
+import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const [a, b] = await multicall(client, {
-  contracts: [
+const { results: [a, b] } = await Actions.multicall(client, {
+  calls: [
     client.token.getBalance.call({ account: '0x…', token: 'usdc' }),
     client.token.getBalance.call({ account: '0x…', token: 'usdc' }),
   ],
 })
-// @log: a: { result: 1234560000n, status: 'success' }
-// @log: b: { result: 2500000000n, status: 'success' }
+// @log: a: { result: 1234560000n, status: 'success', ... }
+// @log: b: { result: 2500000000n, status: 'success', ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const potosTestnet = /*#__PURE__*/ defineChain({
+export const potosTestnet = /*#__PURE__*/ Chain.from({
   id: 60600,
   name: 'POTOS Testnet',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const potosTestnet = /*#__PURE__*/ defineChain({
     symbol: 'POT',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc-testnet.potos.hk'],
-    },
+    http: 'https://rpc-testnet.potos.hk',
   },
   blockExplorers: {
-    default: {
-      name: 'POTOS Testnet explorer',
-      url: 'https://scan-testnet.potos.hk',
-    },
+    name: 'POTOS Testnet explorer',
+    url: 'https://scan-testnet.potos.hk',
   },
   testnet: true,
 })

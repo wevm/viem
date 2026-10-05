@@ -42,21 +42,21 @@ const multisig = Account.fromMultisig({
 })
 
 // 3. Store the secp256k1 owner's approval.
-const pending = await client.sendTransactionSync({
+const pending = await client.transaction.sendSync({
   account: multisig,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: secp256k1Owner,
 })
 
 // 4. Approve the stored transaction with the P256 owner.
-const pending2 = await client.sendTransactionSync({
+const pending2 = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: p256Owner,
 })
 
 // 5. Reach quorum with the WebCrypto P256 owner.
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   account: multisig,
   hash: pending.transactionHash,
   owner: webCryptoOwner,
@@ -77,7 +77,7 @@ different process as long as every coordinator uses the same store and operation
 
 ### Expect Passkey Prompts
 
-A WebAuthn owner prompts for approval when its `sendTransactionSync` call signs the request.
+A WebAuthn owner prompts for approval when its `transaction.sendSync` call signs the request.
 
 ### Let Viem Estimate Approval Gas
 

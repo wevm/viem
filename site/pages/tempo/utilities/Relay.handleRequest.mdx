@@ -25,7 +25,7 @@ Omit plugins to forward requests directly. An empty plugin list has the same eff
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
 
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 const handle = Relay.handleRequest(rpc.request) // [!code focus]
 
 const chainId = await handle({ method: 'eth_chainId' })
@@ -41,7 +41,7 @@ methods continue to the next handler.
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
 
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [ // [!code focus]
     {
@@ -67,8 +67,8 @@ chain selection, retries, and cancellation.
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
 
-const mainnet = http('https://rpc.tempo.xyz')({})
-const testnet = http('https://rpc.moderato.tempo.xyz')({})
+const mainnet = http('https://rpc.tempo.xyz').setup()
+const testnet = http('https://rpc.moderato.tempo.xyz').setup()
 const handle = Relay.handleRequest((request, options) => {
   if (options?.chainId === 4217) return mainnet.request(request, options) // [!code focus]
   if (options?.chainId === 42431) return testnet.request(request, options) // [!code focus]
@@ -89,7 +89,7 @@ Creates an RPC request handler by composing relay plugins around a downstream ha
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
 
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [],
 })
@@ -107,7 +107,7 @@ and returns a promise for the RPC result.
 ```ts twoslash
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 // ---cut---
 const handle = Relay.handleRequest(
   rpc.request, // [!code focus]
@@ -126,7 +126,7 @@ downstream handler is returned directly.
 ```ts twoslash
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 // ---cut---
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [ // [!code focus]
@@ -152,7 +152,7 @@ resolver when fetching a remote token list.
 ```ts twoslash
 import { Addresses, Relay } from 'viem/tempo'
 import { http } from 'viem'
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 // ---cut---
 const handle = Relay.handleRequest(rpc.request, {
   resolveTokens: () => [Addresses.pathUsd], // [!code focus]
@@ -175,7 +175,7 @@ The timeout must be a positive integer no greater than `2_147_483_647` milliseco
 import { http } from 'viem'
 import { Relay } from 'viem/tempo'
 
-const rpc = http('https://rpc.tempo.xyz')({})
+const rpc = http('https://rpc.tempo.xyz').setup()
 const handle = Relay.handleRequest(rpc.request, {
   plugins: [Relay.feeToken(), Relay.simulate()],
   timeout: 5_000, // [!code focus]

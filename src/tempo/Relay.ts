@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
-import type { LocalAccount } from '../accounts/types.js'
-import type { Client as Client_ } from '../clients/createClient.js'
-import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
-import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import type { Local as LocalAccount } from '../core/Account.js'
+import type { Client as Client_ } from '../core/Client.js'
+import { ChainNotConfiguredError } from '../core/Client.js'
+import type * as Transport from '../core/Transport.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
@@ -11,6 +11,8 @@ import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
 import type * as Store from './Store.js'
+
+type EIP1193RequestOptions = NonNullable<Parameters<Transport.RequestFn>[1]>
 
 /**
  * Creates a relay with RPC and Fetch handlers backed by a client or chain resolver.
@@ -20,12 +22,12 @@ import type * as Store from './Store.js'
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { tempo } from 'viem/chains'
  * import { Relay } from 'viem/tempo'
  *
  * const relay = Relay.create({
- *   client: createClient({ chain: tempo, transport: http() }),
+ *   client: Client.create({ chain: tempo, transport: http() }),
  * })
  * export default { fetch: relay.fetch }
  * ```
@@ -185,7 +187,7 @@ export declare namespace create {
  * import { http } from 'viem'
  * import { Relay } from 'viem/tempo'
  *
- * const rpc = http('https://rpc.tempo.xyz')({})
+ * const rpc = http('https://rpc.tempo.xyz').setup()
  * const handle = Relay.handleRequest(rpc.request, {
  *   plugins: [
  *     {
@@ -349,9 +351,9 @@ export declare namespace multisig {
  *
  * @example
  * ```ts
- * import { privateKeyToAccount } from 'viem/accounts'
+ * import { Account } from 'viem'
  * import { Relay } from 'viem/tempo'
- * const plugin = Relay.feePayer({ account: privateKeyToAccount('0x...') })
+ * const plugin = Relay.feePayer({ account: Account.fromPrivateKey('0x...') })
  * ```
  * @param options - Sponsor account, policy, and display metadata.
  * @returns A fee-payer relay plugin.

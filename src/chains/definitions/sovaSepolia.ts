@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const sovaSepolia = /*#__PURE__*/ defineChain({
+export const sovaSepolia = /*#__PURE__*/ Chain.from({
   id: 120_893,
   name: 'Sova Network Sepolia',
   nativeCurrency: {
@@ -9,15 +9,11 @@ export const sovaSepolia = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.sova.io'],
-    },
+    http: 'https://rpc.testnet.sova.io',
   },
   blockExplorers: {
-    default: {
-      name: 'Sova Sepolia Explorer',
-      url: 'https://explorer.testnet.sova.io',
-    },
+    name: 'Sova Sepolia Explorer',
+    url: 'https://explorer.testnet.sova.io',
   },
   testnet: true,
 })

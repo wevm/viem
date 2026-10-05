@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const sixProtocol = /*#__PURE__*/ defineChain({
+export const sixProtocol = /*#__PURE__*/ Chain.from({
   id: 98,
   name: 'Six Protocol',
   nativeCurrency: {
@@ -9,15 +10,14 @@ export const sixProtocol = /*#__PURE__*/ defineChain({
     symbol: 'SIX',
   },
   rpcUrls: {
-    default: {
-      http: ['https://sixnet-rpc-evm.sixprotocol.net'],
-    },
+    http: 'https://sixnet-rpc-evm.sixprotocol.net',
   },
   blockExplorers: {
-    default: {
-      name: 'Six Protocol Scan',
-      url: 'https://sixscan.io/sixnet',
-    },
+    name: 'Six Protocol Scan',
+    url: 'https://sixscan.io/sixnet',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
   testnet: false,
 })

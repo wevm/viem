@@ -1,0 +1,86 @@
+# Increase Time [block.increaseTime]
+
+Jumps forward in time by the given amount of time, in seconds.
+
+## Usage
+
+This example jumps forward in time by the given amount of time, in seconds.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.block.increaseTime({
+  seconds: 420,
+})
+// @log: '0x1'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+### Standalone Action
+
+Call `Actions.block.increaseTime` directly by passing the Client as the first argument.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.block.increaseTime(client, {
+  seconds: 420,
+})
+// @log: '0x1'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+})
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The new total offset (in seconds) applied to the block timestamp.
+
+## Parameters
+
+### seconds
+
+- **Type:** `number`
+
+The number of seconds to jump forward in time.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+// ---cut---
+const result = await Actions.block.increaseTime(client, {
+  seconds: 420, // [!code focus]
+})
+```

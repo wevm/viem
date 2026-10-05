@@ -1,22 +1,18 @@
+import * as Chain from '../../core/Chain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 5 // goerli
 
-export const baseGoerli = /*#__PURE__*/ defineChain({
+export const baseGoerli = /*#__PURE__*/ Chain.from({
   ...chainConfig,
   id: 84531,
   name: 'Base Goerli',
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://goerli.base.org'] },
-  },
+  rpcUrls: { http: 'https://goerli.base.org' },
   blockExplorers: {
-    default: {
-      name: 'Basescan',
-      url: 'https://goerli.basescan.org',
-      apiUrl: 'https://goerli.basescan.org/api',
-    },
+    name: 'Basescan',
+    url: 'https://goerli.basescan.org',
+    apiUrl: 'https://goerli.basescan.org/api',
   },
   contracts: {
     ...chainConfig.contracts,

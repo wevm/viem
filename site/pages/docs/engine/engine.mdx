@@ -1,0 +1,84 @@
+# Creating an Engine
+
+## Overview
+
+[`Engine.engine`](#engineengine) prepares every implementation from `viem/wasm` or `viem/node`
+without installing it.
+
+Pass the result to [`Engine.install`](/docs/engine/install), combine its slots with another
+provider, or apply it temporarily with [`Engine.with`](/docs/engine/with).
+
+The root `viem` entrypoint does not expose `Engine.engine`.
+
+## Recipes
+
+### Create a WebAssembly Engine
+
+Compile the WebAssembly implementations without changing the installed Engine.
+
+```ts twoslash
+import { Engine } from 'viem/wasm'
+
+const wasm = await Engine.engine() // [!code focus]
+```
+
+### Create a Node.js Engine
+
+Prepare the `node:crypto` implementations without installing them.
+
+```ts twoslash
+import { Engine } from 'viem/node'
+
+const node = await Engine.engine() // [!code focus]
+```
+
+### Use an Engine for One Call
+
+Prepare an Engine asynchronously, then install it only for the duration of a synchronous function.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+const wasm = await WasmEngine.engine()
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
+// @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+```
+
+## `Engine.engine`
+
+Creates every implementation supplied by a runtime entrypoint without installing it.
+
+### Usage
+
+:::code-group
+
+```ts twoslash [WebAssembly]
+import { Engine } from 'viem/wasm'
+
+const wasm = await Engine.engine()
+```
+
+```ts twoslash [Node.js]
+import { Engine } from 'viem/node'
+
+const node = await Engine.engine()
+```
+
+:::
+
+### Definition
+
+```ts
+function engine(): Promise<Engine.engine.ReturnType>
+```
+
+### Return Value
+
+`Promise<Engine.engine.ReturnType>`
+
+An initialized Engine that has not been installed.

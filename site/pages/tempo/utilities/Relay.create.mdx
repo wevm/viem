@@ -15,12 +15,12 @@ adding multisig coordination or fee sponsorship.
 ### Serve One Chain
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay } from 'viem/tempo'
 
 const relay = Relay.create({
-  client: createClient({ chain: tempo, transport: http() }), // [!code focus]
+  client: Client.create({ chain: tempo, transport: http() }), // [!code focus]
 })
 
 export default { fetch: relay.fetch }
@@ -29,11 +29,11 @@ export default { fetch: relay.fetch }
 ### Resolve Multiple Chains
 
 ```ts twoslash
-import { createClientResolver, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
 import { Relay } from 'viem/tempo'
 
-const resolver = createClientResolver({
+const resolver = Client.createResolver({
   chains: [tempo, tempoModerato],
   transport: () => http(),
 })
@@ -56,9 +56,9 @@ Creates handlers sharing one plugin pipeline.
 ### Usage
 
 ```ts twoslash
-import { createClient, Relay } from 'viem/tempo'
+import { Client, Relay } from 'viem/tempo'
 
-const client = createClient()
+const client = Client.create()
 const relay = Relay.create({ client })
 ```
 
@@ -72,11 +72,11 @@ Supplies the default chain. Explicit and inferred chain IDs must match
 `client.chain.id`. Cannot be combined with `getClient`.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay, Store } from 'viem/tempo'
 
-const client = createClient({ chain: tempo, transport: http() })
+const client = Client.create({ chain: tempo, transport: http() })
 const store = Store.memory()
 // ---cut---
 const relay = Relay.create({ client }) // [!code focus]
@@ -87,15 +87,15 @@ const relay = Relay.create({ client }) // [!code focus]
 - **Type:** `({ chainId }) => Client`
 
 Resolves a client only when forwarding requires one. Accepts
-[`createClientResolver().getClient`](/docs/clients/resolve) directly and preserves
+[`Client.createResolver().getClient`](/docs/clients/resolve) directly and preserves
 its supported chain IDs. Cannot be combined with `client`.
 
 ```ts twoslash
-import { createClientResolver, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
 import { Relay } from 'viem/tempo'
 
-const resolver = createClientResolver({
+const resolver = Client.createResolver({
   chains: [tempo, tempoModerato],
   transport: () => http(),
 })
@@ -111,11 +111,11 @@ const relay = Relay.create({ getClient: resolver.getClient }) // [!code focus]
 Requests enter plugins in array order. Plugins are composed once per relay.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay, Store } from 'viem/tempo'
 
-const client = createClient({ chain: tempo, transport: http() })
+const client = Client.create({ chain: tempo, transport: http() })
 const store = Store.memory()
 // ---cut---
 const relay = Relay.create({
@@ -134,8 +134,8 @@ memoized within each request and chain. Implement cross-request caching inside t
 resolver when fetching a remote token list.
 
 ```ts twoslash
-import { Addresses, createClient, Relay } from 'viem/tempo'
-const client = createClient()
+import { Addresses, Client, Relay } from 'viem/tempo'
+const client = Client.create()
 // ---cut---
 const relay = Relay.create({
   client,
@@ -156,10 +156,10 @@ Custom callbacks must observe cancellation themselves to stop their own work. Ra
 The timeout must be a positive integer no greater than `2_147_483_647` milliseconds. Exceeding the deadline rejects the fill with RPC error code `-32005`. Transport retries run within the same deadline.
 
 ```ts twoslash
-import { createClient, Relay } from 'viem/tempo'
+import { Client, Relay } from 'viem/tempo'
 
 const relay = Relay.create({
-  client: createClient(),
+  client: Client.create(),
   plugins: [Relay.feeToken(), Relay.simulate()],
   timeout: 5_000, // [!code focus]
 })
@@ -184,11 +184,11 @@ result. The optional second argument preserves Viem request options, including
 cancellation, retries, and deduplication, and adds an optional numeric `chainId`.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay, Store } from 'viem/tempo'
 
-const client = createClient({ chain: tempo, transport: http() })
+const client = Client.create({ chain: tempo, transport: http() })
 const store = Store.memory()
 const relay = Relay.create({ client })
 // ---cut---
@@ -206,11 +206,11 @@ argument accepts the same request options as `relay.request`. The incoming
 request's abort signal is used unless an explicit signal is supplied.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay, Store } from 'viem/tempo'
 
-const client = createClient({ chain: tempo, transport: http() })
+const client = Client.create({ chain: tempo, transport: http() })
 const store = Store.memory()
 const relay = Relay.create({ client })
 // ---cut---

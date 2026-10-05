@@ -1,27 +1,24 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const mantaSepoliaTestnet = /*#__PURE__*/ defineChain({
+export const mantaSepoliaTestnet = /*#__PURE__*/ Chain.from({
   id: 3_441_006,
   name: 'Manta Pacific Sepolia Testnet',
-  network: 'manta-sepolia',
   nativeCurrency: {
     decimals: 18,
     name: 'ETH',
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['https://pacific-rpc.sepolia-testnet.manta.network/http'],
-    },
+    http: 'https://pacific-rpc.sepolia-testnet.manta.network/http',
   },
   blockExplorers: {
-    default: {
-      name: 'Manta Sepolia Testnet Explorer',
-      url: 'https://pacific-explorer.sepolia-testnet.manta.network',
-      apiUrl: 'https://pacific-explorer.sepolia-testnet.manta.network/api',
-    },
+    name: 'Manta Sepolia Testnet Explorer',
+    url: 'https://pacific-explorer.sepolia-testnet.manta.network',
+    apiUrl: 'https://pacific-explorer.sepolia-testnet.manta.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca54918f7B525C8df894668846506767412b53E3',
       blockCreated: 479584,

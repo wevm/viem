@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const zeroNetwork = /*#__PURE__*/ defineChain({
+export const zeroNetwork = /*#__PURE__*/ Chain.from({
   id: 543_210,
   name: 'Zero Network',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.zerion.io/v1/zero'],
-    },
+    http: 'https://rpc.zerion.io/v1/zero',
   },
   blockExplorers: {
-    default: {
-      name: 'Zero Network Explorer',
-      url: 'https://explorer.zero.network',
-    },
+    name: 'Zero Network Explorer',
+    url: 'https://explorer.zero.network',
   },
   testnet: false,
 })

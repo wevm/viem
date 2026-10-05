@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
+import type { Client } from '../../../core/Client.js'
 import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'

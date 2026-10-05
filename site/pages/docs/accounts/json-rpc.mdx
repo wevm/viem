@@ -1,0 +1,87 @@
+# JSON-RPC Accounts
+
+## Overview
+
+A **JSON-RPC Account** delegates signing to a JSON-RPC provider (for example, a browser wallet). Only the address is known to your program; signing requests are forwarded to the provider.
+
+Create one with [`Account.from`](#accountfrom) by passing an address.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+
+account.address
+// @log: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+account.type
+// @log: 'json-rpc'
+```
+
+## Recipes
+
+### Set a Default Client Account
+
+Pass the account to [`Client.create`](/docs/clients/create). Wallet Actions use this account when
+you do not pass an `account` option.
+
+```ts twoslash
+import { Account, Client, custom, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+declare const provider: {
+  request(args: { method: string; params?: readonly unknown[] }): Promise<unknown>
+}
+
+const client = Client.create({
+  account: Account.from( // [!code focus]
+    '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  ), // [!code focus]
+  chain: mainnet,
+  transport: custom(provider),
+}).extend(walletActions())
+
+const signature = await client.signMessage({ message: 'hello world' })
+```
+
+## `Account.from`
+
+Creates an account from an address (JSON-RPC) or custom signing logic (local).
+
+### Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+
+account.address
+// @log: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+account.type
+// @log: 'json-rpc'
+```
+
+### Parameters
+
+#### address
+
+- **Type:** `Address.Address`
+
+The address of the account.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') // [!code focus]
+```
+
+### Return Value
+
+`Account.JsonRpc`
+
+A JSON-RPC account referenced by address.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Address.InvalidAddressError` | The supplied address is not a valid Ethereum address. |

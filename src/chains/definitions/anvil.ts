@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const anvil = /*#__PURE__*/ defineChain({
+export const anvil = /*#__PURE__*/ Chain.from({
   id: 31_337,
   name: 'Anvil',
   nativeCurrency: {
@@ -9,9 +9,7 @@ export const anvil = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: {
-      http: ['http://127.0.0.1:8545'],
-      webSocket: ['ws://127.0.0.1:8545'],
-    },
+    http: 'http://127.0.0.1:8545',
+    ws: 'ws://127.0.0.1:8545',
   },
 })

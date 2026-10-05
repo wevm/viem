@@ -1,7 +1,15 @@
+import type { Capabilities as TempoCapabilities_ } from 'viem/tempo'
+import { http as tempoHttp_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { checksum as getAddress } from 'ox/Address'
+import { Actions as CoreActions_ } from 'viem'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account as TempoAccount_ } from 'viem/tempo'
+import { withResolvers } from '../../../core/internal/promise.js'
 import { Secp256k1 } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, getAddress, http } from 'viem'
-import { fillTransaction } from 'viem/actions'
+import { http } from 'viem'
+
 import {
   Actions,
   type Capabilities,
@@ -11,12 +19,14 @@ import {
   withRelay,
 } from 'viem/tempo'
 import { beforeAll, expect, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
+import * as Tempo from '~test/tempo.js'
+import { rpcUrl } from '~test/tempo.js'
 
-const userAccount = Tempo.accounts[9]!
-const feePayerAccount = Tempo.accounts[0]!
-const recipient = Tempo.accounts[7]!
+const userAccount = TempoAccount_.fromSecp256k1(Tempo.accounts[9]!.privateKey)
+const feePayerAccount = TempoAccount_.fromSecp256k1(
+  Tempo.accounts[0]!.privateKey,
+)
+const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
 // Token candidates for the local test chain.
 const localnetTokens = [
@@ -26,7 +36,7 @@ const localnetTokens = [
   '0x20c0000000000000000000000000000000000003',
 ] as const
 
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const caller = Tempo.getClient({})
 
 test.each(['legacy', 'calls'])(
   'reports malformed %s values as invalid params through Fetch',
@@ -67,16 +77,16 @@ test.each(['legacy', 'calls'])(
 beforeAll(async () => {
   await Promise.all(
     [0, 9].map((index) =>
-      Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
-        account: Tempo.accounts[index]!,
+      Actions.faucet.fundSync(Tempo.getClient({}), {
+        account: TempoAccount_.fromSecp256k1(Tempo.accounts[index]!.privateKey),
         timeout: 60_000,
       }),
     ),
   )
   // userAccount prefers alphaUsd (a faucet-funded genesis token) as its fee token.
-  await Actions.fee.setUserTokenSync(caller, {
+  await CoreActions_.contract.writeSync(caller, {
+    ...Actions.fee.setUserToken.call({ token: Tempo.alphaUsd }),
     account: userAccount,
-    token: Tempo.addresses.alphaUsd,
   })
 })
 
@@ -101,7 +111,7 @@ test.each(['plain', 'custom'] as const)(
     ]
     const handle = Relay.handleRequest(downstream, {
       plugins,
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      resolveTokens: () => [Tempo.alphaUsd],
     })
     const result = (await handle(
       {
@@ -111,7 +121,7 @@ test.each(['plain', 'custom'] as const)(
             from: userAccount.address,
             calls: [
               Actions.token.transfer.call(caller, {
-                token: Tempo.addresses.alphaUsd,
+                token: Tempo.alphaUsd,
                 to: recipient.address,
                 amount: 1n,
               }),
@@ -119,7 +129,7 @@ test.each(['plain', 'custom'] as const)(
           },
         ],
       },
-      { chainId: Tempo.chain.id },
+      { chainId: chain_.id },
     )) as {
       tx: Record<string, unknown>
       capabilities: Capabilities.FillTransactionCapabilities
@@ -128,7 +138,7 @@ test.each(['plain', 'custom'] as const)(
       result.tx as core_Transaction.Rpc,
     )!
     expect(transaction.feeToken?.toLowerCase()).toBe(
-      Tempo.addresses.alphaUsd.toLowerCase(),
+      Tempo.alphaUsd.toLowerCase(),
     )
     expect(result.capabilities.sponsored).toBe(true)
     expect(result.capabilities.balanceDiffs).toBeDefined()
@@ -157,29 +167,52 @@ test.each(
     Relay.feeToken(),
     Relay.simulate(),
   ].filter((_, index) => mask & (1 << index))
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       plugins: reverse ? [...plugins].reverse() : plugins,
       resolveTokens: () => localnetTokens,
     }),
   })
-  const result = await fillTransaction(client, {
+  const result = await CoreActions_.transaction.fill(client, {
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
   })
   expect(result.transaction.gas).toBeGreaterThan(0n)
-  if (mask !== 0) expect(result.capabilities?.sponsored).toBe(Boolean(mask & 1))
+  if (mask !== 0)
+    expect(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.sponsored,
+    ).toBe(Boolean(mask & 1))
   expect(Boolean(result.transaction.feePayerSignature)).toBe(Boolean(mask & 1))
-  expect(Boolean(result.capabilities?.fee)).toBe(Boolean(mask & 4))
-  expect(Boolean(result.capabilities?.balanceDiffs)).toBe(Boolean(mask & 4))
+  expect(
+    Boolean(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.fee,
+    ),
+  ).toBe(Boolean(mask & 4))
+  expect(
+    Boolean(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.balanceDiffs,
+    ),
+  ).toBe(Boolean(mask & 4))
 })
 
 test('built-in plugins preserve unrelated requests and request options', async () => {
@@ -212,7 +245,7 @@ test('built-in plugins preserve nested RPC errors and normalize expiration', asy
         method: 'eth_fillTransaction',
         params: [{ from: userAccount.address, to: recipient.address }],
       },
-      { chainId: Tempo.chain.id },
+      { chainId: chain_.id },
     ),
   ).rejects.toMatchObject({
     code: -32003,
@@ -260,16 +293,16 @@ test.each(['0x76', '0x78'] as const)(
 )
 
 test('simulation and virtual-address resolution progress while sponsorship is pending', async () => {
-  const simulated = Promise.withResolvers<void>()
-  const resolved = Promise.withResolvers<void>()
+  const simulated = withResolvers<void>()
+  const resolved = withResolvers<void>()
   const virtual = VirtualAddress.from({
     masterId: '0xffffffff',
     userTag: '0x000000000001',
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      resolveTokens: () => [Tempo.alphaUsd],
 
       plugins: [
         Relay.simulate(),
@@ -295,19 +328,28 @@ test('simulation and virtual-address resolution progress while sponsorship is pe
     }),
   })
   try {
-    const { transaction, capabilities } = await fillTransaction(client, {
-      account: userAccount.address,
-      calls: [
-        { to: virtual },
-        Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          to: recipient.address,
-          amount: 1n,
-        }),
-      ],
-    })
+    const { transaction, capabilities } = await CoreActions_.transaction.fill(
+      client,
+      {
+        account: userAccount.address,
+        calls: [
+          { to: virtual },
+          Actions.token.transfer.call(caller, {
+            token: Tempo.alphaUsd,
+            to: recipient.address,
+            amount: 1n,
+          }),
+        ],
+      },
+    )
     expect(transaction.feePayerSignature).toBeDefined()
-    expect(capabilities?.balanceDiffs).toBeDefined()
+    expect(
+      (
+        capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.balanceDiffs,
+    ).toBeDefined()
     expect(capabilities).toMatchObject({
       virtualAddresses: { [virtual]: null },
     })
@@ -411,11 +453,27 @@ test.each(['none', 'accept', 'reject'] as const)(
         },
       ],
     })) as Relay.Plugin.FillResult
-    expect(result.capabilities?.sponsored).toBe(sponsorship === 'accept')
-    expect(result.capabilities?.virtualAddresses).toEqual(
-      Object.fromEntries(targets.map((target) => [target, null])),
-    )
-    expect(result.capabilities?.balanceDiffs).toMatchObject({
+    expect(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.sponsored,
+    ).toBe(sponsorship === 'accept')
+    expect(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.virtualAddresses,
+    ).toEqual(Object.fromEntries(targets.map((target) => [target, null])))
+    expect(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.balanceDiffs,
+    ).toMatchObject({
       [userAccount.address]: [
         expect.objectContaining({
           address: localnetTokens[2],
@@ -423,7 +481,13 @@ test.each(['none', 'accept', 'reject'] as const)(
         }),
       ],
     })
-    expect(result.capabilities?.fee).toBeDefined()
+    expect(
+      (
+        result.capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.fee,
+    ).toBeDefined()
     expect(requests).toEqual(
       sponsorship === 'reject'
         ? [
@@ -448,7 +512,7 @@ test.each(['handler', 'create', 'transport'])(
       onFetchRequest(_request, init) {
         requests.push(JSON.parse(init.body as string).method)
       },
-    })({})
+    })
     const options = {
       plugins: [
         {
@@ -464,16 +528,15 @@ test.each(['handler', 'create', 'transport'])(
     } satisfies Relay.handleRequest.Options
     const inner =
       mode === 'handler'
-        ? Relay.handleRequest(rpc.request, options)
+        ? Relay.handleRequest(rpc.setup().request, options)
         : mode === 'create'
           ? Relay.create<number>({
               client: Tempo.getClient({
-                chain: Tempo.chain,
-                transport: () => rpc,
+                transport: rpc,
               }),
               ...options,
             }).request
-          : withRelay(() => rpc, options)({ chain: Tempo.chain }).request
+          : withRelay(rpc, options).setup({ chain: chain_ }).request
     const outer = Relay.handleRequest(inner, {
       plugins: [
         {
@@ -492,15 +555,15 @@ test.each(['handler', 'create', 'transport'])(
         params: [
           {
             from: userAccount.address,
-            feeToken: Tempo.addresses.alphaUsd,
+            feeToken: Tempo.alphaUsd,
             calls: [{ to: recipient.address, data: '0x', value: '0x0' }],
           },
         ],
       },
-      { chainId: Tempo.chain.id },
+      { chainId: chain_.id },
     )
     await expect(result).resolves.toMatchObject({
-      tx: { feeToken: Tempo.addresses.alphaUsd },
+      tx: { feeToken: Tempo.alphaUsd },
     })
     expect(requests).toEqual([
       ...Array.from({ length: 5 }, () => 'eth_blockNumber'),
@@ -544,7 +607,7 @@ test('preserves deficit metadata within four requests with virtual recipients', 
   })
   const relay = Relay.create({
     client: rpc,
-    resolveTokens: () => [Tempo.addresses.alphaUsd],
+    resolveTokens: () => [Tempo.alphaUsd],
     plugins: [Relay.feeToken(), Relay.simulate()],
   })
   const result = (await relay.request({

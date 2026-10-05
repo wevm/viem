@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const etherlinkTestnet = /*#__PURE__*/ defineChain({
+export const etherlinkTestnet = /*#__PURE__*/ Chain.from({
   id: 128123,
   name: 'Etherlink Testnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const etherlinkTestnet = /*#__PURE__*/ defineChain({
     name: 'Tez',
     symbol: 'XTZ',
   },
-  rpcUrls: {
-    default: { http: ['https://node.ghostnet.etherlink.com'] },
-  },
+  rpcUrls: { http: 'https://node.ghostnet.etherlink.com' },
   blockExplorers: {
-    default: {
-      name: 'Etherlink Testnet',
-      url: 'https://testnet.explorer.etherlink.com',
-    },
+    name: 'Etherlink Testnet',
+    url: 'https://testnet.explorer.etherlink.com',
   },
   testnet: true,
 })

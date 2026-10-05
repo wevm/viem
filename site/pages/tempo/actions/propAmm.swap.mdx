@@ -33,7 +33,7 @@ The action reads the input token from the pool and batches its approval with the
 
 Use `Actions.propAmm.swap.estimateGas(client, parameters)` to estimate the transaction gas, or `Actions.propAmm.swap.simulate(client, parameters)` to inspect the approval and swap results. Both helpers include the approval call.
 
-Simulation accepts `blockNumber`, `blockTag`, `stateOverrides`, `traceTransfers`, and `validation` options; transaction options such as `gas` are only supported by `estimateGas`.
+Simulation accepts `blockNumber`, `blockTag`, `stateOverride`, `traceTransfers`, and `validation` options; transaction options such as `gas` are only supported by `estimateGas`.
 
 ### Asynchronous Usage
 
@@ -42,6 +42,7 @@ confirmed trade fields and receipt. Use `swap` to return the hash immediately an
 manually:
 
 ```ts twoslash
+import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const hash = await client.propAmm.swap({
@@ -52,7 +53,7 @@ const hash = await client.propAmm.swap({
   mode: 'exactInput',
   pool: '0x0000000000000000000000000000000000000002',
 })
-const receipt = await client.waitForTransactionReceipt({ hash })
+const receipt = await Actions.transaction.waitForReceipt(client, { hash }).receipt
 ```
 
 ## Return Type

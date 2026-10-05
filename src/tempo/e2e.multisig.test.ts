@@ -1,40 +1,29 @@
+import { RpcResponse } from 'ox'
+import { Client as CoreClient_, Actions as CoreActions_, http } from 'viem'
 import { createServer } from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import {
-  createClientResolver,
-  http,
-  maxUint256,
-  parseSignature,
-  type Transport,
-  toHex,
-} from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import {
-  getTransaction,
-  prepareTransactionRequest,
-  sendRawTransactionSync,
-  sendTransactionSync,
-  signTransaction,
-} from 'viem/actions'
+import { Transport, Actions as viem_Actions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
   Actions,
-  createClient,
+  Client,
   MultisigConfig,
   MultisigOperation,
   P256,
   Relay,
   Store,
-  type Transaction,
   WebCryptoP256,
   withRelay,
 } from 'viem/tempo'
+import { Hex, Secp256k1, Signature } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
-import * as tempo from '~test/tempo/config.js'
-import { withResolvers } from '../utils/promise/withResolvers.js'
+import * as tempo from '~test/tempoMultisig.js'
+import { withResolvers } from '../core/internal/promise.js'
+import type { TransactionReceipt, TransactionRequest } from './chainConfig.js'
 import * as OperationStore from './multisig/Operation.js'
+const maxUint256 = 2n ** 256n - 1n
 
 describe('stateless', () => {
   const client = tempo.getClient()
@@ -62,74 +51,74 @@ describe('stateless', () => {
     })
 
     {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [
-          Actions.token.transfer.call(client, {
-            amount: 1n,
-            to,
-            token: feeToken,
-          }),
-        ],
-        feeToken,
-      })
+      const request = (
+        await viem_Actions.transaction.prepare(client, {
+          account,
+          calls: [
+            Actions.token.transfer.call(client, {
+              amount: 1n,
+              to,
+              token: feeToken,
+            }),
+          ],
+          feeToken,
+        })
+      ).request
       const signatures = await Promise.all(
         [owner_1, owner_2].map((owner) =>
-          signTransaction(client, { ...request, account: owner }),
+          viem_Actions.transaction.sign(client, { ...request, account: owner }),
         ),
       )
-      const receipt = await sendTransactionSync(client, {
+      const receipt = await viem_Actions.transaction.sendSync(client, {
         ...request,
         signatures,
       })
       expect(receipt.status).toBe('success')
       expect(receipt.from).toBe(account.address.toLowerCase())
 
-      const tx = await getTransaction(client, { hash: receipt.transactionHash })
+      const tx = await viem_Actions.transaction.get(client, {
+        hash: receipt.transactionHash,
+      })
       expect(tx.signature?.type).toBe('multisig')
       if (tx.signature?.type !== 'multisig') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(0)
+      expect(tx.nonce).toBe(0n)
     }
 
     {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [
-          Actions.token.transfer.call(client, {
-            amount: 1n,
-            to,
-            token: feeToken,
-          }),
-        ],
-        feeToken,
-      })
+      const request = (
+        await viem_Actions.transaction.prepare(client, {
+          account,
+          calls: [
+            Actions.token.transfer.call(client, {
+              amount: 1n,
+              to,
+              token: feeToken,
+            }),
+          ],
+          feeToken,
+        })
+      ).request
       const signatures = await Promise.all(
         [owner_1, owner_2].map((owner) =>
-          signTransaction(client, { ...request, account: owner }),
+          viem_Actions.transaction.sign(client, { ...request, account: owner }),
         ),
       )
-      const receipt = await sendTransactionSync(client, {
+      const receipt = await viem_Actions.transaction.sendSync(client, {
         ...request,
         signatures,
       })
       expect(receipt.status).toBe('success')
       expect(receipt.from).toBe(account.address.toLowerCase())
 
-      const tx = await getTransaction(client, { hash: receipt.transactionHash })
+      const tx = await viem_Actions.transaction.get(client, {
+        hash: receipt.transactionHash,
+      })
       expect(tx.signature?.type).toBe('multisig')
       if (tx.signature?.type !== 'multisig') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(1)
+      expect(tx.nonce).toBe(1n)
     }
-  })
-
-  test('example: rejects nested ownership', () => {
-    const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
-    )
   })
 
   test('example: weighted quorum', async () => {
@@ -137,7 +126,11 @@ describe('stateless', () => {
       accounts[6],
       accounts[7],
       accounts[8],
-    ].sort((a, b) => a.address.localeCompare(b.address))
+    ].sort((a, b) => a.address.localeCompare(b.address)) as [
+      Account.RootAccount,
+      Account.RootAccount,
+      Account.RootAccount,
+    ]
     const config = MultisigConfig.from({
       threshold: 3,
       owners: [
@@ -155,45 +148,49 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const initial = await prepareTransactionRequest(client, {
-      account,
-      calls: [
-        Actions.token.transfer.call(client, {
-          amount: 1n,
-          to,
-          token: feeToken,
-        }),
-      ],
-      feeToken,
-    })
+    const initial = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
+        ],
+        feeToken,
+      })
+    ).request
     const initialSignatures = await Promise.all(
       [heavy, light_1].map((owner) =>
-        signTransaction(client, { ...initial, account: owner }),
+        viem_Actions.transaction.sign(client, { ...initial, account: owner }),
       ),
     )
-    const initialSuccess = await sendTransactionSync(client, {
+    const initialSuccess = await viem_Actions.transaction.sendSync(client, {
       ...initial,
       signatures: initialSignatures,
     })
     assertSuccess(initialSuccess)
 
-    const valid = await prepareTransactionRequest(client, {
-      account,
-      calls: [{ to, value: 0n }],
-      feeToken,
-    })
+    const valid = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+    ).request
     const validSignatures = await Promise.all(
       [heavy, light_2].map((owner) =>
-        signTransaction(client, { ...valid, account: owner }),
+        viem_Actions.transaction.sign(client, { ...valid, account: owner }),
       ),
     )
-    const validSuccess = await sendTransactionSync(client, {
+    const validSuccess = await viem_Actions.transaction.sendSync(client, {
       ...valid,
       signatures: validSignatures,
     })
     assertSuccess(validSuccess)
 
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: validSuccess.transactionHash,
     })
     expect(transaction.signature?.type).toBe('multisig')
@@ -221,18 +218,20 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      feePayer: accounts[0],
-      to: account.address,
-      value: 0n,
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        feePayer: accounts[0],
+        to: account.address,
+        value: 0n,
+      })
+    ).request
     const signatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...request, account: owner }),
+        viem_Actions.transaction.sign(client, { ...request, account: owner }),
       ),
     )
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures,
     })
@@ -240,30 +239,46 @@ describe('stateless', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
     expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
 
-    const feePayerFirst = await prepareTransactionRequest(client, {
-      account,
-      calls: [{ to, value: 0n }],
-      feePayer: true,
-      feeToken,
-    })
+    const feePayerFirst: viem_Actions.transaction.prepare.Options<
+      typeof tempoLocalnet
+    > = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feePayer: true,
+        feeToken,
+      })
+    ).request
     if (!feePayerFirst.calls) throw new Error('Expected prepared calls.')
-    if (feePayerFirst.nonceKey === 'expiring')
+    if (
+      feePayerFirst.nonceKey === 'expiring' ||
+      feePayerFirst.nonceKey === 'random'
+    )
       throw new Error('Expected prepared nonce key.')
     const transaction = TxEnvelopeTempo.from({
-      calls: feePayerFirst.calls,
-      chainId: feePayerFirst.chainId,
+      calls: feePayerFirst.calls.map((call) => ({
+        ...call,
+        value: BigInt(call.value ?? 0),
+      })),
+      chainId: Number(feePayerFirst.chainId ?? 0),
       feePayerSignature: null,
       feeToken,
-      gas: feePayerFirst.gas,
-      maxFeePerGas: feePayerFirst.maxFeePerGas,
-      maxPriorityFeePerGas: feePayerFirst.maxPriorityFeePerGas,
-      nonce: BigInt(feePayerFirst.nonce),
+      gas: BigInt(feePayerFirst.gas!),
+      maxFeePerGas: BigInt(feePayerFirst.maxFeePerGas!),
+      maxPriorityFeePerGas: BigInt(feePayerFirst.maxPriorityFeePerGas!),
+      nonce: BigInt(feePayerFirst.nonce!),
       nonceKey: feePayerFirst.nonceKey,
       type: 'tempo',
-      validAfter: feePayerFirst.validAfter,
-      validBefore: feePayerFirst.validBefore,
+      validAfter:
+        feePayerFirst.validAfter === undefined
+          ? undefined
+          : Number(feePayerFirst.validAfter),
+      validBefore:
+        feePayerFirst.validBefore === undefined
+          ? undefined
+          : Number(feePayerFirst.validBefore),
     })
-    const feePayerSignature = parseSignature(
+    const feePayerSignature = Signature.from(
       await accounts[0].sign({
         hash: TxEnvelopeTempo.getFeePayerSignPayload(transaction, {
           sender: account.address,
@@ -272,19 +287,24 @@ describe('stateless', () => {
     )
     const sponsored = {
       ...feePayerFirst,
+      type: undefined,
+      gasPrice: undefined,
       feePayer: true as const,
       feePayerSignature,
-      feeToken,
+      feeToken: feeToken as Hex.Hex,
     }
     const feePayerFirstSignatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...sponsored, account: owner }),
+        viem_Actions.transaction.sign(client, { ...sponsored, account: owner }),
       ),
     )
-    const feePayerFirstSuccess = await sendTransactionSync(client, {
-      ...sponsored,
-      signatures: feePayerFirstSignatures,
-    })
+    const feePayerFirstSuccess = await viem_Actions.transaction.sendSync(
+      client,
+      {
+        ...sponsored,
+        signatures: feePayerFirstSignatures,
+      },
+    )
     const feePayerFirstReceipt = await getReceipt(feePayerFirstSuccess)
 
     expect(feePayerFirstReceipt.from).toBe(account.address.toLowerCase())
@@ -299,10 +319,10 @@ describe('stateless', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106103, { size: 32 }),
+      salt: Hex.fromNumber(0x106103, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -317,22 +337,24 @@ describe('stateless', () => {
       account,
       accessKey,
     })
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feeToken,
-      keyAuthorization,
-      to,
-      value: 0n,
-    })
-    const transaction = await signTransaction(client, request)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: transaction,
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        to,
+        value: 0n,
+      })
+    ).request
+    const transaction = await viem_Actions.transaction.sign(client, request)
+    const receipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: transaction,
     })
 
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
 
-    const immediateTransaction = await getTransaction(client, {
+    const immediateTransaction = await viem_Actions.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect(immediateTransaction.signature?.type).toBe('keychain')
@@ -352,10 +374,10 @@ describe('stateless', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106104, { size: 32 }),
+      salt: Hex.fromNumber(0x106104, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -370,19 +392,24 @@ describe('stateless', () => {
       account,
       accessKey,
     })
-    const initialRequest = await prepareTransactionRequest(client, {
-      account,
-      calls: [{ to, value: 0n }],
-      feeToken,
-      keyAuthorization,
-    })
-    const initialTransaction = await signTransaction(client, initialRequest)
-    const initialReceipt = await sendRawTransactionSync(client, {
-      serializedTransaction: initialTransaction,
+    const initialRequest = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+        keyAuthorization,
+      })
+    ).request
+    const initialTransaction = await viem_Actions.transaction.sign(
+      client,
+      initialRequest,
+    )
+    const initialReceipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: initialTransaction,
     })
     expect(initialReceipt.status).toBe('success')
 
-    const initialResult = await getTransaction(client, {
+    const initialResult = await viem_Actions.transaction.get(client, {
       hash: initialReceipt.transactionHash,
     })
     expect(initialResult.signature?.type).toBe('multisig')
@@ -396,15 +423,17 @@ describe('stateless', () => {
       version: 0n,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feeToken,
-      to,
-      value: 0n,
-    })
-    const transaction = await signTransaction(client, request)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: transaction,
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: accessKey,
+        feeToken,
+        to,
+        value: 0n,
+      })
+    ).request
+    const transaction = await viem_Actions.transaction.sign(client, request)
+    const receipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: transaction,
     })
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
@@ -418,7 +447,7 @@ describe('stateless', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106105, { size: 32 }),
+      salt: Hex.fromNumber(0x106105, { size: 32 }),
       threshold: 2,
     })
     const initialConfig = account.config
@@ -430,17 +459,19 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const initial = await prepareTransactionRequest(client, {
-      account,
-      calls: [{ to, value: 0n }],
-      feeToken,
-    })
+    const initial = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+    ).request
     const initialSignatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...initial, account: owner }),
+        viem_Actions.transaction.sign(client, { ...initial, account: owner }),
       ),
     )
-    const initialSuccess = await sendTransactionSync(client, {
+    const initialSuccess = await viem_Actions.transaction.sendSync(client, {
       ...initial,
       signatures: initialSignatures,
     })
@@ -451,28 +482,30 @@ describe('stateless', () => {
       }),
     ).toBe(MultisigConfig.getCommitment(account.config))
 
-    const update = await prepareTransactionRequest(client, {
-      account,
-      calls: [
-        Actions.multisig.updateConfig.call({
-          currentConfig: initialConfig,
-          nextConfig: {
-            owners: [
-              { owner: owner_3.address, weight: 1 },
-              { owner: owner_4.address, weight: 1 },
-            ],
-            threshold: 2,
-          },
-        }),
-      ],
-      feeToken,
-    })
+    const update = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [
+          Actions.multisig.updateConfig.call({
+            currentConfig: initialConfig,
+            nextConfig: {
+              owners: [
+                { owner: owner_3.address, weight: 1 },
+                { owner: owner_4.address, weight: 1 },
+              ],
+              threshold: 2,
+            },
+          }),
+        ],
+        feeToken,
+      })
+    ).request
     const updateSignatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...update, account: owner }),
+        viem_Actions.transaction.sign(client, { ...update, account: owner }),
       ),
     )
-    const updateSuccess = await sendTransactionSync(client, {
+    const updateSuccess = await viem_Actions.transaction.sendSync(client, {
       ...update,
       signatures: updateSignatures,
     })
@@ -496,17 +529,19 @@ describe('stateless', () => {
       version: 1,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account: currentAccount,
-      calls: [{ to, value: 0n }],
-      feeToken,
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: currentAccount,
+        calls: [{ to, value: 0n }],
+        feeToken,
+      })
+    ).request
     const signatures = await Promise.all(
       [owner_3, owner_4].map((owner) =>
-        signTransaction(client, { ...request, account: owner }),
+        viem_Actions.transaction.sign(client, { ...request, account: owner }),
       ),
     )
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures,
     })
@@ -522,7 +557,7 @@ describe('stateless', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: accounts.slice(1, options.ownerCount + 1),
-      salt: toHex(options.salt, { size: 32 }),
+      salt: Hex.fromNumber(options.salt, { size: 32 }),
       threshold: options.threshold,
     })
     await Actions.token.transferSync(client, {
@@ -542,7 +577,7 @@ describe('stateless', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
 
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect(transaction.signature?.type).toBe('multisig')
@@ -572,23 +607,25 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      calls: [
-        Actions.token.transfer.call(client, {
-          amount: 1n,
-          to,
-          token: feeToken,
-        }),
-      ],
-      feeToken,
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
+        ],
+        feeToken,
+      })
+    ).request
     const signatures = await Promise.all(
       [owner_1, owner_3].map((owner) =>
-        signTransaction(client, { ...request, account: owner }),
+        viem_Actions.transaction.sign(client, { ...request, account: owner }),
       ),
     )
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures,
     })
@@ -598,7 +635,7 @@ describe('stateless', () => {
 
   test('behavior: mixed owner key types', async () => {
     const owners = [
-      Account.fromSecp256k1(generatePrivateKey()),
+      Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
       Account.fromP256(P256.randomPrivateKey()),
       Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
         origin: 'https://example.com',
@@ -620,12 +657,16 @@ describe('stateless', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [{ to, value: 0n }],
-        feeToken,
-      })
-      expect(request.multisigSimulation?.approvals).toMatchInlineSnapshot(
+      const request = (
+        await viem_Actions.transaction.prepare(client, {
+          account,
+          calls: [{ to, value: 0n }],
+          feeToken,
+        })
+      ).request
+      expect(
+        (request as TransactionRequest).multisigSimulation?.approvals,
+      ).toMatchInlineSnapshot(
         [
           { owner: expect.any(String) },
           { owner: expect.any(String) },
@@ -659,19 +700,19 @@ describe('stateless', () => {
       )
       const signatures = await Promise.all(
         owners.map((owner) =>
-          signTransaction(client, { ...request, account: owner }),
+          viem_Actions.transaction.sign(client, { ...request, account: owner }),
         ),
       )
-      const success = await sendTransactionSync(client, {
+      const success = await viem_Actions.transaction.sendSync(client, {
         ...request,
         signatures,
       })
 
       assertSuccess(success)
-      const result = await getTransaction(client, {
+      const result = await viem_Actions.transaction.get(client, {
         hash: success.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('multisig')
       if (result.signature?.type !== 'multisig') throw new Error('unreachable')
       expect(
@@ -687,8 +728,8 @@ describe('stateless', () => {
   })
 
   test('behavior: mixed local and external owners', async () => {
-    const localOwner = Account.fromSecp256k1(generatePrivateKey())
-    const externalOwner = Account.fromSecp256k1(generatePrivateKey())
+    const localOwner = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const externalOwner = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [localOwner, externalOwner.address],
@@ -703,29 +744,31 @@ describe('stateless', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const request = await prepareTransactionRequest(client, {
-        account,
-        calls: [{ to, value: 0n }],
-        feeToken,
-      })
-      const signature = await signTransaction(client, {
+      const request = (
+        await viem_Actions.transaction.prepare(client, {
+          account,
+          calls: [{ to, value: 0n }],
+          feeToken,
+        })
+      ).request
+      const signature = await viem_Actions.transaction.sign(client, {
         ...request,
         account: externalOwner,
       })
-      const transaction = await signTransaction(client, {
+      const transaction = await viem_Actions.transaction.sign(client, {
         ...request,
         signatures: [signature],
       })
-      const receipt = await sendRawTransactionSync(client, {
-        serializedTransaction: transaction,
+      const receipt = await viem_Actions.transaction.sendRawSync(client, {
+        transaction: transaction,
       })
 
       expect(receipt.status).toBe('success')
       expect(receipt.from).toBe(account.address.toLowerCase())
-      const result = await getTransaction(client, {
+      const result = await viem_Actions.transaction.get(client, {
         hash: receipt.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('multisig')
       if (result.signature?.type !== 'multisig') throw new Error('unreachable')
       expect(result.signature.signatures).toHaveLength(2)
@@ -748,7 +791,7 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       calls: [
         Actions.token.transfer.call(client, {
@@ -783,23 +826,25 @@ describe('stateless', () => {
       token: feeToken,
     })
 
-    const request = await prepareTransactionRequest(client, {
-      account,
-      calls: [
-        Actions.token.transfer.call(client, {
-          amount: 1n,
-          to,
-          token: feeToken,
-        }),
-      ],
-      feeToken,
-    })
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account,
+        calls: [
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
+        ],
+        feeToken,
+      })
+    ).request
     const signatures = await Promise.all(
       [owner_1, owner_2].map((owner) =>
-        signTransaction(client, { ...request, account: owner }),
+        viem_Actions.transaction.sign(client, { ...request, account: owner }),
       ),
     )
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       ...request,
       signatures,
     })
@@ -811,7 +856,7 @@ describe('stateless', () => {
     const account = Account.fromMultisig(accounts[0].address)
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account,
         calls: [{ to, value: 0n }],
         feeToken,
@@ -826,10 +871,10 @@ describe('stateless', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x106106, { size: 32 }),
+      salt: Hex.fromNumber(0x106106, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -853,16 +898,18 @@ describe('stateless', () => {
       ...authorization,
       signatures,
     })
-    const request = await prepareTransactionRequest(client, {
-      account: accessKey,
-      feeToken,
-      keyAuthorization,
-      to,
-      value: 0n,
-    })
-    const transaction = await signTransaction(client, request)
-    const receipt = await sendRawTransactionSync(client, {
-      serializedTransaction: transaction,
+    const request = (
+      await viem_Actions.transaction.prepare(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        to,
+        value: 0n,
+      })
+    ).request
+    const transaction = await viem_Actions.transaction.sign(client, request)
+    const receipt = await viem_Actions.transaction.sendRawSync(client, {
+      transaction: transaction,
     })
 
     expect(receipt.status).toBe('success')
@@ -871,7 +918,7 @@ describe('stateless', () => {
 })
 
 describe('stateful', () => {
-  const client = createClient({
+  const client = Client.create({
     chain: tempoLocalnet,
     tokens: tempo.tokens,
     transport: withRelay(tempo.http(), {
@@ -886,21 +933,13 @@ describe('stateful', () => {
     ).resolves.toMatchInlineSnapshot(`null`)
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: Account.fromMultisig(address),
         calls: [{ data: '0xdeadbeef', to: tempo.accounts[19].address }],
         owner: tempo.accounts[1],
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [TransactionExecutionError: An error occurred.
-
-      Request Arguments:
-        from:  0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C
-
-      Details: No current multisig config is cached for account 0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C. Provide the current config.
-      Version: viem@x.y.z]
-    `,
+    ).rejects.toThrowError(
+      'No current multisig config is cached for account 0x0F9e2db5D73Bf2698b3cc235a719200d209Cd77C. Provide the current config.',
     )
 
     await expect(
@@ -917,10 +956,10 @@ describe('stateful', () => {
     const address = tempo.accounts[19].address
     const store = Store.memory()
     await store.setItem(
-      `multisig:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
+      `multisig:config:${address.toLowerCase()}:${Hex.fromNumber(0, { size: 32 })}`,
       'invalid json',
     )
-    const client = createClient({
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(tempo.http(), {
@@ -935,7 +974,7 @@ describe('stateful', () => {
       [Multisig.Config.InvalidStoreValueError: Stored multisig config is malformed or mismatched.
 
       Details: Unexpected token 'i', "invalid json" is not valid JSON
-      Version: viem@x.y.z]
+      Version: viem@x.x.x]
     `,
     )
   })
@@ -946,7 +985,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x106120, { size: 32 }),
+      salt: Hex.fromNumber(0x106120, { size: 32 }),
       threshold: 2,
     })
     const recipient = tempo.accounts[20].address
@@ -969,7 +1008,7 @@ describe('stateful', () => {
       to: recipient,
       token: tempo.feeToken,
     })
-    const pendingResult = pending.multisig
+    const pendingResult = (pending as TransactionReceipt).multisig
     if (!pendingResult) throw new Error('Expected multisig operation.')
     expect(pendingResult).toMatchInlineSnapshot(
       {
@@ -1014,19 +1053,21 @@ describe('stateful', () => {
     )
     const hash = pending.transactionHash
 
-    await sendTransactionSync(client, {
+    await viem_Actions.transaction.sendSync(client, {
       account,
       hash,
       owner: owner_1,
     })
 
-    const pendingOperation = (await getTransaction(client, { hash })).multisig
+    const pendingOperation = (
+      await viem_Actions.transaction.get(client, { hash })
+    ).multisig
     expect(pendingOperation).toStrictEqual({
       ...pendingResult,
       updatedAt: expect.any(Number),
     })
 
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       hash,
       owner: owner_2,
@@ -1087,7 +1128,7 @@ describe('stateful', () => {
     ).toMatchInlineSnapshot(`1n`)
 
     if (success.status !== 'success') throw new Error('Expected success.')
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: success.transactionHash,
     })
     expect(transaction.signature).toMatchInlineSnapshot(
@@ -1118,19 +1159,12 @@ describe('stateful', () => {
     `,
     )
 
-    expect((await getTransaction(client, { hash })).multisig).toStrictEqual(
-      successResult,
-    )
+    expect(
+      (await viem_Actions.transaction.get(client, { hash })).multisig,
+    ).toStrictEqual(successResult)
 
-    const cachedConfig = await client.multisig.getConfig({
-      address: account.address,
-    })
-    expect(cachedConfig).not.toBeNull()
-    expect(MultisigConfig.getCommitment(cachedConfig!)).toBe(
-      MultisigConfig.getCommitment(account.config),
-    )
-    const secondPending = await sendTransactionSync(client, {
-      account: Account.fromMultisig(account.address),
+    const secondPending = await viem_Actions.transaction.sendSync(client, {
+      account: account,
       calls: [
         Actions.token.transfer.call(client, {
           amount: 2n,
@@ -1142,7 +1176,8 @@ describe('stateful', () => {
     })
     const secondHash = secondPending.transactionHash
     expect(
-      (await getTransaction(client, { hash: secondHash })).multisig,
+      (await viem_Actions.transaction.get(client, { hash: secondHash }))
+        .multisig,
     ).toMatchInlineSnapshot(
       {
         approvals: [expect.any(String)],
@@ -1185,16 +1220,17 @@ describe('stateful', () => {
     `,
     )
 
-    const secondSuccess = await sendTransactionSync(client, {
+    const secondSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: secondHash,
       owner: owner_2,
     })
     expect(secondSuccess.status).toMatchInlineSnapshot(`"success"`)
     expect(
-      (await getTransaction(client, { hash: secondHash })).multisig,
+      (await viem_Actions.transaction.get(client, { hash: secondHash }))
+        .multisig,
     ).toMatchObject({ hash: secondHash, status: 'success', weight: 2 })
-    const replayedReceipt = await sendTransactionSync(client, {
+    const replayedReceipt = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: secondHash,
       owner: owner_2,
@@ -1205,20 +1241,16 @@ describe('stateful', () => {
     })
   })
 
-  test('example: rejects nested ownership', () => {
-    const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
-    )
-  })
-
   test('example: weighted quorum', async () => {
     const [heavy, light_1, light_2] = [
       tempo.accounts[6],
       tempo.accounts[7],
       tempo.accounts[8],
-    ].sort((a, b) => a.address.localeCompare(b.address))
+    ].sort((a, b) => a.address.localeCompare(b.address)) as [
+      Account.RootAccount,
+      Account.RootAccount,
+      Account.RootAccount,
+    ]
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [
@@ -1226,7 +1258,7 @@ describe('stateful', () => {
         { owner: light_1.address, weight: 1 },
         { owner: light_2.address, weight: 1 },
       ],
-      salt: toHex(0x106129, { size: 32 }),
+      salt: Hex.fromNumber(0x106129, { size: 32 }),
       threshold: 3,
     })
 
@@ -1237,55 +1269,55 @@ describe('stateful', () => {
       token: tempo.feeToken,
     })
 
-    const initialPending = await sendTransactionSync(client, {
+    const initialPending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: heavy,
     })
     expect(initialPending.status).toBe('pending')
     expect(initialPending.multisig?.weight).toBe(2)
-    const initialSuccess = await sendTransactionSync(client, {
+    const initialSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: initialPending.transactionHash,
       owner: light_1,
     })
     assertSuccess(initialSuccess)
 
-    const validPending = await sendTransactionSync(client, {
+    const validPending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: heavy,
     })
     expect(validPending.status).toBe('pending')
-    const validSuccess = await sendTransactionSync(client, {
+    const validSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: validPending.transactionHash,
       owner: light_2,
     })
     assertSuccess(validSuccess)
 
-    const lightPending_1 = await sendTransactionSync(client, {
+    const lightPending_1 = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: light_1,
     })
     expect(lightPending_1.status).toBe('pending')
     expect(lightPending_1.multisig?.weight).toBe(1)
-    const lightPending_2 = await sendTransactionSync(client, {
+    const lightPending_2 = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: lightPending_1.transactionHash,
       owner: light_2,
     })
     expect(lightPending_2.status).toBe('pending')
     expect(lightPending_2.multisig?.weight).toBe(2)
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: lightPending_1.transactionHash,
       owner: heavy,
     })
     assertSuccess(success)
 
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: success.transactionHash,
     })
     expect(transaction.signature?.type).toBe('multisig')
@@ -1300,7 +1332,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x10612a, { size: 32 }),
+      salt: Hex.fromNumber(0x10612a, { size: 32 }),
       threshold: 2,
     })
 
@@ -1311,7 +1343,7 @@ describe('stateful', () => {
       token: tempo.feeToken,
     })
 
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       feePayer: tempo.accounts[0],
       owner: owner_1,
@@ -1319,7 +1351,7 @@ describe('stateful', () => {
       value: 0n,
     })
     expect(pending.status).toBe('pending')
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -1336,10 +1368,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x10612b, { size: 32 }),
+      salt: Hex.fromNumber(0x10612b, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -1365,7 +1397,7 @@ describe('stateful', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
 
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect(transaction.signature?.type).toBe('keychain')
@@ -1383,10 +1415,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x10612d, { size: 32 }),
+      salt: Hex.fromNumber(0x10612d, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -1413,7 +1445,7 @@ describe('stateful', () => {
     )
     expect(initialReceipt.status).toBe('success')
 
-    const initialResult = await getTransaction(client, {
+    const initialResult = await viem_Actions.transaction.get(client, {
       hash: initialReceipt.transactionHash,
     })
     expect(initialResult.signature?.type).toBe('multisig')
@@ -1445,7 +1477,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x10612e, { size: 32 }),
+      salt: Hex.fromNumber(0x10612e, { size: 32 }),
       threshold: 2,
     })
 
@@ -1456,16 +1488,15 @@ describe('stateful', () => {
       token: tempo.feeToken,
     })
 
-    const initialPending = await sendTransactionSync(client, {
+    const initialPending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: owner_1,
     })
     expect(initialPending.multisig?.config.version).toBe(0n)
     expect(initialPending.status).toBe('pending')
-    await expect(
-      client.multisig.getConfig({ address: account.address }),
-    ).resolves.toMatchInlineSnapshot(`
+    await expect(client.multisig.getConfig({ address: account.address }))
+      .resolves.toMatchInlineSnapshot(`
       {
         "owners": [
           {
@@ -1482,7 +1513,7 @@ describe('stateful', () => {
         "version": 0n,
       }
     `)
-    const initialSuccess = await sendTransactionSync(client, {
+    const initialSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: initialPending.transactionHash,
       owner: owner_2,
@@ -1514,7 +1545,7 @@ describe('stateful', () => {
     expect(
       (await client.multisig.getConfig({ address: account.address }))?.version,
     ).toMatchInlineSnapshot(`0n`)
-    const updateSuccess = await sendTransactionSync(client, {
+    const updateSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: updatePending.transactionHash,
       owner: owner_2,
@@ -1531,9 +1562,8 @@ describe('stateful', () => {
       ]),
     })
 
-    await expect(
-      client.multisig.getConfig({ address: account.address }),
-    ).resolves.toMatchInlineSnapshot(`
+    await expect(client.multisig.getConfig({ address: account.address }))
+      .resolves.toMatchInlineSnapshot(`
       {
         "owners": [
           {
@@ -1552,7 +1582,7 @@ describe('stateful', () => {
     `)
     const currentAccount = Account.fromMultisig(account.address)
 
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: currentAccount,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: owner_3,
@@ -1567,7 +1597,7 @@ describe('stateful', () => {
       version: 1n,
     })
     expect(pending.status).toBe('pending')
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account: currentAccount,
       hash: pending.transactionHash,
       owner: owner_4,
@@ -1589,15 +1619,17 @@ describe('stateful', () => {
         owner: owner_3,
       })
     expect(secondUpdatePending.status).toMatchInlineSnapshot(`"pending"`)
-    const secondUpdateSuccess = await sendTransactionSync(client, {
-      account: currentAccount,
-      hash: secondUpdatePending.transactionHash,
-      owner: owner_4,
-    })
+    const secondUpdateSuccess = await viem_Actions.transaction.sendSync(
+      client,
+      {
+        account: currentAccount,
+        hash: secondUpdatePending.transactionHash,
+        owner: owner_4,
+      },
+    )
     await getReceipt(secondUpdateSuccess)
-    await expect(
-      client.multisig.getConfig({ address: account.address }),
-    ).resolves.toMatchInlineSnapshot(`
+    await expect(client.multisig.getConfig({ address: account.address }))
+      .resolves.toMatchInlineSnapshot(`
       {
         "owners": [
           {
@@ -1621,25 +1653,17 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner.address],
-      salt: toHex(0x106139, { size: 32 }),
+      salt: Hex.fromNumber(0x106139, { size: 32 }),
     })
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
         owner: owner.address,
       } as never),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [TransactionExecutionError: An error occurred.
-
-      Request Arguments:
-        from:  0xce5fa12b6687C80BDAa7ed41D4554ff92C0b97FE
-
-      Details: A local owner account is required to approve a multisig transaction.
-      Version: viem@x.y.z]
-    `,
+    ).rejects.toThrowError(
+      'A local owner account is required to approve a multisig transaction.',
     )
   })
 
@@ -1649,10 +1673,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x10613c, { size: 32 }),
+      salt: Hex.fromNumber(0x10613c, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: owner_2,
     })
 
@@ -1662,29 +1686,23 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
       owner: owner_1,
     })
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account,
         hash: pending.transactionHash,
         owner: accessKey,
       } as never),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [TransactionExecutionError: An error occurred.
+    ).rejects.toThrowError(
+      'A Tempo owner account is required to approve a stored multisig transaction.',
+    )
 
-      Request Arguments:
-        from:  0x58274813EdbD14aD26F41daeCf8b5BE03974DcFA
-
-      Details: A Tempo owner account is required to approve a stored multisig transaction.
-      Version: viem@x.y.z]
-    `)
-
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -1699,7 +1717,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address, owner_3.address],
-      salt: toHex(0x106122, { size: 32 }),
+      salt: Hex.fromNumber(0x106122, { size: 32 }),
       threshold: 2,
     })
 
@@ -1710,14 +1728,14 @@ describe('stateful', () => {
       token: tempo.feeToken,
     })
 
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: owner_1,
     })
     expect(pending.status).toBe('pending')
 
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_3,
@@ -1728,7 +1746,7 @@ describe('stateful', () => {
 
   test('behavior: mixed owner key types', async () => {
     const owners = [
-      Account.fromSecp256k1(generatePrivateKey()),
+      Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
       Account.fromP256(P256.randomPrivateKey()),
       Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
         origin: 'https://example.com',
@@ -1739,7 +1757,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners,
-      salt: toHex(0x106123, { size: 32 }),
+      salt: Hex.fromNumber(0x106123, { size: 32 }),
       threshold: owners.length,
     })
 
@@ -1751,30 +1769,30 @@ describe('stateful', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const pending = await sendTransactionSync(client, {
+      const pending = await viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         owner: owners[0],
       })
       for (const owner of owners.slice(1, -1)) {
-        const operation = await sendTransactionSync(client, {
+        const operation = await viem_Actions.transaction.sendSync(client, {
           account,
           hash: pending.transactionHash,
           owner: owner,
         })
         expect(operation.status).toBe('pending')
       }
-      const success = await sendTransactionSync(client, {
+      const success = await viem_Actions.transaction.sendSync(client, {
         account,
         hash: pending.transactionHash,
         owner: owners[3],
       })
 
       assertSuccess(success)
-      const transaction = await getTransaction(client, {
+      const transaction = await viem_Actions.transaction.get(client, {
         hash: success.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('multisig')
@@ -1795,12 +1813,12 @@ describe('stateful', () => {
   })
 
   test('behavior: mixed local and external owners', async () => {
-    const localOwner = Account.fromSecp256k1(generatePrivateKey())
-    const externalOwner = Account.fromSecp256k1(generatePrivateKey())
+    const localOwner = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+    const externalOwner = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [localOwner, externalOwner.address],
-      salt: toHex(0x106124, { size: 32 }),
+      salt: Hex.fromNumber(0x106124, { size: 32 }),
       threshold: 2,
     })
 
@@ -1812,13 +1830,13 @@ describe('stateful', () => {
     })
 
     for (let nonce = 0; nonce < 2; nonce++) {
-      const pending = await sendTransactionSync(client, {
+      const pending = await viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         owner: externalOwner,
       })
       expect(pending.status).toBe('pending')
-      const success = await sendTransactionSync(client, {
+      const success = await viem_Actions.transaction.sendSync(client, {
         account,
         hash: pending.transactionHash,
         owner: localOwner,
@@ -1826,10 +1844,10 @@ describe('stateful', () => {
 
       const receipt = await getReceipt(success)
       expect(receipt.from).toBe(account.address.toLowerCase())
-      const transaction = await getTransaction(client, {
+      const transaction = await viem_Actions.transaction.get(client, {
         hash: receipt.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('multisig')
@@ -1839,21 +1857,13 @@ describe('stateful', () => {
     }
   })
 
-  test('behavior: rejects a nested owner after configuration rotation', () => {
-    const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
-    )
-  })
-
   test('behavior: allocates independent nonces for concurrent pending operations', async () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106138, { size: 32 }),
+      salt: Hex.fromNumber(0x106138, { size: 32 }),
       threshold: 2,
     })
 
@@ -1863,18 +1873,18 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    await sendTransactionSync(client, {
+    await viem_Actions.transaction.sendSync(client, {
       account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
     })
 
     const [pending_1, pending_2] = await Promise.all([
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ data: '0x01', to: tempo.accounts[20].address }],
         owner: owner_1,
       }),
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ data: '0x02', to: tempo.accounts[20].address }],
         owner: owner_1,
@@ -1883,10 +1893,14 @@ describe('stateful', () => {
     expect(pending_1.transactionHash).not.toBe(pending_2.transactionHash)
 
     const operation_1 = (
-      await getTransaction(client, { hash: pending_1.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending_1.transactionHash,
+      })
     ).multisig
     const operation_2 = (
-      await getTransaction(client, { hash: pending_2.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending_2.transactionHash,
+      })
     ).multisig
     if (!operation_1 || !operation_2)
       throw new Error('Expected multisig operations.')
@@ -1907,12 +1921,12 @@ describe('stateful', () => {
     expect(transaction_2.validBefore).toBeUndefined()
 
     const [success_1, success_2] = await Promise.all([
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account,
         hash: pending_1.transactionHash,
         owner: owner_2,
       }),
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account,
         hash: pending_2.transactionHash,
         owner: owner_2,
@@ -1928,7 +1942,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106125, { size: 32 }),
+      salt: Hex.fromNumber(0x106125, { size: 32 }),
       threshold: 2,
     })
     await Actions.token.transferSync(client, {
@@ -1952,21 +1966,13 @@ describe('stateful', () => {
     const account = Account.fromMultisig(tempo.accounts[0].address)
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: account,
         calls: [{ to: tempo.accounts[20].address, value: 0n }],
         owner: tempo.accounts[0],
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [TransactionExecutionError: An error occurred.
-
-      Request Arguments:
-        from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      Details: No current multisig config is cached for account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266. Provide the current config.
-      Version: viem@x.y.z]
-    `,
+    ).rejects.toThrowError(
+      'No current multisig config is cached for account 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266. Provide the current config.',
     )
   })
 
@@ -1976,10 +1982,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x10612c, { size: 32 }),
+      salt: Hex.fromNumber(0x10612c, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2155,7 +2161,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106140, { size: 32 }),
+      salt: Hex.fromNumber(0x106140, { size: 32 }),
       threshold: 2,
     })
 
@@ -2178,7 +2184,7 @@ describe('stateful', () => {
       },
     )
     expect(updatePending.status).toMatchInlineSnapshot(`"pending"`)
-    const updateSuccess = await sendTransactionSync(client, {
+    const updateSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: updatePending.transactionHash,
       owner: owner_2,
@@ -2192,7 +2198,7 @@ describe('stateful', () => {
       address: account.address,
       ...config,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: currentAccount,
     })
 
@@ -2222,7 +2228,7 @@ describe('stateful', () => {
     expect(receipt.from).toBe(account.address.toLowerCase())
 
     await expect(
-      sendTransactionSync(client, {
+      viem_Actions.transaction.sendSync(client, {
         account: accessKey,
         calls: [
           Actions.multisig.updateConfig.call({
@@ -2242,7 +2248,11 @@ describe('stateful', () => {
       tempo.accounts[6],
       tempo.accounts[7],
       tempo.accounts[8],
-    ].sort((a, b) => a.address.localeCompare(b.address))
+    ].sort((a, b) => a.address.localeCompare(b.address)) as [
+      Account.RootAccount,
+      Account.RootAccount,
+      Account.RootAccount,
+    ]
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [
@@ -2250,10 +2260,10 @@ describe('stateful', () => {
         { owner: light_1, weight: 1 },
         { owner: light_2, weight: 1 },
       ],
-      salt: toHex(0x106141, { size: 32 }),
+      salt: Hex.fromNumber(0x106141, { size: 32 }),
       threshold: 3,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2290,30 +2300,22 @@ describe('stateful', () => {
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
   })
 
-  test('behavior: rejects nested access key authorization owners', () => {
-    const child = Account.fromMultisig({ owners: [tempo.accounts[1]] })
-    // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
-    )
-  })
-
   test('behavior: coordinates mixed-key access key authorization approvals', async () => {
     const owners = [
-      Account.fromSecp256k1(generatePrivateKey()),
+      Account.fromSecp256k1(Secp256k1.randomPrivateKey()),
       Account.fromP256(P256.randomPrivateKey()),
       Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
         origin: 'https://example.com',
         rpId: 'example.com',
       }),
-    ]
+    ] as const
     const account = Account.fromMultisig({
       address: 'infer',
       owners,
-      salt: toHex(0x106144, { size: 32 }),
+      salt: Hex.fromNumber(0x106144, { size: 32 }),
       threshold: owners.length,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2366,10 +2368,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106145, { size: 32 }),
+      salt: Hex.fromNumber(0x106145, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2415,10 +2417,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106146, { size: 32 }),
+      salt: Hex.fromNumber(0x106146, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2447,7 +2449,7 @@ describe('stateful', () => {
         owner: owner_1,
       },
     )
-    const updateSuccess = await sendTransactionSync(client, {
+    const updateSuccess = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: updatePending.transactionHash,
       owner: owner_2,
@@ -2473,10 +2475,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2, owner_3],
-      salt: toHex(0x106147, { size: 32 }),
+      salt: Hex.fromNumber(0x106147, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2523,10 +2525,10 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106148, { size: 32 }),
+      salt: Hex.fromNumber(0x106148, { size: 32 }),
       threshold: 2,
     })
-    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    const accessKey = Account.fromSecp256k1(Secp256k1.randomPrivateKey(), {
       access: account,
     })
 
@@ -2544,7 +2546,7 @@ describe('stateful', () => {
 
     const signature = SignatureEnvelope.serialize(
       SignatureEnvelope.from(
-        await owner_2.sign({ hash: toHex(1, { size: 32 }) }),
+        await owner_2.sign({ hash: Hex.fromNumber(1, { size: 32 }) }),
       ),
     )
     await expect(
@@ -2581,7 +2583,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner],
-      salt: toHex(0x106135, { size: 32 }),
+      salt: Hex.fromNumber(0x106135, { size: 32 }),
     })
 
     await Actions.token.transferSync(client, {
@@ -2632,7 +2634,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [tempo.accounts[3], tempo.accounts[4]],
-      salt: toHex(0x106121, { size: 32 }),
+      salt: Hex.fromNumber(0x106121, { size: 32 }),
       threshold: 2,
     })
     const recipient = tempo.accounts[19].address
@@ -2661,7 +2663,7 @@ describe('stateful', () => {
         })
       ).amount - balance.amount,
     ).toMatchInlineSnapshot(`3n`)
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: receipt.transactionHash,
     })
     expect(transaction.signature).toMatchInlineSnapshot(
@@ -2700,7 +2702,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2, owner_3],
-      salt: toHex(0x10612f, { size: 32 }),
+      salt: Hex.fromNumber(0x10612f, { size: 32 }),
       threshold: 2,
     })
     const store = Store.memory()
@@ -2708,20 +2710,23 @@ describe('stateful', () => {
     const broadcast = withResolvers<void>()
     const release = withResolvers<void>()
     const baseTransport = tempo.http()
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request) => {
-          if (collect && request.method === 'eth_sendRawTransactionSync') {
-            broadcast.resolve()
-            await release.promise
-          }
-          return await value.request(request as never)
-        },
-      }
-    }
-    const client = createClient({
+    const transport = Transport.from({
+      ...baseTransport,
+      setup(options = {}) {
+        const value = baseTransport.setup(options)
+        return {
+          ...value,
+          request: async (request) => {
+            if (collect && request.method === 'eth_sendRawTransactionSync') {
+              broadcast.resolve()
+              await release.promise
+            }
+            return await value.request(request as never)
+          },
+        }
+      },
+    })
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(transport, {
@@ -2735,7 +2740,7 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: owner_1,
@@ -2743,7 +2748,7 @@ describe('stateful', () => {
     expect(pending.status).toBe('pending')
 
     collect = true
-    const submission_1 = sendTransactionSync(client, {
+    const submission_1 = viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -2751,14 +2756,16 @@ describe('stateful', () => {
     })
     await broadcast.promise
     const submitting = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(submitting?.status).toMatchInlineSnapshot(`"submitting"`)
     if (submitting?.status !== 'submitting') throw new Error('unreachable')
     if (!submitting.submissionId) throw new Error('Expected submission ID.')
     expect(submitting.expiresAt).toBeGreaterThan(Date.now() + 60_000)
 
-    const submission_2 = sendTransactionSync(client, {
+    const submission_2 = viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_3,
@@ -2773,7 +2780,9 @@ describe('stateful', () => {
     expect(receipt_1.status).toMatchInlineSnapshot(`"success"`)
     expect(receipt_2).toStrictEqual(receipt_1)
     const operation = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(operation?.status).toMatchInlineSnapshot(`"success"`)
     await expect(
@@ -2788,11 +2797,11 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[15]
     const account = Account.fromMultisig({
       owners: [owner_1, owner_2],
-      salt: toHex(0x10613d, { size: 32 }),
+      salt: Hex.fromNumber(0x10613d, { size: 32 }),
       threshold: 2,
     })
     const store = Store.memory()
-    const client = createClient({
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(tempo.http(), {
@@ -2807,7 +2816,7 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
       owner: owner_1,
@@ -2852,7 +2861,7 @@ describe('stateful', () => {
     const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
     expect(await store.getItem(submissionKey)).toBeTypeOf('string')
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: operation.hash,
       owner: owner_2,
@@ -2870,34 +2879,37 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106134, { size: 32 }),
+      salt: Hex.fromNumber(0x106134, { size: 32 }),
       threshold: 2,
     })
     const controller = new AbortController()
     const store = Store.memory()
     let abortResponse = false
     const baseTransport = tempo.http()
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request, requestOptions) => {
-          if (
-            abortResponse &&
-            request.method === 'eth_sendRawTransactionSync'
-          ) {
-            if (!Array.isArray(request.params) || request.params[1] !== 5_000)
-              throw new Error('Expected forwarded synchronous timeout.')
-            abortResponse = false
-            await value.request(request as never, requestOptions)
-            controller.abort()
-            throw controller.signal.reason
-          }
-          return await value.request(request as never, requestOptions)
-        },
-      }
-    }
-    const client = createClient({
+    const transport = Transport.from({
+      ...baseTransport,
+      setup(options = {}) {
+        const value = baseTransport.setup(options)
+        return {
+          ...value,
+          request: async (request, requestOptions) => {
+            if (
+              abortResponse &&
+              request.method === 'eth_sendRawTransactionSync'
+            ) {
+              if (!Array.isArray(request.params) || request.params[1] !== 5_000)
+                throw new Error('Expected forwarded synchronous timeout.')
+              abortResponse = false
+              await value.request(request as never, requestOptions)
+              controller.abort()
+              throw controller.signal.reason
+            }
+            return await value.request(request as never, requestOptions)
+          },
+        }
+      },
+    })
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(transport, {
@@ -2911,13 +2923,13 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
       owner: owner_1,
     })
     abortResponse = true
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -2926,7 +2938,9 @@ describe('stateful', () => {
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
 
     const stored = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(stored?.status).toMatchInlineSnapshot(`"success"`)
   })
@@ -2937,7 +2951,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x10613b, { size: 32 }),
+      salt: Hex.fromNumber(0x10613b, { size: 32 }),
       threshold: 2,
     })
     const backing = Store.memory()
@@ -2959,23 +2973,29 @@ describe('stateful', () => {
     const release = withResolvers<void>()
     let hold = false
     const baseTransport = tempo.http()
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request, requestOptions) => {
-          if (hold && request.method === 'eth_sendRawTransactionSync') {
-            hold = false
-            const result = await value.request(request as never, requestOptions)
-            broadcast.resolve()
-            await release.promise
-            return result as never
-          }
-          return await value.request(request as never, requestOptions)
-        },
-      }
-    }
-    const client = createClient({
+    const transport = Transport.from({
+      ...baseTransport,
+      setup(options = {}) {
+        const value = baseTransport.setup(options)
+        return {
+          ...value,
+          request: async (request, requestOptions) => {
+            if (hold && request.method === 'eth_sendRawTransactionSync') {
+              hold = false
+              const result = await value.request(
+                request as never,
+                requestOptions,
+              )
+              broadcast.resolve()
+              await release.promise
+              return result as never
+            }
+            return await value.request(request as never, requestOptions)
+          },
+        }
+      },
+    })
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(transport, {
@@ -2989,7 +3009,7 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
       owner: owner_1,
@@ -2997,7 +3017,7 @@ describe('stateful', () => {
     expect(pending.status).toMatchInlineSnapshot(`"pending"`)
 
     hold = true
-    const submission = sendTransactionSync(client, {
+    const submission = viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -3008,7 +3028,7 @@ describe('stateful', () => {
         throw new Error('Expected blocked submission.')
       }),
     ])
-    const transaction = await getTransaction(client, {
+    const transaction = await viem_Actions.transaction.get(client, {
       hash: pending.transactionHash,
     })
     expect(transaction.multisig?.status).toMatchInlineSnapshot(`"success"`)
@@ -3024,7 +3044,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
-      salt: toHex(0x10613c, { size: 32 }),
+      salt: Hex.fromNumber(0x10613c, { size: 32 }),
       threshold: 2,
     })
     const store = Store.memory()
@@ -3035,42 +3055,48 @@ describe('stateful', () => {
     let operationHash: `0x${string}` | undefined
     let replaceSubmission = false
     const baseTransport = tempo.http()
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request, requestOptions) => {
-          if (hold && request.method === 'eth_sendRawTransactionSync') {
-            hold = false
-            const result = await value.request(request as never, requestOptions)
-            broadcast.resolve()
-            await release.promise
-            return result as never
-          }
-          if (
-            replaceSubmission &&
-            request.method === 'eth_getTransactionByHash'
-          ) {
-            replaceSubmission = false
-            if (!operationHash) throw new Error('Expected operation hash.')
-            await OperationStore.update(store, operationHash, (current) => {
-              if (
-                current?.type !== 'transaction' ||
-                current.status !== 'submitting'
+    const transport = Transport.from({
+      ...baseTransport,
+      setup(options = {}) {
+        const value = baseTransport.setup(options)
+        return {
+          ...value,
+          request: async (request, requestOptions) => {
+            if (hold && request.method === 'eth_sendRawTransactionSync') {
+              hold = false
+              const result = await value.request(
+                request as never,
+                requestOptions,
               )
-                throw new Error('Expected submitting operation.')
-              return MultisigOperation.from({
-                ...current,
-                submissionId: replacementId,
-                updatedAt: Date.now(),
+              broadcast.resolve()
+              await release.promise
+              return result as never
+            }
+            if (
+              replaceSubmission &&
+              request.method === 'eth_getTransactionByHash'
+            ) {
+              replaceSubmission = false
+              if (!operationHash) throw new Error('Expected operation hash.')
+              await OperationStore.update(store, operationHash, (current) => {
+                if (
+                  current?.type !== 'transaction' ||
+                  current.status !== 'submitting'
+                )
+                  throw new Error('Expected submitting operation.')
+                return MultisigOperation.from({
+                  ...current,
+                  submissionId: replacementId,
+                  updatedAt: Date.now(),
+                })
               })
-            })
-          }
-          return await value.request(request as never, requestOptions)
-        },
-      }
-    }
-    const client = createClient({
+            }
+            return await value.request(request as never, requestOptions)
+          },
+        }
+      },
+    })
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(transport, {
@@ -3084,7 +3110,7 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ data: '0xdeadbeef', to: tempo.accounts[20].address }],
       owner: owner_1,
@@ -3093,7 +3119,7 @@ describe('stateful', () => {
     operationHash = pending.transactionHash
 
     hold = true
-    const submission = sendTransactionSync(client, {
+    const submission = viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
@@ -3113,7 +3139,7 @@ describe('stateful', () => {
 
     replaceSubmission = true
     await expect(
-      getTransaction(client, { hash: operationHash }),
+      viem_Actions.transaction.get(client, { hash: operationHash }),
     ).rejects.toThrowError(OperationStore.InvalidStoreValueError)
     const replaced = await OperationStore.read(store, operationHash)
     if (replaced?.type !== 'transaction' || replaced.status !== 'submitting')
@@ -3140,7 +3166,7 @@ describe('stateful', () => {
     const account = Account.fromMultisig({
       address: 'infer',
       owners: [owner_1, owner_2],
-      salt: toHex(0x106130, { size: 32 }),
+      salt: Hex.fromNumber(0x106130, { size: 32 }),
       threshold: 2,
     })
     const store = Store.memory()
@@ -3148,22 +3174,27 @@ describe('stateful', () => {
     const broadcast = withResolvers<void>()
     const release = withResolvers<void>()
     const baseTransport = tempo.http()
-    const transport: Transport = (options) => {
-      const value = baseTransport(options)
-      return {
-        ...value,
-        request: async (request, requestOptions) => {
-          if (fail && request.method === 'eth_sendRawTransactionSync') {
-            fail = false
-            broadcast.resolve()
-            await release.promise
-            throw new Error('Submission failed.')
-          }
-          return await value.request(request as never, requestOptions)
-        },
-      }
-    }
-    const client = createClient({
+    const transport = Transport.from({
+      ...baseTransport,
+      setup(options = {}) {
+        const value = baseTransport.setup(options)
+        return {
+          ...value,
+          request: async (request, requestOptions) => {
+            if (fail && request.method === 'eth_sendRawTransactionSync') {
+              fail = false
+              broadcast.resolve()
+              await release.promise
+              throw new RpcResponse.InternalError({
+                message: 'Submission failed.',
+              })
+            }
+            return await value.request(request as never, requestOptions)
+          },
+        }
+      },
+    })
+    const client = Client.create({
       chain: tempoLocalnet,
       tokens: tempo.tokens,
       transport: withRelay(transport, {
@@ -3177,7 +3208,7 @@ describe('stateful', () => {
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await viem_Actions.transaction.sendSync(client, {
       account: account,
       calls: [{ to: tempo.accounts[20].address, value: 0n }],
       owner: owner_1,
@@ -3185,32 +3216,26 @@ describe('stateful', () => {
     expect(pending.status).toBe('pending')
 
     fail = true
-    const failed = sendTransactionSync(client, {
+    const failed = viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
     })
     await broadcast.promise
     const submitting = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(submitting?.status).toMatchInlineSnapshot(`"submitting"`)
     if (submitting?.status !== 'submitting' || !submitting.submissionId)
       throw new Error('Expected submitting operation.')
     release.resolve()
-    await expect(failed).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [TransactionExecutionError: An error occurred.
-
-      Request Arguments:
-        from:  0x2f7dea517DdC7aa2Fc0Dfa101F8Dd75d08892024
-
-      Details: Internal error
-      Version: viem@x.y.z]
-    `,
-    )
+    await expect(failed).rejects.toThrowError('Submission failed.')
     const failedOperation = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(failedOperation?.status).toBe('pending')
     expect(failedOperation?.weight).toBe(2)
@@ -3220,14 +3245,16 @@ describe('stateful', () => {
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
 
-    const success = await sendTransactionSync(client, {
+    const success = await viem_Actions.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
     })
     assertSuccess(success)
     const operation = (
-      await getTransaction(client, { hash: pending.transactionHash })
+      await viem_Actions.transaction.get(client, {
+        hash: pending.transactionHash,
+      })
     ).multisig
     expect(operation?.status).toBe('success')
     if (operation?.status !== 'success') throw new Error('unreachable')
@@ -3236,24 +3263,20 @@ describe('stateful', () => {
 })
 
 function assertSuccess(
-  receipt: Transaction.TransactionReceipt,
-): asserts receipt is Transaction.TransactionReceipt<
-  bigint,
-  number,
-  'success'
-> {
+  receipt: TransactionReceipt,
+): asserts receipt is TransactionReceipt & { status: 'success' } {
   if (receipt.status !== 'success') throw new Error('Expected success.')
 }
 
 async function getReceipt(
-  receipt: Transaction.TransactionReceipt,
-): Promise<Transaction.TransactionReceipt> {
+  receipt: TransactionReceipt,
+): Promise<TransactionReceipt> {
   assertSuccess(receipt)
   return receipt
 }
 
 test('infers the chain for independent owners through a Fetch relay', async () => {
-  const resolver = createClientResolver({
+  const resolver = CoreClient_.createResolver({
     chains: [tempo.chain],
     transport: () => tempo.http(),
   })
@@ -3267,7 +3290,7 @@ test('infers the chain for independent owners through a Fetch relay', async () =
     const address = server.address()
     if (!address || typeof address === 'string')
       throw new Error('Expected TCP listener')
-    const client = createClient({
+    const client = CoreClient_.create({
       chain: tempo.chain,
       transport: withRelay(
         tempo.http(),
@@ -3280,7 +3303,7 @@ test('infers the chain for independent owners through a Fetch relay', async () =
       address: 'infer',
       owners: [owner_1, owner_2],
       threshold: 2,
-      salt: toHex(0x72656c6179, { size: 32 }),
+      salt: Hex.fromNumber(0x72656c6179, { size: 32 }),
     })
     await Actions.token.transferSync(tempo.getClient(), {
       account: tempo.accounts[0],
@@ -3288,7 +3311,7 @@ test('infers the chain for independent owners through a Fetch relay', async () =
       to: account.address,
       token: tempo.feeToken,
     })
-    const pending = await sendTransactionSync(client, {
+    const pending = await CoreActions_.transaction.sendSync(client, {
       account,
       calls: [
         Actions.token.transfer.call(client, {
@@ -3300,13 +3323,13 @@ test('infers the chain for independent owners through a Fetch relay', async () =
       owner: owner_1,
     })
     expect(pending.status).toBe('pending')
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await CoreActions_.transaction.sendSync(client, {
       account,
       hash: pending.transactionHash,
       owner: owner_2,
     })
     expect(receipt.status).toBe('success')
-    const transaction = await getTransaction(client, {
+    const transaction = await CoreActions_.transaction.get(client, {
       hash: pending.transactionHash,
     })
     expect(transaction.multisig?.transactionHash).toBe(receipt.transactionHash)

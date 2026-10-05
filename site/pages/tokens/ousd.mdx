@@ -12,13 +12,13 @@ description: Use Open USD (OUSD) with Viem.
 Add `ousd` to a Client to use it with [Token Actions](/tokens/actions).
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Client, http } from 'viem'
+import { Account } from 'viem'
 import { tempo } from 'viem/chains'
 import { ousd } from 'viem/tokens'
 
-export const client = createClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: tempo,
   tokens: [ousd],
   transport: http(),
@@ -32,10 +32,10 @@ Use [`getBalance`](/tokens/actions/getBalance) to read an account's balance.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { token } from 'viem/actions'
+import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const balance = await token.getBalance(client, {
+const balance = await Actions.token.getBalance(client, {
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'ousd', // [!code focus]
 })
@@ -43,13 +43,13 @@ const balance = await token.getBalance(client, {
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Client, http } from 'viem'
+import { Account } from 'viem'
 import { tempo } from 'viem/chains'
 import { ousd } from 'viem/tokens'
 
-export const client = createClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: tempo,
   tokens: [ousd],
   transport: http(),
@@ -65,10 +65,10 @@ Use [`transfer`](/tokens/actions/transfer) to send Open USD to another account.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { token } from 'viem/actions'
+import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const hash = await token.transfer(client, {
+const hash = await Actions.token.transfer(client, {
   amount: { formatted: '10.5' }, // [!code focus]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'ousd', // [!code focus]
@@ -77,13 +77,13 @@ const hash = await token.transfer(client, {
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Client, http } from 'viem'
+import { Account } from 'viem'
 import { tempo } from 'viem/chains'
 import { ousd } from 'viem/tokens'
 
-export const client = createClient({
-  account: privateKeyToAccount('0x...'),
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x...'),
   chain: tempo,
   tokens: [ousd],
   transport: http(),

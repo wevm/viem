@@ -21,16 +21,16 @@ Replace the keys and addresses with your own.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Value } from 'ox'
+import { Account } from 'viem'
 import { client } from './viem.config'
 
 // [!code focus:start]
 const { receipt } = await client.token.transferSync({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
   token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
   to: '0x2222222222222222222222222222222222222222',
-  amount: parseUnits('100', 6),
+  amount: Value.from('100', 6),
 })
 
 receipt.status
@@ -40,15 +40,15 @@ receipt.status
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, Relay, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [
       // [!code focus:start]
       Relay.feePayer({
-        account: privateKeyToAccount('0x...'),
+        account: Account.fromPrivateKey('0x...'),
         name: 'Example Sponsor',
         url: 'https://example.com',
       }),
@@ -60,10 +60,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -75,24 +75,24 @@ fee token. The sender needs the USDC.e being transferred.
 
 ### Inspect Sponsorship
 
-Use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest)
+Use [`Actions.transaction.prepare`](/docs/actions/public/transaction/prepare)
 to inspect sponsorship before signing and sending a transfer. Sponsor metadata
 below is illustrative.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import { prepareTransactionRequest } from 'viem/actions'
+import { Value } from 'ox'
+import { Actions as CoreActions } from 'viem'
 import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
-const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
+const { capabilities } = await CoreActions.transaction.prepare(client, {
   account: '0x1111111111111111111111111111111111111111',
   calls: [Actions.token.transfer.call(client, {
     token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
     to: '0x2222222222222222222222222222222222222222',
-    amount: parseUnits('100', 6),
+    amount: Value.from('100', 6),
   })],
 })
 
@@ -110,15 +110,15 @@ capabilities?.sponsor
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, Relay, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [
       // [!code focus:start]
       Relay.feePayer({
-        account: privateKeyToAccount('0x...'),
+        account: Account.fromPrivateKey('0x...'),
         name: 'Example Sponsor',
         url: 'https://example.com',
       }),
@@ -130,10 +130,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -146,17 +146,17 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { Addresses, createClient, Relay, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Addresses, Client, Relay, withRelay } from 'viem/tempo'
 
 const plugin = Relay.feePayer({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
   feeToken: Addresses.pathUsd,
   validate: (transaction) => // [!code focus]
     transaction.from === '0x0000000000000000000000000000000000000001', // [!code focus]
 })
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [plugin], // [!code focus]
   }),
@@ -165,10 +165,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -186,15 +186,15 @@ Set `feePayer: false` on the transfer to pay fees from the sender's balance.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Value } from 'ox'
+import { Account } from 'viem'
 import { client } from './viem.config'
 
 const { receipt } = await client.token.transferSync({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
   token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
   to: '0x2222222222222222222222222222222222222222',
-  amount: parseUnits('100', 6),
+  amount: Value.from('100', 6),
   feePayer: false, // [!code focus]
 })
 
@@ -204,15 +204,15 @@ receipt.status
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, Relay, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [
       // [!code focus:start]
       Relay.feePayer({
-        account: privateKeyToAccount('0x...'),
+        account: Account.fromPrivateKey('0x...'),
         name: 'Example Sponsor',
         url: 'https://example.com',
       }),
@@ -224,10 +224,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -242,15 +242,15 @@ full URL in the relay configuration.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseUnits } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Value } from 'ox'
+import { Account } from 'viem'
 import { client } from './viem.config'
 
 const { receipt } = await client.token.transferSync({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
   token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
   to: '0x2222222222222222222222222222222222222222',
-  amount: parseUnits('100', 6),
+  amount: Value.from('100', 6),
   feePayer: 'https://sponsor.example/relay', // [!code focus]
 })
 
@@ -260,9 +260,9 @@ receipt.status
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { createClient, Relay, withRelay } from 'viem/tempo'
+import { Client, Relay, withRelay } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [Relay.feePayer({
       allowedFeePayers: ['https://sponsor.example/relay'], // [!code focus]
@@ -273,10 +273,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -293,11 +293,11 @@ match the configured allowlist, including the path and query.
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { createClient, Relay, withRelay } from 'viem/tempo'
+import { Account } from 'viem'
+import { Client, Relay, withRelay } from 'viem/tempo'
 
 const plugin = Relay.feePayer({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
   // [!code focus:start]
   async onSponsored(event) {
     const response = await fetch('https://example.com/sponsorships', {
@@ -310,7 +310,7 @@ const plugin = Relay.feePayer({
   // [!code focus:end]
 })
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [plugin], // [!code focus]
   }),
@@ -319,10 +319,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
@@ -343,11 +343,11 @@ Place `feeToken` after `feePayer` so sender-paid retries select a fee token agai
 ### Usage
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
+import { Account } from 'viem'
 import { Relay } from 'viem/tempo'
 
 const plugin = Relay.feePayer({
-  account: privateKeyToAccount('0x...'),
+  account: Account.fromPrivateKey('0x...'),
 })
 ```
 
@@ -364,10 +364,10 @@ rejected. The hosting application controls DNS and outbound network access.
 The local sponsor account. Omit for external fee-payer requests only.
 
 ```ts twoslash
-import { privateKeyToAccount } from 'viem/accounts'
+import { Account } from 'viem'
 import { Relay } from 'viem/tempo'
 // ---cut---
-Relay.feePayer({ account: privateKeyToAccount('0x...') }) // [!code focus]
+Relay.feePayer({ account: Account.fromPrivateKey('0x...') }) // [!code focus]
 ```
 
 #### options.allowedFeePayers

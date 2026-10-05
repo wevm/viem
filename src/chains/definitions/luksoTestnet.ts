@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const luksoTestnet = /*#__PURE__*/ defineChain({
+export const luksoTestnet = /*#__PURE__*/ Chain.from({
   id: 4201,
   name: 'LUKSO Testnet',
   nativeCurrency: {
@@ -9,19 +10,16 @@ export const luksoTestnet = /*#__PURE__*/ defineChain({
     symbol: 'LYXt',
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.testnet.lukso.network'],
-      webSocket: ['wss://ws-rpc.testnet.lukso.network'],
-    },
+    http: 'https://rpc.testnet.lukso.network',
+    ws: 'wss://ws-rpc.testnet.lukso.network',
   },
   blockExplorers: {
-    default: {
-      name: 'LUKSO Testnet Explorer',
-      url: 'https://explorer.execution.testnet.lukso.network',
-      apiUrl: 'https://api.explorer.execution.testnet.lukso.network/api',
-    },
+    name: 'LUKSO Testnet Explorer',
+    url: 'https://explorer.execution.testnet.lukso.network',
+    apiUrl: 'https://api.explorer.execution.testnet.lukso.network/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 605348,

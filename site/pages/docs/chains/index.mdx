@@ -1,0 +1,47 @@
+import { Card, Cards } from 'vocs'
+
+# Chain
+
+## Overview
+
+The **Chain** module describes an EVM chain: its id, name, native currency, RPC endpoints, block
+explorers, contracts, and optional behavior.
+
+A `Chain` is plain data that can also define:
+
+- **`codecs`**: bidirectional RPC to native codecs.
+- **`fees`**: chain-specific fee derivation.
+- **`transaction`**: transaction signing and preparation hooks.
+- **`verifyHash`**: chain-specific hash verification.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+```
+
+<Cards>
+  <Card
+    title="Defining a Chain"
+    description="Define a chain with Chain.from, preserving its literal type."
+    icon="lucide:hammer"
+    to="/docs/chains/create"
+  />
+  <Card
+    title="Extending Chains"
+    description="Derive a new chain from a base with the chainable .extend()."
+    icon="lucide:git-branch"
+    to="/docs/chains/extend"
+  />
+  <Card
+    title="Customizing Fees"
+    description="Override how fees are derived with the chain's fees config."
+    icon="lucide:fuel"
+    to="/docs/chains/fees"
+  />
+</Cards>

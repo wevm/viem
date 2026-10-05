@@ -1,25 +1,21 @@
-import { chainConfig } from '../../linea/chainConfig.js'
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const lineaSepolia = /*#__PURE__*/ defineChain({
-  ...chainConfig,
+export const lineaSepolia = /*#__PURE__*/ Chain.from({
   id: 59_141,
   name: 'Linea Sepolia Testnet',
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.sepolia.linea.build'],
-      webSocket: ['wss://rpc.sepolia.linea.build'],
-    },
+    http: 'https://rpc.sepolia.linea.build',
+    ws: 'wss://rpc.sepolia.linea.build',
   },
   blockExplorers: {
-    default: {
-      name: 'Etherscan',
-      url: 'https://sepolia.lineascan.build',
-      apiUrl: 'https://api-sepolia.lineascan.build/api',
-    },
+    name: 'Etherscan',
+    url: 'https://sepolia.lineascan.build',
+    apiUrl: 'https://api-sepolia.lineascan.build/api',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 227427,

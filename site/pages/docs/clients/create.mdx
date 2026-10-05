@@ -1,0 +1,679 @@
+# Creating a Client
+
+## Overview
+
+Use [`Client.create`](/docs/clients/create) to combine a [Transport](/docs/transports) with an optional
+[Chain](/docs/chains) and [Account](/docs/accounts). The Transport is the only required option.
+
+The returned [Client](/docs/clients) preserves the literal types of its Chain, Account, and
+Transport. Use [`.extend()`](#extending-a-client) to attach Actions.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+## Recipes
+
+These recipes are self-contained. Each constructs its own client.
+
+### Setting the Chain
+
+Set `chain` when the client should carry chain metadata for actions, fee defaults, and contract addresses. The chain literal is preserved on the returned client.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet, // [!code focus]
+  transport: http(),
+})
+
+const fees = await Actions.fee.estimateFeesPerGas(client)
+```
+
+### Extend a Client with Actions
+
+Attach a group of Actions to the client as methods with [`.extend()`](#extending-a-client). Pass a decorator such as [`publicActions`](/docs/actions/public) to add every action in that group.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions()) // [!code focus]
+
+const blockNumber = await client.block.getNumber() // [!code focus]
+```
+
+### Setting a Default Account
+
+A string address is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc); a [Local Account](/docs/accounts) is used as-is. Actions that require an Account fall back to it.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+
+// Actions requiring an Account fall back to `client.account`.
+const gas = await Actions.transaction.estimateGas(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+```
+
+### Declaring Tokens
+
+Declare [Tokens](/docs/tokens) on the client to make their symbols usable by [Token Actions](/docs/actions/public/token/getBalance) in place of contract addresses. A declared token also provides the `decimals` used to parse human-readable amounts.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+const client = Client.create({
+  chain: mainnet,
+  tokens: [usdc], // [!code focus]
+  transport: http(),
+}).extend(publicActions())
+
+const balance = await client.token.getBalance({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  token: 'usdc', // [!code focus]
+})
+```
+
+### Aggregating Calls with Multicall
+
+Enable `batch.multicall` when compatible contract reads should be aggregated into multicall
+requests. Use an options object to control the batch.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+`batchSize` limits calldata bytes per chunk. `deployless` uses Multicall3 bytecode without a
+deployment. `wait` delays the request in milliseconds to collect calls.
+
+Concurrent [`call` Actions](/docs/actions/public/call) in the same event loop tick are combined into
+one Multicall3 request. For example, you can start them together with `Promise.all`:
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abis } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  batch: { multicall: true },
+}).extend(publicActions())
+
+const abi = Abis.erc20
+
+const [name, symbol] = await Promise.all([ // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi, // [!code focus]
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    functionName: 'name', // [!code focus]
+  }), // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi, // [!code focus]
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    functionName: 'symbol', // [!code focus]
+  }), // [!code focus]
+]) // [!code focus]
+```
+
+### Setting a Default Block Tag
+
+Set `blockTag` to choose the default block context for reads without their own block selector.
+
+Use this option to consistently target `latest`, `safe`, `finalized`, or another supported tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  blockTag: 'latest', // [!code focus]
+})
+
+const balance = await Actions.address.getBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+})
+```
+
+### Tuning the Polling Interval
+
+Set `pollingInterval` to control how often polling-based actions check for new data. Use a lower value for faster updates and a higher value to reduce RPC traffic.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  pollingInterval: 4_000, // [!code focus]
+})
+
+const blockNumber = await Actions.block.getNumber(client)
+```
+
+### Caching RPC Responses
+
+Set `cacheTime` to control how long cacheable RPC responses are retained. This is useful for repeated reads that can tolerate a short-lived cached result.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  cacheTime: 4_000, // [!code focus]
+})
+
+const blockNumber = await Actions.block.getNumber(client)
+```
+
+### Configuring CCIP Read
+
+CCIP Read is enabled by default through an allowlisted HTTPS batch gateway. Set it to `false` when calls should surface `OffchainLookup` reverts.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  ccipRead: false, // [!code focus]
+})
+
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+Pass a `request` function to replace the default CCIP gateway policy.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+The default [ENSIP-21 batch gateway](https://docs.ens.domains/ensip/21/) is operated by ENS Labs. It observes request metadata and affects availability.
+
+Contract callbacks validate responses, so the gateway is not trusted for correctness.
+
+Local batches allow 64 total queries, four concurrent requests, and four nesting levels per lookup.
+
+Using `CcipRead.request` directly provides defense in depth, not a complete server-side request forgery boundary. Portable `fetch` implementations cannot pin DNS resolution to connections.
+
+Server applications making direct requests should use a proxy or custom gateway allowlist.
+
+### Appending a Data Suffix
+
+Set `dataSuffix` to append extra calldata to compatible calls. This is commonly used by integrators that need to tag requests with attribution data.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  dataSuffix: '0xdeadbeef', // [!code focus]
+})
+
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### Per-Request Retries and Timeout
+
+Set `retryCount` and `timeout` to tune request reliability for this client. Increase retries for flaky endpoints, and set a timeout to fail slow requests predictably.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  retryCount: 5, // [!code focus]
+  timeout: 10_000, // [!code focus]
+})
+
+const blockNumber = await Actions.block.getNumber(client)
+```
+
+### Typing a Custom RPC Schema
+
+Pass a `schema` to type `request` against custom methods. The schema accepts an `RpcSchema` or a Zod namespace from `viem/zod`.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { z } from 'viem/zod'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  schema: z.RpcSchema.from({ // [!code focus]
+    abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+})
+
+const result = await client.request({ method: 'abe_foo', params: [42] })
+//    ^?
+```
+
+### Extending a Client
+
+`.extend()` merges the function's returned properties into a new Client. Extensions can add
+properties but cannot redefine base Client properties.
+
+Call `.extend()` again to add another extension.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+}).extend((client) => ({ // [!code focus]
+  getChainId: () => client.request({ method: 'eth_chainId' }), // [!code focus]
+})) // [!code focus]
+
+const chainId = await client.getChainId()
+//    ^?
+```
+
+
+## `Client.create`
+
+Composes a transport with an optional chain and account into a client, with `.extend()` for attaching Actions.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### Parameters
+
+#### options.account
+
+- **Type:** `Account | Address`
+- **Optional**
+
+The default Account for Actions that require one. Viem converts an address string to a
+[JSON-RPC Account](/docs/accounts/json-rpc).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+})
+```
+
+#### options.batch
+
+- **Type:** `{ multicall?: boolean | { batchSize?: number; deployless?: boolean; wait?: number } }`
+- **Optional**
+
+Configures `eth_call` multicall aggregation. `batchSize` limits calldata bytes per chunk and defaults
+to `1_024`.
+
+`deployless` forces a bytecode call and defaults to `false`. `wait` delays a batch in milliseconds
+and defaults to `0`.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  batch: { // [!code focus]
+    multicall: { // [!code focus]
+      batchSize: 1_024, // [!code focus]
+      deployless: true, // [!code focus]
+      wait: 10, // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+#### options.blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
+
+Default block tag for RPC requests.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  blockTag: 'latest', // [!code focus]
+})
+```
+
+#### options.cacheTime
+
+- **Type:** `number`
+- **Default:** `pollingInterval`
+
+Time (ms) cached data stays in memory.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  cacheTime: 4_000, // [!code focus]
+})
+```
+
+#### options.ccipRead
+
+- **Type:** `CcipReadOptions | false`
+- **Default:** ENS Labs batch gateway
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. Set it to `false` to disable lookups, or provide a request policy to override the default gateway.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { CcipRead } from 'viem/utils'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  ccipRead: { // [!code focus]
+    request: CcipRead.request, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+#### options.chain
+
+- **Type:** `Chain | number`
+- **Optional**
+
+The chain for the client. A chain id is coerced to a minimal [Chain](/docs/chains), so the
+transport must be given an explicit URL.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet, // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+```
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  chain: 1, // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+```
+
+#### options.dataSuffix
+
+- **Type:** `Hex`
+- **Optional**
+
+Data suffix appended to transaction calldata.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  dataSuffix: '0xdeadbeef', // [!code focus]
+})
+```
+
+#### options.key
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+A key for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  key: 'base', // [!code focus]
+})
+```
+
+#### options.name
+
+- **Type:** `string`
+- **Default:** `'Base Client'`
+
+A name for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  name: 'Base Client', // [!code focus]
+})
+```
+
+#### options.pollingInterval
+
+- **Type:** `number`
+- **Default:** derived from the chain block time
+
+Polling frequency (ms) for Actions and events.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  pollingInterval: 4_000, // [!code focus]
+})
+```
+
+#### options.retryCount
+
+- **Type:** `number`
+- **Optional**
+
+Per-request retry budget passed through to the transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  retryCount: 5, // [!code focus]
+})
+```
+
+#### options.schema
+
+- **Type:** `RpcSchema.Generic | z.RpcSchema`
+- **Optional**
+
+Typed JSON-RPC schema (an `RpcSchema.Generic` or a `viem/zod` namespace).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { z } from 'viem/zod'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  schema: z.RpcSchema.from({ // [!code focus]
+    abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+})
+```
+
+#### options.timeout
+
+- **Type:** `number`
+- **Optional**
+
+Per-request timeout (ms) passed through to the transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  timeout: 10_000, // [!code focus]
+})
+```
+
+#### options.tokens
+
+- **Type:** `readonly Token[]`
+- **Optional**
+
+Collection of [Tokens](/docs/tokens) to declare on the client. A token's symbol becomes usable by [Token Actions](/docs/actions/public/token/getBalance) when its `addresses` cover the client's chain.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  tokens: [usdc], // [!code focus]
+})
+```
+
+#### options.transport
+
+- **Type:** `Transport`
+
+The transport for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'), // [!code focus]
+})
+```
+
+#### options.type
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+The type of client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+  type: 'base', // [!code focus]
+})
+```
+
+### Return Value
+
+`Client`
+
+The Client with its Chain, Account, Transport, and schema literal types preserved. The Client also
+includes [`.extend()`](#extending-a-client).
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Address.InvalidAddressError` | The `account` was an address string that failed validation. |

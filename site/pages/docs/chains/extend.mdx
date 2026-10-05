@@ -1,0 +1,102 @@
+# Extending Chains
+
+## Overview
+
+Every Chain returned by [`Chain.from`](/docs/chains/create#chainfrom) includes `.extend()` for
+deriving a new Chain
+from an existing base.
+
+The method merges overrides into the base. The returned Chain also includes `.extend()` for further
+derivations.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+
+const custom = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' },
+})
+```
+
+## Recipes
+
+### Create a Client for the Derived Chain
+
+Pass the derived Chain to [`Client.create`](/docs/clients/create). The Client uses the overridden
+fields and inherits the remaining fields from the base.
+
+```ts twoslash
+import { Chain, Client, http } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+
+const chain = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' },
+})
+
+const client = Client.create({
+  chain, // [!code focus]
+  transport: http(),
+})
+```
+
+## `chain.extend`
+
+Derives a new chain from a base, merging the overrides over it.
+
+### Usage
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+
+const custom = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' },
+})
+```
+
+### Parameters
+
+#### overrides
+
+- **Type:** `Partial<Chain.Chain>`
+
+The fields to merge over the base chain.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { http: 'https://eth.merkle.io' },
+})
+// ---cut---
+const custom = mainnet.extend({
+  rpcUrls: { http: 'https://my-rpc.example' }, // [!code focus]
+})
+```
+
+### Return Value
+
+`Chain`
+
+A new chain with the overrides applied, preserving the merged literal type and exposing its own `.extend()`.

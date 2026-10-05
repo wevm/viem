@@ -1,20 +1,21 @@
-import type { Address } from 'abitype'
-import type { DefaultCapabilitiesSchema } from '../types/capabilities.js'
-import type { Hex } from '../types/misc.js'
-import type { ExactPartial } from '../types/utils.js'
 import type * as ExecutionError from './ExecutionError.js'
-import type { TransactionRequestTempo } from './Transaction.js'
+import type { Address, Hex } from 'ox'
+import type { TransactionRequest } from 'ox/tempo'
 
-export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
+import type { ExactPartial } from '../core/internal/types.js'
+
+/** Tempo capability schema, keyed by RPC method. */
+export type Schema = {
   fillTransaction: {
     Request: FillTransactionRequestCapabilities
     ReturnType: FillTransactionCapabilities
   }
   sendCalls: {
-    Request: ExactPartial<TransactionRequestTempo>
+    Request: ExactPartial<TransactionRequest.TransactionRequest>
   }
 }
 
+/** Capabilities accepted by `eth_fillTransaction`. */
 export type FillTransactionRequestCapabilities = {
   /** Whether to include `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
@@ -22,12 +23,27 @@ export type FillTransactionRequestCapabilities = {
   errors?: boolean | undefined
 }
 
+/** Capabilities returned by `eth_fillTransaction`. */
 export type FillTransactionCapabilities = {
-  balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
+  autoSwap?:
+    | {
+        calls: readonly {
+          to: Address.Address
+          data: Hex.Hex
+          value: Hex.Hex
+        }[]
+        maxIn: SwapAmount
+        minOut: SwapAmount
+        slippage: number
+      }
+    | undefined
+  balanceDiffs?:
+    | Readonly<Record<Address.Address, readonly BalanceDiff[]>>
+    | undefined
   error?: ExecutionError.Rpc | undefined
   fee?:
     | {
-        amount: Hex
+        amount: Hex.Hex
         decimals: number
         formatted: string
         symbol: string
@@ -35,33 +51,45 @@ export type FillTransactionCapabilities = {
     | undefined
   insufficientFunds?:
     | {
-        amount: Hex
+        amount: Hex.Hex
         decimals: number
         formatted: string
-        token: Address
+        token: Address.Address
         symbol: string
       }
     | undefined
   sponsor?:
     | {
-        address: Address
+        address: Address.Address
         name?: string | undefined
         url?: string | undefined
       }
     | undefined
   sponsored?: boolean | undefined
   /** Virtual-address resolutions keyed by lowercase literal virtual address. */
-  virtualAddresses?: Readonly<Record<Address, Address | null>> | undefined
+  virtualAddresses?:
+    | Readonly<Record<Address.Address, Address.Address | null>>
+    | undefined
 }
 
-/** A token balance preview. Incoming funds and outgoing approval exposure can produce separate entries for the same token. */
+/** A balance change reported by `eth_fillTransaction`. */
 export type BalanceDiff = {
-  address: Address
+  address: Address.Address
   decimals: number
   direction: 'incoming' | 'outgoing'
   formatted: string
   name: string
-  recipients: readonly Address[]
+  recipients: readonly Address.Address[]
   symbol: string
-  value: Hex
+  value: Hex.Hex
+}
+
+/** A swap leg reported by `eth_fillTransaction`. */
+export type SwapAmount = {
+  decimals: number
+  formatted: string
+  name: string
+  symbol: string
+  token: Address.Address
+  value: Hex.Hex
 }

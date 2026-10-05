@@ -1,23 +1,22 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const stratis = /*#__PURE__*/ defineChain({
+export const stratis = /*#__PURE__*/ Chain.from({
   id: 105105,
   name: 'Stratis Mainnet',
-  network: 'stratis',
   nativeCurrency: {
     name: 'Stratis',
     symbol: 'STRAX',
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.stratisevm.com'],
-    },
+    http: 'https://rpc.stratisevm.com',
   },
   blockExplorers: {
-    default: {
-      name: 'Stratis Explorer',
-      url: 'https://explorer.stratisevm.com',
-    },
+    name: 'Stratis Explorer',
+    url: 'https://explorer.stratisevm.com',
+  },
+  contracts: {
+    create2: Contracts.create2,
   },
 })

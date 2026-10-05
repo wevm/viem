@@ -1,8 +1,7 @@
 import type { Address } from 'abitype'
 import { Hex } from 'ox'
-import type { Client } from '../../../clients/createClient.js'
-import { zeroAddress } from '../../../constants/address.js'
-import { formatUnits } from '../../../utils/unit/formatUnits.js'
+import type { Client } from '../../../core/Client.js'
+import { format as formatUnits } from 'ox/Value'
 import * as ExecutionError from '../../ExecutionError.js'
 import type * as Store from './cache.js'
 import { resolveTokenMetadata } from './feeToken.js'
@@ -38,6 +37,8 @@ export function isExecutionError(error: unknown): error is Error {
   }
   return false
 }
+
+const zeroAddress = '0x0000000000000000000000000000000000000000'
 
 export async function formatError(
   error: Error,

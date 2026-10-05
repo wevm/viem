@@ -2,10 +2,9 @@ import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
 import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
-import { type Client, createClient } from '../../../clients/createClient.js'
-import { custom } from '../../../clients/transports/custom.js'
+import { type Client, create as createClient } from '../../../core/Client.js'
 import type * as Relay from '../../Relay.js'
-import * as Transaction from '../../Transaction.js'
+import * as Transaction from 'ox/tempo/TxEnvelopeTempo'
 import * as Store from './cache.js'
 import * as Deadline from './deadline.js'
 import { formatError, isExecutionError } from './error.js'
@@ -108,22 +107,28 @@ export function compose(
             client = createClient({
               chain: { ...tempo, ...upstream?.chain, id },
               batch: { multicall: { deployless: true } },
-              transport: (config) => {
-                const transport = custom(
-                  {
-                    request: async (request, options) => {
-                      const child = await execute(index + 1, request, {
+              transport: {
+                key: 'relay-forward',
+                name: 'Relay Forwarding',
+                type: 'relay-forward',
+                setup: () => ({
+                  retryCount: 0,
+                  request: (async (
+                    request: Relay.handleRequest.Request,
+                    options?: Relay.handleRequest.RequestOptions,
+                  ) => {
+                    const child = await execute(
+                      index + 1,
+                      request as Relay.handleRequest.Request,
+                      {
                         ...state.options,
                         ...options,
                         chainId: id,
-                      })
-                      return child.state.result
-                    },
-                  },
-                  { retryCount: 0 },
-                )(config)
-                // Forward request options without adding a retry loop around downstream I/O.
-                return { ...transport, request: transport.config.request }
+                      },
+                    )
+                    return child.state.result
+                  }) as Client['request'],
+                }),
               },
             })
             clients.set(id, client)
@@ -316,18 +321,23 @@ export function compose(
           requestOptions.chainId ?? Utils.resolveChainId(parameters.chainId)
         const client = createClient({
           chain: { ...tempo, id: id ?? tempo.id },
-          transport: custom(
-            {
-              request: (request, options) =>
+          transport: {
+            key: 'relay-error',
+            name: 'Relay Error Enrichment',
+            type: 'relay-error',
+            setup: () => ({
+              request: ((
+                request: Relay.handleRequest.Request,
+                options?: Relay.handleRequest.RequestOptions,
+              ) =>
                 downstream(request, {
                   ...requestOptions,
                   ...options,
                   chainId: id,
                   signal: requestOptions.signal,
-                }),
-            },
-            { retryCount: 0 },
-          ),
+                })) as Client['request'],
+            }),
+          },
         })
         return formatError(error, parameters, client)
       }

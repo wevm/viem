@@ -1,19 +1,23 @@
+import type { Capabilities as TempoCapabilities_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { Account as CoreAccount_ } from 'viem'
+import { withResolvers } from '../../../core/internal/promise.js'
 import { createServer } from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Secp256k1, Signature } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { http } from 'viem'
+
 import { tempoLocalnet } from 'viem/chains'
 import { Addresses, Relay, Store, VirtualAddress, withRelay } from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
-import { createHttpServer } from '~test/utils.js'
+import { createServer as createHttpServer } from '~test/http.js'
 
 test.each([1, false, {}, [], 'recipient', '0x1234'])(
   'rejects malformed call targets through Fetch: %s',
   async (to) => {
     const relay = Relay.create({
-      client: createClient({
+      client: CoreClient_.create({
         chain: tempoLocalnet,
         transport: http('http://127.0.0.1:1', { retryCount: 0 }),
       }),
@@ -40,10 +44,10 @@ test.each([1, false, {}, [], 'recipient', '0x1234'])(
 )
 
 test('preserves the requested fee token through an external relay', async () => {
-  const account = privateKeyToAccount(
+  const account = CoreAccount_.fromPrivateKey(
     '0x0000000000000000000000000000000000000000000000000000000000000001',
   )
-  const client = createClient({
+  const client = CoreClient_.create({
     chain: tempoLocalnet,
     transport: http('http://127.0.0.1:1', { retryCount: 0 }),
   })
@@ -138,7 +142,7 @@ test.each(
     const address = server.address()
     if (!address || typeof address === 'string') throw new Error('Missing port')
     const relay = Relay.create({
-      client: createClient({
+      client: CoreClient_.create({
         chain: tempoLocalnet,
         transport: http(`http://127.0.0.1:${address.port}`, { retryCount: 0 }),
       }),
@@ -148,7 +152,7 @@ test.each(
           : mode === 'feePayer'
             ? [
                 Relay.feePayer({
-                  account: privateKeyToAccount(
+                  account: CoreAccount_.fromPrivateKey(
                     '0x0000000000000000000000000000000000000000000000000000000000000001',
                   ),
                 }),
@@ -207,9 +211,8 @@ test('middleware shares request state and sees the result before enrichment', as
       ],
     },
   )
-  expect(
-    await handle({ method: 'eth_fillTransaction', params: [{}] }),
-  ).toMatchInlineSnapshot(`
+  expect(await handle({ method: 'eth_fillTransaction', params: [{}] }))
+    .toMatchInlineSnapshot(`
     {
       "capabilities": {
         "method": "eth_fillTransaction",
@@ -230,20 +233,17 @@ test('middleware shares request state and sees the result before enrichment', as
         "from": undefined,
         "gas": "0x0",
         "hash": undefined,
-        "input": undefined,
         "nonce": "0x0",
-        "to": undefined,
         "transactionIndex": null,
         "type": "0x76",
-        "value": "0x0",
       },
     }
   `)
 })
 
 test('post-fill hooks and signing run concurrently against an immutable transaction', async () => {
-  const ready = Promise.withResolvers<void>()
-  const account = privateKeyToAccount(
+  const ready = withResolvers<void>()
+  const account = CoreAccount_.fromPrivateKey(
     '0x0000000000000000000000000000000000000000000000000000000000000001',
   )
   const handle = Relay.handleRequest(
@@ -402,13 +402,13 @@ test('simulation middleware rejects malformed fill quantities before forwarding'
 })
 
 test('keeps a sponsored fill when optional virtual-address metadata is unavailable', async () => {
-  const account = privateKeyToAccount(`0x${'0'.repeat(63)}1`)
+  const account = CoreAccount_.fromPrivateKey(`0x${'0'.repeat(63)}1`)
   const target = VirtualAddress.from({
     masterId: '0x00000001',
     userTag: '0x000000000001',
   })
   const relay = Relay.create({
-    client: createClient({
+    client: CoreClient_.create({
       chain: tempoLocalnet,
       transport: http('http://127.0.0.1:1', { retryCount: 0, timeout: 500 }),
     }),
@@ -431,14 +431,26 @@ test('keeps a sponsored fill when optional virtual-address metadata is unavailab
     ],
   })) as Relay.Plugin.FillResult
   expect(result.tx.feePayerSignature).toBeDefined()
-  expect(result.capabilities?.sponsored).toBe(true)
-  expect(result.capabilities?.virtualAddresses).toBeUndefined()
+  expect(
+    (
+      result.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
+    )?.sponsored,
+  ).toBe(true)
+  expect(
+    (
+      result.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
+    )?.virtualAddresses,
+  ).toBeUndefined()
 })
 
 test.each(['tempo_simulateV1', 'eth_call'])(
   'propagates cancellation during %s',
   async (method) => {
-    const started = Promise.withResolvers<void>()
+    const started = withResolvers<void>()
     const controller = new AbortController()
     const server = await createHttpServer(async (request, response) => {
       let raw = ''
@@ -458,9 +470,9 @@ test.each(['tempo_simulateV1', 'eth_call'])(
       )
     })
     try {
-      const account = privateKeyToAccount(`0x${'0'.repeat(63)}1`)
+      const account = CoreAccount_.fromPrivateKey(`0x${'0'.repeat(63)}1`)
       const relay = Relay.create({
-        client: createClient({
+        client: CoreClient_.create({
           chain: tempoLocalnet,
           transport: http(server.url, { retryCount: 0 }),
         }),
@@ -503,7 +515,7 @@ test.each([null, [], 'call', 1])(
   'reports malformed call %s as invalid params through Fetch',
   async (call) => {
     const relay = Relay.create({
-      client: createClient({
+      client: CoreClient_.create({
         chain: tempoLocalnet,
         transport: http('http://127.0.0.1:1', { retryCount: 0 }),
       }),
@@ -530,10 +542,10 @@ test.each([null, [], 'call', 1])(
 test.each(['none', 'explicit', 'resolved'])(
   'replaces a supplied signature and records local sponsorship with fee token: %s',
   async (mode) => {
-    const account = privateKeyToAccount(
+    const account = CoreAccount_.fromPrivateKey(
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     )
-    const client = createClient({
+    const client = CoreClient_.create({
       chain: tempoLocalnet,
       transport: http('http://127.0.0.1:1', { retryCount: 0 }),
     })
@@ -590,9 +602,9 @@ test.each(['none', 'explicit', 'resolved'])(
 test.each(['handler', 'create', 'transport'])(
   'bounds nested callbacks that ignore the fill deadline: %s',
   async (mode) => {
-    const release = Promise.withResolvers<void>()
-    const completed = Promise.withResolvers<unknown>()
-    const rpc = http('http://127.0.0.1:1', { retryCount: 0 })({})
+    const release = withResolvers<void>()
+    const completed = withResolvers<unknown>()
+    const rpc = http('http://127.0.0.1:1', { retryCount: 0 })
     const options = {
       timeout: 60_000,
       plugins: [
@@ -606,16 +618,16 @@ test.each(['handler', 'create', 'transport'])(
     } satisfies Relay.handleRequest.Options
     const inner =
       mode === 'handler'
-        ? Relay.handleRequest(rpc.request, options)
+        ? Relay.handleRequest(rpc.setup().request, options)
         : mode === 'create'
           ? Relay.create<number>({
-              client: createClient({
+              client: CoreClient_.create({
                 chain: tempoLocalnet,
-                transport: () => rpc,
+                transport: rpc,
               }),
               ...options,
             }).request
-          : withRelay(() => rpc, options)({ chain: tempoLocalnet }).request
+          : withRelay(rpc, options).setup({ chain: tempoLocalnet }).request
     const relay = Relay.handleRequest(inner, {
       timeout: 20,
       plugins: [Relay.simulate()],
@@ -658,7 +670,7 @@ test('allows transport retries beyond four attempts', async () => {
   })
   try {
     const relay = Relay.create({
-      client: createClient({
+      client: CoreClient_.create({
         chain: tempoLocalnet,
         transport: http(server.url),
       }),
@@ -689,7 +701,7 @@ test('aborts a Retry-After delay at the fill deadline', async () => {
   })
   try {
     const relay = Relay.create({
-      client: createClient({
+      client: CoreClient_.create({
         chain: tempoLocalnet,
         transport: http(server.url),
       }),
@@ -785,13 +797,13 @@ test.each(['create', 'transport'])(
       const inner =
         mode === 'create'
           ? Relay.create<number>({
-              client: createClient({
+              client: CoreClient_.create({
                 chain: tempoLocalnet,
                 transport: http(server.url),
               }),
               ...options,
             }).request
-          : withRelay(http(server.url), options)({ chain: tempoLocalnet })
+          : withRelay(http(server.url), options).setup({ chain: tempoLocalnet })
               .request
       const relay = Relay.handleRequest(inner, {
         plugins: [Relay.simulate()],

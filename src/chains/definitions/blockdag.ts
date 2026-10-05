@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const blockdag = /*#__PURE__*/ defineChain({
+export const blockdag = /*#__PURE__*/ Chain.from({
   id: 1404,
   name: 'BlockDAG',
   nativeCurrency: {
@@ -9,12 +9,10 @@ export const blockdag = /*#__PURE__*/ defineChain({
     symbol: 'BDAG',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.bdagexplorer.com/'] },
+    http: ['https://rpc.bdagexplorer.com/'],
   },
   blockExplorers: {
-    default: {
-      name: 'BDAG Explorer',
-      url: 'https://explorer.bdagexplorer.com',
-    },
+    name: 'BDAG Explorer',
+    url: 'https://explorer.bdagexplorer.com',
   },
 })

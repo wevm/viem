@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const ultra = /*#__PURE__*/ defineChain({
+export const ultra = /*#__PURE__*/ Chain.from({
   id: 19991,
   name: 'Ultra EVM',
   nativeCurrency: {
@@ -8,13 +8,9 @@ export const ultra = /*#__PURE__*/ defineChain({
     name: 'Ultra Token',
     symbol: 'UOS',
   },
-  rpcUrls: {
-    default: { http: ['https://evm.ultra.eosusa.io'] },
-  },
+  rpcUrls: { http: 'https://evm.ultra.eosusa.io' },
   blockExplorers: {
-    default: {
-      name: 'Ultra EVM Explorer',
-      url: 'https://evmexplorer.ultra.io',
-    },
+    name: 'Ultra EVM Explorer',
+    url: 'https://evmexplorer.ultra.io',
   },
 })

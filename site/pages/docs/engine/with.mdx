@@ -1,0 +1,128 @@
+# Scoping an Engine
+
+## Overview
+
+[`Engine.with`](/docs/engine/with) installs an Engine for one synchronous function, then restores
+the previous overrides. Use it for benchmarks, differential tests, and other isolated synchronous
+operations.
+
+The callback must not return a Promise. The registry is shared by the loaded module instance, so
+concurrent asynchronous work could observe the temporary Engine.
+
+## Recipes
+
+### Run One Call with WebAssembly
+
+Initialize the Engine before entering the synchronous scope.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as WasmEngine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+const wasm = await WasmEngine.engine()
+
+const digest = Engine.with( // [!code focus]
+  wasm, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+) // [!code focus]
+// @log: '0x5f78c33274e43fa9de5659265c1d917e25c03722dcb0b8d27db8d5feaa813953'
+```
+
+### Compare Providers
+
+Prepare provider Engines once, then run the same synchronous operation under each.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Engine as WasmEngine } from 'viem/wasm'
+import { Hash } from 'viem/utils'
+
+const [node, wasm] = await Promise.all([
+  NodeEngine.engine(),
+  WasmEngine.engine(),
+])
+
+const nodeDigest = Engine.with(node, () => Hash.sha256('0xdeadbeef')) // [!code focus]
+const wasmDigest = Engine.with(wasm, () => Hash.sha256('0xdeadbeef')) // [!code focus]
+```
+
+## `Engine.with`
+
+Runs a synchronous function with an Engine installed, then restores the previous Engine.
+
+### Usage
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Hash } from 'viem/utils'
+
+const node = await NodeEngine.engine()
+const digest = Engine.with(node, () => Hash.sha256('0xdeadbeef'))
+```
+
+### Definition
+
+```ts
+function with<returnType>(
+  value: Engine.Engine,
+  fn: () => returnType,
+): returnType
+```
+
+### Parameters
+
+#### value
+
+- **Type:** `Engine.Engine`
+
+The Engine to install for the duration of `fn`.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Hash } from 'viem/utils'
+// ---cut---
+const node = await NodeEngine.engine()
+
+Engine.with(
+  node, // [!code focus]
+  () => Hash.sha256('0xdeadbeef'),
+)
+```
+
+#### fn
+
+- **Type:** `() => returnType`
+
+The synchronous function to run.
+
+```ts twoslash
+import { Engine } from 'viem'
+import { Engine as NodeEngine } from 'viem/node'
+import { Hash } from 'viem/utils'
+// ---cut---
+const node = await NodeEngine.engine()
+
+Engine.with(
+  node,
+  () => Hash.sha256('0xdeadbeef'), // [!code focus]
+)
+```
+
+### Return Value
+
+`returnType`
+
+The return value of `fn`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| [`Engine.AsyncScopeError`](/docs/engine/errors#engineasyncscopeerror) | `fn` returns a Promise. |
+| [`Engine.InvalidSlotValueError`](/docs/engine/errors#engineinvalidslotvalueerror) | A slot is not an object or `undefined`. |
+| [`Engine.UnknownPrimitiveError`](/docs/engine/errors#engineunknownprimitiveerror) | A slot contains an unrecognized primitive. |
+| [`Engine.UnknownSlotError`](/docs/engine/errors#engineunknownsloterror) | The Engine contains an unrecognized slot. |

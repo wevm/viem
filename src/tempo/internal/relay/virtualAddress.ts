@@ -1,10 +1,10 @@
 import type { Address } from 'abitype'
 import { type Hex, RpcResponse } from 'ox'
 import * as VirtualAddress from 'ox/tempo/VirtualAddress'
-import type { Client } from '../../../clients/createClient.js'
-import type { Call } from '../../../types/calls.js'
-import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
-import { isAddress } from '../../../utils/address/isAddress.js'
+import type { Client } from '../../../core/Client.js'
+import type { Call } from 'ox/tempo/TxEnvelopeTempo'
+import * as AbiFunction from 'ox/AbiFunction'
+import { validate as isAddress } from 'ox/Address'
 import * as Abis from '../../Abis.js'
 import * as Preflight from './preflight.js'
 
@@ -45,14 +45,14 @@ function decodeTransferRecipient(data?: string): Address | undefined {
   if (!transferSelectors.has(selector)) return undefined
 
   try {
-    const { args, functionName } = decodeFunctionData({
-      abi: Abis.tip20,
-      data: data as Hex.Hex,
-    })
+    const fn = AbiFunction.fromAbi(Abis.tip20, data as Hex.Hex)
+    const args = AbiFunction.decodeData(fn, data as Hex.Hex)
+    const functionName = fn.name
 
     if (
       (functionName === 'transfer' || functionName === 'transferWithMemo') &&
-      typeof args[0] === 'string'
+      typeof args[0] === 'string' &&
+      isAddress(args[0], { strict: false })
     )
       return args[0]
 

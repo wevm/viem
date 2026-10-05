@@ -28,10 +28,10 @@ sequential flow.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
-const deploymentId = keccak256(toHex('acme-usd-v1'))
+const deploymentId = Hash.keccak256(Hex.fromString('acme-usd-v1'))
 const result = await client.earn.deployErc4626StackSync({
   deploymentId,
   venue: '0x0000000000000000000000000000000000000003',
@@ -58,14 +58,14 @@ factory transactions, while the owner account submits the final binding transact
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
-const owner = privateKeyToAccount('0x...')
+const owner = Account.fromSecp256k1('0x...')
 const result = await client.earn.deployErc4626StackSync({
   bindingAccount: owner,
-  deploymentId: keccak256(toHex('acme-usd-owner-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-owner-v1')),
   owner,
   venue: '0x0000000000000000000000000000000000000003',
 })
@@ -89,12 +89,12 @@ inputs.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
 import { Actions } from 'viem/tempo'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
 const parameters = {
-  deploymentId: keccak256(toHex('acme-usd-v1')),
+  deploymentId: Hash.keccak256(Hex.fromString('acme-usd-v1')),
   venue: '0x0000000000000000000000000000000000000003',
 } as const
 
@@ -128,18 +128,18 @@ Use [`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine),
 own each transaction.
 
 Each primitive exposes a `call` helper for
-[`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync), simulation, and gas estimation.
+[`transaction.sendSync`](/docs/actions/wallet/transaction/send), simulation, and gas estimation.
 Treat multi-call deployment as experimental. A batch combines both factories' deployment work into
 one transaction, so measure the combined gas profile against the target network before batching.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { keccak256, toHex } from 'viem'
 import { Actions } from 'viem/tempo'
+import { Hash, Hex } from 'viem/utils'
 import { client } from './viem.config'
 
-const deploymentId = keccak256(toHex('acme-usd-v1'))
+const deploymentId = Hash.keccak256(Hex.fromString('acme-usd-v1'))
 const earnFactory = '0x0000000000000000000000000000000000000003'
 const engineParameters = {
   deploymentId,
@@ -152,7 +152,7 @@ const engine = await Actions.earn.createErc4626Engine.predict(
   engineParameters,
 )
 
-const receipt = await client.sendTransactionSync({
+const receipt = await client.transaction.sendSync({
   calls: [
     Actions.earn.createErc4626Engine.call(engineParameters),
     Actions.earn.createStack.call({

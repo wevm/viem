@@ -1,0 +1,134 @@
+---
+description: Create and retrieve local Accounts derived from credential-bound WebAuthn PRF output.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Passkey Accounts
+
+## Overview
+
+A Passkey Account is a [Local Account](/docs/accounts) derived from a credential-bound WebAuthn
+pseudo-random function (PRF). The passkey authorizes access to the PRF output, and
+[`Account.fromPrf`](/docs/accounts/local/passkey#accountfromprf) derives a secp256k1 private key that
+can sign messages, transactions, typed data, and authorizations locally.
+
+The derived Account is a software-key Account. It does not sign with the authenticator's P256 key.
+Losing access to the passkey also loses access to the Account unless you provide a recovery method.
+
+## Recipes
+
+These recipes assume you have [installed and set up Viem](/docs).
+
+### Create a Passkey Account
+
+Set `prf: true` when you create the [`WebAuthn`](/docs/utilities/webauthn) credential, then pass its
+PRF output to `Account.fromPrf`.
+
+```ts twoslash
+import { Account } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: true,
+})
+
+const account = Account.fromPrf(credential.prf)
+const credentialId = credential.id
+```
+
+Store the credential identifier to retrieve the Account later. Do not persist the PRF output or
+derived private key.
+
+### Retrieve a Passkey Account
+
+Request the same PRF output with the credential identifier. The same credential and PRF input
+derive the same Account.
+
+```ts twoslash
+import { Account } from 'viem'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: true,
+})
+
+const account = Account.fromPrf(credential.prf)
+```
+
+### Create Multiple Accounts from One Passkey
+
+Use different stable [`Prf.tag`](/docs/utilities/prf/tag) values when one passkey controls several
+Accounts. Each Account requires a separate WebAuthn ceremony.
+
+```ts twoslash
+import { Account } from 'viem'
+import { Prf, WebAuthn } from 'viem/utils'
+
+const firstCredential = await WebAuthn.createCredential({
+  name: 'Example',
+  prf: Prf.tag('account.1'),
+})
+const firstAccount = Account.fromPrf(firstCredential.prf)
+
+const secondCredential = await WebAuthn.getCredential({
+  credentialId: firstCredential.id,
+  prf: Prf.tag('account.2'),
+})
+const secondAccount = Account.fromPrf(secondCredential.prf)
+```
+
+Tags are public application constants, not secrets or per-user state. Keep each tag stable to
+retrieve the same Account later.
+
+### Use the Account with a Client
+
+Pass the Account to [`Client.create`](/docs/clients/create). Wallet Actions use the Client Account
+when you do not pass an `account` option.
+
+```ts twoslash
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { WebAuthn } from 'viem/utils'
+
+const credential = await WebAuthn.getCredential({
+  credentialId: '...',
+  prf: true,
+})
+const account = Account.fromPrf(credential.prf)
+
+const client = Client.create({
+  account,
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+
+const signature = await client.signMessage({ message: 'hello world' })
+```
+
+## Best Practices
+
+### Provide Recovery
+
+Confirm that the credential supports PRF evaluation and provide a recovery path before the Account
+holds durable authority or assets.
+
+### Keep Tags Stable
+
+Changing a tag derives a different Account. Version tags only when you intend to rotate an Account
+and can migrate its authority or assets.
+
+### Limit Access to Derived Material
+
+Code running in the same relying-party scope can receive the PRF output after an authorized
+ceremony. Minimize third-party scripts and keep the Account in the narrowest scope that can complete
+the requested signing operation.
+
+## See More
+
+<Cards>
+  <Card icon="lucide:key-round" title="Passkey Account Reference" description="Review Account.fromPrf parameters, return values, and errors." to="/docs/accounts/local/passkey" />
+  <Card icon="lucide:wallet" title="Local Accounts" description="Create Accounts from other local signing methods." to="/docs/guides/wallets/local-accounts" />
+</Cards>

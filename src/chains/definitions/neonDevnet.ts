@@ -1,19 +1,15 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const neonDevnet = /*#__PURE__*/ defineChain({
+export const neonDevnet = /*#__PURE__*/ Chain.from({
   id: 245_022_926,
   name: 'Neon EVM DevNet',
   nativeCurrency: { name: 'NEON', symbol: 'NEON', decimals: 18 },
   rpcUrls: {
-    default: {
-      http: ['https://devnet.neonevm.org'],
-    },
+    http: 'https://devnet.neonevm.org',
   },
   blockExplorers: {
-    default: {
-      name: 'Neonscan',
-      url: 'https://devnet.neonscan.org',
-    },
+    name: 'Neonscan',
+    url: 'https://devnet.neonscan.org',
   },
   contracts: {
     multicall3: {

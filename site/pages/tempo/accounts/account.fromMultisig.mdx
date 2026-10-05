@@ -17,7 +17,7 @@ Owners can be local accounts, addresses, or weighted owner entries. Direct owner
 weight of `1`, and `threshold` defaults to `1`.
 
 Local owner accounts are retained so the returned account can aggregate their approvals when
-you call `signTransaction`. Address-only owners support distributed signing, where each owner
+you call `transaction.sign`. Address-only owners support distributed signing, where each owner
 signs the same prepared request and the sender supplies the resulting `signatures`.
 
 :::tip
@@ -144,7 +144,7 @@ type MultisigAccount = LocalAccount<'multisig'> & {
 }
 ```
 
-The account's `signTransaction` method combines retained local owner approvals with any approvals
+The account's `transaction.sign` method combines retained local owner approvals with any approvals
 provided through the request's `signatures`. `sign`, `signMessage`, and `signTypedData` are not
 supported.
 

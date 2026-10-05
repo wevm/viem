@@ -16,6 +16,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: read
+      id-token: write
 
   publish:
     name: Publish Prerelease
@@ -27,18 +28,16 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
       - name: Publish Prerelease
         run: |
-          pnpm clean
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          pnpx pkg-pr-new publish --pnpm --compact '.'
 
   size:
     name: Size
@@ -47,12 +46,12 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      pull-requests: write
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+        uses: actions/checkout@v6
+
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies

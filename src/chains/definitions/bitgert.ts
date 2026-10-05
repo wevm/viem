@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const bitgert = /*#__PURE__*/ defineChain({
+export const bitgert = /*#__PURE__*/ Chain.from({
   id: 32520,
   name: 'Bitgert Mainnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const bitgert = /*#__PURE__*/ defineChain({
     name: 'Brise',
     symbol: 'Brise',
   },
-  rpcUrls: {
-    default: { http: ['https://rpc-bitgert.icecreamswap.com'] },
-  },
+  rpcUrls: { http: 'https://rpc-bitgert.icecreamswap.com' },
   blockExplorers: {
-    default: {
-      name: 'Bitgert Scan',
-      url: 'https://brisescan.com',
-    },
+    name: 'Bitgert Scan',
+    url: 'https://brisescan.com',
   },
   contracts: {
     multicall3: {

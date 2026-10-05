@@ -25,7 +25,8 @@ an unrestricted admin key.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, P256 } from 'viem/tempo'
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 const account = Account.fromSecp256k1('0x...')
@@ -54,7 +55,8 @@ the admin key.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, P256 } from 'viem/tempo'
+import { P256 } from 'viem/utils'
+import { Account } from 'viem/tempo'
 import { account, adminKey, client } from './viem.config'
 
 // New key to authorize on behalf of the account.
@@ -69,7 +71,8 @@ const { receipt } = await client.accessKey.authorizeSync({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, createClient, P256 } from 'viem/tempo'
+import { P256 } from 'viem/utils'
+import { Account, Client } from 'viem/tempo'
 
 // Root account.
 export const account = Account.fromSecp256k1('0x...')
@@ -79,7 +82,7 @@ export const adminKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-export const client = createClient({
+export const client = Client.create({
   account,
   testnet: true,
 })

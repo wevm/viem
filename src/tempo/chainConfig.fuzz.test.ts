@@ -1,10 +1,12 @@
 import fc from 'fast-check'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { Client, http } from 'viem'
+import { describe, expect, test } from 'vitest'
 import { fuzzParameters } from '~test/tempo/fuzz.js'
-import { maxUint256 } from '../constants/number.js'
 import { chainConfig } from './chainConfig.js'
 
-const now = 1_800_000_000
+const maxUint256 = 2n ** 256n - 1n
+const now = Math.floor(Date.now() / 1_000)
+const client = Client.create({ transport: http('http://localhost') })
 
 const nonceMode = fc.oneof(
   fc.constant({ kind: 'automatic' } as const),
@@ -28,21 +30,12 @@ const request = fc.record({
 })
 
 function address(index: number) {
-  return `0x${(index + 1).toString(16).padStart(40, '0')}`
+  return `0x${(index + 1).toString(16).padStart(40, '0')}` as const
 }
 
 describe('prepareTransactionRequest: fuzz', () => {
-  beforeEach(() => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(now * 1_000)
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
   test('preserves explicit 2D nonces and isolates automatic concurrency', async () => {
-    const prepare = chainConfig.prepareTransactionRequest[0]
+    const [prepare] = chainConfig.transaction.prepare
 
     await fc.assert(
       fc.asyncProperty(
@@ -80,7 +73,7 @@ describe('prepareTransactionRequest: fuzz', () => {
                     ? { validBefore: request.validBefore }
                     : {}),
                 } as never,
-                { client: {} as never, phase: 'beforeFillTransaction' },
+                { client, phase: 'beforeFillTransaction' },
               )
             }),
           )
@@ -110,9 +103,17 @@ describe('prepareTransactionRequest: fuzz', () => {
                 expect(output.validAfter).toBe(input.validAfter)
               else {
                 expect(output.validAfter).toBeGreaterThanOrEqual(0)
-                expect(output.validAfter).toBeLessThan(now - 60)
+                expect(output.validAfter).toBeLessThan(
+                  Math.floor(Date.now() / 1_000) - 60,
+                )
               }
-              expect(output.validBefore).toBe(input.validBefore ?? now + 25)
+              if (typeof input.validBefore === 'number')
+                expect(output.validBefore).toBe(input.validBefore)
+              else {
+                const current = Math.floor(Date.now() / 1_000)
+                expect(output.validBefore).toBeGreaterThanOrEqual(current + 24)
+                expect(output.validBefore).toBeLessThanOrEqual(current + 25)
+              }
               continue
             }
 
@@ -133,7 +134,7 @@ describe('prepareTransactionRequest: fuzz', () => {
           )) {
             const output = (await prepare(
               { account: { address: address(account) } } as never,
-              { client: {} as never, phase: 'beforeFillTransaction' },
+              { client, phase: 'beforeFillTransaction' },
             )) as { nonceKey?: bigint | undefined }
             expect(output.nonceKey).toBeUndefined()
           }

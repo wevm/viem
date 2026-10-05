@@ -1,7 +1,14 @@
+import type { Capabilities as TempoCapabilities_ } from 'viem/tempo'
+import { http as tempoHttp_ } from 'viem/tempo'
+import { Client as CoreClient_ } from 'viem'
+import { from as parseUnits } from 'ox/Value'
+import { randomPrivateKey as generatePrivateKey } from 'ox/Secp256k1'
+import { Actions as CoreActions_ } from 'viem'
+import { tempoLocalnet as chain_ } from 'viem/chains'
+import { Account as TempoAccount_ } from 'viem/tempo'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { createClient, http, parseUnits } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import { fillTransaction, sendTransactionSync } from 'viem/actions'
+import { http } from 'viem'
+
 import { tempo, tempoModerato } from 'viem/chains'
 import {
   Account,
@@ -12,13 +19,15 @@ import {
   withRelay,
 } from 'viem/tempo'
 import { beforeAll, expect, onTestFinished, test } from 'vitest'
-import * as Tempo from '~test/tempo/config.js'
-import { createHttpServer } from '~test/utils.js'
+import * as Tempo from '~test/tempo.js'
+import { createServer as createHttpServer } from '~test/http.js'
 import { getDefaultTokens, resolveFeeToken } from './feeToken.js'
 
-const userAccount = Tempo.accounts[9]!
-const feePayerAccount = Tempo.accounts[0]!
-const recipient = Tempo.accounts[7]!
+const userAccount = TempoAccount_.fromSecp256k1(Tempo.accounts[9]!.privateKey)
+const feePayerAccount = TempoAccount_.fromSecp256k1(
+  Tempo.accounts[0]!.privateKey,
+)
+const recipient = TempoAccount_.fromSecp256k1(Tempo.accounts[7]!.privateKey)
 
 // Token candidates for the local test chain.
 const localnetTokens = [
@@ -28,59 +37,66 @@ const localnetTokens = [
   '0x20c0000000000000000000000000000000000003',
 ] as const
 
-const caller = Tempo.getClient({ chain: Tempo.chain })
+const caller = Tempo.getClient({})
 
 beforeAll(async () => {
   await Promise.all(
     [0, 9].map((index) =>
-      Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
-        account: Tempo.accounts[index]!,
+      Actions.faucet.fundSync(Tempo.getClient({}), {
+        account: TempoAccount_.fromSecp256k1(Tempo.accounts[index]!.privateKey),
         timeout: 60_000,
       }),
     ),
   )
   // userAccount prefers alphaUsd (a faucet-funded genesis token) as its fee token.
-  await Actions.fee.setUserTokenSync(caller, {
+  await CoreActions_.contract.writeSync(caller, {
+    ...Actions.fee.setUserToken.call({ token: Tempo.alphaUsd }),
     account: userAccount,
-    token: Tempo.addresses.alphaUsd,
   })
 })
 
-test.each([undefined, Tempo.addresses.pathUsd])(
+test.each([undefined, Tempo.pathUsd] as const)(
   'resolves a fee token with override %s',
   async (feeToken) => {
-    const client = createClient({
-      chain: Tempo.chain,
-      transport: withRelay(Tempo.http(), {
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
         resolveTokens: () => localnetTokens,
 
         plugins: [Relay.feeToken()],
       }),
     })
-    const { transaction, capabilities } = await fillTransaction(client, {
-      account: userAccount.address,
-      calls: [
-        Actions.token.transfer.call(caller, {
-          token: Tempo.addresses.alphaUsd,
-          to: recipient.address,
-          amount: 1n,
-        }),
-      ],
-      feeToken,
-    })
-    expect(transaction.feeToken?.toLowerCase()).toBe(
-      feeToken ?? Tempo.addresses.alphaUsd,
+    const { transaction, capabilities } = await CoreActions_.transaction.fill(
+      client,
+      {
+        account: userAccount.address,
+        calls: [
+          Actions.token.transfer.call(caller, {
+            token: Tempo.alphaUsd,
+            to: recipient.address,
+            amount: 1n,
+          }),
+        ],
+        feeToken,
+      },
     )
+    expect(transaction.feeToken?.toLowerCase()).toBe(feeToken ?? Tempo.alphaUsd)
     expect(transaction.feePayerSignature).toBeUndefined()
-    expect(capabilities?.sponsored).toBe(false)
+    expect(
+      (
+        capabilities as
+          | TempoCapabilities_.FillTransactionCapabilities
+          | undefined
+      )?.sponsored,
+    ).toBe(false)
   },
 )
 
 test('provides token defaults to a fee payer through frozen middleware', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      resolveTokens: () => [Tempo.alphaUsd],
 
       plugins: [
         Relay.feePayer({ account: feePayerAccount }),
@@ -93,53 +109,69 @@ test('provides token defaults to a fee payer through frozen middleware', async (
       ],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
   })
-  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.alphaUsd)
   expect(transaction.feePayerSignature).toBeDefined()
 })
 test('cached metadata preserves bigint fields', async () => {
   const store = Store.memory()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      resolveTokens: () => [Tempo.addresses.alphaUsd],
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      resolveTokens: () => [Tempo.alphaUsd],
 
       plugins: [Relay.feeToken(), Relay.simulate({ store })],
     }),
   })
-  const first = await fillTransaction(client, {
+  const first = await CoreActions_.transaction.fill(client, {
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
   })
-  const second = await fillTransaction(client, {
+  const second = await CoreActions_.transaction.fill(client, {
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
   })
-  expect(second.capabilities?.balanceDiffs).toEqual(
-    first.capabilities?.balanceDiffs,
+  expect(
+    (
+      second.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
+    )?.balanceDiffs,
+  ).toEqual(
+    (
+      first.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
+    )?.balanceDiffs,
   )
-  expect(second.capabilities?.fee?.symbol).toBe('AlphaUSD')
+  expect(
+    (
+      second.capabilities as
+        | TempoCapabilities_.FillTransactionCapabilities
+        | undefined
+    )?.fee?.symbol,
+  ).toBe('AlphaUSD')
 })
 
 test.each([false, true])(
@@ -211,9 +243,9 @@ test.each([1337])(
 )
 
 test('an explicit token does not require token discovery', async () => {
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       resolveTokens: () => {
         throw new Error('Discovery is unavailable')
       },
@@ -221,18 +253,18 @@ test('an explicit token does not require token discovery', async () => {
       plugins: [Relay.feeToken()],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     account: userAccount.address,
-    feeToken: Tempo.addresses.alphaUsd,
+    feeToken: Tempo.alphaUsd,
     calls: [
       Actions.token.transfer.call(caller, {
-        token: Tempo.addresses.alphaUsd,
+        token: Tempo.alphaUsd,
         to: recipient.address,
         amount: 1n,
       }),
     ],
   })
-  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.alphaUsd)
 })
 
 test.each(['calls', 'resolver'] as const)(
@@ -268,13 +300,13 @@ test.each(['calls', 'resolver'] as const)(
 test('selects a funded token within a downstream concurrency budget', async () => {
   await Actions.fee.setUserTokenSync(caller, {
     account: userAccount,
-    token: Tempo.addresses.pathUsd,
-    feeToken: Tempo.addresses.alphaUsd,
+    token: Tempo.pathUsd,
+    feeToken: Tempo.alphaUsd,
   })
   const active = new Set<symbol>()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       plugins: [
         {
           async handleRequest(_context, next) {
@@ -298,33 +330,33 @@ test('selects a funded token within a downstream concurrency budget', async () =
       { length: 30 },
       (_, i) => `0x20c0${(i + 100).toString(16).padStart(36, '0')}` as const,
     ),
-    Tempo.addresses.alphaUsd,
-  ]
+    Tempo.alphaUsd,
+  ] as const
   await expect(
     resolveFeeToken(client, {
       account: userAccount.address,
-      exclude: Tempo.addresses.pathUsd,
+      exclude: Tempo.pathUsd,
       tokens,
     }),
-  ).resolves.toMatchObject({ feeToken: Tempo.addresses.alphaUsd })
+  ).resolves.toMatchObject({ feeToken: Tempo.alphaUsd })
 })
 
 test('uses a funded preference outside the configured candidates', async () => {
-  const account = Tempo.accounts[6]!
+  const account = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
   await Actions.faucet.fundSync(caller, { account, timeout: 60_000 })
-  await Actions.fee.setUserTokenSync(caller, {
+  await CoreActions_.contract.writeSync(caller, {
+    ...Actions.fee.setUserToken.call({ token: Tempo.alphaUsd }),
     account,
-    token: Tempo.addresses.alphaUsd,
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
       resolveTokens: () => [localnetTokens[2]],
 
       plugins: [Relay.feeToken()],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     account: account.address,
     calls: [
       Actions.token.transfer.call(caller, {
@@ -334,26 +366,26 @@ test('uses a funded preference outside the configured candidates', async () => {
       }),
     ],
   })
-  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.alphaUsd)
 })
 
 test('uses a funded call target outside the configured candidates', async () => {
-  const account = Tempo.accounts[10]!
+  const account = TempoAccount_.fromSecp256k1(Tempo.accounts[10]!.privateKey)
   await Actions.token.transferSync(caller, {
     account: userAccount,
     token: localnetTokens[2],
     to: account.address,
     amount: 100_000_000n,
   })
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      resolveTokens: () => [Tempo.addresses.pathUsd],
+  const client = CoreClient_.create({
+    chain: chain_,
+    transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+      resolveTokens: () => [Tempo.pathUsd],
 
       plugins: [Relay.feeToken()],
     }),
   })
-  const { transaction } = await fillTransaction(client, {
+  const { transaction } = await CoreActions_.transaction.fill(client, {
     account: account.address,
     calls: [
       Actions.token.transfer.call(caller, {
@@ -366,7 +398,7 @@ test('uses a funded call target outside the configured candidates', async () => 
   expect(transaction.feeToken?.toLowerCase()).toBe(localnetTokens[2])
 })
 
-test.skipIf(Tempo.nodeEnv !== 'localnet')(
+test.skipIf('localnet' !== 'localnet')(
   'plain HTTP transport: selects a funded token and broadcasts the transaction',
   async () => {
     const relay = Relay.create({
@@ -381,12 +413,11 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
     })
 
     const client = Tempo.getClient({
-      chain: Tempo.chain,
       transport: http(server.url),
     })
 
     const account = Account.fromSecp256k1(generatePrivateKey())
-    const token = Tempo.addresses.alphaUsd
+    const token = Tempo.alphaUsd
 
     await Actions.token.transferSync(caller, {
       account: feePayerAccount,
@@ -409,7 +440,7 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
       token,
     })
 
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await CoreActions_.transaction.sendSync(client, {
       account,
       calls: [
         Actions.token.transfer.call(client, {
@@ -443,21 +474,21 @@ test.each(['direct', 'quote'] as const)(
     const { token: quoteToken } = await Actions.token.createSync(caller, {
       account: userAccount,
       admin: userAccount.address,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       name: 'Quote Test',
       symbol: 'QUOTE',
       currency: 'USD',
     })
     await Actions.token.grantRolesSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       token: quoteToken,
       roles: ['issuer'],
       to: userAccount.address,
     })
     await Actions.token.mintSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       token: quoteToken,
       to: userAccount.address,
       amount: parseUnits('10', 6),
@@ -465,7 +496,7 @@ test.each(['direct', 'quote'] as const)(
     const { token } = await Actions.token.createSync(caller, {
       account: userAccount,
       admin: userAccount.address,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       name: 'Liquidity Test',
       symbol: 'LIQ',
       currency: 'USD',
@@ -473,7 +504,7 @@ test.each(['direct', 'quote'] as const)(
     })
     await Actions.token.grantRolesSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       token,
       roles: ['issuer'],
       to: userAccount.address,
@@ -481,29 +512,29 @@ test.each(['direct', 'quote'] as const)(
     // The illiquid preference has the largest balance; AlphaUSD provides a smaller, liquid fallback.
     await Actions.token.mintSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       token,
       to: account.address,
       amount: parseUnits('1000', 6),
     })
     await Actions.token.transferSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
-      token: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
+      token: Tempo.alphaUsd,
       to: account.address,
       amount: parseUnits('1', 6),
     })
     await Actions.fee.setUserTokenSync(caller, {
       account,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       token,
     })
 
     // Observe real RPC requests to ensure liquidity checks stay within the single preflight call.
     const requests: string[] = []
-    const client = createClient({
-      chain: Tempo.chain,
-      transport: http(Tempo.chain.rpcUrls.default.http[0], {
+    const client = CoreClient_.create({
+      chain: chain_,
+      transport: http(Tempo.rpcUrl, {
         onFetchRequest(_request, init) {
           requests.push(JSON.parse(init!.body as string).method)
         },
@@ -511,10 +542,7 @@ test.each(['direct', 'quote'] as const)(
     })
 
     // Reject the illiquid preference whether or not it also appears in the candidate list.
-    for (const tokens of [
-      [Tempo.addresses.alphaUsd],
-      [token, Tempo.addresses.alphaUsd],
-    ]) {
+    for (const tokens of [[Tempo.alphaUsd], [token, Tempo.alphaUsd]] as const) {
       requests.length = 0
       const result = await resolveFeeToken(client, {
         account: account.address,
@@ -535,14 +563,14 @@ test.each(['direct', 'quote'] as const)(
     }
 
     // A full relay fill must use AlphaUSD even when the transfer targets the illiquid token.
-    const relayClient = createClient({
-      chain: Tempo.chain,
-      transport: withRelay(Tempo.http(), {
-        resolveTokens: () => [token, Tempo.addresses.alphaUsd],
+    const relayClient = CoreClient_.create({
+      chain: chain_,
+      transport: withRelay(tempoHttp_(Tempo.rpcUrl), {
+        resolveTokens: () => [token, Tempo.alphaUsd],
         plugins: [Relay.feeToken()],
       }),
     })
-    const { transaction } = await fillTransaction(relayClient, {
+    const { transaction } = await CoreActions_.transaction.fill(relayClient, {
       account: account.address,
       calls: [
         Actions.token.transfer.call(caller, {
@@ -573,10 +601,9 @@ test.each(['direct', 'quote'] as const)(
     // Fund either the direct route to pathUSD or the first leg through the quote token.
     await Actions.amm.mintSync(caller, {
       account: userAccount,
-      feeToken: Tempo.addresses.alphaUsd,
+      feeToken: Tempo.alphaUsd,
       userTokenAddress: token,
-      validatorTokenAddress:
-        route === 'direct' ? Tempo.addresses.pathUsd : quoteToken,
+      validatorTokenAddress: route === 'direct' ? Tempo.pathUsd : quoteToken,
       validatorTokenAmount: parseUnits('1', 6),
       to: userAccount.address,
     })
@@ -596,9 +623,9 @@ test.each(['direct', 'quote'] as const)(
 
       await Actions.amm.mintSync(caller, {
         account: userAccount,
-        feeToken: Tempo.addresses.alphaUsd,
+        feeToken: Tempo.alphaUsd,
         userTokenAddress: quoteToken,
-        validatorTokenAddress: Tempo.addresses.pathUsd,
+        validatorTokenAddress: Tempo.pathUsd,
         validatorTokenAmount: parseUnits('1', 6),
         to: userAccount.address,
       })
@@ -608,7 +635,7 @@ test.each(['direct', 'quote'] as const)(
     requests.length = 0
     const liquid = await resolveFeeToken(client, {
       account: account.address,
-      tokens: [Tempo.addresses.alphaUsd],
+      tokens: [Tempo.alphaUsd],
     })
 
     expect(liquid.feeToken?.toLowerCase()).toBe(token.toLowerCase())
@@ -623,8 +650,8 @@ test.each(['direct', 'quote'] as const)(
 test('the validator token needs no pool', async () => {
   const result = await resolveFeeToken(caller, {
     account: feePayerAccount.address,
-    exclude: Tempo.addresses.alphaUsd,
-    tokens: [Tempo.addresses.pathUsd],
+    exclude: Tempo.alphaUsd,
+    tokens: [Tempo.pathUsd],
   })
 
   expect(result).toMatchInlineSnapshot(`

@@ -1,6 +1,7 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
+import * as Contracts from '../../core/internal/contracts.js'
 
-export const xrplevmTestnet = /*#__PURE__*/ defineChain({
+export const xrplevmTestnet = /*#__PURE__*/ Chain.from({
   id: 1449000,
   name: 'XRPL EVM Testnet',
   nativeCurrency: {
@@ -8,17 +9,14 @@ export const xrplevmTestnet = /*#__PURE__*/ defineChain({
     symbol: 'XRP',
     decimals: 18,
   },
-  rpcUrls: {
-    default: { http: ['https://rpc.testnet.xrplevm.org'] },
-  },
+  rpcUrls: { http: 'https://rpc.testnet.xrplevm.org' },
   blockExplorers: {
-    default: {
-      name: 'blockscout',
-      url: 'https://explorer.testnet.xrplevm.org',
-      apiUrl: 'https://explorer.testnet.xrplevm.org/api/v2',
-    },
+    name: 'blockscout',
+    url: 'https://explorer.testnet.xrplevm.org',
+    apiUrl: 'https://explorer.testnet.xrplevm.org/api/v2',
   },
   contracts: {
+    create2: Contracts.create2,
     multicall3: {
       address: '0x82Cc144D7d0AD4B1c27cb41420e82b82Ad6e9B31',
       blockCreated: 492302,

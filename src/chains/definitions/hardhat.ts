@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const hardhat = /*#__PURE__*/ defineChain({
+export const hardhat = /*#__PURE__*/ Chain.from({
   id: 31_337,
   name: 'Hardhat',
   nativeCurrency: {
@@ -8,7 +8,5 @@ export const hardhat = /*#__PURE__*/ defineChain({
     name: 'Ether',
     symbol: 'ETH',
   },
-  rpcUrls: {
-    default: { http: ['http://127.0.0.1:8545'] },
-  },
+  rpcUrls: { http: 'http://127.0.0.1:8545' },
 })

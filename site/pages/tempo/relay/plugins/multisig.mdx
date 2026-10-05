@@ -18,9 +18,9 @@ with the plugins shown in the local configuration.
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+import { Client, Relay, Store, withRelay } from 'viem/tempo'
 
-export const client = createClient({
+export const client = Client.create({
   transport: withRelay(http(), {
     plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
   }),
@@ -29,10 +29,10 @@ export const client = createClient({
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
 import { http } from 'viem'
-import { createClient } from 'viem/tempo'
+import { Client } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-export const client = createClient({
+export const client = Client.create({
   transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```

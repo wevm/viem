@@ -1,20 +1,20 @@
-import { createPublicClient, http, webSocket } from 'viem'
+import { Client as ViemClient, http, publicActions, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 import { Client } from './client'
 
 export default async function Home() {
-  const client = createPublicClient({
+  const client = ViemClient.create({
     chain: mainnet,
-    transport: http(),
-  })
+    transport: http('https://ethereum-rpc.publicnode.com'),
+  }).extend(publicActions())
 
-  const webSocketClient = createPublicClient({
+  const webSocketClient = ViemClient.create({
     chain: mainnet,
     transport: webSocket('wss://mainnet.gateway.tenderly.co'),
-  })
+  }).extend(publicActions())
 
-  await client.getBlockNumber()
-  await webSocketClient.getBlockNumber()
+  await client.block.getNumber()
+  await webSocketClient.block.getNumber()
 
   return (
     <>

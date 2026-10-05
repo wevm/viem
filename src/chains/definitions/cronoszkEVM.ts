@@ -1,6 +1,6 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
+import * as Chain from '../../core/Chain.js'
 
-export const cronoszkEVM = /*#__PURE__*/ defineChain({
+export const cronoszkEVM = /*#__PURE__*/ Chain.from({
   id: 388,
   name: 'Cronos zkEVM Mainnet',
   nativeCurrency: {
@@ -8,14 +8,10 @@ export const cronoszkEVM = /*#__PURE__*/ defineChain({
     name: 'Cronos zkEVM CRO',
     symbol: 'zkCRO',
   },
-  rpcUrls: {
-    default: { http: ['https://mainnet.zkevm.cronos.org'] },
-  },
+  rpcUrls: { http: 'https://mainnet.zkevm.cronos.org' },
   blockExplorers: {
-    default: {
-      name: 'Cronos zkEVM (Mainnet) Chain Explorer',
-      url: 'https://explorer.zkevm.cronos.org',
-    },
+    name: 'Cronos zkEVM (Mainnet) Chain Explorer',
+    url: 'https://explorer.zkevm.cronos.org',
   },
   contracts: {
     multicall3: {

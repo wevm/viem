@@ -1,7 +1,7 @@
 import * as RpcResponse from 'ox/RpcResponse'
-import { BaseError } from '../../errors/base.js'
-import { RpcRequestError } from '../../errors/request.js'
+import { BaseError } from '../../core/Errors.js'
 import type * as Relay from '../Relay.js'
+import { toRpcError } from './relay/utils.js'
 
 /** Adapts an RPC handler to the Fetch API without changing its method results. */
 export async function fetch(
@@ -94,22 +94,13 @@ export async function fetch(
       if (id === undefined) return undefined
       const cause =
         error instanceof BaseError
-          ? error.walk(
-              (error) =>
-                error instanceof RpcRequestError ||
-                error instanceof RpcResponse.BaseError,
-            )
+          ? error.walk((error) => error instanceof RpcResponse.BaseError)
           : error
-      const rpcError =
-        cause instanceof RpcRequestError
-          ? {
-              code: cause.code,
-              message: cause.details ?? 'RPC request failed',
-              data: cause.data,
-            }
-          : cause instanceof RpcResponse.BaseError
-            ? { code: cause.code, message: cause.message, data: cause.data }
-            : { code: -32603, message: 'Internal error' }
+      const rpc =
+        cause instanceof RpcResponse.BaseError ? toRpcError(cause) : undefined
+      const rpcError = rpc
+        ? { code: rpc.code, message: rpc.message, data: rpc.data }
+        : { code: -32603, message: 'Internal error' }
       try {
         return JSON.parse(
           JSON.stringify({ jsonrpc: '2.0', id, error: rpcError }),

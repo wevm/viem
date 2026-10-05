@@ -18,12 +18,12 @@ Pass a relay transport to `withRelay` to use a remote service for transaction
 preparation, fee sponsorship, and multisig coordination.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { withRelay } from 'viem/tempo'
 
 // See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
-const client = createClient({
+const client = Client.create({
   chain: tempo,
   transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
 })
@@ -35,11 +35,11 @@ Pass plugins to `withRelay` to run a relay inside the application. Requests pass
 through the plugins before reaching the execution RPC, without a separate HTTP service.
 
 ```ts twoslash
-import { createClient, http } from 'viem'
+import { Client, http } from 'viem'
 import { tempo } from 'viem/chains'
 import { Relay, Store, withRelay } from 'viem/tempo'
 
-const client = createClient({
+const client = Client.create({
   chain: tempo,
   transport: withRelay(http(), {
     plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
