@@ -8735,6 +8735,222 @@ export const zoneMessenger = [
   },
 ] as const
 
+// ZoneInbox ABI from tempoxyz/zones.
+export const zoneInbox = [
+  {
+    name: 'processedDepositQueueHash',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'processedDepositNumber',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'processedTokenEnablementHash',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'processedEnabledTokenCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'tempoPortal',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'tempoState',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'refunds',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'address', name: 'owner' },
+    ],
+    outputs: [{ type: 'uint128' }],
+  },
+  {
+    name: 'claimRefund',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [{ type: 'uint128', name: 'amount' }],
+  },
+  {
+    name: 'advanceTempo',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes', name: 'header' },
+      {
+        type: 'tuple[]',
+        name: 'deposits',
+        components: [
+          { type: 'uint8', name: 'depositType' },
+          { type: 'bytes', name: 'depositData' },
+          { type: 'bool', name: 'rejected' },
+        ],
+      },
+      {
+        type: 'tuple[]',
+        name: 'decryptions',
+        components: [
+          { type: 'bytes32', name: 'sharedSecret' },
+          { type: 'uint8', name: 'sharedSecretYParity' },
+          {
+            type: 'tuple',
+            name: 'cpProof',
+            components: [
+              { type: 'bytes32', name: 's' },
+              { type: 'bytes32', name: 'c' },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'tuple[]',
+        name: 'enabledTokens',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'string', name: 'name' },
+          { type: 'string', name: 'symbol' },
+          { type: 'string', name: 'currency' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'advanceTempoHeaders',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes[]', name: 'headers' }],
+    outputs: [],
+  },
+  {
+    name: 'TempoAdvanced',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'tempoBlockHash', indexed: true },
+      { type: 'uint64', name: 'tempoBlockNumber', indexed: true },
+      { type: 'uint256', name: 'depositsProcessed' },
+      { type: 'bytes32', name: 'newProcessedDepositQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+    ],
+  },
+  {
+    name: 'TempoAdvanced',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'tempoBlockHash', indexed: true },
+      { type: 'uint64', name: 'tempoBlockNumber', indexed: true },
+      { type: 'uint256', name: 'depositsProcessed' },
+      { type: 'bytes32', name: 'newProcessedDepositQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+      { type: 'uint64', name: 'lastProcessedEnabledTokenCount' },
+    ],
+  },
+  {
+    name: 'DepositProcessed',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'to', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'bytes32', name: 'memo' },
+    ],
+  },
+  {
+    name: 'DepositFailed',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'DepositRejected',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'depositHash', indexed: true },
+      { type: 'address', name: 'sender', indexed: true },
+      { type: 'uint8', name: 'depositType' },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+      { type: 'address', name: 'tempoRefundRecipient' },
+    ],
+  },
+  {
+    name: 'WithdrawalBounceBackProcessed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'zoneFallbackRecipient', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'WithdrawalBounceBackPending',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'zoneFallbackRecipient', indexed: true },
+      { type: 'address', name: 'token' },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'RefundClaimed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'recipient', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint128', name: 'amount' },
+    ],
+  },
+  {
+    name: 'TokenEnabled',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+    ],
+  },
+  { name: 'OnlySequencer', type: 'error', inputs: [] },
+  { name: 'InvalidDepositQueueHash', type: 'error', inputs: [] },
+  { name: 'InvalidWithdrawalBounceBack', type: 'error', inputs: [] },
+  { name: 'InvalidTokenEnablementHash', type: 'error', inputs: [] },
+  { name: 'MissingDecryptionData', type: 'error', inputs: [] },
+  { name: 'ExtraDecryptionData', type: 'error', inputs: [] },
+  { name: 'InvalidSharedSecretProof', type: 'error', inputs: [] },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+] as const
+
 // Source: tempoxyz/propAMM@bff7c1fa50cf72e2896a078abae4e164c36caa93
 
 export const directPropAmm = [
@@ -9682,6 +9898,7 @@ export const earn = [
 ] as const
 
 export const zone = [
+  ...zoneInbox,
   ...zoneMessenger,
   ...zoneOutbox,
   ...zonePortalPreT13Retired,
