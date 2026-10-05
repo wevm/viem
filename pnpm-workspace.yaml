@@ -124,7 +124,7 @@ overrides:
   toml@<4.2.0: 4.2.0
 
 patchedDependencies:
-  vocs@2.8.1: patches/vocs@2.8.1.patch
+  vocs@2.10.1: patches/vocs@2.10.1.patch
 
 provenance: true
 
@@ -157,9 +157,9 @@ catalog:
   permissionless: ^0.2.57
   prool: ~0.2.14
   publint: ^0.3.21
-  react: ^19.2.7
-  react-dom: ^19.2.7
-  react-server-dom-webpack: 19.2.8
+  react: ^19.3.0
+  react-dom: ^19.3.0
+  react-server-dom-webpack: 19.3.0
   sherif: ^1.11.1
   simple-git-hooks: ^2.13.1
   size-limit: ^12.1.0
@@ -171,9 +171,9 @@ catalog:
   vite: ^8.0.16
   vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
   vite-plus: 0.1.24
-  vocs: ^2.8.1
+  vocs: ^2.10.1
   vp: npm:vite-plus@0.1.24
-  waku: ^1.0.0-beta.6
+  waku: 1.0.0-rc.1
   zile: ^0.0.29
 
 catalogs:

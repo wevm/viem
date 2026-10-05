@@ -343,7 +343,8 @@ Guidelines for authoring docs and guides under `site/pages/`.
 - **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
   sentences instead.
 - **Use `text` fences for box-drawing diagrams in site MDX.** Shiki does not recognize the `diagram` language and fails page rendering.
-- **Prebundle Mermaid for docs development**; keep `mermaid` in `site/vite.config.ts`'s `optimizeDeps.include`. Use `pnpm docs:dev`, since `vocs dev` ignores that config.
+- **Mermaid prebundling is built into Vocs**; use `pnpm docs:dev`. Vocs 2.10.1 and later prebundle installed Mermaid dependencies without a custom Vite configuration.
+- **Pin Waku to Vocs's tested release**; Vocs 2.10.1 uses `waku@1.0.0-rc.1`. Waku rc.2 requires an HTML-transform virtual module that this Vocs release does not provide.
 
 ### Headings
 

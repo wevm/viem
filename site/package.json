@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/copy-vocs-theme.mjs && vocs build",
-    "dev": "vite dev",
+    "dev": "vocs dev",
     "og:generate": "node --import tsx og/generate-home.tsx",
     "prebuild": "node ../scripts/docs:sync-utils.ts --if-needed",
     "preview": "vocs preview",
