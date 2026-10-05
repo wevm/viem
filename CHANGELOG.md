@@ -1,5 +1,11 @@
 # viem
 
+## 3.0.0-next.13
+
+### Patch Changes
+
+- [#4930](https://github.com/wevm/viem/pull/4930) [`f8cdce7`](https://github.com/wevm/viem/commit/f8cdce7a6d5b17a9ea324b5943cf5f1b9e0c601e) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo transaction types to accept external fee-payer URLs.
+
 ## 3.0.0-next.12
 
 ### Patch Changes
