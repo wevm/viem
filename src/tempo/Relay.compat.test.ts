@@ -81,8 +81,8 @@ const caller = Tempo.getClient({})
 beforeAll(async () => {
   // Faucet-fund the accounts that pay fees or create fresh tokens. The faucet is
   // permissionless, so no genesis privileges are required. Left unfunded on
-  // purpose: accounts[5]/[10] (balance-sensitive fee-resolution and
-  // insufficient-balance tests) and accounts[7] (recipient only).
+  // purpose: accounts[10] (insufficient-balance tests) and accounts[7]
+  // (recipient only).
   await Promise.all(
     [0, 2, 3, 4, 6, 8, 9].map((index) =>
       Actions.faucet.fundSync(Tempo.getClient({}), {
@@ -2624,9 +2624,7 @@ describe.skipIf(nodeEnv !== 'localnet')(
       // (a faucet-funded account would carry genesis balances that dominate).
       // The relay's tokenlist is restricted to just these two so the
       // highest-balance resolver picks between them deterministically.
-      const freshAccount = TempoAccount_.fromSecp256k1(
-        Tempo.accounts[5]!.privateKey,
-      )
+      const freshAccount = TempoAccount_.fromSecp256k1(generatePrivateKey())
       const rpc = Tempo.getClient({
         account: TempoAccount_.fromSecp256k1(Tempo.accounts[0]!.privateKey),
       })
@@ -2865,7 +2863,11 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
     // Walk the viem error chain to the underlying RPC error. The default path
     // surfaces the chain revert as a JSON-RPC error (`code: 3`) with the
     // ABI-encoded `InsufficientBalance(uint256, uint256, address)` selector.
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     expect(rpc?.data?.startsWith('0x832f98b5')).toBe(true)
   })
 
@@ -2887,7 +2889,11 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
         (e: BaseError) => e,
       )
     expect(error).toBeDefined()
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     // ABI-encoded `Unauthorized()`.
     expect(rpc?.data).toBe('0x82b42900')
   })
@@ -2911,7 +2917,11 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
         (e: BaseError) => e,
       )
     expect(error).toBeDefined()
-    const rpc = error?.walk(isRpcError) as { data?: string } | undefined
+    const rpc = (
+      error?.walk(isRpcError) as
+        | { data: { code: number; data?: string } }
+        | undefined
+    )?.data
     expect(rpc?.data?.startsWith('0x832f98b5')).toBe(true)
   })
 })
@@ -2920,7 +2930,10 @@ function isRpcError(e: unknown): boolean {
   return (
     typeof e === 'object' &&
     e !== null &&
-    'code' in e &&
-    (e as { code: unknown }).code === 3
+    'data' in e &&
+    typeof e.data === 'object' &&
+    e.data !== null &&
+    'code' in e.data &&
+    e.data.code === 3
   )
 }
