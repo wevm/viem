@@ -4,7 +4,9 @@ import { TxEnvelopeTempo } from 'ox/tempo'
 import { RpcResponse } from 'ox'
 import * as Transport from '../core/Transport.js'
 import { http as http_ } from '../core/transports/http.js'
-import * as Multisig from './Multisig.js'
+import * as Plugin from './internal/relay/plugin.js'
+import * as Request from './internal/relay/request.js'
+import type * as Relay_ from './Relay.js'
 import * as Store from './Store.js'
 
 /** A relay {@link Transport.Transport}: routes fee sponsorship traffic to a relay (fee payer service). */
@@ -44,17 +46,55 @@ export type Relay = Transport.Transport<'relay', { multisig: true }>
  * @param options - Options.
  * @returns A relay transport.
  */
+export function withRelay<
+  transport extends Transport.Transport,
+  const plugins extends readonly Relay_.Plugin[] = readonly [],
+>(
+  defaultTransport: transport,
+  options: withRelay.LocalOptions<plugins>,
+): withRelay.LocalReturnValue<transport, plugins>
 export function withRelay(
   defaultTransport: Transport.Transport,
   relayTransport: Transport.Transport,
+  options?: withRelay.Options,
+): Relay
+export function withRelay(
+  defaultTransport: Transport.Transport,
+  relayTransport: Transport.Transport | withRelay.LocalOptions,
   options: withRelay.Options = {},
-): Relay {
+): Transport.Transport {
+  if (!('setup' in relayTransport))
+    return {
+      ...defaultTransport,
+      setup(config = {}) {
+        const transport = defaultTransport.setup(config)
+        const request = Request.compose(
+          (request, options) => transport.request(request, options),
+          relayTransport,
+          config.chain ? () => ({ chain: config.chain! }) : undefined,
+        )
+        return {
+          ...transport,
+          request: ((request_, options) =>
+            request(request_ as Relay_.handleRequest.Request, {
+              chainId: config.chain?.id,
+              ...options,
+            })) as typeof transport.request,
+          ...(relayTransport.plugins?.some((plugin) =>
+            Plugin.isMultisig(plugin),
+          )
+            ? { multisig: true }
+            : {}),
+        }
+      },
+    }
+
   const { policy = 'sign-only' } = options
   return Transport.from({
     key: options.key ?? 'relay',
     name: options.name ?? 'Relay Proxy',
     type: 'relay',
-    setup({ chain, retryCount, timeout }) {
+    setup({ chain, timeout }) {
       const transport = defaultTransport.setup({
         chain,
         retryCount: 0,
@@ -65,7 +105,7 @@ export function withRelay(
       return {
         multisig: true as const,
         methods: options.methods,
-        retryCount: options.retryCount ?? retryCount,
+        retryCount: 0,
         retryDelay: options.retryDelay,
         async request(args, opts) {
           const { method, params } = args
@@ -166,6 +206,33 @@ export function withRelay(
 }
 
 export declare namespace withRelay {
+  /** Plugins applied directly to the default transport. */
+  type LocalOptions<
+    plugins extends readonly Relay_.Plugin[] = readonly Relay_.Plugin[],
+  > = Pick<Relay_.handleRequest.Options, 'resolveTokens'> & {
+    /** Ordered relay plugins. Defaults to an empty list. */
+    plugins?: plugins | undefined
+  }
+  /** Wrapped transport preserving its attributes and RPC schema. */
+  type LocalReturnValue<
+    transport extends Transport.Transport,
+    plugins extends readonly Relay_.Plugin[] = readonly [],
+  > =
+    transport extends Transport.Transport<
+      infer type,
+      infer properties,
+      infer request
+    >
+      ? Transport.Transport<
+          type,
+          properties &
+            (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
+              ? {}
+              : { multisig: true }),
+          request
+        >
+      : never
+
   type Options = {
     /** Transport key. @default 'relay' */
     key?: string | undefined
@@ -264,41 +331,4 @@ export declare namespace http {
     /** Store for reading zone authorization tokens. Defaults to session storage (web) or memory (server). */
     store?: Store.Store | undefined
   }
-}
-
-/** Wraps a transport with native multisig approval coordination. */
-export function withMultisig<transport extends Transport.Transport>(
-  transport: transport,
-  options: Multisig.handleRequest.Parameters,
-): withMultisig.ReturnValue<transport> {
-  return {
-    ...transport,
-    setup(parameters = {}) {
-      const value = transport.setup(parameters)
-      return {
-        ...value,
-        multisig: true,
-        request: Multisig.handleRequest(
-          (request, options) => value.request(request, options),
-          options,
-        ),
-      }
-    },
-  } as unknown as withMultisig.ReturnValue<transport>
-}
-
-export declare namespace withMultisig {
-  /** Parameters for multisig coordination. */
-  type Options = Multisig.handleRequest.Parameters
-  /** Wrapped transport with multisig coordination metadata. */
-  type ReturnValue<
-    transport extends Transport.Transport = Transport.Transport,
-  > =
-    transport extends Transport.Transport<
-      infer type,
-      infer properties,
-      infer request
-    >
-      ? Transport.Transport<type, properties & { multisig: true }, request>
-      : never
 }

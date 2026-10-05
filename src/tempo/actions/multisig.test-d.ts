@@ -1,3 +1,4 @@
+import { http } from 'viem/tempo'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
@@ -5,6 +6,9 @@ import {
   Client,
   type MultisigConfig,
   type MultisigOperation,
+  Relay,
+  Store,
+  withRelay,
 } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
@@ -14,7 +18,9 @@ const owner = Account.fromSecp256k1(
 const account = Account.fromMultisig({ address: 'infer', owners: [owner] })
 const client = Client.create({
   chain: tempoLocalnet,
-  experimental_multisig: true,
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })],
+  }),
 })
 
 test('wallet actions expose multisig operations', async () => {

@@ -84,6 +84,15 @@ const v2 = {
 } as const
 
 describe('codecs.transactionRequest', () => {
+  test('preserves an external fee payer URL', () => {
+    const request = toRpc({
+      ...baseRequest,
+      feePayer: 'https://relay.example',
+    } as never)
+
+    expect(request.feePayer).toMatchInlineSnapshot(`"https://relay.example"`)
+  })
+
   test('encodes a tempo request', () => {
     expect(toRpc({ ...baseRequest, from: sender })).toMatchInlineSnapshot(`
         {
@@ -696,6 +705,18 @@ describe('transaction.serialize', () => {
 })
 
 describe('transaction.prepare', () => {
+  test.each(['expiring', 2n ** 256n - 1n] as const)(
+    'expiring nonce: preserves an explicit nonce for %s',
+    async (nonceKey) => {
+      const request = await prepare(
+        { feeToken: baseRequest.feeToken, nonceKey, nonce: 42 },
+        { client, phase: 'beforeFillTransaction' },
+      )
+
+      expect(request.nonce).toMatchInlineSnapshot(`42`)
+    },
+  )
+
   test('resolves the tempo type from tempo fields', async () => {
     const request = await prepare(
       { feeToken: baseRequest.feeToken },

@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@a2624758a6709731d98b9bd6fc8e5afca398fea9
+// Source: tempoxyz/tempo@6ef1f812c9ddcbe90a88ada73944012520942d26
 
 /** ABI of the account keychain precompile. */
 export const accountKeychain = [
@@ -1955,6 +1955,16 @@ export const tip20 = [
     outputs: [],
   },
   {
+    name: 'burnAt',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'from' },
+      { type: 'uint256', name: 'amount' },
+    ],
+    outputs: [],
+  },
+  {
     name: 'mintWithMemo',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -2063,6 +2073,13 @@ export const tip20 = [
   },
   {
     name: 'BURN_BLOCKED_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'BURN_AT_ROLE',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
@@ -2195,6 +2212,15 @@ export const tip20 = [
     inputs: [
       { type: 'address', name: 'from', indexed: true },
       { type: 'uint256', name: 'amount' },
+    ],
+  },
+  {
+    name: 'BurnAt',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'burner', indexed: true },
+      { type: 'address', name: 'from', indexed: true },
+      { type: 'uint256', name: 'amount', indexed: true },
     ],
   },
   {
@@ -3711,6 +3737,20 @@ export const zonePortal = [
     outputs: [{ type: 'uint64' }],
   },
   {
+    name: 'MAX_UNPROCESSED_DEPOSITS',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'MAX_UNPROCESSED_TOKEN_ENABLEMENTS',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
     name: 'MAX_WITHDRAWAL_GAS_LIMIT',
     type: 'function',
     stateMutability: 'view',
@@ -3806,6 +3846,47 @@ export const zonePortal = [
           { type: 'bytes32', name: 'nextProcessedHash' },
           { type: 'uint64', name: 'prevDepositNumber' },
           { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      { type: 'bytes[]', name: 'signatures' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'submitBatch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'recentTempoBlockNumber' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'tokenEnablementTransition',
+        components: [
+          { type: 'uint64', name: 'prevProcessedTokenCount' },
+          { type: 'uint64', name: 'nextProcessedTokenCount' },
         ],
       },
       { type: 'bytes32', name: 'withdrawalQueueHash' },
@@ -3958,6 +4039,20 @@ export const zonePortal = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'lastProcessedEnabledTokenCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'tokenEnablementCursorInitialized',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bool' }],
   },
   {
     name: 'enabledTokenAt',
@@ -4150,6 +4245,19 @@ export const zonePortal = [
     ],
   },
   {
+    name: 'BatchSubmitted',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'withdrawalBatchIndex', indexed: true },
+      { type: 'uint256', name: 'withdrawalQueueIndex', indexed: true },
+      { type: 'bytes32', name: 'nextProcessedDepositQueueHash' },
+      { type: 'bytes32', name: 'nextBlockHash' },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+      { type: 'uint64', name: 'lastProcessedEnabledTokenCount' },
+    ],
+  },
+  {
     name: 'WithdrawalProcessed',
     type: 'event',
     inputs: [
@@ -4296,7 +4404,9 @@ export const zonePortal = [
   { name: 'DepositsNotActive', type: 'error', inputs: [] },
   { name: 'TokenAlreadyEnabled', type: 'error', inputs: [] },
   { name: 'TokenTransferPolicyNotSet', type: 'error', inputs: [] },
+  { name: 'TokenEnablementCursorNotInitialized', type: 'error', inputs: [] },
   { name: 'InvalidDepositTransition', type: 'error', inputs: [] },
+  { name: 'InvalidTokenEnablementTransition', type: 'error', inputs: [] },
   { name: 'InvalidSequencerSet', type: 'error', inputs: [] },
   { name: 'SequencerConfigurationUnchanged', type: 'error', inputs: [] },
   { name: 'InvalidQuorumCertificate', type: 'error', inputs: [] },
@@ -4376,40 +4486,6 @@ export const zoneVerifier = [
         components: [
           { type: 'uint64', name: 'prevProcessedTokenCount' },
           { type: 'uint64', name: 'nextProcessedTokenCount' },
-        ],
-      },
-      { type: 'bytes32', name: 'withdrawalQueueHash' },
-      { type: 'bytes', name: 'verifierConfig' },
-      { type: 'bytes', name: 'proof' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'verify',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint32', name: 'zoneId' },
-      { type: 'uint64', name: 'tempoBlockNumber' },
-      { type: 'uint64', name: 'anchorBlockNumber' },
-      { type: 'bytes32', name: 'anchorBlockHash' },
-      { type: 'uint64', name: 'expectedWithdrawalBatchIndex' },
-      {
-        type: 'tuple',
-        name: 'blockTransition',
-        components: [
-          { type: 'bytes32', name: 'prevBlockHash' },
-          { type: 'bytes32', name: 'nextBlockHash' },
-        ],
-      },
-      {
-        type: 'tuple',
-        name: 'depositQueueTransition',
-        components: [
-          { type: 'bytes32', name: 'prevProcessedHash' },
-          { type: 'bytes32', name: 'nextProcessedHash' },
-          { type: 'uint64', name: 'prevDepositNumber' },
-          { type: 'uint64', name: 'nextDepositNumber' },
         ],
       },
       { type: 'bytes32', name: 'withdrawalQueueHash' },
@@ -8348,7 +8424,69 @@ export const earnRouterCallbackData = [
   },
 ] as const
 
-// Source: tempoxyz/zones@421d77a9e5a12cd3fbb2ed10da1010f31b75f012
+// Source: tempoxyz/zones@22318d90a098149fecd0c56ae4e20e55fea24bdd
+
+export const zonePortalPreT13Retired = [
+  {
+    name: 'MAX_DEPOSITS_PER_TEMPO_BLOCK',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'MAX_TOKENS_ENABLED_PER_TEMPO_BLOCK',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'submitBatch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'tempoBlockNumber' },
+      { type: 'uint64', name: 'recentTempoBlockNumber' },
+      {
+        type: 'tuple',
+        name: 'blockTransition',
+        components: [
+          { type: 'bytes32', name: 'prevBlockHash' },
+          { type: 'bytes32', name: 'nextBlockHash' },
+        ],
+      },
+      {
+        type: 'tuple',
+        name: 'depositQueueTransition',
+        components: [
+          { type: 'bytes32', name: 'prevProcessedHash' },
+          { type: 'bytes32', name: 'nextProcessedHash' },
+          { type: 'uint64', name: 'prevDepositNumber' },
+          { type: 'uint64', name: 'nextDepositNumber' },
+        ],
+      },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'bytes', name: 'verifierConfig' },
+      { type: 'bytes', name: 'proof' },
+      { type: 'uint256', name: 'nextZoneHeight' },
+      { type: 'bytes[]', name: 'signatures' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'BatchSubmitted',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'withdrawalBatchIndex', indexed: true },
+      { type: 'uint256', name: 'withdrawalQueueIndex', indexed: true },
+      { type: 'bytes32', name: 'nextProcessedDepositQueueHash' },
+      { type: 'bytes32', name: 'nextBlockHash' },
+      { type: 'bytes32', name: 'withdrawalQueueHash' },
+      { type: 'uint64', name: 'lastProcessedDepositNumber' },
+    ],
+  },
+] as const
 
 export const zoneOutbox = [
   {
@@ -9570,7 +9708,11 @@ export const earn = [
   ...vedaEngine,
 ] as const
 
-export const zone = [...zoneMessenger, ...zoneOutbox] as const
+export const zone = [
+  ...zoneMessenger,
+  ...zoneOutbox,
+  ...zonePortalPreT13Retired,
+] as const
 
 export const propAmm = [...directPropAmm] as const
 

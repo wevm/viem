@@ -20,6 +20,7 @@ test('exports', () => {
       "gbpa",
       "gusd",
       "iusd",
+      "ousd",
       "pathusd",
       "reusd",
       "rusd",

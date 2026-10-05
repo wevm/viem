@@ -8,16 +8,18 @@ import {
   Client,
   Store,
   http,
-  withMultisig,
+  Relay,
   withRelay,
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { chainConfig } from './chainConfig.js'
 
-describe('withMultisig', () => {
+describe('withRelay: multisig', () => {
   test('default', async () => {
     const client = Client.create({
-      transport: withMultisig(http(), { store: Store.memory() }),
+      transport: withRelay(http(), {
+        plugins: [Relay.multisig({ store: Store.memory() })],
+      }),
     })
 
     expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
@@ -39,7 +41,9 @@ describe('withMultisig', () => {
 
     expect(() =>
       Client.create({
-        transport: withMultisig(http(), { store } as never),
+        transport: withRelay(http(), {
+          plugins: [Relay.multisig({ store } as never)],
+        }),
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [RpcResponse.InvalidParamsError: Multisig coordination requires a store with atomic \`compareAndSet\`.]

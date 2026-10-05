@@ -29,6 +29,8 @@ export { gbpa } from './definitions/gbpa.js'
 export { gusd } from './definitions/gusd.js'
 /** iUSD token definition. */
 export { iusd } from './definitions/iusd.js'
+/** OUSD token definition. */
+export { ousd } from './definitions/ousd.js'
 /** pathUSD token definition. */
 export { pathusd } from './definitions/pathusd.js'
 /** reUSD token definition. */

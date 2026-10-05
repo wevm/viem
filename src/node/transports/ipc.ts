@@ -107,6 +107,8 @@ export declare namespace ipc {
 
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
+const quote = '"'.charCodeAt(0)
+const backslash = '\\'.charCodeAt(0)
 
 /**
  * Extracts complete JSON messages from a (possibly partial) IPC buffer.
@@ -120,9 +122,22 @@ export function extractMessages(
 
   let cursor = 0
   let level = 0
+  let inString = false
+  let escaped = false
   for (let i = 0; i < buffer.length; i++) {
-    if (buffer[i] === openingBrace) level++
-    if (buffer[i] === closingBrace) level--
+    const byte = buffer[i]
+    if (inString) {
+      if (escaped) escaped = false
+      else if (byte === backslash) escaped = true
+      else if (byte === quote) inString = false
+      continue
+    }
+    if (byte === quote) {
+      inString = true
+      continue
+    }
+    if (byte === openingBrace) level++
+    if (byte === closingBrace) level--
     if (level === 0) {
       const message = buffer.subarray(cursor, i + 1)
       if (

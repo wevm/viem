@@ -58,11 +58,10 @@ export type TransactionRequest = Omit<
   /** Capabilities to pass to `eth_fillTransaction`. */
   capabilities?: Capabilities.FillTransactionRequestCapabilities | undefined
   /**
-   * Fee payer of the transaction (TIP-1 gas sponsorship). Pass `true` to defer the fee
-   * token to an external fee payer (e.g. a relay), or a local Account to
-   * co-sign the transaction as the fee payer.
+   * Fee payer for TIP-1 gas sponsorship. Pass `true` for relay sponsorship,
+   * an Account to co-sign locally, or an external sponsor URL allowed by the relay.
    */
-  feePayer?: viem_Account.Account | boolean | undefined
+  feePayer?: viem_Account.Account | boolean | string | undefined
   /** Stored multisig operation to approve. */
   hash?: Hex.Hex | undefined
   /** Owner signing a multisig approval. */
@@ -90,7 +89,7 @@ export type TransactionRequestRpc = TransactionRequestTempo.Rpc
  */
 export type Envelope = TxEnvelopeTempo.TxEnvelopeTempo & {
   /** Fee payer of the transaction (TIP-1 gas sponsorship). */
-  feePayer?: viem_Account.Account | boolean | undefined
+  feePayer?: viem_Account.Account | boolean | string | undefined
   /** Owner signing a multisig approval. */
   owner?: RootAccount | undefined
   /** Multisig account, config, and modeled approvals for gas estimation. */
@@ -293,6 +292,9 @@ export const chainConfig = {
             )
           Object.assign(request, {
             ...storedTransaction,
+            gas: storedTransaction.gas ?? 0n,
+            maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
+            maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
             nonce: Number(storedTransaction.nonce ?? 0n),
             account: request.account,
             from: operation.account,
@@ -436,7 +438,7 @@ export const chainConfig = {
           request.nonce = 0
         } else if (useExpiringNonce) {
           request.nonceKey = maxUint256
-          request.nonce = 0
+          request.nonce ??= 0
           if (typeof request.validAfter === 'undefined')
             request.validAfter = randomValidAfter()
           if (typeof request.validBefore === 'undefined')
@@ -765,6 +767,7 @@ function encodeRequest(
   // fee payer commits to it when co-signing. (ox withholds `feeToken` only
   // for external sponsorship, where the fee payer picks the token.)
   if (typeof feePayer === 'object') rpc.feePayer = true
+  if (typeof feePayer === 'string') Object.assign(rpc, { feePayer })
 
   return rpc
 }

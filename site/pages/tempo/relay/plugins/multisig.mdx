@@ -1,0 +1,125 @@
+# Multisig Plugin
+
+## Overview
+
+[`Relay.multisig`](/tempo/relay/plugins/multisig#relaymultisig) coordinates native
+multisig approvals, config persistence, submission leases, and operation lookups.
+Unrelated requests pass to the next plugin or execution client.
+
+## Recipes
+
+Choose a local relay to run plugins in your application, or connect to a remote
+relay. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
+### Install the Plugin
+
+:::code-group
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { Client, Relay, Store, withRelay } from 'viem/tempo'
+
+export const client = Client.create({
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { Client } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = Client.create({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+Memory storage is process-local. For independent owners or multiple relay
+instances, use the same persistent [atomic store](/tempo/utilities/Store).
+See [Send Multisig Transactions](/tempo/guides/multisig/send) for the client flow.
+
+## `Relay.multisig`
+
+Creates middleware that coordinates multisig approvals. The middleware infers
+chain IDs from parameters, signed transactions, key authorizations, and stored
+operations, and rejects conflicts with an explicit chain.
+
+### Usage
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+
+const plugin = Relay.multisig({ store: Store.memory() })
+```
+
+### Parameters
+
+#### options.store
+
+- **Type:** `Store.Atomic`
+
+The shared store for configs, approvals, and submission state. Atomic
+`compareAndSet` prevents concurrent approvals from overwriting one another.
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+
+const store = Store.memory()
+// ---cut---
+const plugin = Relay.multisig({ store }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.multisig.ReturnType`
+
+A relay plugin with the `multisig` capability. Local `withRelay` transports use
+this capability to enable coordinated transaction preparation.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, request parameters are invalid, or chain IDs conflict. |
+| `Config.InvalidStoreValueError` | A stored config is invalid. |
+| `Operation.InvalidStoreValueError` | A stored operation is invalid. |
+| `Operation.StoreConflictError` | Concurrent store updates could not be reconciled. |
+
+## RPC Methods
+
+### `multisig_getConfig`
+
+Reads the account's current config commitment and returns the matching validated config from the
+shared store. It returns `null` when the relay has not seen that config. The response includes the
+owner addresses and weights, so public handlers expose cached owner lists.
+
+### `eth_sendRawTransaction`
+
+A partial multisig transaction returns its operation hash. Once quorum is reached, the handler
+broadcasts the canonical transaction and continues to return the operation hash.
+
+### `eth_sendRawTransactionSync`
+
+Below quorum, this method returns a pending receipt whose `transactionHash` is the operation hash
+and whose `multisig` property contains the current operation. At quorum, it returns the submitted
+transaction receipt with the successful operation attached.
+
+The pending receipt uses `null` for block, index, gas, and bloom fields because no transaction has
+been submitted to the node yet.
+
+### `eth_getTransactionByHash`
+
+Passing an operation hash returns the pending transaction or aliases the lookup to the submitted
+transaction. Before quorum, the handler constructs the pending transaction from the stored unsigned
+Tempo transaction and selected approvals. Its block fields are `null`, its `hash` is the operation
+hash, and its `multisig` property contains the pending operation.
+
+### `eth_getTransactionReceipt`
+
+Passing a pending operation hash returns `null`. After submission, the handler aliases the lookup
+to the final transaction receipt and attaches `multisig`.

@@ -69,6 +69,8 @@ test('polls and shares an observer', async () => {
         "userOpHash": "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
       }
     `)
+    const later = await waitForReceipt<'0.7'>(client, { hash, timeout: 1_000 })
+    expect(later).toEqual(first)
   } finally {
     clearTimeout(timer)
     await server.close()

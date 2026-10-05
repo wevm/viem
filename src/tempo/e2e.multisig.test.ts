@@ -1,3 +1,6 @@
+import { Client as CoreClient_, Actions as CoreActions_, http } from 'viem'
+import { createServer } from 'node:http'
+import { createRequestListener } from '@remix-run/node-fetch-server'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { Transport, Actions as viem_Actions } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
@@ -8,8 +11,10 @@ import {
   MultisigConfig,
   MultisigOperation,
   P256,
+  Relay,
   Store,
   WebCryptoP256,
+  withRelay,
 } from 'viem/tempo'
 import { Hex, Secp256k1, Signature } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
@@ -914,9 +919,10 @@ describe('stateless', () => {
 describe('stateful', () => {
   const client = Client.create({
     chain: tempoLocalnet,
-    experimental_multisig: true,
     tokens: tempo.tokens,
-    transport: tempo.http(),
+    transport: withRelay(tempo.http(), {
+      plugins: [Relay.multisig({ store: Store.memory() })],
+    }),
   })
 
   test('behavior: rejects unknown and invalid config lookups', async () => {
@@ -954,9 +960,10 @@ describe('stateful', () => {
     )
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport: tempo.http(),
+      transport: withRelay(tempo.http(), {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await expect(
@@ -2720,9 +2727,10 @@ describe('stateful', () => {
     })
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -2794,9 +2802,10 @@ describe('stateful', () => {
     const store = Store.memory()
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport: tempo.http(),
+      transport: withRelay(tempo.http(), {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
     const submissionId = `0x${'cc'.repeat(32)}` as const
 
@@ -2901,9 +2910,10 @@ describe('stateful', () => {
     })
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -2986,9 +2996,10 @@ describe('stateful', () => {
     })
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -3086,9 +3097,10 @@ describe('stateful', () => {
     })
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -3181,9 +3193,10 @@ describe('stateful', () => {
     })
     const client = Client.create({
       chain: tempoLocalnet,
-      experimental_multisig: { store },
       tokens: tempo.tokens,
-      transport,
+      transport: withRelay(transport, {
+        plugins: [Relay.multisig({ store })],
+      }),
     })
 
     await Actions.token.transferSync(client, {
@@ -3258,3 +3271,68 @@ async function getReceipt(
   assertSuccess(receipt)
   return receipt
 }
+
+test('infers the chain for independent owners through a Fetch relay', async () => {
+  const resolver = CoreClient_.createResolver({
+    chains: [tempo.chain],
+    transport: () => tempo.http(),
+  })
+  const relay = Relay.create({
+    getClient: resolver.getClient,
+    plugins: [Relay.multisig({ store: Store.memory() })],
+  })
+  const server = createServer(createRequestListener(relay.fetch))
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  try {
+    const address = server.address()
+    if (!address || typeof address === 'string')
+      throw new Error('Expected TCP listener')
+    const client = CoreClient_.create({
+      chain: tempo.chain,
+      transport: withRelay(
+        tempo.http(),
+        http(`http://127.0.0.1:${address.port}`),
+      ),
+    })
+    const owner_1 = tempo.accounts[17]
+    const owner_2 = tempo.accounts[18]
+    const account = Account.fromMultisig({
+      address: 'infer',
+      owners: [owner_1, owner_2],
+      threshold: 2,
+      salt: Hex.fromNumber(0x72656c6179, { size: 32 }),
+    })
+    await Actions.token.transferSync(tempo.getClient(), {
+      account: tempo.accounts[0],
+      amount: 10_000_000n,
+      to: account.address,
+      token: tempo.feeToken,
+    })
+    const pending = await CoreActions_.transaction.sendSync(client, {
+      account,
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to: tempo.accounts[19].address,
+          token: tempo.feeToken,
+        }),
+      ],
+      owner: owner_1,
+    })
+    expect(pending.status).toBe('pending')
+    const receipt = await CoreActions_.transaction.sendSync(client, {
+      account,
+      hash: pending.transactionHash,
+      owner: owner_2,
+    })
+    expect(receipt.status).toBe('success')
+    const transaction = await CoreActions_.transaction.get(client, {
+      hash: pending.transactionHash,
+    })
+    expect(transaction.multisig?.transactionHash).toBe(receipt.transactionHash)
+  } finally {
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    )
+  }
+})

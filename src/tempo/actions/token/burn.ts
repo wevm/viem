@@ -1,5 +1,6 @@
 import { AbiEvent, Hex as Hex_ } from 'ox'
-import type { Errors, Hex } from 'ox'
+import type { Address, Errors, Hex } from 'ox'
+import type { OneOf } from '../../../core/internal/types.js'
 
 import type * as Account from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
@@ -25,7 +26,7 @@ import {
 } from '../../internal/utils.js'
 
 /**
- * Burns TIP-20 tokens from the caller's balance.
+ * Burns TIP-20 tokens from the caller's balance or a specified account with `BURN_AT_ROLE`.
  *
  * @example
  * ```ts
@@ -60,9 +61,13 @@ export namespace burn {
   export type Args = {
     /** Amount of tokens to burn, in base units or formatted decimal form. */
     amount: AmountInput
-    /** Memo to include in the burn. */
-    memo?: Hex.Hex | undefined
-  } & TokenParameter
+  } & TokenParameter &
+    OneOf<
+      | { /** Memo to include in the burn. */ memo?: Hex.Hex | undefined }
+      | {
+          /** Address to burn from. Requires BURN_AT_ROLE. */ from: Address.Address
+        }
+    >
   export type Options = WriteParameters & Args
   export type ReturnType = write.ReturnType
   // TODO: exhaustive error type
@@ -85,7 +90,7 @@ export namespace burn {
   }
 
   /**
-   * Defines a call to the `burn` or `burnWithMemo` function.
+   * Defines a call to the `burn`, `burnWithMemo`, or `burnAt` function.
    *
    * Can be passed to any action that accepts a contract call. The token is
    * selected by `token`; `amount.decimals` is inferred from the client's
@@ -98,9 +103,16 @@ export namespace burn {
     ...parameters: CallParameters<Args, Client.Client<chain>>
   ) {
     const [client, args] = resolveCallParameters(parameters)
-    const { amount, memo, token } = args
+    const { amount, from, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
     const value = toBaseUnits(amount, decimals)
+    if (from)
+      return defineCall({
+        abi: Abis.tip20,
+        address,
+        functionName: 'burnAt',
+        args: [from, value],
+      })
     const callArgs = memo
       ? ({
           args: [value, Hex_.padLeft(memo, 32)],
@@ -169,10 +181,10 @@ export namespace burn {
     const logs extends readonly AbiEvent.extractLogs.Log[],
   >(logs: logs) {
     const [log] = AbiEvent.extractLogs(Abis.tip20, logs, {
-      eventName: 'Burn',
+      eventName: ['Burn', 'BurnAt'],
       strict: true,
     })
-    if (!log) throw new Error('`Burn` event not found.')
+    if (!log) throw new Error('`Burn` or `BurnAt` event not found.')
     return log
   }
 }

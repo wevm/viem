@@ -7,6 +7,7 @@ import {
 } from 'node:fs'
 import { basename } from 'node:path'
 import { Actions, Client, http } from '../src/index.js'
+import type { Token } from '../src/core/Token.js'
 
 const tokenlistUris = [
   'https://api.tempo.xyz/v1/tokenlist?chainId=4217',
@@ -98,7 +99,23 @@ const chainsIndexFile = new URL('../src/chains/index.ts', import.meta.url)
 
 const clientByChainId = new Map<number, ReturnType<typeof Client.create>>()
 
-const tokenlistTokens = await getTokenlistTokens(tokenlistUris)
+const reservedImportNames = getReservedImportNames()
+const manualTokens = await Promise.all(
+  Array.from(reservedImportNames, async (name) => {
+    const exports = (await import(
+      new URL(`${name}.ts`, definitionsDir).href
+    )) as Record<string, Token>
+    return { name, token: exports[name]! }
+  }),
+)
+const tokenlistTokens = (await getTokenlistTokens(tokenlistUris)).filter(
+  (token) =>
+    !manualTokens.some(
+      ({ token: manual }) =>
+        manual.addresses[token.chainId]?.toLowerCase() ===
+        token.address.toLowerCase(),
+    ),
+)
 const tokenChainIds = new Set(tokenlistTokens.map((token) => token.chainId))
 const chainTargetById = await getChainTargetById(tokenChainIds)
 const unsupportedChainIds = Array.from(tokenChainIds).filter(
@@ -111,7 +128,7 @@ if (unsupportedChainIds.length > 0)
 
 const tokenDefinitions = await getTokenDefinitions(
   tokenlistTokens,
-  getReservedImportNames(),
+  reservedImportNames,
   chainTargetById,
 )
 
@@ -331,9 +348,16 @@ function readTokenSymbol(name: string) {
 
 async function writeTokenSets(tokenDefinitions: TokenDefinition[]) {
   const allNames = getDefinitionExports(tokenDefinitions)
-  const tempoNames = tokenDefinitions
-    .map((token) => token.importName)
-    .sort((a, b) => a.localeCompare(b))
+  const tempoNames = [
+    ...tokenDefinitions.map((token) => token.importName),
+    ...manualTokens
+      .filter(({ token }) =>
+        Array.from(tempoMetadataChainIds).some(
+          (chainId) => chainId in token.addresses,
+        ),
+      )
+      .map(({ name }) => name),
+  ].sort((a, b) => a.localeCompare(b))
   const popularNames = allNames.filter((name) => {
     const file = new URL(`${name}.ts`, definitionsDir)
     return /\bpopular:\s*true\b/.test(readFileSync(file, 'utf8'))

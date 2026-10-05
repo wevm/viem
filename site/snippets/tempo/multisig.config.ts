@@ -1,10 +1,10 @@
 // [!region setup]
-import { Client, type Store } from 'viem/tempo'
+import { Client, http, Relay, type Store, withRelay } from 'viem/tempo'
 
 // Supply an atomic store shared by every coordinating process.
 declare const store: Store.Atomic
 
 export const client = Client.create({
-  experimental_multisig: { store },
+  transport: withRelay(http(), { plugins: [Relay.multisig({ store })] }),
 })
 // [!endregion setup]

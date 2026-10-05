@@ -1,3 +1,5 @@
+import { Relay, Store, withRelay } from 'viem/tempo'
+import { http } from 'viem/tempo'
 import type { KeyAuthorization } from 'ox/tempo'
 import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions, Client, type MultisigOperation } from 'viem/tempo'
@@ -16,7 +18,9 @@ const accessKey = Account.fromSecp256k1(
 )
 const client = Client.create({
   chain: tempoLocalnet,
-  experimental_multisig: true,
+  transport: withRelay(http(), {
+    plugins: [Relay.multisig({ store: Store.memory() })],
+  }),
 })
 
 test('behavior: infers a local key authorization', async () => {

@@ -86,7 +86,7 @@ export function TokenLookup() {
         <ul className="vocs:mt-4 vocs:mb-0 vocs:list-none vocs:overflow-hidden vocs:rounded-md vocs:border vocs:border-primary vocs:bg-surfaceTint/70 vocs:p-0">
           {visibleTokens.map((token) => (
             <li
-              className="vocs:grid vocs:grid-cols-1 vocs:items-start vocs:gap-x-3 vocs:gap-y-1 vocs:border-t vocs:border-primary vocs:px-3 vocs:py-2.5 vocs:transition-colors first:vocs:border-t-0 vocs:hover:bg-surfaceTint vocs:md:grid-cols-[minmax(0,1fr)_minmax(12rem,1.25fr)] vocs:md:items-center"
+              className="vocs:grid vocs:grid-cols-1 vocs:items-start vocs:gap-x-3 vocs:gap-y-1 vocs:border-t vocs:border-primary vocs:px-3 vocs:py-2.5 vocs:transition-colors first:vocs:border-t-0 vocs:hover:bg-surfaceTint vocs:md:grid-cols-[minmax(0,1fr)_minmax(12rem,1.25fr)]"
               key={token.importName}
             >
               <div className="vocs:order-1 vocs:flex vocs:min-w-0 vocs:flex-wrap vocs:items-baseline vocs:gap-x-2 vocs:gap-y-1">
@@ -141,7 +141,9 @@ function ChainSummary({ chains, query }: { chains: string[]; query: string }) {
   const hiddenChainCount = chains.length - visibleChains.length
 
   return (
-    <span className="vocs:order-2 vocs:flex vocs:min-w-0 vocs:flex-wrap vocs:items-center vocs:justify-end vocs:gap-x-1.5 vocs:gap-y-1 vocs:text-right vocs:text-xs vocs:leading-relaxed vocs:text-muted">
+    <span
+      className={`vocs:order-2 vocs:flex vocs:min-w-0 vocs:flex-wrap vocs:items-center vocs:justify-end vocs:gap-x-1.5 vocs:gap-y-1 vocs:text-right vocs:text-xs vocs:leading-relaxed vocs:text-muted ${expanded || expandsForSearch ? 'vocs:md:self-start' : 'vocs:md:self-center'}`}
+    >
       {visibleChains.map((chain, index) => (
         <span className="vocs:min-w-0" key={chain}>
           <HighlightedText query={query} text={chain} />

@@ -95,3 +95,22 @@ describe('burn', () => {
     ).rejects.toThrow()
   })
 })
+
+test('burn.call: another account', () => {
+  const call = Actions.token.burn.call(client, {
+    amount: { formatted: '1.25', decimals: 6 },
+    from: account2.address,
+    token: tempo.alphaUsd,
+  })
+
+  expect({ args: call.args, functionName: call.functionName })
+    .toMatchInlineSnapshot(`
+    {
+      "args": [
+        "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        1250000n,
+      ],
+      "functionName": "burnAt",
+    }
+  `)
+})
