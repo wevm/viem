@@ -73,6 +73,16 @@ export async function claim<
 }
 
 export namespace claim {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `claim.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(claim, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** The TIP20 token address */
     token: Address
@@ -316,6 +326,16 @@ export async function distributeSync<
 }
 
 export namespace distribute {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `distribute.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(distribute, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** The amount of tokens to distribute (must be > 0) */
     amount: bigint
@@ -464,6 +484,16 @@ export async function getGlobalRewardPerToken<chain extends Chain | undefined>(
 }
 
 export namespace getGlobalRewardPerToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getGlobalRewardPerToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getGlobalRewardPerToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -531,6 +561,16 @@ export async function getPendingRewards<chain extends Chain | undefined>(
 }
 
 export namespace getPendingRewards {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getPendingRewards.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getPendingRewards, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -604,6 +644,16 @@ export async function getUserRewardInfo<chain extends Chain | undefined>(
 }
 
 export namespace getUserRewardInfo {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getUserRewardInfo.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getUserRewardInfo, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -738,6 +788,16 @@ export async function setRecipientSync<
 }
 
 export namespace setRecipient {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `setRecipient.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(setRecipient, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** The reward recipient address (use zero address to opt out of rewards) */
     recipient: Address

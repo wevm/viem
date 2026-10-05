@@ -70,6 +70,16 @@ export async function getBalance<
 }
 
 export namespace getBalance {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getBalance.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getBalance, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,

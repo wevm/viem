@@ -190,6 +190,16 @@ export async function getUserToken<
 }
 
 export namespace getUserToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getUserToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getUserToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     account extends Account | undefined = Account | undefined,
   > = ReadParameters & GetAccountParameter<account>
@@ -257,6 +267,16 @@ export async function setUserToken<
 }
 
 export namespace setUserToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `setUserToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(setUserToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -526,6 +546,16 @@ export async function getValidatorToken<
 }
 
 export namespace getValidatorToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getValidatorToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getValidatorToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -591,6 +621,16 @@ export async function setValidatorToken<
 }
 
 export namespace setValidatorToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `setValidatorToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(setValidatorToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,

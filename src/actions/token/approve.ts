@@ -65,6 +65,16 @@ export async function approve<
 }
 
 export namespace approve {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `approve.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(approve, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args<
     chain extends Chain | undefined = Chain | undefined,
     tokens extends Tokens | undefined = Tokens | undefined,

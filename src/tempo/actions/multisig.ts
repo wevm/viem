@@ -112,6 +112,16 @@ export async function getConfigCommitment<
 }
 
 export namespace getConfigCommitment {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getConfigCommitment.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getConfigCommitment, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -234,6 +244,16 @@ export async function updateConfig<
 }
 
 export namespace updateConfig {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `updateConfig.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(updateConfig, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,

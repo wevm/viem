@@ -168,6 +168,16 @@ export async function createErc4626Engine<
 }
 
 export namespace createErc4626Engine {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `createErc4626Engine.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(createErc4626Engine, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Stable deterministic deployment identifier. */
     deploymentId: Hex.Hex
@@ -431,6 +441,16 @@ export async function createStack<
 }
 
 export namespace createStack {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `createStack.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(createStack, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Initial Earn vault controls. */
     controls?: EarnVaultControls | undefined
@@ -699,6 +719,16 @@ export async function bindEngine<
 }
 
 export namespace bindEngine {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `bindEngine.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(bindEngine, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Engine address. */
     engine: Address

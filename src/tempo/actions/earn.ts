@@ -402,6 +402,16 @@ export async function deposit<
 }
 
 export namespace deposit {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `deposit.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(deposit, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Assets to deposit; base units or `{ formatted, decimals? }` (asset decimals). */
     assetAmount: internal_Token.AmountInput
@@ -703,6 +713,16 @@ export async function depositShares<
 }
 
 export namespace depositShares {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `depositShares.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(depositShares, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Venue shares to deposit, base units. */
     venueShareAmount: bigint
@@ -1654,6 +1674,16 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
 }
 
 export namespace getRedeemQuote {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getRedeemQuote.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getRedeemQuote, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Exact Earn share input, base units. */
     shareAmount: bigint
@@ -2006,6 +2036,16 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
 }
 
 export namespace getWithdrawQuote {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getWithdrawQuote.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getWithdrawQuote, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Exact asset output, base units. */
     assetAmount: bigint
@@ -2093,6 +2133,16 @@ export async function redeem<
 }
 
 export namespace redeem {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `redeem.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(redeem, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Earn shares to redeem; base units or `{ formatted, decimals? }`. */
     shareAmount: internal_Token.AmountInput
@@ -2751,6 +2801,16 @@ export async function withdrawExact<
 }
 
 export namespace withdrawExact {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `withdrawExact.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(withdrawExact, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Exact assets to receive; base units or `{ formatted, decimals? }`. */
     assetAmount: internal_Token.AmountInput

@@ -54,6 +54,16 @@ export async function getNonce<
 }
 
 export namespace getNonce {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getNonce.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getNonce, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {

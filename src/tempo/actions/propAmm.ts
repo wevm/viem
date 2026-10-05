@@ -56,6 +56,16 @@ export async function baseToken<chain extends Chain | undefined>(
 }
 
 export namespace baseToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `baseToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(baseToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -107,6 +117,16 @@ export async function quoteToken<chain extends Chain | undefined>(
 }
 
 export namespace quoteToken {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `quoteToken.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(quoteToken, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -158,6 +178,16 @@ export async function paused<chain extends Chain | undefined>(
 }
 
 export namespace paused {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `paused.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(paused, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -212,6 +242,16 @@ export async function takerAllowed<chain extends Chain | undefined>(
 }
 
 export namespace takerAllowed {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `takerAllowed.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(takerAllowed, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -269,6 +309,16 @@ export async function recipientAllowed<chain extends Chain | undefined>(
 }
 
 export namespace recipientAllowed {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `recipientAllowed.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(recipientAllowed, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -326,6 +376,16 @@ export async function resolveRecipient<chain extends Chain | undefined>(
 }
 
 export namespace resolveRecipient {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `resolveRecipient.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(resolveRecipient, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** Pool address. */
     pool: Address
@@ -445,6 +505,16 @@ export async function getSwapQuote(
 }
 
 export namespace getSwapQuote {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getSwapQuote.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getSwapQuote, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** True sends base and receives quote; false sends quote and receives base. */
     baseToQuote: boolean
@@ -564,6 +634,16 @@ function quoteExactOutputCall(
  * Internal exact-input contract call.
  */
 namespace exactInput {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `exactInput.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(exactInput, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     amountIn: bigint
     baseToQuote: boolean
@@ -615,6 +695,16 @@ namespace exactInput {
  * Internal exact-output contract call.
  */
 namespace exactOutput {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `exactOutput.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(exactOutput, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     amountOut: bigint
     baseToQuote: boolean
@@ -698,6 +788,16 @@ export async function swap<
 }
 
 export namespace swap {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `swap.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(swap, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Args = {
     /** True sends base and receives quote; false sends quote and receives base. */
     baseToQuote: boolean

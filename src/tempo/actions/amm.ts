@@ -161,6 +161,16 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
 }
 
 export namespace getLiquidityBalance {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `getLiquidityBalance.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(getLiquidityBalance, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -252,6 +262,16 @@ export async function rebalanceSwap<
 }
 
 export namespace rebalanceSwap {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `rebalanceSwap.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(rebalanceSwap, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -474,6 +494,16 @@ export async function mint<
 }
 
 export namespace mint {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `mint.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(mint, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -707,6 +737,16 @@ export async function burn<
 }
 
 export namespace burn {
+  // SES `lockdown()` makes `Function.prototype.call` read-only, so the
+  // `burn.call = call` assignment emitted for this namespace throws in
+  // hardened realms (override mistake). Pre-define `call` as a writable own
+  // property so the assignment lands on it instead.
+  Object.defineProperty(burn, 'call', {
+    configurable: true,
+    enumerable: true,
+    value: undefined,
+    writable: true,
+  })
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
