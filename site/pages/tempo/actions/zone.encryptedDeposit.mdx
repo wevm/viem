@@ -4,6 +4,10 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 Deposits tokens into a zone on the parent Tempo chain with an encrypted recipient and memo. The recipient and memo are encrypted client-side using ECIES (AES-256-GCM) with the sequencer's public encryption key so that only the zone sequencer can decrypt the deposit details.
 
+The transaction receipt confirms the parent-chain deposit, but does not confirm that the zone credited
+it. See [Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the
+ZoneInbox processing result.
+
 ## Usage
 
 :::code-group
