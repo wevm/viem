@@ -3581,11 +3581,6 @@ export default defineConfig({
           { text: 'Guide', link: '/tempo/guides/relay' },
           { text: 'Connect', link: '/tempo/guides/relay/connect' },
           { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
-          { text: 'Create Relay', link: '/tempo/utilities/Relay.create' },
-          {
-            text: 'Compose Relay',
-            link: '/tempo/utilities/Relay.handleRequest',
-          },
           { text: 'Fee Payer', link: '/tempo/relay/plugins/fee-payer' },
           { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
           { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
@@ -3610,6 +3605,17 @@ export default defineConfig({
             link: '/tempo/utilities/Selectors',
           },
           { text: 'Execution Errors', link: '/tempo/utilities/ExecutionError' },
+          {
+            text: 'Relay',
+            collapsed: true,
+            items: [
+              { text: 'create', link: '/tempo/utilities/Relay.create' },
+              {
+                text: 'handleRequest',
+                link: '/tempo/utilities/Relay.handleRequest',
+              },
+            ],
+          },
           {
             text: 'Store',
             collapsed: true,
