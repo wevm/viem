@@ -357,3 +357,56 @@ test('behavior: throwOnFailure = true with successful bundle', async () => {
   expect(result.status).toBe('success')
   expect(result.statusCode).toBe(200)
 })
+
+const getStatusClient = (statusOf: (request: number) => number) => {
+  let requests = 0
+
+  return createClient({
+    chain: mainnet,
+    pollingInterval: 50,
+    transport: custom({
+      async request({ method, params }) {
+        if (method !== 'wallet_getCallsStatus')
+          throw new Error(`unexpected method: ${method}`)
+
+        return {
+          atomic: true,
+          chainId: '0x1',
+          id: params[0],
+          receipts: [],
+          status: statusOf(++requests),
+          version: '2.0.0',
+        }
+      },
+    }),
+  })
+}
+
+test('behavior: concurrent waits resolve according to their own options', async () => {
+  const client = getStatusClient((request) => (request === 1 ? 100 : 200))
+
+  const [, second] = await Promise.all([
+    waitForCallsStatus(client, { id: '0x01', status: () => true }),
+    waitForCallsStatus(client, { id: '0x01' }),
+  ])
+
+  expect(second.statusCode).toBe(200)
+})
+
+test('behavior: resolves a later wait after concurrent waits', async () => {
+  const client = getStatusClient(() => 200)
+
+  await Promise.all([
+    waitForCallsStatus(client, { id: '0x02' }),
+    waitForCallsStatus(client, { id: '0x02' }),
+  ])
+
+  // A later wait for the same id must poll again and resolve.
+  // Before the fix, it never polled and only failed on timeout.
+  const later = await waitForCallsStatus(client, {
+    id: '0x02',
+    timeout: 2_000,
+  })
+
+  expect(later.statusCode).toBe(200)
+})

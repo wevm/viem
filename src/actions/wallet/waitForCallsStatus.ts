@@ -104,7 +104,22 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
     timeout = 60_000,
     throwOnFailure = false,
   } = parameters
-  const observerId = stringify(['waitForCallsStatus', client.uid, id])
+  const observerId = stringify([
+    'waitForCallsStatus',
+    client.uid,
+    id,
+    // Concurrent calls with different behavior-defining options must not
+    // share an observer: the first call's polling closure decides the
+    // status check, failure handling and retry behavior for everyone.
+    // `timeout` is enforced per caller below, so it is not included.
+    {
+      pollingInterval,
+      retryCount,
+      retryDelay: retryDelay.toString(),
+      status: status.toString(),
+      throwOnFailure,
+    },
+  ])
 
   const { promise, resolve, reject } =
     withResolvers<WaitForCallsStatusReturnType>()
@@ -161,7 +176,11 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
       }, timeout)
     : undefined
 
-  return await promise
+  // Remove this caller's listener once its promise settles. `done` only
+  // unobserves the caller that started the poll, so a listener from a
+  // concurrent caller would otherwise stay cached and block every later
+  // wait for the same id from polling.
+  return await promise.finally(() => unobserve())
 }
 
 export type WaitForCallsStatusTimeoutErrorType =
