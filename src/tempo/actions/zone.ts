@@ -494,6 +494,7 @@ export namespace encryptedDeposit {
       ...pickWriteParameters(parameters),
       ...pickWriteSyncParameters(parameters),
       account,
+      throwOnReceiptRevert: parameters.throwOnReceiptRevert,
       calls: calls(prepared),
     } as never)) as never
   }
