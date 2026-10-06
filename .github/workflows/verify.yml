@@ -43,6 +43,9 @@ jobs:
       - name: Check code
         run: pnpm biome check
 
+      - name: Test Tempo units
+        run: pnpm test --run --project tempo-unit
+
   build:
     name: Build
     needs: check
