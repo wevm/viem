@@ -200,7 +200,7 @@ const server = Http.createServer(async (req, res) => {
         gasUsed: '0x1',
         logs: [],
         logsBloom: `0x${'00'.repeat(256)}`,
-        status: '0x1',
+        status: req.url === '/reverted' ? '0x0' : '0x1',
         to: prepared.portalAddress,
         transactionHash,
         transactionIndex: '0x0',
@@ -435,6 +435,40 @@ test('encrypts ordinary parameters and returns a confirmed receipt', async () =>
   expect(result.receipt.status).toMatchInlineSnapshot('"success"')
   expect(result.receipt.transactionHash).toEqual(transactionHash)
 })
+
+test.each([false, true] as const)(
+  'preserves Sync revert handling for prepared=%s',
+  async (usePrepared) => {
+    const client = createClient({
+      account: sender,
+      chain: tempoModerato,
+      transport: http(`${url}/reverted`),
+    })
+    const parameters = {
+      ...(usePrepared
+        ? prepared
+        : ({ amount: 1n, token: Addresses.pathUsd, zoneId: 1 } as const)),
+      pollingInterval: 10,
+      timeout: 1_000,
+    }
+
+    await expect(
+      Actions.zone.encryptedDepositSync(client, parameters),
+    ).rejects.toThrow('reverted')
+    await expect(
+      Actions.zone.encryptedDepositSync(client, {
+        ...parameters,
+        throwOnReceiptRevert: true,
+      }),
+    ).rejects.toThrow('reverted')
+    const { receipt } = await Actions.zone.encryptedDepositSync(client, {
+      ...parameters,
+      throwOnReceiptRevert: false,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot('"reverted"')
+  },
+)
 
 test.each(deposits)(
   'uses an explicit matching account for a prepared deposit',

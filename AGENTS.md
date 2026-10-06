@@ -399,6 +399,9 @@ Guidelines for authoring docs and guides under `site/pages/`.
   overloads only for explicit low-level compatibility, never select them in the actions.
 - Encrypted deposit plaintext is exactly 64 bytes: a 20-byte recipient, a 32-byte memo, and 12
   padding bytes. Reject invalid memo lengths before producing a payload that the inbox would bounce.
+- `encryptedDeposit.inner` must forward `throwOnReceiptRevert` explicitly; neither
+  `pickWriteParameters` nor `pickWriteSyncParameters` includes it. Preserve the Sync default
+  of throwing on reverted receipts and the explicit `false` opt-out.
 - Deposit encryption binds HKDF to the portal, key index, ephemeral public key, and transaction sender.
   Prepared deposit actions must reject a different broadcasting account before submission.
 - Inbox outcome `depositHash` equals the running portal queue hash for that deposit, emitted as
