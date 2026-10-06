@@ -12,11 +12,6 @@ This document contains general guidelines for AI agents working on the Viem code
 - Do not add global, system, or internal friction.
 - Run `pnpx frog list` first to see what is already known.
 
-## Isolated Worktree Tooling
-
-- In a fresh worktree, `pnpm exec` may first rerun `pnpm install` and the repository's `postinstall` contract build. For focused checks after `pnpm install --ignore-scripts`, invoke `./node_modules/.bin/biome`, `./node_modules/.bin/vitest`, or `./node_modules/.bin/tsc` directly.
-- `pnpm check:types` requires the generated `contracts/generated.ts` artifact. When it is absent, `./node_modules/.bin/tsc --project ./tsconfig.build.json --noEmit --incremental false` checks production sources without generating contracts.
-
 ## TypeScript Conventions
 
 - **Exact optional properties**; `exactOptionalPropertyTypes` is enabled.
