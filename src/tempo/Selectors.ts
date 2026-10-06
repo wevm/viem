@@ -439,3 +439,16 @@ export const zoneOutbox = {
 export const zoneMessenger = {
   relayMessage: '0x11da5261',
 } as const satisfies FunctionSelectors<typeof Abis.zoneMessenger>
+
+export const zoneInbox = {
+  advanceTempo: '0x86516ec0',
+  advanceTempoHeaders: '0xae58328d',
+  claimRefund: '0xbffa55d5',
+  processedDepositNumber: '0x2d488482',
+  processedDepositQueueHash: '0x82648c3b',
+  processedEnabledTokenCount: '0x1b366d74',
+  processedTokenEnablementHash: '0x8f2e461a',
+  refunds: '0x857e85f8',
+  tempoPortal: '0xa21de6d9',
+  tempoState: '0x1fbb25ad',
+} as const satisfies FunctionSelectors<typeof Abis.zoneInbox>

@@ -71,6 +71,10 @@ const selectorDefinitions = {
     abi: Abis.zoneFactory,
     selectors: Selectors.zoneFactory,
   },
+  zoneInbox: {
+    abi: Abis.zoneInbox,
+    selectors: Selectors.zoneInbox,
+  },
   zoneMessenger: {
     abi: Abis.zoneMessenger,
     selectors: Selectors.zoneMessenger,

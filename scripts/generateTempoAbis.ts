@@ -5,6 +5,7 @@ import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiItem from 'ox/AbiItem'
+import * as Abis from '../src/tempo/Abis.js'
 
 type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
@@ -625,6 +626,7 @@ function zonesAdapter(): SourceAdapter {
   const sources = [
     'crates/contracts/src/precompiles/zone_factory.rs',
     'crates/contracts/src/precompiles/zone_portal.rs',
+    'crates/contracts/src/precompiles/zone_inbox.rs',
     'crates/contracts/src/precompiles/outbox.rs',
   ] as const
   const interfaceSource = 'crates/contracts/src/runtime/interfaces/IZone.sol'
@@ -670,10 +672,15 @@ function zonesAdapter(): SourceAdapter {
       })
 
       let abis = context.read(outputs.abis)
+      const groupIndex = abis.indexOf('\nexport const core = [')
+      if (groupIndex === -1) throw new Error('Could not find Tempo ABI groups.')
+      abis = abis.slice(0, groupIndex).trimEnd()
       const appended: string[] = []
       let selectors = context.read(outputs.selectors)
       for (const generatedAbi of generated) {
-        const current = readAbiExport(abis, generatedAbi.exportName)
+        const current = Object.entries(Abis).find(
+          ([name]) => name === generatedAbi.exportName,
+        )?.[1] as readonly AbiItem.AbiItem[] | undefined
         let abi = generatedAbi.abi
         if (!current) {
           appended.push(
@@ -697,9 +704,19 @@ function zonesAdapter(): SourceAdapter {
         )
       }
       const sourceHeader = `// Source: tempoxyz/zones@${commit}`
-      abis = `${abis.trimEnd()}\n\n${sourceHeader}\n\n${appended.join('\n\n')}\n`
+      const previousHeader = abis.indexOf('// Source: tempoxyz/zones@')
+      const previousHeaderEnd = abis.indexOf('\n', previousHeader)
+      const propAmmIndex = abis.indexOf('// Source: tempoxyz/propAMM@')
+      if (
+        previousHeader === -1 ||
+        previousHeaderEnd === -1 ||
+        propAmmIndex === -1
+      )
+        throw new Error('Could not find Zone and propAMM ABI sections.')
+      abis = `${abis.slice(0, previousHeader)}${sourceHeader}${abis.slice(previousHeaderEnd, propAmmIndex).trimEnd()}\n\n${appended.join('\n\n')}\n\n${abis.slice(propAmmIndex)}`
       const earnSourceIndex = abis.indexOf('// Source: tempoxyz/earn@')
       const zoneSourceIndex = abis.indexOf(sourceHeader)
+      const propAmmSourceIndex = abis.indexOf('// Source: tempoxyz/propAMM@')
       if (earnSourceIndex === -1 || zoneSourceIndex === -1)
         throw new Error('Could not find generated ABI source sections.')
       const groups = [
@@ -717,7 +734,15 @@ function zonesAdapter(): SourceAdapter {
         ],
         [
           'zone',
-          getAbiExportNames(abis.slice(zoneSourceIndex)).sort(compareStrings),
+          getAbiExportNames(
+            abis.slice(zoneSourceIndex, propAmmSourceIndex),
+          ).sort(compareStrings),
+        ],
+        [
+          'propAmm',
+          getAbiExportNames(abis.slice(propAmmSourceIndex)).sort(
+            compareStrings,
+          ),
         ],
       ] as const
       abis += `\n${groups
@@ -899,17 +924,6 @@ function camelCase(name: string) {
       index ? word[0]!.toUpperCase() + word.slice(1) : word,
     )
     .join('')
-}
-
-function readAbiExport(content: string, name: string) {
-  const prefix = `export const ${name} = `
-  const start = content.indexOf(prefix)
-  if (start === -1) return undefined
-  const valueStart = start + prefix.length
-  const valueEnd = content.indexOf(' as const', valueStart)
-  if (valueEnd === -1)
-    throw new Error(`Could not parse generated ABI export ${name}.`)
-  return JSON.parse(content.slice(valueStart, valueEnd)) as AbiItem.AbiItem[]
 }
 
 function getAbiExportNames(content: string) {
