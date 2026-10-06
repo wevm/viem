@@ -2,6 +2,11 @@
 
 Signs a zone authorization token and stores it for the zone HTTP transport. The token is used to authenticate all subsequent zone RPC requests via the `X-Authorization-Token` header.
 
+The default token scope is derived from the Zone chain's `id` and `sourceId`. Current Mainnet
+Zones use `sourceId: 4217`, and current Moderato Zones use `sourceId: 42431`. For example,
+a Moderato Zone with chain ID `1_424_310_003` signs a token scoped to Zone `3`.
+[`Zone.a` and `Zone.b`](/tempo/chains#zones) retain their legacy scopes of `6` and `7`.
+
 ## Usage
 
 :::code-group
@@ -66,3 +71,11 @@ Unix timestamp when the token was issued.
 
 Store used to persist the signed token. Defaults to
 [`Store.defaultStore`](/tempo/utilities/Store.defaultStore).
+
+### zoneId (optional)
+
+- **Type:** `number`
+- **Default:** Derived from the Zone chain's `id` and Tempo `sourceId`.
+
+Zone ID to scope the token to. Set it explicitly when a custom chain requires a different scope,
+or use `0` for an unscoped token. The `chain` override, when supplied, determines the default scope.

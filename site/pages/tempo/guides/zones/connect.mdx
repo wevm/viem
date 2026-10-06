@@ -117,8 +117,12 @@ it lapses to avoid failed RPC reads.
 
 ### Pick the Right Zone
 
-Set `sourceId` to the Tempo chain that hosts the Zone. A mismatched source chain or RPC endpoint
-causes chain-id mismatches when signing tokens and sending transactions.
+Set `sourceId` to the Tempo chain that hosts the Zone: `4217` for Mainnet or `42431` for Moderato.
+Authorization tokens derive their Zone scope from this source chain and the Zone chain ID.
+The predefined `Zone.a` and `Zone.b` chains retain their legacy scopes of `6` and `7`.
+For custom chains, the [`zoneId` option](/tempo/actions/zone.signAuthorizationToken#zoneid-optional)
+can override the token scope. A mismatched source chain or RPC endpoint causes chain-id mismatches
+when signing tokens and sending transactions.
 
 ## See More
 
