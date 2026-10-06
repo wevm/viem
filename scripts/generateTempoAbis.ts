@@ -5,7 +5,7 @@ import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiItem from 'ox/AbiItem'
-import * as Ts from 'typescript'
+import * as Abis from '../src/tempo/Abis.js'
 
 type GeneratedFile = { content: string; path: string }
 type AdapterContext = { read: (path: string) => string }
@@ -678,7 +678,9 @@ function zonesAdapter(): SourceAdapter {
       const appended: string[] = []
       let selectors = context.read(outputs.selectors)
       for (const generatedAbi of generated) {
-        const current = readAbiExport(abis, generatedAbi.exportName)
+        const current = Object.entries(Abis).find(
+          ([name]) => name === generatedAbi.exportName,
+        )?.[1] as readonly AbiItem.AbiItem[] | undefined
         let abi = generatedAbi.abi
         if (!current) {
           appended.push(
@@ -922,50 +924,6 @@ function camelCase(name: string) {
       index ? word[0]!.toUpperCase() + word.slice(1) : word,
     )
     .join('')
-}
-
-function readAbiExport(content: string, name: string) {
-  const prefix = `export const ${name} = `
-  const start = content.indexOf(prefix)
-  if (start === -1) return undefined
-  const valueStart = start + prefix.length
-  const valueEnd = content.indexOf(' as const', valueStart)
-  if (valueEnd === -1)
-    throw new Error(`Could not parse generated ABI export ${name}.`)
-  const source = Ts.createSourceFile(
-    `${name}.ts`,
-    `const abi = ${content.slice(valueStart, valueEnd)}`,
-    Ts.ScriptTarget.Latest,
-  )
-  const declaration = (source.statements[0] as Ts.VariableStatement)
-    .declarationList.declarations[0]
-  if (!declaration?.initializer)
-    throw new Error(`Could not parse generated ABI export ${name}.`)
-  return readAbiLiteral(declaration.initializer) as AbiItem.AbiItem[]
-}
-
-function readAbiLiteral(node: Ts.Expression): unknown {
-  if (Ts.isArrayLiteralExpression(node))
-    return node.elements.map((element) =>
-      readAbiLiteral(element as Ts.Expression),
-    )
-  if (Ts.isObjectLiteralExpression(node))
-    return Object.fromEntries(
-      node.properties.map((property) => {
-        if (!Ts.isPropertyAssignment(property))
-          throw new Error('Unsupported generated ABI property.')
-        const name = property.name
-        if (!Ts.isIdentifier(name) && !Ts.isStringLiteral(name))
-          throw new Error('Unsupported generated ABI property name.')
-        return [name.text, readAbiLiteral(property.initializer)]
-      }),
-    )
-  if (Ts.isStringLiteral(node)) return node.text
-  if (Ts.isNumericLiteral(node)) return Number(node.text)
-  if (node.kind === Ts.SyntaxKind.TrueKeyword) return true
-  if (node.kind === Ts.SyntaxKind.FalseKeyword) return false
-  if (node.kind === Ts.SyntaxKind.NullKeyword) return null
-  throw new Error(`Unsupported generated ABI literal: ${node.getText()}.`)
 }
 
 function getAbiExportNames(content: string) {
