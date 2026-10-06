@@ -48,8 +48,8 @@ function fakePayer(
   const send = vi.fn(async () => ({
     transactionHash: options.hash ?? (`0x${'ab'.repeat(32)}` as const),
   }))
-  const sign = vi.fn(async (p: { signedTransaction: `0x${string}` }) => ({
-    signedTransaction: p.signedTransaction,
+  const sign = vi.fn(async (_: { transaction: `0x${string}` }) => ({
+    payerAuth: '0x' as `0x${string}`,
   }))
   const getSponsorshipBalance = vi.fn(
     async () => options.balance ?? { balances: [], ttl: 30 },
@@ -194,11 +194,11 @@ describe('createAggregatePayerClient', () => {
 
     await agg.getTerms({ chainId: '0x1', from: PAYER_A, calls: [] }) // populate routes
 
-    await agg.sendTransaction({ signedTransaction: signedFor(PAYER_B) })
+    await agg.sendTransaction({ transaction: signedFor(PAYER_B) })
     expect(b.send).toHaveBeenCalledTimes(1)
     expect(a.send).not.toHaveBeenCalled()
 
-    await agg.signTransaction({ signedTransaction: signedFor(PAYER_A) })
+    await agg.signTransaction({ transaction: signedFor(PAYER_A) })
     expect(a.sign).toHaveBeenCalledTimes(1)
     expect(b.sign).not.toHaveBeenCalled()
   })
@@ -210,7 +210,7 @@ describe('createAggregatePayerClient', () => {
     const agg = createAggregatePayerClient({ payers: [a.client] })
     await agg.getTerms({ chainId: '0x1', from: PAYER_A, calls: [] })
     await expect(
-      agg.sendTransaction({ signedTransaction: signedFor(PAYER_B) }),
+      agg.sendTransaction({ transaction: signedFor(PAYER_B) }),
     ).rejects.toThrow()
   })
 

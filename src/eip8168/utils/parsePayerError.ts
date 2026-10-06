@@ -7,7 +7,7 @@ import type { PayerRejectedData } from '../types.js'
  * A `payer_sendTransaction` / `payer_signTransaction` rejection surfaces as the
  * single `-32000` ({@link payerRejectedCode}) JSON-RPC envelope, with the
  * machine-readable condition and any actionable detail (`requote`,
- * `minGasLimit`, `gas`, `balance`) on `error.data`. viem wraps that response in
+ * `minGasLimit`, `cost`, `balance`) on `error.data`. viem wraps that response in
  * an `RpcRequestError` (carrying the numeric `code` and raw `data`) nested in
  * the thrown error's `cause` chain.
  *
@@ -18,7 +18,7 @@ import type { PayerRejectedData } from '../types.js'
  *
  * @example
  * try {
- *   await payerClient.sendTransaction({ signedTransaction })
+ *   await payerClient.sendTransaction({ transaction })
  * } catch (error) {
  *   const rejected = parsePayerError(error)
  *   if (rejected?.code === 'PAYMENT_INSUFFICIENT' && rejected.requote) {

@@ -55,7 +55,7 @@ export type PaymasterServiceCapability = {
    */
   context?: Record<string, unknown> | undefined
   /** Prefer these payment tokens when the payer offers token payment. */
-  preferredTokens?: readonly Address[] | undefined
+  preferredTokens?: readonly (Address | 'native')[] | undefined
   /** ISO-4217 code the wallet would like `fiatRate`s quoted in (e.g. `"USD"`). */
   fiatCurrency?: string | undefined
 }
@@ -334,7 +334,7 @@ export type SendTransactionSyncReturnType = PayerSendTransactionReturnType & {
  * (there is nothing to await in co-sign-only `"sign"` mode).
  *
  * @example
- * const { transactionHash, tokenCharged, receipt } = await sendTransactionSync(
+ * const { transactionHash, receipt } = await sendTransactionSync(
  *   client,
  *   {
  *     account,

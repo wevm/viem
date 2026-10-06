@@ -47,10 +47,12 @@ export type PayerBalance = {
    * zero. The wallet picks the verb from `kind` ("resets in" / "expires in").
    */
   validFor?: number | undefined
-  /** Source attribution (REQUIRED from aggregators): the service address. */
+  /** Source attribution (REQUIRED from aggregators): the service's payer address. */
   payer?: Address | undefined
+  /** The service's endpoint URL. */
   endpoint?: string | undefined
-  name?: string | undefined
+  /** The service's display info. */
+  provider?: PayerProvider | undefined
 }
 
 /**
@@ -66,11 +68,7 @@ export type RefundPolicy = {
 }
 
 export type PayerGasEstimate = {
-  /**
-   * Gas for this offer's calls. A token-payment offer includes its phase-0
-   * transfer in the budget, so its `gasLimit` exceeds an equivalent sponsored
-   * offer's.
-   */
+  /** Worst-case `gas_limit` across the offers, phase-0 gas included. */
   gasLimit: Hex
   maxFeePerGas: Hex
   maxPriorityFeePerGas: Hex
@@ -79,11 +77,11 @@ export type PayerGasEstimate = {
 export type PayerConditions = {
   /** Upper bound on the transaction's relative `expiry`, in seconds from now. */
   maxExpiry?: number | undefined
-  /** Binding gas cap. `gasEstimate.gasLimit` MUST be ≤ this when both are present. */
+  /** Binding cap on the transaction's `gas_limit`. `gasEstimate.gasLimit` MUST be ≤ this when both are present. */
   maxGasLimit?: Hex | undefined
   /**
-   * Binding cost cap in native wei on `gasLimit × maxFeePerGas` — the payer's
-   * per-tx ceiling. Lets a wallet preflight a cached offer against a fresh
+   * Binding cap in native wei on the transaction's `max_cost`
+   * (`gas_limit × max_fee_per_gas`) — the payer's per-tx ceiling. Lets a wallet preflight a cached offer against a fresh
    * intent without round-tripping. The top-level `gasEstimate` MUST satisfy
    * `gasLimit × maxFeePerGas ≤ maxCost` for every selectable offer.
    */
@@ -91,10 +89,10 @@ export type PayerConditions = {
 }
 
 /**
- * Display info for the party behind an offer: the sponsor for a `sponsored`
- * offer, the swap/liquidity or payment provider for a `token` offer, the
- * would-be sponsor for a `sponsored_declined` entry. The offer's `kind` gives
- * the role.
+ * Display info for the party behind an offer or balance: the sponsor for a
+ * `sponsored` offer, the swap/liquidity or payment provider for a `token`
+ * offer, the would-be sponsor for a `sponsored_declined` entry. The offer's
+ * `kind` gives the role.
  */
 export type PayerProvider = {
   name: string
@@ -112,7 +110,7 @@ export type SponsorshipDeclineCode =
   | 'SENDER_INELIGIBLE'
   | 'BUDGET_EXHAUSTED'
   | 'SENDER_LIMIT_REACHED'
-  | 'GAS_EXCEEDS_LIMIT'
+  | 'COST_EXCEEDS_LIMIT'
   | 'TEMPORARILY_UNAVAILABLE'
   | (string & {})
 
@@ -155,48 +153,49 @@ export type SponsoredOfferDeclined = {
   balance?: PayerBalance | undefined
   /**
    * Cost-cap diagnostic, present (and only meaningful) when `code` is
-   * `GAS_EXCEEDS_LIMIT`. Both values are native wei.
+   * `COST_EXCEEDS_LIMIT`.
    */
-  gas?:
-    | {
-        /** Wei cost the payer estimated for this intent at current gas prices. */
-        estimatedCost: Hex
-        /** Per-tx ceiling in wei. */
-        maxCost: Hex
-      }
-    | undefined
+  cost?: PayerCostDiagnostic | undefined
   provider?: PayerProvider | undefined
+}
+
+/** Diagnostic for `COST_EXCEEDS_LIMIT`. Both values are native wei. */
+export type PayerCostDiagnostic = {
+  /** `max_cost` the payer estimated for this intent at current gas prices. */
+  estimated: Hex
+  /** Per-transaction ceiling. */
+  limit: Hex
 }
 
 /** A `sponsored` entry: either a selectable offer or a declined sibling. */
 export type SponsoredOffer = SponsoredOfferSelectable | SponsoredOfferDeclined
 
-/** One accepted token under a {@link TokenPaymentOffer}'s shared terms. */
+/** One accepted token under a {@link TokenOffer}'s shared terms. */
 export type TokenChoice = {
-  token: Address
+  /** ERC-20 address, or `"native"` for payment by value transfer. */
+  token: Address | 'native'
   symbol: string
   decimals: number
   /**
-   * Token amount the wallet transfers in phase 0 to `feeRecipient` (or the
-   * offer's `payer` when absent), quoted against the response's top-level
-   * `gasEstimate` (worst-case gas cap). Part of the co-sign fingerprint.
+   * The required amount at the response's top-level `gasEstimate`. Present
+   * exactly when `gasEstimate` is; otherwise the wallet prices from `rate`
+   * at its own gas.
    */
-  paymentAmount: Hex
+  paymentAmount?: Hex | undefined
   /** Optional phase-0 destination; defaults to the offer's `payer`. Per-token by design. */
   feeRecipient?: Address | undefined
   /**
    * Binding price as a WAD: token atomic units per 1e18 native wei. The phase-0
-   * transfer must cover `ceil(gasLimit × maxFeePerGas × rate / 1e18)` at the
-   * gas and fee the transaction is signed with.
+   * credit must cover `ceil(max_cost × rate / 1e18)` at the transaction's own
+   * `max_cost` (`gas_limit × max_fee_per_gas`).
    */
   rate: Hex
-  /** Advisory gas the phase-0 payment call adds, already included in `gasEstimate`. */
+  /** Advisory gas the default phase-0 payment adds to `gas_limit`, already included in `gasEstimate`. */
   paymentGas?: Hex | undefined
   /**
-   * Optional: the PAYMENT TOKEN's price in the response's `fiatCurrency`,
-   * 6-decimal fixed-point hex integer (e.g. `0xF4240` = 1.00 for a USD
-   * stablecoin priced in USD). Quoted on `token`, so fiat cost =
-   * `paymentAmount × fiatRate / (10^decimals × 10^6)`. Shares the offer's `ttl`.
+   * Optional: one whole `token`'s display price in the response's
+   * `fiatCurrency`, as a WAD (e.g. `0xDE0B6B3A7640000` = 1.00). Fiat cost =
+   * `amount × fiatRate / 10^decimals`, itself a WAD. Shares the offer's `ttl`.
    */
   fiatRate?: Hex | undefined
   refund?: RefundPolicy | undefined
@@ -209,7 +208,7 @@ export type TokenChoice = {
  * `(token, paymentAmount, feeRecipient)` fingerprints MUST be distinct across
  * every token construction sharing this offer's `payer` in the response.
  */
-export type TokenPaymentOffer = BaseOffer & {
+export type TokenOffer = BaseOffer & {
   kind: 'token'
   /** ≥1 accepted tokens. */
   tokens: readonly TokenChoice[]
@@ -218,8 +217,9 @@ export type TokenPaymentOffer = BaseOffer & {
    * them. OPTIONAL; absent is treated as `"transfer"`.
    *
    * - `"transfer"`: phase 0 MUST be the single canonical
-   *   `IERC20.transfer(recipient, paymentAmount)` — verified by inspection, no
-   *   simulation, no approvals. Any other phase-0 shape is rejected.
+   *   `IERC20.transfer(recipient, amount)`, or for `"native"` a single value
+   *   transfer to `recipient` — verified by inspection, no simulation, no
+   *   approvals. Any other phase-0 shape is rejected.
    * - `"any"`: the payer pins only the OUTCOME (`recipient` credited exactly
    *   `paymentAmount` of `token` by the end of phase 0) and accepts any calls
    *   that achieve it (`transferFrom`, session-key module calls, pool
@@ -230,14 +230,19 @@ export type TokenPaymentOffer = BaseOffer & {
 }
 
 /** A payment offer for an intent's gas: full sponsorship, decline, or token payment. */
-export type PaymentOption = SponsoredOffer | TokenPaymentOffer
+export type PaymentOption = SponsoredOffer | TokenOffer
 
 export type GetTermsParameters = {
   chainId: Hex
   from: Address
   calls: readonly PayerRpcCall[]
+  /**
+   * The wallet's gas for the user calls, WITHOUT phase 0. The payer adds the
+   * phase-0 gas itself (`paymentGas`).
+   */
   gasLimit?: Hex | undefined
-  preferredTokens?: readonly Address[] | undefined
+  /** Ordering hint, not a filter: the payer SHOULD list these first in `tokens`. */
+  preferredTokens?: readonly (Address | 'native')[] | undefined
   /**
    * OPTIONAL ISO-4217 code (e.g. `"USD"`, `"EUR"`) the wallet would like
    * `fiatRate`s quoted in. The payer SHOULD honor it and MUST echo the currency
@@ -270,36 +275,32 @@ export type GetTermsReturnType = {
   fiatCurrency?: string | undefined
 }
 
-export type TokenCharged = {
-  token: Address
-  /** Gross phase-0 transfer (the selected choice's `paymentAmount`). */
-  amount: Hex
-  /** Payer's estimate of the refund to settle later, when a `refund` applies. */
-  estimatedRefund?: Hex | undefined
-}
-
 /** Params for the `payer_sendTransaction` RPC method (payer co-signs + submits). */
 export type PayerSendTransactionParameters = {
-  signedTransaction: Hex
+  /** The sender-signed transaction, with `payer` set and `payer_auth` empty. */
+  transaction: Hex
   context?: Record<string, unknown> | undefined
 }
 
 /** Return of the `payer_sendTransaction` RPC method. */
 export type PayerSendTransactionReturnType = {
   transactionHash: Hex
-  tokenCharged?: TokenCharged | undefined
 }
 
-/** Params for the `payer_signTransaction` RPC method (payer co-signs only). */
+/** Params for the `payer_signTransaction` RPC method (payer authorizes only). */
 export type PayerSignTransactionParameters = {
-  signedTransaction: Hex
+  /**
+   * The built transaction, with `payer` set and `payer_auth` empty. It MAY
+   * already carry `sender_auth`: the payer's signature is independent of it.
+   */
+  transaction: Hex
   context?: Record<string, unknown> | undefined
 }
 
 /** Return of the `payer_signTransaction` RPC method. */
 export type PayerSignTransactionReturnType = {
-  signedTransaction: Hex
-  tokenCharged?: TokenCharged | undefined
+  /** The payer's `payer_auth` bytes for this transaction; opaque to the wallet. */
+  payerAuth: Hex
 }
 
 export type GetSponsorshipBalanceParameters = {
@@ -310,7 +311,7 @@ export type GetSponsorshipBalanceParameters = {
   payer?: Address | undefined
   /** Aggregator: scope to a single service by endpoint URL. */
   endpoint?: string | undefined
-  kind?: readonly ('sponsorship' | 'credit')[] | undefined
+  kinds?: readonly ('sponsorship' | 'credit')[] | undefined
   context?: Record<string, unknown> | undefined
 }
 
@@ -328,7 +329,7 @@ export type GetSponsorshipBalanceReturnType = {
  * only `paymentAmount` changes.
  */
 export type PayerRequote = {
-  token: Address
+  token: Address | 'native'
   /** The sufficient amount now. */
   paymentAmount: Hex
   /** Defaults to the offer's `payer`. */
@@ -351,15 +352,8 @@ export type PayerRejectedData = {
   reason?: string | undefined
   /** Context for `BUDGET_EXHAUSTED` / `SENDER_LIMIT_REACHED` (its `validFor` says when to retry). */
   balance?: PayerBalance | undefined
-  /** Present (and only meaningful) for `GAS_EXCEEDS_LIMIT`. Both values native wei. */
-  gas?:
-    | {
-        /** Wei cost the payer estimated for this intent at current gas prices. */
-        estimatedCost: Hex
-        /** Per-tx ceiling in wei. */
-        maxCost: Hex
-      }
-    | undefined
+  /** Present (and only meaningful) for `COST_EXCEEDS_LIMIT`. */
+  cost?: PayerCostDiagnostic | undefined
   /**
    * Present (SHOULD) for `GAS_TOO_LOW`: the smallest `gasLimit` the payer's
    * simulation needs for the calls to succeed. The wallet raises `gasLimit` to
@@ -370,15 +364,32 @@ export type PayerRejectedData = {
   /** Present (SHOULD) for `PAYMENT_INSUFFICIENT`: the corrected phase-0 transfer. */
   requote?: PayerRequote | undefined
   /** Present (SHOULD) for `SENDER_BALANCE_INSUFFICIENT`: how far the sender is short. */
+  /** Present (SHOULD) for `EXECUTION_REVERTED`. */
+  revert?:
+    | {
+        /** 0 = payment phase, 1 = user calls, ... */
+        phase: number
+        /** Decoded revert reason, when available. */
+        reason?: string | undefined
+        /** Raw revert return data. */
+        data?: Hex | undefined
+      }
+    | undefined
   shortfall?:
     | {
-        token: Address
-        /** Amount the phase-0 transfer moves. */
+        /** The asset the sender is short of. */
+        token: Address | 'native'
+        /** Amount the transaction needs, in the asset's base units. */
         required: Hex
-        /** Sender's current balance of `token`. */
+        /** The sender's balance at simulation. */
         available: Hex
       }
     | undefined
-  /** Fresh offers the wallet MAY pick from instead of calling `payer_getTerms` again. */
+  /**
+   * Fresh offers the wallet MAY pick from instead of calling `payer_getTerms`
+   * again. Each `paymentAmount` is priced at the rejected transaction's `max_cost`.
+   */
   options?: readonly PaymentOption[] | undefined
+  /** REQUIRED when any offer in `options` carries a `fiatRate`. */
+  fiatCurrency?: string | undefined
 }

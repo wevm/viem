@@ -8,8 +8,9 @@
  *
  * The machine-readable reason rides in `error.data.code` as a
  * {@link PayerErrorCode} string; `error.data` SHOULD carry actionable context.
- * `payer_getTerms` never returns this error — a declined sponsorship rides on a
- * `sponsored_declined` option carrying a {@link SponsorshipDeclineCode} instead.
+ * `payer_getTerms` returns it only with `TEMPORARILY_UNAVAILABLE` or
+ * `EXECUTION_REVERTED`; a declined sponsorship rides on a `sponsored_declined`
+ * option carrying a {@link SponsorshipDeclineCode} instead.
  */
 export const payerRejectedCode = -32000 as const
 
@@ -29,11 +30,11 @@ export const payerErrorCode = {
   budgetExhausted: 'BUDGET_EXHAUSTED',
   /** Per-sender cap reached (tx count or USD); check `balance.validFor`. */
   senderLimitReached: 'SENDER_LIMIT_REACHED',
-  /** Gas price exceeds the sponsor's per-tx cost ceiling; retry when gas drops. */
-  gasExceedsLimit: 'GAS_EXCEEDS_LIMIT',
+  /** The transaction's cost at current gas prices exceeds the payer's per-tx ceiling; SHOULD carry a `cost` diagnostic. */
+  costExceedsLimit: 'COST_EXCEEDS_LIMIT',
   /** Payer is degraded (e.g. rate feed down); retry shortly. */
   temporarilyUnavailable: 'TEMPORARILY_UNAVAILABLE',
-  /** Malformed or invalid EIP-8130 transaction. */
+  /** Malformed or invalid transaction, or one not built from the offer. */
   invalidTransaction: 'INVALID_TRANSACTION',
   /** Token in the phase-0 transfer not accepted by this payer. */
   unsupportedToken: 'UNSUPPORTED_TOKEN',
@@ -47,7 +48,7 @@ export const payerErrorCode = {
   payerBalanceInsufficient: 'PAYER_BALANCE_INSUFFICIENT',
   /** Sender's token balance is below the phase-0 transfer; SHOULD carry a `shortfall`. */
   senderBalanceInsufficient: 'SENDER_BALANCE_INSUFFICIENT',
-  /** Simulating the phase-0 payment reverted (paused token, blocked sender, ...). */
+  /** The payer's simulation or estimate shows a call would revert; SHOULD carry a `revert`. */
   executionReverted: 'EXECUTION_REVERTED',
 } as const
 
@@ -65,6 +66,6 @@ export const sponsorshipDeclineCode = {
   senderIneligible: 'SENDER_INELIGIBLE',
   budgetExhausted: 'BUDGET_EXHAUSTED',
   senderLimitReached: 'SENDER_LIMIT_REACHED',
-  gasExceedsLimit: 'GAS_EXCEEDS_LIMIT',
+  costExceedsLimit: 'COST_EXCEEDS_LIMIT',
   temporarilyUnavailable: 'TEMPORARILY_UNAVAILABLE',
 } as const

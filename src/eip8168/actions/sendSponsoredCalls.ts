@@ -12,10 +12,13 @@ import type {
   AaCall,
   AaCalls,
   TransactionSerializable8130,
+  TransactionSerialized8130,
 } from '../../eip8130/types/transaction.js'
+import { serializeTransaction } from '../../eip8130/utils/serializeTransaction.js'
 import { BaseError } from '../../errors/base.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import type { PayerClient } from '../client.js'
@@ -23,11 +26,11 @@ import type {
   GetTermsReturnType,
   PayerRejectedData,
   PayerSendTransactionReturnType,
-  PayerSignTransactionReturnType,
 } from '../types.js'
 import {
-  buildSponsoredCalls,
-  encodeTokenTransfer,
+  encodePayment,
+  requiredPaymentAmount,
+  selectPaymentOption,
 } from '../utils/buildSponsoredCalls.js'
 import { parsePayerError } from '../utils/parsePayerError.js'
 
@@ -46,7 +49,7 @@ export type ResignRequest = {
   | {
       /** Phase-0 token transfer is being corrected (`PAYMENT_INSUFFICIENT`). */
       kind: 'requote'
-      token: Address
+      token: Address | 'native'
       /** The new phase-0 transfer amount the user would pay. */
       paymentAmount: bigint
       feeRecipient: Address
@@ -56,6 +59,8 @@ export type ResignRequest = {
       kind: 'gas'
       /** The new `gasLimit` the next attempt will sign over. */
       gasLimit: bigint
+      /** The re-priced phase-0 amount at the new `gasLimit`, when paying with a token. */
+      paymentAmount?: bigint | undefined
     }
 )
 
@@ -76,15 +81,17 @@ export type SendSponsoredCallsParameters = {
   accountChanges?: readonly AaAccountChange[] | undefined
   /**
    * `"send"` (default) asks the payer to co-sign and submit; `"sign"` asks the
-   * payer to co-sign and return the transaction for the wallet to submit. A
+   * payer for its `payer_auth` and returns the fully signed transaction for the
+   * wallet to submit. For a named sender, `"sign"` asks the payer BEFORE the
+   * sender signs, so a payer rejection never costs the user a signature. A
    * `"sign"` request is only made when the selected offer lists
    * `payer_signTransaction` in its (additive) `methods`.
    */
   mode?: 'send' | 'sign' | undefined
   /** Pre-fetched terms. When omitted, `payer_getTerms` is called. */
   terms?: GetTermsReturnType | undefined
-  /** Prefer token payment with this token. Defaults to a selectable sponsored offer. */
-  token?: `0x${string}` | undefined
+  /** Prefer token payment with this token (or `"native"`). Defaults to a selectable sponsored offer. */
+  token?: Address | 'native' | undefined
   /** Opaque app context forwarded to `payer_*` calls (e.g. `policyId`). */
   context?: Record<string, unknown> | undefined
   /**
@@ -144,20 +151,30 @@ export type SendSponsoredCallsParameters = {
     | undefined
 }
 
+/** Return of a `"sign"`-mode {@link sendSponsoredCalls}. */
+export type SendSponsoredCallsSignReturnType = {
+  /** The payer's `payer_auth`, as returned by `payer_signTransaction`. */
+  payerAuth: Hex
+  /** The fully signed transaction, ready for `eth_sendRawTransaction`. */
+  signedTransaction: TransactionSerialized8130
+}
+
 export type SendSponsoredCallsReturnType =
   | PayerSendTransactionReturnType
-  | PayerSignTransactionReturnType
+  | SendSponsoredCallsSignReturnType
 
 /**
  * End-to-end ERC-8168 sponsored-transaction flow:
  *
  * 1. Fetch terms (`payer_getTerms`) unless provided.
- * 2. Select an offer (and token choice) and build the phase-0 token transfer +
- *    user calls.
- * 3. Prepare the EIP-8130 transaction (nonce, gas from the offer's estimate).
- * 4. Sign `sender_auth` with `payer` set and `payer_auth` left empty.
- * 5. Hand to the payer via `payer_sendTransaction` (submit) or
- *    `payer_signTransaction` (co-sign only).
+ * 2. Select an offer (and token choice).
+ * 3. Prepare the EIP-8130 transaction (nonce, gas from the offer's estimate),
+ *    pricing a token offer's phase-0 payment at the transaction's own
+ *    `max_cost` from the choice's `rate`.
+ * 4. `"send"`: sign `sender_auth` with `payer` set and `payer_auth` empty, and
+ *    hand it to `payer_sendTransaction`, which co-signs and submits.
+ * 5. `"sign"`: get `payer_auth` from `payer_signTransaction`, sign
+ *    `sender_auth` with it in place, and return the signed transaction.
  *
  * @example
  * const { transactionHash } = await sendSponsoredCalls(client, {
@@ -201,8 +218,8 @@ export async function sendSponsoredCalls(
       ...(context ? { context } : {}),
     }))
 
-  const built = buildSponsoredCalls({ terms, calls, token })
-  const { option } = built
+  const { option, tokenChoice } = selectPaymentOption(terms, { token })
+  const feeRecipient = tokenChoice?.feeRecipient ?? option.payer
 
   // `methods` is additive over the implied required pair (getTerms + send).
   // `payer_signTransaction` is available only when explicitly listed.
@@ -236,7 +253,7 @@ export async function sendSponsoredCalls(
   // transfer (on `requote`) and `gas` (on `minGasLimit`) change between attempts.
   const transaction = await prepareTransactionRequest(client, {
     account,
-    calls: built.calls,
+    calls: [calls],
     accountChanges,
     gas: initialGas,
     maxFeePerGas,
@@ -245,7 +262,7 @@ export async function sendSponsoredCalls(
     nonceKey: parameters.nonceKey,
     nonceSequence: parameters.nonceSequence,
   })
-  transaction.payer = built.payer
+  transaction.payer = option.payer
 
   // A nonce-free send (e.g. a Keystore actor confined to it) MUST carry a
   // non-zero, in-window `validBefore`: it is the sole replay protection. When
@@ -271,8 +288,34 @@ export async function sendSponsoredCalls(
       : 0n
   }
 
-  let phases: AaCalls = built.calls
+  // A token offer's phase 0 must cover the transaction's own `max_cost`, so it
+  // is re-priced from `rate` whenever `gas` changes.
+  let rate = tokenChoice ? hexToBigInt(tokenChoice.rate) : undefined
+  const paymentAmountFor = (gasLimit: bigint): bigint | undefined => {
+    if (rate === undefined) return undefined
+    if (transaction.maxFeePerGas === undefined)
+      throw new BaseError('Prepared transaction carries no `maxFeePerGas`.')
+    return requiredPaymentAmount({
+      maxCost: gasLimit * transaction.maxFeePerGas,
+      rate,
+    })
+  }
+  const phasesFor = (amount: bigint | undefined): AaCalls =>
+    tokenChoice && amount !== undefined
+      ? [
+          [
+            encodePayment({
+              token: tokenChoice.token,
+              to: feeRecipient,
+              amount,
+            }),
+          ],
+          calls,
+        ]
+      : [calls]
+
   let gas = initialGas
+  let phases = phasesFor(paymentAmountFor(gas))
 
   // Try, and on a recoverable rejection re-sign from the payer's `requote` /
   // `minGasLimit` (ERC-8168 "Re-Quote on PAYMENT_INSUFFICIENT"). Re-signing
@@ -286,12 +329,29 @@ export async function sendSponsoredCalls(
     transaction.payerAuth = '0x'
 
     onTransaction?.(transaction)
-    const signedTransaction = await account.signTransaction(transaction)
 
     try {
-      if (mode === 'sign')
-        return await payerClient.signTransaction({ signedTransaction, context })
-      return await payerClient.sendTransaction({ signedTransaction, context })
+      if (mode === 'sign') {
+        // A named sender is identifiable without its signature, so the payer
+        // authorizes first; a recovered sender has to sign first.
+        const unsigned = transaction.from
+          ? serializeTransaction({ ...transaction, senderAuth: '0x' })
+          : await account.signTransaction(transaction)
+        const { payerAuth } = await payerClient.signTransaction({
+          transaction: unsigned,
+          context,
+        })
+        const signedTransaction = await account.signTransaction({
+          ...transaction,
+          payerAuth,
+        })
+        return { payerAuth, signedTransaction }
+      }
+      const signedTransaction = await account.signTransaction(transaction)
+      return await payerClient.sendTransaction({
+        transaction: signedTransaction,
+        context,
+      })
     } catch (error) {
       if (attempt >= retries) throw error
       const rejected = parsePayerError(error)
@@ -302,12 +362,14 @@ export async function sendSponsoredCalls(
       let request: ResignRequest | undefined
       let nextPhases = phases
       let nextGas = gas
+      let nextRate = rate
 
       if (rejected.code === 'PAYMENT_INSUFFICIENT' && rejected.requote) {
-        const { token: t, paymentAmount, feeRecipient } = rejected.requote
-        const to = feeRecipient ?? built.payer
+        const { token: t, paymentAmount } = rejected.requote
+        const to = rejected.requote.feeRecipient ?? option.payer
         const amount = hexToBigInt(paymentAmount)
-        nextPhases = [[encodeTokenTransfer({ token: t, to, amount })], calls]
+        nextPhases = [[encodePayment({ token: t, to, amount })], calls]
+        if (rejected.requote.rate) nextRate = hexToBigInt(rejected.requote.rate)
         request = {
           kind: 'requote',
           reason: rejected,
@@ -322,7 +384,15 @@ export async function sendSponsoredCalls(
         if (maxGasLimit !== undefined && minGas > maxGasLimit) throw error
         if (minGas <= gas) throw error
         nextGas = minGas
-        request = { kind: 'gas', reason: rejected, attempt, gasLimit: minGas }
+        const paymentAmount = paymentAmountFor(minGas)
+        if (paymentAmount !== undefined) nextPhases = phasesFor(paymentAmount)
+        request = {
+          kind: 'gas',
+          reason: rejected,
+          attempt,
+          gasLimit: minGas,
+          paymentAmount,
+        }
       }
 
       // Not a recoverable condition we know how to re-sign for.
@@ -334,6 +404,7 @@ export async function sendSponsoredCalls(
 
       phases = nextPhases
       gas = nextGas
+      rate = nextRate
     }
   }
 }

@@ -63,9 +63,10 @@ export type PayerClient = {
     parameters: PayerSendTransactionParameters,
   ): Promise<PayerSendTransactionReturnType>
   /**
-   * Co-sign a sender-signed EIP-8130 transaction and return the bytes without
-   * submitting. OPTIONAL — only call when the picked offer advertises it via
-   * `methods`. Returns JSON-RPC `-32601` when unimplemented.
+   * Return the payer's `payer_auth` for an EIP-8130 transaction without
+   * submitting. The transaction MAY be sent before the sender signs (named
+   * sender, empty `sender_auth`). OPTIONAL — only call when the picked offer
+   * advertises it via `methods`. Returns JSON-RPC `-32601` when unimplemented.
    */
   signTransaction(
     parameters: PayerSignTransactionParameters,

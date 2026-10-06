@@ -3,14 +3,17 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { erc20Abi } from '../../constants/abis.js'
 import { parseTransaction } from '../../eip8130/utils/parseTransaction.js'
 import { toAccount } from '../../experimental/keystore/accounts/toAccount.js'
 import { key } from '../../experimental/keystore/keys.js'
 import { erc1167Bytecode } from '../../experimental/keystore/utils/proxy.js'
+import { decodeFunctionData } from '../../utils/abi/decodeFunctionData.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import { createPayerClient } from '../client.js'
 import type { GetTermsReturnType } from '../types.js'
+import { requiredPaymentAmount } from '../utils/buildSponsoredCalls.js'
 import {
   prepareTransactionRequest,
   sendTransaction,
@@ -29,6 +32,7 @@ const account = toAccount({
 const PAYER = '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' as const
 const FEE_RECIPIENT = '0x90F79bf6EB2c4f870365E785982E1f101E93b906' as const
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const
+const PAYER_AUTH = `0x${'ee'.repeat(85)}` as const
 const userCalls = [
   {
     to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' as const,
@@ -225,8 +229,8 @@ describe('sendTransaction', () => {
       transport: custom({
         async request({ method, params }: { method: string; params: any }) {
           if (method === 'payer_sendTransaction') {
-            relayed = params[0].signedTransaction
-            return { transactionHash: keccak256(params[0].signedTransaction) }
+            relayed = params[0].transaction
+            return { transactionHash: keccak256(params[0].transaction) }
           }
           throw new Error(`unexpected ${method}`)
         },
@@ -252,11 +256,14 @@ describe('sendTransaction', () => {
   })
 
   test('token offer: phase-0 transfer present; co-sign mode returns signed tx', async () => {
+    let cosigned: `0x${string}` | undefined
     const payer = createPayerClient({
       transport: custom({
         async request({ method, params }: { method: string; params: any }) {
-          if (method === 'payer_signTransaction')
-            return { signedTransaction: params[0].signedTransaction }
+          if (method === 'payer_signTransaction') {
+            cosigned = params[0].transaction
+            return { payerAuth: PAYER_AUTH }
+          }
           throw new Error(`unexpected ${method}`)
         },
       }),
@@ -280,6 +287,25 @@ describe('sendTransaction', () => {
     )
     expect(parsed.calls).toHaveLength(2)
     expect(parsed.calls?.[0]?.[0]?.to).toBe(USDC.toLowerCase())
+    // Phase 0 is priced at the tx's own max_cost: ceil(gas × maxFee × rate / 1e18).
+    const transfer = decodeFunctionData({
+      abi: erc20Abi,
+      data: parsed.calls![0]![0]!.data!,
+    })
+    expect(transfer.args[1]).toBe(
+      requiredPaymentAmount({
+        maxCost:
+          hexToBigInt(gasEstimate.gasLimit) *
+          hexToBigInt(gasEstimate.maxFeePerGas),
+        rate: hexToBigInt('0x7A308480'),
+      }),
+    )
+    // The payer authorized before the sender signed; the sender then signed
+    // over the returned payer_auth.
+    expect(parseTransaction(cosigned!).senderAuth ?? '0x').toBe('0x')
+    expect(parsed.payerAuth).toBe(PAYER_AUTH)
+    expect(parsed.senderAuth).not.toBe('0x')
+    expect((result as { payerAuth: `0x${string}` }).payerAuth).toBe(PAYER_AUTH)
   })
 })
 
@@ -309,26 +335,21 @@ describe('sendTransactionSync', () => {
       transport: custom({
         async request({ method, params }: { method: string; params: any }) {
           if (method === 'payer_sendTransaction')
-            return {
-              transactionHash: RECEIPT.transactionHash,
-              tokenCharged: { token: USDC, amount: '0x30D40' },
-            }
+            return { transactionHash: RECEIPT.transactionHash }
           throw new Error(`unexpected ${method}: ${JSON.stringify(params)}`)
         },
       }),
     })
 
-    const { transactionHash, tokenCharged, receipt } =
-      await sendTransactionSync(client, {
-        account,
-        payerClient: payer,
-        calls: userCalls,
-        capabilities: { paymentOption: sponsoredTerms.options[0], gasEstimate },
-        nonceSequence: 0n,
-      })
+    const { transactionHash, receipt } = await sendTransactionSync(client, {
+      account,
+      payerClient: payer,
+      calls: userCalls,
+      capabilities: { paymentOption: sponsoredTerms.options[0], gasEstimate },
+      nonceSequence: 0n,
+    })
 
     expect(transactionHash).toBe(RECEIPT.transactionHash)
-    expect(tokenCharged?.token).toBe(USDC)
     expect(receipt.eip8130.phaseStatuses).toEqual(['0x1'])
     expect(receipt.eip8130.payer).toBe(PAYER)
   })

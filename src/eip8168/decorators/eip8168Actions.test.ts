@@ -57,7 +57,7 @@ test('binds a default payerClient and exposes client.payer.*', async () => {
       async request({ method, params }: { method: string; params: any }) {
         if (method === 'payer_getTerms') return sponsoredTerms
         if (method === 'payer_sendTransaction')
-          return { transactionHash: keccak256(params[0].signedTransaction) }
+          return { transactionHash: keccak256(params[0].transaction) }
         throw new Error(`unexpected ${method}`)
       },
     }),

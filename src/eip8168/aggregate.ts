@@ -43,7 +43,7 @@ export type CreateAggregatePayerClientParameters = {
  *   best-first in source order. Offers stay self-describing via their `payer`
  *   (and optional `endpoint`), and the aggregate remembers which source produced
  *   each `payer` so it can route the co-sign back.
- * - `sendTransaction` / `signTransaction` read the signed transaction's `payer`
+ * - `sendTransaction` / `signTransaction` read the transaction's `payer`
  *   field and dispatch to the source that offered it (populated by the preceding
  *   `getTerms`). Let the aggregate fetch terms — don't pre-pass `terms` to
  *   `sendSponsoredCalls` — so routing is populated.
@@ -94,11 +94,11 @@ export function createAggregatePayerClient(
     return values
   }
 
-  const route = (signedTransaction: `0x${string}`): PayerClient => {
-    const { payer } = parseTransaction(signedTransaction)
+  const route = (transaction: `0x${string}`): PayerClient => {
+    const { payer } = parseTransaction(transaction)
     if (!payer)
       throw new BaseError(
-        'Signed transaction names no `payer`; nothing to route to a payer source.',
+        'Transaction names no `payer`; nothing to route to a payer source.',
       )
     const source = routes.get(payer.toLowerCase())
     if (!source)
@@ -148,13 +148,13 @@ export function createAggregatePayerClient(
     async sendTransaction(
       params: PayerSendTransactionParameters,
     ): Promise<PayerSendTransactionReturnType> {
-      return route(params.signedTransaction).sendTransaction(params)
+      return route(params.transaction).sendTransaction(params)
     },
 
     async signTransaction(
       params: PayerSignTransactionParameters,
     ): Promise<PayerSignTransactionReturnType> {
-      return route(params.signedTransaction).signTransaction(params)
+      return route(params.transaction).signTransaction(params)
     },
 
     async getSponsorshipBalance(

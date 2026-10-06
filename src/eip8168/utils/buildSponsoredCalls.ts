@@ -10,8 +10,34 @@ import type {
   SponsoredOfferDeclined,
   SponsoredOfferSelectable,
   TokenChoice,
-  TokenPaymentOffer,
+  TokenOffer,
 } from '../types.js'
+
+/**
+ * The ERC-8168 required phase-0 amount for a transaction whose `max_cost`
+ * (`gas_limit × max_fee_per_gas`) is `maxCost`: `ceil(maxCost × rate / 1e18)`.
+ */
+export function requiredPaymentAmount(parameters: {
+  maxCost: bigint
+  rate: bigint
+}): bigint {
+  const { maxCost, rate } = parameters
+  return (maxCost * rate + 10n ** 18n - 1n) / 10n ** 18n
+}
+
+/**
+ * The default phase-0 payment: an ERC-20 `transfer(to, amount)`, or for
+ * `"native"` a plain value transfer to `to`.
+ */
+export function encodePayment(parameters: {
+  token: Address | 'native'
+  to: Address
+  amount: bigint
+}): AaCall {
+  const { token, to, amount } = parameters
+  if (token === 'native') return { to, value: amount, data: '0x' }
+  return encodeTokenTransfer({ token, to, amount })
+}
 
 /** Encodes an ERC-20 `transfer(to, amount)` call. */
 export function encodeTokenTransfer(parameters: {
@@ -30,9 +56,7 @@ export function encodeTokenTransfer(parameters: {
 }
 
 /** A `token` offer. */
-export function isTokenOffer(
-  option: PaymentOption,
-): option is TokenPaymentOffer {
+export function isTokenOffer(option: PaymentOption): option is TokenOffer {
   return option.kind === 'token'
 }
 
@@ -53,17 +77,17 @@ export function isSponsoredOffer(
 /** Any offer the wallet may build a transaction from (excludes declined entries). */
 export function isSelectableOffer(
   option: PaymentOption,
-): option is SponsoredOfferSelectable | TokenPaymentOffer {
+): option is SponsoredOfferSelectable | TokenOffer {
   return isSponsoredOffer(option) || isTokenOffer(option)
 }
 
 export type SelectPaymentOptionParameters = {
   /** Prefer token payment, optionally constrained to this token, over sponsorship. */
-  token?: Address | undefined
+  token?: Address | 'native' | undefined
 }
 
 export type SelectPaymentOptionReturnType = {
-  option: SponsoredOfferSelectable | TokenPaymentOffer
+  option: SponsoredOfferSelectable | TokenOffer
   /** The chosen token, when `option` is a `token` offer. */
   tokenChoice?: TokenChoice | undefined
 }
@@ -86,7 +110,7 @@ export function selectPaymentOption(
   const { token } = parameters
   const options = terms.options ?? []
 
-  const matchChoice = (offer: TokenPaymentOffer): TokenChoice | undefined => {
+  const matchChoice = (offer: TokenOffer): TokenChoice | undefined => {
     const choices = offer.tokens ?? []
     if (token)
       return choices.find((c) => c.token.toLowerCase() === token.toLowerCase())
@@ -129,7 +153,14 @@ export type BuildSponsoredCallsParameters = {
   /** The user's intended calls (placed in the final phase). */
   calls: readonly AaCall[]
   /** Prefer token payment with this token over sponsorship. */
-  token?: Address | undefined
+  token?: Address | 'native' | undefined
+  /**
+   * The transaction's `max_cost` (`gas_limit × max_fee_per_gas`), when the
+   * wallet sizes gas itself. The phase-0 amount is then priced from the
+   * choice's `rate`; otherwise the choice's `paymentAmount` (quoted at the
+   * terms' `gasEstimate`) is used as-is.
+   */
+  maxCost?: bigint | undefined
 }
 
 export type BuildSponsoredCallsReturnType = {
@@ -138,12 +169,12 @@ export type BuildSponsoredCallsReturnType = {
   /** Ordered call phases (phase 0 = token transfer when paying, last = user calls). */
   calls: AaCalls
   /** The selected payment offer. */
-  option: SponsoredOfferSelectable | TokenPaymentOffer
+  option: SponsoredOfferSelectable | TokenOffer
   /** The selected token choice, when paying with a token. */
   tokenChoice?: TokenChoice | undefined
   /** Phase-0 transfer destination (`feeRecipient` ?? offer `payer`), when paying with a token. */
   feeRecipient?: Address | undefined
-  /** Phase-0 token transfer amount (`paymentAmount`), when paying with a token. */
+  /** Phase-0 payment amount, when paying with a token. */
   paymentAmount?: bigint | undefined
 }
 
@@ -154,7 +185,8 @@ export type BuildSponsoredCallsReturnType = {
  * | Offer `kind` | Phase 0 | Phase 1 |
  * |---|---|---|
  * | `sponsored` | — | user calls |
- * | `token` | `transfer(choice.feeRecipient ?? offer.payer, choice.paymentAmount)` | user calls |
+ * | `token` (ERC-20) | `transfer(choice.feeRecipient ?? offer.payer, amount)` | user calls |
+ * | `token` (`"native"`) | value transfer of `amount` to the recipient | user calls |
  *
  * Balance-funded sponsorship (a `sponsored` offer carrying a `balance`) uses the
  * full-sponsorship construction (no phase 0); the payer is reimbursed off-chain
@@ -163,7 +195,7 @@ export type BuildSponsoredCallsReturnType = {
 export function buildSponsoredCalls(
   parameters: BuildSponsoredCallsParameters,
 ): BuildSponsoredCallsReturnType {
-  const { terms, calls, token } = parameters
+  const { terms, calls, token, maxCost } = parameters
 
   const { option, tokenChoice } = selectPaymentOption(terms, { token })
 
@@ -174,9 +206,20 @@ export function buildSponsoredCalls(
     throw new BaseError('Selected token offer resolved no `TokenChoice`.')
 
   const feeRecipient = tokenChoice.feeRecipient ?? option.payer
-  const paymentAmount = hexToBigInt(tokenChoice.paymentAmount)
+  let paymentAmount: bigint
+  if (maxCost !== undefined)
+    paymentAmount = requiredPaymentAmount({
+      maxCost,
+      rate: hexToBigInt(tokenChoice.rate),
+    })
+  else if (tokenChoice.paymentAmount)
+    paymentAmount = hexToBigInt(tokenChoice.paymentAmount)
+  else
+    throw new BaseError(
+      'Token choice carries no `paymentAmount` (the terms have no `gasEstimate`); pass `maxCost` to price phase 0 from `rate`.',
+    )
   const phase0: AaCall[] = [
-    encodeTokenTransfer({
+    encodePayment({
       token: tokenChoice.token,
       to: feeRecipient,
       amount: paymentAmount,
