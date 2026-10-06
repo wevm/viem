@@ -18,6 +18,7 @@ import {
   getTransaction,
   getTransactionReceipt,
   readContract,
+  sendTransactionSync,
   waitForTransactionReceipt,
   writeContract,
   writeContractSync,
@@ -38,7 +39,6 @@ import {
   http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
-import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Store from '../Store.js'
 import * as tokenActions from './token.js'
@@ -115,7 +115,29 @@ async function ensureZoneBalance(zoneToken: Address, minimumBalance: bigint) {
     zoneId,
   } as const
   if (legacyZoneCallback)
-    await zoneActions.depositSync(mainnetClient, parameters)
+    await sendTransactionSync(mainnetClient, {
+      calls: [
+        tokenActions.approve.call({
+          amount: parameters.amount,
+          spender: portalAddress,
+          token: parentToken,
+        }),
+        {
+          to: portalAddress,
+          data: encodeFunctionData({
+            abi: Abis.zonePortal,
+            functionName: 'deposit',
+            args: [
+              parentToken,
+              account.address,
+              parameters.amount,
+              zeroHash,
+              account.address,
+            ],
+          }),
+        },
+      ],
+    })
   else await zoneActions.encryptedDepositSync(mainnetClient, parameters)
 
   for (let attempt = 0; attempt < 150; attempt++) {
@@ -353,55 +375,6 @@ describe('getZoneInfo', () => {
     }
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
-  })
-
-  test('behavior: normalizes a response without a block number', async () => {
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
-      const request = JSON.parse(body)
-      const result =
-        request.method === 'zone_getZoneInfo'
-          ? {
-              chainId: '0x1922a1a1',
-              sequencer: account.address,
-              zoneId: '0x1',
-              zoneTokens: [parentToken],
-            }
-          : { zoneProcessedThrough: '0x1' }
-
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(
-        JSON.stringify({
-          id: request.id,
-          jsonrpc: '2.0',
-          result,
-        }),
-      )
-    })
-
-    try {
-      const client = createClient({ transport: http(server.url) })
-
-      const info = await zoneActions.getZoneInfo(client)
-
-      expect(info).toMatchInlineSnapshot(`
-        {
-          "chainId": 421700001,
-          "sequencers": [
-            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          ],
-          "tempoBlockNumber": 1n,
-          "zoneId": 1,
-          "zoneTokens": [
-            "0x20c0000000000000000000000000000000000000",
-          ],
-        }
-      `)
-    } finally {
-      await server.close()
-    }
   })
 })
 
@@ -670,6 +643,27 @@ describe('encryptedDeposit', () => {
     expect(call.functionName).toBe('depositEncrypted')
     expect(call.args[4]).toBe(account.address)
   })
+  test.runIf(!legacyZoneCallback)(
+    'behavior: uses an explicit transaction account',
+    async () => {
+      const client = createClient({
+        chain,
+        pollingInterval: 100,
+        transport: http(),
+      })
+
+      const hash = await zoneActions.encryptedDeposit(client, {
+        ...depositParameters,
+        account,
+      })
+      const receipt = await waitForTransactionReceipt(client, { hash })
+      const call = await getPortalCall(hash)
+
+      expect(receipt.status).toBe('success')
+      expect(call.functionName).toBe('depositEncrypted')
+      expect(call.args[4]).toBe(account.address)
+    },
+  )
 })
 
 describe('encryptedDepositSync', () => {
@@ -722,101 +716,6 @@ describe('encryptedDepositSync', () => {
     await expect(
       // @ts-expect-error
       zoneActions.encryptedDepositSync(noAccountClient, depositParameters),
-    ).rejects.toThrow('`account` is required.')
-  })
-})
-
-describe('deposit', () => {
-  test('behavior: encodes Tempo refund recipient', () => {
-    const parameters = {
-      amount: 1n,
-      portalAddress,
-      recipient: account.address,
-      tempoRefundRecipient: account.address,
-      token: '0x20c0000000000000000000000000000000000000',
-      zoneId,
-    } satisfies zoneActions.deposit.Args
-
-    const calls = zoneActions.deposit.calls(parameters)
-    expect(calls[1].args).toHaveLength(5)
-    expect(calls[1].args[4]).toBe(account.address)
-    expect(encodeFunctionData(calls[1] as never).slice(0, 10)).toBe(
-      '0x09a0a234',
-    )
-
-    const { portalAddress: _, ...registryParameters } = parameters
-    const registryCalls = zoneActions.deposit.calls({
-      ...registryParameters,
-      zoneId: 7,
-    })
-    expect(registryCalls[1].address).toBe(Addresses.zonePortal(7))
-  })
-
-  test.runIf(legacyZoneCallback)(
-    'behavior: defaults Tempo refund recipient to account',
-    async () => {
-      const client = createClient({
-        chain,
-        pollingInterval: 100,
-        transport: http(),
-      })
-
-      const hash = await zoneActions.deposit(client, {
-        ...depositParameters,
-        account,
-      })
-      const receipt = await waitForTransactionReceipt(client, { hash })
-      const call = await getPortalCall(hash)
-
-      expect(receipt.status).toBe('success')
-      expect(call.functionName).toBe('deposit')
-      expect(call.args[4]).toBe(account.address)
-    },
-  )
-
-  test.runIf(legacyZoneCallback)(
-    'behavior: deposits tokens into zone via parent chain',
-    async () => {
-      const result = await zoneActions.depositSync(mainnetClient, {
-        token: parentToken,
-        amount: parseUnits('1', 6),
-        portalAddress,
-        zoneId,
-      })
-
-      expect(result.receipt).toBeDefined()
-      expect(result.receipt.status).toBe('success')
-    },
-  )
-
-  test('error: no account', async () => {
-    const noAccountClient = createClient({
-      chain,
-      pollingInterval: 100,
-      transport: http(),
-    })
-
-    await expect(
-      // @ts-expect-error
-      zoneActions.deposit(noAccountClient, {
-        token: '0x20c0000000000000000000000000000000000000',
-        amount: 1n,
-        zoneId,
-      }),
-    ).rejects.toThrow('`account` is required.')
-  })
-})
-
-describe('depositSync', () => {
-  test('error: no account', async () => {
-    const noAccountClient = createClient({
-      chain,
-      transport: http(),
-    })
-
-    await expect(
-      // @ts-expect-error
-      zoneActions.depositSync(noAccountClient, depositParameters),
     ).rejects.toThrow('`account` is required.')
   })
 })

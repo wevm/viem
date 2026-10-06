@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["../src/tempo/actions/zone.test-d.ts", "../src/tempo/actions/zone.unit.test.ts"],
+  "compilerOptions": { "composite": false, "incremental": false }
+}
