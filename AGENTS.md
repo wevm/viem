@@ -123,6 +123,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Twoslash filenames share page scope**; code groups on the same page must use distinct virtual
+  config filenames when their exports differ. Repeating `viem.config.ts` can overwrite a recipe
+  config and hide exports from another example.
 - **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
@@ -233,6 +236,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 - **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
+- **Full type checks need generated contract fixtures**; `pnpm check:types` includes tests that
+  import the ignored `contracts/generated.ts`. Generate it with `pnpm contracts:build` before a
+  full check. Declaration builds and the focused `tempo-unit` lane do not require these fixtures.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 
@@ -380,3 +386,29 @@ Guidelines for authoring docs and guides under `site/pages/`.
   - Include `import { client } from './viem.config'` when relevant.
   - Add a blank line before the example body.
 - Guide section order: `## Overview` → `## Recipes` → `## Best Practices` → `## See More`.
+
+## Zone Protocol Compatibility
+
+- Current ZonePortal `deposit` and `depositEncrypted` both take an encrypted payload and key index;
+  `Actions.zone.encryptedDeposit.calls` requires the result of `Actions.zone.encryptedDeposit.prepare`.
+  The action namespace exposes only `encryptedDeposit`/`encryptedDepositSync`, with preparation
+  helpers under `encryptedDeposit.prepare` and `encryptedDeposit.prepareRecipient`. Keep plaintext
+  overloads only for explicit low-level compatibility, never select them in the actions.
+- Encrypted deposit plaintext is exactly 64 bytes: a 20-byte recipient, a 32-byte memo, and 12
+  padding bytes. Reject invalid memo lengths before producing a payload that the inbox would bounce.
+- Deposit encryption binds HKDF to the portal, key index, ephemeral public key, and transaction sender.
+  Prepared deposit actions must reject a different broadcasting account before submission.
+- Inbox outcome `depositHash` equals the running portal queue hash for that deposit, emitted as
+  `DepositMade.newCurrentDepositQueueHash`; correlate those event fields across chains.
+- Raw Zone IDs `6`/`7` and their legacy chain IDs resolve to earlier deployed portals. Current
+  Zone chain IDs must resolve to the canonical `0x5ad0...<zoneId>` portal, including IDs `6`/`7`.
+  Pass `portalAddress` explicitly when depositing into those current Zones.
+- Zone authorization scope depends on both the Zone chain ID and Tempo source chain. Preserve the
+  explicit legacy range for `Zone.a` and `Zone.b`; current Moderato Zones use source chain `42431`.
+- `zone_getZoneInfo` supplies the imported Tempo block height; do not query `zone_getDepositStatus`.
+- `pnpm test:typecheck` hardcodes `-c test/vitest.config.ts`; adding a second `--config` does not
+  replace it and can still start infrastructure hooks. For an isolated type config, invoke
+  `pnpm exec vitest --typecheck.only --run --config <config>` directly.
+- Run protocol-only tests with `pnpm test --run --project tempo-unit src/tempo/actions/zone.unit.test.ts`;
+  this lane has no container, faucet, or chain setup hooks. Run its type tests with
+  `pnpm test:typecheck --run --project tempo-unit`.

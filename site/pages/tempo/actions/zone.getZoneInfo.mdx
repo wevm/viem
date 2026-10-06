@@ -1,6 +1,8 @@
 # `zone.getZoneInfo`
 
-Returns metadata about the current zone.
+Returns metadata about the current zone, including account access enforcement and callback gateway
+registration enforcement. The Zone RPC must include `tempoBlockNumber` in `zone_getZoneInfo`; nodes
+without that field are unsupported.
 
 ## Usage
 
@@ -34,9 +36,15 @@ console.log('Tempo block number:', info.tempoBlockNumber)
 ```ts
 type ReturnType = {
   chainId: number
+  isAccessEnforced: boolean
+  isGatewayOpen: boolean
   sequencers: readonly Address[]
   tempoBlockNumber: bigint
   zoneId: number
   zoneTokens: readonly Address[]
 }
 ```
+
+`isAccessEnforced` is `true` when account allowlist enforcement is enabled. `isGatewayOpen` is `true`
+when withdrawal callbacks may target unregistered gateways. `tempoBlockNumber` is the latest Tempo
+block imported by the zone.

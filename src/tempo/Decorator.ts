@@ -5654,65 +5654,6 @@ type DecoratorBase<
   }
   zone: {
     /**
-     * Deposits tokens into a zone.
-     * Batches approve and deposit into a single transaction.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const hash = await client.zone.deposit({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     *   zoneId: 7,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction hash.
-     */
-    deposit: (
-      parameters: zoneActions.deposit.Parameters<chain, account>,
-    ) => Promise<zoneActions.deposit.ReturnValue>
-    /**
-     * Deposits tokens into a zone and waits for the transaction receipt.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempoModerato } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempoModerato,
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { receipt } = await client.zone.depositSync({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     *   zoneId: 7,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt.
-     */
-    depositSync: (
-      parameters: zoneActions.depositSync.Parameters<chain, account>,
-    ) => Promise<zoneActions.depositSync.ReturnValue>
-    /**
      * Deposits tokens into a zone with encrypted recipient and memo.
      *
      * @example
@@ -6416,8 +6357,6 @@ export function decorator() {
         'resolve',
       ]),
       zone: bindActions(client, zoneActions, [
-        'deposit',
-        'depositSync',
         'encryptedDeposit',
         'encryptedDepositSync',
         'getAuthorizationTokenInfo',
