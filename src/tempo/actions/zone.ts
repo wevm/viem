@@ -1788,7 +1788,7 @@ export namespace signAuthorizationToken {
     issuedAt?: number | undefined
     /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
     store?: Store.Store | undefined
-    /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
+    /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id` and `chain.sourceId`. */
     zoneId?: number | undefined
   }
 

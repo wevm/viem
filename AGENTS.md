@@ -123,6 +123,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Twoslash needs built declarations**; finish `pnpm build:types` before running
+  `pnpm --filter site exec vocs twoslash`. Rebuilding `src/_types` concurrently causes module
+  resolution failures in the examples.
 - **Twoslash filenames share page scope**; code groups on the same page must use distinct virtual
   config filenames when their exports differ. Repeating `viem.config.ts` can overwrite a recipe
   config and hide exports from another example.

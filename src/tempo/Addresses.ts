@@ -41,6 +41,10 @@ export const zoneVerifier = '0x5a56000000000000000000000000000000000000'
 /**
  * Returns the Zone portal address for a Zone ID or chain ID.
  *
+ * Raw Zone IDs `6`/`7` and legacy chain IDs `4_217_000_006`/`4_217_000_007`
+ * resolve to their earlier deployed portals. Pass a current Mainnet or Moderato
+ * Zone chain ID to resolve the canonical portal for those Zones.
+ *
  * @param id - Zone ID or chain ID.
  * @returns The Zone portal address.
  */

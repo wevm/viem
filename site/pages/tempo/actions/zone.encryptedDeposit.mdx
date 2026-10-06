@@ -8,6 +8,10 @@ A transaction receipt does not confirm that the zone credited the deposit. See
 [Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the ZoneInbox
 processing result.
 
+For an ordinary deposit, encryption uses the transaction's sending account. Both the zone recipient
+and the parent-chain refund recipient default to that account, including an `account` override.
+Prepared deposits keep the recipient instructions and refund recipient chosen during preparation.
+
 ## Usage
 
 :::code-group
@@ -58,7 +62,9 @@ Use [`zone.encryptedDeposit.prepare`](#prepared-usage) when one party should cho
 
 :::warning
 Prepared encrypted deposits are bound to `sender` during encryption. `encryptedDeposit` and
-`encryptedDepositSync` reject a broadcasting account that differs from that sender.
+`encryptedDepositSync` reject a broadcasting account that differs from that sender, and reject a
+`chainId` that differs from `client.chain.id`. The broadcasting account is the `account` parameter
+when supplied, otherwise `client.account`. These checks happen before submission.
 
 Prepared encrypted deposits contain public transaction intent. If you receive a prepared payload from another party, validate `chainId`, `zoneId`, `portalAddress`, `sender`, `token`, and `amount` before passing it to `zone.encryptedDeposit`. The sender must match the account that calls the Zone portal.
 :::
@@ -179,6 +185,53 @@ type ReturnType = {
 
 Amount of tokens to deposit.
 
+### memo (optional)
+
+- **Type:** `Hex`
+- **Default:** `0x00...00`
+
+Deposit memo. A supplied memo must be valid hex encoding exactly 32 bytes; invalid values are
+rejected before submission.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Receipt polling interval in milliseconds. Only applicable to `zone.encryptedDepositSync`, which
+uses [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync).
+
+### portalAddress (optional)
+
+- **Type:** `Address`
+- **Default:** Derived from `zoneId`.
+
+Zone portal on the parent Tempo chain. For current Zones with ID `6` or `7`, set it explicitly
+as shown in [Select a Current Portal for Zone 6 or 7](#select-a-current-portal-for-zone-6-or-7).
+
+### recipient (optional)
+
+- **Type:** `Address`
+- **Default:** The transaction's sending account address.
+
+Recipient address in the zone. Applies when preparing an ordinary deposit.
+
+### tempoRefundRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** The transaction's sending account address.
+
+Parent-chain recipient of refunded tokens if the deposit bounces. Required when calling
+`zone.encryptedDeposit.prepare`.
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `Math.max(chain.blockTime * 3, 5_000)`
+
+Timeout in milliseconds to wait for the parent-chain transaction receipt. Only applicable to
+`zone.encryptedDepositSync`.
+
 ### token
 
 - **Type:** `Address | bigint`
@@ -190,19 +243,5 @@ Token address or ID to deposit.
 - **Type:** `number`
 
 Zone ID to deposit into (e.g. `7`).
-
-### memo (optional)
-
-- **Type:** `Hex`
-- **Default:** `0x00...00`
-
-Optional 32-byte deposit memo.
-
-### recipient (optional)
-
-- **Type:** `Address`
-- **Default:** `account.address`
-
-Recipient address in the zone.
 
 <WriteParameters />
