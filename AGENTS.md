@@ -241,7 +241,7 @@ This document contains general guidelines for AI agents working on the Viem code
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
 - **Full type checks need generated contract fixtures**; `pnpm check:types` includes tests that
   import the ignored `contracts/generated.ts`. Generate it with `pnpm contracts:build` before a
-  full check. Declaration builds and the focused `tempo-unit` lane do not require these fixtures.
+  full check. Declaration builds do not require these fixtures.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 

@@ -83,7 +83,6 @@ export default defineConfig({
         test: {
           name: 'tempo',
           exclude: [
-            '**/*.unit.test.ts',
             '**/*.multisig.test.ts',
             'src/tempo/internal/relay/multisig.test.ts',
             process.env.VITE_TEMPO_MULTISIG === 'true'
@@ -99,19 +98,6 @@ export default defineConfig({
           sequence: { groupOrder: 1 },
           hookTimeout: 20_000,
           testTimeout: 10_000,
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'tempo-unit',
-          include: ['src/tempo/**/*.unit.test.ts'],
-          typecheck: {
-            enabled: true,
-            include: ['src/tempo/actions/zone.test-d.ts'],
-            tsconfig: join(__dirname, './tsconfig.zone.json'),
-          },
-          retry: 0,
         },
       },
       ...((process.env.VITE_TEMPO_MULTISIG === 'true'
