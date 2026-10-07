@@ -1,6 +1,7 @@
 import { setTimeout as sleep } from 'node:timers/promises'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
+import { ZoneRpcAuthentication } from 'ox/tempo'
 import {
   type Address,
   createClient,
@@ -24,7 +25,7 @@ import {
   writeContractSync,
 } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
-import { Abis, Actions, Addresses } from 'viem/tempo'
+import { Abis, Actions, Addresses, Zone } from 'viem/tempo'
 import { parseUnits } from 'viem/utils'
 import { describe, expect, test } from 'vitest'
 import { accounts } from '~test/constants.js'
@@ -39,6 +40,7 @@ import {
   http as zoneHttp,
   zoneId,
 } from '~test/tempo/zones.js'
+import { createHttpServer } from '~test/utils.js'
 import * as WithdrawalSenderTag from '../internal/WithdrawalSenderTag.js'
 import * as Store from '../Store.js'
 import * as tokenActions from './token.js'
@@ -299,6 +301,30 @@ describe('zone instance', () => {
 })
 
 describe('signAuthorizationToken', () => {
+  test.each([
+    [Zone.internal, 1],
+    [Zone.internalTestnet, 3],
+    [Zone.a, 6],
+    [Zone.b, 7],
+  ] as const)(
+    'behavior: derives the scope for $0.name',
+    async (chain, zoneId) => {
+      const { token } = await zoneActions.signAuthorizationToken(
+        mainnetClient,
+        {
+          chain,
+          issuedAt: 1,
+          expiresAt: 2,
+          store: Store.memory(),
+        },
+      )
+      const authentication = ZoneRpcAuthentication.deserialize(token)
+
+      expect(authentication.chainId).toBe(chain.id)
+      expect(authentication.zoneId).toBe(zoneId)
+    },
+  )
+
   test('behavior: signs and stores token', async () => {
     const result = await zoneActions.signAuthorizationToken(zoneClient, {
       zoneId,
@@ -375,7 +401,70 @@ describe('getZoneInfo', () => {
     }
     expect(info.tempoBlockNumber).toBeGreaterThanOrEqual(0n)
     expect(info.zoneTokens).toBeDefined()
+    expect(typeof info.isAccessEnforced).toBe('boolean')
+    expect(typeof info.isGatewayOpen).toBe('boolean')
   })
+
+  test.each([false, true])(
+    'behavior: single sequencer response with imported block=%s',
+    async (hasBlockNumber) => {
+      const server = await createHttpServer(async (req, res) => {
+        let body = ''
+        req.setEncoding('utf8')
+        for await (const chunk of req) body += chunk
+        const request = JSON.parse(body)
+
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(
+          JSON.stringify({
+            id: request.id,
+            jsonrpc: '2.0',
+            result: {
+              chainId: '0x1922a1a1',
+              isAccessEnforced: true,
+              isGatewayOpen: false,
+              sequencer: account.address,
+              ...(hasBlockNumber ? { tempoBlockNumber: '0x100000000' } : {}),
+              zoneId: '0x1',
+              zoneTokens: [parentToken],
+            },
+          }),
+        )
+      })
+
+      try {
+        const client = createClient({ transport: http(server.url) })
+
+        if (!hasBlockNumber) {
+          await expect(
+            zoneActions.getZoneInfo(client),
+          ).rejects.toThrowErrorMatchingInlineSnapshot(
+            `[Error: Zone RPC must return \`tempoBlockNumber\` from \`zone_getZoneInfo\`.]`,
+          )
+          return
+        }
+        const info = await zoneActions.getZoneInfo(client)
+
+        expect(info).toMatchInlineSnapshot(`
+          {
+            "chainId": 421700001,
+            "isAccessEnforced": true,
+            "isGatewayOpen": false,
+            "sequencers": [
+              "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            ],
+            "tempoBlockNumber": 4294967296n,
+            "zoneId": 1,
+            "zoneTokens": [
+              "0x20c0000000000000000000000000000000000",
+            ],
+          }
+        `)
+      } finally {
+        await server.close()
+      }
+    },
+  )
 })
 
 describe('getPortalInfo', () => {
@@ -596,7 +685,11 @@ describe('encryptedDeposit', () => {
     })
 
     expect(prepared.sender).toBe(mainnetClient.account.address)
-    const hash = await zoneActions.encryptedDeposit(mainnetClient, prepared)
+    const client = createClient({ chain, transport: http() })
+    const hash = await zoneActions.encryptedDeposit(client, {
+      ...prepared,
+      account,
+    })
     const receipt = await waitForTransactionReceipt(mainnetClient, { hash })
 
     expect(receipt.status).toBe('success')
@@ -619,6 +712,33 @@ describe('encryptedDeposit', () => {
     expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
     expect(prepared.encrypted.ciphertext).toBeDefined()
   })
+
+  test('error: prepared deposit sender mismatch', async () => {
+    await expect(
+      zoneActions.encryptedDeposit(mainnetClient, {
+        ...preparedEncryptedDeposit,
+        sender: accounts[1].address,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Prepared encrypted deposit sender does not match transaction account.]`,
+    )
+  })
+
+  test.each(['0x', `0x${'11'.repeat(33)}`] as const)(
+    'error: memo must be 32 bytes (%s)',
+    async (memo) => {
+      await expect(
+        zoneActions.encryptedDeposit.prepareRecipient(mainnetClient, {
+          memo,
+          portalAddress,
+          recipient: account.address,
+          zoneId,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[Error: Deposit memo must be 32 bytes.]`,
+      )
+    },
+  )
 
   test('error: prepare without chain', async () => {
     const noChainClient = createClient({ transport: http() })
@@ -667,6 +787,57 @@ describe('encryptedDeposit', () => {
 })
 
 describe('encryptedDepositSync', () => {
+  test.each([false, true])(
+    'behavior: reverted receipts for prepared=%s',
+    async (usePrepared) => {
+      const balance = await tokenActions.getBalance(mainnetClient, {
+        account: account.address,
+        token: parentToken,
+      })
+      const ordinary = { ...depositParameters, amount: balance.amount + 1n }
+      const parameters = {
+        ...(usePrepared
+          ? await zoneActions.encryptedDeposit.prepare(mainnetClient, {
+              ...ordinary,
+              recipient: account.address,
+              tempoRefundRecipient: account.address,
+            })
+          : ordinary),
+        gas: 500_000n,
+      }
+
+      await expect(
+        zoneActions.encryptedDepositSync(mainnetClient, parameters),
+      ).rejects.toThrow('reverted')
+      await expect(
+        zoneActions.encryptedDepositSync(mainnetClient, {
+          ...parameters,
+          throwOnReceiptRevert: true,
+        }),
+      ).rejects.toThrow('reverted')
+      const { receipt } = await zoneActions.encryptedDepositSync(
+        mainnetClient,
+        {
+          ...parameters,
+          throwOnReceiptRevert: false,
+        },
+      )
+
+      expect(receipt.status).toMatchInlineSnapshot('"reverted"')
+    },
+  )
+
+  test('error: prepared deposit sender mismatch', async () => {
+    await expect(
+      zoneActions.encryptedDepositSync(mainnetClient, {
+        ...preparedEncryptedDeposit,
+        sender: accounts[1].address,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Prepared encrypted deposit sender does not match transaction account.]`,
+    )
+  })
+
   test('behavior: sends a prepared encrypted deposit', async () => {
     const prepared = await zoneActions.encryptedDeposit.prepare(mainnetClient, {
       ...prepareEncryptedDepositParameters,
@@ -674,10 +845,11 @@ describe('encryptedDepositSync', () => {
       zoneId,
     })
 
-    const result = await zoneActions.encryptedDepositSync(
-      mainnetClient,
-      prepared,
-    )
+    const client = createClient({ chain, transport: http() })
+    const result = await zoneActions.encryptedDepositSync(client, {
+      ...prepared,
+      account,
+    })
 
     expect(result.receipt.status).toBe('success')
   })
