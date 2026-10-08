@@ -94,7 +94,7 @@ export type AccessKeyAccount = Account_base<'accessKey'> & {
   }) => Promise<Hex.Hex>
 }
 
-export type Account = OneOf<RootAccount | AccessKeyAccount>
+export type Account = OneOf<RootAccount | AccessKeyAccount | ZkAccount>
 
 /** Instantiates an Account. */
 export function from<const parameters extends from.Parameters>(

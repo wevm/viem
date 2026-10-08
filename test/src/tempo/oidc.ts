@@ -4,10 +4,66 @@ import { Base64, Bytes } from 'ox'
 import { Oidc } from 'ox/tempo'
 
 /**
- * Starts an OIDC issuer on a local port: it serves a discovery document and one
- * RS256 key, and mints ID tokens with that key.
+ * Starts an OIDC issuer on a local port: it serves a discovery document and its
+ * RS256 keys, and mints ID tokens with them.
  */
 export async function createIssuer() {
+  const first = await generateKey('k1')
+  const keys = new Map([['k1', first]])
+
+  const server = await serve((request, response) => {
+    response.setHeader('content-type', 'application/json')
+    if (request.url === '/.well-known/openid-configuration') {
+      response.end(
+        JSON.stringify({ issuer: server.url, jwks_uri: `${server.url}/jwks` }),
+      )
+      return
+    }
+    if (request.url === '/jwks') {
+      response.end(
+        JSON.stringify({ keys: [...keys.values()].map(({ jwk }) => jwk) }),
+      )
+      return
+    }
+    response.statusCode = 404
+    response.end('{}')
+  })
+
+  /** Publishes another signing key, returning its key ID. */
+  async function addKey() {
+    const kid = `k${keys.size + 1}`
+    keys.set(kid, await generateKey(kid))
+    return kid
+  }
+
+  /** Mints an ID token, signed with the key `kid` names, or the first key if the issuer has none by that name. */
+  async function mint(
+    claims: Record<string, unknown>,
+    options: { alg?: string | undefined; kid?: string | undefined } = {},
+  ) {
+    const { alg = 'RS256', kid = 'k1' } = options
+    const { privateKey } = keys.get(kid) ?? first
+    const encode = (value: unknown) =>
+      Base64.fromString(JSON.stringify(value), { pad: false, url: true })
+    const signedInput = `${encode({ alg, kid, typ: 'JWT' })}.${encode(claims)}`
+    const signature = await globalThis.crypto.subtle.sign(
+      'RSASSA-PKCS1-v1_5',
+      privateKey,
+      Bytes.fromString(signedInput) as Uint8Array<ArrayBuffer>,
+    )
+    return `${signedInput}.${Base64.fromBytes(new Uint8Array(signature), { pad: false, url: true })}`
+  }
+
+  return {
+    addKey,
+    close: server.close,
+    iss: server.url,
+    keyHash: Oidc.fromJwk(first.jwk).keyHash,
+    mint,
+  }
+}
+
+async function generateKey(kid: string) {
   const { privateKey, publicKey } = (await globalThis.crypto.subtle.generateKey(
     {
       hash: 'SHA-256',
@@ -21,49 +77,10 @@ export async function createIssuer() {
   const jwk = {
     ...(await globalThis.crypto.subtle.exportKey('jwk', publicKey)),
     alg: 'RS256',
-    kid: 'k1',
+    kid,
     use: 'sig',
   }
-
-  const server = await serve((request, response) => {
-    response.setHeader('content-type', 'application/json')
-    if (request.url === '/.well-known/openid-configuration') {
-      response.end(
-        JSON.stringify({ issuer: server.url, jwks_uri: `${server.url}/jwks` }),
-      )
-      return
-    }
-    if (request.url === '/jwks') {
-      response.end(JSON.stringify({ keys: [jwk] }))
-      return
-    }
-    response.statusCode = 404
-    response.end('{}')
-  })
-
-  /** Mints an ID token, signed with the issuer's key unless `kid` names another. */
-  async function mint(
-    claims: Record<string, unknown>,
-    options: { alg?: string | undefined; kid?: string | undefined } = {},
-  ) {
-    const { alg = 'RS256', kid = 'k1' } = options
-    const encode = (value: unknown) =>
-      Base64.fromString(JSON.stringify(value), { pad: false, url: true })
-    const signedInput = `${encode({ alg, kid, typ: 'JWT' })}.${encode(claims)}`
-    const signature = await globalThis.crypto.subtle.sign(
-      'RSASSA-PKCS1-v1_5',
-      privateKey,
-      Bytes.fromString(signedInput) as Uint8Array<ArrayBuffer>,
-    )
-    return `${signedInput}.${Base64.fromBytes(new Uint8Array(signature), { pad: false, url: true })}`
-  }
-
-  return {
-    close: server.close,
-    iss: server.url,
-    keyHash: Oidc.fromJwk(jwk).keyHash,
-    mint,
-  }
+  return { jwk, privateKey }
 }
 
 /** Serves `listener` on a local port. */

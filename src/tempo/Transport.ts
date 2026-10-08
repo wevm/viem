@@ -209,10 +209,16 @@ export function withRelay(
           method === 'multisig_approveRawTransaction' ||
           method === 'multisig_approveRawTransactionSync' ||
           method === 'multisig_getConfig' ||
-          method === 'multisig_getOperation' ||
-          method === 'oidc_prove'
+          method === 'multisig_getOperation'
         )
           return transport_relay.request({ method, params }, options) as never
+
+        // Each proof costs the prover seconds of work, so a failed one is not resent.
+        if (method === 'oidc_prove')
+          return transport_relay.request(
+            { method, params },
+            { ...options, retryCount: 0 },
+          ) as never
 
         if (
           method === 'eth_sendRawTransactionSync' ||

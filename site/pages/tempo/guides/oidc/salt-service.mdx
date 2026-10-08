@@ -68,10 +68,35 @@ export const client = createClient({
 })
 ```
 
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+import { http, type Hex } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: {
+          apiKey: process.env.PROVER_API_KEY!,
+          url: 'https://prover.example.com',
+        },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: process.env.SALT_KEY as Hex,
+      }),
+      // [!code focus:end]
+    ],
+  }),
+})
+```
+
 :::
 
 Clients connect to the salt service as a remote relay, which serves `oidc_prove` and forwards
-every other request to the RPC.
+every other request to the RPC. A server that holds the salt key can instead run the plugin in
+its own client as a local relay.
 
 ### Sponsor the First Transaction
 

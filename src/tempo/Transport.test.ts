@@ -1,7 +1,8 @@
 import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Hex, RpcRequest, RpcResponse, Signature } from 'ox'
+import { Hex, PublicKey, RpcRequest, RpcResponse, Signature } from 'ox'
 import { MultisigConfig, TxEnvelopeTempo } from 'ox/tempo'
+import { createClient } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getCallsStatus,
@@ -13,7 +14,7 @@ import {
   sendTransactionSync,
   signTransaction,
 } from 'viem/actions'
-import { Account, Actions, Relay, Store, Transaction } from 'viem/tempo'
+import { Account, Actions, Oidc, Relay, Store, Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -299,6 +300,41 @@ describe('withRelay', () => {
         { retryCount: 0 },
       ),
     ).rejects.toThrow('Relay lookup failed.')
+  })
+
+  test('behavior: does not resend OIDC proofs', async () => {
+    const prepared = Oidc.prepare({
+      publicKey: PublicKey.fromHex(
+        Account.fromSecp256k1(generatePrivateKey()).publicKey,
+      ),
+    })
+    // The relay fails the first proof with a retryable error and proves a resent one.
+    let failed = false
+    const client = createClient({
+      chain,
+      transport: withRelay(
+        custom({ request: async () => null }),
+        custom({
+          async request() {
+            if (failed)
+              return { issuedAt: '0x0', scheme: '0x1', validUntil: '0x0' }
+            failed = true
+            throw new RpcResponse.InternalError({
+              message: 'The prover failed.',
+            })
+          },
+        }),
+      ),
+    })
+
+    await expect(
+      Actions.oidc.prove(client, { ...prepared, token: 'id-token' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [InternalRpcError: An internal error was received.
+
+      Details: The prover failed.
+      Version: viem@x.y.z]
+    `)
   })
 
   beforeAll(async () => {
