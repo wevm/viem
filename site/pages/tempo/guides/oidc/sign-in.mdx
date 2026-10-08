@@ -1,0 +1,423 @@
+---
+description: Sign users in with an identity provider such as Google, prove the sign-in, and authorize an access key for their Tempo account.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Sign In with an Identity Provider
+
+## Overview
+
+Your app creates an access key on the user's device, then signs the user in with an ID token
+whose nonce commits to that key. [`oidc.prove`](/tempo/actions/oidc.prove) proves the sign-in
+through your salt service and returns a credential for [`Account.fromZk`](/tempo/accounts/account.fromZk).
+
+The credential authorizes the access key once, in the key's first transaction. From then on,
+the access key signs for the account until it expires, and the user signs in again only to
+authorize a new key, such as on another device.
+
+[See the ZK signature specification](https://tips.sh/1131)
+
+## Recipes
+
+These recipes assume you have registered an OAuth client with your identity provider,
+[published its keys](/tempo/guides/oidc/publish-keys), and
+[run a salt service](/tempo/guides/oidc/salt-service) that accepts the client's ID.
+
+### Sign In with a Redirect
+
+Create a non-extractable [WebCrypto key](/tempo/accounts/account.fromWebCryptoP256) and
+prepare its nonce with `Oidc.prepare`. Save both, since the redirect reloads the page, then
+send the user to the provider. For Google, add the callback URL as an authorized redirect URI.
+
+:::code-group
+
+```ts twoslash [sign-in.ts]
+import { Oidc, WebCryptoP256 } from 'viem/tempo'
+import * as Storage from './storage'
+
+// 1. Create the access key and the nonce that commits to it.
+const keyPair = await WebCryptoP256.createKeyPair()
+const prepared = Oidc.prepare({ publicKey: keyPair.publicKey }) // [!code focus]
+
+// 2. Save them for the callback, with a `state` value to check.
+const state = crypto.randomUUID()
+await Storage.set('sign-in', { keyPair, prepared, state })
+
+// 3. Send the user to the identity provider.
+const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
+url.search = new URLSearchParams({
+  client_id: '1234567890-abc.apps.googleusercontent.com',
+  nonce: prepared.nonce, // [!code focus]
+  redirect_uri: `${location.origin}/callback`,
+  response_type: 'id_token',
+  scope: 'openid',
+  state,
+}).toString()
+location.assign(url)
+```
+
+```ts twoslash [storage.ts] filename="storage.ts"
+import type { Address } from 'viem'
+import type { Oidc, WebCryptoP256 } from 'viem/tempo'
+
+type KeyPair = Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
+
+type Values = {
+  /** The signed-in account and its authorized access key. */
+  account: { address: Address; keyPair: KeyPair }
+  /** A sign-in waiting for the identity provider's redirect. */
+  'sign-in': { keyPair: KeyPair; prepared: Oidc.prepare.ReturnType; state: string }
+}
+
+// IndexedDB keeps `CryptoKey`s without exposing their private keys.
+function request<value>(
+  mode: IDBTransactionMode,
+  fn: (store: IDBObjectStore) => IDBRequest<value>,
+) {
+  return new Promise<value>((resolve, reject) => {
+    const open = indexedDB.open('sign-in', 1)
+    open.onupgradeneeded = () => open.result.createObjectStore('values')
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+      const request = fn(
+        open.result.transaction('values', mode).objectStore('values'),
+      )
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }
+  })
+}
+
+export function get<key extends keyof Values>(key: key) {
+  return request<Values[key] | undefined>('readonly', (store) => store.get(key))
+}
+
+export function remove(key: keyof Values) {
+  return request('readwrite', (store) => store.delete(key))
+}
+
+export function set<key extends keyof Values>(key: key, value: Values[key]) {
+  return request('readwrite', (store) => store.put(value, key))
+}
+```
+
+:::
+
+### Complete the Sign-In
+
+On the callback page, read the ID token from the URL fragment and prove the sign-in. Sign the
+key authorization with the resulting account, then attach it to the access key's first
+transaction. A new account holds no funds, so the relay sponsors the fee with `feePayer: true`.
+
+:::code-group
+
+```ts twoslash [callback.ts]
+import { Account, Expiry } from 'viem/tempo'
+import * as Storage from './storage'
+import { client } from './viem.config'
+
+const fragment = new URLSearchParams(location.hash.slice(1))
+const token = fragment.get('id_token')
+const signIn = await Storage.get('sign-in')
+await Storage.remove('sign-in')
+if (!token || !signIn || fragment.get('state') !== signIn.state)
+  throw new Error('The sign-in failed. Start again.')
+const { keyPair, prepared } = signIn
+
+// 1. Prove the sign-in.
+const credential = await client.oidc.prove({ ...prepared, token }) // [!code focus]
+
+// 2. Instantiate the account and the access key the credential commits to.
+const account = Account.fromZk(credential) // [!code focus]
+const accessKey = Account.fromWebCryptoP256(keyPair, { access: account }) // [!code focus]
+
+// 3. Authorize the access key in its first transaction.
+const keyAuthorization = await account.signKeyAuthorization(accessKey, { // [!code focus]
+  chainId: BigInt(client.chain.id), // [!code focus]
+  expiry: Expiry.days(30), // [!code focus]
+}) // [!code focus]
+const receipt = await client.sendTransactionSync({
+  account: accessKey,
+  feePayer: true,
+  keyAuthorization, // [!code focus]
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+
+// 4. Remember the account for later visits.
+await Storage.set('account', { address: account.address, keyPair })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+```
+
+```ts twoslash [storage.ts] filename="storage.ts"
+import type { Address } from 'viem'
+import type { Oidc, WebCryptoP256 } from 'viem/tempo'
+
+type KeyPair = Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
+
+type Values = {
+  /** The signed-in account and its authorized access key. */
+  account: { address: Address; keyPair: KeyPair }
+  /** A sign-in waiting for the identity provider's redirect. */
+  'sign-in': { keyPair: KeyPair; prepared: Oidc.prepare.ReturnType; state: string }
+}
+
+// IndexedDB keeps `CryptoKey`s without exposing their private keys.
+function request<value>(
+  mode: IDBTransactionMode,
+  fn: (store: IDBObjectStore) => IDBRequest<value>,
+) {
+  return new Promise<value>((resolve, reject) => {
+    const open = indexedDB.open('sign-in', 1)
+    open.onupgradeneeded = () => open.result.createObjectStore('values')
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+      const request = fn(
+        open.result.transaction('values', mode).objectStore('values'),
+      )
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }
+  })
+}
+
+export function get<key extends keyof Values>(key: key) {
+  return request<Values[key] | undefined>('readonly', (store) => store.get(key))
+}
+
+export function remove(key: keyof Values) {
+  return request('readwrite', (store) => store.delete(key))
+}
+
+export function set<key extends keyof Values>(key: key, value: Values[key]) {
+  return request('readwrite', (store) => store.put(value, key))
+}
+```
+
+:::
+
+:::warning
+The credential expires 9 minutes after `Oidc.prepare` by default. Send the first transaction
+right after proving: once the credential expires, signing the authorization throws
+`ZkCredentialExpiredError`, and the user must sign in again.
+:::
+
+### Use the Sign In with Google Button
+
+[Google Identity Services](https://developers.google.com/identity/gsi/web) signs users in
+without leaving the page. Pass `getToken`, and `oidc.prove` prepares the nonce for the access
+key, then waits for the user to press the button and returns the ID token.
+
+:::code-group
+
+```ts twoslash [sign-in.ts]
+import { Account, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Google Identity Services, from https://accounts.google.com/gsi/client.
+declare const google: {
+  accounts: {
+    id: {
+      initialize(options: {
+        callback: (response: { credential: string }) => void
+        client_id: string
+        nonce: string
+      }): void
+      renderButton(parent: HTMLElement, options: { type: 'standard' }): void
+    }
+  }
+}
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+const credential = await client.oidc.prove({
+  getToken: ({ nonce }) => // [!code focus]
+    new Promise((resolve) => { // [!code focus]
+      google.accounts.id.initialize({ // [!code focus]
+        callback: ({ credential }) => resolve(credential), // [!code focus]
+        client_id: '1234567890-abc.apps.googleusercontent.com', // [!code focus]
+        nonce, // [!code focus]
+      }) // [!code focus]
+      google.accounts.id.renderButton(document.getElementById('sign-in')!, { // [!code focus]
+        type: 'standard', // [!code focus]
+      }) // [!code focus]
+    }), // [!code focus]
+  publicKey: keyPair.publicKey, // [!code focus]
+})
+
+const account = Account.fromZk(credential)
+const accessKey = Account.fromWebCryptoP256(keyPair, { access: account })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+```
+
+:::
+
+Then authorize the access key in its first transaction, as in
+[Complete the Sign-In](#complete-the-sign-in).
+
+### Restore the Account on Later Visits
+
+An authorized access key keeps signing until its expiry, so later visits need no sign-in.
+Pass the account's address as `access` to rebuild the access key from storage.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import * as Storage from './storage'
+import { client } from './viem.config'
+
+const saved = await Storage.get('account')
+if (!saved) throw new Error('Sign in first.')
+
+const accessKey = Account.fromWebCryptoP256(saved.keyPair, { // [!code focus]
+  access: saved.address, // [!code focus]
+}) // [!code focus]
+
+const receipt = await client.sendTransactionSync({
+  account: accessKey,
+  feePayer: true,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com')),
+})
+```
+
+```ts twoslash [storage.ts] filename="storage.ts"
+import type { Address } from 'viem'
+import type { Oidc, WebCryptoP256 } from 'viem/tempo'
+
+type KeyPair = Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
+
+type Values = {
+  /** The signed-in account and its authorized access key. */
+  account: { address: Address; keyPair: KeyPair }
+  /** A sign-in waiting for the identity provider's redirect. */
+  'sign-in': { keyPair: KeyPair; prepared: Oidc.prepare.ReturnType; state: string }
+}
+
+// IndexedDB keeps `CryptoKey`s without exposing their private keys.
+function request<value>(
+  mode: IDBTransactionMode,
+  fn: (store: IDBObjectStore) => IDBRequest<value>,
+) {
+  return new Promise<value>((resolve, reject) => {
+    const open = indexedDB.open('sign-in', 1)
+    open.onupgradeneeded = () => open.result.createObjectStore('values')
+    open.onerror = () => reject(open.error)
+    open.onsuccess = () => {
+      const request = fn(
+        open.result.transaction('values', mode).objectStore('values'),
+      )
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    }
+  })
+}
+
+export function get<key extends keyof Values>(key: key) {
+  return request<Values[key] | undefined>('readonly', (store) => store.get(key))
+}
+
+export function remove(key: keyof Values) {
+  return request('readwrite', (store) => store.delete(key))
+}
+
+export function set<key extends keyof Values>(key: key, value: Values[key]) {
+  return request('readwrite', (store) => store.put(value, key))
+}
+```
+
+:::
+
+### Sign In on Another Device
+
+Signing in on another device runs the same flow with that device's own access key. The
+address stays the same, since it derives from the user's identity rather than from any key.
+Each device's key is authorized and expires on its own.
+
+To add keys without signing in again, authorize the first key as an admin key. It can then
+authorize other keys with [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+
+```ts twoslash
+import { Account, Expiry } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare const account: Account.ZkAccount
+declare const accessKey: Account.AccessKeyAccount
+
+const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+  admin: true, // [!code focus]
+  chainId: BigInt(client.chain.id),
+  expiry: Expiry.days(30),
+})
+```
+
+## Best Practices
+
+### Request Only the `openid` Scope
+
+The salt service reads the token's issuer, audience, subject, nonce, and timestamps. Request
+the `openid` scope alone in the redirect flow, so the token carries no email address, name,
+or picture.
+
+### Check the `state` Parameter
+
+The nonce binds the ID token to your access key, but not to the user's browser session. Check
+that the `state` returned with the token matches the value you saved, so a page cannot sign a
+user into an account they did not choose.
+
+### Keep One Client ID per Account
+
+The OAuth client ID is part of every address. A user who signs in through another client ID,
+such as a separate mobile app, reaches a different account. Share one client ID wherever users
+expect the same account.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Publish Provider Keys"
+    description="List the provider's signing keys onchain and keep them current as they rotate."
+    to="/tempo/guides/oidc/publish-keys"
+  />
+  <Card
+    icon="lucide:server"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
+  />
+  <Card
+    icon="lucide:sliders-horizontal"
+    title="Set Permissions & Limits"
+    description="Restrict the access key with an expiry, spending limits, and call scopes."
+    to="/tempo/guides/access-keys/permissions"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Sponsor User Fees"
+    description="Pay transaction fees for users from a relay."
+    to="/tempo/guides/sponsor-fees"
+  />
+</Cards>

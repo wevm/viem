@@ -2327,6 +2327,29 @@ export default defineConfig({
               ],
             },
             {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'OIDC Sign-In',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Overview',
+                  link: '/tempo/guides/oidc',
+                },
+                {
+                  text: 'Sign Users In',
+                  link: '/tempo/guides/oidc/sign-in',
+                },
+                {
+                  text: 'Publish Provider Keys',
+                  link: '/tempo/guides/oidc/publish-keys',
+                },
+                {
+                  text: 'Run a Salt Service',
+                  link: '/tempo/guides/oidc/salt-service',
+                },
+              ],
+            },
+            {
               text: 'Stablecoin Exchange',
               collapsed: true,
               items: [

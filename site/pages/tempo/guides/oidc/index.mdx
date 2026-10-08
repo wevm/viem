@@ -1,0 +1,51 @@
+---
+description: Let users sign in with an identity provider such as Google and control a Tempo account with no seed phrase or wallet server.
+---
+
+import { Card, Cards } from 'vocs'
+
+# OIDC Sign-In
+
+## Overview
+
+OIDC sign-in turns a sign-in with an identity provider, such as Google, into a Tempo account.
+The account holds no key: a zero-knowledge proof of the user's ID token authorizes an access
+key on their device, and that access key signs transactions.
+
+The address derives from the user's identity at the provider, your app's OAuth client ID, a
+secret salt, and a [Key Publisher](/tempo/actions/keyPublisher.create). The same sign-in reaches
+the same address from any device, and the address does not reveal who the user is.
+
+To set it up, publish the provider's signing keys onchain, run a salt service that proves
+sign-ins, then sign users in from your app.
+
+[See the ZK signature specification](https://tips.sh/1131)
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:log-in"
+    title="Sign In with an Identity Provider"
+    description="Sign users in with Google, prove the sign-in, and authorize an access key."
+    to="/tempo/guides/oidc/sign-in"
+  />
+  <Card
+    icon="lucide:key-round"
+    title="Publish Provider Keys"
+    description="List the provider's signing keys onchain and keep them current as they rotate."
+    to="/tempo/guides/oidc/publish-keys"
+  />
+  <Card
+    icon="lucide:server"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
+  />
+  <Card
+    icon="lucide:fingerprint"
+    title="Account.fromZk"
+    description="The account a proven sign-in controls, and how it authorizes access keys."
+    to="/tempo/accounts/account.fromZk"
+  />
+</Cards>

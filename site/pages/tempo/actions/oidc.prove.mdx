@@ -6,7 +6,7 @@ description: Proves an OIDC sign-in and returns the credential that Account.from
 
 Proves an OIDC sign-in and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with. [Learn more about ZK signatures](https://tips.sh/1131)
 
-The ID token's nonce commits to an access key, so the credential can only authorize that key. The transport must reach a relay with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin, which holds the salt key.
+The ID token's nonce commits to an access key, so the credential can only authorize that key. The transport must reach a relay with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin, which holds the salt key. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
 
 ## Usage
 

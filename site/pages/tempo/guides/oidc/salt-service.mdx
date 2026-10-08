@@ -1,0 +1,193 @@
+---
+description: Run a salt service that checks ID tokens, derives each user's salt, and requests proofs, using the OIDC relay plugin.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Run a Salt Service
+
+## Overview
+
+The salt service turns an ID token into a credential. It checks the token, derives the user's
+salt from a secret key, and requests a proof from a prover service. It is a
+[relay](/tempo/guides/relay/run) with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin,
+which your app calls through [`oidc.prove`](/tempo/actions/oidc.prove).
+
+The salt hides who an address belongs to, and fixes the address: the same salt key, OAuth client
+ID, and Key Publisher always give a user the same address. Keep the salt key secret, and never
+change it.
+
+## Recipes
+
+These recipes assume you have [published your provider's keys](/tempo/guides/oidc/publish-keys).
+
+### Run the Salt Service
+
+Generate the salt key once, and store it as a secret alongside the prover's API key.
+
+```bash
+echo "0x$(openssl rand -hex 32)"
+```
+
+Then create a relay with the plugin. `audiences` lists your OAuth client IDs, and
+`publisherId` is the Key Publisher that lists your provider's keys. See
+[Run a Relay](/tempo/guides/relay/run) to serve it from other runtimes and frameworks.
+
+:::code-group
+
+```ts twoslash [relay.ts]
+import { createClient, http, type Hex } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [
+    Relay.oidc({ // [!code focus]
+      audiences: ['1234567890-abc.apps.googleusercontent.com'], // [!code focus]
+      issuers: ['https://accounts.google.com'], // [!code focus]
+      prover: { // [!code focus]
+        apiKey: process.env.PROVER_API_KEY!, // [!code focus]
+        url: 'https://prover.example.com', // [!code focus]
+      }, // [!code focus]
+      publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+      saltKey: process.env.SALT_KEY as Hex, // [!code focus]
+    }), // [!code focus]
+  ],
+})
+
+export default { fetch: relay.fetch }
+```
+
+```ts twoslash [viem.config.ts (Client)] filename="viem.config.ts"
+import { createClient, http, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
+})
+```
+
+:::
+
+`withRelay` sends `oidc_prove` to the salt service and every other request to the RPC.
+
+### Sponsor the First Transaction
+
+A new account holds no funds, so it cannot pay for the transaction that authorizes its access
+key. Add [`Relay.feePayer`](/tempo/relay/plugins/fee-payer) to the same relay, and the client
+sends that transaction with `feePayer: true`.
+
+```ts twoslash
+import { createClient, http, type Hex } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [
+    Relay.oidc({
+      audiences: ['1234567890-abc.apps.googleusercontent.com'],
+      issuers: ['https://accounts.google.com'],
+      prover: {
+        apiKey: process.env.PROVER_API_KEY!,
+        url: 'https://prover.example.com',
+      },
+      publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+      saltKey: process.env.SALT_KEY as Hex,
+    }),
+    Relay.feePayer({ // [!code focus]
+      account: privateKeyToAccount(process.env.FEE_PAYER_KEY as Hex), // [!code focus]
+    }), // [!code focus]
+  ],
+})
+
+export default { fetch: relay.fetch }
+```
+
+Use the fee payer's `validate` option to limit which transactions it pays for.
+
+### Accept Requests from the Browser
+
+Browsers call the salt service from your app's origin. If the relay runs on another origin, add
+CORS headers in the hosting framework, allowing only your app.
+
+:::code-group
+
+```ts [app.ts]
+import { Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { relay } from './relay'
+
+const app = new Hono()
+app.use('/relay', cors({ origin: 'https://app.example.com' })) // [!code focus]
+app.post('/relay', (c) => relay.fetch(c.req.raw))
+
+export default app
+```
+
+```ts [relay.ts] filename="relay.ts"
+import { createClient, http, type Hex } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+export const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [
+    Relay.oidc({
+      audiences: ['1234567890-abc.apps.googleusercontent.com'],
+      issuers: ['https://accounts.google.com'],
+      prover: {
+        apiKey: process.env.PROVER_API_KEY!,
+        url: 'https://prover.example.com',
+      },
+      publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+      saltKey: process.env.SALT_KEY as Hex,
+    }),
+  ],
+})
+```
+
+:::
+
+## Best Practices
+
+### Keep the Salt Key Durable
+
+The salt key fixes every address the service derives. Losing it locks users out of their
+accounts, and leaking it lets anyone link addresses to the identities that signed in. Store
+it in a secret manager and back it up.
+
+### Keep Tokens Out of Logs
+
+ID tokens and blinding values in `oidc_prove` requests could let anyone who reads them link a
+user to their address. The plugin never logs or returns them; keep request bodies out of your
+own logging and error reporting too.
+
+### Rate Limit Proof Requests
+
+Each `oidc_prove` request costs the prover several seconds of work. Rate limit the endpoint per
+client, such as by IP address, in your hosting framework.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:log-in"
+    title="Sign In with an Identity Provider"
+    description="Sign users in with Google, prove the sign-in, and authorize an access key."
+    to="/tempo/guides/oidc/sign-in"
+  />
+  <Card
+    icon="lucide:plug"
+    title="OIDC Plugin"
+    description="Every option of the salt service plugin and the errors it returns."
+    to="/tempo/relay/plugins/oidc"
+  />
+  <Card
+    icon="lucide:server"
+    title="Run a Relay"
+    description="Serve a relay from Cloudflare Workers, Node.js, Bun, and other runtimes."
+    to="/tempo/guides/relay/run"
+  />
+</Cards>

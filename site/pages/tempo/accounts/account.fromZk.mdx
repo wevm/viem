@@ -8,7 +8,7 @@ Instantiates an Account for a ZK identity from a credential that a prover issued
 
 A ZK identity holds no key. Its address derives from the identity provider, the user's identity, and a [Key Publisher](/tempo/actions/keyPublisher.create), so it stays the same across sign-ins and devices.
 
-Each credential commits to one access key. Until the credential's `validUntil`, the account signs key authorizations for that access key, using that access key. The authorized access key then signs transactions for the account.
+Each credential commits to one access key. Until the credential's `validUntil`, the account signs key authorizations for that access key, using that access key. The authorized access key then signs transactions for the account. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
 
 ## Usage
 
