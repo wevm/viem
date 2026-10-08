@@ -52,7 +52,7 @@ sequenceDiagram
     S-->>A: Credential
     A->>A: Account.fromZk(credential)<br/>Sign the key authorization
     A->>S: First transaction with the key authorization
-    S->>T: Broadcast with a fee payer signature
+    S->>T: Broadcast
     T->>T: Verify the proof against the listed keys<br/>Authorize the access key and run the calls
     T-->>A: Receipt
 
