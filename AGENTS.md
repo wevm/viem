@@ -379,4 +379,8 @@ Guidelines for authoring docs and guides under `site/pages/`.
   - Each `example.ts` block starts with imports.
   - Include `import { client } from './viem.config'` when relevant.
   - Add a blank line before the example body.
+- **Steps build up.** In a `::::steps` walkthrough, each step's example repeats the code from the
+  previous steps and focuses only the lines it adds.
+- **Relay-backed examples show both clients.** Include a `viem.config.ts (Remote Relay)` tab and a
+  `viem.config.ts (Local Relay)` tab, as on the relay plugin pages.
 - Guide section order: `## Overview` → `## Recipes` → `## Best Practices` → `## See More`.
