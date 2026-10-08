@@ -2336,7 +2336,7 @@ export default defineConfig({
                   link: '/tempo/guides/oidc',
                 },
                 {
-                  text: 'Sign In with a Provider',
+                  text: 'Sign with Identity Providers',
                   link: '/tempo/guides/oidc/sign-in',
                 },
                 {
@@ -2344,8 +2344,8 @@ export default defineConfig({
                   link: '/tempo/guides/oidc/publish-keys',
                 },
                 {
-                  text: 'Run a Relay API',
-                  link: '/tempo/guides/oidc/relay-api',
+                  text: 'Run a Salt Service',
+                  link: '/tempo/guides/oidc/salt-service',
                 },
               ],
             },

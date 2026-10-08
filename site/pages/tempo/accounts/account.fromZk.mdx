@@ -1,61 +1,51 @@
 ---
-description: Instantiates an Account for an OIDC signer from the credential that oidc.prove returns after a sign-in.
+description: Instantiates an Account for a ZK identity from a credential that a prover issued after a sign-in.
 ---
 
 # `Account.fromZk`
 
-Instantiates an Account for an [OIDC signer](https://tips.sh/1130-1) from the credential that
-[`oidc.prove`](/tempo/actions/oidc.prove) returns after a sign-in.
+Instantiates an Account for a ZK identity from a credential that a prover issued after a sign-in. [Learn more about ZK signatures](https://tips.sh/1131)
 
-:::warning
-**Experimental.** OIDC signing is experimental and may change in a future release.
-It is not yet available on Tempo mainnet or testnet.
-:::
+A ZK identity holds no key. Its address derives from the identity provider, the user's identity, and a [Key Publisher](/tempo/actions/keyPublisher.create), so it stays the same across sign-ins and devices.
 
-The account holds no key. Its address derives from the user's identity at the provider and a
-[Key Publisher](/tempo/actions/keyPublisher.create), so it stays the same across sign-ins and
-devices.
-
-Each credential commits to one access key. Until the credential's `validUntil`, the account signs
-key authorizations for that access key. The authorized access key then signs transactions for the
-account.
-
-:::tip
-See the [OIDC Signing guides](/tempo/guides/oidc) for the complete sign-in flow.
-:::
+Each credential commits to one access key. Until the credential's `validUntil`, the account signs key authorizations for that access key, using that access key. The authorized access key then signs transactions for the account. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, Expiry, WebCryptoP256 } from 'viem/tempo'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
-// Signs the user in with Google and returns the ID token for `nonce`.
-declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+// Redirects to the identity provider with the nonce and returns the ID token.
+declare function signIn(options: { nonce: string }): Promise<string>
 
-// Create the access key, and prove the sign-in for it.
-const keyPair = await WebCryptoP256.createKeyPair()
+const privateKey = generatePrivateKey()
+
+// Prove the sign-in for the access key.
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
-  publicKey: keyPair.publicKey,
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(privateKey).publicKey,
 })
 
-// Instantiate the account, and the access key the credential commits to.
+// Instantiate the ZK identity, and the access key the credential commits to.
 const account = Account.fromZk(credential)
-const accessKey = Account.fromWebCryptoP256(keyPair, { access: account })
+const accessKey = Account.fromSecp256k1(privateKey, { access: account })
 
-// Authorize the access key in its first transaction.
+// Authorize the access key.
 const keyAuthorization = await account.signKeyAuthorization(accessKey, {
   chainId: BigInt(client.chain.id),
-  expiry: Expiry.days(30),
+  expiry: Math.floor(Date.now() / 1000) + 86_400,
 })
+
+// Attach the authorization to the access key's first transaction, which the relay sponsors.
 const receipt = await client.sendTransactionSync({
   account: accessKey,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer: true,
   keyAuthorization,
+  to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
 })
 
 console.log('Address:', account.address)
@@ -63,11 +53,36 @@ console.log('Address:', account.address)
 ```
 
 ```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:remote]
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
 ```
 
 ```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:local]
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+      // [!code focus:end]
+    ],
+  }),
+})
 ```
 
 :::
@@ -76,10 +91,9 @@ console.log('Address:', account.address)
 Sign with the access key whose address the credential commits to. The network rejects a key authorization signed by any other key.
 :::
 
-### Admin Access Keys
+### Add More Keys
 
-A credential authorizes one access key. Authorize it as an admin key to add more keys later
-without signing in again.
+A credential authorizes one access key. Authorize it as an admin key to add more keys later without signing in again.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'

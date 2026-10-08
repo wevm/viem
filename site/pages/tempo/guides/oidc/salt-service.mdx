@@ -1,29 +1,27 @@
 ---
-description: Run a Relay API that checks ID tokens, derives each user's salt, and proves sign-ins, using the OIDC relay plugin.
+description: Run a salt service that checks ID tokens, derives each user's salt, and requests proofs, using the OIDC relay plugin.
 ---
 
 import { Card, Cards } from 'vocs'
 
-# Run a Relay API
+# Run a Salt Service
 
 ## Overview
 
-The Relay API turns an ID token into a credential. It is a [Relay](/tempo/guides/relay) with the
-[`Relay.oidc`](/tempo/relay/plugins/oidc) plugin: it checks the token, derives the user's salt from
-a secret salt key, and requests a proof from a prover. Your app calls it with
-[`oidc.prove`](/tempo/actions/oidc.prove).
+The salt service turns an ID token into a credential. It checks the token, derives the user's
+salt from a secret key, and requests a proof from a prover service. It is a
+[relay](/tempo/guides/relay/run) with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin,
+which your app calls through [`oidc.prove`](/tempo/actions/oidc.prove).
 
 The salt hides who an address belongs to, and fixes the address: the same salt key, OAuth client
 ID, and Key Publisher always give a user the same address. Keep the salt key secret, and never
 change it.
 
-[See the OIDC Signers specification](https://tips.sh/1130-1)
-
 ## Recipes
 
 These recipes assume you have [published your provider's keys](/tempo/guides/oidc/publish-keys).
 
-### Run the Relay API
+### Run the Salt Service
 
 Generate the salt key once, and store it as a secret alongside the prover's API key.
 
@@ -72,8 +70,8 @@ export const client = createClient({
 
 :::
 
-Clients connect to the Relay API as a remote relay. It serves `oidc_prove` and forwards every
-other request to the RPC.
+Clients connect to the salt service as a remote relay, which serves `oidc_prove` and forwards
+every other request to the RPC.
 
 ### Sponsor the First Transaction
 
@@ -113,7 +111,7 @@ Use the fee payer's `validate` option to limit which transactions it pays for.
 
 ### Accept Requests from the Browser
 
-Browsers call the Relay API from your app's origin. If the relay runs on another origin, add
+Browsers call the salt service from your app's origin. If the relay runs on another origin, add
 CORS headers in the hosting framework, allowing only your app.
 
 :::code-group
@@ -158,7 +156,7 @@ export const relay = Relay.create({
 
 ### Keep the Salt Key Durable
 
-The salt key fixes every address the Relay API derives. Losing it locks users out of their
+The salt key fixes every address the service derives. Losing it locks users out of their
 accounts, and leaking it lets anyone link addresses to the identities that signed in. Store
 it in a secret manager and back it up.
 
@@ -185,7 +183,7 @@ client, such as by IP address, in your hosting framework.
   <Card
     icon="lucide:plug"
     title="OIDC Plugin"
-    description="Every option of the OIDC relay plugin and the errors it returns."
+    description="Every option of the salt service plugin and the errors it returns."
     to="/tempo/relay/plugins/oidc"
   />
   <Card

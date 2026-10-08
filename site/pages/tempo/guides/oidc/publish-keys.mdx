@@ -181,7 +181,7 @@ const { receipt } = await client.keyPublisher.transferOwnershipSync({ // [!code 
 
 ### Check a Key
 
-If the Relay API reports that the Key Publisher does not list a key, check the key with
+If the salt service reports that the Key Publisher does not list a key, check the key with
 [`keyPublisher.getKeyValidUntil`](/tempo/actions/keyPublisher.getKeyValidUntil). It returns
 `2^64 - 1` while the key is listed, the end of its grace period once dropped, and `0` otherwise.
 
@@ -228,9 +228,9 @@ first use, and the one-hour grace period covers sign-ins that started under a dr
   />
   <Card
     icon="lucide:server"
-    title="Run a Relay API"
-    description="Check ID tokens, derive salts, and prove sign-ins with the OIDC relay plugin."
-    to="/tempo/guides/oidc/relay-api"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
   />
   <Card
     icon="lucide:list"

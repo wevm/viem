@@ -1,5 +1,5 @@
 ---
-description: Let users sign in with an identity provider such as Google and control a Tempo account, with no seed phrase or wallet server.
+description: Let users sign in with an identity provider such as Google and control a Tempo account with no seed phrase or wallet server.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,112 +8,67 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-:::warning
-**Experimental.** OIDC signing is experimental and may change in a future release.
-It is not yet available on Tempo mainnet or testnet.
-:::
+OIDC Signing turns a sign-in with an identity provider, such as Google, into a Tempo account.
+The account holds no key: a zero-knowledge proof of the user's ID token authorizes an access
+key on their device, and that access key signs transactions.
 
-OIDC signing lets a sign-in with an identity provider, such as Google, control a Tempo account.
-The account holds no key: a zero-knowledge proof of the user's ID token authorizes an access key
-on their device, and that access key signs transactions.
+The address derives from the user's identity at the provider, your app's OAuth client ID, a
+secret salt, and a [Key Publisher](/tempo/actions/keyPublisher.create). The same sign-in reaches
+the same address from any device, and the address does not reveal who the user is.
 
-The address derives from the user's identity at the provider, your app's OAuth client ID, a secret
-salt from the Relay API, and a [Key Publisher](/tempo/actions/keyPublisher.create). The same sign-in
-reaches the same address on any device, and the proof reveals the provider but not the user.
+[See the OIDC Signer specification](https://tips.sh/1130)
 
-[See the OIDC Signers specification](https://tips.sh/1130-1)
+## How It Works
 
-### How It Works
-
-A Key Publisher lists the provider's signing keys onchain. When a user signs in, the ID token's
-nonce commits to a new access key, and the Relay API proves the token. The proof authorizes the
-access key in its first transaction, and later transactions carry no proof.
+A Key Publisher lists the provider's signing keys onchain. When a user signs in, the app proves
+the ID token through the salt service, and the proof authorizes the app's access key in the
+account's first transaction. Later transactions are signed by the access key alone.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant A as App
-    participant I as Identity Provider (e.g. Google)
-    participant R as Relay API (Tempo)
-    participant K as Key Publisher (Tempo)
-    participant T as Tempo Chain
+    actor U as User
+    participant A as App (you)
+    participant I as Identity provider (Google)
+    participant S as Salt service (Tempo)
+    participant P as Prover (Tempo)
+    participant K as Key Publisher owner (Tempo)
+    participant T as Tempo
 
-    K->>T: Publish the provider's signing keys
-    A->>A: Create an access key
-    A->>I: Sign in with a nonce for the access key
+    Note over U,T: Add an identity provider
+    K->>I: Read the signing keys from the discovery document
+    I-->>K: Signing keys
+    K->>T: keyPublisher.create, then keyPublisher.setKeys as keys rotate
+
+    Note over U,T: Sign-in and first transaction
+    U->>A: Sign in with Google
+    A->>A: Create the access key<br/>Prepare a nonce that commits to it
+    A->>I: Sign in with the nonce
     I-->>A: ID token
-    A->>R: Prove the ID token
-    R-->>A: Credential
-    A->>T: Authorize the access key in the first transaction
-    T->>T: Verify the proof against the published keys
-    Note over A,T: Later transactions are signed by the access key, with no proof
+    A->>S: oidc.prove with the ID token
+    S->>S: Check the token<br/>Derive the salt from the salt key
+    S->>P: Prove the token
+    P-->>S: Proof
+    S-->>A: Credential
+    A->>A: Account.fromZk(credential)<br/>Sign the key authorization
+    A->>S: First transaction with the key authorization
+    S->>T: Broadcast
+    T->>T: Verify the proof against the listed keys<br/>Authorize the access key and run the calls
+    T-->>A: Receipt
+
+    Note over U,T: Later transactions: the access key signs, with no proof
 ```
 
-| Actor | Role | Run By |
+## Actors
+
+| Actor | Role | Run by |
 | --- | --- | --- |
 | App | Creates the access key, signs the user in, and sends transactions with [`oidc.prove`](/tempo/actions/oidc.prove) and [`Account.fromZk`](/tempo/accounts/account.fromZk). | You |
-| Identity Provider | Signs the user's ID token. | The provider, such as Google |
-| Relay API | Checks ID tokens, derives each user's salt, and proves the sign-in. It can also sponsor the first transaction. | Tempo, or you with [`Relay.oidc`](/tempo/guides/oidc/relay-api) |
-| Key Publisher | Lists the provider's signing keys onchain, and keeps them current as they rotate. | Tempo, or you with [`keyPublisher.create`](/tempo/guides/oidc/publish-keys) |
-| Tempo Chain | Verifies the proof, authorizes the access key, and runs the transactions. | Validators |
-
-### Trust
-
-The Relay API sees ID tokens and can refuse service, but it cannot sign for users: each token
-commits to the access key your app created. The provider can sign in as any of its users.
-
-The Key Publisher owner decides which provider keys the network accepts, so hold the publisher
-in a [multisig](/tempo/guides/multisig). A publisher owner cannot affect accounts under other
-publishers.
-
-### Usage
-
-Sign the user in, prove the sign-in, and authorize the access key in its first transaction.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { Account, Expiry, WebCryptoP256 } from 'viem/tempo'
-import { client } from './viem.config'
-
-// Signs the user in with Google and returns the ID token for `nonce`.
-declare function signInWithGoogle(options: { nonce: string }): Promise<string>
-
-// 1. Create an access key on the device.
-const keyPair = await WebCryptoP256.createKeyPair()
-
-// 2. Sign in, and prove the sign-in for the access key.
-const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
-  publicKey: keyPair.publicKey,
-})
-
-// 3. Instantiate the account and its access key.
-const account = Account.fromZk(credential)
-const accessKey = Account.fromWebCryptoP256(keyPair, { access: account })
-
-// 4. Authorize the access key in its first transaction.
-const keyAuthorization = await account.signKeyAuthorization(accessKey, {
-  chainId: BigInt(client.chain.id),
-  expiry: Expiry.days(30),
-})
-const receipt = await client.sendTransactionSync({
-  account: accessKey,
-  calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
-  feePayer: true,
-  keyAuthorization,
-})
-```
-
-```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:remote]
-```
-
-```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:local]
-```
-
-:::
+| Identity provider | Signs the user's ID token. | The provider, such as Google |
+| Salt service | Checks ID tokens, derives each user's salt, and requests proofs. Its relay also pays the fee of the first transaction. | Tempo, or you with [`Relay.oidc`](/tempo/guides/oidc/salt-service) |
+| Prover | Proves the ID token in zero knowledge. | Tempo |
+| Key Publisher | Lists the provider's signing keys onchain and keeps them current. | Tempo, or you with [`keyPublisher.create`](/tempo/guides/oidc/publish-keys) |
+| Tempo | Verifies the proof, authorizes the access key, and runs the transactions. | Validators |
 
 ## See More
 
@@ -132,20 +87,14 @@ const receipt = await client.sendTransactionSync({
   />
   <Card
     icon="lucide:server"
-    title="Run a Relay API"
-    description="Check ID tokens, derive salts, and prove sign-ins with the OIDC relay plugin."
-    to="/tempo/guides/oidc/relay-api"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
   />
   <Card
     icon="lucide:fingerprint"
     title="Account.fromZk"
     description="The account a proven sign-in controls, and how it authorizes access keys."
     to="/tempo/accounts/account.fromZk"
-  />
-  <Card
-    icon="lucide:book-open"
-    title="TIP-1130-1"
-    description="Read the specification for OIDC signers on Tempo."
-    to="https://tips.sh/1130-1"
   />
 </Cards>

@@ -2,26 +2,29 @@
 
 ## Overview
 
-[`Relay.oidc`](/tempo/relay/plugins/oidc#relayoidc) proves OIDC sign-ins for
-[OIDC signing](/tempo/guides/oidc), and makes the relay a Relay API. It checks the ID token,
-derives the user's salt from a secret salt key, and requests a proof from a prover service.
-Unrelated requests pass to the next plugin or execution client.
+[`Relay.oidc`](/tempo/relay/plugins/oidc#relayoidc) is the salt service for ZK signatures ([TIP-1133](https://tips.sh/1133)). It turns an OIDC sign-in into the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with.
+
+The relay checks the ID token, derives the identity's salt from a secret key, and requests a proof from a prover service. The salt keeps the identity's address from revealing who signed in, so the salt key stays on the server.
+
+For the full setup, see the [OIDC Signing guides](/tempo/guides/oidc).
 
 ## Recipes
 
-Choose a local relay to run plugins in your application, or connect to a remote
-relay. For remote mode, [configure the server](/tempo/guides/oidc/relay-api)
-with the plugins shown in the local configuration.
+Connect to a remote relay running the plugin, or run the plugin in a local relay. For remote
+mode, [configure the server](/tempo/guides/oidc/salt-service) with the plugins shown in the
+local configuration. The plugin holds the salt key, so run the local relay only on a server
+you control.
 
 ### Prove a Sign-In
 
-Prove a sign-in with [`oidc.prove`](/tempo/actions/oidc.prove). The relay returns the credential
-that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with.
+Prove a sign-in with [`oidc.prove`](/tempo/actions/oidc.prove). The relay checks the ID token,
+derives the salt, and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk)
+signs with.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, WebCryptoP256 } from 'viem/tempo'
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
 // Signs the user in with Google and returns the ID token for `nonce`.
@@ -35,11 +38,19 @@ const { credential } = await client.oidc.prove({
   publicKey: keyPair.publicKey,
 })
 // [!code focus:end]
-
-const account = Account.fromZk(credential)
 ```
 
-```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
 import { http } from 'viem'
 import { createClient, Relay, withRelay } from 'viem/tempo'
 
@@ -60,21 +71,15 @@ export const client = createClient({
 })
 ```
 
-```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
-import { http } from 'viem'
-import { createClient } from 'viem/tempo'
-
-// See https://viem.sh/tempo/guides/oidc/relay-api for instructions on running a Relay API.
-export const client = createClient({
-  transport: http('https://relay.example.com/rpc'), // [!code focus]
-})
-```
-
 :::
-Run the local configuration only in a trusted server environment, since the plugin holds the
-salt key. The relay only proves sign-ins whose signing key the
-[Key Publisher](/tempo/guides/oidc/publish-keys) lists, because the network rejects proofs for
-other keys.
+
+### Keep the Salt Key Durable
+
+The salt key fixes every address the relay derives. Losing it locks users out of their accounts, and leaking it lets anyone link addresses to the identities that signed in. Store it as a secret and back it up.
+
+### List the Issuer's Keys
+
+The relay only proves sign-ins whose signing key the [Key Publisher](/tempo/actions/keyPublisher.create) lists, since the network rejects proofs for other keys. Keep the publisher current with [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys).
 
 ## `Relay.oidc`
 
@@ -114,7 +119,7 @@ const plugin = Relay.oidc({
 })
 ```
 
-#### options.fetch
+#### options.fetch (optional)
 
 - **Type:** `typeof fetch`
 - **Default:** `globalThis.fetch`
@@ -193,8 +198,7 @@ const plugin = Relay.oidc({
 
 - **Type:** `Hex`
 
-The durable secret that derives identity salts. Losing it locks users out of their accounts, and
-leaking it lets anyone link addresses to the identities that signed in.
+The durable secret that derives identity salts.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
