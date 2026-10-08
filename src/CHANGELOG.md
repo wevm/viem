@@ -1,5 +1,13 @@
 # viem
 
+## 2.57.4
+
+### Patch Changes
+
+- [#5204](https://github.com/wevm/viem/pull/5204) [`9adede02f2a5d171b8302e5671c3e4f70789fb57`](https://github.com/wevm/viem/commit/9adede02f2a5d171b8302e5671c3e4f70789fb57) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.54`, which keeps absent Tempo key-authorization `limits` (unlimited) distinct from an empty list (deny-all).
+
+- [#5190](https://github.com/wevm/viem/pull/5190) [`2149aa18fc0363e702c81b95e0759c1f171eaace`](https://github.com/wevm/viem/commit/2149aa18fc0363e702c81b95e0759c1f171eaace) Thanks [@struong](https://github.com/struong)! - Added the current Tempo ZoneInbox ABI, selectors, and predeploy address for reading deposit outcomes.
+
 ## 2.57.3
 
 ### Patch Changes
