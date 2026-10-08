@@ -2969,7 +2969,8 @@ type DecoratorBase<
   }
   oidc: {
     /**
-     * Proves an OIDC sign-in and returns the credential that `Account.fromZk` signs with.
+     * Proves an OIDC sign-in and returns the credential that `Account.fromZk` signs with,
+     * along with the nonce and ID token it proved.
      *
      * Pass `Oidc.prepare`'s result with the ID token the issuer returned for its nonce,
      * or pass the access key's public key and a `getToken` callback to sign in within the
@@ -2986,7 +2987,7 @@ type DecoratorBase<
      *   transport: withRelay(http(), http('https://relay.example')),
      * }).extend(tempoActions())
      *
-     * const credential = await client.oidc.prove({
+     * const { credential } = await client.oidc.prove({
      *   getToken: ({ nonce }) => signIn({ nonce }),
      *   publicKey: '0x...',
      * })
@@ -2994,7 +2995,7 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The ZK credential.
+     * @returns The ZK credential, with the nonce and ID token it proves.
      */
     prove: (
       parameters: oidcActions.prove.Parameters,

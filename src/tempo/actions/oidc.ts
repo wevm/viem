@@ -9,7 +9,8 @@ import type { Chain } from '../../types/chain.js'
 import type { OneOf } from '../../types/utils.js'
 
 /**
- * Proves an OIDC sign-in and returns the credential that `Account.fromZk` signs with.
+ * Proves an OIDC sign-in and returns the credential that `Account.fromZk` signs with,
+ * along with the nonce and ID token it proved.
  *
  * Pass `Oidc.prepare`'s result with the ID token the issuer returned for its nonce,
  * or pass the access key's public key and a `getToken` callback to sign in within the
@@ -28,7 +29,7 @@ import type { OneOf } from '../../types/utils.js'
  *   transport: withRelay(http(), http('https://relay.example')),
  * })
  *
- * const credential = await Actions.oidc.prove(client, {
+ * const { credential } = await Actions.oidc.prove(client, {
  *   getToken: ({ nonce }) => signIn({ nonce }),
  *   publicKey: '0x...',
  * })
@@ -37,7 +38,7 @@ import type { OneOf } from '../../types/utils.js'
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The ZK credential.
+ * @returns The ZK credential, with the nonce and ID token it proves.
  */
 export async function prove<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
@@ -55,7 +56,7 @@ export async function prove<chain extends Chain | undefined>(
     })
     return { ...prepared, token: await getToken({ nonce: prepared.nonce }) }
   })()
-  const credential = await client
+  const response = await client
     .request<{
       Method: 'oidc_prove'
       Parameters: [prove.Request]
@@ -75,14 +76,19 @@ export async function prove<chain extends Chain | undefined>(
       throw redact(error, [token, blinding])
     })
   return {
-    addressSeed: credential.addressSeed,
-    issuedAt: Hex.toNumber(credential.issuedAt),
-    issuer: credential.issuer,
-    keyHash: credential.keyHash,
-    proof: credential.proof,
-    publisherId: credential.publisherId,
-    scheme: Hex.toNumber(credential.scheme),
-    validUntil: Hex.toNumber(credential.validUntil),
+    credential: {
+      addressSeed: response.addressSeed,
+      issuedAt: Hex.toNumber(response.issuedAt),
+      issuer: response.issuer,
+      keyHash: response.keyHash,
+      proof: response.proof,
+      publisherId: response.publisherId,
+      scheme: Hex.toNumber(response.scheme),
+      validUntil: Hex.toNumber(response.validUntil),
+    },
+    // The relay checked that the token's nonce commits to these values.
+    nonce: Oidc.getNonce({ accessKeyAddress, blinding, validUntil }),
+    token,
   }
 }
 
@@ -111,7 +117,14 @@ export declare namespace prove {
       }
   >
 
-  export type ReturnValue = ZkSignature.Credential
+  export type ReturnValue = {
+    /** Credential that `Account.fromZk` signs with. */
+    credential: ZkSignature.Credential
+    /** Nonce the ID token was requested with. */
+    nonce: string
+    /** ID token the credential proves. */
+    token: string
+  }
 
   /** `oidc_prove` request, as the relay receives it. */
   export type Request = {

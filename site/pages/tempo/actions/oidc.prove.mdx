@@ -22,7 +22,7 @@ declare function signIn(options: { nonce: string }): Promise<string>
 
 const privateKey = generatePrivateKey()
 
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(privateKey).publicKey,
 })
@@ -80,7 +80,7 @@ import { client } from './viem.config'
 
 declare function signIn(options: { nonce: string }): Promise<string>
 
-const credential = await Actions.oidc.prove(client, {
+const { credential } = await Actions.oidc.prove(client, {
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
 })
@@ -105,7 +105,7 @@ sessionStorage.setItem('sign-in', JSON.stringify(prepared))
 
 // After the redirect: prove with the token the identity provider returned.
 declare const token: string
-const credential = await client.oidc.prove({ ...prepared, token }) // [!code focus]
+const { credential } = await client.oidc.prove({ ...prepared, token }) // [!code focus]
 ```
 
 Keep `keyPair` in IndexedDB, where its private key stays non-extractable, and authorize it with [`Account.fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256). The relay only sees the key's address.
@@ -121,18 +121,55 @@ import { client } from './viem.config'
 
 declare function signIn(options: { nonce: string }): Promise<string>
 
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
   validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]
 })
 ```
 
+### Reuse the Sign-In
+
+`prove` also returns the nonce and the ID token, so the same sign-in can start a session with
+your auth server. For example, [Better Auth](https://www.better-auth.com) verifies a Google ID
+token and its nonce with `signIn.social`.
+
+```ts twoslash
+import { WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare function signIn(options: { nonce: string }): Promise<string>
+// A Better Auth client, from `createAuthClient`.
+declare const authClient: {
+  signIn: {
+    social(options: {
+      idToken: { nonce: string; token: string }
+      provider: 'google'
+    }): Promise<unknown>
+  }
+}
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+const { credential, nonce, token } = await client.oidc.prove({ // [!code focus]
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: keyPair.publicKey,
+})
+
+await authClient.signIn.social({ // [!code focus]
+  idToken: { nonce, token }, // [!code focus]
+  provider: 'google', // [!code focus]
+}) // [!code focus]
+```
+
+Better Auth requires an `email` claim, so request the `email` scope along with `openid`.
+
 ## Return Value
 
-`ZkSignature.Credential`
+`{ credential: ZkSignature.Credential; nonce: string; token: string }`
 
-The credential to pass to [`Account.fromZk`](/tempo/accounts/account.fromZk).
+The credential to pass to [`Account.fromZk`](/tempo/accounts/account.fromZk), with the nonce the
+ID token was requested with and the ID token it proves.
 
 ## Parameters
 
@@ -149,7 +186,7 @@ import { client } from './viem.config'
 declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
 declare const token: string
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   accessKeyAddress: prepared.accessKeyAddress, // [!code focus]
   blinding: prepared.blinding,
   token,
@@ -168,7 +205,7 @@ import { client } from './viem.config'
 declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
 declare const token: string
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   accessKeyAddress: prepared.accessKeyAddress,
   blinding: prepared.blinding, // [!code focus]
   token,
@@ -188,7 +225,7 @@ import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 declare function signIn(options: { nonce: string }): Promise<string>
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }), // [!code focus]
   publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
 })
@@ -206,7 +243,7 @@ import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 declare function signIn(options: { nonce: string }): Promise<string>
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey, // [!code focus]
 })
@@ -223,7 +260,7 @@ import { client } from './viem.config'
 declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
 declare const token: string
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   accessKeyAddress: prepared.accessKeyAddress,
   blinding: prepared.blinding,
   token, // [!code focus]
@@ -244,7 +281,7 @@ import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 declare function signIn(options: { nonce: string }): Promise<string>
 // ---cut---
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
   validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]

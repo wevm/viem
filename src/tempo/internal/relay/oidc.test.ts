@@ -1,5 +1,5 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Hash, Hex, PublicKey } from 'ox'
+import { Base64, Hash, Hex, PublicKey } from 'ox'
 import {
   type BaseError,
   createClient,
@@ -223,7 +223,7 @@ describe.runIf(supported && prover)('behavior: proven sign-in', () => {
     const { client } = setup()
     const privateKey = generatePrivateKey()
 
-    const credential = await Actions.oidc.prove(client, {
+    const { credential, nonce, token } = await Actions.oidc.prove(client, {
       getToken: ({ nonce }) => issuer.mint(claims({ nonce })),
       publicKey: Account.fromSecp256k1(privateKey).publicKey,
     })
@@ -252,7 +252,19 @@ describe.runIf(supported && prover)('behavior: proven sign-in', () => {
       scheme: 1,
     })
     expect(validUntil - issuedAt).toBeLessThanOrEqual(600)
+    expect(payload(token).nonce).toBe(nonce)
     expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: prepared values', { timeout: 120_000 }, async () => {
+    const { client, prepared } = setup()
+    const token = await issuer.mint(claims({ nonce: prepared.nonce }))
+
+    const result = await Actions.oidc.prove(client, { ...prepared, token })
+
+    expect(result.nonce).toBe(prepared.nonce)
+    expect(result.token).toBe(token)
+    expect(result.credential.issuer).toBe(Oidc.hashIssuer(issuer.iss))
   })
 })
 
@@ -295,6 +307,11 @@ function claims(overrides: Record<string, unknown> = {}) {
     sub: 'user',
     ...overrides,
   }
+}
+
+function payload(token: string): Record<string, unknown> {
+  const [, body = ''] = token.split('.')
+  return JSON.parse(Base64.toString(body))
 }
 
 function messages(error: unknown): string[] {

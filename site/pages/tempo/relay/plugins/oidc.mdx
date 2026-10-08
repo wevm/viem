@@ -33,7 +33,7 @@ declare function signInWithGoogle(options: { nonce: string }): Promise<string>
 const keyPair = await WebCryptoP256.createKeyPair()
 
 // [!code focus:start]
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signInWithGoogle({ nonce }),
   publicKey: keyPair.publicKey,
 })

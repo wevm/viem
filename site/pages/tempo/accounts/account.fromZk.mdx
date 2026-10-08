@@ -25,7 +25,7 @@ declare function signIn(options: { nonce: string }): Promise<string>
 const privateKey = generatePrivateKey()
 
 // Prove the sign-in for the access key.
-const credential = await client.oidc.prove({
+const { credential } = await client.oidc.prove({
   getToken: ({ nonce }) => signIn({ nonce }),
   publicKey: Account.fromSecp256k1(privateKey).publicKey,
 })
