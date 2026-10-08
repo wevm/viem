@@ -1,0 +1,126 @@
+---
+description: Sign and verify ERC-1271 messages for an EIP-8130 account using the SignedMessageEnvelope path
+---
+
+# Signing Messages
+
+An EIP-8130 account signs off-chain messages (personal-sign or EIP-712) as an **ERC-1271** signature, so apps verify them the same way they verify any smart-account signature: `client.verifyMessage`, Sign-In With Ethereum, etc.
+
+Under the hood a signature is a typed **envelope**:
+
+```
+sigType(1) || authenticator(20) || data
+```
+
+The signer signs a **replay-safe digest** that binds the raw app hash to the account and a chain: `keccak256(abi.encode(SIGNED_MESSAGE_TYPEHASH, account, chainId, hash))`. The leading `sigType` byte selects the channel:
+
+- **`multichain`** (`0x02`): binds `chainId = 0`, so the signature is valid for the account on **every** chain. This is the default, matching the account's chain-agnostic address.
+- **`local`** (`0x01`): binds `block.chainid`, so the signature is valid on **one** chain.
+
+On-chain, an account's `isValidSignature` delegates to `Keystore.validateSignature`, which resolves the same digest and returns the verified `actorId` and `scope`.
+
+## Sign a Message
+
+`account.signMessage` and `account.signTypedData` produce a ready-to-verify `multichain` envelope.
+
+```ts
+import { toAccount } from 'viem/eip8130'
+
+const account = toAccount({ signer: owner, address })
+
+const signature = await account.signMessage({ message: 'hello world' })
+
+const typedSignature = await account.signTypedData({
+  domain: { name: 'App', version: '1', chainId: 8453 },
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'gm' },
+})
+```
+
+## Verify a Signature
+
+Because the account implements ERC-1271, core viem verifies the signature with no EIP-8130-specific code:
+
+```ts
+import { verifyMessage } from 'viem/actions'
+
+const valid = await verifyMessage(client, {
+  address: account.address,
+  message: 'hello world',
+  signature,
+})
+```
+
+## Chain-Bound (`local`) Signatures
+
+`account.signMessage` is always `multichain` because viem's account interface can't pass a chain id. For a chain-bound signature, use `signMessageEnvelope` (or `signTypedDataEnvelope`) directly with `sigType: 'local'` and the `chainId`:
+
+```ts
+import { signMessageEnvelope } from 'viem/eip8130'
+
+const signature = await signMessageEnvelope({
+  signer: owner,
+  account: account.address,
+  message: 'hello world',
+  sigType: 'local',
+  chainId: 8453,
+  // authenticator defaults to the signer's, then native ecrecover
+})
+```
+
+## Who Signed: `validateSignature`
+
+`verifyMessage` only tells you pass/fail. When you need to know **which** actor signed (e.g. to apply your own scope-based authorization for a session key), read `validateSignature`:
+
+```ts
+import { validateSignature } from 'viem/eip8130'
+
+const { valid, actorId, scope } = await validateSignature(client, {
+  account: account.address,
+  message: 'hello world',
+  signature,
+})
+```
+
+`scope` is the actor's capability bitmask (`0` = unrestricted admin). An account's ERC-1271 gate accepts any operational actor, i.e. `scope === 0 || (scope & actorScope.operator)`; apply the same check if you verify via `validateSignature` yourself.
+
+## Counterfactual Accounts (ERC-6492)
+
+A plain envelope needs code at the account address (`isValidSignature`). To verify a signature **before** the account is deployed, wrap the envelope with the keystore's deploy call using [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492). `verifyMessage` / `verifyHash` then deploy-and-verify through the universal validator, exactly as viem does for other counterfactual smart accounts.
+
+```ts
+import {
+  newSmartAccount,
+  signMessageEnvelope,
+  wrapCounterfactualSignature,
+} from 'viem/eip8130'
+import { verifyMessage } from 'viem/actions'
+
+const account = newSmartAccount({ signer, userSalt, code, initialActors })
+
+const envelope = await signMessageEnvelope({
+  signer,
+  account: account.address,
+  message: 'gm',
+})
+
+const signature = wrapCounterfactualSignature({
+  signature: envelope,
+  userSalt,
+  code,
+  initialActors,
+})
+
+// Verifies even though `account.address` has no code yet.
+const valid = await verifyMessage(client, {
+  address: account.address,
+  message: 'gm',
+  signature,
+})
+```
+
+## See More
+
+- [Rotating Owners](/eip8130/rotating-owners): actors, scopes, and authenticators.
+- [Session Keys](/eip8130/session-keys): policy-gated actors.

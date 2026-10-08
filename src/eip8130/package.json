@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/eip8130/index.d.ts",
+  "module": "../_esm/eip8130/index.js",
+  "main": "../_cjs/eip8130/index.js"
+}
