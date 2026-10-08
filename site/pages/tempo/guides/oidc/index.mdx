@@ -105,8 +105,12 @@ const receipt = await client.sendTransactionSync({
 })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::

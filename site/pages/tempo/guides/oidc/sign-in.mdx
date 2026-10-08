@@ -52,8 +52,12 @@ const account = Account.fromZk(credential) // [!code focus]
 const accessKey = Account.fromWebCryptoP256(keyPair, { access: account }) // [!code focus]
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::
@@ -95,8 +99,12 @@ const receipt = await client.sendTransactionSync({ // [!code focus]
 }) // [!code focus]
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::
@@ -158,8 +166,12 @@ export declare const store: {
 }
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::
@@ -193,8 +205,12 @@ const receipt = await client.sendTransactionSync({
 })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::
@@ -227,8 +243,12 @@ const keyAuthorization = await account.signKeyAuthorization(accessKey, {
 })
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/oidc.config.ts:setup]
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:remote]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:local]
 ```
 
 :::
