@@ -43,6 +43,7 @@ import type {
   UnionOmit,
 } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
@@ -128,206 +129,6 @@ export type PreparedEncryptedDepositRecipient = {
   sender: Address
   /** Zone ID (e.g. `7`). */
   zoneId: number
-}
-
-/**
- * Deposits tokens into a zone on the parent Tempo chain.
- * Batches approve and deposit into a single transaction.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
- *   transport: http(),
- * })
- *
- * const hash = await Actions.zone.deposit(client, {
- *   token: '0x20c0...0001',
- *   amount: 1_000_000n,
- *   zoneId: 7,
- * })
- * ```
- *
- * @param client - Wallet client connected to the parent Tempo chain.
- * @param parameters - Deposit parameters.
- * @returns The transaction hash.
- */
-export async function deposit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: deposit.Parameters<chain, account>,
-): Promise<deposit.ReturnValue> {
-  const { account = client.account, ...rest } = parameters
-
-  const account_ = account ? parseAccount(account) : undefined
-  if (!account_) throw new Error('`account` is required.')
-
-  const recipient = parameters.recipient ?? account_.address
-  const tempoRefundRecipient =
-    parameters.tempoRefundRecipient ?? account_.address
-  const args = {
-    ...parameters,
-    recipient,
-    tempoRefundRecipient,
-  }
-  return sendTransaction(client, {
-    ...rest,
-    account,
-    calls: deposit.calls(args),
-  } as never) as never
-}
-
-export namespace deposit {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> &
-    Omit<Args, 'recipient' | 'tempoRefundRecipient'> & {
-      /** Recipient address in the zone. @default `account.address` */
-      recipient?: Address | undefined
-      /** Refund recipient on the parent chain. @default `account.address` */
-      tempoRefundRecipient?: Address | undefined
-    }
-
-  export type Args = {
-    /** Amount of tokens to deposit. */
-    amount: bigint
-    /** Optional deposit memo. @default `0x00...00` */
-    memo?: Hex.Hex | undefined
-    /** Zone portal address. @default derived from `zoneId`. */
-    portalAddress?: Address | undefined
-    /** Recipient address in the zone. */
-    recipient: Address
-    /** Refund recipient on the parent chain if the deposit bounces. */
-    tempoRefundRecipient: Address
-    /** Token address or ID to deposit. */
-    token: TokenId.TokenIdOrAddress
-    /** Zone ID (e.g. `7`). */
-    zoneId: number
-  }
-
-  export type ReturnValue = SendTransactionReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /**
-   * Defines the calls to approve and deposit tokens into a zone.
-   *
-   * @param args - Arguments.
-   * @returns The calls.
-   */
-  export function calls(args: Args) {
-    const {
-      amount,
-      memo = zeroHash,
-      recipient,
-      tempoRefundRecipient,
-      token,
-      zoneId,
-    } = args
-    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
-    const tokenAddress = TokenId.toAddress(token)
-    const approveCall = defineCall({
-      address: tokenAddress,
-      abi: Abis.tip20,
-      functionName: 'approve',
-      args: [portalAddress, amount],
-    })
-    const depositCall = defineCall({
-      address: portalAddress,
-      abi: Abis.zonePortal,
-      functionName: 'deposit',
-      args: [tokenAddress, recipient, amount, memo, tempoRefundRecipient],
-    })
-    return [approveCall, depositCall]
-  }
-}
-
-/**
- * Deposits tokens into a zone on the parent Tempo chain and waits for the
- * transaction receipt.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempoModerato,
- *   transport: http(),
- * })
- *
- * const result = await Actions.zone.depositSync(client, {
- *   token: '0x20c0...0001',
- *   amount: 1_000_000n,
- *   zoneId: 7,
- * })
- * ```
- *
- * @param client - Wallet client connected to the parent Tempo chain.
- * @param parameters - Deposit parameters.
- * @returns The transaction receipt.
- */
-export async function depositSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: depositSync.Parameters<chain, account>,
-): Promise<depositSync.ReturnValue> {
-  const {
-    account = client.account,
-    throwOnReceiptRevert = true,
-    ...rest
-  } = parameters
-
-  const account_ = account ? parseAccount(account) : undefined
-  if (!account_) throw new Error('`account` is required.')
-
-  const recipient = parameters.recipient ?? account_.address
-  const tempoRefundRecipient =
-    parameters.tempoRefundRecipient ?? account_.address
-  const args = {
-    ...parameters,
-    recipient,
-    tempoRefundRecipient,
-  }
-  const receipt = await sendTransactionSync(client, {
-    ...rest,
-    account,
-    throwOnReceiptRevert,
-    calls: deposit.calls(args),
-  } as never)
-  return { receipt }
-}
-
-export namespace depositSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = deposit.Parameters<chain, account>
-
-  export type Args = deposit.Args
-
-  export type ReturnValue = Compute<{
-    /** Transaction receipt. */
-    receipt: TransactionReceipt
-  }>
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
 }
 
 /**
@@ -565,9 +366,8 @@ export namespace getPortalInfo {
 }
 
 /**
- * Deposits tokens into a zone on the parent Tempo chain with encrypted
- * recipient and memo. Batches approve and depositEncrypted into a single
- * transaction.
+ * Deposits tokens into a zone on the parent Tempo chain.
+ * Encrypts the recipient and memo, then batches approve and deposit into a single transaction.
  *
  * @example
  * ```ts
@@ -590,7 +390,7 @@ export namespace getPortalInfo {
  * ```
  *
  * @param client - Wallet client connected to the parent Tempo chain.
- * @param parameters - Encrypted deposit parameters.
+ * @param parameters - Deposit parameters.
  * @returns The transaction hash.
  */
 export async function encryptedDeposit<
@@ -600,49 +400,7 @@ export async function encryptedDeposit<
   client: Client<Transport, chain, account>,
   parameters: encryptedDeposit.Parameters<chain, account>,
 ): Promise<encryptedDeposit.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
-  const { account = client.account, ...rest } = parameters
-
-  const account_ = account ? parseAccount(account) : undefined
-  if (!account_) throw new Error('`account` is required.')
-
-  const tempoRefundRecipient =
-    parameters.tempoRefundRecipient ?? account_.address
-
-  if ('encrypted' in parameters) {
-    if (parameters.chainId !== chainId) {
-      throw new Error(
-        'Prepared encrypted deposit chain ID does not match client chain.',
-      )
-    }
-    return sendTransaction(client, {
-      ...pickWriteParameters(parameters as never),
-      calls: encryptedDeposit.calls({
-        ...parameters,
-        tempoRefundRecipient,
-      }),
-    } as never) as never
-  }
-
-  const recipient = parameters.recipient ?? account_.address
-
-  const prepared = await encryptedDeposit.prepare(client, {
-    amount: parameters.amount,
-    memo: parameters.memo,
-    portalAddress: parameters.portalAddress,
-    recipient,
-    sender: account_.address,
-    tempoRefundRecipient,
-    token: parameters.token,
-    zoneId: parameters.zoneId,
-  })
-  return sendTransaction(client, {
-    ...rest,
-    account,
-    calls: encryptedDeposit.calls(prepared),
-  } as never) as never
+  return encryptedDeposit.inner(sendTransaction, client, parameters)
 }
 
 export namespace encryptedDeposit {
@@ -676,7 +434,7 @@ export namespace encryptedDeposit {
     encrypted: EncryptedPayload
     /** Encryption key index from the portal contract. */
     keyIndex: bigint
-    /** Optional deposit memo. @default `0x00...00` */
+    /** Optional 32-byte deposit memo. @default `0x00...00` */
     memo?: Hex.Hex | undefined
     /** Zone portal address. @default derived from `zoneId`. */
     portalAddress?: Address | undefined
@@ -694,6 +452,90 @@ export namespace encryptedDeposit {
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const chainId = client.chain?.id
+    if (!chainId) throw new Error('`chain` is required.')
+
+    const { account = client.account } = parameters
+    const account_ = account ? parseAccount(account) : undefined
+    if (!account_) throw new Error('`account` is required.')
+
+    const prepared = await (async () => {
+      if ('encrypted' in parameters) {
+        assertPreparedDeposit(parameters, chainId, account_.address)
+        return parameters
+      }
+      return encryptedDeposit.prepare(client, {
+        amount: parameters.amount,
+        memo: parameters.memo,
+        portalAddress: parameters.portalAddress,
+        recipient: parameters.recipient ?? account_.address,
+        sender: account_.address,
+        tempoRefundRecipient:
+          parameters.tempoRefundRecipient ?? account_.address,
+        token: parameters.token,
+        zoneId: parameters.zoneId,
+      })
+    })()
+
+    return (await action(client, {
+      ...pickWriteParameters(parameters),
+      ...pickWriteSyncParameters(parameters),
+      account,
+      throwOnReceiptRevert: parameters.throwOnReceiptRevert,
+      calls: calls(prepared),
+    } as never)) as never
+  }
+
+  /**
+   * Defines the calls to approve and deposit tokens with encrypted recipient and memo.
+   * Use `encryptedDeposit.prepare` to encrypt the payload before constructing calls.
+   *
+   * @param args - Prepared encrypted deposit arguments.
+   * @returns The calls.
+   */
+  export function calls(args: Args | PreparedEncryptedDeposit) {
+    const { amount, encrypted, keyIndex, tempoRefundRecipient, token, zoneId } =
+      args
+    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
+    const tokenAddress = TokenId.toAddress(token)
+    const encryptedPayload = {
+      ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
+      ephemeralPubkeyYParity: encrypted.ephemeralPubkeyYParity,
+      ciphertext: encrypted.ciphertext,
+      nonce: encrypted.nonce,
+      tag: encrypted.tag,
+    }
+    const approveCall = defineCall({
+      address: tokenAddress,
+      abi: Abis.tip20,
+      functionName: 'approve',
+      args: [portalAddress, amount],
+    })
+    const depositCall = defineCall({
+      address: portalAddress,
+      abi: Abis.zonePortal,
+      functionName: 'depositEncrypted',
+      args: [
+        tokenAddress,
+        amount,
+        keyIndex,
+        encryptedPayload,
+        tempoRefundRecipient,
+      ],
+    })
+    return [approveCall, depositCall]
+  }
 
   /**
    * Prepares an encrypted deposit instruction without broadcasting it.
@@ -792,7 +634,7 @@ export namespace encryptedDeposit {
     export type Args = {
       /** Amount of tokens to deposit. */
       amount: bigint
-      /** Optional deposit memo. @default `0x00...00` */
+      /** Optional 32-byte deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
       /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
@@ -901,7 +743,7 @@ export namespace encryptedDeposit {
       >
 
     export type Args = {
-      /** Optional deposit memo. @default `0x00...00` */
+      /** Optional 32-byte deposit memo. @default `0x00...00` */
       memo?: Hex.Hex | undefined
       /** Zone portal address. @default derived from `zoneId`. */
       portalAddress?: Address | undefined
@@ -917,50 +759,11 @@ export namespace encryptedDeposit {
 
     export type ErrorType = getEncryptionKey.ErrorType | BaseErrorType
   }
-
-  /**
-   * Defines the calls to approve and deposit tokens into a zone (encrypted).
-   *
-   * @param args - Arguments.
-   * @returns The calls.
-   */
-  export function calls(args: Args | PreparedEncryptedDeposit) {
-    const { amount, encrypted, keyIndex, tempoRefundRecipient, token, zoneId } =
-      args
-    const portalAddress = args.portalAddress ?? Addresses.zonePortal(zoneId)
-    const tokenAddress = TokenId.toAddress(token)
-    const encryptedPayload = {
-      ephemeralPubkeyX: encrypted.ephemeralPubkeyX,
-      ephemeralPubkeyYParity: encrypted.ephemeralPubkeyYParity,
-      ciphertext: encrypted.ciphertext,
-      nonce: encrypted.nonce,
-      tag: encrypted.tag,
-    }
-    const approveCall = defineCall({
-      address: tokenAddress,
-      abi: Abis.tip20,
-      functionName: 'approve',
-      args: [portalAddress, amount],
-    })
-    const depositCall = defineCall({
-      address: portalAddress,
-      abi: Abis.zonePortal,
-      functionName: 'depositEncrypted',
-      args: [
-        tokenAddress,
-        amount,
-        keyIndex,
-        encryptedPayload,
-        tempoRefundRecipient,
-      ],
-    })
-    return [approveCall, depositCall]
-  }
 }
 
 /**
- * Deposits tokens into a zone on the parent Tempo chain with encrypted
- * recipient and memo, and waits for the transaction receipt.
+ * Deposits tokens into a zone on the parent Tempo chain and waits for the
+ * transaction receipt. The recipient and memo are encrypted before submission.
  *
  * @example
  * ```ts
@@ -983,7 +786,7 @@ export namespace encryptedDeposit {
  * ```
  *
  * @param client - Wallet client connected to the parent Tempo chain.
- * @param parameters - Encrypted deposit parameters.
+ * @param parameters - Deposit parameters.
  * @returns The transaction receipt.
  */
 export async function encryptedDepositSync<
@@ -993,56 +796,10 @@ export async function encryptedDepositSync<
   client: Client<Transport, chain, account>,
   parameters: encryptedDepositSync.Parameters<chain, account>,
 ): Promise<encryptedDepositSync.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
-  const {
-    account = client.account,
-    throwOnReceiptRevert = true,
-    ...rest
-  } = parameters
-
-  const account_ = account ? parseAccount(account) : undefined
-  if (!account_) throw new Error('`account` is required.')
-
-  const tempoRefundRecipient =
-    parameters.tempoRefundRecipient ?? account_.address
-
-  if ('encrypted' in parameters) {
-    if (parameters.chainId !== chainId) {
-      throw new Error(
-        'Prepared encrypted deposit chain ID does not match client chain.',
-      )
-    }
-    const receipt = await sendTransactionSync(client, {
-      ...pickWriteParameters(parameters as never),
-      ...pickWriteSyncParameters(parameters as never),
-      throwOnReceiptRevert,
-      calls: encryptedDeposit.calls({
-        ...parameters,
-        tempoRefundRecipient,
-      }),
-    } as never)
-    return { receipt }
-  }
-
-  const recipient = parameters.recipient ?? account_.address
-
-  const prepared = await encryptedDeposit.prepare(client, {
-    amount: parameters.amount,
-    memo: parameters.memo,
-    portalAddress: parameters.portalAddress,
-    recipient,
-    sender: account_.address,
-    tempoRefundRecipient,
-    token: parameters.token,
-    zoneId: parameters.zoneId,
-  })
-  const receipt = await sendTransactionSync(client, {
-    ...rest,
-    account,
+  const { throwOnReceiptRevert = true } = parameters
+  const receipt = await encryptedDeposit.inner(sendTransactionSync, client, {
+    ...parameters,
     throwOnReceiptRevert,
-    calls: encryptedDeposit.calls(prepared),
   } as never)
   return { receipt }
 }
@@ -1201,23 +958,18 @@ export async function getZoneInfo<
     method: 'zone_getZoneInfo',
     params: [],
   })
-  const tempoBlockNumber =
-    info.tempoBlockNumber ??
-    (
-      await client.request<{
-        Method: 'zone_getDepositStatus'
-        Parameters: [Hex.Hex]
-        ReturnType: { zoneProcessedThrough: Hex.Hex }
-      }>({
-        method: 'zone_getDepositStatus',
-        params: ['0x0'],
-      })
-    ).zoneProcessedThrough
+
+  if (!info.tempoBlockNumber)
+    throw new Error(
+      'Zone RPC must return `tempoBlockNumber` from `zone_getZoneInfo`.',
+    )
 
   return {
     chainId: Hex.toNumber(info.chainId),
+    isAccessEnforced: info.isAccessEnforced,
+    isGatewayOpen: info.isGatewayOpen,
     sequencers: 'sequencers' in info ? info.sequencers : [info.sequencer],
-    tempoBlockNumber: Hex.toBigInt(tempoBlockNumber),
+    tempoBlockNumber: Hex.toBigInt(info.tempoBlockNumber),
     zoneId: Hex.toNumber(info.zoneId),
     zoneTokens: info.zoneTokens,
   }
@@ -1227,8 +979,12 @@ export namespace getZoneInfo {
   export type RpcReturnType = {
     /** Zone chain ID. */
     chainId: Hex.Hex
+    /** Whether account allowlist enforcement is enabled. */
+    isAccessEnforced: boolean
+    /** Whether callback gateway registration enforcement is disabled. */
+    isGatewayOpen: boolean
     /** Latest Tempo block imported by the zone. */
-    tempoBlockNumber?: Hex.Hex | undefined
+    tempoBlockNumber: Hex.Hex
     /** Zone ID. */
     zoneId: Hex.Hex
     /** Enabled zone token addresses. */
@@ -1247,6 +1003,10 @@ export namespace getZoneInfo {
   export type ReturnType = {
     /** Zone chain ID. */
     chainId: number
+    /** Whether account allowlist enforcement is enabled. */
+    isAccessEnforced: boolean
+    /** Whether callback gateway registration enforcement is disabled. */
+    isGatewayOpen: boolean
     /** Active sequencer addresses. */
     sequencers: readonly Address[]
     /** Latest Tempo block imported by the zone. */
@@ -1934,7 +1694,7 @@ export namespace requestVerifiableWithdrawalSync {
 /**
  * Signs a zone authorization token and stores it for the zone HTTP transport.
  *
- * The `zoneId` is derived from `ZoneId.fromChainId(chain.id)` and can be overridden.
+ * The `zoneId` is derived from the Zone chain ID and its Tempo source chain and can be overridden.
  *
  * @example
  * ```ts
@@ -1976,7 +1736,16 @@ export async function signAuthorizationToken<
   const chain = parameters.chain ?? client.chain
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
 
-  const zoneId = parameters.zoneId ?? ZoneId.fromChainId(chain.id)
+  const zoneId =
+    parameters.zoneId ??
+    (() => {
+      if (chain.id >= 4_217_000_000 && chain.id < 4_218_000_000)
+        return chain.id - 4_217_000_000
+      return ZoneId.fromChainId(
+        chain.id,
+        chain.sourceId === 42_431 ? 42_431 : 4_217,
+      )
+    })()
 
   const account_ = account ? parseAccount(account) : undefined
   if (!account_ || !account_.sign)
@@ -2020,7 +1789,7 @@ export namespace signAuthorizationToken {
     issuedAt?: number | undefined
     /** Store used to persist the token. @default sessionStorage (web) or memory (server). */
     store?: Store.Store | undefined
-    /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id`. */
+    /** Zone ID to scope the token to (`0` for unscoped). @default derived from `chain.id` and `chain.sourceId`. */
     zoneId?: number | undefined
   }
 
@@ -2109,6 +1878,8 @@ async function encryptDepositPayload(
 }
 
 function buildDepositPlaintext(recipient: Address, memo: Hex.Hex): Bytes.Bytes {
+  Hex.assert(memo, { strict: true })
+  if (Hex.size(memo) !== 32) throw new Error('Deposit memo must be 32 bytes.')
   return Bytes.concat(
     Bytes.from(recipient),
     Bytes.from(memo),
@@ -2132,4 +1903,19 @@ function buildDepositHkdfInfo(
 
 function ceilDiv(numerator: bigint, denominator: bigint) {
   return (numerator + denominator - 1n) / denominator
+}
+
+function assertPreparedDeposit(
+  prepared: PreparedEncryptedDeposit,
+  chainId: number,
+  sender: Address,
+) {
+  if (prepared.chainId !== chainId)
+    throw new Error(
+      'Prepared encrypted deposit chain ID does not match client chain.',
+    )
+  if (!isAddressEqual(prepared.sender, sender))
+    throw new Error(
+      'Prepared encrypted deposit sender does not match transaction account.',
+    )
 }

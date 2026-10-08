@@ -123,6 +123,12 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Twoslash needs built declarations**; finish `pnpm build:types` before running
+  `pnpm --filter site exec vocs twoslash`. Rebuilding `src/_types` concurrently causes module
+  resolution failures in the examples.
+- **Twoslash filenames share page scope**; code groups on the same page must use distinct virtual
+  config filenames when their exports differ. Repeating `viem.config.ts` can overwrite a recipe
+  config and hide exports from another example.
 - **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
 - **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
@@ -233,6 +239,9 @@ This document contains general guidelines for AI agents working on the Viem code
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 - **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
+- **Full type checks need generated contract fixtures**; `pnpm check:types` includes tests that
+  import the ignored `contracts/generated.ts`. Generate it with `pnpm contracts:build` before a
+  full check. Declaration builds do not require these fixtures.
 - **Preserve canonical token definitions during generation**; match hand-authored tokens by
   chain and address, not symbol, and include them in `tokens.tempo` when they have a Tempo address.
 

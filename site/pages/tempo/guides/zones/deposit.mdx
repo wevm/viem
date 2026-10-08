@@ -75,23 +75,57 @@ const info = await client.zone.waitForTempoBlock({
 ### Read Deposit Outcomes
 
 After the zone imports a Tempo block, use [`getContractEvents`](/docs/contract/getContractEvents)
-with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. Match a
-`DepositProcessed`, `DepositFailed`, or `DepositRejected` event to the deposit's hash. Importing a
-block alone does not establish that its deposits were credited.
+with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. The inbox
+`depositHash` is the running queue hash emitted as `newCurrentDepositQueueHash` by the portal's
+`DepositMade` event for that deposit, including the earlier queue entries.
+
+Extract that hash from the parent-chain receipt with [`parseEventLogs`](/docs/contract/parseEventLogs)
+and filter inbox outcomes by it. Importing a block alone does not establish that its deposits were
+credited.
 
 :::code-group
 
 ```ts twoslash [example.ts]
+import { parseEventLogs } from 'viem'
 import { getContractEvents } from 'viem/actions'
 import { Abis, Addresses } from 'viem/tempo'
-import { client } from './zones.config'
+import { client as parentClient } from './viem.config'
+import { client as zoneClient } from './zones.config'
 
-const deposits = await getContractEvents(client, {
+const { receipt } = await parentClient.zone.encryptedDepositSync({
+  amount: 1_000_000n,
+  token: '0x20c0000000000000000000000000000000000001',
+  zoneId: 7,
+})
+if (receipt.status === 'pending') throw new Error('Deposit is pending.')
+
+const [deposit] = parseEventLogs({
+  abi: Abis.zonePortal,
+  eventName: 'DepositMade',
+  logs: receipt.logs,
+  strict: true,
+})
+if (!deposit) throw new Error('DepositMade event not found.')
+
+await zoneClient.zone.waitForTempoBlock({
+  tempoBlockNumber: receipt.blockNumber,
+})
+const depositHash = deposit.args.newCurrentDepositQueueHash
+const outcomes = await getContractEvents(zoneClient, {
   address: Addresses.zoneInbox,
   abi: Abis.zoneInbox,
-  eventName: 'DepositProcessed',
-  fromBlock: 123n,
+  args: { depositHash },
+  fromBlock: 0n,
 })
+const outcome = outcomes.find((log) =>
+  log.eventName === 'DepositProcessed' ||
+  log.eventName === 'DepositFailed' ||
+  log.eventName === 'DepositRejected',
+)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
 ```
 
 ```ts twoslash [zones.config.ts] filename="zones.config.ts"

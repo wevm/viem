@@ -41,15 +41,20 @@ export const zoneVerifier = '0x5a56000000000000000000000000000000000000'
 /**
  * Returns the Zone portal address for a Zone ID or chain ID.
  *
+ * Raw Zone IDs `6`/`7` and legacy chain IDs `4_217_000_006`/`4_217_000_007`
+ * resolve to their earlier deployed portals. Pass a current Mainnet or Moderato
+ * Zone chain ID to resolve the canonical portal for those Zones.
+ *
  * @param id - Zone ID or chain ID.
  * @returns The Zone portal address.
  */
 export function zonePortal(id: number): `0x${string}` {
-  const zoneId = normalizeZoneId(id)
-
   // TODO: Remove legacy Zone portal address compatibility.
-  if (zoneId === 6) return '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23'
-  if (zoneId === 7) return '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac'
+  if (id === 6 || id === 4_217_000_006)
+    return '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23'
+  if (id === 7 || id === 4_217_000_007)
+    return '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac'
+  const zoneId = normalizeZoneId(id)
   const suffix = Hex.fromNumber(zoneId, { size: 8 }).slice(2)
   return `0x5ad000000000000000000000${suffix}`
 }
