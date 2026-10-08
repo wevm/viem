@@ -35,6 +35,7 @@ sequenceDiagram
     participant K as Key Publisher owner (Tempo)
     participant T as Tempo
 
+    Note over U,T: Add an identity provider
     K->>I: Read the signing keys from the discovery document
     I-->>K: Signing keys
     K->>T: keyPublisher.create, then keyPublisher.setKeys as keys rotate
