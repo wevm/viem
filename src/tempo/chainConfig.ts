@@ -23,6 +23,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
 import { getConfig } from './actions/multisig.js'
+import { ZkCredentialExpiredError } from './errors.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
@@ -276,7 +277,21 @@ export const chainConfig = {
                   metadata.expiry > now
                 )
                   await keyAuthorizationManager.remove(key)
-                else request.keyAuthorization = keyAuthorization
+                else {
+                  const { signature } = keyAuthorization
+                  // The node rejects a ZK signature once its block timestamp passes
+                  // `validUntil`, so an expired one can no longer authorize the key.
+                  if (
+                    signature.type === 'zk' &&
+                    BigInt(signature.validUntil) < now
+                  ) {
+                    await keyAuthorizationManager.remove(key)
+                    throw new ZkCredentialExpiredError({
+                      validUntil: signature.validUntil,
+                    })
+                  }
+                  request.keyAuthorization = keyAuthorization
+                }
               }
             }
           }

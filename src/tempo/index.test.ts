@@ -12,13 +12,16 @@ test('exports tempo', () => {
       "EarnShares",
       "MultisigConfig",
       "MultisigOperation",
+      "Oidc",
       "Period",
+      "PublisherId",
       "ReceivePolicyReceipt",
       "TempoAddress",
       "Tick",
       "TokenId",
       "VirtualAddress",
       "VirtualMaster",
+      "ZkSignature",
       "custom",
       "fallback",
       "webSocket",
@@ -58,6 +61,7 @@ test('exports tempo', () => {
       "FeeTokenNotTip20Error",
       "FeeTokenNotUsdError",
       "FeeTokenPausedError",
+      "ZkCredentialExpiredError",
     ]
   `)
 })

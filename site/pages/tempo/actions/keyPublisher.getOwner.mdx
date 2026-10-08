@@ -1,0 +1,67 @@
+---
+description: Gets the owner of a Key Publisher.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `keyPublisher.getOwner`
+
+Gets the owner of a Key Publisher, or the zero address if the publisher does not exist.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const owner = await client.keyPublisher.getOwner({
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+
+console.log(owner)
+// @log: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner = await Actions.keyPublisher.getOwner(client, {
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+## Return Value
+
+`Address`
+
+The owner address. The zero address means the publisher does not exist.
+
+## Parameters
+
+### publisherId
+
+- **Type:** `Hex`
+
+Publisher ID, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) or `PublisherId.from`.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getOwner({
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+})
+```
+
+<ReadParameters />

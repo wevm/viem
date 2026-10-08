@@ -1,6 +1,7 @@
 import { KeyAuthorization, MultisigConfig, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import * as zk from '~test/tempo/zk.js'
 import {
   estimateGas,
   getTransaction,
@@ -96,6 +97,32 @@ describe('formatTransaction', () => {
           },
         ],
         "type": "multisig",
+      }
+    `)
+  })
+
+  test('behavior: ZK key authorization', () => {
+    const transaction = Formatters.formatTransaction(zk.transaction as never)
+
+    expect(transaction.keyAuthorization?.signature).toMatchInlineSnapshot(`
+      {
+        "accessKeySignature": {
+          "signature": {
+            "r": 89568461620332745607330445937640265321447006557314205510849140606726405571268n,
+            "s": 9075578951400019780992722728727723920067541373790998266153821924545132358967n,
+            "yParity": 1,
+          },
+          "type": "secp256k1",
+        },
+        "addressSeed": "0x05667e1ce177c0206e082a863a572ba92d755d50a314e680f5036f504395b5bb",
+        "issuedAt": 1791404628,
+        "issuer": "0x1656ea090c49c9b4a8872fc6540d3c210b34ad42859aff31f059c28e999ba45d",
+        "keyHash": "0x14d3f177c646a83e556512bc1cd8168982e09509d281dad23664b24d0e89cddb",
+        "proof": "0x011da325c2ed023f0e86b297a0dd45066bff191e4f180eccf13a1ba6403b3ad218af8bb3e7f90ee19b137aeb4f32d55ece9c9d014d282985b55d25e81c2f5e5a1d0b2a75de6a7ea4ccae1d569d1fe2768aed72536987af797e27e2df68c7ae7e00129977205036d99d6c77f05f6a62b78985204ef4ed32b717a61a369a22a2220daea83c9ac75ef501e02c6083af719ecfb225748e036315c16f3dbbd3d654e70260bc8a78b2d2e39b94f3f56be927d332bef9704e516d9e77af8167303e29a514eae25fe90c9ba78da7b89db2cb4f289db58a1950f9f8f8740a9d609f386d6a1fda77142707ff6d00dc15191c12734271ae57bfe753b49992fa0bab662f7e5d",
+        "publisherId": "0xb2fdbde0aad8da84287b254c3b0e164af920692de35ca2fd27f6ea150ee143ac",
+        "scheme": 1,
+        "type": "zk",
+        "validUntil": 1791405168,
       }
     `)
   })
@@ -275,6 +302,35 @@ describe('formatTransactionRequest', () => {
     expect(rpc.keyAuthorization?.account).toBe(account)
     expect(rpc.keyAuthorization?.signature).toMatchInlineSnapshot(
       `"0xf89794005c3446a4e52b28b50c4185becd44725c470122f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
+    )
+  })
+
+  test('behavior: ZK key authorization', async () => {
+    const zkAccount = Account.fromZk(zk.credential)
+    const accessKey = Account.fromSecp256k1(
+      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      { access: zkAccount },
+    )
+    const keyAuthorization = await zkAccount.signKeyAuthorization(accessKey, {
+      chainId: 1n,
+    })
+
+    const rpc = Formatters.formatTransactionRequest({
+      account: accessKey,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      keyAuthorization,
+    } as never)
+
+    const { keyId, keyType } = rpc as { keyId?: string; keyType?: string }
+    expect({ keyId, keyType }).toMatchInlineSnapshot(`
+      {
+        "keyId": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "keyType": "secp256k1",
+      }
+    `)
+    expect(KeyAuthorization.fromRpc(rpc.keyAuthorization as never)).toEqual(
+      keyAuthorization,
     )
   })
 

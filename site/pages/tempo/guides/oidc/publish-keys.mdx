@@ -1,0 +1,243 @@
+---
+description: List an identity provider's signing keys in a Key Publisher, and keep them current as the provider rotates its keys.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Publish Provider Keys
+
+## Overview
+
+The network accepts a proven sign-in only if a [Key Publisher](/tempo/actions/keyPublisher.create)
+lists the provider key that signed the ID token. A publisher is an onchain list of signing
+keys for each issuer, owned by one account. Its ID is part of every address it serves, so pick
+it once.
+
+Providers rotate their signing keys, so keep the list current: list new keys as the provider
+publishes them, and drop retired ones. A dropped key stays valid for one hour, so sign-ins
+already in progress still succeed.
+
+[See the Key Publisher specification](https://tips.sh/1132)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Create a Publisher
+
+Read the provider's keys from its discovery document, then create the publisher with
+[`keyPublisher.create`](/tempo/actions/keyPublisher.create). The publisher ID derives from
+the sender and `salt`, so it is known before the transaction lands.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { getKeyHashes } from './keys'
+import { client } from './viem.config'
+
+const iss = 'https://accounts.google.com'
+
+const { publisherId } = await client.keyPublisher.createSync({ // [!code focus]
+  keys: [ // [!code focus]
+    { // [!code focus]
+      issuer: Oidc.hashIssuer(iss), // [!code focus]
+      keyHashes: await getKeyHashes(iss), // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [keys.ts] filename="keys.ts"
+import { Oidc } from 'viem/tempo'
+
+/** Reads an issuer's signing keys and returns the hashes of those ZK signatures support. */
+export async function getKeyHashes(iss: string) {
+  const discovery = await fetch(`${iss}/.well-known/openid-configuration`)
+  const { jwks_uri } = await discovery.json()
+  const { keys } = (await (await fetch(jwks_uri)).json()) as {
+    keys: Oidc.fromJwk.Jwk[]
+  }
+  return keys.flatMap((jwk) => {
+    try {
+      return [Oidc.fromJwk(jwk).keyHash]
+    } catch (error) {
+      // Skip keys the proof scheme does not support, such as EC keys.
+      if (error instanceof Oidc.UnsupportedKeyError) return []
+      throw error
+    }
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Keep the Keys Current
+
+Compare the listed keys with the provider's, and replace the list with
+[`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys) when they differ. Run it on a
+schedule, such as an hourly cron job, so new keys are listed before the provider signs with them.
+
+:::code-group
+
+```ts twoslash [sync.ts]
+import { Oidc } from 'viem/tempo'
+import { getKeyHashes } from './keys'
+import { client } from './viem.config'
+
+const iss = 'https://accounts.google.com'
+const issuer = Oidc.hashIssuer(iss)
+const publisherId =
+  '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502'
+
+const keyHashes = await getKeyHashes(iss)
+const listed = await client.keyPublisher.getActiveKeys({ issuer, publisherId }) // [!code focus]
+
+const unchanged =
+  keyHashes.length === listed.length &&
+  keyHashes.every((keyHash) => listed.includes(keyHash))
+if (!unchanged)
+  await client.keyPublisher.setKeysSync({ issuer, keyHashes, publisherId }) // [!code focus]
+```
+
+```ts twoslash [keys.ts] filename="keys.ts"
+import { Oidc } from 'viem/tempo'
+
+/** Reads an issuer's signing keys and returns the hashes of those ZK signatures support. */
+export async function getKeyHashes(iss: string) {
+  const discovery = await fetch(`${iss}/.well-known/openid-configuration`)
+  const { jwks_uri } = await discovery.json()
+  const { keys } = (await (await fetch(jwks_uri)).json()) as {
+    keys: Oidc.fromJwk.Jwk[]
+  }
+  return keys.flatMap((jwk) => {
+    try {
+      return [Oidc.fromJwk(jwk).keyHash]
+    } catch (error) {
+      // Skip keys the proof scheme does not support, such as EC keys.
+      if (error instanceof Oidc.UnsupportedKeyError) return []
+      throw error
+    }
+  })
+}
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Revoke a Compromised Key
+
+`setKeys` gives dropped keys a one-hour grace period. If the provider reports a key as
+compromised, revoke it at once with [`keyPublisher.revokeKey`](/tempo/actions/keyPublisher.revokeKey).
+Proofs for that key stop working once the revocation lands.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await client.keyPublisher.revokeKeySync({ // [!code focus]
+  issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Transfer Ownership
+
+The owner decides which keys every identity of the publisher trusts. Once the publisher is set
+up, move it from a deployment key to an account you hold more securely, such as a
+[multisig](/tempo/guides/multisig), with [`keyPublisher.transferOwnership`](/tempo/actions/keyPublisher.transferOwnership).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.keyPublisher.transferOwnershipSync({ // [!code focus]
+  newOwner: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Check a Key
+
+If the salt service reports that the Key Publisher does not list a key, check the key with
+[`keyPublisher.getKeyValidUntil`](/tempo/actions/keyPublisher.getKeyValidUntil). It returns
+`2^64 - 1` while the key is listed, the end of its grace period once dropped, and `0` otherwise.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validUntil = await client.keyPublisher.getKeyValidUntil({ // [!code focus]
+  issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+}) // [!code focus]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Never Change the Publisher
+
+The publisher ID is part of every address it serves. Moving users to a new publisher moves
+them to new addresses, so keep one publisher for the life of your app and change its keys
+and owner instead.
+
+### Sync More Often than the Provider Rotates
+
+Providers typically publish a new key before signing with it. An hourly sync lists the key well before
+first use, and the one-hour grace period covers sign-ins that started under a dropped key.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:log-in"
+    title="Sign In with an Identity Provider"
+    description="Sign users in with Google, prove the sign-in, and authorize an access key."
+    to="/tempo/guides/oidc/sign-in"
+  />
+  <Card
+    icon="lucide:server"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
+  />
+  <Card
+    icon="lucide:list"
+    title="keyPublisher.setKeys"
+    description="Replace an issuer's key list, with a grace period for dropped keys."
+    to="/tempo/actions/keyPublisher.setKeys"
+  />
+</Cards>

@@ -105,6 +105,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidEncryptionKeyIndex(uint256)': 'Invalid encryption key index ({0}).',
   'InvalidEphemeralPubkey()': 'Invalid ephemeral public key.',
   'InvalidExpiringNonceExpiry()': 'Invalid expiring nonce expiry.',
+  'InvalidFieldElement()': 'Value is outside the BN254 scalar field.',
   'InvalidFlipTick()': 'The flip-order price tick is invalid.',
   'InvalidFormat()': 'Invalid format.',
   'InvalidKeyAuthorizationWitness()': 'Invalid key authorization witness.',
@@ -145,12 +146,14 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidTransferPolicyId()': 'Invalid transfer policy.',
   'InvalidValidatorAddress()': 'Invalid validator address.',
   'InvalidWeight()': 'Invalid weight.',
+  'IssuersNotSorted()': 'Issuers must be sorted in ascending order.',
   'KeyAlreadyExists()': 'Key already exists.',
   'KeyAlreadyRevoked()': 'Key has already been revoked.',
   'KeyAuthorizationWitnessAlreadyBurned()':
     'Key authorization witness has already been burned.',
   'KeyExpired()': 'Key has expired.',
   'KeyNotFound()': 'Key not found.',
+  'KeysNotSorted()': 'Key hashes must be sorted in ascending order.',
   'LeaderAlreadyUpdatedThisBlock()':
     'The leader has already been updated in this block.',
   'LegacyAuthorizeKeySelectorChanged(bytes4)':
@@ -195,6 +198,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'ProtectedAddress()': 'Address is protected.',
   'ProtocolNonceNotSupported()': 'Protocol nonce is not supported.',
   'PublicKeyAlreadyExists()': 'Public key already exists.',
+  'PublisherExists()': 'Publisher already exists.',
   'ReentrantWithdrawal()': 'Reentrant withdrawals are not allowed.',
   'SequencerConfigurationUnchanged()':
     'The sequencer configuration is unchanged.',
@@ -214,6 +218,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'TokenMetadataTooLong()': 'Token metadata is too long.',
   'TokenNotEnabled()': 'The token is not enabled.',
   'TokenTransferPolicyNotSet()': 'The token transfer policy is not set.',
+  'TooManyKeys()': 'Too many keys.',
   'TooManyOwners()': 'There are too many owners.',
   'TransferFailed()': 'The transfer failed.',
   'Unauthorized()': 'Unauthorized.',
@@ -221,11 +226,13 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'UnauthorizedClaimer()': 'Unauthorized claimer.',
   'UnauthorizedMultisigCaller()': 'Unauthorized multisig caller.',
   'Uninitialized()': 'Uninitialized.',
+  'UnknownPublisher()': 'Publisher not found.',
   'ValidatorAlreadyDeactivated()': 'Validator is already deactivated.',
   'ValidatorAlreadyExists()': 'Validator already exists.',
   'ValidatorNotFound()': 'Validator not found.',
   'VirtualAddressNotAllowed()': 'Virtual address is not allowed.',
   'VirtualAddressUnregistered()': 'Virtual address is not registered.',
+  'ZeroAddress()': 'Address cannot be zero.',
   'ZeroDeposit()': 'Deposit cannot be zero.',
   'ZeroPublicKey()': 'Public key cannot be zero.',
 }

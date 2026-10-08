@@ -54,6 +54,19 @@
 | [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets the user's default fee token preference |
 | [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the user's default fee token preference |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
+| **Key Publisher Actions** | |
+| [`keyPublisher.create`](/tempo/actions/keyPublisher.create) | Creates a Key Publisher that lists the issuer keys ZK signatures may use |
+| [`keyPublisher.getActiveKeys`](/tempo/actions/keyPublisher.getActiveKeys) | Gets the key hashes a publisher lists for an issuer |
+| [`keyPublisher.getKeyValidUntil`](/tempo/actions/keyPublisher.getKeyValidUntil) | Gets when a key stops being valid for ZK signatures |
+| [`keyPublisher.getOwner`](/tempo/actions/keyPublisher.getOwner) | Gets the owner of a Key Publisher |
+| [`keyPublisher.isKeyActive`](/tempo/actions/keyPublisher.isKeyActive) | Checks whether ZK signatures may use a key |
+| [`keyPublisher.revokeKey`](/tempo/actions/keyPublisher.revokeKey) | Revokes a Key Publisher key immediately |
+| [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys) | Replaces the key hashes a publisher lists for an issuer |
+| [`keyPublisher.transferOwnership`](/tempo/actions/keyPublisher.transferOwnership) | Transfers ownership of a Key Publisher |
+| [`keyPublisher.watchCreate`](/tempo/actions/keyPublisher.watchCreate) | Watches for Key Publisher creation events |
+| [`keyPublisher.watchKeyRevoked`](/tempo/actions/keyPublisher.watchKeyRevoked) | Watches for key revocation events |
+| [`keyPublisher.watchKeysSet`](/tempo/actions/keyPublisher.watchKeysSet) | Watches for events that replace an issuer's keys |
+| [`keyPublisher.watchOwnershipTransferred`](/tempo/actions/keyPublisher.watchOwnershipTransferred) | Watches for Key Publisher ownership transfer events |
 | **Multisig Actions** | |
 | [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
 | [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |
@@ -62,6 +75,8 @@
 | **Nonce Actions** | |
 | [`nonce.getNonce`](/tempo/actions/nonce.getNonce) | Gets the nonce for an account and nonce key |
 | [`nonce.watchNonceIncremented`](/tempo/actions/nonce.watchNonceIncremented) | Watches for nonce incremented events |
+| **OIDC Actions** | |
+| [`oidc.prove`](/tempo/actions/oidc.prove) | Proves an OIDC sign-in and returns a ZK credential |
 | **Policy Actions** | |
 | [`policy.create`](/tempo/actions/policy.create) | Creates a new transfer policy for token access control |
 | [`policy.getData`](/tempo/actions/policy.getData) | Gets the data for a transfer policy, including its type and admin address |

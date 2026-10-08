@@ -1,10 +1,50 @@
+import type { KeyAuthorization } from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
-import { Account, MultisigConfig } from 'viem/tempo'
+import { Account, MultisigConfig, type ZkSignature } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
+
+const credential = {
+  addressSeed: `0x${'01'.repeat(32)}`,
+  issuedAt: 4_102_444_000,
+  issuer: `0x${'02'.repeat(32)}`,
+  keyHash: `0x${'03'.repeat(32)}`,
+  proof: `0x${'04'.repeat(256)}`,
+  publisherId: `0x${'05'.repeat(32)}`,
+  scheme: 1,
+  validUntil: 4_102_444_540,
+} as const satisfies ZkSignature.Credential
+
+test('fromZk returns a ZK account', async () => {
+  const account = Account.fromZk(credential)
+  const accessKey = Account.fromSecp256k1(`0x${'2'.repeat(64)}`, {
+    access: account,
+  })
+
+  expectTypeOf(account).toEqualTypeOf<Account.ZkAccount>()
+  expectTypeOf(account).toMatchTypeOf<Account.Account>()
+  expectTypeOf(account.source).toEqualTypeOf<'zk'>()
+  expectTypeOf(accessKey).toEqualTypeOf<Account.AccessKeyAccount>()
+  expectTypeOf(
+    await account.signKeyAuthorization(accessKey, { chainId: 1n }),
+  ).toEqualTypeOf<KeyAuthorization.Signed>()
+  account.signKeyAuthorization(
+    // @ts-expect-error ZK accounts sign with the access key account.
+    { address: owner.address, type: 'secp256k1' },
+    { chainId: 1n },
+  )
+})
+
+test('fromMultisig rejects ZK owners', () => {
+  const account = Account.fromZk(credential)
+  // @ts-expect-error ZK owners are unsupported.
+  Account.fromMultisig({ owners: [account] })
+  // @ts-expect-error Weighted ZK owners are unsupported.
+  Account.fromMultisig({ owners: [{ owner: account, weight: 1 }] })
+})
 
 test('fromMultisig preserves config availability', () => {
   const config = {

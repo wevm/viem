@@ -1,6 +1,8 @@
+import { KeyAuthorization, SignatureEnvelope, ZkSignature } from 'ox/tempo'
 import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { credential, expiredCredential } from '~test/tempo/zk.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   getTransaction,
@@ -568,6 +570,84 @@ describe('prepareTransactionRequest', () => {
     })
 
     expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
+  })
+  test('behavior: keyAuthorizationManager attaches pending ZK key authorization', async () => {
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const zkAccount = Account.fromZk(credential)
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: zkAccount,
+      keyAuthorizationManager,
+    })
+    const keyAuthorization = await zkAccount.signKeyAuthorization(accessKey, {
+      chainId: BigInt(client.chain.id),
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBe(keyAuthorization)
+  })
+
+  test('error: keyAuthorizationManager rejects expired ZK key authorization', async () => {
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const zkAccount = Account.fromZk(expiredCredential)
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: zkAccount,
+      keyAuthorizationManager,
+    })
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    // The ZK account refuses to sign with an expired credential, so assemble the authorization directly.
+    const authorization = KeyAuthorization.from({
+      address: accessKey.accessKeyAddress,
+      chainId: BigInt(client.chain.id),
+      type: 'p256',
+    })
+    const accessKeySignature = await accessKey.sign({
+      hash: ZkSignature.getSignPayload({
+        credential: expiredCredential,
+        payload: KeyAuthorization.getSignPayload(authorization),
+      }),
+      raw: true,
+    })
+    await keyAuthorizationManager.set(
+      key,
+      KeyAuthorization.from(authorization, {
+        signature: SignatureEnvelope.from({
+          ...expiredCredential,
+          accessKeySignature: SignatureEnvelope.from(accessKeySignature),
+          type: 'zk',
+        } as never),
+      }),
+    )
+
+    await expect(
+      prepareTransactionRequest(client, {
+        account: accessKey,
+        parameters: ['chainId'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ZkCredentialExpiredError: ZK credential expired at 2025-10-09T09:02:20.000Z.
+
+      Sign in again to get a new credential.
+
+      Version: viem@x.y.z]
+    `)
     expect(await keyAuthorizationManager.get(key)).toBeUndefined()
   })
 })

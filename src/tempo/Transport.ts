@@ -96,6 +96,7 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
  * Multisig approvals, configs, operations, and operation-aware transaction
  * lookups are also sent to the relay so it can coordinate approvals in its store.
+ * OIDC sign-in proofs (`oidc_prove`) are sent to the relay, which holds the salt key.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
@@ -211,6 +212,13 @@ export function withRelay(
           method === 'multisig_getOperation'
         )
           return transport_relay.request({ method, params }, options) as never
+
+        // Each proof costs the prover seconds of work, so a failed one is not resent.
+        if (method === 'oidc_prove')
+          return transport_relay.request(
+            { method, params },
+            { ...options, retryCount: 0 },
+          ) as never
 
         if (
           method === 'eth_sendRawTransactionSync' ||

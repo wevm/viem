@@ -33,8 +33,10 @@ describe('decorator', () => {
         "dex",
         "earn",
         "faucet",
+        "keyPublisher",
         "multisig",
         "nonce",
+        "oidc",
         "fee",
         "policy",
         "propAmm",
@@ -58,6 +60,9 @@ describe('decorator', () => {
     expect(typeof client2.accessKey.getRemainingLimit.callWithPeriod).toBe(
       'function',
     )
+    expect(typeof client2.keyPublisher.create.call).toBe('function')
+    expect(typeof client2.keyPublisher.create.extractEvent).toBe('function')
+    expect(typeof client2.keyPublisher.getActiveKeys.call).toBe('function')
     expect(typeof client2.token.transfer.call).toBe('function')
     expect(typeof client2.token.transfer.estimateGas).toBe('function')
     expect(typeof client2.token.transfer.simulate).toBe('function')

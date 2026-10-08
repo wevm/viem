@@ -6,6 +6,7 @@ import {
   MultisigOperation,
   type RpcSchemaTempo,
   SignatureEnvelope,
+  ZkSignature,
 } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -33,6 +34,7 @@ import type {
   AccessKeyAccount,
   MultisigAccount,
   RootAccount,
+  ZkAccount,
 } from '../Account.js'
 import {
   fromMultisig,
@@ -1076,14 +1078,21 @@ export async function prepareAuthorization<
       key: parameters.accessKey,
     },
   )
-  const signPayload =
-    parsed.source === 'multisig' && multisigState
-      ? MultisigConfig.getSignPayload({
-          account: parsed.address,
-          config: multisigState.config,
-          payload: authorizationSignPayload,
-        })
-      : authorizationSignPayload
+  const signPayload = (() => {
+    if (parsed.source === 'multisig' && multisigState)
+      return MultisigConfig.getSignPayload({
+        account: parsed.address,
+        config: multisigState.config,
+        payload: authorizationSignPayload,
+      })
+    // The access key a ZK credential commits to signs the ZK digest of the authorization.
+    if (parsed.source === 'zk')
+      return ZkSignature.getSignPayload({
+        credential: (parsed as ZkAccount).credential,
+        payload: authorizationSignPayload,
+      })
+    return authorizationSignPayload
+  })()
   return {
     ...parameters,
     account: parsed,

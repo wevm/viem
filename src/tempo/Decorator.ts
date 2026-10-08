@@ -10,8 +10,10 @@ import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
+import * as keyPublisherActions from './actions/keyPublisher.js'
 import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
+import * as oidcActions from './actions/oidc.js'
 import * as policyActions from './actions/policy.js'
 import * as propAmmActions from './actions/propAmm.js'
 import * as receivePolicyActions from './actions/receivePolicy.js'
@@ -2392,6 +2394,482 @@ type DecoratorBase<
       parameters: faucetActions.fundSync.Parameters,
     ) => Promise<faucetActions.fundSync.ReturnValue>
   }
+  keyPublisher: {
+    /**
+     * Creates a Key Publisher that lists the issuer keys ZK signatures may use.
+     *
+     * The publisher ID derives from the sender and `salt`, so it is known before
+     * creation (see `PublisherId.from`). Issuers and key hashes may be passed in
+     * any order.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.keyPublisher.create({
+     *   keys: [
+     *     {
+     *       issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *       keyHashes: ['0x...'],
+     *     },
+     *   ],
+     *   salt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    create: (
+      parameters: keyPublisherActions.create.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.create.ReturnValue>
+    /**
+     * Creates a Key Publisher and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { publisherId, receipt } = await client.keyPublisher.createSync({
+     *   keys: [
+     *     {
+     *       issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *       keyHashes: ['0x...'],
+     *     },
+     *   ],
+     *   salt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    createSync: (
+      parameters: keyPublisherActions.createSync.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.createSync.ReturnValue>
+    /**
+     * Gets the key hashes a publisher lists for an issuer, in ascending order.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const keyHashes = await client.keyPublisher.getActiveKeys({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The listed key hashes.
+     */
+    getActiveKeys: (
+      parameters: keyPublisherActions.getActiveKeys.Parameters,
+    ) => Promise<keyPublisherActions.getActiveKeys.ReturnValue>
+    /**
+     * Gets when a key stops being valid for ZK signatures.
+     *
+     * Returns `2^64 - 1` while the key is listed, the end of its grace period
+     * after `setKeys` drops it, or `0` if it was never listed or was revoked.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const validUntil = await client.keyPublisher.getKeyValidUntil({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHash: '0x...',
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The key's validity end, in seconds.
+     */
+    getKeyValidUntil: (
+      parameters: keyPublisherActions.getKeyValidUntil.Parameters,
+    ) => Promise<keyPublisherActions.getKeyValidUntil.ReturnValue>
+    /**
+     * Gets the owner of a publisher, or the zero address if it does not exist.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const owner = await client.keyPublisher.getOwner({
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The owner address.
+     */
+    getOwner: (
+      parameters: keyPublisherActions.getOwner.Parameters,
+    ) => Promise<keyPublisherActions.getOwner.ReturnValue>
+    /**
+     * Checks whether ZK signatures may use a key in the current block.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const active = await client.keyPublisher.isKeyActive({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHash: '0x...',
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the key is active.
+     */
+    isKeyActive: (
+      parameters: keyPublisherActions.isKeyActive.Parameters,
+    ) => Promise<keyPublisherActions.isKeyActive.ReturnValue>
+    /**
+     * Revokes a key immediately, with no grace period.
+     *
+     * Only the publisher's owner can revoke keys. Revoking an inactive key succeeds.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.keyPublisher.revokeKey({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHash: '0x...',
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    revokeKey: (
+      parameters: keyPublisherActions.revokeKey.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.revokeKey.ReturnValue>
+    /**
+     * Revokes a key immediately and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.keyPublisher.revokeKeySync({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHash: '0x...',
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    revokeKeySync: (
+      parameters: keyPublisherActions.revokeKeySync.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.revokeKeySync.ReturnValue>
+    /**
+     * Replaces the key hashes a publisher lists for an issuer.
+     *
+     * Previously listed keys that are left out stay valid for a one-hour grace
+     * period, so sign-ins in progress survive a rotation. Key hashes may be passed
+     * in any order. Only the publisher's owner can set keys.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.keyPublisher.setKeys({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHashes: ['0x...', '0x...'],
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    setKeys: (
+      parameters: keyPublisherActions.setKeys.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.setKeys.ReturnValue>
+    /**
+     * Replaces the key hashes a publisher lists for an issuer and waits for the
+     * transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { Oidc, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { graceUntil, receipt } = await client.keyPublisher.setKeysSync({
+     *   issuer: Oidc.hashIssuer('https://accounts.google.com'),
+     *   keyHashes: ['0x...', '0x...'],
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    setKeysSync: (
+      parameters: keyPublisherActions.setKeysSync.Parameters<chain, account>,
+    ) => Promise<keyPublisherActions.setKeysSync.ReturnValue>
+    /**
+     * Transfers ownership of a publisher.
+     *
+     * Only the current owner can transfer ownership.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.keyPublisher.transferOwnership({
+     *   newOwner: '0x...',
+     *   publisherId: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    transferOwnership: (
+      parameters: keyPublisherActions.transferOwnership.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<keyPublisherActions.transferOwnership.ReturnValue>
+    /**
+     * Transfers ownership of a publisher and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { newOwner, receipt } =
+     *   await client.keyPublisher.transferOwnershipSync({
+     *     newOwner: '0x...',
+     *     publisherId: '0x...',
+     *   })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    transferOwnershipSync: (
+      parameters: keyPublisherActions.transferOwnershipSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<keyPublisherActions.transferOwnershipSync.ReturnValue>
+    /**
+     * Watches for publisher creation events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.keyPublisher.watchCreate({
+     *   onPublisherCreated: (args, log) => {
+     *     console.log('Publisher created:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchCreate: (
+      parameters: keyPublisherActions.watchCreate.Parameters,
+    ) => () => void
+    /**
+     * Watches for key revocation events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.keyPublisher.watchKeyRevoked({
+     *   onKeyRevoked: (args, log) => {
+     *     console.log('Key revoked:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchKeyRevoked: (
+      parameters: keyPublisherActions.watchKeyRevoked.Parameters,
+    ) => () => void
+    /**
+     * Watches for events that replace an issuer's listed keys.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.keyPublisher.watchKeysSet({
+     *   onKeysSet: (args, log) => {
+     *     console.log('Keys set:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchKeysSet: (
+      parameters: keyPublisherActions.watchKeysSet.Parameters,
+    ) => () => void
+    /**
+     * Watches for publisher ownership transfer events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.keyPublisher.watchOwnershipTransferred({
+     *   onOwnershipTransferred: (args, log) => {
+     *     console.log('Ownership transferred:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchOwnershipTransferred: (
+      parameters: keyPublisherActions.watchOwnershipTransferred.Parameters,
+    ) => () => void
+  }
   multisig: {
     /**
      * Gets the current cached config for a multisig account.
@@ -2488,6 +2966,40 @@ type DecoratorBase<
     watchNonceIncremented: (
       parameters: nonceActions.watchNonceIncremented.Parameters,
     ) => () => void
+  }
+  oidc: {
+    /**
+     * Proves an OIDC sign-in and returns the credential that `Account.fromZk` signs with,
+     * along with the nonce and ID token it proved.
+     *
+     * Pass `Oidc.prepare`'s result with the ID token the issuer returned for its nonce,
+     * or pass the access key's public key and a `getToken` callback to sign in within the
+     * page. The transport must reach a relay with the `Relay.oidc` plugin.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions, withRelay } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: withRelay(http(), http('https://relay.example')),
+     * }).extend(tempoActions())
+     *
+     * const { credential } = await client.oidc.prove({
+     *   getToken: ({ nonce }) => signIn({ nonce }),
+     *   publicKey: '0x...',
+     * })
+     * const account = Account.fromZk(credential)
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The ZK credential, with the nonce and ID token it proves.
+     */
+    prove: (
+      parameters: oidcActions.prove.Parameters,
+    ) => Promise<oidcActions.prove.ReturnValue>
   }
   fee: {
     /**
@@ -6084,6 +6596,10 @@ export type Decorator<
     DecoratorBase<chain, account>['faucet'],
     typeof faucetActions
   >
+  keyPublisher: DecorateNamespace<
+    DecoratorBase<chain, account>['keyPublisher'],
+    typeof keyPublisherActions
+  >
   multisig: DecorateNamespace<
     DecoratorBase<chain, account>['multisig'],
     typeof multisigActions
@@ -6091,6 +6607,10 @@ export type Decorator<
   nonce: DecorateNamespace<
     DecoratorBase<chain, account>['nonce'],
     typeof nonceActions
+  >
+  oidc: DecorateNamespace<
+    DecoratorBase<chain, account>['oidc'],
+    typeof oidcActions
   >
   fee: DecorateNamespace<
     DecoratorBase<chain, account>['fee'],
@@ -6262,6 +6782,24 @@ export function decorator() {
         'withdrawExactSync',
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
+      keyPublisher: bindActions(client, keyPublisherActions, [
+        'create',
+        'createSync',
+        'getActiveKeys',
+        'getKeyValidUntil',
+        'getOwner',
+        'isKeyActive',
+        'revokeKey',
+        'revokeKeySync',
+        'setKeys',
+        'setKeysSync',
+        'transferOwnership',
+        'transferOwnershipSync',
+        'watchCreate',
+        'watchKeyRevoked',
+        'watchKeysSet',
+        'watchOwnershipTransferred',
+      ]),
       multisig: bindActions(client, multisigActions, [
         'getConfig',
         'getConfigCommitment',
@@ -6273,6 +6811,7 @@ export function decorator() {
         'getNonce',
         'watchNonceIncremented',
       ]),
+      oidc: bindActions(client, oidcActions, ['prove']),
       fee: bindActions(client, feeActions, [
         'validateToken',
         'getUserToken',

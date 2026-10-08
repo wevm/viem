@@ -557,6 +557,153 @@ export const currentCommittee = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
+export const keyPublisher = [
+  {
+    name: 'createPublisher',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes32', name: 'salt' },
+      { type: 'address', name: 'owner' },
+      {
+        type: 'tuple[]',
+        name: 'initialKeys',
+        components: [
+          { type: 'bytes32', name: 'issuer' },
+          { type: 'bytes32[]', name: 'keyHashes' },
+        ],
+      },
+    ],
+    outputs: [{ type: 'bytes32', name: 'publisherId' }],
+  },
+  {
+    name: 'computePublisherId',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [
+      { type: 'address', name: 'creator' },
+      { type: 'bytes32', name: 'salt' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'transferOwnership',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'address', name: 'newOwner' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'setKeys',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'bytes32', name: 'issuer' },
+      { type: 'bytes32[]', name: 'keyHashes' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'revokeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'bytes32', name: 'issuer' },
+      { type: 'bytes32', name: 'keyHash' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'owner',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'publisherId' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'activeKeys',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'bytes32', name: 'issuer' },
+    ],
+    outputs: [{ type: 'bytes32[]' }],
+  },
+  {
+    name: 'keyValidUntil',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'bytes32', name: 'issuer' },
+      { type: 'bytes32', name: 'keyHash' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'isKeyActive',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId' },
+      { type: 'bytes32', name: 'issuer' },
+      { type: 'bytes32', name: 'keyHash' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'PublisherCreated',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId', indexed: true },
+      { type: 'address', name: 'creator', indexed: true },
+      { type: 'address', name: 'owner', indexed: true },
+    ],
+  },
+  {
+    name: 'OwnershipTransferred',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId', indexed: true },
+      { type: 'address', name: 'previousOwner', indexed: true },
+      { type: 'address', name: 'newOwner', indexed: true },
+    ],
+  },
+  {
+    name: 'KeysSet',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId', indexed: true },
+      { type: 'bytes32', name: 'issuer', indexed: true },
+      { type: 'bytes32[]', name: 'keyHashes' },
+      { type: 'uint64', name: 'graceUntil' },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'bytes32', name: 'publisherId', indexed: true },
+      { type: 'bytes32', name: 'issuer', indexed: true },
+      { type: 'bytes32', name: 'keyHash', indexed: true },
+    ],
+  },
+  { name: 'PublisherExists', type: 'error', inputs: [] },
+  { name: 'UnknownPublisher', type: 'error', inputs: [] },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'ZeroAddress', type: 'error', inputs: [] },
+  { name: 'InvalidFieldElement', type: 'error', inputs: [] },
+  { name: 'KeysNotSorted', type: 'error', inputs: [] },
+  { name: 'IssuersNotSorted', type: 'error', inputs: [] },
+  { name: 'TooManyKeys', type: 'error', inputs: [] },
+] as const
+
 export const nonce = [
   {
     name: 'getNonce',
@@ -9864,6 +10011,7 @@ export const core = [
   ...currentCommittee,
   ...feeAmm,
   ...feeManager,
+  ...keyPublisher,
   ...nativeMultisig,
   ...nonce,
   ...receivePolicyGuard,

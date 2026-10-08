@@ -1,0 +1,299 @@
+---
+description: Proves an OIDC sign-in and returns the credential that Account.fromZk signs with.
+---
+
+# `oidc.prove`
+
+Proves an OIDC sign-in and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with. [Learn more about ZK signatures](https://tips.sh/1131)
+
+The ID token's nonce commits to an access key, so the credential can only authorize that key. The transport must reach a relay with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin, which holds the salt key. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Redirects to the identity provider with the nonce and returns the ID token.
+declare function signIn(options: { nonce: string }): Promise<string>
+
+const privateKey = generatePrivateKey()
+
+const { credential } = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(privateKey).publicKey,
+})
+
+const account = Account.fromZk(credential)
+const accessKey = Account.fromSecp256k1(privateKey, { access: account })
+
+console.log('Address:', account.address)
+// @log: Address: 0xada6063F1Aade8B2516566A2a7e77d214b7f34f9
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      // [!code focus:end]
+    ],
+  }),
+})
+```
+
+:::
+
+Then authorize the access key with [`Account.fromZk`](/tempo/accounts/account.fromZk#usage) and attach the key authorization to its first transaction.
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare function signIn(options: { nonce: string }): Promise<string>
+
+const { credential } = await Actions.oidc.prove(client, {
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+})
+```
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Sign In with a Redirect
+
+Pages that redirect to the identity provider lose their state. Prepare the sign-in with `Oidc.prepare`, keep the result across the redirect, then pass it with the returned token.
+
+```ts twoslash
+import { Oidc, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Before the redirect: create the access key, then request the ID token with `prepared.nonce`.
+const keyPair = await WebCryptoP256.createKeyPair()
+const prepared = Oidc.prepare({ publicKey: keyPair.publicKey }) // [!code focus]
+sessionStorage.setItem('sign-in', JSON.stringify(prepared)) // [!code focus]
+
+// After the redirect: read the prepared values back, then prove with the token the identity provider returned.
+declare const token: string
+const stored: Oidc.prepare.ReturnType = JSON.parse(sessionStorage.getItem('sign-in')!) // [!code focus]
+const { credential } = await client.oidc.prove({ ...stored, token }) // [!code focus]
+```
+
+Keep `keyPair` in IndexedDB, where its private key stays non-extractable, and authorize it with [`Account.fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256). The relay only sees the key's address.
+
+### Choose the Expiry
+
+A credential stays valid for at most 600 seconds after the token was issued. Pass `validUntil` to shorten it.
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare function signIn(options: { nonce: string }): Promise<string>
+
+const { credential } = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]
+})
+```
+
+### Reuse the Sign-In
+
+`prove` also returns the nonce and the ID token, so the same sign-in can start a session with
+your auth server. For example, [Better Auth](https://www.better-auth.com) verifies a Google ID
+token and its nonce with `signIn.social`.
+
+```ts twoslash
+import { WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare function signIn(options: { nonce: string }): Promise<string>
+// A Better Auth client, from `createAuthClient`.
+declare const authClient: {
+  signIn: {
+    social(options: {
+      idToken: { nonce: string; token: string }
+      provider: 'google'
+    }): Promise<unknown>
+  }
+}
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+const { credential, nonce, token } = await client.oidc.prove({ // [!code focus]
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: keyPair.publicKey,
+})
+
+await authClient.signIn.social({ // [!code focus]
+  idToken: { nonce, token }, // [!code focus]
+  provider: 'google', // [!code focus]
+}) // [!code focus]
+```
+
+Better Auth requires an `email` claim, so request the `email` scope along with `openid`.
+
+## Return Value
+
+`{ credential: ZkSignature.Credential; nonce: string; token: string }`
+
+The credential to pass to [`Account.fromZk`](/tempo/accounts/account.fromZk), with the nonce the
+ID token was requested with and the ID token it proves.
+
+## Parameters
+
+Pass either the fields `Oidc.prepare` returns with the ID token, or `getToken` with the access key's public key.
+
+### accessKeyAddress
+
+- **Type:** `Address`
+
+Address of the access key the nonce commits to, from `Oidc.prepare`.
+
+```ts twoslash
+import { client } from './viem.config'
+declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
+declare const token: string
+// ---cut---
+const { credential } = await client.oidc.prove({
+  accessKeyAddress: prepared.accessKeyAddress, // [!code focus]
+  blinding: prepared.blinding,
+  token,
+  validUntil: prepared.validUntil,
+})
+```
+
+### blinding
+
+- **Type:** `Hex`
+
+Blinding value the nonce commits to, from `Oidc.prepare`. Keep it private.
+
+```ts twoslash
+import { client } from './viem.config'
+declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
+declare const token: string
+// ---cut---
+const { credential } = await client.oidc.prove({
+  accessKeyAddress: prepared.accessKeyAddress,
+  blinding: prepared.blinding, // [!code focus]
+  token,
+  validUntil: prepared.validUntil,
+})
+```
+
+### getToken
+
+- **Type:** `(parameters: { nonce: string }) => string | Promise<string>`
+
+Signs in with the nonce and returns the ID token. `prove` prepares the nonce for `publicKey` first.
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+declare function signIn(options: { nonce: string }): Promise<string>
+// ---cut---
+const { credential } = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }), // [!code focus]
+  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+})
+```
+
+### publicKey
+
+- **Type:** `Hex | PublicKey`
+
+Public key of the access key the credential will commit to.
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+declare function signIn(options: { nonce: string }): Promise<string>
+// ---cut---
+const { credential } = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey, // [!code focus]
+})
+```
+
+### token
+
+- **Type:** `string`
+
+ID token the identity provider returned for the nonce.
+
+```ts twoslash
+import { client } from './viem.config'
+declare const prepared: { accessKeyAddress: `0x${string}`; blinding: `0x${string}`; validUntil: number }
+declare const token: string
+// ---cut---
+const { credential } = await client.oidc.prove({
+  accessKeyAddress: prepared.accessKeyAddress,
+  blinding: prepared.blinding,
+  token, // [!code focus]
+  validUntil: prepared.validUntil,
+})
+```
+
+### validUntil
+
+- **Type:** `number`
+- **Default:** 540 seconds from now, with `getToken`
+
+When the credential expires, in seconds. With the prepared fields, pass `Oidc.prepare`'s value.
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+declare function signIn(options: { nonce: string }): Promise<string>
+// ---cut---
+const { credential } = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `InvalidParamsRpcError` | The request parameters are malformed. |
+| `InvalidInputRpcError` | The relay rejected the ID token, or the prover cannot prove it. |
+| `ResourceUnavailableRpcError` | The prover is busy or starting. Retry the request. |
+| `InternalRpcError` | The relay could not reach the issuer's keys or the prover. |

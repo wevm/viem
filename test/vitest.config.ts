@@ -88,6 +88,8 @@ export default defineConfig({
             process.env.VITE_TEMPO_MULTISIG === 'true'
               ? 'src/tempo/Relay.compat.test.ts'
               : '',
+            'src/tempo/actions/keyPublisher.test.ts',
+            'src/tempo/internal/relay/oidc.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
             'src/tempo/**/*.node-fuzz.test.ts',
@@ -117,6 +119,25 @@ export default defineConfig({
                 sequence: { groupOrder: 1 },
                 hookTimeout: 180_000,
                 testTimeout: 120_000,
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
+      ...((process.env.VITE_TEMPO_ZK === 'true'
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'tempo-zk',
+                include: [
+                  'src/tempo/actions/keyPublisher.test.ts',
+                  'src/tempo/internal/relay/oidc.test.ts',
+                ],
+                setupFiles: [join(__dirname, './src/tempo/setup.ts')],
+                globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+                sequence: { groupOrder: 1 },
+                hookTimeout: 20_000,
+                testTimeout: 10_000,
               },
             },
           ]

@@ -60,6 +60,18 @@ export const currentCommittee = {
   setCommitteeMembers: '0x229bdd9c',
 } as const satisfies FunctionSelectors<typeof Abis.currentCommittee>
 
+export const keyPublisher = {
+  activeKeys: '0x53f5d1da',
+  computePublisherId: '0xe97d00b3',
+  createPublisher: '0x7b2a30fb',
+  isKeyActive: '0x2b4e7d37',
+  keyValidUntil: '0x89c45cf8',
+  owner: '0x02571be3',
+  revokeKey: '0xd6be0c9f',
+  setKeys: '0xfa07ec32',
+  transferOwnership: '0xef5d6bbb',
+} as const satisfies FunctionSelectors<typeof Abis.keyPublisher>
+
 export const nonce = {
   getNonce: '0x89535803',
 } as const satisfies FunctionSelectors<typeof Abis.nonce>

@@ -1,0 +1,100 @@
+---
+description: Let users sign in with an identity provider such as Google and control a Tempo account with no seed phrase or wallet server.
+---
+
+import { Card, Cards } from 'vocs'
+
+# OIDC Signing
+
+## Overview
+
+OIDC Signing turns a sign-in with an identity provider, such as Google, into a Tempo account.
+The account holds no key: a zero-knowledge proof of the user's ID token authorizes an access
+key on their device, and that access key signs transactions.
+
+The address derives from the user's identity at the provider, your app's OAuth client ID, a
+secret salt, and a [Key Publisher](/tempo/actions/keyPublisher.create). The same sign-in reaches
+the same address from any device, and the address does not reveal who the user is.
+
+[See the OIDC Signer specification](https://tips.sh/1130)
+
+## How It Works
+
+A Key Publisher lists the provider's signing keys onchain. When a user signs in, the app proves
+the ID token through the salt service, and the proof authorizes the app's access key in the
+account's first transaction. Later transactions are signed by the access key alone.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant A as App (you)
+    participant I as Identity provider (Google)
+    participant S as Salt service (Tempo)
+    participant P as Prover (Tempo)
+    participant K as Key Publisher owner (Tempo)
+    participant T as Tempo
+
+    Note over U,T: Add an identity provider
+    K->>I: Read the signing keys from the discovery document
+    I-->>K: Signing keys
+    K->>T: keyPublisher.create, then keyPublisher.setKeys as keys rotate
+
+    Note over U,T: Sign-in and first transaction
+    U->>A: Sign in with Google
+    A->>A: Create the access key<br/>Prepare a nonce that commits to it
+    A->>I: Sign in with the nonce
+    I-->>A: ID token
+    A->>S: oidc.prove with the ID token
+    S->>S: Check the token<br/>Derive the salt from the salt key
+    S->>P: Prove the token
+    P-->>S: Proof
+    S-->>A: Credential
+    A->>A: Account.fromZk(credential)<br/>Sign the key authorization
+    A->>S: First transaction with the key authorization
+    S->>T: Broadcast
+    T->>T: Verify the proof against the listed keys<br/>Authorize the access key and run the calls
+    T-->>A: Receipt
+
+    Note over U,T: Later transactions: the access key signs, with no proof
+```
+
+## Actors
+
+| Actor | Role | Run by |
+| --- | --- | --- |
+| App | Creates the access key, signs the user in, and sends transactions with [`oidc.prove`](/tempo/actions/oidc.prove) and [`Account.fromZk`](/tempo/accounts/account.fromZk). | You |
+| Identity provider | Signs the user's ID token. | The provider, such as Google |
+| Salt service | Checks ID tokens, derives each user's salt, and requests proofs. Its relay also pays the fee of the first transaction. | Tempo, or you with [`Relay.oidc`](/tempo/guides/oidc/salt-service) |
+| Prover | Proves the ID token in zero knowledge. | Tempo |
+| Key Publisher | Lists the provider's signing keys onchain and keeps them current. | Tempo, or you with [`keyPublisher.create`](/tempo/guides/oidc/publish-keys) |
+| Tempo | Verifies the proof, authorizes the access key, and runs the transactions. | Validators |
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:log-in"
+    title="Sign In with an Identity Provider"
+    description="Sign users in with Google, prove the sign-in, and authorize an access key."
+    to="/tempo/guides/oidc/sign-in"
+  />
+  <Card
+    icon="lucide:key-round"
+    title="Publish Provider Keys"
+    description="List the provider's signing keys onchain and keep them current as they rotate."
+    to="/tempo/guides/oidc/publish-keys"
+  />
+  <Card
+    icon="lucide:server"
+    title="Run a Salt Service"
+    description="Check ID tokens, derive salts, and request proofs with the OIDC relay plugin."
+    to="/tempo/guides/oidc/salt-service"
+  />
+  <Card
+    icon="lucide:fingerprint"
+    title="Account.fromZk"
+    description="The account a proven sign-in controls, and how it authorizes access keys."
+    to="/tempo/accounts/account.fromZk"
+  />
+</Cards>

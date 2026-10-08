@@ -138,3 +138,20 @@ export class FeeTokenPausedError extends BaseError {
     })
   }
 }
+
+export type ZkCredentialExpiredErrorType = ZkCredentialExpiredError & {
+  name: 'ZkCredentialExpiredError'
+}
+
+/** Thrown when a ZK signature would use a credential after its `validUntil`. */
+export class ZkCredentialExpiredError extends BaseError {
+  constructor({ validUntil }: { validUntil: number }) {
+    super(
+      `ZK credential expired at ${new Date(validUntil * 1000).toISOString()}.`,
+      {
+        metaMessages: ['Sign in again to get a new credential.'],
+        name: 'ZkCredentialExpiredError',
+      },
+    )
+  }
+}

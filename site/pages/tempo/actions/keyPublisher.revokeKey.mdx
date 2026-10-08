@@ -1,0 +1,138 @@
+---
+description: Revokes a Key Publisher key immediately, with no grace period.
+---
+
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `keyPublisher.revokeKey`
+
+Revokes a key immediately, with no grace period. Use it when a key is compromised; for routine rotation, use [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys), which keeps dropped keys valid for an hour.
+
+Only the publisher's owner can revoke keys. Revoking an inactive key succeeds.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await client.keyPublisher.revokeKeySync({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { receipt } = await Actions.keyPublisher.revokeKeySync(client, {
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, which waits for the transaction to be included before returning.
+
+If you are optimizing for performance, use the non-sync `keyPublisher.revokeKey` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.keyPublisher.revokeKey({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } = Actions.keyPublisher.revokeKey.extractEvent(receipt.logs)
+```
+
+## Return Value
+
+`{ issuer: Hex; keyHash: Hex; publisherId: Hex; receipt: TransactionReceipt }`
+
+The `KeyRevoked` event fields and the transaction receipt. `keyPublisher.revokeKey` returns the transaction hash instead.
+
+## Parameters
+
+### issuer
+
+- **Type:** `Hex`
+
+Issuer hash, from `Oidc.hashIssuer`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.revokeKeySync({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### keyHash
+
+- **Type:** `Hex`
+
+Key hash to revoke, from `Oidc.hashKey` or `Oidc.fromJwk`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.revokeKeySync({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### publisherId
+
+- **Type:** `Hex`
+
+Publisher ID, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) or `PublisherId.from`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.revokeKeySync({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+})
+```
+
+<WriteParameters />
+
+## Errors
+
+Key Publisher reverts surface as a `ContractFunctionRevertedError` whose `data.errorName` is one of:
+
+| Error | Description |
+| --- | --- |
+| `InvalidFieldElement` | An issuer or key hash is zero or not below the BN254 scalar field modulus. |
+| `Unauthorized` | The sender does not own the publisher. |
+| `UnknownPublisher` | The publisher does not exist. |

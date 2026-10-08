@@ -1,0 +1,250 @@
+---
+description: Creates a Key Publisher that lists the issuer keys ZK signatures may use.
+---
+
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `keyPublisher.create`
+
+Creates a Key Publisher: an onchain list of the issuer signing keys that ZK signatures may use. [Learn more about Key Publishers](https://tips.sh/1132)
+
+The publisher ID derives from the sender and `salt`, so it is known before creation. Viem sorts issuers and key hashes and drops repeats, so they may be passed in any order.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { publisherId } = await client.keyPublisher.createSync({
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'),
+      keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'],
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+
+console.log('Publisher ID:', publisherId)
+// @log: Publisher ID: 0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { publisherId } = await Actions.keyPublisher.createSync(client, {
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'),
+      keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'],
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, which waits for the transaction to be included before returning.
+
+If you are optimizing for performance, use the non-sync `keyPublisher.create` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.keyPublisher.create({
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'),
+      keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'],
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args: { publisherId } } =
+  Actions.keyPublisher.create.extractEvent(receipt.logs)
+```
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### List an Issuer's Published Keys
+
+Read the issuer's JSON Web Key Set and hash each key with `Oidc.fromJwk`, which rejects keys that ZK signatures cannot use.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const response = await fetch('https://www.googleapis.com/oauth2/v3/certs')
+const { keys } = (await response.json()) as { keys: Oidc.fromJwk.Jwk[] }
+
+const { publisherId } = await client.keyPublisher.createSync({
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'),
+      keyHashes: keys.map((jwk) => Oidc.fromJwk(jwk).keyHash), // [!code focus]
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+To follow later rotations, replace the list with [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys).
+
+### Compute the Publisher ID Before Creation
+
+`PublisherId.from` derives the ID from the creator and `salt`, so accounts can be derived for a publisher before it exists.
+
+```ts twoslash
+import { PublisherId } from 'viem/tempo'
+import { client } from './viem.config'
+
+const publisherId = PublisherId.from({ // [!code focus]
+  creator: client.account.address, // [!code focus]
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+}) // [!code focus]
+```
+
+### Assign Another Owner
+
+Pass `initialOwner` to create a publisher that another account, such as a multisig, controls.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const { owner } = await client.keyPublisher.createSync({
+  initialOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  keys: [],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+## Return Value
+
+`{ creator: Address; owner: Address; publisherId: Hex; receipt: TransactionReceipt }`
+
+The `PublisherCreated` event fields and the transaction receipt. `keyPublisher.create` returns the transaction hash instead.
+
+## Parameters
+
+### initialOwner (optional)
+
+- **Type:** `Address`
+- **Default:** The sender
+
+Owner of the publisher. Only the owner can set keys, revoke keys, and transfer ownership.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.createSync({
+  initialOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  keys: [],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+### keys
+
+- **Type:** `readonly { issuer: Hex; keyHashes: readonly Hex[] }[]`
+
+Issuers and the key hashes to list for each, in any order. Each issuer lists at most 16 key hashes.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.createSync({
+  keys: [{ issuer: Oidc.hashIssuer('https://accounts.google.com'), keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'] }], // [!code focus]
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+#### issuer
+
+- **Type:** `Hex`
+
+Issuer hash, from `Oidc.hashIssuer`. Repeated issuers are merged.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.createSync({
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+      keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'],
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+#### keyHashes
+
+- **Type:** `readonly Hex[]`
+
+Key hashes to list, from `Oidc.hashKey` or `Oidc.fromJwk`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.createSync({
+  keys: [
+    {
+      issuer: Oidc.hashIssuer('https://accounts.google.com'),
+      keyHashes: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605'], // [!code focus]
+    },
+  ],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+})
+```
+
+### salt
+
+- **Type:** `Hex`
+
+Any 32 bytes the sender chooses. Each sender creates one publisher per salt.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.createSync({
+  keys: [],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+})
+```
+
+<WriteParameters />
+
+## Errors
+
+Key Publisher reverts surface as a `ContractFunctionRevertedError` whose `data.errorName` is one of:
+
+| Error | Description |
+| --- | --- |
+| `InvalidFieldElement` | An issuer or key hash is zero or not below the BN254 scalar field modulus. |
+| `PublisherExists` | The sender already created a publisher with this `salt`. |
+| `TooManyKeys` | An issuer lists more than 16 key hashes. |
+| `ZeroAddress` | The owner is the zero address. |

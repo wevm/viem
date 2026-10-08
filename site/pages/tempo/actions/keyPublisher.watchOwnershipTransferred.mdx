@@ -1,0 +1,164 @@
+---
+description: Watches for Key Publisher ownership transfer events.
+---
+
+# `keyPublisher.watchOwnershipTransferred`
+
+Watches for Key Publisher ownership transfer events.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.keyPublisher.watchOwnershipTransferred({
+  onOwnershipTransferred: (args, log) => {
+    console.log('Publisher ID:', args.publisherId)
+    console.log('New owner:', args.newOwner)
+  },
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const unwatch = Actions.keyPublisher.watchOwnershipTransferred(client, {
+  onOwnershipTransferred: (args, log) => {
+    console.log('Publisher ID:', args.publisherId)
+    console.log('New owner:', args.newOwner)
+  },
+})
+```
+
+## Return Value
+
+`() => void`
+
+A function to unsubscribe from the event.
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  newOwner?: Address | Address[] | null
+  previousOwner?: Address | Address[] | null
+  publisherId?: Hex | Hex[] | null
+}
+```
+
+Filters events by their indexed fields.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  args: { publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502' }, // [!code focus]
+  onOwnershipTransferred: (args) => console.log(args),
+})
+```
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block to start listening from.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  fromBlock: 1n, // [!code focus]
+  onOwnershipTransferred: (args) => console.log(args),
+})
+```
+
+### onError (optional)
+
+- **Type:** `(error: Error) => void`
+
+Callback to invoke when polling for new events fails.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  onOwnershipTransferred: (args) => console.log(args),
+  onError: (error) => console.error(error), // [!code focus]
+})
+```
+
+### onOwnershipTransferred
+
+- **Type:** `(args: Args, log: Log) => void`
+
+```ts
+type Args = {
+  /** New owner. */
+  newOwner: Address
+  /** Previous owner. */
+  previousOwner: Address
+  /** Publisher ID. */
+  publisherId: Hex
+}
+```
+
+Callback to invoke for each event.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  onOwnershipTransferred: (args, log) => console.log(args, log), // [!code focus]
+})
+```
+
+### poll (optional)
+
+- **Type:** `true`
+
+Whether to poll for events instead of subscribing over a WebSocket transport.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  onOwnershipTransferred: (args) => console.log(args),
+  poll: true, // [!code focus]
+})
+```
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** The Client's `pollingInterval`
+
+Polling frequency, in milliseconds.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchOwnershipTransferred({
+  onOwnershipTransferred: (args) => console.log(args),
+  pollingInterval: 1_000, // [!code focus]
+})
+```

@@ -11,11 +11,13 @@ import {
   custom,
   Relay,
   Scopes,
+  Secp256k1,
   Store,
   withRelay,
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { credential } from '~test/tempo/zk.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -171,6 +173,35 @@ describe('signAuthorization', () => {
 
     expect(invoked).toBe(true)
     await expect(promise).resolves.toBeDefined()
+  })
+
+  test('behavior: zk account', async () => {
+    const zkAccount = Account.fromZk(credential)
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: zkAccount,
+    })
+
+    const authorization = await actions.accessKey.prepareAuthorization(client, {
+      account: zkAccount,
+      accessKey,
+    })
+    const keyAuthorization = await actions.accessKey.signAuthorization(
+      client,
+      authorization,
+    )
+
+    const { signature } = keyAuthorization
+    if (signature.type !== 'zk') throw new Error('expected a ZK signature')
+    const { accessKeySignature } = signature
+    if (accessKeySignature.type !== 'secp256k1')
+      throw new Error('expected a secp256k1 signature')
+    // The access key signs the prepared payload: the ZK digest of the authorization.
+    expect(
+      Secp256k1.recoverAddress({
+        payload: authorization.signPayload,
+        signature: accessKeySignature.signature,
+      }),
+    ).toBe(accessKey.accessKeyAddress)
   })
 
   test('default', async () => {

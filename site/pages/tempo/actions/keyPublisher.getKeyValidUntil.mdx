@@ -1,0 +1,111 @@
+---
+description: Gets when a key stops being valid for ZK signatures.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `keyPublisher.getKeyValidUntil`
+
+Gets when a key stops being valid for ZK signatures, as a Unix timestamp in seconds.
+
+A listed key returns `2n ** 64n - 1n`. After [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys) drops a key, it returns the end of the key's one-hour grace period. A key that was never listed, or was revoked, returns `0n`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validUntil = await client.keyPublisher.getKeyValidUntil({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+
+console.log(validUntil)
+// @log: 18446744073709551615n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const validUntil = await Actions.keyPublisher.getKeyValidUntil(client, {
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+## Return Value
+
+`bigint`
+
+The key's validity end, in seconds.
+
+## Parameters
+
+### issuer
+
+- **Type:** `Hex`
+
+Issuer hash, from `Oidc.hashIssuer`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getKeyValidUntil({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### keyHash
+
+- **Type:** `Hex`
+
+Key hash, from `Oidc.hashKey` or `Oidc.fromJwk`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getKeyValidUntil({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### publisherId
+
+- **Type:** `Hex`
+
+Publisher ID, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) or `PublisherId.from`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getKeyValidUntil({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  keyHash: '0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+})
+```
+
+<ReadParameters />

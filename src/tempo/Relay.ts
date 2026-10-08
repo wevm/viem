@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { Hex } from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
@@ -7,6 +8,7 @@ import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as Multisig from './internal/relay/multisig.js'
+import * as Oidc from './internal/relay/oidc.js'
 import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
@@ -398,6 +400,70 @@ export declare namespace feePayer {
  */
 export function feeToken(): Plugin {
   return FeeToken.create()
+}
+
+/**
+ * Proves OIDC sign-ins as the salt service for ZK signatures.
+ *
+ * Handles `oidc_prove`: checks the ID token, its signing key's listing in the
+ * Key Publisher, and the nonce's commitment to the access key, derives the
+ * identity's salt, and requests the proof. Other requests are forwarded.
+ *
+ * [TIP-1133](https://tips.sh/1133)
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Relay } from 'viem/tempo'
+ *
+ * const relay = Relay.create({
+ *   client: createClient({ chain: tempo, transport: http() }),
+ *   plugins: [
+ *     Relay.oidc({
+ *       audiences: ['1234567890-abc.apps.googleusercontent.com'],
+ *       issuers: ['https://accounts.google.com'],
+ *       prover: { apiKey: '...', url: 'https://prover.example' },
+ *       publisherId: '0x...',
+ *       saltKey: '0x...',
+ *     }),
+ *   ],
+ * })
+ * ```
+ * @param options - Accepted issuers and audiences, the prover, the publisher, and the salt key.
+ * @returns An OIDC relay plugin.
+ */
+export function oidc(options: oidc.Options): Plugin {
+  return Oidc.create(options)
+}
+
+export declare namespace oidc {
+  /** OIDC salt service configuration. */
+  export type Options = {
+    /** Accepted `aud` values: the OAuth client IDs of the apps the relay serves. */
+    audiences: readonly string[]
+    /** Fetch for issuer keys and the prover. Defaults to the global `fetch`. */
+    fetch?: typeof globalThis.fetch | undefined
+    /**
+     * Accepted `iss` values. The relay reads each issuer's keys from its discovery document,
+     * and rereads them when a token names a key they lack, at most once every 30 seconds.
+     */
+    issuers: readonly string[]
+    /**
+     * Prover service that proves sign-ins. The relay abandons a proof after 60 seconds, or when
+     * its request is cancelled.
+     */
+    prover: {
+      /** Bearer token for the prover. */
+      apiKey: string
+      /** Prover base URL. */
+      url: string
+    }
+    /** Key Publisher whose key lists the identities trust. It is part of each identity's address. */
+    publisherId: Hex
+    /** Durable secret that derives identity salts. Losing it locks users out of their accounts. */
+    saltKey: Hex
+  }
 }
 
 /**

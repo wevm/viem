@@ -3,10 +3,18 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
+import {
+  Channel,
+  KeyAuthorization,
+  MultisigConfig,
+  Period,
+  SignatureEnvelope,
+  ZkSignature,
+} from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
+import { credential, expiredCredential } from '~test/tempo/zk.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
@@ -179,6 +187,15 @@ describe('fromMultisig', () => {
       } as never),
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: An initial multisig config must have version zero.]`,
+    )
+  })
+
+  test('error: ZK owner', () => {
+    expect(() =>
+      // @ts-expect-error Verify runtime rejection for untyped callers.
+      Account.fromMultisig({ owners: [Account.fromZk(credential)] }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Multisig owners must use primitive signatures.]`,
     )
   })
 })
@@ -473,6 +490,184 @@ describe('fromWebCryptoP256', () => {
     expect(account.keyType).toBe('p256')
     expect(account.source).toBe('accessKey')
     expect(account.address).toBe(rootAccount.address)
+  })
+})
+
+describe('fromZk', () => {
+  test('default', async () => {
+    const account = Account.fromZk(credential)
+
+    const {
+      sign: _sign,
+      signKeyAuthorization: _signKeyAuthorization,
+      signMessage: _signMessage,
+      signTransaction: _signTransaction,
+      signTypedData: _signTypedData,
+      ...rest
+    } = account
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "address": "0xC6482aD394e0D15A89f4eE0eeE00ac43C907Ed7F",
+        "credential": {
+          "addressSeed": "0x0101010101010101010101010101010101010101010101010101010101010101",
+          "issuedAt": 4102444000,
+          "issuer": "0x0202020202020202020202020202020202020202020202020202020202020202",
+          "keyHash": "0x0303030303030303030303030303030303030303030303030303030303030303",
+          "proof": "0x04040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404",
+          "publisherId": "0x0505050505050505050505050505050505050505050505050505050505050505",
+          "scheme": 1,
+          "validUntil": 4102444540,
+        },
+        "publicKey": "0x",
+        "source": "zk",
+        "type": "local",
+      }
+    `)
+    expect(
+      Address.isEqual(account.address, ZkSignature.getAddress(credential)),
+    ).toBe(true)
+  })
+
+  test('behavior: access key', () => {
+    const account = Account.fromZk(credential)
+    const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    expect(accessKey.address).toBe(account.address)
+  })
+
+  test('behavior: signKeyAuthorization', async () => {
+    const account = Account.fromZk(credential)
+    const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(accessKey, {
+      chainId: 4217n,
+      expiry: 1234567890,
+    })
+
+    const { signature, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "chainId": 4217n,
+        "expiry": 1234567890,
+        "limits": undefined,
+        "scopes": undefined,
+        "type": "secp256k1",
+      }
+    `)
+    if (signature.type !== 'zk') throw new Error('expected a ZK signature')
+    const { accessKeySignature, type: _, ...signed } = signature
+    expect(signed).toEqual(credential)
+    expect(accessKeySignature.type).toBe('secp256k1')
+    if (accessKeySignature.type !== 'secp256k1')
+      throw new Error('expected a secp256k1 signature')
+    const payload = ZkSignature.getSignPayload({
+      credential,
+      payload: KeyAuthorization.getSignPayload(authorization),
+    })
+    expect(
+      Secp256k1.recoverAddress({
+        payload,
+        signature: accessKeySignature.signature,
+      }),
+    ).toBe(accessKey.accessKeyAddress)
+  })
+
+  test('behavior: admin', async () => {
+    const account = Account.fromZk(credential)
+    const accessKey = Account.fromP256(privateKey_p256, { access: account })
+
+    const authorization = await account.signKeyAuthorization(accessKey, {
+      admin: true,
+      chainId: 4217n,
+      expiry: 1234567890,
+    })
+
+    const { signature, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "address": "0xc3cf8b814b729a1ad648b49fbbded3767bcd35fd",
+        "chainId": 4217n,
+        "isAdmin": true,
+        "type": "p256",
+      }
+    `)
+    expect(signature.type).toBe('zk')
+  })
+
+  test('error: expired credential', async () => {
+    const account = Account.fromZk(expiredCredential)
+    const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    await expect(
+      account.signKeyAuthorization(accessKey, { chainId: 4217n }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ZkCredentialExpiredError: ZK credential expired at 2025-10-09T09:02:20.000Z.
+
+      Sign in again to get a new credential.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error: key without a signer', async () => {
+    const account = Account.fromZk(credential)
+
+    await expect(
+      account.signKeyAuthorization(
+        {
+          address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+          type: 'secp256k1',
+        } as never,
+        { chainId: 4217n },
+      ),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: ZK accounts sign key authorizations with the access key their credential commits to. Pass that access key account.]`,
+    )
+  })
+
+  test('error: invalid credential', () => {
+    expect(() =>
+      Account.fromZk({ ...credential, proof: '0x04' }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[ZkSignature.InvalidCredentialError: Invalid ZK signature credential: proof is not 256 bytes.]`,
+    )
+  })
+
+  test('error: signing methods', async () => {
+    const account = Account.fromZk(credential)
+
+    await expect(
+      account.sign({ hash: keccak256('0x1234') }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`sign\` is not supported for ZK accounts. Sign with an authorized access key.]`,
+    )
+    await expect(
+      account.signMessage({ message: 'hello' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`signMessage\` is not supported for ZK accounts. Sign with an authorized access key.]`,
+    )
+    await expect(
+      account.signTransaction({ chainId: 4217 }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`signTransaction\` is not supported for ZK accounts. Sign with an authorized access key.]`,
+    )
+    await expect(
+      account.signTypedData({
+        domain: { name: 'Test' },
+        message: { value: 'hello' },
+        primaryType: 'Test',
+        types: { Test: [{ name: 'value', type: 'string' }] },
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`signTypedData\` is not supported for ZK accounts. Sign with an authorized access key.]`,
+    )
   })
 })
 
@@ -1342,6 +1537,26 @@ describe('signKeyAuthorization (instance): alternative key formats', () => {
 })
 
 describe('signKeyAuthorization (standalone)', () => {
+  test('behavior: zk', async () => {
+    const account = Account.fromZk(credential)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: 4217n,
+      expiry: 1234567890,
+      key,
+    })
+
+    expect(authorization).toEqual(
+      await account.signKeyAuthorization(key, {
+        chainId: 4217n,
+        expiry: 1234567890,
+      }),
+    )
+  })
+
   test('default', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     const key = Account.fromSecp256k1(privateKey_secp256k1, {

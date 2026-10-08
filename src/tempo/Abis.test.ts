@@ -3,6 +3,7 @@ import * as Abis from './Abis.js'
 
 test('groups Tempo, Earn, Zone, and PropAMM ABIs', () => {
   expect(Abis.core).toContain(Abis.accountKeychain[0])
+  expect(Abis.core).toContain(Abis.keyPublisher[0])
   expect(Abis.core).toContain(Abis.zonePortal[0])
   expect(Abis.earn).toContain(Abis.earnContributionController[0])
   expect(Abis.earn).toContain(Abis.vedaEngine[0])

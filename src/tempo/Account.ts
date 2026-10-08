@@ -9,6 +9,7 @@ import {
   KeyAuthorization,
   MultisigConfig,
   SignatureEnvelope,
+  ZkSignature,
 } from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
@@ -25,6 +26,7 @@ import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import { nativeMultisigFactory } from './Addresses.js'
+import { ZkCredentialExpiredError } from './errors.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import { parseApproval } from './multisig/Signature.js'
 import * as Transaction from './Transaction.js'
@@ -92,7 +94,7 @@ export type AccessKeyAccount = Account_base<'accessKey'> & {
   }) => Promise<Hex.Hex>
 }
 
-export type Account = OneOf<RootAccount | AccessKeyAccount>
+export type Account = OneOf<RootAccount | AccessKeyAccount | ZkAccount>
 
 /** Instantiates an Account. */
 export function from<const parameters extends from.Parameters>(
@@ -377,7 +379,10 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
   })()
   if (
     ownerAccounts.some(
-      (owner) => owner.source === 'multisig' || isAccessKeyAccount(owner),
+      (owner) =>
+        owner.source === 'multisig' ||
+        owner.source === 'zk' ||
+        isAccessKeyAccount(owner),
     )
   )
     throw new Error('Multisig owners must use primitive signatures.')
@@ -491,11 +496,19 @@ export declare namespace fromMultisig {
   /** Multisig owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
-    | (LocalAccount & { accessKeyAddress?: never; owners?: never })
+    | (LocalAccount & {
+        accessKeyAddress?: never
+        credential?: never
+        owners?: never
+      })
     | (Omit<MultisigConfig.Owner, 'owner'> & {
         owner:
           | Address.Address
-          | (LocalAccount & { accessKeyAddress?: never; owners?: never })
+          | (LocalAccount & {
+              accessKeyAddress?: never
+              credential?: never
+              owners?: never
+            })
       })
 
   /** Parameters for {@link fromMultisig}. */
@@ -737,6 +750,135 @@ export declare namespace fromWebCryptoP256 {
     from.ReturnValue<options>
 }
 
+/**
+ * Instantiates an Account for a ZK identity from a credential that a prover
+ * issued after a sign-in.
+ *
+ * The account holds no key. Until the credential's `validUntil`, it signs key
+ * authorizations for the access key the credential commits to, using that
+ * access key. Authorized access keys sign transactions for the account.
+ *
+ * [TIP-1131](https://tips.sh/1131)
+ *
+ * @example
+ * ```ts
+ * import { generatePrivateKey } from 'viem/accounts'
+ * import { Account } from 'viem/tempo'
+ *
+ * const account = Account.fromZk(credential)
+ * const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+ *   access: account,
+ * })
+ *
+ * const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+ *   chainId: 4217n,
+ *   expiry: Math.floor(Date.now() / 1000) + 86_400,
+ * })
+ * ```
+ *
+ * @param credential ZK credential, committing to an access key.
+ * @returns ZK account.
+ */
+export function fromZk(credential: ZkSignature.Credential): ZkAccount {
+  ZkSignature.assert(credential)
+  return {
+    address: Address.checksum(ZkSignature.getAddress(credential)),
+    credential,
+    publicKey: '0x',
+    source: 'zk',
+    type: 'local',
+    async sign() {
+      throw new Error(
+        '`sign` is not supported for ZK accounts. Sign with an authorized access key.',
+      )
+    },
+    async signKeyAuthorization(key, parameters) {
+      const { admin, chainId, expiry, limits, scopes, witness } = parameters
+      const { validUntil } = credential
+      // The node accepts a ZK signature until its block timestamp passes `validUntil`.
+      if (validUntil < Math.floor(Date.now() / 1000))
+        throw new ZkCredentialExpiredError({ validUntil })
+      if (!isAccessKeyAccount(key))
+        throw new Error(
+          'ZK accounts sign key authorizations with the access key their credential commits to. Pass that access key account.',
+        )
+      const { accessKeyAddress, keyType: type } = key
+
+      // Admin key authorizations are unrestricted and must not carry expiry,
+      // limits, or call scopes (the protocol rejects them). [TIP-1049]
+      const restrictions = admin ? {} : { expiry, limits, scopes }
+
+      const payload = KeyAuthorization.getSignPayload({
+        address: accessKeyAddress,
+        chainId,
+        type,
+        witness,
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
+      } as never)
+      const accessKeySignature = await key.sign({
+        hash: ZkSignature.getSignPayload({ credential, payload }),
+        raw: true,
+      })
+      return KeyAuthorization.from({
+        address: accessKeyAddress,
+        chainId,
+        signature: SignatureEnvelope.from({
+          ...credential,
+          accessKeySignature: SignatureEnvelope.from(accessKeySignature),
+          type: 'zk',
+        } as never),
+        type,
+        ...(witness ? { witness } : {}),
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
+      } as never)
+    },
+    async signMessage() {
+      throw new Error(
+        '`signMessage` is not supported for ZK accounts. Sign with an authorized access key.',
+      )
+    },
+    async signTransaction() {
+      throw new Error(
+        '`signTransaction` is not supported for ZK accounts. Sign with an authorized access key.',
+      )
+    },
+    async signTypedData() {
+      throw new Error(
+        '`signTypedData` is not supported for ZK accounts. Sign with an authorized access key.',
+      )
+    },
+  }
+}
+
+export type ZkAccount = RequiredBy<
+  LocalAccount<'zk'>,
+  'sign' | 'signMessage' | 'signTransaction' | 'signTypedData'
+> & {
+  /** Credential the account signs with. */
+  credential: ZkSignature.Credential
+  /**
+   * Signs a key authorization for the access key the credential commits to,
+   * using that access key. Throws `ZkCredentialExpiredError` after the
+   * credential's `validUntil`.
+   */
+  signKeyAuthorization: (
+    key: AccessKeyAccount,
+    parameters: Pick<
+      KeyAuthorization.KeyAuthorization,
+      'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
+    > & {
+      /** Whether to authorize the key as an admin key (TIP-1049). */
+      admin?: boolean | undefined
+    },
+  ) => Promise<KeyAuthorization.Signed>
+}
+
+function isZkAccount(account: LocalAccount): account is ZkAccount {
+  return account.source === 'zk'
+}
+
 export async function signVoucher(
   account: LocalAccount,
   parameters: signVoucher.Parameters,
@@ -819,6 +961,16 @@ export async function signKeyAuthorization(
     signatures,
     witness,
   } = parameters
+  if (isZkAccount(account))
+    return account.signKeyAuthorization(key as AccessKeyAccount, {
+      admin,
+      chainId,
+      expiry,
+      limits,
+      scopes,
+      witness,
+    })
+
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
   // When the signer is an admin access key, the authorization must be
