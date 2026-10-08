@@ -6,7 +6,7 @@ description: Estimates the amount of L1 + L2 gas required to execute an L2 trans
 
 Estimates the amount of [L1 data gas](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) + L2 gas required to execute an L2 transaction.
 
-It is the sum of [`estimateL1Gas`](/op-stack/actions/estimateL1Gas) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) (L2 Gas).
+It is the sum of [`estimateL1Gas`](/op-stack/actions/estimateL1Gas) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas) (L2 Gas).
 
 ## Usage
 

@@ -16,7 +16,7 @@ Supports verification of:
 :::info
 **Why should I use this over the [`verifyMessage`](/docs/utilities/verifyMessage) util?**
 
-This Action supports verifying messages that were signed by either a Smart Contract Account or Externally Owned Account. The [`verifyMessage`](/docs/utilities/verifyMessage.md) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
+This Action supports verifying messages that were signed by either a Smart Contract Account or Externally Owned Account. The [`verifyMessage`](/docs/utilities/verifyMessage) util only supports Externally Owned Accounts. This is getting increasingly important as more wallets implement [Account Abstraction](https://eips.ethereum.org/EIPS/eip-4337). 
 :::
 
 ## Usage

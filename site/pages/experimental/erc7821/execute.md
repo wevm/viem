@@ -53,7 +53,7 @@ export const client = createClient({
 
 If you do not wish to pass an `account` to every `sendCalls`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet#account).
+[Learn more](/docs/clients/wallet#account-optional).
 
 :::code-group
 
@@ -163,7 +163,7 @@ export const client = createClient({
 
 [`Hash`](/docs/glossary/types#hash)
 
-A [Transaction Hash](/docs/glossary/terms#hash).
+A [Transaction Hash](/docs/glossary/types#hash).
 
 ## Parameters
 

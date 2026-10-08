@@ -60,7 +60,7 @@ export const account = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 
 If you do not wish to pass an `account` to every `prepareTransactionRequest`, you can also hoist the Account on the Wallet Client (see `config.ts`).
 
-[Learn more](/docs/clients/wallet#account).
+[Learn more](/docs/clients/wallet#account-optional).
 
 :::code-group
 
