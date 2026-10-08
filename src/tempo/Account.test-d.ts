@@ -25,6 +25,7 @@ test('fromZk returns a ZK account', async () => {
   })
 
   expectTypeOf(account).toEqualTypeOf<Account.ZkAccount>()
+  expectTypeOf(account).toMatchTypeOf<Account.Account>()
   expectTypeOf(account.source).toEqualTypeOf<'zk'>()
   expectTypeOf(accessKey).toEqualTypeOf<Account.AccessKeyAccount>()
   expectTypeOf(

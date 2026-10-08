@@ -444,9 +444,15 @@ export declare namespace oidc {
     audiences: readonly string[]
     /** Fetch for issuer keys and the prover. Defaults to the global `fetch`. */
     fetch?: typeof globalThis.fetch | undefined
-    /** Accepted `iss` values. The relay reads each issuer's keys from its discovery document. */
+    /**
+     * Accepted `iss` values. The relay reads each issuer's keys from its discovery document,
+     * and rereads them when a token names a key they lack, at most once every 30 seconds.
+     */
     issuers: readonly string[]
-    /** Prover service that proves sign-ins. */
+    /**
+     * Prover service that proves sign-ins. The relay abandons a proof after 60 seconds, or when
+     * its request is cancelled.
+     */
     prover: {
       /** Bearer token for the prover. */
       apiKey: string

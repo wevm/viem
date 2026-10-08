@@ -144,7 +144,8 @@ const plugin = Relay.oidc({
 
 - **Type:** `readonly string[]`
 
-Accepted `iss` values. The relay reads each issuer's signing keys from its discovery document.
+Accepted `iss` values. The relay reads each issuer's signing keys from its discovery document,
+and rereads them when a token names a key they lack, at most once every 30 seconds.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
@@ -162,7 +163,8 @@ const plugin = Relay.oidc({
 
 - **Type:** `{ apiKey: string; url: string }`
 
-The prover service and its bearer token.
+The prover service and its bearer token. The relay abandons a proof after 60 seconds, or when
+its request is cancelled.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'

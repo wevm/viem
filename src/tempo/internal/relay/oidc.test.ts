@@ -140,6 +140,41 @@ describe.runIf(supported)('oidc_prove', () => {
     )
   })
 
+  test('error: key added since the last refresh', async () => {
+    const { prepared, client } = setup()
+    // A token naming an unknown key makes the relay fetch the issuer's keys.
+    await Actions.oidc
+      .prove(client, {
+        ...prepared,
+        token: await issuer.mint(claims({ nonce: prepared.nonce }), {
+          kid: 'unknown',
+        }),
+      })
+      .catch(() => undefined)
+    const kid = await issuer.addKey()
+    const token = await issuer.mint(claims({ nonce: prepared.nonce }), { kid })
+
+    // The relay refetches the keys at most once per interval, so it does not see the new key yet.
+    await expect(
+      Actions.oidc.prove(client, { ...prepared, token }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidInputError: The ID token signature does not match a key of its issuer.]`,
+    )
+  })
+
+  test('behavior: reads keys added before the first fetch', async () => {
+    const { prepared, client } = setup()
+    const kid = await issuer.addKey()
+    const token = await issuer.mint(claims({ nonce: prepared.nonce }), { kid })
+
+    // The relay verifies the token with the new key, which the publisher does not list.
+    await expect(
+      Actions.oidc.prove(client, { ...prepared, token }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidInputError: The Key Publisher does not list the key that signed the ID token.]`,
+    )
+  })
+
   test('error: invalid signature', async () => {
     const { prepared, client } = setup()
     const [header, payload] = (
@@ -164,6 +199,92 @@ describe.runIf(supported)('oidc_prove', () => {
       Actions.oidc.prove(client, { ...prepared, token }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[RpcResponse.InvalidInputError: The Key Publisher does not list the key that signed the ID token.]`,
+    )
+  })
+
+  test('error: claims are not an object', async () => {
+    const { prepared, client } = setup()
+    const [header, , signature] = (
+      await issuer.mint(claims({ nonce: prepared.nonce }))
+    ).split('.')
+    const token = `${header}.${Base64.fromString('null', { pad: false, url: true })}.${signature}`
+
+    await expect(
+      Actions.oidc.prove(client, { ...prepared, token }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Expected \`token\` to be a compact JWS ID token.]`,
+    )
+  })
+
+  test('error: prover returns a malformed proof', async () => {
+    // The prover answers for the right statement, with a proof of the wrong size.
+    const server = await serve((_, response) => {
+      response.end(JSON.stringify({ proof: '0x1234', publicInput }))
+    })
+    const { prepared, client } = setup({
+      prover: { apiKey: '', url: server.url },
+    })
+    const iat = now()
+    const salt = Oidc.getSalt({
+      aud: audience,
+      iss: issuer.iss,
+      key: saltKey,
+      sub: 'user',
+    })
+    const publicInput = Oidc.getPublicInput({
+      accessKeyAddress: prepared.accessKeyAddress,
+      addressSeed: Oidc.getAddressSeed({ aud: audience, salt, sub: 'user' }),
+      issuedAt: iat,
+      issuer: Oidc.hashIssuer(issuer.iss),
+      keyHash: issuer.keyHash,
+      validUntil: prepared.validUntil,
+    })
+    const token = await issuer.mint(claims({ iat, nonce: prepared.nonce }))
+
+    const error = await Actions.oidc.prove(client, { ...prepared, token }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+    await server.close()
+
+    expect(error).toMatchInlineSnapshot(
+      `[RpcResponse.InternalError: The prover failed.]`,
+    )
+  })
+
+  test('behavior: aborts the proof with the request', async () => {
+    // The prover never responds.
+    const server = await serve(() => {})
+    const relay = Relay.create({
+      client: Tempo.getClient({ chain: Tempo.chain }),
+      plugins: [plugin({ prover: { apiKey: '', url: server.url } })],
+    })
+    const { prepared } = setup()
+    const token = await issuer.mint(claims({ nonce: prepared.nonce }))
+
+    const error = await relay
+      .request(
+        {
+          method: 'oidc_prove',
+          params: [
+            {
+              accessKeyAddress: prepared.accessKeyAddress,
+              blinding: prepared.blinding,
+              token,
+              validUntil: Hex.fromNumber(prepared.validUntil),
+            },
+          ],
+        },
+        { signal: AbortSignal.timeout(1_000) },
+      )
+      .then(
+        () => undefined,
+        (error: unknown) => error,
+      )
+    await server.close()
+
+    expect(error).toMatchInlineSnapshot(
+      `[TimeoutError: The operation was aborted due to timeout]`,
     )
   })
 
@@ -268,11 +389,17 @@ describe.runIf(supported && prover)('behavior: proven sign-in', () => {
   })
 })
 
-function plugin(options: { publisherId?: Hex.Hex | undefined } = {}) {
+function plugin(
+  options: {
+    prover?: Relay.oidc.Options['prover'] | undefined
+    publisherId?: Hex.Hex | undefined
+  } = {},
+) {
   return Relay.oidc({
     audiences: [audience],
     issuers: [issuer.iss],
-    prover: prover ?? { apiKey: '', url: 'http://localhost:1' },
+    prover: options.prover ??
+      prover ?? { apiKey: '', url: 'http://localhost:1' },
     publisherId: options.publisherId ?? publisherId,
     saltKey,
   })
@@ -280,6 +407,7 @@ function plugin(options: { publisherId?: Hex.Hex | undefined } = {}) {
 
 function setup(
   options: {
+    prover?: Relay.oidc.Options['prover'] | undefined
     publisherId?: Hex.Hex | undefined
     validUntil?: number | undefined
   } = {},

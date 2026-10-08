@@ -101,11 +101,12 @@ import { client } from './viem.config'
 // Before the redirect: create the access key, then request the ID token with `prepared.nonce`.
 const keyPair = await WebCryptoP256.createKeyPair()
 const prepared = Oidc.prepare({ publicKey: keyPair.publicKey }) // [!code focus]
-sessionStorage.setItem('sign-in', JSON.stringify(prepared))
+sessionStorage.setItem('sign-in', JSON.stringify(prepared)) // [!code focus]
 
-// After the redirect: prove with the token the identity provider returned.
+// After the redirect: read the prepared values back, then prove with the token the identity provider returned.
 declare const token: string
-const { credential } = await client.oidc.prove({ ...prepared, token }) // [!code focus]
+const stored: Oidc.prepare.ReturnType = JSON.parse(sessionStorage.getItem('sign-in')!) // [!code focus]
+const { credential } = await client.oidc.prove({ ...stored, token }) // [!code focus]
 ```
 
 Keep `keyPair` in IndexedDB, where its private key stays non-extractable, and authorize it with [`Account.fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256). The relay only sees the key's address.

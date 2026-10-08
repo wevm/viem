@@ -61,17 +61,21 @@ export async function prove<chain extends Chain | undefined>(
       Method: 'oidc_prove'
       Parameters: [prove.Request]
       ReturnType: prove.Response
-    }>({
-      method: 'oidc_prove',
-      params: [
-        {
-          accessKeyAddress,
-          blinding,
-          token,
-          validUntil: Hex.fromNumber(validUntil),
-        },
-      ],
-    })
+    }>(
+      {
+        method: 'oidc_prove',
+        params: [
+          {
+            accessKeyAddress,
+            blinding,
+            token,
+            validUntil: Hex.fromNumber(validUntil),
+          },
+        ],
+      },
+      // Each proof costs the prover seconds of work, so a failed one is not resent.
+      { retryCount: 0 },
+    )
     .catch((error) => {
       throw redact(error, [token, blinding])
     })

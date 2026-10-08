@@ -10,6 +10,11 @@ import type * as Relay from '../../Relay.js'
 
 // Scheme `0x01` accepts a ZK signature for at most 600 seconds after the token's `iat`.
 const maxValidity = 600
+// A token naming an unknown key refetches its issuer's keys at most this often, in milliseconds.
+const refreshInterval = 30_000
+// Deadlines for each issuer request and for a proof, in milliseconds.
+const issuerTimeout = 10_000
+const proverTimeout = 60_000
 
 /** Creates middleware that proves OIDC sign-ins as the salt service. @internal */
 export function create(options: Relay.oidc.Options): Relay.Plugin {
@@ -23,17 +28,27 @@ export function create(options: Relay.oidc.Options): Relay.Plugin {
   } = options
   const accepted = new Map(issuers.map((iss) => [Oidc.hashIssuer(iss), iss]))
 
-  // Signing keys per issuer, refetched when a token names a key they lack. Failed fetches are not kept.
-  const keySets = new Map<string, Promise<readonly Oidc.Key[]>>()
+  // Signing keys per issuer, refetched when a token names a key they lack, at most once per
+  // `refreshInterval` so made-up key IDs cannot flood the issuer. Failed fetches are not kept.
+  const keySets = new Map<
+    string,
+    { keys: Promise<readonly Oidc.Key[]>; time: number }
+  >()
   async function getKey(iss: string, kid: string | undefined) {
     const find = (keys: readonly Oidc.Key[]) =>
       keys.find((key) => key.kid === kid)
-    const cached = await keySets.get(iss)?.catch(() => undefined)
-    const key = cached && find(cached)
+    const cached = keySets.get(iss)
+    const key = await cached?.keys.then(find)
     if (key) return key
+    const latest = keySets.get(iss)
+    // Another request refetched the keys while these were searched.
+    if (latest && latest !== cached) return find(await latest.keys)
+    if (latest && Date.now() - latest.time < refreshInterval) return undefined
     const keys = fetchKeys(fetch, iss)
-    keySets.set(iss, keys)
-    keys.catch(() => keySets.delete(iss))
+    keySets.set(iss, { keys, time: Date.now() })
+    keys.catch(() => {
+      if (keySets.get(iss)?.keys === keys) keySets.delete(iss)
+    })
     return find(await keys)
   }
 
@@ -112,6 +127,7 @@ export function create(options: Relay.oidc.Options): Relay.Plugin {
       })()
       const proof = await prove(fetch, {
         prover,
+        signal: context.options.signal,
         request: {
           blinding,
           commitA: Hex.padLeft(accessKeyAddress, 32),
@@ -207,15 +223,23 @@ function decode(token: string) {
   const parts = token.split('.')
   if (parts.length !== 3) throw invalid()
   const [header, payload, signature] = parts as [string, string, string]
-  const [decodedHeader, claims] = (() => {
+  const sections = (() => {
     try {
-      return [header, payload].map((part) =>
-        JSON.parse(Bytes.toString(Base64.toBytes(part))),
-      ) as [Header, Record<string, unknown>]
+      return [header, payload].map(
+        (part) => JSON.parse(Bytes.toString(Base64.toBytes(part))) as unknown,
+      )
     } catch {
       throw invalid()
     }
   })()
+  if (
+    sections.some(
+      (section) =>
+        !section || typeof section !== 'object' || Array.isArray(section),
+    )
+  )
+    throw invalid()
+  const [decodedHeader, claims] = sections as [Header, Record<string, unknown>]
   for (const name of ['aud', 'iss', 'nonce', 'sub'] as const)
     if (typeof claims[name] !== 'string')
       throw new RpcResponse.InvalidInputError({
@@ -263,18 +287,18 @@ async function verify(options: {
 
 // Reads the issuer's key set through its discovery document, keeping the keys ZK signatures can use.
 async function fetchKeys(fetch: typeof globalThis.fetch, iss: string) {
-  const discovery = (await get(
+  const discovery = await get(
     fetch,
     `${iss.replace(/\/$/, '')}/.well-known/openid-configuration`,
-  )) as { issuer?: unknown; jwks_uri?: unknown }
+  )
   if (discovery.issuer !== iss || typeof discovery.jwks_uri !== 'string')
     throw new RpcResponse.InternalError({
       message: 'The issuer discovery document is invalid.',
     })
-  const { keys } = (await get(fetch, discovery.jwks_uri)) as {
+  const { keys = [] } = (await get(fetch, discovery.jwks_uri)) as {
     keys?: readonly Oidc.fromJwk.Jwk[] | undefined
   }
-  return (keys ?? []).flatMap((jwk) => {
+  return keys.flatMap((jwk) => {
     try {
       return [Oidc.fromJwk(jwk)]
     } catch (error) {
@@ -284,13 +308,16 @@ async function fetchKeys(fetch: typeof globalThis.fetch, iss: string) {
   })
 }
 
+// Keys are shared by every request, so one request aborting does not cancel their fetch.
 async function get(fetch: typeof globalThis.fetch, url: string) {
-  const response = await fetch(url)
-  if (!response.ok)
+  const body = await fetch(url, { signal: AbortSignal.timeout(issuerTimeout) })
+    .then((response) => (response.ok ? response.json() : undefined))
+    .catch(() => undefined)
+  if (!body || typeof body !== 'object' || Array.isArray(body))
     throw new RpcResponse.InternalError({
       message: 'The issuer keys are unavailable.',
     })
-  return response.json() as Promise<unknown>
+  return body as Record<string, unknown>
 }
 
 async function prove(
@@ -298,9 +325,14 @@ async function prove(
   options: {
     prover: Relay.oidc.Options['prover']
     request: Record<string, string>
+    signal?: AbortSignal | undefined
   },
 ) {
   const { prover, request } = options
+  const timeout = AbortSignal.timeout(proverTimeout)
+  const signal = options.signal
+    ? AbortSignal.any([options.signal, timeout])
+    : timeout
   const response = await fetch(`${prover.url.replace(/\/$/, '')}/v1/proofs`, {
     body: JSON.stringify(request),
     headers: {
@@ -308,6 +340,13 @@ async function prove(
       'content-type': 'application/json',
     },
     method: 'POST',
+    signal,
+  }).catch((error) => {
+    if (timeout.aborted)
+      throw new RpcResponse.InternalError({
+        message: 'The prover did not respond in time.',
+      })
+    throw error
   })
   const body = (await response.json().catch(() => undefined)) as
     | { proof?: unknown; publicInput?: unknown }
@@ -321,10 +360,13 @@ async function prove(
     throw new RpcResponse.InvalidInputError({
       message: 'The prover cannot prove this sign-in.',
     })
+  // A ZK signature carries a 256-byte proof.
   if (
     !response.ok ||
     typeof body?.proof !== 'string' ||
-    typeof body.publicInput !== 'string'
+    !/^0x[0-9a-f]{512}$/i.test(body.proof) ||
+    typeof body.publicInput !== 'string' ||
+    !Hex.validate(body.publicInput, { strict: true })
   )
     throw new RpcResponse.InternalError({ message: 'The prover failed.' })
   return {
