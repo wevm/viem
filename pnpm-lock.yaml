@@ -20,7 +20,7 @@ catalogs:
       version: 19.2.6
 
 overrides:
-  ox: 0.14.45
+  ox: https://pkg.pr.new/ox@4f01863
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -176,11 +176,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: 0.14.45
-        version: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+        specifier: https://pkg.pr.new/ox@4f01863
+        version: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.45(typescript@5.9.3)(zod@4.4.3))
+        version: 0.2.57(ox@https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3))
       prool:
         specifier: ~0.2.16
         version: 0.2.16(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -281,7 +281,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -294,7 +294,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -307,7 +307,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -320,7 +320,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -333,7 +333,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -352,7 +352,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -380,7 +380,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -402,7 +402,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -415,7 +415,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -434,7 +434,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -456,7 +456,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -469,7 +469,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -482,7 +482,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -495,7 +495,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -558,7 +558,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -586,7 +586,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -608,7 +608,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -627,7 +627,7 @@ importers:
         version: 19.2.3(react@19.2.3)
       viem:
         specifier: latest
-        version: 2.56.3(typescript@5.9.3)(zod@4.4.3)
+        version: 2.57.3(typescript@5.9.3)(zod@4.4.3)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -708,8 +708,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.21.0)
       ox:
-        specifier: 0.14.45
-        version: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+        specifier: https://pkg.pr.new/ox@4f01863
+        version: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       ws:
         specifier: 8.21.0
         version: 8.21.0
@@ -4541,10 +4541,6 @@ packages:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
 
-  eventsource-parser@3.1.0:
-    resolution: {integrity: sha512-kJezFj9YFAMLeORyi7aCLxLbD5/qWMQnoMVlVPyHIll7lgRJCc3JVln9Vgl9nwQi0YkMnhdGTMNn7CkRRAptMg==}
-    engines: {node: '>=18.0.0'}
-
   eventsource-parser@3.1.1:
     resolution: {integrity: sha512-EKN1vKAMcZ8MlYMpaNuxN6R9yakzH6uajHcHVTqWJzvu5pWw9DyhbP35HH8MVBQ+dZjAfDxk+A8NiR9KWaXiyQ==}
     engines: {node: '>=18.0.0'}
@@ -5929,8 +5925,9 @@ packages:
   outvariant@1.4.0:
     resolution: {integrity: sha512-AlWY719RF02ujitly7Kk/0QlV+pXGFDHrHf9O2OKqyqgBieaPOIeuSkL8sRK6j2WK+/ZAURq2kZsY0d8JapUiw==}
 
-  ox@0.14.45:
-    resolution: {integrity: sha512-jpsQ+p0JZh9mKCxxzxz0d5qFHZZg2/O9xW18IpEC/dNXXPVqmDJ0c//9RMz0CILkbSGPA42+cbU0fC/ghwJ03w==}
+  ox@https://pkg.pr.new/ox@4f01863:
+    resolution: {integrity: sha512-SQOwKnvGjhRKaHlz/WZchuOtjMxKE7VlzFEDohnaIx+ELhICUjvSdDCTSIpng4rQdBHW04v/H1/UuV+nA+HDxg==, tarball: https://pkg.pr.new/ox@4f01863}
+    version: 0.14.54-4f01863.0
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -6057,8 +6054,9 @@ packages:
 
   permissionless@0.2.57:
     resolution: {integrity: sha512-QrzAoQGYPV/NJ2x5Sj18h7qed6f+kCyQAojrncN091UPiGqHjFNjgdsgreiv8pxlQgF4UcpuJUvsHLpOEBd6cQ==}
+    version: 0.2.57
     peerDependencies:
-      ox: 0.14.45
+      ox: ^0.8.0
       viem: workspace:*
     peerDependenciesMeta:
       ox:
@@ -7266,8 +7264,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.56.3:
-    resolution: {integrity: sha512-vUObq3GO7D3lz9gPNEE/xd5jIUnMbeVDWewh252o54pDEDlW4pDe6FEd/qTGL5RyK52cGHMM7kQ3wjxhilEvkQ==}
+  viem@2.57.3:
+    resolution: {integrity: sha512-441q6Z42ZU7+mTJrYAjQsBpVWK76nyGQcKOCGT6hp+tBpw1XsnTIgKaqZFLTaW5xmBN1ummEFgzFWmR05FISTg==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -7722,10 +7720,10 @@ snapshots:
       '@babel/helper-compilation-targets': 7.29.7
       '@babel/helper-module-transforms': 7.29.7(@babel/core@7.29.7)
       '@babel/helpers': 7.29.7
-      '@babel/parser': 7.29.7
+      '@babel/parser': 7.29.9
       '@babel/template': 7.29.7
       '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
       '@jridgewell/remapping': 2.3.5
       convert-source-map: 2.0.0
       debug: 4.4.3
@@ -7737,8 +7735,8 @@ snapshots:
 
   '@babel/generator@7.29.7':
     dependencies:
-      '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
       '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
       jsesc: 3.1.0
@@ -7756,7 +7754,7 @@ snapshots:
   '@babel/helper-module-imports@7.29.7':
     dependencies:
       '@babel/traverse': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
     transitivePeerDependencies:
       - supports-color
 
@@ -7778,7 +7776,7 @@ snapshots:
   '@babel/helpers@7.29.7':
     dependencies:
       '@babel/template': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
 
   '@babel/parser@7.29.7':
     dependencies:
@@ -7797,17 +7795,17 @@ snapshots:
   '@babel/template@7.29.7':
     dependencies:
       '@babel/code-frame': 7.29.7
-      '@babel/parser': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/parser': 7.29.9
+      '@babel/types': 7.29.8
 
   '@babel/traverse@7.29.7':
     dependencies:
       '@babel/code-frame': 7.29.7
       '@babel/generator': 7.29.7
       '@babel/helper-globals': 7.29.7
-      '@babel/parser': 7.29.7
+      '@babel/parser': 7.29.9
       '@babel/template': 7.29.7
-      '@babel/types': 7.29.7
+      '@babel/types': 7.29.8
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
@@ -8722,7 +8720,7 @@ snapshots:
       cors: 2.8.6
       cross-spawn: 7.0.6
       eventsource: 3.0.7
-      eventsource-parser: 3.1.0
+      eventsource-parser: 3.1.1
       express: 5.2.1
       express-rate-limit: 8.5.2(express@5.2.1)
       hono: 4.13.7
@@ -10818,7 +10816,7 @@ snapshots:
       jose: 6.2.3
       mipd: 0.0.7(typescript@5.9.3)
       mppx: 0.8.19(@modelcontextprotocol/sdk@1.26.0)(express@5.2.1)(hono@4.13.7)(typescript@5.9.3)(viem@src)
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       wata: 0.4.0(react@19.2.6)(typescript@5.9.3)
       webauthx: 0.1.2(typescript@5.9.3)(zod@4.4.3)
       zod: 4.4.3
@@ -11888,13 +11886,11 @@ snapshots:
 
   events@3.3.0: {}
 
-  eventsource-parser@3.1.0: {}
-
   eventsource-parser@3.1.1: {}
 
   eventsource@3.0.7:
     dependencies:
-      eventsource-parser: 3.1.0
+      eventsource-parser: 3.1.1
 
   execa@9.6.1:
     dependencies:
@@ -13491,7 +13487,7 @@ snapshots:
     dependencies:
       '@stripe/stripe-js': 9.13.0
       eventsource-parser: 3.1.1
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       structured-headers: 2.0.3
       viem: link:src
       zod: 4.4.3
@@ -13692,7 +13688,7 @@ snapshots:
 
   outvariant@1.4.0: {}
 
-  ox@0.14.45(typescript@5.9.3)(zod@3.25.76):
+  ox@https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -13707,7 +13703,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.45(typescript@5.9.3)(zod@4.4.3):
+  ox@https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -13859,9 +13855,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.14.45(typescript@5.9.3)(zod@4.4.3)):
+  permissionless@0.2.57(ox@https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)):
     optionalDependencies:
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
 
   picocolors@1.1.1: {}
 
@@ -15341,7 +15337,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
       isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.45(typescript@5.9.3)(zod@3.25.76)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@3.25.76)
       ws: 8.21.0
     optionalDependencies:
       typescript: 5.9.3
@@ -15350,7 +15346,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.56.3(typescript@5.9.3)(zod@4.4.3):
+  viem@2.57.3(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -15358,7 +15354,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
       isows: 1.0.7(ws@8.21.0)
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       ws: 8.21.0
     optionalDependencies:
       typescript: 5.9.3
@@ -15650,7 +15646,7 @@ snapshots:
       '@noble/ciphers': 2.4.0
       '@noble/hashes': 2.4.0
       hono: 4.13.7
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
       zod: 4.4.3
     optionalDependencies:
       react: 19.2.6
@@ -15668,7 +15664,7 @@ snapshots:
 
   webauthx@0.1.2(typescript@5.9.3)(zod@4.4.3):
     dependencies:
-      ox: 0.14.45(typescript@5.9.3)(zod@4.4.3)
+      ox: https://pkg.pr.new/ox@4f01863(typescript@5.9.3)(zod@4.4.3)
     transitivePeerDependencies:
       - typescript
       - zod
