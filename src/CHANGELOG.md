@@ -1,5 +1,11 @@
 # viem
 
+## 2.57.5
+
+### Patch Changes
+
+- [#5202](https://github.com/wevm/viem/pull/5202) [`6501d059faac4f92cadc0099f67cf3fcc6aa6f4f`](https://github.com/wevm/viem/commit/6501d059faac4f92cadc0099f67cf3fcc6aa6f4f) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Updated Arc Testnet RPC and block explorer URLs from `arc.network` to `arc.io`.
+
 ## 2.57.4
 
 ### Patch Changes
