@@ -31,6 +31,7 @@ test('exports', () => {
       "susde",
       "syrupusdc",
       "thetausd",
+      "usat",
       "usd1",
       "usdb",
       "usdc",

@@ -26,6 +26,7 @@ import { stcusd } from './definitions/stcusd.js'
 import { susde } from './definitions/susde.js'
 import { syrupusdc } from './definitions/syrupusdc.js'
 import { thetausd } from './definitions/thetausd.js'
+import { usat } from './definitions/usat.js'
 import { usd1 } from './definitions/usd1.js'
 import { usdb } from './definitions/usdb.js'
 import { usdc } from './definitions/usdc.js'
@@ -62,6 +63,7 @@ const all = [
   susde,
   syrupusdc,
   thetausd,
+  usat,
   usd1,
   usdb,
   usdc,
