@@ -10,10 +10,10 @@ For the full setup, see the [OIDC Sign-In guides](/tempo/guides/oidc).
 
 ## Recipes
 
-Choose a local relay to run plugins in your application, or connect to a remote
-relay. For remote mode, [configure the server](/tempo/guides/oidc/salt-service)
-with the plugins shown in the local configuration. The plugin holds the salt key, so run the
-local relay only on a server you control.
+Connect to a remote relay running the plugin, or run the plugin in a local relay. For remote
+mode, [configure the server](/tempo/guides/oidc/salt-service) with the plugins shown in the
+local configuration. The plugin holds the salt key, so run the local relay only on a server
+you control.
 
 ### Prove a Sign-In
 
@@ -40,7 +40,17 @@ const credential = await client.oidc.prove({
 // [!code focus:end]
 ```
 
-```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
 import { http } from 'viem'
 import { createClient, Relay, withRelay } from 'viem/tempo'
 
@@ -58,16 +68,6 @@ export const client = createClient({
       // [!code focus:end]
     ],
   }),
-})
-```
-
-```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
-import { http } from 'viem'
-import { createClient } from 'viem/tempo'
-
-// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
-export const client = createClient({
-  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
