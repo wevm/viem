@@ -16,13 +16,16 @@ export {
   EarnShares,
   MultisigConfig,
   MultisigOperation,
+  Oidc,
   Period,
+  PublisherId,
   ReceivePolicyReceipt,
   TempoAddress,
   Tick,
   TokenId,
   VirtualAddress,
   VirtualMaster,
+  ZkSignature,
 } from 'ox/tempo'
 export type {
   /** @deprecated */

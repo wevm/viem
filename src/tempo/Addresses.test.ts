@@ -10,6 +10,12 @@ test('current committee address', () => {
   ).toBe('0x000000000000000000000000c077e00000000000000000000000000000000000')
 })
 
+test('key publisher address', () => {
+  expect(Addresses.keyPublisher).toBe(
+    '0x1132000000000000000000000000000000000000',
+  )
+})
+
 test('validator addresses', () => {
   expect(Addresses.validator).toBe('0xcccccccc00000000000000000000000000000000')
   expect(Addresses.validatorV2).toBe(

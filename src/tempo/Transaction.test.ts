@@ -1,6 +1,7 @@
 import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import * as zk from '~test/tempo/zk.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
 import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction from './Transaction.js'
@@ -85,6 +86,14 @@ describe('deserialize', () => {
     const deserialized = Transaction.deserialize(serialized as `0x76${string}`)
     expect(deserialized.type).toBe('tempo')
     expect(deserialized.calls).toBeDefined()
+  })
+
+  test('behavior: ZK key authorization', async () => {
+    const deserialized = Transaction.deserialize(zk.rawTransaction)
+
+    expect(deserialized.from).toBe(zk.transaction.from)
+    expect(deserialized.keyAuthorization?.signature.type).toBe('zk')
+    expect(await Transaction.serialize(deserialized)).toBe(zk.rawTransaction)
   })
 
   test('behavior: tempo transaction in fee payer format', async () => {

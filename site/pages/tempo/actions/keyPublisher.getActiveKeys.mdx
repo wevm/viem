@@ -1,0 +1,90 @@
+---
+description: Gets the key hashes a publisher lists for an issuer.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `keyPublisher.getActiveKeys`
+
+Gets the key hashes a publisher lists for an issuer, in ascending order.
+
+Keys that [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys) dropped stay valid during their grace period but are no longer listed. Use [`keyPublisher.isKeyActive`](/tempo/actions/keyPublisher.isKeyActive) to check a single key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const keyHashes = await client.keyPublisher.getActiveKeys({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+
+console.log(keyHashes)
+// @log: ['0x0d6f3c1b2a9e8f7d6c5b4a39281706f5e4d3c2b1a09f8e7d6c5b4a3928170605']
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions, Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+
+const keyHashes = await Actions.keyPublisher.getActiveKeys(client, {
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+## Return Value
+
+`readonly Hex[]`
+
+The listed key hashes, in ascending order. Empty when the publisher lists no keys for the issuer.
+
+## Parameters
+
+### issuer
+
+- **Type:** `Hex`
+
+Issuer hash, from `Oidc.hashIssuer`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getActiveKeys({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'), // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### publisherId
+
+- **Type:** `Hex`
+
+Publisher ID, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) or `PublisherId.from`.
+
+```ts twoslash
+import { Oidc } from 'viem/tempo'
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.getActiveKeys({
+  issuer: Oidc.hashIssuer('https://accounts.google.com'),
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+})
+```
+
+<ReadParameters />

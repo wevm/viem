@@ -247,6 +247,40 @@ jobs:
           VITE_TEMPO_MULTISIG: 'true'
           VITE_TEMPO_TAG: sha-83f3ccd
 
+  test-tempo-zk:
+    name: Test Local Tempo ZK
+    if: ${{ inputs.full }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        run: pnpm contracts:build
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --run --bail=1 --project tempo-zk
+        env:
+          CI: true
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_OIDC_PROVER_API_KEY: ${{ secrets.VITE_TEMPO_OIDC_PROVER_API_KEY }}
+          VITE_TEMPO_OIDC_PROVER_URL: ${{ secrets.VITE_TEMPO_OIDC_PROVER_URL }}
+          VITE_TEMPO_TAG: sha256:3de40773d6744f900a51144eb4f14263f498cbc1296bf988660a182c8aaa338a
+          VITE_TEMPO_ZK: 'true'
+
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
     if: ${{ inputs.full }}

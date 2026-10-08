@@ -1,0 +1,116 @@
+---
+description: Transfers ownership of a Key Publisher.
+---
+
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `keyPublisher.transferOwnership`
+
+Transfers ownership of a publisher, effective immediately. The new owner controls the publisher's keys.
+
+Only the current owner can transfer ownership.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { newOwner, previousOwner } = await client.keyPublisher.transferOwnershipSync({
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+
+console.log('New owner:', newOwner)
+// @log: New owner: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { newOwner, previousOwner } = await Actions.keyPublisher.transferOwnershipSync(client, {
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, which waits for the transaction to be included before returning.
+
+If you are optimizing for performance, use the non-sync `keyPublisher.transferOwnership` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.keyPublisher.transferOwnership({
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } = Actions.keyPublisher.transferOwnership.extractEvent(receipt.logs)
+```
+
+## Return Value
+
+`{ newOwner: Address; previousOwner: Address; publisherId: Hex; receipt: TransactionReceipt }`
+
+The `OwnershipTransferred` event fields and the transaction receipt. `keyPublisher.transferOwnership` returns the transaction hash instead.
+
+## Parameters
+
+### newOwner
+
+- **Type:** `Address`
+
+New owner of the publisher.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.transferOwnershipSync({
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code focus]
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+})
+```
+
+### publisherId
+
+- **Type:** `Hex`
+
+Publisher ID, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) or `PublisherId.from`.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+await client.keyPublisher.transferOwnershipSync({
+  newOwner: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+})
+```
+
+<WriteParameters />
+
+## Errors
+
+Key Publisher reverts surface as a `ContractFunctionRevertedError` whose `data.errorName` is one of:
+
+| Error | Description |
+| --- | --- |
+| `Unauthorized` | The sender does not own the publisher. |
+| `UnknownPublisher` | The publisher does not exist. |
+| `ZeroAddress` | The owner is the zero address. |

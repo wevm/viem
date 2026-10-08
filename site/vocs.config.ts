@@ -2563,6 +2563,11 @@ export default defineConfig({
               text: 'Multisig',
               link: '/tempo/accounts/account.fromMultisig',
             },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'ZK',
+              link: '/tempo/accounts/account.fromZk',
+            },
           ],
         },
         {
@@ -2831,6 +2836,61 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Key Publisher',
+              collapsed: true,
+              items: [
+                {
+                  text: 'create',
+                  link: '/tempo/actions/keyPublisher.create',
+                },
+                {
+                  text: 'getActiveKeys',
+                  link: '/tempo/actions/keyPublisher.getActiveKeys',
+                },
+                {
+                  text: 'getKeyValidUntil',
+                  link: '/tempo/actions/keyPublisher.getKeyValidUntil',
+                },
+                {
+                  text: 'getOwner',
+                  link: '/tempo/actions/keyPublisher.getOwner',
+                },
+                {
+                  text: 'isKeyActive',
+                  link: '/tempo/actions/keyPublisher.isKeyActive',
+                },
+                {
+                  text: 'revokeKey',
+                  link: '/tempo/actions/keyPublisher.revokeKey',
+                },
+                {
+                  text: 'setKeys',
+                  link: '/tempo/actions/keyPublisher.setKeys',
+                },
+                {
+                  text: 'transferOwnership',
+                  link: '/tempo/actions/keyPublisher.transferOwnership',
+                },
+                {
+                  text: 'watchCreate',
+                  link: '/tempo/actions/keyPublisher.watchCreate',
+                },
+                {
+                  text: 'watchKeyRevoked',
+                  link: '/tempo/actions/keyPublisher.watchKeyRevoked',
+                },
+                {
+                  text: 'watchKeysSet',
+                  link: '/tempo/actions/keyPublisher.watchKeysSet',
+                },
+                {
+                  text: 'watchOwnershipTransferred',
+                  link: '/tempo/actions/keyPublisher.watchOwnershipTransferred',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'PropAMM',
               collapsed: true,
               items: [
@@ -2896,6 +2956,17 @@ export default defineConfig({
                 {
                   text: 'watchNonceIncremented',
                   link: '/tempo/actions/nonce.watchNonceIncremented',
+                },
+              ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'OIDC',
+              collapsed: true,
+              items: [
+                {
+                  text: 'prove',
+                  link: '/tempo/actions/oidc.prove',
                 },
               ],
             },
@@ -3401,6 +3472,11 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'Multisig',
                   link: '/tempo/relay/plugins/multisig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'OIDC',
+                  link: '/tempo/relay/plugins/oidc',
                 },
                 {
                   badge: { text: '🚧', variant: 'warning' },

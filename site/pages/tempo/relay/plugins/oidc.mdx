@@ -1,0 +1,211 @@
+# OIDC Plugin
+
+## Overview
+
+[`Relay.oidc`](/tempo/relay/plugins/oidc#relayoidc) is the salt service for ZK signatures ([TIP-1133](https://tips.sh/1133)). It turns an OIDC sign-in into the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with.
+
+The relay checks the ID token, derives the identity's salt from a secret key, and requests a proof from a prover service. The salt keeps the identity's address from revealing who signed in, so the salt key stays on the server.
+
+## Recipes
+
+Run the plugin on a server you control: it holds the salt key and the prover's credentials. Clients reach it as a [remote relay](/tempo/guides/relay/connect) and call [`oidc.prove`](/tempo/actions/oidc.prove).
+
+### Run the Salt Service
+
+:::code-group
+
+```ts twoslash [relay.ts]
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Relay } from 'viem/tempo'
+
+const relay = Relay.create({
+  client: createClient({ chain: tempo, transport: http() }),
+  plugins: [
+    Relay.oidc({ // [!code focus]
+      audiences: ['1234567890-abc.apps.googleusercontent.com'], // [!code focus]
+      issuers: ['https://accounts.google.com'], // [!code focus]
+      prover: { apiKey: '...', url: 'https://prover.example.com' }, // [!code focus]
+      publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+      saltKey: '0x...', // [!code focus]
+    }), // [!code focus]
+  ],
+})
+
+export default { fetch: relay.fetch }
+```
+
+```ts twoslash [viem.config.ts (Client)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com/rpc')), // [!code focus]
+})
+```
+
+:::
+
+`withRelay` sends `oidc_prove` to the relay and every other request to the RPC.
+
+### Keep the Salt Key Durable
+
+The salt key fixes every address the relay derives. Losing it locks users out of their accounts, and leaking it lets anyone link addresses to the identities that signed in. Store it as a secret and back it up.
+
+### List the Issuer's Keys
+
+The relay only proves sign-ins whose signing key the [Key Publisher](/tempo/actions/keyPublisher.create) lists, since the network rejects proofs for other keys. Keep the publisher current with [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys).
+
+## `Relay.oidc`
+
+Creates middleware that proves OIDC sign-ins. Other requests pass to the next plugin or execution client.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+  saltKey: '0x...',
+})
+```
+
+### Parameters
+
+#### options.audiences
+
+- **Type:** `readonly string[]`
+
+Accepted `aud` values: the OAuth client IDs of the apps the relay serves.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'], // [!code focus]
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0x...',
+  saltKey: '0x...',
+})
+```
+
+#### options.fetch (optional)
+
+- **Type:** `typeof fetch`
+- **Default:** `globalThis.fetch`
+
+Fetch for issuer keys and the prover, such as a Cloudflare service binding's.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+declare const env: { PROVER: { fetch: typeof fetch } }
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  fetch: (input, init) => env.PROVER.fetch(input, init), // [!code focus]
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0x...',
+  saltKey: '0x...',
+})
+```
+
+#### options.issuers
+
+- **Type:** `readonly string[]`
+
+Accepted `iss` values. The relay reads each issuer's signing keys from its discovery document.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  issuers: ['https://accounts.google.com'], // [!code focus]
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0x...',
+  saltKey: '0x...',
+})
+```
+
+#### options.prover
+
+- **Type:** `{ apiKey: string; url: string }`
+
+The prover service and its bearer token.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' }, // [!code focus]
+  publisherId: '0x...',
+  saltKey: '0x...',
+})
+```
+
+#### options.publisherId
+
+- **Type:** `Hex`
+
+The Key Publisher whose key lists the identities trust. It is part of each identity's address, so changing it changes every address.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
+  saltKey: '0x...',
+})
+```
+
+#### options.saltKey
+
+- **Type:** `Hex`
+
+The durable secret that derives identity salts.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+const plugin = Relay.oidc({
+  audiences: ['1234567890-abc.apps.googleusercontent.com'],
+  issuers: ['https://accounts.google.com'],
+  prover: { apiKey: '...', url: 'https://prover.example.com' },
+  publisherId: '0x...',
+  saltKey: '0x...', // [!code focus]
+})
+```
+
+### Return Value
+
+`Relay.Plugin`
+
+A relay plugin that handles `oidc_prove`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcResponse.InvalidParamsError` | The request parameters are malformed. |
+| `RpcResponse.InvalidInputError` | The ID token is not accepted: its issuer, audience, expiry, nonce, signature, or key listing fails, or the prover cannot prove it. |
+| `RpcResponse.ResourceUnavailableError` | The prover is busy or starting. Retry the request. |
+| `RpcResponse.InternalError` | The issuer's keys or the prover are unavailable, or the proof does not match the sign-in. |
+
+## RPC Methods
+
+### `oidc_prove`
+
+Takes `{ accessKeyAddress, blinding, token, validUntil }`, with `validUntil` as a hex quantity, and returns the credential with hex quantities. The token's nonce must commit to the access key, blinding value, and `validUntil`, which must fall within 600 seconds after the token's `iat`.
+
+The relay never logs or returns the token, blinding value, or salt.

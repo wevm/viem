@@ -1,0 +1,165 @@
+---
+description: Watches for events that replace a Key Publisher issuer's keys.
+---
+
+# `keyPublisher.watchKeysSet`
+
+Watches for events that replace the key hashes a publisher lists for an issuer, from [`keyPublisher.create`](/tempo/actions/keyPublisher.create) and [`keyPublisher.setKeys`](/tempo/actions/keyPublisher.setKeys).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.keyPublisher.watchKeysSet({
+  onKeysSet: (args, log) => {
+    console.log('Publisher ID:', args.publisherId)
+    console.log('Key hashes:', args.keyHashes)
+  },
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const unwatch = Actions.keyPublisher.watchKeysSet(client, {
+  onKeysSet: (args, log) => {
+    console.log('Publisher ID:', args.publisherId)
+    console.log('Key hashes:', args.keyHashes)
+  },
+})
+```
+
+## Return Value
+
+`() => void`
+
+A function to unsubscribe from the event.
+
+## Parameters
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  issuer?: Hex | Hex[] | null
+  publisherId?: Hex | Hex[] | null
+}
+```
+
+Filters events by their indexed fields.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  args: { publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502' }, // [!code focus]
+  onKeysSet: (args) => console.log(args),
+})
+```
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block to start listening from.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  fromBlock: 1n, // [!code focus]
+  onKeysSet: (args) => console.log(args),
+})
+```
+
+### onError (optional)
+
+- **Type:** `(error: Error) => void`
+
+Callback to invoke when polling for new events fails.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  onKeysSet: (args) => console.log(args),
+  onError: (error) => console.error(error), // [!code focus]
+})
+```
+
+### onKeysSet
+
+- **Type:** `(args: Args, log: Log) => void`
+
+```ts
+type Args = {
+  /** When the dropped keys stop being valid, in seconds. */
+  graceUntil: bigint
+  /** Issuer hash. */
+  issuer: Hex
+  /** Listed key hashes, in ascending order. */
+  keyHashes: readonly Hex[]
+  /** Publisher ID. */
+  publisherId: Hex
+}
+```
+
+Callback to invoke for each event.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  onKeysSet: (args, log) => console.log(args, log), // [!code focus]
+})
+```
+
+### poll (optional)
+
+- **Type:** `true`
+
+Whether to poll for events instead of subscribing over a WebSocket transport.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  onKeysSet: (args) => console.log(args),
+  poll: true, // [!code focus]
+})
+```
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** The Client's `pollingInterval`
+
+Polling frequency, in milliseconds.
+
+```ts twoslash
+import { client } from './viem.config'
+// ---cut---
+client.keyPublisher.watchKeysSet({
+  onKeysSet: (args) => console.log(args),
+  pollingInterval: 1_000, // [!code focus]
+})
+```

@@ -1,0 +1,184 @@
+---
+description: Instantiates an Account for a ZK identity from a credential that a prover issued after a sign-in.
+---
+
+# `Account.fromZk`
+
+Instantiates an Account for a ZK identity from a credential that a prover issued after a sign-in. [Learn more about ZK signatures](https://tips.sh/1131)
+
+A ZK identity holds no key. Its address derives from the identity provider, the user's identity, and a [Key Publisher](/tempo/actions/keyPublisher.create), so it stays the same across sign-ins and devices.
+
+Each credential commits to one access key. Until the credential's `validUntil`, the account signs key authorizations for that access key, using that access key. The authorized access key then signs transactions for the account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Redirects to the identity provider with the nonce and returns the ID token.
+declare function signIn(options: { nonce: string }): Promise<string>
+
+const privateKey = generatePrivateKey()
+
+// Prove the sign-in for the access key.
+const credential = await client.oidc.prove({
+  getToken: ({ nonce }) => signIn({ nonce }),
+  publicKey: Account.fromSecp256k1(privateKey).publicKey,
+})
+
+// Instantiate the ZK identity, and the access key the credential commits to.
+const account = Account.fromZk(credential)
+const accessKey = Account.fromSecp256k1(privateKey, { access: account })
+
+// Authorize the access key.
+const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+  chainId: BigInt(client.chain.id),
+  expiry: Math.floor(Date.now() / 1000) + 86_400,
+})
+
+// Attach the authorization to the access key's first transaction.
+const receipt = await client.sendTransactionSync({
+  account: accessKey,
+  keyAuthorization,
+  to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+
+console.log('Address:', account.address)
+// @log: Address: 0xada6063F1Aade8B2516566A2a7e77d214b7f34f9
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com/rpc')),
+})
+```
+
+:::
+
+:::warning
+Sign with the access key whose address the credential commits to. The network rejects a key authorization signed by any other key.
+:::
+
+### Add More Keys
+
+A credential authorizes one access key. Authorize it as an admin key to add more keys later without signing in again.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare const account: Account.ZkAccount
+declare const accessKey: Account.AccessKeyAccount
+// ---cut---
+const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+  admin: true, // [!code focus]
+  chainId: BigInt(client.chain.id),
+})
+```
+
+The admin access key then authorizes other keys with [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+
+## Return Type
+
+```ts
+type ReturnType = ZkAccount
+
+type ZkAccount = {
+  /** Identity address */
+  address: Address
+  /** Credential the account signs with */
+  credential: ZkSignature.Credential
+  /** Empty: the account holds no key */
+  publicKey: '0x'
+  /** Account source */
+  source: 'zk'
+  /** Account type */
+  type: 'local'
+
+  /** Signs a key authorization for the access key the credential commits to */
+  signKeyAuthorization: (
+    key: AccessKeyAccount,
+    parameters: {
+      admin?: boolean
+      chainId: bigint
+      expiry?: number
+      limits?: Limits
+      scopes?: Scopes
+      witness?: Hex
+    }
+  ) => Promise<KeyAuthorization>
+}
+```
+
+`sign`, `signMessage`, `signTransaction`, and `signTypedData` throw, since authorized access keys sign for the account.
+
+## Parameters
+
+### credential
+
+- **Type:** `ZkSignature.Credential`
+
+The credential [`oidc.prove`](/tempo/actions/oidc.prove) returns after a sign-in. It commits to one access key.
+
+#### credential.addressSeed
+
+- **Type:** `Hex`
+
+Commitment to the user's identity at the identity provider.
+
+#### credential.issuedAt
+
+- **Type:** `number`
+
+When the identity provider issued the token, in seconds.
+
+#### credential.issuer
+
+- **Type:** `Hex`
+
+Hash of the identity provider, from `Oidc.hashIssuer`.
+
+#### credential.keyHash
+
+- **Type:** `Hex`
+
+Hash of the identity provider key that signed the token. The Key Publisher must list it.
+
+#### credential.proof
+
+- **Type:** `Hex`
+
+Groth16 proof, 256 bytes.
+
+#### credential.publisherId
+
+- **Type:** `Hex`
+
+[Key Publisher](/tempo/actions/keyPublisher.create) whose key list the identity trusts.
+
+#### credential.scheme
+
+- **Type:** `number`
+
+Proof scheme. Scheme `1` proves OIDC ID tokens signed with RS256.
+
+#### credential.validUntil
+
+- **Type:** `number`
+
+When the credential expires, in seconds. Scheme `1` allows at most 600 seconds after `issuedAt`.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `ZkCredentialExpiredError` | `signKeyAuthorization` ran after the credential's `validUntil`. Sign in again to get a new credential. |
+| `ZkSignature.InvalidCredentialError` | The credential is malformed. |
+| `ZkSignature.UnknownSchemeError` | The credential uses an unknown scheme. |
