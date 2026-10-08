@@ -53,7 +53,7 @@ auditConfig:
     - GHSA-7pqw-9j4j-h8q3
 
 overrides:
-  ox: https://pkg.pr.new/ox@4f01863
+  ox: https://pkg.pr.new/ox@95d0516
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -63,7 +63,7 @@ overrides:
   '@grpc/grpc-js': '>=1.14.5'
   '@hono/node-server@<2.0.10': 2.0.10
   '@isaacs/brace-expansion@<=5.0.0': 5.0.1
-  '@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3': 1.26.0
+  '@modelcontextprotocol/sdk@>=1.10.0 <1.31.0': 1.31.0
   '@opentelemetry/core': '>=2.8.0'
   '@opentelemetry/propagator-jaeger@<2.9.0': 2.9.0
   ajv@<8.18.0: 8.18.0
@@ -132,12 +132,12 @@ overrides:
   brace-expansion@>=4.0.0 <5.0.12: 5.0.12
   yaml@>=2.0.0 <2.8.3: 2.8.3
   '@vitejs/plugin-rsc@<=0.5.25': 0.5.26
-  next@>=16.0.0-beta.0 <16.3.6: 16.3.6
+  next@>=16.0.0-beta.0 <16.3.8: 16.3.8
   react-server-dom-webpack@>=19.2.0 <19.2.6: 19.2.6
   basic-ftp@<=6.2.0: 6.2.1
   fast-uri@>=3.0.0 <3.1.8: 3.1.8
   fast-uri@>=4.0.0 <4.1.5: 4.1.5
-  sharp@<0.35.4: 0.35.4
+  sharp@<0.35.5: 0.35.5
   baseline-browser-mapping@>=2.0.0 <2.11.0: 2.11.21
   '@toon-format/toon@<2.3.1': 2.3.1
   toml@<4.2.0: 4.2.0
