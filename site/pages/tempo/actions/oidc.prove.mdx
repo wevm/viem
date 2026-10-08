@@ -4,65 +4,36 @@ description: Proves an OIDC sign-in and returns the credential that Account.from
 
 # `oidc.prove`
 
-Proves an OIDC sign-in and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with. [Learn more about ZK signatures](https://tips.sh/1131)
+Proves an OIDC sign-in and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk) signs with. [Learn more about OIDC signers](https://tips.sh/1130-1)
 
-The ID token's nonce commits to an access key, so the credential can only authorize that key. The transport must reach a relay with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin, which holds the salt key. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
+The ID token's nonce commits to an access key, so the credential can only authorize that key. The transport must reach a [Relay API](/tempo/guides/oidc/relay-api), a relay with the [`Relay.oidc`](/tempo/relay/plugins/oidc) plugin. See [Sign In with an Identity Provider](/tempo/guides/oidc/sign-in) for the full flow.
 
 ## Usage
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { Account, WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-// Redirects to the identity provider with the nonce and returns the ID token.
-declare function signIn(options: { nonce: string }): Promise<string>
+// Signs the user in with Google and returns the ID token for `nonce`.
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
 
-const privateKey = generatePrivateKey()
+const keyPair = await WebCryptoP256.createKeyPair()
 
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signIn({ nonce }),
-  publicKey: Account.fromSecp256k1(privateKey).publicKey,
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
 })
 
 const account = Account.fromZk(credential)
-const accessKey = Account.fromSecp256k1(privateKey, { access: account })
 
 console.log('Address:', account.address)
 // @log: Address: 0xada6063F1Aade8B2516566A2a7e77d214b7f34f9
 ```
 
-```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
-import { http } from 'viem'
-import { createClient } from 'viem/tempo'
-
-// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
-export const client = createClient({
-  transport: http('https://relay.example.com/rpc'), // [!code focus]
-})
-```
-
-```ts twoslash [viem.config.ts (Local Relay)] filename="viem.local.config.ts"
-import { http } from 'viem'
-import { createClient, Relay, withRelay } from 'viem/tempo'
-
-export const client = createClient({
-  transport: withRelay(http(), {
-    plugins: [
-      // [!code focus:start]
-      Relay.oidc({
-        audiences: ['1234567890-abc.apps.googleusercontent.com'],
-        issuers: ['https://accounts.google.com'],
-        prover: { apiKey: '...', url: 'https://prover.example.com' },
-        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
-        saltKey: '0x...',
-      }),
-      // [!code focus:end]
-    ],
-  }),
-})
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/oidc.config.ts:setup]
 ```
 
 :::
@@ -74,21 +45,22 @@ Then authorize the access key with [`Account.fromZk`](/tempo/accounts/account.fr
 Call the action from `Actions` to pass the Client explicitly.
 
 ```ts twoslash
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions } from 'viem/tempo'
+import { Actions, WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
 
 const { credential } = await Actions.oidc.prove(client, {
-  getToken: ({ nonce }) => signIn({ nonce }),
-  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
 })
 ```
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo).
+These recipes assume your client connects to a [Relay API](/tempo/guides/oidc/relay-api).
 
 ### Sign In with a Redirect
 
@@ -108,22 +80,23 @@ declare const token: string
 const { credential } = await client.oidc.prove({ ...prepared, token }) // [!code focus]
 ```
 
-Keep `keyPair` in IndexedDB, where its private key stays non-extractable, and authorize it with [`Account.fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256). The relay only sees the key's address.
+Keep `keyPair` in IndexedDB, where its private key stays non-extractable, and authorize it with [`Account.fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256). The relay only sees the key's address. See [Sign In with a Redirect](/tempo/guides/oidc/sign-in#sign-in-with-a-redirect) for the complete flow.
 
 ### Choose the Expiry
 
 A credential stays valid for at most 600 seconds after the token was issued. Pass `validUntil` to shorten it.
 
 ```ts twoslash
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
 
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signIn({ nonce }),
-  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
   validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]
 })
 ```
@@ -138,7 +111,7 @@ token and its nonce with `signIn.social`.
 import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
 // A Better Auth client, from `createAuthClient`.
 declare const authClient: {
   signIn: {
@@ -152,7 +125,7 @@ declare const authClient: {
 const keyPair = await WebCryptoP256.createKeyPair()
 
 const { credential, nonce, token } = await client.oidc.prove({ // [!code focus]
-  getToken: ({ nonce }) => signIn({ nonce }),
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
   publicKey: keyPair.publicKey,
 })
 
@@ -220,14 +193,14 @@ const { credential } = await client.oidc.prove({
 Signs in with the nonce and returns the ID token. `prove` prepares the nonce for `publicKey` first.
 
 ```ts twoslash
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+const keyPair = await WebCryptoP256.createKeyPair()
 // ---cut---
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signIn({ nonce }), // [!code focus]
-  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }), // [!code focus]
+  publicKey: keyPair.publicKey,
 })
 ```
 
@@ -238,14 +211,14 @@ const { credential } = await client.oidc.prove({
 Public key of the access key the credential will commit to.
 
 ```ts twoslash
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+const keyPair = await WebCryptoP256.createKeyPair()
 // ---cut---
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signIn({ nonce }),
-  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey, // [!code focus]
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey, // [!code focus]
 })
 ```
 
@@ -276,14 +249,14 @@ const { credential } = await client.oidc.prove({
 When the credential expires, in seconds. With the prepared fields, pass `Oidc.prepare`'s value.
 
 ```ts twoslash
-import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
-declare function signIn(options: { nonce: string }): Promise<string>
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+const keyPair = await WebCryptoP256.createKeyPair()
 // ---cut---
 const { credential } = await client.oidc.prove({
-  getToken: ({ nonce }) => signIn({ nonce }),
-  publicKey: Account.fromSecp256k1(generatePrivateKey()).publicKey,
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
   validUntil: Math.floor(Date.now() / 1000) + 120, // [!code focus]
 })
 ```

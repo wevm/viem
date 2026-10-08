@@ -21,10 +21,11 @@ flowchart LR
     feePayer[Sponsorship]
     feeToken[Best Fee Tokens]
     simulate[Balance Diffs]
+    oidc[OIDC Sign-In]
     funding["🚧 Funding"]
     accessKeyState["🚧 Access Key State"]
     multisig ~~~ simulate ~~~ accessKeyState
-    feePayer ~~~ feeToken ~~~ funding
+    feePayer ~~~ feeToken ~~~ oidc ~~~ funding
   end
   relay --> rpc["Tempo (Execution) RPC"]
 ```
@@ -36,9 +37,9 @@ chain rules. Clients rely on it for service availability and persistence.
 ## Plugins
 
 Compose plugins to sponsor transactions, resolve fee tokens, simulate
-balance changes, and coordinate multisig approvals. The transaction plugins share
-the same middleware contract as custom plugins. Requests enter plugins in array
-order, and responses return in reverse order.
+balance changes, coordinate multisig approvals, and prove OIDC sign-ins.
+The transaction plugins share the same middleware contract as custom plugins.
+Requests enter plugins in array order, and responses return in reverse order.
 
 Funding and access-key state plugins are planned.
 
@@ -66,6 +67,12 @@ Funding and access-key state plugins are planned.
     title="Multisig"
     description="Coordinate owner approvals and share pending multisig transactions."
     to="/tempo/relay/plugins/multisig"
+  />
+  <Card
+    icon="lucide:log-in"
+    title="OIDC"
+    description="Prove sign-ins with an identity provider for OIDC signing."
+    to="/tempo/relay/plugins/oidc"
   />
 </Cards>
 
