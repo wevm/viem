@@ -10,45 +10,68 @@ For the full setup, see the [OIDC Sign-In guides](/tempo/guides/oidc).
 
 ## Recipes
 
-Run the plugin on a server you control: it holds the salt key and the prover's credentials. Clients reach it as a [remote relay](/tempo/guides/relay/connect) and call [`oidc.prove`](/tempo/actions/oidc.prove).
+Choose a local relay to run plugins in your application, or connect to a remote
+relay. For remote mode, [configure the server](/tempo/guides/oidc/salt-service)
+with the plugins shown in the local configuration. The plugin holds the salt key, so run the
+local relay only on a server you control.
 
-### Run the Salt Service
+### Prove a Sign-In
+
+Prove a sign-in with [`oidc.prove`](/tempo/actions/oidc.prove). The relay checks the ID token,
+derives the salt, and returns the credential that [`Account.fromZk`](/tempo/accounts/account.fromZk)
+signs with.
 
 :::code-group
 
-```ts twoslash [relay.ts]
-import { createClient, http } from 'viem'
-import { tempo } from 'viem/chains'
-import { Relay } from 'viem/tempo'
+```ts twoslash [example.ts]
+import { WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
 
-const relay = Relay.create({
-  client: createClient({ chain: tempo, transport: http() }),
-  plugins: [
-    Relay.oidc({ // [!code focus]
-      audiences: ['1234567890-abc.apps.googleusercontent.com'], // [!code focus]
-      issuers: ['https://accounts.google.com'], // [!code focus]
-      prover: { apiKey: '...', url: 'https://prover.example.com' }, // [!code focus]
-      publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502', // [!code focus]
-      saltKey: '0x...', // [!code focus]
-    }), // [!code focus]
-  ],
+// Signs the user in with Google and returns the ID token for `nonce`.
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+// [!code focus:start]
+const credential = await client.oidc.prove({
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
 })
-
-export default { fetch: relay.fetch }
+// [!code focus:end]
 ```
 
-```ts twoslash [viem.config.ts (Client)] filename="viem.config.ts"
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { createClient, withRelay } from 'viem/tempo'
+import { createClient, Relay, withRelay } from 'viem/tempo'
 
 export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com/rpc')), // [!code focus]
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      // [!code focus:end]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
 :::
-
-`withRelay` sends `oidc_prove` to the relay and every other request to the RPC.
 
 ### Keep the Salt Key Durable
 

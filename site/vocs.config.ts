@@ -2336,7 +2336,7 @@ export default defineConfig({
                   link: '/tempo/guides/oidc',
                 },
                 {
-                  text: 'Sign Users In',
+                  text: 'Sign with Identity Providers',
                   link: '/tempo/guides/oidc/sign-in',
                 },
                 {

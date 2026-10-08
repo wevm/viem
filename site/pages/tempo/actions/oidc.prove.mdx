@@ -34,12 +34,34 @@ console.log('Address:', account.address)
 // @log: Address: 0xada6063F1Aade8B2516566A2a7e77d214b7f34f9
 ```
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
 import { http } from 'viem'
-import { createClient, withRelay } from 'viem/tempo'
+import { createClient, Relay, withRelay } from 'viem/tempo'
 
 export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com/rpc')),
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      // [!code focus:end]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 

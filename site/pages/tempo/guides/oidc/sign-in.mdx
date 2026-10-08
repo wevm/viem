@@ -20,9 +20,8 @@ authorize a new key, such as on another device.
 
 ## Recipes
 
-These recipes assume you have registered an OAuth client with your identity provider,
-[published its keys](/tempo/guides/oidc/publish-keys), and
-[run a salt service](/tempo/guides/oidc/salt-service) that accepts the client's ID.
+These recipes assume you have registered an OAuth client with your identity provider and
+[published its keys](/tempo/guides/oidc/publish-keys).
 
 ### Sign In
 
@@ -30,60 +29,236 @@ These recipes assume you have registered an OAuth client with your identity prov
 
 #### Configure the Client
 
-Route `oidc_prove` to your salt service with [`withRelay`](/tempo/transports/withRelay). Every
-other request goes to the RPC.
+Choose a local relay to run the salt service in your application, or connect to a remote
+relay. The local relay holds the salt key and the fee payer's key, so run it only on a server
+you control. Browser apps connect to a [salt service](/tempo/guides/oidc/salt-service) as a
+remote relay.
 
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { createClient, http, withRelay } from 'viem/tempo'
+:::code-group
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
 
 export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com')),
+  transport: withRelay(http(), {
+    plugins: [
+      // [!code focus:start]
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+      // [!code focus:end]
+    ],
+  }),
 })
 ```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
 
 #### Create an Access Key
 
 Create a [WebCrypto key pair](/tempo/accounts/account.fromWebCryptoP256) on the device. Its
 private key cannot be exported, and the sign-in commits to its public key.
 
-```ts
-import { Account, Expiry, WebCryptoP256 } from 'viem/tempo'
+:::code-group
+
+```ts twoslash [example.ts]
+import { WebCryptoP256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-const keyPair = await WebCryptoP256.createKeyPair()
+const keyPair = await WebCryptoP256.createKeyPair() // [!code focus]
 ```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'),
+})
+```
+
+:::
 
 #### Prove the Sign-In
 
 Pass the public key and `getToken` to `oidc.prove`. It prepares a nonce that commits to the key,
-`getToken` signs the user in with that nonce, and the salt service proves the ID token it returns.
+and `getToken` signs the user in with that nonce and returns the ID token, here with
+[Sign In with Google](https://developers.google.com/identity/gsi/web).
 
-```ts
-// Signs the user in with the nonce and returns the ID token.
+:::code-group
+
+```ts twoslash [example.ts]
+import { WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Signs the user in with Google and returns the ID token for `nonce`.
 declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+// [!code focus:start]
+const credential = await client.oidc.prove({
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
+})
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'),
+})
+```
+
+:::
+
+#### Instantiate the Account
+
+The credential gives the account, and the key pair becomes its access key.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Signs the user in with Google and returns the ID token for `nonce`.
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
 
 const credential = await client.oidc.prove({
   getToken: ({ nonce }) => signInWithGoogle({ nonce }),
   publicKey: keyPair.publicKey,
 })
+
+const account = Account.fromZk(credential) // [!code focus]
+const accessKey = Account.fromWebCryptoP256(keyPair, { access: account }) // [!code focus]
 ```
 
-#### Instantiate the Account
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
 
-The credential gives the account. The key pair becomes its access key.
-
-```ts
-const account = Account.fromZk(credential)
-const accessKey = Account.fromWebCryptoP256(keyPair, { access: account })
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+    ],
+  }),
+})
 ```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'),
+})
+```
+
+:::
 
 #### Send the First Transaction
 
 Sign a key authorization with the account, and attach it to the access key's first
-transaction. A new account holds no funds, so the salt service's relay pays the fee with
-`feePayer: true`. Later transactions need only the access key.
+transaction. A new account holds no funds, so the relay pays the fee with `feePayer: true`.
+Later transactions need only the access key.
 
-```ts
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account, Expiry, WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Signs the user in with Google and returns the ID token for `nonce`.
+declare function signInWithGoogle(options: { nonce: string }): Promise<string>
+
+const keyPair = await WebCryptoP256.createKeyPair()
+
+const credential = await client.oidc.prove({
+  getToken: ({ nonce }) => signInWithGoogle({ nonce }),
+  publicKey: keyPair.publicKey,
+})
+
+const account = Account.fromZk(credential)
+const accessKey = Account.fromWebCryptoP256(keyPair, { access: account })
+
+// [!code focus:start]
 const keyAuthorization = await account.signKeyAuthorization(accessKey, {
   chainId: BigInt(client.chain.id),
   expiry: Expiry.days(30),
@@ -94,7 +269,41 @@ const receipt = await client.sendTransactionSync({
   feePayer: true,
   keyAuthorization,
 })
+// [!code focus:end]
 ```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'),
+})
+```
+
+:::
 
 ::::
 
@@ -104,108 +313,26 @@ after proving: once the credential expires, signing the authorization throws
 `ZkCredentialExpiredError`, and the user must sign in again.
 :::
 
-### Use the Sign In with Google Button
-
-[Google Identity Services](https://developers.google.com/identity/gsi/web) signs users in
-without leaving the page. Implement `getToken` with its button: initialize it with the nonce,
-and resolve with the ID token once the user signs in.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { WebCryptoP256 } from 'viem/tempo'
-import { client } from './viem.config'
-
-// Google Identity Services, from https://accounts.google.com/gsi/client.
-declare const google: {
-  accounts: {
-    id: {
-      initialize(options: {
-        callback: (response: { credential: string }) => void
-        client_id: string
-        nonce: string
-      }): void
-      renderButton(parent: HTMLElement, options: { type: 'standard' }): void
-    }
-  }
-}
-
-const keyPair = await WebCryptoP256.createKeyPair()
-
-const credential = await client.oidc.prove({
-  getToken: ({ nonce }) => // [!code focus]
-    new Promise((resolve) => { // [!code focus]
-      google.accounts.id.initialize({ // [!code focus]
-        callback: ({ credential }) => resolve(credential), // [!code focus]
-        client_id: '1234567890-abc.apps.googleusercontent.com', // [!code focus]
-        nonce, // [!code focus]
-      }) // [!code focus]
-      google.accounts.id.renderButton(document.getElementById('sign-in')!, { // [!code focus]
-        type: 'standard', // [!code focus]
-      }) // [!code focus]
-    }), // [!code focus]
-  publicKey: keyPair.publicKey,
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { createClient, http, withRelay } from 'viem/tempo'
-
-export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com')),
-})
-```
-
-:::
-
-### Sign In with a Redirect
-
-Providers that sign users in by redirecting reload your page, so prepare the nonce yourself
-with `Oidc.prepare`. Keep the key pair, the prepared values, and a `state` value across the
-redirect, such as in IndexedDB, which stores the key pair without exposing its private key.
-
-```ts twoslash
-import { Oidc, WebCryptoP256 } from 'viem/tempo'
-
-const keyPair = await WebCryptoP256.createKeyPair()
-const prepared = Oidc.prepare({ publicKey: keyPair.publicKey }) // [!code focus]
-const state = crypto.randomUUID()
-
-const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-url.search = new URLSearchParams({
-  client_id: '1234567890-abc.apps.googleusercontent.com',
-  nonce: prepared.nonce, // [!code focus]
-  redirect_uri: `${location.origin}/callback`,
-  response_type: 'id_token',
-  scope: 'openid',
-  state,
-}).toString()
-location.assign(url)
-```
-
-When the provider redirects back, check `state`, then pass the prepared values with the ID
-token from the URL fragment. Continue from [Instantiate the Account](#instantiate-the-account).
-
-```ts
-const fragment = new URLSearchParams(location.hash.slice(1))
-if (fragment.get('state') !== state) throw new Error('The sign-in failed.')
-
-const credential = await client.oidc.prove({
-  ...prepared, // [!code focus]
-  token: fragment.get('id_token')!, // [!code focus]
-})
-```
-
 ### Restore the Account on Later Visits
 
 An authorized access key keeps signing until its expiry, so later visits need no sign-in. Keep
 the key pair and the account's address after signing in, then pass the address as `access` to
 rebuild the access key.
 
-```ts
-const accessKey = Account.fromWebCryptoP256(keyPair, {
-  access: address, // [!code focus]
-})
+:::code-group
+
+```ts twoslash [example.ts]
+import type { Address } from 'viem'
+import { Account, type WebCryptoP256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Saved after signing in.
+declare const address: Address
+declare const keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>
+
+// [!code focus:start]
+const accessKey = Account.fromWebCryptoP256(keyPair, { access: address })
+// [!code focus:end]
 
 const receipt = await client.sendTransactionSync({
   account: accessKey,
@@ -214,36 +341,40 @@ const receipt = await client.sendTransactionSync({
 })
 ```
 
-### Sign In on Another Device
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, Relay, withRelay } from 'viem/tempo'
 
-Signing in on another device runs the same flow with that device's own access key. The
-address stays the same, since it derives from the user's identity rather than from any key.
-Each device's key is authorized and expires on its own.
-
-To add keys without signing in again, authorize the first key as an admin key. It can then
-authorize other keys with [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization).
-
-```ts
-const keyAuthorization = await account.signKeyAuthorization(accessKey, {
-  admin: true, // [!code focus]
-  chainId: BigInt(client.chain.id),
-  expiry: Expiry.days(30),
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.oidc({
+        audiences: ['1234567890-abc.apps.googleusercontent.com'],
+        issuers: ['https://accounts.google.com'],
+        prover: { apiKey: '...', url: 'https://prover.example.com' },
+        publisherId: '0xa3c1274aadd82e4d12c8004c33fb244ca686dad4fcc8957fc5668588c11d9502',
+        saltKey: '0x...',
+      }),
+      Relay.feePayer({ account: privateKeyToAccount('0x...') }),
+    ],
+  }),
 })
 ```
 
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/oidc/salt-service for instructions on running the salt service.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'),
+})
+```
+
+:::
+
 ## Best Practices
-
-### Request Only the `openid` Scope
-
-The salt service reads the token's issuer, audience, subject, nonce, and timestamps. Request
-the `openid` scope alone in the redirect flow, so the token carries no email address, name,
-or picture.
-
-### Check the `state` Parameter
-
-The nonce binds the ID token to your access key, but not to the user's browser session. Check
-that the `state` returned with the token matches the value you saved, so a page cannot sign a
-user into an account they did not choose.
 
 ### Keep One Client ID per Account
 

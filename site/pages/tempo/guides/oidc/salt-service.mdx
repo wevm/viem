@@ -59,17 +59,19 @@ const relay = Relay.create({
 export default { fetch: relay.fetch }
 ```
 
-```ts twoslash [viem.config.ts (Client)] filename="viem.config.ts"
-import { createClient, http, withRelay } from 'viem/tempo'
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
 
 export const client = createClient({
-  transport: withRelay(http(), http('https://relay.example.com')), // [!code focus]
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
 })
 ```
 
 :::
 
-`withRelay` sends `oidc_prove` to the salt service and every other request to the RPC.
+Clients connect to the salt service as a remote relay, which serves `oidc_prove` and forwards
+every other request to the RPC.
 
 ### Sponsor the First Transaction
 
