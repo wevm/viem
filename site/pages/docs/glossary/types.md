@@ -122,7 +122,7 @@ A type for [Transaction Receipts](/docs/glossary/terms#transaction-receipt).
 
 ## `Transport`
 
-A type for [Transports](/docs/glossary/terms#transports).
+A type for [Transports](/docs/glossary/terms#transport).
 
 [See Type](https://github.com/wevm/viem/blob/main/src/clients/transports/createTransport.ts)
 

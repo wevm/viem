@@ -46,7 +46,7 @@ export const [account] = await walletClient.getAddresses()
 
 ## Returns
 
-[`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
+[`TransactionReceipt`](/docs/glossary/terms#transaction-receipt)
 
 The [Transaction receipt](/docs/glossary/terms#transaction-receipt).
 
