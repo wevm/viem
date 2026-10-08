@@ -2328,7 +2328,7 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
-              text: 'OIDC Sign-In',
+              text: 'OIDC Signing',
               collapsed: true,
               items: [
                 {
