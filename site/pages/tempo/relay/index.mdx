@@ -17,13 +17,13 @@ flowchart LR
   client[Client] --> relay
   subgraph relay[Relay RPC]
     direction TB
-    multisig[Multisig]
+    accounts[Accounts]
     feePayer[Sponsorship]
     feeToken[Best Fee Tokens]
     simulate[Balance Diffs]
     funding["🚧 Funding"]
     accessKeyState["🚧 Access Key State"]
-    multisig ~~~ simulate ~~~ accessKeyState
+    accounts ~~~ simulate ~~~ accessKeyState
     feePayer ~~~ feeToken ~~~ funding
   end
   relay --> rpc["Tempo (Execution) RPC"]
@@ -36,7 +36,7 @@ chain rules. Clients rely on it for service availability and persistence.
 ## Plugins
 
 Compose plugins to sponsor transactions, resolve fee tokens, simulate
-balance changes, and coordinate multisig approvals. The transaction plugins share
+balance changes, and coordinate owner approvals. The transaction plugins share
 the same object-based hook contract as custom plugins. Requests enter plugins in array
 order, and responses return in reverse order.
 
@@ -63,9 +63,9 @@ Funding and access-key state plugins are planned.
   />
   <Card
     icon="lucide:users"
-    title="Multisig"
-    description="Coordinate owner approvals and share pending multisig transactions."
-    to="/tempo/relay/plugins/multisig"
+    title="Accounts"
+    description="Coordinate owner approvals and share pending account transactions."
+    to="/tempo/relay/plugins/accounts"
   />
 </Cards>
 

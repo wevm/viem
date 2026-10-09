@@ -1,5 +1,5 @@
 ---
-description: Combine different owner signature schemes in one native multisig account.
+description: Combine different owner signature schemes in one configurable account.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,7 +8,7 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A native multisig can combine secp256k1, P256, WebAuthn, and WebCrypto P256 owners. Each owner
+A configurable account can combine secp256k1, P256, WebAuthn, and WebCrypto P256 owners. Each owner
 approves through its own account implementation, and the shared store combines those approvals.
 
 ## Recipes
@@ -30,8 +30,8 @@ const webCryptoOwner = Account.fromWebCryptoP256(
   await WebCryptoP256.createKeyPair()
 )
 
-// 2. Create a multisig from their addresses.
-const multisig = Account.fromMultisig({
+// 2. Create an account from their addresses.
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [
     secp256k1Owner.address,
@@ -43,28 +43,28 @@ const multisig = Account.fromMultisig({
 
 // 3. Store the secp256k1 owner's approval.
 const pending = await client.sendTransactionSync({
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: secp256k1Owner,
 })
 
 // 4. Approve the stored transaction with the P256 owner.
 const pending2 = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: p256Owner,
 })
 
 // 5. Reach quorum with the WebCrypto P256 owner.
 const receipt = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: webCryptoOwner,
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -82,11 +82,11 @@ A WebAuthn owner prompts for approval when its `sendTransactionSync` call signs 
 ### Let Viem Estimate Approval Gas
 
 During preparation, Viem conservatively estimates the request for maximum-size WebAuthn approvals
-because key types are not stored in the multisig config.
+because key types are not stored in the account config.
 
 ## See More
 
 <Cards>
   <Card icon="lucide:fingerprint" title="Sign In with a Passkey" description="Create, restore, and use a WebAuthn passkey account." to="/tempo/guides/accounts/passkeys" />
-  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent approvals from multisig owners." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent approvals from account owners." to="/tempo/guides/configurable-accounts/send" />
 </Cards>

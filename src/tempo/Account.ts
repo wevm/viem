@@ -5,9 +5,9 @@ import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import {
+  AccountConfig,
   Channel,
   KeyAuthorization,
-  MultisigConfig,
   SignatureEnvelope,
 } from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
@@ -25,8 +25,8 @@ import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import { nativeMultisigFactory } from './Addresses.js'
+import { parseApproval } from './accounts/Signature.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
-import { parseApproval } from './multisig/Signature.js'
 import * as Transaction from './Transaction.js'
 
 export type Account_base<source extends string = string> = RequiredBy<
@@ -277,7 +277,7 @@ export declare namespace fromSecp256k1 {
 }
 
 /**
- * Instantiates an Account for a native multisig (TIP-1061) config.
+ * Instantiates an Account for a configurable account (TIP-1107) config.
  *
  * The returned account does not hold a key itself. Omit `address` or set it to
  * `infer` to derive an account address from its initial config. For a current
@@ -290,39 +290,43 @@ export declare namespace fromSecp256k1 {
  * Configs containing only owner addresses require external approvals through
  * `signatures`.
  *
- * Normalizes supplied config fields with `MultisigConfig.from`, so callers do
+ * Normalizes supplied config fields with `AccountConfig.from`, so callers do
  * not need to normalize owner ordering themselves.
  *
  * @example
  * ```ts
  * import { Account } from 'viem/tempo'
  *
- * const account = Account.fromMultisig({
+ * const account = Account.fromConfigurable({
  *   address: 'infer',
  *   owners: [owner_1, owner_2],
  *   threshold: 2,
  * })
  *
- * // The multisig config is inferred from the account.
+ * // The account config is inferred from the account.
  * const request = await client.prepareTransactionRequest({ account, ...rest })
  *
  * const transaction = await client.signTransaction(request)
  * ```
  *
- * @param value Initial config, current config, or multisig address.
- * @returns Multisig account.
+ * @param value Initial config, current config, or account address.
+ * @returns Configurable account.
  */
-export function fromMultisig(
-  value: fromMultisig.InitialConfig,
-): MultisigAccount<MultisigConfig.Config>
-export function fromMultisig(
-  value: fromMultisig.CurrentConfig,
-): MultisigAccount<MultisigConfig.Config>
-export function fromMultisig(
+export function fromConfigurable(
+  value: fromConfigurable.InitialConfig,
+): ConfigurableAccount<AccountConfig.Config>
+export function fromConfigurable(
+  value: fromConfigurable.CurrentConfig,
+): ConfigurableAccount<AccountConfig.Config>
+export function fromConfigurable(
   address: Address.Address,
-): MultisigAccount<undefined>
-export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount
-export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
+): ConfigurableAccount<undefined>
+export function fromConfigurable(
+  value: fromConfigurable.Parameters,
+): ConfigurableAccount
+export function fromConfigurable(
+  value: fromConfigurable.Parameters,
+): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     const { address: _, ...config } = value
@@ -335,7 +339,7 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
         ? { owner: value, weight: 1 }
         : value,
     )
-    return MultisigConfig.from({
+    return AccountConfig.from({
       ...configInput,
       owners: ownerEntries.map(({ owner, weight }) => ({
         owner: typeof owner === 'string' ? owner : owner.address,
@@ -349,19 +353,19 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       (value.address === undefined || value.address === 'infer') &&
       config!.version !== 0n
     )
-      throw new Error('An initial multisig config must have version zero.')
+      throw new Error('An initial account config must have version zero.')
     if (
       value.address !== undefined &&
       value.address !== 'infer' &&
       config!.version === 0n
     )
-      throw new Error('A current multisig config must have a version.')
+      throw new Error('A current account config must have a version.')
   }
   const address = Address.checksum(
     (() => {
       if (typeof value === 'string') return value
       if (value.address === undefined || value.address === 'infer')
-        return MultisigConfig.getAddress(config!, {
+        return AccountConfig.getAddress(config!, {
           factory: nativeMultisigFactory,
         })
       return value.address
@@ -377,10 +381,12 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
   })()
   if (
     ownerAccounts.some(
-      (owner) => owner.source === 'multisig' || isAccessKeyAccount(owner),
+      (owner) => owner.source === 'configurable' || isAccessKeyAccount(owner),
     )
   )
-    throw new Error('Multisig owners must use primitive signatures.')
+    throw new Error(
+      'Configurable account owners must use primitive signatures.',
+    )
   const owners =
     config?.owners.flatMap(({ owner }) => {
       const account = ownerAccounts.find((account) =>
@@ -389,20 +395,22 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       return account ? [account] : []
     }) ?? []
 
-  const account: MultisigAccount = {
+  const account: ConfigurableAccount = {
     address,
     config,
     owners,
     publicKey: '0x',
-    source: 'multisig',
+    source: 'configurable',
     type: 'local',
     async sign({ hash }) {
       return SignatureEnvelope.serialize(
-        await signMultisig(account, { payload: hash }),
+        await signConfigurable(account, { payload: hash }),
       )
     },
     async signMessage() {
-      throw new Error('`signMessage` is not supported for multisig accounts.')
+      throw new Error(
+        '`signMessage` is not supported for configurable accounts.',
+      )
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
@@ -411,11 +419,11 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
         const owner = parseAccount(request.owner)
         if (owner.type !== 'local')
           throw new Error(
-            'A local owner account is required to approve a multisig transaction.',
+            'A local owner account is required to approve a configurable account transaction.',
           )
         if (owner.source !== 'root')
           throw new Error(
-            'A Tempo owner account is required to approve a multisig transaction.',
+            'A Tempo owner account is required to approve a configurable account transaction.',
           )
         const { owner: _, ...ownerRequest } = request
         return await owner.signTransaction(ownerRequest as never, options)
@@ -431,13 +439,13 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
           : { feePayerSignature: null }),
       }
       const payload = keccak256(await serializer(presign as never))
-      const simulation = request.multisigSimulation
+      const simulation = request.accountSimulation
       if (request.from && !Address.isEqual(request.from, address))
         throw new Error(
-          'Multisig account does not match the transaction sender.',
+          'Configurable account does not match the transaction sender.',
         )
 
-      const signature = await signMultisig(account, {
+      const signature = await signConfigurable(account, {
         config: simulation?.config,
         payload,
         signatures: request.signatures?.map((signature) =>
@@ -450,86 +458,90 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
       )) as Hex.Hex
     },
     async signTypedData() {
-      throw new Error('`signTypedData` is not supported for multisig accounts.')
+      throw new Error(
+        '`signTypedData` is not supported for configurable accounts.',
+      )
     },
   }
   return account
 }
 
-export declare namespace fromMultisig {
-  /** Initial version-zero multisig config. */
+export declare namespace fromConfigurable {
+  /** Initial version-zero account config. */
   export type Config = InitialConfig
 
-  /** Stable multisig account address and its current config. */
+  /** Stable configurable account address and its current config. */
   export type CurrentConfig = {
-    /** Stable multisig account address. */
+    /** Stable configurable account address. */
     address: Address.Address
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */
-    salt: MultisigConfig.Config['salt']
+    salt: AccountConfig.Config['salt']
     /** Minimum total owner weight required for authorization. */
-    threshold: MultisigConfig.Config['threshold']
+    threshold: AccountConfig.Config['threshold']
     /** Current configuration version. */
-    version: MultisigConfig.Config<bigint | number>['version']
+    version: AccountConfig.Config<bigint | number>['version']
   }
 
-  /** Initial version-zero multisig config. */
+  /** Initial version-zero account config. */
   export type InitialConfig = {
     /** Derives the stable account address from this initial config. */
     address?: 'infer' | undefined
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */
-    salt?: MultisigConfig.Input['salt'] | undefined
+    salt?: AccountConfig.Input['salt'] | undefined
     /** Minimum owner weight required for authorization. */
     threshold?: number | undefined
     /** Initial configuration version. */
     version?: 0 | 0n | undefined
   }
 
-  /** Multisig owner account or address, optionally with an explicit weight. */
+  /** Configurable account owner account or address, optionally with an explicit weight. */
   export type Owner =
     | Address.Address
     | (LocalAccount & { accessKeyAddress?: never; owners?: never })
-    | (Omit<MultisigConfig.Owner, 'owner'> & {
+    | (Omit<AccountConfig.Owner, 'owner'> & {
         owner:
           | Address.Address
           | (LocalAccount & { accessKeyAddress?: never; owners?: never })
       })
 
-  /** Parameters for {@link fromMultisig}. */
+  /** Parameters for {@link fromConfigurable}. */
   export type Parameters = Address.Address | CurrentConfig | InitialConfig
 }
 
-export type MultisigAccount<
-  config extends MultisigConfig.Config | undefined =
-    | MultisigConfig.Config
+export type ConfigurableAccount<
+  config extends AccountConfig.Config | undefined =
+    | AccountConfig.Config
     | undefined,
-> = RequiredBy<LocalAccount<'multisig'>, 'sign'> & {
+> = RequiredBy<LocalAccount<'configurable'>, 'sign'> & {
   /** Normalized config, or `undefined` for an address-only account. */
   config: config
   /** @internal Local owner accounts available for signing. */
   owners: readonly LocalAccount[]
 }
 
-function isMultisigAccount(account: LocalAccount): account is MultisigAccount {
-  return account.source === 'multisig'
+function isConfigurableAccount(
+  account: LocalAccount,
+): account is ConfigurableAccount {
+  return account.source === 'configurable'
 }
 
-async function signMultisig(
-  account: MultisigAccount,
+async function signConfigurable(
+  account: ConfigurableAccount,
   parameters: {
-    config?: MultisigConfig.Config | undefined
+    config?: AccountConfig.Config | undefined
     payload: Hex.Hex
     signatures?: readonly SignatureEnvelope.Primitive[] | undefined
   },
-): Promise<SignatureEnvelope.Multisig> {
+): Promise<SignatureEnvelope.Configurable> {
   const { config, payload, signatures: providedSignatures = [] } = parameters
   const currentConfig = config ?? account.config
   if (!currentConfig)
-    throw new Error('A current multisig config is required for local signing.')
-  const digest = MultisigConfig.getSignPayload({
+    throw new Error('A current account config is required for local signing.')
+  const digest = AccountConfig.getSignPayload({
     account: account.address,
     config: currentConfig,
     payload,
@@ -566,7 +578,7 @@ async function signMultisig(
     if (!ownerAccount) continue
 
     if (!ownerAccount.sign)
-      throw new Error('Multisig owner account cannot sign.')
+      throw new Error('Configurable account owner account cannot sign.')
     signatures.push(parseApproval(await ownerAccount.sign({ hash: digest })))
 
     signedOwners.add(address)
@@ -575,18 +587,18 @@ async function signMultisig(
   }
 
   if (weight < Number(currentConfig.threshold))
-    throw new Error('Local multisig owners do not meet the threshold.')
+    throw new Error('Local owners do not meet the threshold.')
 
   return SignatureEnvelope.from({
     account: account.address,
     config: currentConfig,
-    signatures: SignatureEnvelope.sortMultisigApprovals({
+    signatures: SignatureEnvelope.sortApprovals({
       account: account.address,
       config: currentConfig,
       payload,
       signatures,
     }),
-  }) as SignatureEnvelope.Multisig
+  }) as SignatureEnvelope.Configurable
 }
 
 /**
@@ -789,7 +801,7 @@ export function getKeyAuthorizationSignPayload(
   const { admin, chainId, expiry, key, limits, scopes, witness } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
   const boundFields =
-    isAccessKeyAccount(account) || isMultisigAccount(account)
+    isAccessKeyAccount(account) || isConfigurableAccount(account)
       ? { account: account.address }
       : {}
   const restrictions = admin ? {} : { expiry, limits, scopes }
@@ -814,7 +826,7 @@ export async function signKeyAuthorization(
     expiry,
     key,
     limits,
-    multisig: multisigState,
+    configurable: configurableState,
     scopes,
     signatures,
     witness,
@@ -826,9 +838,9 @@ export async function signKeyAuthorization(
   // on behalf of, so the signed payload cannot be replayed against another
   // account. [TIP-1049]
   const isAccessKey = isAccessKeyAccount(account)
-  const isMultisig = isMultisigAccount(account)
+  const isConfigurable = isConfigurableAccount(account)
   const boundFields =
-    isAccessKey || isMultisig ? { account: account.address } : {}
+    isAccessKey || isConfigurable ? { account: account.address } : {}
 
   // Admin key authorizations are unrestricted and must not carry expiry,
   // limits, or call scopes (the protocol rejects them). [TIP-1049]
@@ -837,14 +849,14 @@ export async function signKeyAuthorization(
   const hash = getKeyAuthorizationSignPayload(account, parameters)
   const signature = await (async () => {
     if (isAccessKey) return account.sign({ hash, raw: true })
-    if (isMultisig) {
-      if (!multisigState)
+    if (isConfigurable) {
+      if (!configurableState)
         throw new Error(
-          'Multisig state is required to sign a key authorization.',
+          'Configurable account state is required to sign a key authorization.',
         )
       return SignatureEnvelope.serialize(
-        await signMultisig(account, {
-          config: multisigState.config,
+        await signConfigurable(account, {
+          config: configurableState.config,
           payload: hash,
           signatures: signatures?.map((signature) => parseApproval(signature)),
         }),
@@ -878,13 +890,13 @@ export declare namespace signKeyAuthorization {
      */
     admin?: boolean | undefined
     key: resolveAccessKey.Parameters
-    /** @internal Current state used when a multisig account signs the authorization. */
-    multisig?:
+    /** @internal Current state used when a configurable account signs the authorization. */
+    configurable?:
       | {
-          config: MultisigConfig.Config
+          config: AccountConfig.Config
         }
       | undefined
-    /** Serialized approvals from external multisig owners. */
+    /** Serialized approvals from external owners. */
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
@@ -966,20 +978,23 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
 
       const payload = keccak256(await serializer(presign))
 
-      // Native multisig (TIP-1061): return this owner's approval, a serialized
-      // primitive signature over the multisig owner approval digest, instead of
+      // Configurable account (TIP-1107): return this owner's approval, a serialized
+      // primitive signature over the owner approval digest, instead of
       // a full serialized transaction. Approvals are combined later in
       // `sendTransaction({ signatures })`.
-      const { multisigSimulation, from } = transaction as {
+      const { accountSimulation, from } = transaction as {
         from?: Address.Address
-        multisigSimulation?: {
-          config: MultisigConfig.Config
+        accountSimulation?: {
+          config: AccountConfig.Config
         }
       }
-      if (multisigSimulation) {
-        if (!from) throw new Error('A multisig sender is required for signing.')
-        const config = MultisigConfig.from(multisigSimulation.config)
-        const digest = MultisigConfig.getSignPayload({
+      if (accountSimulation) {
+        if (!from)
+          throw new Error(
+            'A configurable account sender is required for signing.',
+          )
+        const config = AccountConfig.from(accountSimulation.config)
+        const digest = AccountConfig.getSignPayload({
           account: from,
           config,
           payload,

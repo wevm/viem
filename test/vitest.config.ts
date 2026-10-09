@@ -83,9 +83,9 @@ export default defineConfig({
         test: {
           name: 'tempo',
           exclude: [
-            '**/*.multisig.test.ts',
-            'src/tempo/internal/relay/multisig.test.ts',
-            process.env.VITE_TEMPO_MULTISIG === 'true'
+            '**/*.accounts.test.ts',
+            'src/tempo/internal/relay/accounts.test.ts',
+            process.env.VITE_TEMPO_ACCOUNTS === 'true'
               ? 'src/tempo/Relay.compat.test.ts'
               : '',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
@@ -100,16 +100,16 @@ export default defineConfig({
           testTimeout: 10_000,
         },
       },
-      ...((process.env.VITE_TEMPO_MULTISIG === 'true'
+      ...((process.env.VITE_TEMPO_ACCOUNTS === 'true'
         ? [
             {
               extends: true,
               test: {
-                name: 'tempo-multisig',
+                name: 'tempo-accounts',
                 include: [
-                  'src/tempo/**/*.multisig.test.ts',
+                  'src/tempo/**/*.accounts.test.ts',
                   'src/tempo/Relay.compat.test.ts',
-                  'src/tempo/internal/relay/multisig.test.ts',
+                  'src/tempo/internal/relay/accounts.test.ts',
                 ],
                 setupFiles: [join(__dirname, './src/tempo/setup.ts')],
                 globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],

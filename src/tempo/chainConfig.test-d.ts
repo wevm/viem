@@ -1,4 +1,4 @@
-import { MultisigConfig, type MultisigSimulation } from 'ox/tempo'
+import { AccountConfig, type AccountSimulation } from 'ox/tempo'
 import { Account, type Transaction } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
@@ -44,52 +44,52 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
   })
   expectTypeOf(request_feeToken.type).toEqualTypeOf<'tempo'>()
 
-  const config = MultisigConfig.from({
+  const config = AccountConfig.from({
     threshold: 1,
     owners: [
       { owner: '0x0000000000000000000000000000000000000001', weight: 1 },
     ],
   })
-  const request_multisig = await prepareTransactionRequest(client, {
-    account: Account.fromMultisig({ address: 'infer', ...config }),
+  const request_configurable = await prepareTransactionRequest(client, {
+    account: Account.fromConfigurable({ address: 'infer', ...config }),
     owner: Account.fromSecp256k1(
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     ),
   })
-  expectTypeOf(request_multisig.type).toEqualTypeOf<'tempo'>()
-  expectTypeOf(request_multisig.multisigSimulation).toEqualTypeOf<
-    MultisigSimulation.Spec | undefined
+  expectTypeOf(request_configurable.type).toEqualTypeOf<'tempo'>()
+  expectTypeOf(request_configurable.accountSimulation).toEqualTypeOf<
+    AccountSimulation.Spec | undefined
   >()
 })
 
-test('behavior: prepareTransactionRequest rejects unsupported multisig owners', async () => {
+test('behavior: prepareTransactionRequest rejects unsupported owners', async () => {
   const client = createWalletClient({
     account: '0x',
     chain: tempoLocalnet,
     transport: http(),
   })
-  const account = Account.fromMultisig({
+  const account = Account.fromConfigurable({
     owners: [Account.fromSecp256k1(`0x${'1'.repeat(64)}`)],
   })
 
   await prepareTransactionRequest(client, {
     account,
-    // @ts-expect-error Multisig owners must be local Tempo owner accounts.
+    // @ts-expect-error Configurable account owners must be local Tempo owner accounts.
     owner: account.address,
   })
   await prepareTransactionRequest(client, {
     account,
-    // @ts-expect-error Nested multisig owners are unsupported.
+    // @ts-expect-error Nested owners are unsupported.
     owner: account,
   })
   await prepareTransactionRequest(client, {
     account,
-    // @ts-expect-error Access keys cannot approve multisig transactions.
+    // @ts-expect-error Access keys cannot approve configurable account transactions.
     owner: Account.fromSecp256k1(`0x${'2'.repeat(64)}`, { access: account }),
   })
   await prepareTransactionRequest(client, {
     account,
-    // @ts-expect-error Ethereum accounts cannot approve Tempo multisig transactions.
+    // @ts-expect-error Ethereum accounts cannot approve Tempo configurable account transactions.
     owner: privateKeyToAccount(`0x${'2'.repeat(64)}`),
   })
 })

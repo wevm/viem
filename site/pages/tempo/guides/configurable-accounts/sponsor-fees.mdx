@@ -1,10 +1,10 @@
 ---
-description: Pay fees for a coordinated multisig transaction with a separate fee payer.
+description: Pay fees for a coordinated account transaction with a separate fee payer.
 ---
 
 import { Card, Cards } from 'vocs'
 
-# Sponsor Multisig Fees
+# Sponsor Configurable Account Fees
 
 ## Overview
 
@@ -12,17 +12,17 @@ Choose how the transaction gets its fee-payer signature:
 
 - **[Relay](#relay):** Use a relay when a separate service controls the fee-payer key or applies
   sponsorship policy for many clients. Set `feePayer: true`; the relay signs and broadcasts the
-  transaction after the multisig reaches quorum.
+  transaction after the owners reach quorum.
 - **[Local account](#local-account):** Use a local account when the current trusted process
   controls the fee-payer key. Pass that account as `feePayer`, and Viem adds its signature to the
-  transaction that every multisig owner approves.
+  transaction that every account owner approves.
 
 ## Recipes
 
 ### Relay
 
 Use [`withRelay`](/tempo/transports/withRelay) to send approvals to a relay that coordinates the
-multisig and sponsors its fees. The owners approve a request with `feePayer: true`. After quorum,
+account and sponsors its fees. The owners approve a request with `feePayer: true`. After quorum,
 the relay signs and broadcasts the final transaction.
 
 :::code-group
@@ -31,14 +31,14 @@ the relay signs and broadcasts the final transaction.
 import { Account } from 'viem/tempo'
 import { client } from './relay.config'
 
-// 1. Create the independent owners and multisig.
+// 1. Create the independent owners and account.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
@@ -46,7 +46,7 @@ const multisig = Account.fromMultisig({
 
 // 2. Store the first owner approval with a relay fee payer.
 const pending = await client.sendTransactionSync({
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer: true,
   owner: owner_1,
@@ -54,7 +54,7 @@ const pending = await client.sendTransactionSync({
 
 // 3. Reach quorum and let the relay sponsor the final transaction.
 const receipt = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: owner_2,
 })
@@ -72,8 +72,8 @@ export const client = createClient({
 
 :::
 
-The remote relay owns the shared multisig store. The client does not need a local multisig
-plugin when `withRelay` points to a relay that handles multisig coordination.
+The remote relay owns the shared account store. The client does not need a local accounts
+plugin when `withRelay` points to a relay that handles account coordination.
 
 ### Local Account
 
@@ -87,7 +87,7 @@ operation, and later owners approve that same operation by hash.
 import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
-// 1. Create the owners, fee payer, and multisig.
+// 1. Create the owners, fee payer, and account.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
@@ -97,7 +97,7 @@ const owner_2 = Account.fromSecp256k1(
 const feePayer = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
@@ -105,7 +105,7 @@ const multisig = Account.fromMultisig({
 
 // 2. Store the first approval with the local fee payer.
 const pending = await client.sendTransactionSync({
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   feePayer,
   owner: owner_1,
@@ -113,14 +113,14 @@ const pending = await client.sendTransactionSync({
 
 // 3. Approve the fee-paid operation with the second owner.
 const receipt = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: owner_2,
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -131,12 +131,12 @@ const receipt = await client.sendTransactionSync({
 
 Owner and fee-payer signatures cover the prepared transaction fields. Do not change gas, fees,
 nonce, validity window, calls, or fee payer after either party signs. Later owners should pass the
-same multisig account, the operation hash, and their owner signer.
+same configurable account, the operation hash, and their owner signer.
 
 ## See More
 
 <Cards>
   <Card icon="lucide:hand-coins" title="Sponsor User Fees" description="Integrate a remote fee-payer service." to="/tempo/guides/sponsor-fees" />
-  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent multisig approvals." to="/tempo/guides/multisig/send" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals." to="/tempo/guides/configurable-accounts/send" />
   <Card icon="lucide:receipt" title="Tempo Transactions" description="Learn how Tempo transaction fees and fee payers work." to="/tempo/transactions" />
 </Cards>

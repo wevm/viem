@@ -15,7 +15,7 @@ These recipes assume you have [set up a Tempo client](/tempo).
 ### Connect to a Remote Relay
 
 Pass a relay transport to `withRelay` to use a remote service for transaction
-preparation, fee sponsorship, and multisig coordination.
+preparation, fee sponsorship, and account coordination.
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -42,7 +42,7 @@ import { Relay, Store, withRelay } from 'viem/tempo'
 const client = createClient({
   chain: tempo,
   transport: withRelay(http(), {
-    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+    plugins: [Relay.accounts({ store: Store.memory() })], // [!code focus]
   }),
 })
 ```
@@ -70,9 +70,9 @@ Local mode preserves the underlying transport.
   />
   <Card
     icon="lucide:users"
-    title="Multisig"
-    description="Coordinate owner approvals and share pending multisig transactions."
-    to="/tempo/relay/plugins/multisig"
+    title="Accounts"
+    description="Coordinate owner approvals and share pending account transactions."
+    to="/tempo/relay/plugins/accounts"
   />
 </Cards>
 
@@ -85,4 +85,4 @@ each local coordinator. Keep sponsor signing keys in a trusted server environmen
 ## See More
 
 - [Run a Relay](/tempo/guides/relay/run)
-- [Send Multisig Transactions](/tempo/guides/multisig/send)
+- [Send Configurable Account Transactions](/tempo/guides/configurable-accounts/send)

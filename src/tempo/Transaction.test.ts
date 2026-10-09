@@ -1,4 +1,4 @@
-import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import { AccountConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
@@ -26,8 +26,8 @@ describe('getType', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
   })
 
-  test('behavior: multisigSimulation', () => {
-    expect(Transaction.getType({ multisigSimulation: {} })).toBe('tempo')
+  test('behavior: accountSimulation', () => {
+    expect(Transaction.getType({ accountSimulation: {} })).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -317,24 +317,24 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: explicit nonce key preserves multisig config', async () => {
+  test('behavior: explicit nonce key preserves account config', async () => {
     const owners = [accounts[1], accounts[2]] as const
-    const multisig = MultisigConfig.from({
+    const accountConfig = AccountConfig.from({
       threshold: 2,
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
     })
-    const multisigAccount = MultisigConfig.getAddress(multisig, {
+    const configurableAddress = AccountConfig.getAddress(accountConfig, {
       factory: nativeMultisigFactory,
     })
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
-      from: multisigAccount,
-      multisigSimulation: {
+      from: configurableAddress,
+      accountSimulation: {
         approvals: owners.map((owner) => ({
           owner: owner.address,
         })),
-        config: multisig,
+        config: accountConfig,
       },
       nonce: 0,
       nonceKey: 1n,
@@ -348,8 +348,8 @@ describe('serialize', () => {
       signatures,
     })
     const { signature } = Transaction.deserialize(serialized as `0x76${string}`)
-    expect(signature?.type).toBe('multisig')
-    if (signature?.type !== 'multisig') throw new Error('unreachable')
+    expect(signature?.type).toBe('configurable')
+    if (signature?.type !== 'configurable') throw new Error('unreachable')
     const {
       account: signatureAccount,
       signatures: approvals,
@@ -374,21 +374,21 @@ describe('serialize', () => {
           "threshold": 2,
           "version": 0n,
         },
-        "type": "multisig",
+        "type": "configurable",
       }
     `)
   })
 
-  test('behavior: signs multisig approvals with config version', async () => {
+  test('behavior: signs owner approvals with config version', async () => {
     const owner = accounts[1]!
-    const initialConfig = MultisigConfig.from({
+    const initialConfig = AccountConfig.from({
       threshold: 1,
       owners: [{ owner: owner.address, weight: 1 }],
     })
-    const account = MultisigConfig.getAddress(initialConfig, {
+    const account = AccountConfig.getAddress(initialConfig, {
       factory: nativeMultisigFactory,
     })
-    const multisig = MultisigConfig.from({
+    const accountConfig = AccountConfig.from({
       ...initialConfig,
       version: 2n,
     })
@@ -396,9 +396,9 @@ describe('serialize', () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       chainId: 1,
       from: account,
-      multisigSimulation: {
+      accountSimulation: {
         approvals: [{ owner: owner.address }],
-        config: multisig,
+        config: accountConfig,
       },
       nonce: 1,
     } as const
@@ -413,9 +413,9 @@ describe('serialize', () => {
         nonce: BigInt(transaction.nonce),
       }),
     )
-    const digest = MultisigConfig.getSignPayload({
+    const digest = AccountConfig.getSignPayload({
       account,
-      config: multisig,
+      config: accountConfig,
       payload,
     })
 

@@ -1,11 +1,11 @@
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
+  type AccountConfig,
+  type AccountOperation,
   Actions,
   createClient,
   http,
-  type MultisigConfig,
-  type MultisigOperation,
   Relay,
   Store,
   withRelay,
@@ -15,15 +15,15 @@ import { expectTypeOf, test } from 'vitest'
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const account = Account.fromMultisig({ address: 'infer', owners: [owner] })
+const account = Account.fromConfigurable({ address: 'infer', owners: [owner] })
 const client = createClient({
   chain: tempoLocalnet,
   transport: withRelay(http(), {
-    plugins: [Relay.multisig({ store: Store.memory() })],
+    plugins: [Relay.accounts({ store: Store.memory() })],
   }),
 })
 
-test('wallet actions expose multisig operations', async () => {
+test('wallet actions expose account operations', async () => {
   const hash = await client.sendTransaction({
     account,
     calls: [],
@@ -35,18 +35,18 @@ test('wallet actions expose multisig operations', async () => {
     owner,
   })
   const transaction = await client.getTransaction({ hash })
-  const config = await client.multisig.getConfig({ address: account.address })
-  const operation = await client.multisig.getOperation({ hash })
+  const config = await client.accounts.getConfig({ address: account.address })
+  const operation = await client.accounts.getOperation({ hash })
 
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(receipt.multisig).toEqualTypeOf<
-    MultisigOperation.TransactionOperation | undefined
+  expectTypeOf(receipt.operation).toEqualTypeOf<
+    AccountOperation.TransactionOperation | undefined
   >()
-  expectTypeOf(transaction.multisig).toEqualTypeOf<
-    MultisigOperation.TransactionOperation | undefined
+  expectTypeOf(transaction.operation).toEqualTypeOf<
+    AccountOperation.TransactionOperation | undefined
   >()
-  expectTypeOf(config).toEqualTypeOf<MultisigConfig.Config | null>()
-  expectTypeOf(operation).toEqualTypeOf<MultisigOperation.Operation | null>()
+  expectTypeOf(config).toEqualTypeOf<AccountConfig.Config | null>()
+  expectTypeOf(operation).toEqualTypeOf<AccountOperation.Operation | null>()
 })
 
 test('updateConfig infers the current config', async () => {
@@ -58,22 +58,22 @@ test('updateConfig infers the current config', async () => {
     },
   } as const
 
-  const hash = await client.multisig.updateConfig(parameters)
-  const explicitHash = await client.multisig.updateConfig({
+  const hash = await client.accounts.updateConfig(parameters)
+  const explicitHash = await client.accounts.updateConfig({
     ...parameters,
     account: account.address,
     currentConfig: account.config,
     owner,
   })
-  const result = await client.multisig.updateConfigSync(parameters)
+  const result = await client.accounts.updateConfigSync(parameters)
 
   expectTypeOf(explicitHash).toEqualTypeOf<`0x${string}`>()
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(result.config).toEqualTypeOf<MultisigConfig.Config>()
+  expectTypeOf(result.config).toEqualTypeOf<AccountConfig.Config>()
 })
 
 test('updateConfig.call requires the current config', () => {
-  Actions.multisig.updateConfig.call({
+  Actions.accounts.updateConfig.call({
     currentConfig: account.config,
     nextConfig: {
       owners: account.config.owners,
@@ -82,7 +82,7 @@ test('updateConfig.call requires the current config', () => {
   })
 
   // @ts-expect-error `call` cannot resolve a current config from a client.
-  Actions.multisig.updateConfig.call({
+  Actions.accounts.updateConfig.call({
     nextConfig: {
       owners: account.config.owners,
       threshold: account.config.threshold,

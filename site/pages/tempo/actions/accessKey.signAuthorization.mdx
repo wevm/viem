@@ -1,16 +1,17 @@
 # `accessKey.signAuthorization`
 
 Signs a key authorization for an access key. The action resolves any required chain state before
-signing, but does not send a transaction. For a coordinated multisig, each call stores one owner
-approval and returns the signed authorization with the current operation under `multisig`.
+signing, but does not send a transaction. For a coordinated configurable account, each call stores
+one owner approval and returns the signed authorization with the current operation under
+`operation`.
 
 :::info
 If you want to authorize a key and send the transaction in one step, use [`accessKey.authorize`](/tempo/actions/accessKey.authorize) instead.
 :::
 
 :::tip
-A native multisig account can authorize an access key with its owner quorum. See
-[Authorize a Multisig Access Key](/tempo/guides/multisig/access-keys).
+A configurable account can authorize an access key with its owner quorum. See
+[Authorize an Access Key](/tempo/guides/configurable-accounts/access-keys).
 :::
 
 ## Usage
@@ -44,10 +45,10 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 
 :::
 
-### Coordinated Multisig Approvals
+### Coordinated Owner Approvals
 
-Pass a multisig account with the first owner's approval. Later owners continue the operation using
-its hash.
+Pass a configurable account with the first owner's approval. Later owners continue the operation
+using its hash.
 
 :::code-group
 
@@ -61,18 +62,18 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: multisig,
+  access: account,
 })
 
 const pending = await client.accessKey.signAuthorization({
   accessKey,
-  account: multisig,
+  account,
   owner: owner_1,
 })
 
@@ -83,7 +84,7 @@ const success = await client.accessKey.signAuthorization({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -244,22 +245,22 @@ type ReturnType =
   | KeyAuthorization.Signed
   | (KeyAuthorization.Signed & {
       hash: Hex
-      multisig: MultisigOperation.KeyAuthorizationOperation
+      operation: AccountOperation.KeyAuthorizationOperation
       status: 'pending' | 'success'
     })
 ```
 
 Local signing returns a signed key authorization that can be passed to any write action.
-Coordinated signing also returns the operation hash, status, and multisig details. A successful
+Coordinated signing also returns the operation hash, status, and operation details. A successful
 result can be passed directly to any write action as its `keyAuthorization`.
 
 ## Parameters
 
 ### account
 
-- **Type:** `RootAccount | MultisigAccount`
+- **Type:** `RootAccount | ConfigurableAccount`
 
-The account authorizing the access key. For coordinated signing, pass the multisig account here.
+The account authorizing the access key. For coordinated signing, pass the configurable account here.
 
 ### accessKey
 
@@ -294,10 +295,10 @@ Spending limits per token. Optionally include `period` (in seconds) to make the 
 
 ### owner
 
-- **Type:** `RootAccount | MultisigAccount`
+- **Type:** `RootAccount | ConfigurableAccount`
 
-The local owner adding a coordinated approval. Passing `owner` with a multisig `account` starts a
-coordinated operation. Later owners pass `owner` with the operation `hash`.
+The local owner adding a coordinated approval. Passing `owner` with a configurable `account` starts
+a coordinated operation. Later owners pass `owner` with the operation `hash`.
 
 ### scopes (optional)
 

@@ -1,4 +1,4 @@
-import { MultisigConfig } from 'ox/tempo'
+import { AccountConfig } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
@@ -11,8 +11,8 @@ const client = getClient({
 })
 
 describe('prepareTransactionRequest', () => {
-  test('behavior: derives a multisig simulation', async () => {
-    const config = MultisigConfig.from({
+  test('behavior: derives a account simulation', async () => {
+    const config = AccountConfig.from({
       owners: [
         { owner: accounts[1].address, weight: 1 },
         { owner: accounts[2].address, weight: 1 },
@@ -22,11 +22,11 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'infer', ...config }),
+      account: Account.fromConfigurable({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
-    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+    expect(request.accountSimulation).toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -64,7 +64,7 @@ describe('prepareTransactionRequest', () => {
   })
 
   test('behavior: selects a deterministic weighted quorum', async () => {
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       owners: [
         { owner: accounts[1].address, weight: 1 },
         { owner: accounts[2].address, weight: 2 },
@@ -74,11 +74,11 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromMultisig({ address: 'infer', ...config }),
+      account: Account.fromConfigurable({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
-    expect(request.multisigSimulation?.approvals).toMatchInlineSnapshot(`
+    expect(request.accountSimulation?.approvals).toMatchInlineSnapshot(`
       [
         {
           "keyData": "0x0578",
@@ -90,12 +90,12 @@ describe('prepareTransactionRequest', () => {
   })
 
   test('behavior: preserves a current config', async () => {
-    const initial = MultisigConfig.from({
+    const initial = AccountConfig.from({
       owners: [{ owner: accounts[1].address, weight: 1 }],
       threshold: 1,
     })
-    const account = Account.fromMultisig({
-      address: MultisigConfig.getAddress(initial, {
+    const account = Account.fromConfigurable({
+      address: AccountConfig.getAddress(initial, {
         factory: nativeMultisigFactory,
       }),
       ...initial,
@@ -107,7 +107,7 @@ describe('prepareTransactionRequest', () => {
       parameters: ['chainId'],
     })
 
-    expect(request.multisigSimulation).toMatchInlineSnapshot(`
+    expect(request.accountSimulation).toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -131,29 +131,29 @@ describe('prepareTransactionRequest', () => {
     `)
   })
 
-  test('behavior: rejects nested multisig simulation', () => {
-    const child = Account.fromMultisig({ owners: [accounts[1]] })
+  test('behavior: rejects nested account simulation', () => {
+    const child = Account.fromConfigurable({ owners: [accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
+    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+      'Configurable account owners must use primitive signatures.',
     )
   })
 
   test('error: rejects a generic local owner account', async () => {
     const owner = privateKeyToAccount(generatePrivateKey())
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
 
     await expect(
       prepareTransactionRequest(client, {
-        account: Account.fromMultisig({ address: 'infer', ...config }),
+        account: Account.fromConfigurable({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],
       } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: A Tempo owner account is required to approve a multisig transaction.]`,
+      `[Error: A Tempo owner account is required to approve a configurable account transaction.]`,
     )
   })
 })

@@ -1,28 +1,28 @@
 ---
-description: Build common native multisig workflows on Tempo with Viem.
+description: Build common configurable account workflows on Tempo with Viem.
 ---
 
 import { Card, Cards } from 'vocs'
 
-# Multisig
+# Configurable Accounts
 
 ## Overview
 
 :::warning
-**Experimental.** Native multisig support is experimental and may change in a future release.
+**Experimental.** Configurable account support is experimental and may change in a future release.
 It is not yet available on Tempo mainnet or testnet.
 :::
 
-Tempo native multisig accounts have owners, weighted approval thresholds, and an optional salt.
+Tempo configurable accounts have owners, weighted approval thresholds, and an optional salt.
 The initial configuration derives the account address. Owners and thresholds can change later
 without changing that address.
 
 ### Local Signing
 
 When one process holds enough owner accounts to reach the threshold, pass those accounts to
-[`Account.fromMultisig`](/tempo/accounts/account.fromMultisig) and use
+[`Account.fromConfigurable`](/tempo/accounts/account.fromConfigurable) and use
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The account creates the complete
-multisig signature locally.
+configurable signature locally.
 
 ```ts twoslash
 import { Account, createClient } from 'viem/tempo'
@@ -30,12 +30,12 @@ import { Account, createClient } from 'viem/tempo'
 // 1. Create a client.
 const client = createClient()
 
-// 2. Create a 1-of-2 multisig with one local owner.
+// 2. Create a 1-of-2 account with one local owner.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
-const account = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1, owner_2],
 })
@@ -50,12 +50,12 @@ const receipt = await client.sendTransactionSync({
 ### Coordinated Signing
 
 When owners sign independently, configure [`withRelay`](/tempo/transports/withRelay) with a
-[`Relay.multisig`](/tempo/relay/plugins/multisig) plugin and a shared store. Use stateless coordination
-when your application passes one prepared request between every owner.
+[`Relay.accounts`](/tempo/relay/plugins/accounts) plugin and a shared store. Use stateless
+coordination when your application passes one prepared request between every owner.
 
 Send coordinated transactions with
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The first owner passes the
-transaction fields with the multisig `account` and local `owner`. Every later owner passes the
+transaction fields with the configurable `account` and local `owner`. Every later owner passes the
 same account, the operation hash from the pending receipt, and their signer.
 
 The shared store retains valid approvals, reports pending quorum state, and broadcasts a canonical
@@ -78,8 +78,8 @@ const owner_3 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 
-// 2. Create a 3-of-3 multisig from their addresses.
-const multisig = Account.fromMultisig({
+// 2. Create a 3-of-3 account from their addresses.
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address, owner_3.address],
   threshold: 3,
@@ -87,28 +87,28 @@ const multisig = Account.fromMultisig({
 
 // 3. Store the first owner's approval and receive a pending receipt.
 const pending = await client.sendTransactionSync({
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: owner_1,
 })
 
 // 4. Add the second owner's approval by operation hash.
 const pending2 = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: owner_2,
 })
 
 // 5. Reach quorum with the third owner's approval.
 const receipt = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: owner_3,
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -116,7 +116,7 @@ const receipt = await client.sendTransactionSync({
 #### Stateless
 
 When independent owners can exchange one prepared request, collect every signature before
-submission. This flow does not require a multisig relay or a shared store.
+submission. This flow does not require a relay or a shared store.
 
 ```ts twoslash
 import { Account } from 'viem/tempo'
@@ -127,14 +127,14 @@ import {
 } from 'viem/actions'
 import { client } from './viem.config'
 
-// 1. Create independent owners and a multisig from their addresses.
+// 1. Create independent owners and an account from their addresses.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
@@ -142,14 +142,14 @@ const multisig = Account.fromMultisig({
 
 // 2. Prepare one request for both owners.
 const request = await prepareTransactionRequest(client, {
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
 })
 
 // 3. Sign the same request with each owner.
 const signatures = await Promise.all(
-  [owner_1, owner_2].map((account) =>
-    signTransaction(client, { ...request, account })
+  [owner_1, owner_2].map((owner) =>
+    signTransaction(client, { ...request, account: owner })
   )
 )
 
@@ -160,12 +160,12 @@ const receipt = await sendTransactionSync(client, { ...request, signatures })
 ## Recipes
 
 <Cards>
-  <Card icon="lucide:send" title="Send Transactions" description="Choose local signing or coordinated signing." to="/tempo/guides/multisig/send" />
-  <Card icon="lucide:scale" title="Weighted Owners" description="Configure an M-of-N quorum or assign different approval weights to owners." to="/tempo/guides/multisig/weighted-owners" />
-  <Card icon="lucide:fingerprint" title="Passkeys & Other Keys" description="Combine secp256k1, P256, WebAuthn, and WebCrypto owners in one account." to="/tempo/guides/multisig/key-types" />
-  <Card icon="lucide:key-round" title="Authorize Access Keys" description="Authorize and immediately use an access key from a multisig account." to="/tempo/guides/multisig/access-keys" />
-  <Card icon="lucide:hand-coins" title="Sponsor Fees" description="Combine independent multisig approvals with a separate fee payer." to="/tempo/guides/multisig/sponsor-fees" />
-  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds while preserving the multisig address." to="/tempo/guides/multisig/rotate-owners" />
+  <Card icon="lucide:send" title="Send Transactions" description="Choose local signing or coordinated signing." to="/tempo/guides/configurable-accounts/send" />
+  <Card icon="lucide:scale" title="Weighted Owners" description="Configure an M-of-N quorum or assign different approval weights to owners." to="/tempo/guides/configurable-accounts/weighted-owners" />
+  <Card icon="lucide:fingerprint" title="Passkeys & Other Keys" description="Combine secp256k1, P256, WebAuthn, and WebCrypto owners in one account." to="/tempo/guides/configurable-accounts/key-types" />
+  <Card icon="lucide:key-round" title="Authorize Access Keys" description="Authorize and immediately use an access key from a configurable account." to="/tempo/guides/configurable-accounts/access-keys" />
+  <Card icon="lucide:hand-coins" title="Sponsor Fees" description="Combine independent owner approvals with a separate fee payer." to="/tempo/guides/configurable-accounts/sponsor-fees" />
+  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds while preserving the account address." to="/tempo/guides/configurable-accounts/rotate-owners" />
 </Cards>
 
 ## Best Practices
@@ -183,7 +183,7 @@ implementation with atomic `compareAndSet`. The in-memory store is for one proce
 ## See More
 
 <Cards>
-  <Card icon="lucide:database" title="Multisig Plugin" description="Coordinate approvals with relay middleware and shared atomic storage." to="/tempo/relay/plugins/multisig" />
-  <Card icon="lucide:settings" title="Multisig Configuration" description="Read and update a multisig account's current configuration." to="/tempo/actions/multisig.getConfig" />
-  <Card icon="lucide:book-open" title="TIP-1061" description="Read the specification for Tempo native multisig accounts." to="https://tips.sh/1061" />
+  <Card icon="lucide:database" title="Accounts Plugin" description="Coordinate approvals with relay middleware and shared atomic storage." to="/tempo/relay/plugins/accounts" />
+  <Card icon="lucide:settings" title="Account Configuration" description="Read and update a configurable account's current configuration." to="/tempo/actions/accounts.getConfig" />
+  <Card icon="lucide:book-open" title="TIP-1107" description="Read the specification for Tempo configurable accounts." to="https://tips.sh/1107" />
 </Cards>

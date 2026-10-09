@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import type * as RpcSchema from 'ox/RpcSchema'
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   type RpcSchemaTempo,
   SignatureEnvelope,
 } from 'ox/tempo'
@@ -31,16 +31,17 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import type {
   AccessKeyAccount,
-  MultisigAccount,
+  ConfigurableAccount,
   RootAccount,
 } from '../Account.js'
 import {
-  fromMultisig,
+  fromConfigurable,
   getKeyAuthorizationSignPayload,
   resolveAccessKey,
   signKeyAuthorization,
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
+import { parseApproval } from '../accounts/Signature.js'
 import * as Hardfork from '../Hardfork.js'
 import type {
   GetAccountParameter,
@@ -48,9 +49,8 @@ import type {
   WriteParameters,
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
-import { parseApproval } from '../multisig/Signature.js'
 import type { TransactionReceipt } from '../Transaction.js'
-import { getConfig } from './multisig.js'
+import { getConfig } from './accounts.js'
 
 /** @internal */
 const signatureTypes = {
@@ -1058,13 +1058,13 @@ export async function prepareAuthorization<
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = parseAccount(account_)
-  const multisigState = await (async () => {
-    if ('multisig' in parameters) return parameters.multisig
-    if (parsed.source !== 'multisig') return undefined
-    const account = parsed as MultisigAccount
+  const configurableState = await (async () => {
+    if ('configurable' in parameters) return parameters.configurable
+    if (parsed.source !== 'configurable') return undefined
+    const account = parsed as ConfigurableAccount
     if (!account.config)
       throw new Error(
-        'A multisig config is required to prepare a key authorization.',
+        'An account config is required to prepare a key authorization.',
       )
     return { config: account.config }
   })()
@@ -1077,10 +1077,10 @@ export async function prepareAuthorization<
     },
   )
   const signPayload =
-    parsed.source === 'multisig' && multisigState
-      ? MultisigConfig.getSignPayload({
+    parsed.source === 'configurable' && configurableState
+      ? AccountConfig.getSignPayload({
           account: parsed.address,
-          config: multisigState.config,
+          config: configurableState.config,
           payload: authorizationSignPayload,
         })
       : authorizationSignPayload
@@ -1088,7 +1088,7 @@ export async function prepareAuthorization<
     ...parameters,
     account: parsed,
     chainId,
-    multisig: multisigState,
+    configurable: configurableState,
     signPayload,
   } as never
 }
@@ -1115,8 +1115,8 @@ export namespace prepareAuthorization {
     limits?:
       | { token: Address; limit: bigint; period?: number | undefined }[]
       | undefined
-    /** @internal Prepared multisig state. */
-    multisig?: signKeyAuthorization.Parameters['multisig']
+    /** @internal Prepared configurable account state. */
+    configurable?: signKeyAuthorization.Parameters['configurable']
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
     /**
@@ -1136,8 +1136,8 @@ export namespace prepareAuthorization {
     Omit<Parameters<Account | undefined>, 'account' | 'chainId'> & {
       account: Account
       chainId: number
-      multisig: signKeyAuthorization.Parameters['multisig']
-      /** Payload that the authorizing account or multisig owners sign. */
+      configurable: signKeyAuthorization.Parameters['configurable']
+      /** Payload that the authorizing account or owners sign. */
       signPayload: Hex
     }
   >
@@ -1151,7 +1151,7 @@ export namespace prepareAuthorization {
  *
  * @param client - Client.
  * @param parameters - Authorization fields, or a stored operation hash.
- * @returns A signed key authorization with multisig operation metadata when coordinated.
+ * @returns A signed key authorization with account operation metadata when coordinated.
  */
 export function signAuthorization<
   chain extends Chain | undefined,
@@ -1185,13 +1185,13 @@ export async function signAuthorization<
     const owner_ = parameters_.owner
     if (!owner_ || typeof owner_ === 'string')
       throw new Error(
-        'A local owner account is required to approve a multisig key authorization.',
+        'A local owner account is required to approve a configurable account key authorization.',
       )
     const owner = parseAccount(owner_)
     const sign = owner.sign
     if (!sign)
       throw new Error(
-        'A local owner account is required to approve a multisig key authorization.',
+        'A local owner account is required to approve a configurable account key authorization.',
       )
 
     const request = await (async () => {
@@ -1214,16 +1214,17 @@ export async function signAuthorization<
         const config = await getConfig(client, { address })
         if (config) return config
         throw new Error(
-          `No current multisig config is cached for account ${address}. Provide the current config.`,
+          `No current account config is cached for account ${address}. Provide the current config.`,
         )
       })()
       const account = (() => {
-        if (config.version !== 0n) return fromMultisig({ address, ...config })
+        if (config.version !== 0n)
+          return fromConfigurable({ address, ...config })
         const { version: _, ...initialConfig } = config
-        return fromMultisig({ address: 'infer', ...initialConfig })
+        return fromConfigurable({ address: 'infer', ...initialConfig })
       })()
       if (!isAddressEqual(account.address, address))
-        throw new Error('Initial multisig config does not match the account.')
+        throw new Error('Initial account config does not match the account.')
       const prepared = await prepareAuthorization(client, {
         ...authorization,
         account,
@@ -1250,44 +1251,46 @@ export async function signAuthorization<
       return { keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }
     })()
 
-    type multisig_approveKeyAuthorization = Extract<
-      RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
-      { Method: 'multisig_approveKeyAuthorization' }
+    type account_approveKeyAuthorization = Extract<
+      RpcSchema.ToViem<RpcSchemaTempo.Account>[number],
+      { Method: 'account_approveKeyAuthorization' }
     >
-    const operation = await client.request<multisig_approveKeyAuthorization>({
-      method: 'multisig_approveKeyAuthorization',
+    const operation = await client.request<account_approveKeyAuthorization>({
+      method: 'account_approveKeyAuthorization',
       params: [request],
     })
-    const multisig = MultisigOperation.fromRpc(operation)
+    const operation_ = AccountOperation.fromRpc(operation)
     const keyAuthorization = KeyAuthorization.deserialize(
       await (async () => {
-        if (multisig.status === 'success') return multisig.keyAuthorization
-        const approvals = await MultisigOperation.selectApprovals({
-          account: multisig.account,
-          approvals: multisig.approvals,
-          config: multisig.config,
-          hash: multisig.hash,
+        if (operation_.status === 'success') return operation_.keyAuthorization
+        const approvals = await AccountOperation.selectApprovals({
+          account: operation_.account,
+          approvals: operation_.approvals,
+          config: operation_.config,
+          hash: operation_.hash,
         })
-        return MultisigOperation.serializeKeyAuthorization(
-          multisig.keyAuthorization,
+        return AccountOperation.serializeKeyAuthorization(
+          operation_.keyAuthorization,
           {
-            account: multisig.account,
+            account: operation_.account,
             approvals:
               approvals.selectedApprovals.length > 0
                 ? approvals.selectedApprovals
                 : approvals.approvals.slice(0, 1),
-            config: multisig.config,
+            config: operation_.config,
           },
         )
       })(),
     )
     if (!keyAuthorization.signature)
-      throw new Error('Expected a signed multisig key authorization.')
+      throw new Error(
+        'Expected a signed configurable account key authorization.',
+      )
     return {
       ...keyAuthorization,
-      hash: multisig.hash,
-      multisig,
-      status: multisig.status,
+      hash: operation_.hash,
+      operation: operation_,
+      status: operation_.status,
     } as never
   }
 
@@ -1303,14 +1306,14 @@ export async function signAuthorization<
     accessKey,
     account: account_,
     chainId,
-    multisig: multisigState,
+    configurable: configurableState,
     signPayload: _,
     ...rest
   } = prepared
   return signKeyAuthorization(account_ as never, {
     chainId: BigInt(chainId),
     key: accessKey,
-    multisig: multisigState,
+    configurable: configurableState,
     ...rest,
   }) as never
 }
@@ -1319,10 +1322,10 @@ export namespace signAuthorization {
   /** Initial coordinated key authorization parameters. */
   export type CoordinatedInitialParameters = Omit<
     prepareAuthorization.Parameters<Account>,
-    'account' | 'multisig'
+    'account' | 'configurable'
   > & {
-    /** Multisig account being authorized. */
-    account: Address | MultisigAccount
+    /** Configurable account being authorized. */
+    account: Address | ConfigurableAccount
     /** Local owner that approves the authorization. */
     owner: RootAccount
   }
@@ -1331,7 +1334,7 @@ export namespace signAuthorization {
   export type CoordinatedParameters = OneOf<
     | CoordinatedInitialParameters
     | {
-        /** Stored multisig operation hash. */
+        /** Stored account operation hash. */
         hash: Hex
         /** Local owner that approves the authorization. */
         owner: RootAccount
@@ -1342,7 +1345,7 @@ export namespace signAuthorization {
   export type LocalParameters<
     account extends Account | undefined = Account | undefined,
   > = prepareAuthorization.Parameters<account> & {
-    /** Serialized approvals from external multisig owners. */
+    /** Serialized approvals from external owners. */
     signatures?: readonly SignatureEnvelope.Serialized[] | undefined
   }
 
@@ -1357,12 +1360,12 @@ export namespace signAuthorization {
   /** Coordinated return value for {@link signAuthorization}. */
   export type CoordinatedReturnValue = Compute<
     ReturnValue & {
-      /** Deterministic multisig operation hash. */
+      /** Deterministic account operation hash. */
       hash: Hex
-      /** Current multisig operation. */
-      multisig: MultisigOperation.KeyAuthorizationOperation
-      /** Current multisig operation status. */
-      status: MultisigOperation.KeyAuthorizationOperation['status']
+      /** Current account operation. */
+      operation: AccountOperation.KeyAuthorizationOperation
+      /** Current account operation status. */
+      status: AccountOperation.KeyAuthorizationOperation['status']
     }
   >
 

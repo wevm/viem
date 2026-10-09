@@ -167,7 +167,7 @@ const handle = Relay.handleRequest(rpc.request, {
 
 Deadline in milliseconds for a plugin-handled fill, including token resolution, validation, signing, and enrichment. Expiry aborts downstream requests and rejects the fill.
 
-Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and multisig polling use their existing timeouts.
+Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and account operation polling use their existing timeouts.
 
 The timeout must be a positive integer no greater than `2_147_483_647` milliseconds. Exceeding the deadline rejects the fill with RPC error code `-32005`. Transport retries run within the same deadline.
 

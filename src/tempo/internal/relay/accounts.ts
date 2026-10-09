@@ -4,9 +4,9 @@ import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   Transaction as ox_Transaction,
   SignatureEnvelope,
   TxEnvelopeTempo,
@@ -18,9 +18,9 @@ import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
-import { getConfigCommitment } from '../../actions/multisig.js'
-import * as ConfigStore from '../../multisig/Config.js'
-import * as OperationStore from '../../multisig/Operation.js'
+import * as ConfigStore from '../../accounts/Config.js'
+import * as OperationStore from '../../accounts/Operation.js'
+import { getConfigCommitment } from '../../actions/accounts.js'
 import type * as Relay from '../../Relay.js'
 import type * as Store from '../../Store.js'
 import * as Transaction from '../../Transaction.js'
@@ -29,16 +29,16 @@ import * as Plugin from './plugin.js'
 const submissionTtl = 30_000
 const pollingInterval = 100
 
-/** Creates middleware for multisig approval coordination. @internal */
+/** Creates middleware for owner approval coordination. @internal */
 export function create(
-  options: Relay.multisig.Options,
-): Relay.multisig.ReturnType {
+  options: Relay.accounts.Options,
+): Relay.accounts.ReturnType {
   if (!options.store.compareAndSet)
     throw new RpcResponse.InvalidParamsError({
       message:
-        'Multisig coordination requires a store with atomic `compareAndSet`.',
+        'Account coordination requires a store with atomic `compareAndSet`.',
     })
-  return Plugin.multisig({
+  return Plugin.accounts({
     async handleRequest(context, forward) {
       const { request, options: requestOptions_ } = context
       const requestOptions = await resolveRequestOptions({
@@ -62,7 +62,7 @@ export function create(
         ),
       })
 
-      if (request.method === 'multisig_getConfig') {
+      if (request.method === 'account_getConfig') {
         const value = request.params?.[0]
         const address =
           value && typeof value === 'object' && 'address' in value
@@ -74,7 +74,7 @@ export function create(
           Hex.toBigInt(address) === 0n
         )
           throw new RpcResponse.InvalidParamsError({
-            message: 'Expected a multisig account address.',
+            message: 'Expected a configurable account address.',
           })
         const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
         const commitment = await getConfigCommitment(client, {
@@ -86,20 +86,20 @@ export function create(
           commitment,
         })
         if (!config) return null
-        return MultisigConfig.toRpc(config)
+        return AccountConfig.toRpc(config)
       }
 
-      if (request.method === 'multisig_getOperation') {
+      if (request.method === 'account_getOperation') {
         const hash = request.params?.[0]
         if (typeof hash !== 'string' || !Hash.validate(hash))
           throw new RpcResponse.InvalidParamsError({
-            message: 'Expected a multisig operation hash.',
+            message: 'Expected an account operation hash.',
           })
         const operation = await OperationStore.read(options.store, hash)
-        return operation ? MultisigOperation.toRpc(operation) : null
+        return operation ? AccountOperation.toRpc(operation) : null
       }
 
-      if (request.method === 'multisig_approveKeyAuthorization')
+      if (request.method === 'account_approveKeyAuthorization')
         return await approveKeyAuthorization({
           client,
           request,
@@ -139,7 +139,7 @@ export function create(
               : operation
           return {
             ...receipt,
-            multisig: MultisigOperation.toRpc(success),
+            operation: AccountOperation.toRpc(success),
           }
         }
         if (operation.status === 'pending')
@@ -168,15 +168,15 @@ export function create(
             : operation
         return {
           ...transaction,
-          multisig: MultisigOperation.toRpc(success),
+          operation: AccountOperation.toRpc(success),
         }
       }
 
       if (
         request.method !== 'eth_sendRawTransaction' &&
         request.method !== 'eth_sendRawTransactionSync' &&
-        request.method !== 'multisig_approveRawTransaction' &&
-        request.method !== 'multisig_approveRawTransactionSync'
+        request.method !== 'account_approveRawTransaction' &&
+        request.method !== 'account_approveRawTransactionSync'
       )
         return forward()
 
@@ -187,7 +187,8 @@ export function create(
       if (!isSerializedTempoTransaction(serialized)) {
         if (standard) return forward()
         throw new RpcResponse.InvalidParamsError({
-          message: 'Expected a serialized Tempo multisig transaction.',
+          message:
+            'Expected a serialized Tempo configurable account transaction.',
         })
       }
 
@@ -220,14 +221,14 @@ async function submit(options: submit.Options) {
     }
   })()
   const signature = transaction?.signature
-  if (!transaction || signature?.type !== 'multisig') {
+  if (!transaction || signature?.type !== 'configurable') {
     if (
       options.method === 'eth_sendRawTransaction' ||
       options.method === 'eth_sendRawTransactionSync'
     )
       return await options.next(options.request, options.requestOptions)
     throw new RpcResponse.InvalidParamsError({
-      message: 'Expected a multisig transaction signature.',
+      message: 'Expected a configurable account transaction signature.',
     })
   }
 
@@ -238,14 +239,14 @@ async function submit(options: submit.Options) {
     options.serialized.startsWith(TxEnvelopeTempo.feePayerMagic),
   )
   const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
-  const config = MultisigConfig.from(signature.config)
+  const config = AccountConfig.from(signature.config)
   const configCommitment = await validateConfig({
     account: signature.account,
     blockNumber,
     client: options.client,
     config,
   })
-  const operationHash = MultisigOperation.getHash({
+  const operationHash = AccountOperation.getHash({
     account: signature.account,
     config,
     transaction: serializedUnsigned,
@@ -256,7 +257,7 @@ async function submit(options: submit.Options) {
   )
   if (incoming.length === 0)
     throw new RpcResponse.InvalidParamsError({
-      message: 'A multisig approval envelope must include a signature.',
+      message: 'A owner approval envelope must include a signature.',
     })
   const now = Date.now()
   const expiredSubmissionIds = new Set<Hex.Hex>()
@@ -285,7 +286,7 @@ async function submit(options: submit.Options) {
         hash: operationHash,
         approvals: [...(existingApprovals?.approvals ?? []), ...incoming],
       })
-      return MultisigOperation.from({
+      return AccountOperation.from({
         account: signature.account,
         approvals: approvals.approvals,
         config,
@@ -339,7 +340,7 @@ async function submit(options: submit.Options) {
   const timeout = options.request.params?.[1]
   const synchronous =
     options.method === 'eth_sendRawTransactionSync' ||
-    options.method === 'multisig_approveRawTransactionSync'
+    options.method === 'account_approveRawTransactionSync'
   const leaseTtl =
     synchronous &&
     typeof timeout === 'number' &&
@@ -358,7 +359,7 @@ async function submit(options: submit.Options) {
         return current
       if (current.weight < current.threshold) return current
       const now = Date.now()
-      return MultisigOperation.from({
+      return AccountOperation.from({
         ...current,
         expiresAt: Math.min(now + leaseTtl, Number.MAX_SAFE_INTEGER),
         status: 'submitting',
@@ -392,7 +393,7 @@ async function submit(options: submit.Options) {
           hash: claim.hash,
           approvals: claim.approvals,
         })
-        const final = MultisigOperation.serializeTransaction(claim, {
+        const final = AccountOperation.serializeTransaction(claim, {
           approvals: finalApprovals.selectedApprovals,
         })
         const transactionHash = TxEnvelopeTempo.hash(
@@ -431,7 +432,7 @@ async function submit(options: submit.Options) {
         {
           method:
             options.method === 'eth_sendRawTransaction' ||
-            options.method === 'multisig_approveRawTransaction'
+            options.method === 'account_approveRawTransaction'
               ? 'eth_sendRawTransaction'
               : 'eth_sendRawTransactionSync',
           params: [final, ...(options.request.params?.slice(1) ?? [])],
@@ -488,7 +489,7 @@ async function submit(options: submit.Options) {
       )
         throw new OperationStore.InvalidStoreValueError()
       const { expiresAt: _, submissionId: __, ...operation } = current
-      return MultisigOperation.from({
+      return AccountOperation.from({
         ...operation,
         status: 'success',
         transactionHash,
@@ -504,7 +505,7 @@ async function submit(options: submit.Options) {
     result &&
     typeof result === 'object'
   )
-    return { ...result, multisig: MultisigOperation.toRpc(success) }
+    return { ...result, operation: AccountOperation.toRpc(success) }
   return await submittedResult(options, success)
 }
 
@@ -517,8 +518,8 @@ declare namespace submit {
     method:
       | 'eth_sendRawTransaction'
       | 'eth_sendRawTransactionSync'
-      | 'multisig_approveRawTransaction'
-      | 'multisig_approveRawTransactionSync'
+      | 'account_approveRawTransaction'
+      | 'account_approveRawTransactionSync'
     /** Downstream RPC request handler. */
     next: Relay.handleRequest.Handler
     /** Original RPC request. */
@@ -527,12 +528,12 @@ declare namespace submit {
     requestOptions?: Relay.handleRequest.RequestOptions | undefined
     /** Serialized Tempo transaction. */
     serialized: Hex.Hex
-    /** Shared multisig store. */
+    /** Shared account store. */
     store: Store.Atomic
   }
 }
 
-/** Collects approvals for a multisig key authorization. @internal */
+/** Collects approvals for a configurable account key authorization. @internal */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function approveKeyAuthorization(
   options: approveKeyAuthorization.Options,
@@ -540,7 +541,7 @@ async function approveKeyAuthorization(
   const value = options.request.params?.[0]
   if (!value || typeof value !== 'object')
     throw new RpcResponse.InvalidParamsError({
-      message: 'Expected a multisig key authorization approval.',
+      message: 'Expected a configurable account key authorization approval.',
     })
 
   const approval = await (async () => {
@@ -552,14 +553,15 @@ async function approveKeyAuthorization(
           )
         } catch {
           throw new RpcResponse.InvalidParamsError({
-            message: 'Invalid multisig key authorization.',
+            message: 'Invalid configurable account key authorization.',
           })
         }
       })()
       const signature = authorization.signature
-      if (signature?.type !== 'multisig')
+      if (signature?.type !== 'configurable')
         throw new RpcResponse.InvalidParamsError({
-          message: 'Expected a multisig key authorization signature.',
+          message:
+            'Expected a configurable account key authorization signature.',
         })
       if (
         !authorization.account ||
@@ -567,14 +569,14 @@ async function approveKeyAuthorization(
       )
         throw new RpcResponse.InvalidParamsError({
           message:
-            'Multisig key authorization account does not match its signature.',
+            'Configurable account key authorization account does not match its signature.',
         })
       const { signature: _, ...unsigned } = authorization
       const keyAuthorization = KeyAuthorization.serialize(
         KeyAuthorization.from(unsigned),
       )
-      const config = MultisigConfig.from(signature.config)
-      const hash = MultisigOperation.getHash({
+      const config = AccountConfig.from(signature.config)
+      const hash = AccountOperation.getHash({
         account: signature.account,
         config,
         keyAuthorization,
@@ -594,12 +596,13 @@ async function approveKeyAuthorization(
     if ('hash' in value && 'signature' in value) {
       if (typeof value.hash !== 'string' || !Hash.validate(value.hash))
         throw new RpcResponse.InvalidParamsError({
-          message: 'Expected a multisig operation hash.',
+          message: 'Expected an account operation hash.',
         })
       const operation = await OperationStore.read(options.store, value.hash)
       if (!operation || operation.type !== 'keyAuthorization')
         throw new RpcResponse.InvalidParamsError({
-          message: 'Multisig key authorization operation was not found.',
+          message:
+            'Configurable account key authorization operation was not found.',
         })
       if (operation.status === 'success') return { operation }
       const signature = (() => {
@@ -609,7 +612,7 @@ async function approveKeyAuthorization(
           )
         } catch {
           throw new RpcResponse.InvalidParamsError({
-            message: 'Invalid multisig owner signature.',
+            message: 'Invalid owner signature.',
           })
         }
       })()
@@ -623,14 +626,13 @@ async function approveKeyAuthorization(
     }
 
     throw new RpcResponse.InvalidParamsError({
-      message: 'Expected a multisig key authorization approval.',
+      message: 'Expected a configurable account key authorization approval.',
     })
   })()
-  if ('operation' in approval)
-    return MultisigOperation.toRpc(approval.operation)
+  if ('operation' in approval) return AccountOperation.toRpc(approval.operation)
   if (approval.approvals.length === 0)
     throw new RpcResponse.InvalidParamsError({
-      message: 'A multisig approval envelope must include a signature.',
+      message: 'A owner approval envelope must include a signature.',
     })
 
   const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
@@ -651,8 +653,8 @@ async function approveKeyAuthorization(
       if (
         existing &&
         (existing.account.toLowerCase() !== approval.account.toLowerCase() ||
-          MultisigConfig.getCommitment(existing.config).toLowerCase() !==
-            MultisigConfig.getCommitment(approval.config).toLowerCase() ||
+          AccountConfig.getCommitment(existing.config).toLowerCase() !==
+            AccountConfig.getCommitment(approval.config).toLowerCase() ||
           existing.keyAuthorization.toLowerCase() !==
             approval.keyAuthorization.toLowerCase())
       )
@@ -696,10 +698,10 @@ async function approveKeyAuthorization(
         weight: approvals.weight,
       } as const
       if (approvals.weight < approvals.threshold)
-        return MultisigOperation.from({ ...pending, status: 'pending' })
-      return MultisigOperation.from({
+        return AccountOperation.from({ ...pending, status: 'pending' })
+      return AccountOperation.from({
         ...pending,
-        keyAuthorization: MultisigOperation.serializeKeyAuthorization(
+        keyAuthorization: AccountOperation.serializeKeyAuthorization(
           approval.keyAuthorization,
           {
             account: approval.account,
@@ -718,7 +720,7 @@ async function approveKeyAuthorization(
   })
   if (operation.type !== 'keyAuthorization')
     throw new OperationStore.InvalidStoreValueError()
-  return MultisigOperation.toRpc(operation)
+  return AccountOperation.toRpc(operation)
 }
 
 declare namespace approveKeyAuthorization {
@@ -728,7 +730,7 @@ declare namespace approveKeyAuthorization {
     client: ReturnType<typeof createClient>
     /** Original RPC request. */
     request: Relay.handleRequest.Request
-    /** Shared multisig store. */
+    /** Shared account store. */
     store: Store.Atomic
   }
 }
@@ -750,25 +752,26 @@ function deserialize(serialized: Hex.Hex) {
 function assertConfig(options: {
   account: `0x${string}`
   commitment: Hex.Hex
-  config: MultisigConfig.Config
+  config: AccountConfig.Config
 }) {
   const { account, commitment, config } = options
   if (
     config.version === 0n &&
-    MultisigConfig.getAddress(config, {
+    AccountConfig.getAddress(config, {
       factory: Addresses.nativeMultisigFactory,
     }).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
-      message: 'Initial multisig config does not match the multisig account.',
+      message:
+        'Initial account config does not match the configurable account.',
     })
   if (config.version === 0n && Hex.toBigInt(commitment) === 0n) return
   if (
     commitment.toLowerCase() !==
-    MultisigConfig.getCommitment(config).toLowerCase()
+    AccountConfig.getCommitment(config).toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
-      message: `Multisig config does not match account ${account}.`,
+      message: `Account config does not match account ${account}.`,
     })
 }
 
@@ -777,7 +780,7 @@ async function validateConfig(options: {
   account: `0x${string}`
   blockNumber: bigint
   client: ReturnType<typeof createClient>
-  config: MultisigConfig.Config
+  config: AccountConfig.Config
 }) {
   const { account, blockNumber, client, config } = options
   const commitment = await getConfigCommitment(client, {
@@ -810,25 +813,20 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
     const [current, threshold, owners] = decoded.args
     const suppliedConfig = (() => {
       try {
-        return MultisigConfig.from(current)
+        return AccountConfig.from(current)
       } catch {
         return undefined
       }
     })()
     if (
       !suppliedConfig ||
-      MultisigConfig.getCommitment(suppliedConfig).toLowerCase() !==
-        MultisigConfig.getCommitment(currentConfig).toLowerCase()
+      AccountConfig.getCommitment(suppliedConfig).toLowerCase() !==
+        AccountConfig.getCommitment(currentConfig).toLowerCase()
     )
       continue
     const config = (() => {
       try {
-        return MultisigConfig.from({
-          owners,
-          salt: suppliedConfig.salt,
-          threshold,
-          version: suppliedConfig.version + 1n,
-        })
+        return AccountConfig.update(suppliedConfig, { owners, threshold })
       } catch {
         return undefined
       }
@@ -836,7 +834,7 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
     if (!config) continue
     await ConfigStore.write(options.store, {
       address: options.account,
-      commitment: MultisigConfig.getCommitment(config),
+      commitment: AccountConfig.getCommitment(config),
       config,
     })
     currentConfig = config
@@ -846,11 +844,11 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
 declare namespace cacheNextConfigs {
   /** Parameters for {@link cacheNextConfigs}. */
   export type Options = {
-    /** Root multisig account. */
+    /** Root configurable account. */
     account: Address
     /** Root config used to authorize the transaction. */
-    config: MultisigConfig.Config
-    /** Shared multisig store. */
+    config: AccountConfig.Config
+    /** Shared account store. */
     store: Store.Store
     /** Submitted transaction containing potential config updates. */
     transaction: Transaction.TransactionSerializableTempo
@@ -859,12 +857,12 @@ declare namespace cacheNextConfigs {
 
 /** Validates primitive approvals and translates invalid input into an RPC error. */
 async function selectApprovals(
-  options: MultisigOperation.selectApprovals.Options,
+  options: AccountOperation.selectApprovals.Options,
 ) {
   try {
-    return await MultisigOperation.selectApprovals(options)
+    return await AccountOperation.selectApprovals(options)
   } catch (error) {
-    if (error instanceof MultisigOperation.InvalidApprovalError)
+    if (error instanceof AccountOperation.InvalidApprovalError)
       throw new RpcResponse.InvalidParamsError({ message: error.shortMessage })
     throw error
   }
@@ -873,15 +871,15 @@ async function selectApprovals(
 /** Returns an existing successful operation through the requested send method. */
 async function submittedResult(
   options: submit.Options,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
 ) {
   if (
     options.method === 'eth_sendRawTransaction' ||
-    options.method === 'multisig_approveRawTransaction'
+    options.method === 'account_approveRawTransaction'
   )
     return operation.hash
-  if (options.method === 'multisig_approveRawTransactionSync')
-    return MultisigOperation.toRpc(operation)
+  if (options.method === 'account_approveRawTransactionSync')
+    return AccountOperation.toRpc(operation)
   const timeout = options.request.params?.[1]
   const deadline =
     Date.now() +
@@ -895,9 +893,11 @@ async function submittedResult(
       options.requestOptions,
     )
     if (receipt && typeof receipt === 'object')
-      return { ...receipt, multisig: MultisigOperation.toRpc(operation) }
+      return { ...receipt, operation: AccountOperation.toRpc(operation) }
     if (Date.now() >= deadline)
-      throw new Error('Timed out while waiting for the multisig transaction.')
+      throw new Error(
+        'Timed out while waiting for the configurable account transaction.',
+      )
     await new Promise((resolve) => setTimeout(resolve, pollingInterval))
   }
 }
@@ -905,11 +905,11 @@ async function submittedResult(
 /** Waits for the relay that owns a live submission lease. */
 async function submittingResult(
   options: submit.Options,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
 ): Promise<unknown> {
   if (
     options.method === 'eth_sendRawTransaction' ||
-    options.method === 'multisig_approveRawTransaction'
+    options.method === 'account_approveRawTransaction'
   )
     return operation.hash
   const timeout = options.request.params?.[1]
@@ -932,15 +932,15 @@ async function submittingResult(
 /** Returns a pending result for an operation that has not reached quorum. */
 function pendingResult(
   method: submit.Options['method'],
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
 ) {
   if (
     method === 'eth_sendRawTransaction' ||
-    method === 'multisig_approveRawTransaction'
+    method === 'account_approveRawTransaction'
   )
     return operation.hash
-  if (method === 'multisig_approveRawTransactionSync')
-    return MultisigOperation.toRpc(operation)
+  if (method === 'account_approveRawTransactionSync')
+    return AccountOperation.toRpc(operation)
   return {
     blockHash: null,
     blockNumber: null,
@@ -951,7 +951,7 @@ function pendingResult(
     gasUsed: null,
     logs: [],
     logsBloom: null,
-    multisig: MultisigOperation.toRpc(operation),
+    operation: AccountOperation.toRpc(operation),
     status: 'pending',
     to: null,
     transactionHash: operation.hash,
@@ -963,7 +963,7 @@ function pendingResult(
 /** Marks a transaction as successful after a lookup proves that it was submitted. */
 async function completeSubmission(
   store: Store.Atomic,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
   transactionHash: Hex.Hex,
 ) {
   if (operation.status !== 'submitting' || !operation.submissionId)
@@ -993,7 +993,7 @@ async function completeSubmission(
         transactionHash: ___,
         ...value
       } = current
-      return MultisigOperation.from({
+      return AccountOperation.from({
         ...value,
         status: 'success',
         transactionHash,
@@ -1002,7 +1002,7 @@ async function completeSubmission(
     },
   )
   await removeSettledSubmission(store, operation.hash, operation.submissionId)
-  return success as MultisigOperation.TransactionOperation
+  return success as AccountOperation.TransactionOperation
 }
 
 /** Releases a failed submission lease without discarding collected approvals. */
@@ -1020,7 +1020,7 @@ async function releaseSubmission(
     )
       return current
     const { expiresAt: _, submissionId: __, ...operation } = current
-    return MultisigOperation.from({
+    return AccountOperation.from({
       ...operation,
       status: 'pending',
       updatedAt: Date.now(),
@@ -1054,11 +1054,11 @@ function mergeTransaction(existing: Hex.Hex | undefined, incoming: Hex.Hex) {
 /** Returns a synthetic transaction while the downstream transaction is unavailable. */
 async function toTransaction(
   client: ReturnType<typeof createClient>,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
 ) {
   const approvals = await (async () => {
     if (operation.status !== 'pending')
-      return await MultisigOperation.selectApprovals({
+      return await AccountOperation.selectApprovals({
         account: operation.account,
         approvals: operation.approvals,
         config: operation.config,
@@ -1080,7 +1080,7 @@ async function toTransaction(
   })()
   const current =
     operation.status === 'pending'
-      ? MultisigOperation.from({
+      ? AccountOperation.from({
           ...operation,
           approvals: approvals.approvals,
           signatureCount: approvals.signatureCount,
@@ -1088,7 +1088,7 @@ async function toTransaction(
           weight: approvals.weight,
         })
       : operation
-  const serialized = MultisigOperation.serializeTransaction(current, {
+  const serialized = AccountOperation.serializeTransaction(current, {
     approvals: approvals.selectedApprovals,
   })
   const transaction = deserialize(serialized)
@@ -1104,14 +1104,14 @@ async function toTransaction(
       } as never,
       { pending: true },
     ),
-    multisig: MultisigOperation.toRpc(current),
+    operation: AccountOperation.toRpc(current),
   }
 }
 
 /** Returns the persisted transaction hash for a submitting or successful operation. */
 async function getSubmittedTransactionHash(
   store: Store.Store,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
 ) {
   if (operation.status === 'success') return operation.transactionHash!
   if (operation.status !== 'submitting' || !operation.submissionId)
@@ -1148,7 +1148,7 @@ function maintainSubmissionLease(
               current.submissionId !== submissionId
             )
               return current
-            return MultisigOperation.from({
+            return AccountOperation.from({
               ...current,
               expiresAt: Math.min(
                 Date.now() + leaseTtl,
@@ -1204,7 +1204,7 @@ function getTransactionHash(result: unknown): Hex.Hex {
     Hash.validate(result.transactionHash)
   )
     return result.transactionHash
-  throw new Error('Expected transaction hash in multisig broadcast result.')
+  throw new Error('Expected transaction hash in account broadcast result.')
 }
 
 /** Resolves and validates the chain used by a handled request. */
@@ -1246,12 +1246,12 @@ async function resolveRequestChainId(
     value && typeof value === 'object' && 'chainId' in value
       ? parseChainId(value.chainId)
       : undefined
-  const chainId_multisig = await (async () => {
+  const chainId_operation = await (async () => {
     if (
       request.method === 'eth_sendRawTransaction' ||
       request.method === 'eth_sendRawTransactionSync' ||
-      request.method === 'multisig_approveRawTransaction' ||
-      request.method === 'multisig_approveRawTransactionSync'
+      request.method === 'account_approveRawTransaction' ||
+      request.method === 'account_approveRawTransactionSync'
     ) {
       if (!isSerializedTempoTransaction(value)) return undefined
       try {
@@ -1262,7 +1262,7 @@ async function resolveRequestChainId(
     }
 
     if (
-      request.method === 'multisig_approveKeyAuthorization' &&
+      request.method === 'account_approveKeyAuthorization' &&
       value &&
       typeof value === 'object' &&
       'keyAuthorization' in value
@@ -1285,7 +1285,7 @@ async function resolveRequestChainId(
       )
         return value
       if (
-        request.method === 'multisig_approveKeyAuthorization' &&
+        request.method === 'account_approveKeyAuthorization' &&
         value &&
         typeof value === 'object' &&
         'hash' in value
@@ -1309,13 +1309,13 @@ async function resolveRequestChainId(
 
   if (
     chainId_body !== undefined &&
-    chainId_multisig !== undefined &&
-    chainId_body !== chainId_multisig
+    chainId_operation !== undefined &&
+    chainId_body !== chainId_operation
   )
     throw new RpcResponse.InvalidParamsError({
       message: 'Conflicting chain ids.',
     })
-  return chainId_body ?? chainId_multisig
+  return chainId_body ?? chainId_operation
 }
 
 /** Parses a supported chain ID representation. */

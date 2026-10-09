@@ -4,13 +4,13 @@ import { bindActionDecorators, type Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
+import * as accountsActions from './actions/accounts.js'
 import * as ammActions from './actions/amm.js'
 import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
 import * as earnActions from './actions/earn.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
-import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
 import * as propAmmActions from './actions/propAmm.js'
@@ -308,13 +308,13 @@ type DecoratorBase<
       parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.revokeSync.ReturnValue>
     /**
-     * Signs a key authorization or adds one coordinated multisig approval.
+     * Signs a key authorization or adds one coordinated owner approval.
      *
      * @example
      * ```ts
      * const pending = await client.accessKey.signAuthorization({
      *   accessKey,
-     *   account: multisig,
+     *   account: configurable,
      *   owner: owner_1,
      * })
      * const success = await client.accessKey.signAuthorization({
@@ -324,7 +324,7 @@ type DecoratorBase<
      * ```
      *
      * @param parameters - Authorization fields, or a stored operation hash.
-     * @returns A signed key authorization with multisig operation metadata when coordinated.
+     * @returns A signed key authorization with account operation metadata when coordinated.
      */
     signAuthorization: {
       (
@@ -473,6 +473,48 @@ type DecoratorBase<
     watchWitnessBurned: (
       parameters: accessKeyActions.watchWitnessBurned.Parameters,
     ) => ReturnType<typeof accessKeyActions.watchWitnessBurned>
+  }
+  accounts: {
+    /**
+     * Gets the current cached config for a configurable account.
+     *
+     * @param parameters - Parameters.
+     * @returns The config, or `null` when it is unknown.
+     */
+    getConfig: (
+      parameters: accountsActions.getConfig.Parameters,
+    ) => Promise<accountsActions.getConfig.ReturnValue>
+    /** Gets the current configuration commitment for a configurable account. */
+    getConfigCommitment: (
+      parameters: accountsActions.getConfigCommitment.Parameters,
+    ) => Promise<accountsActions.getConfigCommitment.ReturnValue>
+    /**
+     * Gets a coordinated account operation by its hash.
+     *
+     * @param parameters - Parameters.
+     * @returns The operation, or `null` when it is unknown.
+     */
+    getOperation: (
+      parameters: accountsActions.getOperation.Parameters,
+    ) => Promise<accountsActions.getOperation.ReturnValue>
+    /**
+     * Replaces the current configuration for a configurable account.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The transaction hash.
+     */
+    updateConfig: (
+      parameters: accountsActions.updateConfig.Parameters<chain, account>,
+    ) => Promise<accountsActions.updateConfig.ReturnValue>
+    /**
+     * Replaces a configurable account configuration and waits for confirmation.
+     *
+     * @param parameters - New configuration and transaction parameters.
+     * @returns The update event and transaction receipt.
+     */
+    updateConfigSync: (
+      parameters: accountsActions.updateConfigSync.Parameters<chain, account>,
+    ) => Promise<accountsActions.updateConfigSync.ReturnValue>
   }
   amm: {
     /**
@@ -2391,48 +2433,6 @@ type DecoratorBase<
     fundSync: (
       parameters: faucetActions.fundSync.Parameters,
     ) => Promise<faucetActions.fundSync.ReturnValue>
-  }
-  multisig: {
-    /**
-     * Gets the current cached config for a multisig account.
-     *
-     * @param parameters - Parameters.
-     * @returns The config, or `null` when it is unknown.
-     */
-    getConfig: (
-      parameters: multisigActions.getConfig.Parameters,
-    ) => Promise<multisigActions.getConfig.ReturnValue>
-    /** Gets the current configuration commitment for a multisig account. */
-    getConfigCommitment: (
-      parameters: multisigActions.getConfigCommitment.Parameters,
-    ) => Promise<multisigActions.getConfigCommitment.ReturnValue>
-    /**
-     * Gets a coordinated multisig operation by its hash.
-     *
-     * @param parameters - Parameters.
-     * @returns The operation, or `null` when it is unknown.
-     */
-    getOperation: (
-      parameters: multisigActions.getOperation.Parameters,
-    ) => Promise<multisigActions.getOperation.ReturnValue>
-    /**
-     * Replaces the current configuration for a native multisig account.
-     *
-     * @param parameters - New configuration and transaction parameters.
-     * @returns The transaction hash.
-     */
-    updateConfig: (
-      parameters: multisigActions.updateConfig.Parameters<chain, account>,
-    ) => Promise<multisigActions.updateConfig.ReturnValue>
-    /**
-     * Replaces a native multisig configuration and waits for confirmation.
-     *
-     * @param parameters - New configuration and transaction parameters.
-     * @returns The update event and transaction receipt.
-     */
-    updateConfigSync: (
-      parameters: multisigActions.updateConfigSync.Parameters<chain, account>,
-    ) => Promise<multisigActions.updateConfigSync.ReturnValue>
   }
   nonce: {
     /**
@@ -6064,6 +6064,10 @@ export type Decorator<
     DecoratorBase<chain, account>['accessKey'],
     typeof accessKeyActions
   >
+  accounts: DecorateNamespace<
+    DecoratorBase<chain, account>['accounts'],
+    typeof accountsActions
+  >
   amm: DecorateNamespace<
     DecoratorBase<chain, account>['amm'],
     typeof ammActions
@@ -6083,10 +6087,6 @@ export type Decorator<
   faucet: DecorateNamespace<
     DecoratorBase<chain, account>['faucet'],
     typeof faucetActions
-  >
-  multisig: DecorateNamespace<
-    DecoratorBase<chain, account>['multisig'],
-    typeof multisigActions
   >
   nonce: DecorateNamespace<
     DecoratorBase<chain, account>['nonce'],
@@ -6173,6 +6173,13 @@ export function decorator() {
         'watchAdminAuthorized',
         'watchWitness',
         'watchWitnessBurned',
+      ]),
+      accounts: bindActions(client, accountsActions, [
+        'getConfig',
+        'getConfigCommitment',
+        'getOperation',
+        'updateConfig',
+        'updateConfigSync',
       ]),
       amm: bindActions(client, ammActions, [
         'getPool',
@@ -6262,13 +6269,6 @@ export function decorator() {
         'withdrawExactSync',
       ]),
       faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
-      multisig: bindActions(client, multisigActions, [
-        'getConfig',
-        'getConfigCommitment',
-        'getOperation',
-        'updateConfig',
-        'updateConfigSync',
-      ]),
       nonce: bindActions(client, nonceActions, [
         'getNonce',
         'watchNonceIncremented',

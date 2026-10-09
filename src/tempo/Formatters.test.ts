@@ -1,4 +1,4 @@
-import { KeyAuthorization, MultisigConfig, SignatureEnvelope } from 'ox/tempo'
+import { AccountConfig, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
@@ -15,7 +15,7 @@ const client = getClient({
 })
 
 describe('formatTransaction', () => {
-  test('behavior: multisig RPC signatures', () => {
+  test('behavior: configurable account RPC signatures', () => {
     const transaction = Formatters.formatTransaction({
       accessList: [],
       blockHash:
@@ -68,7 +68,7 @@ describe('formatTransaction', () => {
             "type": "secp256k1",
           },
         ],
-        "type": "multisig",
+        "type": "configurable",
       }
     `)
     expect(transaction.keyAuthorization?.signature).toMatchInlineSnapshot(`
@@ -95,7 +95,7 @@ describe('formatTransaction', () => {
             "type": "secp256k1",
           },
         ],
-        "type": "multisig",
+        "type": "configurable",
       }
     `)
   })
@@ -126,9 +126,9 @@ describe('formatTransaction', () => {
 })
 
 describe('formatTransactionRequest', () => {
-  test('behavior: multisig simulation', () => {
+  test('behavior: account simulation', () => {
     const rpc = Formatters.formatTransactionRequest({
-      multisigSimulation: {
+      accountSimulation: {
         approvals: [
           {
             keyType: 'secp256k1',
@@ -140,7 +140,7 @@ describe('formatTransactionRequest', () => {
             owner: '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
           },
         ],
-        config: MultisigConfig.from({
+        config: AccountConfig.from({
           owners: [
             {
               owner: '0x1111111111111111111111111111111111111111',
@@ -219,29 +219,29 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('error: JSON-RPC multisig owner', () => {
-    const config = MultisigConfig.from({
+  test('error: JSON-RPC owner', () => {
+    const config = AccountConfig.from({
       owners: [{ owner: accounts[1].address, weight: 1 }],
       threshold: 1,
     })
     expect(() =>
       Formatters.formatTransactionRequest({
-        account: Account.fromMultisig({ address: 'infer', ...config }),
+        account: Account.fromConfigurable({ address: 'infer', ...config }),
         calls: [{ data: '0xdeadbeef', to: accounts[2].address }],
         chainId: 1,
         owner: accounts[1].address,
       } as never),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: A local owner account is required to approve a multisig transaction.]`,
+      `[Error: A local owner account is required to approve a configurable account transaction.]`,
     )
   })
 
-  test('behavior: multisig key authorization', () => {
-    const initialConfig = MultisigConfig.from({
+  test('behavior: configurable account key authorization', () => {
+    const initialConfig = AccountConfig.from({
       threshold: 1,
       owners: [{ owner: accounts[1].address, weight: 1 }],
     })
-    const account = MultisigConfig.getAddress(initialConfig, {
+    const account = AccountConfig.getAddress(initialConfig, {
       factory: nativeMultisigFactory,
     })
     const signature = SignatureEnvelope.from({

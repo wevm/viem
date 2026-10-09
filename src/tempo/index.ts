@@ -12,10 +12,10 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 export {
+  AccountConfig,
+  AccountOperation,
   Channel,
   EarnShares,
-  MultisigConfig,
-  MultisigOperation,
   Period,
   ReceivePolicyReceipt,
   TempoAddress,
@@ -26,8 +26,8 @@ export {
 } from 'ox/tempo'
 export type {
   /** @deprecated */
-  Owner as z_MultisigConfigOwner,
-} from 'ox/tempo/MultisigConfig'
+  Owner as z_AccountConfigOwner,
+} from 'ox/tempo/AccountConfig'
 export {
   type CustomTransport,
   type CustomTransportConfig,

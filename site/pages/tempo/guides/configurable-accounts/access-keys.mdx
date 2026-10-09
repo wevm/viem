@@ -1,5 +1,5 @@
 ---
-description: Authorize and use an access key from a native multisig account.
+description: Authorize and use an access key from a configurable account.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,9 +8,9 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-A multisig quorum can authorize an access key. The access key then signs later transactions for
-the multisig account, subject to the authorization's expiry, scopes, and spending limits. Owners
-can sign locally or coordinate approvals through a shared multisig store.
+An owner quorum can authorize an access key. The access key then signs later transactions for
+the configurable account, subject to the authorization's expiry, scopes, and spending limits. Owners
+can sign locally or coordinate approvals through a shared account store.
 
 ## Recipes
 
@@ -24,26 +24,26 @@ These recipes assume you have [set up a Tempo client](/tempo).
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-// 1. Create a multisig with enough local owners for quorum.
+// 1. Create an account with enough local owners for quorum.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
 })
 
-// 2. Create and authorize an access key for the multisig.
+// 2. Create and authorize an access key for the account.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: multisig,
+  access: account,
 })
 
 const keyAuthorization = await client.accessKey.signAuthorization({
-  account: multisig,
+  account,
   accessKey,
 })
 
@@ -63,8 +63,8 @@ const { receipt } = await client.token.transferSync({
 
 :::
 
-If the multisig is uninitialized, the authorization carries its initial config and this first
-access-key transaction initializes the account. If the multisig is already initialized,
+If the account is uninitialized, the authorization carries its initial config and this first
+access-key transaction initializes the account. If the account is already initialized,
 [`signAuthorization`](/tempo/actions/accessKey.signAuthorization) resolves its current version
 before the owners sign.
 
@@ -80,26 +80,26 @@ authorization by that hash.
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-// 1. Create the owners and multisig account.
+// 1. Create the owners and configurable account.
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: multisig,
+  access: account,
 })
 
 // 2. Store the first owner's approval.
 const pending = await client.accessKey.signAuthorization({
   accessKey,
-  account: multisig,
+  account,
   owner: owner_1,
 })
 
@@ -121,7 +121,7 @@ const { receipt } = await client.token.transferSync({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -135,9 +135,9 @@ passing `keyAuthorization` again.
 import { Account, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
-declare const account: Account.MultisigAccount
+declare const account: Account.ConfigurableAccount
 
-// 1. Recreate the access key for the authorized multisig.
+// 1. Recreate the access key for the authorized account.
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
@@ -166,18 +166,18 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const multisig = Account.fromMultisig({
+const account = Account.fromConfigurable({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,
 })
 const accessKey = Account.fromP256(P256.randomPrivateKey(), {
-  access: multisig,
+  access: account,
 })
 
 // 1. Prepare the authorization once.
 const authorization = await client.accessKey.prepareAuthorization({
-  account: multisig,
+  account,
   accessKey,
 })
 
@@ -199,7 +199,7 @@ const keyAuthorization = await client.accessKey.signAuthorization({
 
 ### Keep Owner Signers Separate
 
-Each owner should validate the multisig account, access key, chain, expiry, scopes, and spending
+Each owner should validate the configurable account, access key, chain, expiry, scopes, and spending
 limits before approving an authorization.
 
 ### Restrict the Access Key

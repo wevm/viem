@@ -419,7 +419,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
     })
 
   const transaction = Transaction.deserialize(serialized)
-  // Prefer sender recovered from raw envelope; multisig finalize path supplies fallback sender.
+  // Prefer sender recovered from raw envelope; configurable account finalize path supplies fallback sender.
   const sender = transaction.from ?? options.sender
 
   // Sponsorship only applies after sender has signed original transaction.

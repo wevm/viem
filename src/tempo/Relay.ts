@@ -4,9 +4,9 @@ import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import * as Accounts from './internal/relay/accounts.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
-import * as Multisig from './internal/relay/multisig.js'
 import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
 import * as internal from './internal/relay.js'
@@ -307,13 +307,19 @@ export declare namespace Plugin {
   }
 }
 
-declare const multisigBrand: unique symbol
+declare const accountsBrand: unique symbol
 
 /**
- * Coordinates native multisig approvals using shared atomic storage.
+ * Serves configurable accounts using shared atomic storage.
+ *
+ * The chain stores only a commitment to each account's config, so the plugin
+ * records every config it relays (including configs left by `updateConfig`
+ * calls) and serves them through `account_getConfig`. It also collects owner
+ * approvals until the account's threshold is met, then submits.
  *
  * Memory storage is process-local. Independent clients and multiple server
- * instances must use the same persistent store to share pending approvals.
+ * instances must use the same persistent store to share configs and pending
+ * approvals.
  *
  * @example
  * ```ts
@@ -321,31 +327,31 @@ declare const multisigBrand: unique symbol
  * import { Relay, Store, withRelay } from 'viem/tempo'
  *
  * const transport = withRelay(http(), {
- *   plugins: [Relay.multisig({ store: Store.memory() })],
+ *   plugins: [Relay.accounts({ store: Store.memory() })],
  * })
  * ```
  *
  * @param options - Shared atomic storage.
- * @returns A plugin that coordinates multisig requests and forwards other calls.
+ * @returns A plugin that handles configurable account requests and forwards other calls.
  */
-export function multisig(options: multisig.Options): multisig.ReturnType {
-  return Multisig.create(options)
+export function accounts(options: accounts.Options): accounts.ReturnType {
+  return Accounts.create(options)
 }
 
-export declare namespace multisig {
-  /** Multisig coordination options. */
+export declare namespace accounts {
+  /** Configurable account options. */
   export type Options = {
-    /** Store shared by multisig coordinators, with atomic compare-and-set support. */
+    /** Store shared by relays, with atomic compare-and-set support. */
     store: Store.Atomic
   }
-  /** Middleware advertising native multisig coordination. */
-  export type ReturnType = Plugin & { readonly [multisigBrand]: true }
+  /** Middleware advertising configurable account support. */
+  export type ReturnType = Plugin & { readonly [accountsBrand]: true }
 }
 
 /**
  * Sponsors transactions with a local account or an external fee-payer relay.
  *
- * Place multisig before this plugin and fee-token selection after it.
+ * Place accounts before this plugin and fee-token selection after it.
  *
  * @example
  * ```ts

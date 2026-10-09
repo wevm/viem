@@ -1,8 +1,8 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
 import {
@@ -26,8 +26,8 @@ import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import { nativeMultisigFactory } from '../../Addresses.js'
-import * as Operation from '../../multisig/Operation.js'
-import { parseApproval } from '../../multisig/Signature.js'
+import * as Operation from '../../accounts/Operation.js'
+import { parseApproval } from '../../accounts/Signature.js'
 
 const feePayerAccount = Tempo.accounts[0]!
 const recipient = Tempo.accounts[7]!
@@ -36,11 +36,11 @@ const caller = Tempo.getClient({ chain: Tempo.chain })
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const config = MultisigConfig.from({
+const config = AccountConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = MultisigConfig.getAddress(config, {
+const account = AccountConfig.getAddress(config, {
   factory: nativeMultisigFactory,
 })
 const approval = SignatureEnvelope.from({
@@ -52,7 +52,7 @@ const serializedApproval = SignatureEnvelope.serialize(approval)
 test('behavior: resolves the chain from a Tempo transaction', async () => {
   const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { plugins: [Relay.multisig({ store: Store.memory() })] },
+    { plugins: [Relay.accounts({ store: Store.memory() })] },
   )
   const transaction = await Transaction.serialize({
     calls: [],
@@ -72,7 +72,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { plugins: [Relay.multisig({ store: Store.memory() })] },
+    { plugins: [Relay.accounts({ store: Store.memory() })] },
   )
   const keyAuthorization = KeyAuthorization.from(
     {
@@ -93,7 +93,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
 
   await expect(
     handle({
-      method: 'multisig_approveKeyAuthorization',
+      method: 'account_approveKeyAuthorization',
       params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -107,7 +107,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
 test('behavior: resolves the chain from a stored transaction operation', async () => {
   const store = Store.memory()
   const transaction = await Transaction.serialize({ calls: [], chainId: 4217 })
-  const hash = MultisigOperation.getHash({
+  const hash = AccountOperation.getHash({
     account,
     config,
     transaction,
@@ -117,7 +117,7 @@ test('behavior: resolves the chain from a stored transaction operation', async (
     SignatureEnvelope.from(await owner.sign({ hash })),
   )
   await Operation.update(store, hash, () =>
-    MultisigOperation.from({
+    AccountOperation.from({
       account,
       approvals: [validApproval],
       config,
@@ -135,7 +135,7 @@ test('behavior: resolves the chain from a stored transaction operation', async (
   )
   const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { plugins: [Relay.multisig({ store })] },
+    { plugins: [Relay.accounts({ store })] },
   )
 
   await expect(
@@ -154,14 +154,14 @@ test('behavior: resolves the chain from a stored key authorization operation', a
       type: 'secp256k1',
     }),
   )
-  const hash = MultisigOperation.getHash({
+  const hash = AccountOperation.getHash({
     account,
     config,
     keyAuthorization,
     type: 'keyAuthorization',
   })
   await Operation.update(store, hash, () =>
-    MultisigOperation.from({
+    AccountOperation.from({
       account,
       approvals: [],
       config,
@@ -180,12 +180,12 @@ test('behavior: resolves the chain from a stored key authorization operation', a
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { plugins: [Relay.multisig({ store })] },
+    { plugins: [Relay.accounts({ store })] },
   )
 
   await expect(
     handle({
-      method: 'multisig_approveKeyAuthorization',
+      method: 'account_approveKeyAuthorization',
       params: [{ hash, signature: serializedApproval }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -198,7 +198,7 @@ test('behavior: resolves the chain from a stored key authorization operation', a
 
 test('error: rejects conflicting chain ids', async () => {
   const handle = Relay.handleRequest(async () => null, {
-    plugins: [Relay.multisig({ store: Store.memory() })],
+    plugins: [Relay.accounts({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({
     calls: [],
@@ -218,14 +218,14 @@ test('error: rejects conflicting chain ids', async () => {
   )
 })
 
-test('multisig infers the chain before client resolution', async () => {
+test('accounts plugin infers the chain before client resolution', async () => {
   const resolver = createClientResolver({
     chains: [tempo, tempoModerato],
     transport: () => http(),
   })
   const relay = Relay.create({
     getClient: resolver.getClient,
-    plugins: [Relay.multisig({ store: Store.memory() })],
+    plugins: [Relay.accounts({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
   await expect(
@@ -236,7 +236,7 @@ test('multisig infers the chain before client resolution', async () => {
 test('rejects a signed payload conflicting with the client chain', async () => {
   const relay = Relay.create({
     client: caller,
-    plugins: [Relay.multisig({ store: Store.memory() })],
+    plugins: [Relay.accounts({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({ calls: [], chainId: 1 })
   await expect(
@@ -245,9 +245,9 @@ test('rejects a signed payload conflicting with the client chain', async () => {
 })
 
 describe.runIf(
-  import.meta.env.VITE_TEMPO_MULTISIG === 'true' &&
+  import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
     import.meta.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
-)('plugin: multisig', () => {
+)('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
       account: feePayerAccount,
@@ -259,7 +259,7 @@ describe.runIf(
     'collects approvals with fee sponsorship: %s',
     async (sponsored) => {
       const owners = [Tempo.accounts[1]!, Tempo.accounts[2]!]
-      const account = Account.fromMultisig({
+      const account = Account.fromConfigurable({
         owners,
         salt: toHex(sponsored ? 0x514001 : 0x514000, { size: 32 }),
         threshold: 2,
@@ -275,7 +275,7 @@ describe.runIf(
         pollingInterval: 100,
         transport: withRelay(Tempo.http(), {
           plugins: [
-            Relay.multisig({ store: Store.memory() }),
+            Relay.accounts({ store: Store.memory() }),
             ...(sponsored
               ? [Relay.feePayer({ account: feePayerAccount })]
               : []),
@@ -296,7 +296,7 @@ describe.runIf(
         amount: 1n,
       })
       expect(pending.status).toBe('pending')
-      expect(pending.multisig?.signatureCount).toBe(1)
+      expect(pending.operation?.signatureCount).toBe(1)
       expect(
         await Actions.token.getBalance(caller, {
           account: recipient.address,
@@ -312,7 +312,7 @@ describe.runIf(
         amount: 1n,
       } as never)
       expect(receipt.status).toBe('success')
-      expect(receipt.multisig?.signatureCount).toBe(2)
+      expect(receipt.operation?.signatureCount).toBe(2)
       expect(receipt.feePayer).toBe(
         (sponsored ? feePayerAccount.address : account.address).toLowerCase(),
       )
@@ -330,7 +330,7 @@ describe.runIf(
   test('plain HTTP transport: collects approvals and broadcasts at quorum', async () => {
     const relay = Relay.create({
       client: caller,
-      plugins: [Relay.multisig({ store: Store.memory() })],
+      plugins: [Relay.accounts({ store: Store.memory() })],
     })
 
     const server = await createHttpServer(createRequestListener(relay.fetch))
@@ -345,7 +345,7 @@ describe.runIf(
 
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
-    const account = Account.fromMultisig({
+    const account = Account.fromConfigurable({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x109701, { size: 32 }),
@@ -380,7 +380,7 @@ describe.runIf(
     })
 
     expect(pending.status).toMatchInlineSnapshot(`"pending"`)
-    expect(pending.multisig).toMatchObject({
+    expect(pending.operation).toMatchObject({
       signatureCount: 1,
       threshold: 2,
       weight: 1,
@@ -402,7 +402,7 @@ describe.runIf(
     })
 
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
-    expect(receipt.multisig).toMatchObject({
+    expect(receipt.operation).toMatchObject({
       signatureCount: 2,
       threshold: 2,
       weight: 2,
@@ -418,7 +418,7 @@ describe.runIf(
     ).toMatchInlineSnapshot(`1n`)
 
     expect(
-      await Actions.multisig.getOperation(client, {
+      await Actions.accounts.getOperation(client, {
         hash: pending.transactionHash,
       }),
     ).toMatchObject({ status: 'success' })

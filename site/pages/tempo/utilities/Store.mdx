@@ -32,8 +32,8 @@ type Atomic = Store & {
 
 ### `compareAndSet`
 
-Atomically replaces the current value when it equals `expected`. Multisig coordination uses this
-method to preserve approvals submitted concurrently. A store passed to multisig coordination must
+Atomically replaces the current value when it equals `expected`. Account coordination uses this
+method to preserve approvals submitted concurrently. A store passed to account coordination must
 implement `compareAndSet` and satisfy `Store.Atomic`.
 
 Set `options.expiresAt` to a Unix timestamp in milliseconds to expire the replacement value.

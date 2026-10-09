@@ -1,11 +1,7 @@
 import type { Address } from 'abitype'
 import type * as Hex from 'ox/Hex'
 import type * as RpcSchema from 'ox/RpcSchema'
-import {
-  MultisigConfig,
-  MultisigOperation,
-  type RpcSchemaTempo,
-} from 'ox/tempo'
+import { AccountConfig, AccountOperation, type RpcSchemaTempo } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -20,14 +16,14 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import { fromMultisig, type MultisigAccount } from '../Account.js'
+import { type ConfigurableAccount, fromConfigurable } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
 
 /**
- * Gets the current cached config for a multisig account.
+ * Gets the current cached config for a configurable account.
  *
  * The coordinator reads the account's current onchain commitment and returns
  * the matching config from its store. It returns `null` when the config is not
@@ -35,7 +31,7 @@ import type * as Transaction from '../Transaction.js'
  *
  * @example
  * ```ts
- * const config = await client.multisig.getConfig({
+ * const config = await client.accounts.getConfig({
  *   address: '0x...',
  * })
  * ```
@@ -49,32 +45,32 @@ export async function getConfig(
   parameters: getConfig.Parameters,
 ): Promise<getConfig.ReturnValue> {
   const config = await client.request<{
-    Method: 'multisig_getConfig'
+    Method: 'account_getConfig'
     Parameters: [{ address: Address }]
-    ReturnType: MultisigConfig.Rpc | null
+    ReturnType: AccountConfig.Rpc | null
   }>({
-    method: 'multisig_getConfig',
+    method: 'account_getConfig',
     params: [{ address: parameters.address }],
   })
-  return config ? MultisigConfig.fromRpc(config) : null
+  return config ? AccountConfig.fromRpc(config) : null
 }
 
 export declare namespace getConfig {
   /** Parameters for {@link getConfig}. */
   export type Parameters = {
-    /** Multisig account address. */
+    /** Configurable account address. */
     address: Address
   }
 
   /** Return value for {@link getConfig}. */
-  export type ReturnValue = MultisigConfig.Config | null
+  export type ReturnValue = AccountConfig.Config | null
 
   /** Error type for {@link getConfig}. */
   export type ErrorType = BaseErrorType
 }
 
 /**
- * Gets the current configuration commitment for a native multisig account.
+ * Gets the current configuration commitment for a configurable account.
  *
  * @example
  * ```ts
@@ -87,7 +83,7 @@ export declare namespace getConfig {
  *   transport: http(),
  * })
  *
- * const commitment = await Actions.multisig.getConfigCommitment(client, {
+ * const commitment = await Actions.accounts.getConfigCommitment(client, {
  *   account: '0x...',
  * })
  * ```
@@ -115,7 +111,7 @@ export namespace getConfigCommitment {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
-    /** Initialized multisig account address. */
+    /** Initialized configurable account address. */
     account: Address
   }
 
@@ -144,7 +140,7 @@ export namespace getConfigCommitment {
 }
 
 /**
- * Gets a coordinated multisig operation by its hash.
+ * Gets a coordinated account operation by its hash.
  *
  * @param client - Client.
  * @param parameters - Parameters.
@@ -154,33 +150,33 @@ export async function getOperation(
   client: Client,
   parameters: getOperation.Parameters,
 ): Promise<getOperation.ReturnValue> {
-  type multisig_getOperation = Extract<
-    RpcSchema.ToViem<RpcSchemaTempo.Multisig>[number],
-    { Method: 'multisig_getOperation' }
+  type account_getOperation = Extract<
+    RpcSchema.ToViem<RpcSchemaTempo.Account>[number],
+    { Method: 'account_getOperation' }
   >
-  const operation = await client.request<multisig_getOperation>({
-    method: 'multisig_getOperation',
+  const operation = await client.request<account_getOperation>({
+    method: 'account_getOperation',
     params: [parameters.hash],
   })
-  return operation ? MultisigOperation.fromRpc(operation) : null
+  return operation ? AccountOperation.fromRpc(operation) : null
 }
 
 export declare namespace getOperation {
   /** Parameters for {@link getOperation}. */
   export type Parameters = {
-    /** Multisig operation hash. */
+    /** Account operation hash. */
     hash: Hex.Hex
   }
 
   /** Return value for {@link getOperation}. */
-  export type ReturnValue = MultisigOperation.Operation | null
+  export type ReturnValue = AccountOperation.Operation | null
 
   /** Error type for {@link getOperation}. */
   export type ErrorType = BaseErrorType
 }
 
 /**
- * Replaces the current configuration for a native multisig account.
+ * Replaces the current configuration for a configurable account.
  *
  * The transaction must be authorized directly by the account's current owner
  * quorum. Local owner-signing flows can include {@link updateConfig.call} in a
@@ -196,7 +192,7 @@ export declare namespace getOperation {
  * const owner = Account.fromSecp256k1(
  *   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
  * )
- * const account = Account.fromMultisig({
+ * const account = Account.fromConfigurable({
  *   address: 'infer',
  *   owners: [owner],
  * })
@@ -210,7 +206,7 @@ export declare namespace getOperation {
  *   to: account.address,
  * })
  *
- * const hash = await Actions.multisig.updateConfig(client, {
+ * const hash = await Actions.accounts.updateConfig(client, {
  *   account,
  *   nextConfig: {
  *     owners: [{ owner: owner.address, weight: 1 }],
@@ -239,16 +235,16 @@ export namespace updateConfig {
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & {
     /** Complete current config. Inferred from the account or coordinator when omitted. */
-    currentConfig?: MultisigConfig.Config | undefined
+    currentConfig?: AccountConfig.Config | undefined
     /** Replacement owners and threshold. */
-    nextConfig: Pick<MultisigConfig.Config, 'owners' | 'threshold'>
+    nextConfig: Pick<AccountConfig.Config, 'owners' | 'threshold'>
   }
 
   export type Args = {
     /** Complete current config. */
-    currentConfig: MultisigConfig.Config
+    currentConfig: AccountConfig.Config
     /** Replacement owners and threshold. */
-    nextConfig: Pick<MultisigConfig.Config, 'owners' | 'threshold'>
+    nextConfig: Pick<AccountConfig.Config, 'owners' | 'threshold'>
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -276,9 +272,9 @@ export namespace updateConfig {
     const account = (() => {
       if (
         typeof accountValue === 'object' &&
-        accountValue.source === 'multisig'
+        accountValue.source === 'configurable'
       )
-        return accountValue as MultisigAccount
+        return accountValue as ConfigurableAccount
       return undefined
     })()
     const config = (() => {
@@ -293,22 +289,22 @@ export namespace updateConfig {
       return undefined
     })()
     const currentConfig = await (async () => {
-      if (config) return MultisigConfig.from(config)
+      if (config) return AccountConfig.from(config)
       if (!address)
         throw new Error(
-          'A multisig account address or current config is required.',
+          'A configurable account address or current config is required.',
         )
       const cachedConfig = await getConfig(client, { address })
       if (!cachedConfig)
         throw new Error(
-          `No current multisig config is cached for account ${address}. Provide the current config.`,
+          `No current account config is cached for account ${address}. Provide the current config.`,
         )
       return cachedConfig
     })()
     const resolvedAccount = (() => {
       if (account) return { ...account, config: currentConfig }
       if (typeof accountValue === 'object') return accountValue
-      if (address) return fromMultisig({ address, ...currentConfig })
+      if (address) return fromConfigurable({ address, ...currentConfig })
       return undefined
     })()
     return (await action(client, {
@@ -328,11 +324,11 @@ export namespace updateConfig {
    *
    * @example
    * ```ts
-   * import { Actions, type MultisigConfig } from 'viem/tempo'
+   * import { Actions, type AccountConfig } from 'viem/tempo'
    *
-   * declare const currentConfig: MultisigConfig.Config
+   * declare const currentConfig: AccountConfig.Config
    *
-   * const call = Actions.multisig.updateConfig.call({
+   * const call = Actions.accounts.updateConfig.call({
    *   currentConfig,
    *   nextConfig: {
    *     owners: [{ owner: '0x...', weight: 1 }],
@@ -341,17 +337,12 @@ export namespace updateConfig {
    * })
    * ```
    *
-   * @param args - Current and replacement multisig configurations.
+   * @param args - Current and replacement account configurations.
    * @returns The call.
    */
   export function call(args: Args) {
-    const currentConfig = MultisigConfig.from(args.currentConfig)
-    const nextConfig = MultisigConfig.from({
-      owners: args.nextConfig.owners,
-      salt: currentConfig.salt,
-      threshold: args.nextConfig.threshold,
-      version: currentConfig.version + 1n,
-    })
+    const currentConfig = AccountConfig.from(args.currentConfig)
+    const nextConfig = AccountConfig.update(currentConfig, args.nextConfig)
     return defineCall({
       address: Addresses.nativeMultisig,
       abi: Abis.nativeMultisig,
@@ -379,16 +370,16 @@ export namespace updateConfig {
 }
 
 /**
- * Replaces a native multisig configuration and waits for confirmation.
+ * Replaces a configurable account configuration and waits for confirmation.
  *
  * @example
  * ```ts
  * import { createWalletClient, custom, type EIP1193Provider } from 'viem'
  * import { tempo } from 'viem/chains'
- * import { Actions, type MultisigConfig } from 'viem/tempo'
+ * import { Actions, type AccountConfig } from 'viem/tempo'
  *
  * declare const provider: EIP1193Provider
- * declare const currentConfig: MultisigConfig.Config
+ * declare const currentConfig: AccountConfig.Config
  *
  * const client = createWalletClient({
  *   account: '0x...',
@@ -396,7 +387,7 @@ export namespace updateConfig {
  *   transport: custom(provider),
  * })
  *
- * const { receipt } = await Actions.multisig.updateConfigSync(client, {
+ * const { receipt } = await Actions.accounts.updateConfigSync(client, {
  *   currentConfig,
  *   nextConfig: {
  *     owners: [{ owner: '0x...', weight: 1 }],
@@ -426,7 +417,7 @@ export async function updateConfigSync<
   const { args } = updateConfig.extractEvent(receipt.logs)
   return {
     account: args.account,
-    config: MultisigConfig.from({
+    config: AccountConfig.from({
       owners: args.owners,
       salt: args.salt,
       threshold: args.threshold,
@@ -446,7 +437,7 @@ export namespace updateConfigSync {
 
   export type ReturnValue = Compute<{
     account: Address
-    config: MultisigConfig.Config
+    config: AccountConfig.Config
     receipt: Transaction.TransactionReceipt
   }>
 

@@ -1,9 +1,9 @@
 import { Address, P256 } from 'ox'
 import * as Json from 'ox/Json'
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
@@ -29,21 +29,21 @@ const owners = [1n, 2n]
     }
   })
   .sort((a, b) => a.address.localeCompare(b.address))
-const initialConfig = MultisigConfig.from({
+const initialConfig = AccountConfig.from({
   owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
   threshold: 2,
 })
-const account = MultisigConfig.getAddress(initialConfig, {
+const account = AccountConfig.getAddress(initialConfig, {
   factory: nativeMultisigFactory,
 })
-const config = MultisigConfig.from({ ...initialConfig, version: 1n })
+const config = AccountConfig.from({ ...initialConfig, version: 1n })
 const transaction = TxEnvelopeTempo.serialize(
   TxEnvelopeTempo.from({
     calls: [{ data: '0x1234', to: owners[0]!.address }],
     chainId: 4217,
   }),
 )
-const hash = MultisigConfig.getSignPayload({
+const hash = AccountConfig.getSignPayload({
   account,
   config,
   payload: TxEnvelopeTempo.getSignPayload(
@@ -60,7 +60,7 @@ const base = {
   updatedAt: 2,
   weight: 1,
 } as const
-const operation = MultisigOperation.from({
+const operation = AccountOperation.from({
   ...base,
   hash,
   status: 'pending',
@@ -73,9 +73,9 @@ const otherTransaction = TxEnvelopeTempo.serialize(
     chainId: 4217,
   }),
 )
-const otherOperation = MultisigOperation.from({
+const otherOperation = AccountOperation.from({
   ...base,
-  hash: MultisigConfig.getSignPayload({
+  hash: AccountConfig.getSignPayload({
     account,
     config,
     payload: TxEnvelopeTempo.getSignPayload(
@@ -95,9 +95,9 @@ const keyAuthorization = KeyAuthorization.serialize(
     type: 'secp256k1',
   }),
 )
-const keyAuthorizationOperation = MultisigOperation.from({
+const keyAuthorizationOperation = AccountOperation.from({
   ...base,
-  hash: MultisigConfig.getSignPayload({
+  hash: AccountConfig.getSignPayload({
     account,
     config,
     payload: KeyAuthorization.getSignPayload(
@@ -108,7 +108,7 @@ const keyAuthorizationOperation = MultisigOperation.from({
   status: 'pending',
   type: 'keyAuthorization',
 })
-const keyAuthorizationSuccess = MultisigOperation.from({
+const keyAuthorizationSuccess = AccountOperation.from({
   ...keyAuthorizationOperation,
   approvals: owners.map((owner) => owner.signature),
   keyAuthorization: KeyAuthorization.serialize(
@@ -327,7 +327,7 @@ describe('update', () => {
 
     await Operation.update(store, hash, () => operation)
     await Operation.update(store, hash, () =>
-      MultisigOperation.from({
+      AccountOperation.from({
         ...operation,
         approvals: owners.map((owner) => owner.signature),
         signatureCount: 2,
@@ -354,9 +354,9 @@ describe('update', () => {
     await expect(
       Operation.update(store, hash, () => operation),
     ).rejects.toMatchObject({
-      name: 'Multisig.Operation.StoreConflictError',
+      name: 'Accounts.Operation.StoreConflictError',
       shortMessage:
-        'Multisig operation could not be updated after repeated conflicts.',
+        'Account operation could not be updated after repeated conflicts.',
     })
   })
 
@@ -404,7 +404,7 @@ describe('submission', () => {
 
   test('behavior: persists a final serialized transaction', async () => {
     const store = Store.memory()
-    const signed = MultisigOperation.serializeTransaction(operation, {
+    const signed = AccountOperation.serializeTransaction(operation, {
       approvals: operation.approvals,
     })
 
@@ -419,7 +419,7 @@ describe('submission', () => {
 
   test('behavior: removes a persisted transaction', async () => {
     const store = Store.memory()
-    const signed = MultisigOperation.serializeTransaction(operation, {
+    const signed = AccountOperation.serializeTransaction(operation, {
       approvals: operation.approvals,
     })
     await Operation.writeSubmission(store, hash, submissionId, signed)
@@ -439,7 +439,7 @@ describe('submission', () => {
 
   test('error: submission belongs to another operation', async () => {
     const store = Store.memory()
-    const signed = MultisigOperation.serializeTransaction(otherOperation, {
+    const signed = AccountOperation.serializeTransaction(otherOperation, {
       approvals: otherOperation.approvals,
     })
     await Operation.writeSubmission(store, hash, submissionId, signed)
@@ -493,9 +493,9 @@ describe('storage serialization', () => {
         chainId: 4217,
       }),
     )
-    const oversized = MultisigOperation.from({
+    const oversized = AccountOperation.from({
       ...operation,
-      hash: MultisigConfig.getSignPayload({
+      hash: AccountConfig.getSignPayload({
         account,
         config,
         payload: TxEnvelopeTempo.getSignPayload(
@@ -544,7 +544,7 @@ describe('storage serialization', () => {
 describe('InvalidStoreValueError', () => {
   test('default', () => {
     expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
-      [Multisig.Operation.InvalidStoreValueError: Stored multisig operation is malformed or unsupported.
+      [Accounts.Operation.InvalidStoreValueError: Stored account operation is malformed or unsupported.
 
       Version: viem@x.y.z]
     `)
