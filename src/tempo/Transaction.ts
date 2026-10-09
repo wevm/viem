@@ -43,6 +43,7 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { RootAccount } from './Account.js'
+import { assertNonceKey } from './internal/nonce.js'
 import { parseApproval } from './multisig/Signature.js'
 
 export type Transaction<
@@ -314,6 +315,8 @@ async function serializeTempo(
   },
   sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
 ) {
+  assertNonceKey(transaction.nonceKey)
+
   // Track caller signatures separately from synthesized multisig approvals.
   const signature_provided = (() => {
     if (transaction.signature) return transaction.signature

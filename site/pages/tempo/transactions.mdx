@@ -186,7 +186,8 @@ verifying signatures.
 ### Concurrent Transactions
 
 Send multiple transactions from the same account in parallel by giving each an independent
-`nonceKey`, avoiding sequential nonce confirmation.
+`nonceKey`, avoiding sequential nonce confirmation. Keys whose first byte in their
+32-byte representation is `0x5b` are reserved for subblocks and are rejected.
 
 :::code-group
 

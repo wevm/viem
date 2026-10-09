@@ -13,6 +13,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account, MultisigAccount } from './Account.js'
+import { assertNonceKey } from './internal/nonce.js'
 import {
   isTempo,
   type Transaction,
@@ -121,6 +122,8 @@ export function formatTransactionRequest(
       r as never,
       action,
     ) as TransactionRequestRpc
+
+  assertNonceKey(request.nonceKey)
 
   if (action)
     request.calls = request.calls ?? [
