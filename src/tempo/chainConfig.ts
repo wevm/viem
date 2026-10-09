@@ -26,6 +26,7 @@ import { getConfig } from './actions/multisig.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import { assertNonceKey } from './internal/nonce.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -71,6 +72,8 @@ export const chainConfig = {
         owner?: Account | MultisigAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
       }
+
+      assertNonceKey(request.nonceKey)
 
       if (request.hash) {
         if (
