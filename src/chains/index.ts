@@ -235,6 +235,7 @@ export { formTestnet } from './definitions/formTestnet.js'
 export { forta } from './definitions/forta.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
+export { fractalai } from './definitions/fractalai.js'
 export { fraxtal } from './definitions/fraxtal.js'
 export { fraxtalTestnet } from './definitions/fraxtalTestnet.js'
 export { funkiMainnet } from './definitions/funkiMainnet.js'
