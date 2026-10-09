@@ -73,6 +73,10 @@ export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
+/**
+ * Client-side storage for pending key authorizations.
+ * @deprecated Use the `Relay.keyAuthorization` relay plugin instead.
+ */
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'
 /**
