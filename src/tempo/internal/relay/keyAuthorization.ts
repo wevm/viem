@@ -20,6 +20,11 @@ export function create(
   options: Relay.keyAuthorization.Options = {},
 ): Relay.keyAuthorization.ReturnType {
   const { store = Store.memory() } = options
+  if (!store.compareAndSet)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Key authorization storage requires a store with atomic `compareAndSet`.',
+    })
   return Plugin.keyAuthorization({
     async handleRequest(context, next) {
       const { request } = context
@@ -38,14 +43,19 @@ export function create(
           throw new RpcResponse.InvalidParamsError({
             message: 'Key authorization has expired.',
           })
-        const account = await verify(
-          context.getClient(chainId),
-          keyAuthorization,
-        )
-        await store.setItem(
-          getKey({ account, accessKey: keyAuthorization.address, chainId }),
-          KeyAuthorization.serialize(keyAuthorization),
-        )
+        const client = context.getClient(chainId)
+        const account = await verify(client, keyAuthorization)
+        // Authorizations for keys that are already active would only be removed on the next fill.
+        const metadata = await Actions.accessKey.getMetadata(client, {
+          account,
+          accessKey: keyAuthorization.address,
+        })
+        if (isActive(metadata, keyAuthorization.address)) return null
+        if (!(await write(store, { account, keyAuthorization })))
+          throw new RpcResponse.InvalidParamsError({
+            message:
+              'A pending key authorization for this access key expires later.',
+          })
         return null
       }
 
@@ -57,17 +67,13 @@ export function create(
           context.result as MultisigOperation.Rpc,
         ) as MultisigOperation.KeyAuthorizationOperation
         if (operation.status !== 'success') return
-        const keyAuthorization = KeyAuthorization.deserialize(
-          operation.keyAuthorization,
-        )
-        await store.setItem(
-          getKey({
-            account: operation.account,
-            accessKey: keyAuthorization.address,
-            chainId: Number(keyAuthorization.chainId),
-          }),
-          KeyAuthorization.serialize(keyAuthorization),
-        )
+        // A pending authorization that expires later is kept; the approval itself still succeeds.
+        await write(store, {
+          account: operation.account,
+          keyAuthorization: KeyAuthorization.deserialize(
+            operation.keyAuthorization,
+          ) as KeyAuthorization.Signed,
+        })
         return
       }
 
@@ -107,11 +113,7 @@ export function create(
           accessKey: accessKey as Address,
         })
         // The key already landed onchain, so the authorization is spent.
-        if (
-          isAddressEqual(metadata.address, accessKey as Address) &&
-          !metadata.isRevoked &&
-          metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
-        ) {
+        if (isActive(metadata, accessKey as Address)) {
           await store.removeItem(key)
           return undefined
         }
@@ -213,6 +215,69 @@ async function verify(
       message: 'Key authorization must be signed by its account.',
     })
   return signer
+}
+
+/**
+ * Stores an authorization unless a pending authorization for the same key expires
+ * later, so a replayed older authorization cannot replace a newer one.
+ * @internal
+ */
+export async function write(
+  store: Store.Atomic,
+  options: {
+    account: Address
+    keyAuthorization: KeyAuthorization.Signed
+  },
+): Promise<boolean> {
+  const { account, keyAuthorization } = options
+  const key = getKey({
+    account,
+    accessKey: keyAuthorization.address,
+    chainId: Number(keyAuthorization.chainId),
+  })
+  const value = KeyAuthorization.serialize(keyAuthorization)
+  const current = (await store.getItem(key)) ?? null
+  const existing = (() => {
+    if (!current) return undefined
+    try {
+      return KeyAuthorization.deserialize(current as `0x${string}`)
+    } catch {
+      return undefined
+    }
+  })()
+  if (existing && current!.toLowerCase() === value.toLowerCase()) return true
+  if (existing && getExpiry(existing) >= getExpiry(keyAuthorization))
+    return false
+  const expiresAt = Math.min(
+    Date.now() + maxTtl,
+    getExpiry(keyAuthorization) * 1_000,
+  )
+  if (await store.compareAndSet(key, current, value, { expiresAt })) return true
+  // Another writer replaced the value, so compare against the new one.
+  return write(store, options)
+}
+
+/** Maximum time a pending key authorization is kept. */
+const maxTtl = 30 * 24 * 60 * 60 * 1_000
+
+/** Returns the authorization expiry in seconds, treating no expiry as unbounded. */
+function getExpiry(keyAuthorization: KeyAuthorization.KeyAuthorization) {
+  const { expiry } = keyAuthorization
+  return expiry === undefined || expiry === null
+    ? Number.POSITIVE_INFINITY
+    : Number(expiry)
+}
+
+/** Returns whether the access key is active onchain. */
+function isActive(
+  metadata: Actions.accessKey.getMetadata.ReturnValue,
+  accessKey: Address,
+) {
+  return (
+    isAddressEqual(metadata.address, accessKey) &&
+    !metadata.isRevoked &&
+    metadata.expiry > BigInt(Math.floor(Date.now() / 1000))
+  )
 }
 
 function isExpired(keyAuthorization: KeyAuthorization.KeyAuthorization) {

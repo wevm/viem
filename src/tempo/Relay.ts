@@ -322,8 +322,11 @@ declare const keyAuthorizationBrand: unique symbol
  * Place this plugin before `Relay.multisig` so it can observe completed multisig
  * key authorizations, and before plugins that read the filled transaction.
  *
+ * A saved authorization only replaces a pending authorization that expires earlier,
+ * so a replayed older authorization cannot replace a newer one.
+ *
  * Memory storage is process-local. Multiple server instances must use the same
- * persistent store to share pending authorizations.
+ * persistent atomic store to share pending authorizations.
  *
  * @example
  * ```ts
@@ -347,8 +350,8 @@ export function keyAuthorization(
 export declare namespace keyAuthorization {
   /** Key authorization storage options. */
   export type Options = {
-    /** Store for pending key authorizations. Defaults to a process-local memory store. */
-    store?: Store.Store | undefined
+    /** Store for pending key authorizations, with atomic compare-and-set support. Defaults to a process-local memory store. */
+    store?: Store.Atomic | undefined
   }
   /** Middleware advertising pending key authorization storage. */
   export type ReturnType = Plugin & { readonly [keyAuthorizationBrand]: true }

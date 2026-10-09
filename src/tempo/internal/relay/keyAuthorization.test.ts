@@ -9,6 +9,7 @@ import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import { wait } from '../../../utils/wait.js'
 import { parseApproval } from '../../multisig/Signature.js'
+import { write } from './keyAuthorization.js'
 
 const root = Tempo.accounts[1]!
 const feeToken = Tempo.addresses.alphaUsd
@@ -272,6 +273,175 @@ test('behavior: drops malformed stored key authorizations', async () => {
     }),
   ).rejects.toThrow('KeyNotFound')
   expect(await store.getItem(key)).toBeNull()
+})
+
+test('behavior: keeps a newer pending key authorization', async () => {
+  const store = Store.memory()
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.keyAuthorization({ store })],
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.keyAuthorization({ store })],
+    }),
+  })
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const [older, newer, newest] = await Promise.all(
+    [1, 2, 3].map((hours) =>
+      Actions.accessKey.signAuthorization(caller, {
+        account: root,
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + hours * 3_600,
+      }),
+    ),
+  )
+  const save = (keyAuthorization: KeyAuthorization.Signed) =>
+    relay.request({
+      method: 'relay_setKeyAuthorization',
+      params: [KeyAuthorization.toRpc(keyAuthorization)],
+    })
+  const fill = async () => {
+    const { transaction } = await fillTransaction(client, {
+      account: accessKey,
+      feeToken,
+      to: zeroAddress,
+    })
+    return transaction.keyAuthorization
+  }
+
+  await save(newer!)
+
+  await expect(save(older!)).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: A pending key authorization for this access key expires later.]`,
+  )
+  expect(await save(newer!)).toMatchInlineSnapshot(`null`)
+  expect(await fill()).toEqual(newer)
+
+  await save(newest!)
+
+  expect(await fill()).toEqual(newest)
+})
+
+test('behavior: does not save key authorizations for active keys', async () => {
+  const store = Store.memory()
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.keyAuthorization({ store })],
+  })
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+    account: root,
+    accessKey,
+    expiry: expiry(),
+  })
+  await Actions.accessKey.authorizeSync(caller, {
+    account: root,
+    accessKey,
+    expiry: expiry(),
+    feeToken,
+  })
+
+  expect(
+    await relay.request({
+      method: 'relay_setKeyAuthorization',
+      params: [KeyAuthorization.toRpc(keyAuthorization)],
+    }),
+  ).toMatchInlineSnapshot(`null`)
+  expect(
+    await store.getItem(
+      [
+        'keyAuthorization',
+        Tempo.chain.id,
+        root.address.toLowerCase(),
+        accessKey.accessKeyAddress.toLowerCase(),
+      ].join(':'),
+    ),
+  ).toBeNull()
+})
+
+test('behavior: concurrent writes keep the later expiry', async () => {
+  const store = Store.memory()
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const [earlier, later] = await Promise.all(
+    [1, 2].map((hours) =>
+      Actions.accessKey.signAuthorization(caller, {
+        account: root,
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + hours * 3_600,
+      }),
+    ),
+  )
+
+  const results = await Promise.all([
+    write(store, { account: root.address, keyAuthorization: later! }),
+    write(store, { account: root.address, keyAuthorization: earlier! }),
+  ])
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      true,
+      false,
+    ]
+  `)
+  expect(
+    await store.getItem(
+      [
+        'keyAuthorization',
+        Tempo.chain.id,
+        root.address.toLowerCase(),
+        accessKey.accessKeyAddress.toLowerCase(),
+      ].join(':'),
+    ),
+  ).toBe(KeyAuthorization.serialize(later!))
+})
+
+test('behavior: writes replace malformed values and keep unbounded authorizations', async () => {
+  const store = Store.memory()
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const key = [
+    'keyAuthorization',
+    Tempo.chain.id,
+    root.address.toLowerCase(),
+    accessKey.accessKeyAddress.toLowerCase(),
+  ].join(':')
+  const [admin, expiring] = await Promise.all([
+    Actions.accessKey.signAuthorization(caller, {
+      account: root,
+      accessKey,
+      admin: true,
+    }),
+    Actions.accessKey.signAuthorization(caller, {
+      account: root,
+      accessKey,
+      expiry: expiry(),
+    }),
+  ])
+  await store.setItem(key, '0xdeadbeef')
+
+  const results = [
+    await write(store, { account: root.address, keyAuthorization: admin }),
+    await write(store, { account: root.address, keyAuthorization: expiring }),
+  ]
+
+  expect(results).toMatchInlineSnapshot(`
+    [
+      true,
+      false,
+    ]
+  `)
+  expect(await store.getItem(key)).toBe(KeyAuthorization.serialize(admin))
+})
+
+test('error: requires an atomic store', () => {
+  const { compareAndSet: _, ...store } = Store.memory()
+
+  expect(() =>
+    Relay.keyAuthorization({ store: store as never }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: Key authorization storage requires a store with atomic \`compareAndSet\`.]`,
+  )
 })
 
 describe('relay_setKeyAuthorization', () => {

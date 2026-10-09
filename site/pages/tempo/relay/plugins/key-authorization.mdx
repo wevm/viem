@@ -166,11 +166,16 @@ const plugin = Relay.keyAuthorization({ store: Store.memory() })
 
 #### options.store
 
-- **Type:** `Store.Store`
+- **Type:** `Store.Atomic`
 - **Default:** `Store.memory()`
 
-The store for pending key authorizations. Memory storage is process-local, so
-multiple relay instances must share a persistent [store](/tempo/utilities/Store).
+The store for pending key authorizations. Atomic `compareAndSet` keeps concurrent
+saves from replacing a newer authorization. Entries expire with the authorization,
+and after 30 days at most.
+
+Memory storage is process-local, so multiple relay instances must share a persistent
+[atomic store](/tempo/utilities/Store). Use a store that honors `expiresAt` so
+unused entries are evicted.
 
 ```ts twoslash
 import { Relay, Store } from 'viem/tempo'
@@ -191,15 +196,21 @@ to save signed key authorizations to the relay.
 
 | Error | Description |
 | --- | --- |
-| `RpcResponse.InvalidParamsError` | The authorization is unsigned, expired, signed by another account, below multisig quorum, or for another chain. |
+| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, or the authorization is unsigned, expired, signed by another account, below multisig quorum, for another chain, or older than the pending authorization. |
 
 ## RPC Methods
 
 ### `relay_setKeyAuthorization`
 
-Saves a signed key authorization for its account and access key, replacing any
-pending authorization for the same key. The authorization must be signed by the
-account itself: a root key, or a multisig quorum. Returns `null`.
+Saves a signed key authorization for its account and access key. The authorization
+must be signed by the account itself: a root key, or a multisig quorum. Returns `null`.
+
+A saved authorization only replaces a pending one that expires earlier, so a replayed
+older authorization cannot replace a newer one. Authorizations for keys that are
+already active onchain are not saved.
+
+Anyone can save authorizations for accounts they control. Public relays should
+rate-limit this method at the HTTP layer.
 
 Authorizations signed by an admin access key are rejected, because only the admin
 key can submit them.
