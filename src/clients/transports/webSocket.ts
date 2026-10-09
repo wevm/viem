@@ -154,7 +154,22 @@ export function webSocket(
         },
         async subscribe({ params, onData, onError }: any) {
           const rpcClient = await getWebSocketRpcClient(url_, wsRpcClientOpts)
-          const { result: subscriptionId } = await new Promise<any>(
+          // Updated when the subscription is re-established after a reconnect.
+          let subscriptionId: Hash
+          let unsubscribed = false
+          function unsubscribe() {
+            unsubscribed = true
+            return new Promise<any>((resolve) =>
+              rpcClient.request({
+                body: {
+                  method: 'eth_unsubscribe',
+                  params: [subscriptionId],
+                },
+                onResponse: resolve,
+              }),
+            )
+          }
+          await new Promise<any>(
             (resolve, reject) =>
               rpcClient.request({
                 body: {
@@ -174,6 +189,9 @@ export function webSocket(
                   }
 
                   if (typeof response.id === 'number') {
+                    subscriptionId = response.result
+                    // Re-subscribed while an unsubscribe was in flight.
+                    if (unsubscribed) unsubscribe()
                     resolve(response)
                     return
                   }
@@ -183,18 +201,10 @@ export function webSocket(
               }),
           )
           return {
-            subscriptionId,
-            async unsubscribe() {
-              return new Promise<any>((resolve) =>
-                rpcClient.request({
-                  body: {
-                    method: 'eth_unsubscribe',
-                    params: [subscriptionId],
-                  },
-                  onResponse: resolve,
-                }),
-              )
+            get subscriptionId() {
+              return subscriptionId
             },
+            unsubscribe,
           }
         },
       },
