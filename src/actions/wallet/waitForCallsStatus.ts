@@ -69,6 +69,17 @@ export type WaitForCallsStatusErrorType =
   | WaitForCallsStatusTimeoutError
   | ErrorType
 
+const functionIds = /*#__PURE__*/ new WeakMap<object, number>()
+let functionCount = 0
+function getFunctionId(fn: object): number {
+  let fnId = functionIds.get(fn)
+  if (fnId === undefined) {
+    fnId = ++functionCount
+    functionIds.set(fn, fnId)
+  }
+  return fnId
+}
+
 /**
  * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
  *
@@ -104,7 +115,31 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
     timeout = 60_000,
     throwOnFailure = false,
   } = parameters
-  const observerId = stringify(['waitForCallsStatus', client.uid, id])
+  const observerId = stringify([
+    'waitForCallsStatus',
+    client.uid,
+    id,
+    // Concurrent calls with different behavior-defining options must not
+    // share an observer: the first call's polling closure decides the
+    // status check, failure handling and retry behavior for everyone.
+    // `timeout` is enforced per caller below, so it is not included.
+    {
+      pollingInterval,
+      retryCount,
+      // Caller-provided functions are keyed by identity, not source text:
+      // two predicates built by the same factory have identical source
+      // but capture different values, so they must not share an observer.
+      // Keying on `parameters.*` (not the destructured defaults) keeps
+      // calls that use the defaults on one shared observer, since the
+      // default functions are recreated on every call.
+      retryDelay:
+        typeof parameters.retryDelay === 'function'
+          ? getFunctionId(parameters.retryDelay)
+          : parameters.retryDelay,
+      status: parameters.status ? getFunctionId(parameters.status) : undefined,
+      throwOnFailure,
+    },
+  ])
 
   const { promise, resolve, reject } =
     withResolvers<WaitForCallsStatusReturnType>()
@@ -161,7 +196,11 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
       }, timeout)
     : undefined
 
-  return await promise
+  // Remove this caller's listener once its promise settles. `done` only
+  // unobserves the caller that started the poll, so a listener from a
+  // concurrent caller would otherwise stay cached and block every later
+  // wait for the same id from polling.
+  return await promise.finally(() => unobserve())
 }
 
 export type WaitForCallsStatusTimeoutErrorType =
