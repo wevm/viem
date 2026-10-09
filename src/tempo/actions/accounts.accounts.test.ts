@@ -1,4 +1,4 @@
-import { MultisigConfig } from 'ox/tempo'
+import { AccountConfig } from 'ox/tempo'
 import { custom, toHex } from 'viem'
 import { waitForTransactionReceipt } from 'viem/actions'
 import { beforeAll, describe, expect, test } from 'vitest'
@@ -7,7 +7,7 @@ import * as Account from '../Account.js'
 import * as actions from './index.js'
 
 const client = getClient()
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [accounts[17], accounts[18]],
   salt: toHex(0x502200, { size: 32 }),
@@ -26,7 +26,7 @@ beforeAll(async () => {
 describe('getConfigCommitment', () => {
   test('behavior: initial account', async () => {
     await expect(
-      actions.multisig.getConfigCommitment(client, {
+      actions.accounts.getConfigCommitment(client, {
         account: account.address,
       }),
     ).resolves.toMatchInlineSnapshot(
@@ -51,7 +51,7 @@ describe('updateConfig', () => {
       }),
     })
 
-    const result = await actions.multisig.updateConfig(client, {
+    const result = await actions.accounts.updateConfig(client, {
       account: { address: account.address, type: 'json-rpc' },
       currentConfig: account.config,
       nextConfig: {
@@ -88,7 +88,7 @@ describe('updateConfig', () => {
   })
 
   test('behavior: commits the first current config', async () => {
-    const hash = await actions.multisig.updateConfig(client, {
+    const hash = await actions.accounts.updateConfig(client, {
       account,
       currentConfig: account.config,
       nextConfig: {
@@ -97,14 +97,14 @@ describe('updateConfig', () => {
       },
     })
     const receipt = await waitForTransactionReceipt(client, { hash })
-    const config = MultisigConfig.from({ ...account.config, version: 1n })
-    const commitment = await actions.multisig.getConfigCommitment(client, {
+    const config = AccountConfig.from({ ...account.config, version: 1n })
+    const commitment = await actions.accounts.getConfigCommitment(client, {
       account: account.address,
     })
 
     expect({
       commitment,
-      expectedCommitment: MultisigConfig.getCommitment(config),
+      expectedCommitment: AccountConfig.getCommitment(config),
       status: receipt.status,
     }).toMatchInlineSnapshot(`
       {
@@ -118,7 +118,7 @@ describe('updateConfig', () => {
 
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [accounts[17], accounts[18]],
       salt: toHex(0x502201, { size: 32 }),
@@ -131,7 +131,7 @@ describe('updateConfigSync', () => {
       token: feeToken,
     })
 
-    const result = await actions.multisig.updateConfigSync(client, {
+    const result = await actions.accounts.updateConfigSync(client, {
       account,
       currentConfig: account.config,
       nextConfig: {
@@ -184,7 +184,7 @@ describe('updateConfigSync', () => {
           "gasUsed": Any<BigInt>,
           "logs": Any<Array>,
           "logsBloom": Any<String>,
-          "multisig": undefined,
+          "operation": undefined,
           "status": "success",
           "to": "0xaacc000000000000000000000000000000000000",
           "transactionHash": Any<String>,
@@ -195,12 +195,12 @@ describe('updateConfigSync', () => {
     `,
     )
     await expect(
-      actions.multisig.getConfigCommitment(client, {
+      actions.accounts.getConfigCommitment(client, {
         account: account.address,
       }),
-    ).resolves.toBe(MultisigConfig.getCommitment(result.config))
+    ).resolves.toBe(AccountConfig.getCommitment(result.config))
 
-    const rotated = await actions.multisig.updateConfigSync(client, {
+    const rotated = await actions.accounts.updateConfigSync(client, {
       account,
       currentConfig: result.config,
       nextConfig: {
@@ -210,9 +210,9 @@ describe('updateConfigSync', () => {
     })
     expect(rotated.config.version).toMatchInlineSnapshot(`2n`)
     await expect(
-      actions.multisig.getConfigCommitment(client, {
+      actions.accounts.getConfigCommitment(client, {
         account: account.address,
       }),
-    ).resolves.toBe(MultisigConfig.getCommitment(rotated.config))
+    ).resolves.toBe(AccountConfig.getCommitment(rotated.config))
   })
 })

@@ -74,20 +74,20 @@ describe('createClient', () => {
     )
   })
 
-  test('behavior: multisig coordination preserves the transport', () => {
+  test('behavior: account coordination preserves the transport', () => {
     const client = createClient({
       transport: withRelay(http('http://localhost'), {
-        plugins: [Relay.multisig({ store: Store.memory() })],
+        plugins: [Relay.accounts({ store: Store.memory() })],
       }),
     })
 
     expect(client.transport.type).toBe('http')
   })
 
-  test('behavior: multisig coordination forwards request options', async () => {
+  test('behavior: account coordination forwards request options', async () => {
     const client = createClient({
       transport: withRelay(http('http://localhost'), {
-        plugins: [Relay.multisig({ store: Store.memory() })],
+        plugins: [Relay.accounts({ store: Store.memory() })],
       }),
     })
 

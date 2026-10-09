@@ -1,7 +1,7 @@
 import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex, RpcRequest, RpcResponse, Signature } from 'ox'
-import { MultisigConfig, TxEnvelopeTempo } from 'ox/tempo'
+import { AccountConfig, TxEnvelopeTempo } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getCallsStatus,
@@ -32,15 +32,15 @@ describe('withRelay local plugins', () => {
   test('default', async () => {
     const client = getClient({
       transport: withRelay(http(), {
-        plugins: [Relay.multisig({ store: Store.memory() })],
+        plugins: [Relay.accounts({ store: Store.memory() })],
       }),
     })
 
-    expect(client.transport.multisig).toMatchInlineSnapshot(`true`)
+    expect(client.transport.accounts).toMatchInlineSnapshot(`true`)
     expect(client.transport.type).toMatchInlineSnapshot(`"http"`)
     await expect(
       client.request({
-        method: 'multisig_getOperation',
+        method: 'account_getOperation',
         params: [`0x${'ff'.repeat(32)}`],
       } as never),
     ).resolves.toMatchInlineSnapshot(`null`)
@@ -48,7 +48,7 @@ describe('withRelay local plugins', () => {
 
   test('empty plugins preserve the underlying capabilities', async () => {
     const plain = getClient({ transport: withRelay(http(), {}) })
-    expect('multisig' in plain.transport).toBe(false)
+    expect('accounts' in plain.transport).toBe(false)
     expect(plain.transport.type).toBe('http')
     expect(await plain.request({ method: 'eth_chainId' })).toBe(
       await getClient().request({ method: 'eth_chainId' }),
@@ -58,7 +58,7 @@ describe('withRelay local plugins', () => {
     const nested = getClient({
       transport: withRelay(remote, { plugins: [] }),
     })
-    expect(nested.transport.multisig).toBe(true)
+    expect(nested.transport.accounts).toBe(true)
     expect(nested.transport.type).toBe(underlying.transport.type)
     expect(nested.transport.name).toBe(underlying.transport.name)
   })
@@ -74,11 +74,11 @@ describe('withRelay local plugins', () => {
       getClient({
         transport: withRelay(http(), {
           // @ts-expect-error Non-atomic stores are rejected at runtime.
-          plugins: [Relay.multisig({ store })],
+          plugins: [Relay.accounts({ store })],
         }),
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
-      [RpcResponse.InvalidParamsError: Multisig coordination requires a store with atomic \`compareAndSet\`.]
+      [RpcResponse.InvalidParamsError: Account coordination requires a store with atomic \`compareAndSet\`.]
     `)
   })
 })
@@ -100,19 +100,19 @@ describe('withRelay', () => {
     params: readonly unknown[] | undefined
   }> = []
 
-  test('behavior: routes multisig coordination to the relay', async () => {
+  test('behavior: routes account coordination to the relay', async () => {
     const owner = Account_.fromSecp256k1(generatePrivateKey())
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
     const transaction = {
       calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
       chainId: chain.id,
-      from: MultisigConfig.getAddress(config, {
+      from: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
-      multisigSimulation: {
+      accountSimulation: {
         approvals: [{ owner: owner.address }],
         config,
       },
@@ -145,30 +145,30 @@ describe('withRelay', () => {
         { method: 'eth_sendRawTransaction', params: [serialized] },
         { method: 'eth_sendRawTransactionSync', params: [serialized] },
         {
-          method: 'multisig_approveKeyAuthorization',
+          method: 'account_approveKeyAuthorization',
           params: [{ hash, signature }],
         },
-        { method: 'multisig_approveRawTransaction', params: [serialized] },
-        { method: 'multisig_approveRawTransactionSync', params: [serialized] },
-        { method: 'multisig_getConfig', params: [{ address: owner.address }] },
-        { method: 'multisig_getOperation', params: [hash] },
+        { method: 'account_approveRawTransaction', params: [serialized] },
+        { method: 'account_approveRawTransactionSync', params: [serialized] },
+        { method: 'account_getConfig', params: [{ address: owner.address }] },
+        { method: 'account_getOperation', params: [hash] },
       ].map((request) => transport.request(request as never)),
     )
 
     expect(transport.value).toMatchInlineSnapshot(`
       {
-        "multisig": true,
+        "accounts": true,
       }
     `)
     expect(results).toMatchInlineSnapshot(`
       [
         "eth_sendRawTransaction",
         "eth_sendRawTransactionSync",
-        "multisig_approveKeyAuthorization",
-        "multisig_approveRawTransaction",
-        "multisig_approveRawTransactionSync",
-        "multisig_getConfig",
-        "multisig_getOperation",
+        "account_approveKeyAuthorization",
+        "account_approveRawTransaction",
+        "account_approveRawTransactionSync",
+        "account_getConfig",
+        "account_getOperation",
       ]
     `)
     expect(defaultMethods).toMatchInlineSnapshot(`[]`)
@@ -196,7 +196,7 @@ describe('withRelay', () => {
         async request({ method, params }) {
           const hash = (params as readonly unknown[] | undefined)?.[0]
           relayRequests.push(`${method}:${hash}`)
-          if (method === 'multisig_getOperation') {
+          if (method === 'account_getOperation') {
             if (hash === operationHash) return { type: 'transaction' }
             if (hash === unsupportedHash)
               throw new RpcResponse.MethodNotSupportedError()
@@ -268,12 +268,12 @@ describe('withRelay', () => {
     `)
     expect(relayRequests).toMatchInlineSnapshot(`
       [
-        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "account_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
         "eth_getTransactionByHash:0x0202020202020202020202020202020202020202020202020202020202020202",
-        "multisig_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
+        "account_getOperation:0x0202020202020202020202020202020202020202020202020202020202020202",
         "eth_getTransactionReceipt:0x0202020202020202020202020202020202020202020202020202020202020202",
-        "multisig_getOperation:0x0303030303030303030303030303030303030303030303030303030303030303",
-        "multisig_getOperation:0x0404040404040404040404040404040404040404040404040404040404040404",
+        "account_getOperation:0x0303030303030303030303030303030303030303030303030303030303030303",
+        "account_getOperation:0x0404040404040404040404040404040404040404040404040404040404040404",
       ]
     `)
   })
@@ -772,19 +772,22 @@ describe('withRelay', () => {
       })
     })
 
-    test.runIf(import.meta.env.VITE_TEMPO_MULTISIG)(
-      'behavior: sendTransactionSync sponsors multisig with feePayer: true',
+    test.runIf(import.meta.env.VITE_TEMPO_ACCOUNTS)(
+      'behavior: sendTransactionSync sponsors configurable accounts with feePayer: true',
       async () => {
         const owner_1 = accounts[14]
         const owner_2 = accounts[15]
-        const config = MultisigConfig.from({
+        const config = AccountConfig.from({
           threshold: 2,
           owners: [
             { owner: owner_1.address, weight: 1 },
             { owner: owner_2.address, weight: 1 },
           ],
         })
-        const account = Account.fromMultisig({ address: 'infer', ...config })
+        const account = Account.fromConfig({
+          address: 'infer',
+          ...config,
+        })
 
         const request = await prepareTransactionRequest(client, {
           account,
@@ -818,12 +821,12 @@ describe('withRelay', () => {
       },
     )
 
-    test.runIf(import.meta.env.VITE_TEMPO_MULTISIG)(
-      'behavior: coordinated multisig accepts the relay transaction hash',
+    test.runIf(import.meta.env.VITE_TEMPO_ACCOUNTS)(
+      'behavior: coordinated accounts accept the relay transaction hash',
       async () => {
         const owner_1 = Account.fromSecp256k1(generatePrivateKey())
         const owner_2 = Account.fromSecp256k1(generatePrivateKey())
-        const account = Account.fromMultisig({
+        const account = Account.fromConfig({
           address: 'infer',
           owners: [owner_1, owner_2],
           threshold: 2,
@@ -831,7 +834,7 @@ describe('withRelay', () => {
         const coordinated = getClient({
           transport: withRelay(
             withRelay(http(), http('http://localhost:3051')),
-            { plugins: [Relay.multisig({ store: Store.memory() })] },
+            { plugins: [Relay.accounts({ store: Store.memory() })] },
           ),
         })
 
@@ -855,7 +858,7 @@ describe('withRelay', () => {
         const transaction = await getTransaction(coordinated, {
           hash: pending.transactionHash,
         })
-        expect(transaction.multisig?.transactionHash).toBe(
+        expect(transaction.operation?.transactionHash).toBe(
           receipt.transactionHash,
         )
       },

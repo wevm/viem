@@ -3,7 +3,7 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import {
-  MultisigOperation,
+  AccountOperation,
   Transaction as ox_Transaction,
   TransactionRequest as ox_TransactionRequest,
 } from 'ox/tempo'
@@ -12,7 +12,7 @@ import { parseAccount } from '../accounts/utils/parseAccount.js'
 import { formatTransaction as viem_formatTransaction } from '../utils/formatters/transaction.js'
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
-import type { Account, MultisigAccount } from './Account.js'
+import type { Account, ConfigurableAccount } from './Account.js'
 import {
   isTempo,
   type Transaction,
@@ -33,7 +33,7 @@ export function formatTransaction(
     transaction.blockTimestamp == null
       ? undefined
       : BigInt(transaction.blockTimestamp)
-  const multisig = transaction.multisig
+  const operation = transaction.operation
   const {
     feePayerSignature,
     gasPrice: _,
@@ -53,8 +53,8 @@ export function formatTransaction(
           yParity: feePayerSignature.yParity,
         }
       : undefined,
-    multisig: formatMultisig(multisig),
     nonce: Number(nonce),
+    operation: formatOperation(operation),
     typeHex:
       ox_Transaction.toRpcType[
         tx.type as keyof typeof ox_Transaction.toRpcType
@@ -69,7 +69,7 @@ export function formatTransactionReceipt(
   const transactionReceipt = viem_formatTransactionReceipt(receipt as never)
   return {
     ...transactionReceipt,
-    multisig: formatMultisig(receipt.multisig),
+    operation: formatOperation(receipt.operation),
     ...(receipt.status === 'pending'
       ? { status: 'pending', type: 'tempo' }
       : {}),
@@ -77,11 +77,11 @@ export function formatTransactionReceipt(
 }
 
 /** Formats a transaction operation attached to an RPC result. */
-function formatMultisig(value: MultisigOperation.TransactionRpc | undefined) {
+function formatOperation(value: AccountOperation.TransactionRpc | undefined) {
   if (!value) return undefined
-  const operation = MultisigOperation.fromRpc(value)
+  const operation = AccountOperation.fromRpc(value)
   if (operation.type !== 'transaction')
-    throw new Error('Expected a multisig transaction operation.')
+    throw new Error('Expected an account transaction operation.')
   return operation
 }
 
@@ -98,21 +98,21 @@ export function formatTransactionRequest(
     keyData?: Hex.Hex | undefined
     keyId?: Address | undefined
     keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-    owner?: viem_Account | MultisigAccount | Address | undefined
+    owner?: viem_Account | ConfigurableAccount | Address | undefined
     signatures?: unknown
   }
   const account = request.account
     ? parseAccount<Account | viem_Account | Address>(request.account)
     : undefined
   const owner = request.owner
-    ? parseAccount<Account | MultisigAccount | viem_Account | Address>(
+    ? parseAccount<Account | ConfigurableAccount | viem_Account | Address>(
         request.owner,
       )
     : undefined
 
   if (owner?.type === 'json-rpc')
     throw new Error(
-      'A local owner account is required to approve a multisig transaction.',
+      'A local owner account is required to approve a configurable account transaction.',
     )
 
   // If the request is not a Tempo transaction, route to Viem formatter.
@@ -147,7 +147,7 @@ export function formatTransactionRequest(
   if (request.feePayer === true && !request.feePayerSignature)
     delete request.feeToken
 
-  // Client-only TIP-1061 fields drive local signing and envelope assembly.
+  // Client-only TIP-1107 fields drive local signing and envelope assembly.
   const { owner: _owner, signatures: _signatures, ...rpcRequest } = request
 
   const rpc = ox_TransactionRequest.toRpc({
@@ -191,7 +191,8 @@ export function formatTransactionRequest(
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
-    // Keep the key visible to `extract`; the undefined value never reaches JSON-RPC.
+    // Keep client-only keys visible to `extract`; undefined values never reach JSON-RPC.
+    ...(request.accountSimulation ? { accountSimulation: undefined } : {}),
     ...(request.owner ? { owner: undefined } : {}),
     ...(typeof request.feePayer !== 'undefined'
       ? {

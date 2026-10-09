@@ -6,7 +6,7 @@ test('handleRequest exposes the resolved chain', async () => {
     async (_request, options) => {
       expectTypeOf(options?.chainId).toEqualTypeOf<number | undefined>()
     },
-    { plugins: [Relay.multisig({ store: Store.memory() })] },
+    { plugins: [Relay.accounts({ store: Store.memory() })] },
   )
 
   await handle({ method: 'eth_blockNumber' }, { chainId: 4217 })

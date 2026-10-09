@@ -240,11 +240,11 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --run --bail=1 --project tempo-multisig
+          command: pnpm test --run --bail=1 --project tempo-accounts
         env:
           CI: true
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_MULTISIG: 'true'
+          VITE_TEMPO_ACCOUNTS: 'true'
           VITE_TEMPO_TAG: sha-83f3ccd
 
   test-tempo:

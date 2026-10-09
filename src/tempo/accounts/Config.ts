@@ -2,7 +2,7 @@ import * as Address from 'ox/Address'
 import * as Hash from 'ox/Hash'
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import { MultisigConfig } from 'ox/tempo'
+import { AccountConfig } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
 import { nativeMultisigFactory } from '../Addresses.js'
 import type * as Store from '../Store.js'
@@ -13,11 +13,11 @@ const maxStoredValueLength = 65_536
 /** Zero commitment used before an account is initialized. */
 const zeroCommitment = `0x${'00'.repeat(32)}` as const
 
-/** Reads a cached multisig config. */
+/** Reads a cached account config. */
 export async function read(
   store: Store.Store,
   options: read.Options,
-): Promise<MultisigConfig.Config | null> {
+): Promise<AccountConfig.Config | null> {
   const { address, commitment } = options
   const value = await store.getItem(key({ address, commitment }))
   if (value === null || value === undefined) return null
@@ -29,27 +29,27 @@ export async function read(
 export declare namespace read {
   /** Parameters for {@link read}. */
   export type Options = {
-    /** Multisig account address. */
+    /** Configurable account address. */
     address: Address.Address
     /** Config commitment observed onchain. */
     commitment: Hex.Hex
   }
 }
 
-/** Writes a validated multisig config. */
+/** Writes a validated account config. */
 export async function write(
   store: Store.Store,
   options: write.Options,
 ): Promise<void> {
   const { address, commitment } = options
-  const config = MultisigConfig.from(options.config)
+  const config = AccountConfig.from(options.config)
   assertKey({ address, commitment, config })
   const value = serialize(config)
   await store.setItem(key({ address, commitment }), value)
   // Initialization commits the version-zero config without changing its version.
   if (commitment.toLowerCase() === zeroCommitment)
     await store.setItem(
-      key({ address, commitment: MultisigConfig.getCommitment(config) }),
+      key({ address, commitment: AccountConfig.getCommitment(config) }),
       value,
     )
 }
@@ -57,12 +57,12 @@ export async function write(
 export declare namespace write {
   /** Parameters for {@link write}. */
   export type Options = {
-    /** Multisig account address. */
+    /** Configurable account address. */
     address: Address.Address
     /** Config commitment used for lookup. */
     commitment: Hex.Hex
     /** Complete config. */
-    config: MultisigConfig.Config
+    config: AccountConfig.Config
   }
 }
 
@@ -70,7 +70,7 @@ export declare namespace write {
 function assertKey(options: {
   address: Address.Address
   commitment: Hex.Hex
-  config: MultisigConfig.Config
+  config: AccountConfig.Config
 }) {
   const { address, commitment, config } = options
   if (!Address.validate(address) || !Hash.validate(commitment))
@@ -78,7 +78,7 @@ function assertKey(options: {
   if (config.version === 0n) {
     if (
       !Address.isEqual(
-        MultisigConfig.getAddress(config, { factory: nativeMultisigFactory }),
+        AccountConfig.getAddress(config, { factory: nativeMultisigFactory }),
         address,
       )
     )
@@ -86,17 +86,17 @@ function assertKey(options: {
     if (commitment.toLowerCase() === zeroCommitment) return
   }
   if (
-    MultisigConfig.getCommitment(config).toLowerCase() !==
+    AccountConfig.getCommitment(config).toLowerCase() !==
     commitment.toLowerCase()
   )
     throw new InvalidStoreValueError()
 }
 
-/** Deserializes a multisig config from storage. */
-function deserialize(value: string): MultisigConfig.Config {
+/** Deserializes an account config from storage. */
+function deserialize(value: string): AccountConfig.Config {
   try {
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
-    return MultisigConfig.fromRpc(Json.parse(value) as never)
+    return AccountConfig.fromRpc(Json.parse(value) as never)
   } catch (cause) {
     if (cause instanceof InvalidStoreValueError) throw cause
     throw new InvalidStoreValueError({ cause })
@@ -109,10 +109,10 @@ function key(options: { address: Address.Address; commitment: Hex.Hex }) {
   return `multisig:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
 }
 
-/** Serializes a multisig config for storage. */
-function serialize(config: MultisigConfig.Config): string {
+/** Serializes an account config for storage. */
+function serialize(config: AccountConfig.Config): string {
   try {
-    const value = Json.stringify(MultisigConfig.toRpc(config))
+    const value = Json.stringify(AccountConfig.toRpc(config))
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
     return value
   } catch (cause) {
@@ -121,14 +121,14 @@ function serialize(config: MultisigConfig.Config): string {
   }
 }
 
-/** Thrown when a stored multisig config is malformed or mismatched. */
+/** Thrown when a stored account config is malformed or mismatched. */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 class InvalidStoreValueError extends BaseError {
   /** Creates an invalid store value error. */
   constructor(options: InvalidStoreValueError.Options = {}) {
-    super('Stored multisig config is malformed or mismatched.', {
+    super('Stored account config is malformed or mismatched.', {
       cause: options.cause as Error | undefined,
-      name: 'Multisig.Config.InvalidStoreValueError',
+      name: 'Accounts.Config.InvalidStoreValueError',
     })
   }
 }

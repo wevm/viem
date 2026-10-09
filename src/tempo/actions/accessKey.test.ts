@@ -248,23 +248,23 @@ describe('signAuthorization', () => {
     expect(keyAuthorization.limits).toHaveLength(1)
   })
 
-  test('behavior: coordinates multisig approvals', async () => {
+  test('behavior: coordinates owner approvals', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const multisig = Account.fromMultisig({
+    const configurable = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10612c, { size: 32 }),
       threshold: 2,
     })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
-      access: multisig,
+      access: configurable,
     })
-    const client = getMultisigClient()
+    const client = getAccountsClient()
 
     const pending = await actions.accessKey.signAuthorization(client, {
       accessKey,
-      account: multisig,
+      account: configurable,
       owner: owner_1,
     })
     expect(pending).toMatchInlineSnapshot(
@@ -272,7 +272,7 @@ describe('signAuthorization', () => {
         account: expect.any(String),
         address: expect.any(String),
         hash: expect.any(String),
-        multisig: {
+        operation: {
           account: expect.any(String),
           approvals: [expect.any(String)],
           config: {
@@ -294,7 +294,7 @@ describe('signAuthorization', () => {
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
-        "multisig": {
+        "operation": {
           "account": Any<String>,
           "approvals": [
             Any<String>,
@@ -340,7 +340,7 @@ describe('signAuthorization', () => {
         account: expect.any(String),
         address: expect.any(String),
         hash: expect.any(String),
-        multisig: {
+        operation: {
           account: expect.any(String),
           approvals: [expect.any(String), expect.any(String)],
           config: {
@@ -362,7 +362,7 @@ describe('signAuthorization', () => {
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
-        "multisig": {
+        "operation": {
           "account": Any<String>,
           "approvals": [
             Any<String>,
@@ -401,24 +401,24 @@ describe('signAuthorization', () => {
     )
   })
 
-  test('behavior: requires a local owner for multisig approval', async () => {
+  test('behavior: requires a local owner for owner approval', async () => {
     const owner = accounts[18]
-    const multisig = Account.fromMultisig({
+    const configurable = Account.fromConfig({
       address: 'infer',
       owners: [owner.address],
     })
     const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
-      access: multisig,
+      access: configurable,
     })
 
     await expect(
-      actions.accessKey.signAuthorization(getMultisigClient(), {
+      actions.accessKey.signAuthorization(getAccountsClient(), {
         accessKey,
-        account: multisig,
+        account: configurable,
         owner: owner.address,
       } as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: A local owner account is required to approve a multisig key authorization.]`,
+      `[Error: A local owner account is required to approve a configurable account key authorization.]`,
     )
   })
 
@@ -1022,7 +1022,7 @@ describe('verifyHash', () => {
   })
 })
 
-function getMultisigClient() {
+function getAccountsClient() {
   return createClient({
     chain: tempoLocalnet,
     transport: withRelay(
@@ -1034,7 +1034,7 @@ function getMultisigClient() {
           throw new Error(`Unexpected request: ${method}`)
         },
       }),
-      { plugins: [Relay.multisig({ store: Store.memory() })] },
+      { plugins: [Relay.accounts({ store: Store.memory() })] },
     ),
   })
 }

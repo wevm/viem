@@ -1,5 +1,5 @@
 ---
-description: Configure M-of-N and weighted approval thresholds for a native multisig account.
+description: Configure M-of-N and weighted approval thresholds for a configurable account.
 ---
 
 import { Card, Cards } from 'vocs'
@@ -8,7 +8,7 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Each multisig owner has a weight. A transaction is authorized when the selected owners' combined
+Each account owner has a weight. A transaction is authorized when the selected owners' combined
 weight reaches the account threshold.
 
 ## Recipes
@@ -36,7 +36,7 @@ const owner_3 = Account.fromSecp256k1(
 )
 
 // 2. Require any two owners for quorum.
-const multisig = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1.address, owner_2.address, owner_3.address],
   threshold: 2,
@@ -44,21 +44,21 @@ const multisig = Account.fromMultisig({
 
 // 3. Store the first owner's approval.
 const pending = await client.sendTransactionSync({
-  account: multisig,
+  account,
   calls: [{ data: '0xdeadbeef', to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
   owner: owner_1,
 })
 
 // 4. Reach quorum with any other owner using the operation hash.
 const receipt = await client.sendTransactionSync({
-  account: multisig,
+  account,
   hash: pending.transactionHash,
   owner: owner_3,
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/multisig.config.ts:setup]
+// [!include ~/snippets/tempo/accounts.config.ts:setup]
 ```
 
 :::
@@ -83,7 +83,7 @@ const carol = Account.fromSecp256k1(
 )
 
 // 2. Assign weights and choose the required total.
-const multisig = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     { owner: alice.address, weight: 2 },
@@ -119,6 +119,6 @@ every intended owner combination before funding the account.
 ## See More
 
 <Cards>
-  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals through a shared store." to="/tempo/guides/multisig/send" />
-  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds without changing the account address." to="/tempo/guides/multisig/rotate-owners" />
+  <Card icon="lucide:send" title="Send Transactions" description="Coordinate independent owner approvals through a shared store." to="/tempo/guides/configurable-accounts/send" />
+  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds without changing the account address." to="/tempo/guides/configurable-accounts/rotate-owners" />
 </Cards>

@@ -86,16 +86,16 @@ export async function createServer() {
   const instance = (() => {
     // Explicitly configured local Tempo binary.
     if (import.meta.env.VITE_TEMPO_BINARY) {
-      if (import.meta.env.VITE_TEMPO_MULTISIG === 'true')
+      if (import.meta.env.VITE_TEMPO_ACCOUNTS === 'true')
         throw new Error(
-          'Multisig tests require the Docker image with a configured recovery factory; unset VITE_TEMPO_BINARY.',
+          'Configurable account tests require the Docker image with a configured recovery factory; unset VITE_TEMPO_BINARY.',
         )
       return Instance.tempo({
         ...args,
         binary: import.meta.env.VITE_TEMPO_BINARY,
       })
     }
-    if (import.meta.env.VITE_TEMPO_MULTISIG === 'true') {
+    if (import.meta.env.VITE_TEMPO_ACCOUNTS === 'true') {
       const genesis = JSON.parse(
         execFileSync(
           'docker',
