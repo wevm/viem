@@ -73,7 +73,10 @@ export type RootAccount = Account_base<'root'> & {
 export type AccessKeyAccount = Account_base<'accessKey'> & {
   /** Access key ID. */
   accessKeyAddress: Address.Address
-  /** Pending key authorization manager. */
+  /**
+   * Pending key authorization manager.
+   * @deprecated Use the `Relay.keyAuthorization` relay plugin instead.
+   */
   keyAuthorizationManager?: KeyAuthorizationManager | undefined
   /**
    * Signs a hash.
@@ -1013,7 +1016,10 @@ declare namespace fromBase {
     publicKey: PublicKey.PublicKey
     /** Key type. */
     keyType?: SignatureEnvelope.Type | undefined
-    /** Pending key authorization manager. */
+    /**
+     * Pending key authorization manager.
+     * @deprecated Use the `Relay.keyAuthorization` relay plugin instead.
+     */
     keyAuthorizationManager?: KeyAuthorizationManager | undefined
     /** Sign function. */
     sign: NonNullable<LocalAccount['sign']>
@@ -1092,7 +1098,10 @@ declare namespace fromAccessKey {
      * the parent account's address as the keychain address.
      */
     access: viem_Account | Address.Address
-    /** Pending key authorization manager. */
+    /**
+     * Pending key authorization manager.
+     * @deprecated Use the `Relay.keyAuthorization` relay plugin instead.
+     */
     keyAuthorizationManager?: KeyAuthorizationManager | undefined
   }
 

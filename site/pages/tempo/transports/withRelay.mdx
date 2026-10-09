@@ -108,7 +108,8 @@ Memory storage is process-local; independent multisig clients must share persist
 
 Remote mode returns `Transport<'relay', { multisig: true }>`. Local mode preserves
 the default transport's attributes and RPC schema. It advertises multisig support
-when a multisig plugin or the underlying transport provides it.
+when a multisig plugin or the underlying transport provides it, and key authorization
+storage when a key authorization plugin is configured.
 
 ## Parameters
 
@@ -126,6 +127,29 @@ uses it for ordinary requests and broadcasting with the `sign-only` policy.
 Pass a transport to connect to a remote relay, or an options object to run plugins
 locally. Plugins run in array order; an empty array forwards requests unchanged.
 Local options also accept `resolveTokens`, shared by fee selection and sponsorship.
+
+### parameters.keyAuthorization
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Available only in remote mode. Set to `true` when the relay runs the
+[Key Authorization plugin](/tempo/relay/plugins/key-authorization), so
+[`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) saves
+signed authorizations to the relay.
+
+```ts twoslash
+import { createClient, http } from 'viem'
+import { tempo } from 'viem/chains'
+import { withRelay } from 'viem/tempo'
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), http('https://relay.example.com'), {
+    keyAuthorization: true, // [!code focus]
+  }),
+})
+```
 
 ### parameters.policy
 

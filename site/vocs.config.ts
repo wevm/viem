@@ -3396,6 +3396,10 @@ export default defineConfig({
                   link: '/tempo/relay/plugins/fee-payer',
                 },
                 { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                {
+                  text: 'Key Authorization',
+                  link: '/tempo/relay/plugins/key-authorization',
+                },
                 { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {
                   badge: { text: 'EXP', variant: 'warning' },

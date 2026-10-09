@@ -6,6 +6,7 @@ import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
+import * as KeyAuthorization from './internal/relay/keyAuthorization.js'
 import * as Multisig from './internal/relay/multisig.js'
 import * as Request_ from './internal/relay/request.js'
 import * as Simulate from './internal/relay/simulate.js'
@@ -305,6 +306,52 @@ export declare namespace Plugin {
     s: `0x${string}`
     yParity: `0x${string}`
   }
+}
+
+declare const keyAuthorizationBrand: unique symbol
+
+/**
+ * Stores pending key authorizations and attaches them to the next fill that needs them.
+ *
+ * Signing a key authorization with `Actions.accessKey.signAuthorization` through a
+ * relay with this plugin saves it with `relay_setKeyAuthorization`. Multisig key
+ * authorizations are saved once they reach quorum. The next `eth_fillTransaction`
+ * from the access key includes the authorization until the key is active onchain.
+ * Remote `withRelay` transports opt in with `keyAuthorization: true`.
+ *
+ * Place this plugin before `Relay.multisig` so it can observe completed multisig
+ * key authorizations, and before plugins that read the filled transaction.
+ *
+ * Memory storage is process-local. Multiple server instances must use the same
+ * persistent store to share pending authorizations.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Relay, Store, withRelay } from 'viem/tempo'
+ *
+ * const transport = withRelay(http(), {
+ *   plugins: [Relay.keyAuthorization({ store: Store.memory() })],
+ * })
+ * ```
+ *
+ * @param options - Pending key authorization storage.
+ * @returns A plugin that stores and attaches pending key authorizations.
+ */
+export function keyAuthorization(
+  options: keyAuthorization.Options = {},
+): keyAuthorization.ReturnType {
+  return KeyAuthorization.create(options)
+}
+
+export declare namespace keyAuthorization {
+  /** Key authorization storage options. */
+  export type Options = {
+    /** Store for pending key authorizations. Defaults to a process-local memory store. */
+    store?: Store.Store | undefined
+  }
+  /** Middleware advertising pending key authorization storage. */
+  export type ReturnType = Plugin & { readonly [keyAuthorizationBrand]: true }
 }
 
 declare const multisigBrand: unique symbol

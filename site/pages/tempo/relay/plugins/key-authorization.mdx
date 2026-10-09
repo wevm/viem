@@ -1,0 +1,216 @@
+# Key Authorization Plugin
+
+## Overview
+
+[`Relay.keyAuthorization`](#relaykeyauthorization) stores signed key authorizations
+and attaches them to the access key's next transaction. An application can authorize
+an access key offchain, then let the key's first transaction register it onchain.
+
+## Recipes
+
+Choose a local relay to run plugins in your application, or connect to a remote
+relay. For remote mode, [configure the server](/tempo/guides/relay/run#add-plugins)
+with the plugins shown in the local configuration.
+
+### Authorize an Access Key on First Use
+
+Sign the authorization with [`Actions.accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization).
+The relay saves it, and the access key's next transaction includes it until the key
+is active onchain.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { Account, Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = privateKeyToAccount(generatePrivateKey())
+const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+
+// [!code focus:start]
+await Actions.accessKey.signAuthorization(client, {
+  account: root,
+  accessKey,
+  expiry: Math.floor(Date.now() / 1000) + 86_400,
+})
+
+// Registers the access key and sends the transfer in one transaction.
+const { receipt } = await Actions.token.transferSync(client, {
+  account: accessKey,
+  amount: 1n,
+  to: '0x2222222222222222222222222222222222222222',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [Relay.keyAuthorization({ store: Store.memory() })], // [!code focus]
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com/rpc'), {
+    keyAuthorization: true, // [!code focus]
+  }),
+})
+```
+
+:::
+
+Remote relays opt in with `keyAuthorization: true`, since the client cannot detect
+the relay's plugins. The relay checks onchain before attaching the authorization. Once the key is active,
+the stored authorization is removed. Expired authorizations are removed when read.
+
+### Authorize an Access Key for a Multisig
+
+Place `Relay.keyAuthorization` before [`Relay.multisig`](/tempo/relay/plugins/multisig).
+When owners approve a key authorization through the relay, the plugin saves it as
+soon as the approvals reach quorum.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner_1 = Account.fromSecp256k1(generatePrivateKey())
+const owner_2 = Account.fromSecp256k1(generatePrivateKey())
+const account = Account.fromMultisig({
+  address: 'infer',
+  owners: [owner_1, owner_2],
+  threshold: 2,
+})
+const accessKey = Account.fromP256(generatePrivateKey(), { access: account })
+
+// [!code focus:start]
+const pending = await Actions.accessKey.signAuthorization(client, {
+  account,
+  accessKey,
+  owner: owner_1,
+})
+await Actions.accessKey.signAuthorization(client, {
+  hash: pending.hash,
+  owner: owner_2,
+})
+
+// The second approval reached quorum, so the relay attaches the authorization.
+const { receipt } = await Actions.token.transferSync(client, {
+  account: accessKey,
+  amount: 1n,
+  to: '0x2222222222222222222222222222222222222222',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
+
+const store = Store.memory()
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.keyAuthorization({ store }), // [!code focus]
+      Relay.multisig({ store }), // [!code focus]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient, withRelay } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: withRelay(http(), http('https://relay.example.com/rpc'), {
+    keyAuthorization: true, // [!code focus]
+  }),
+})
+```
+
+:::
+
+Authorizations signed with external owner signatures are saved too. The relay checks
+the multisig config onchain and requires the approvals to reach quorum.
+
+## `Relay.keyAuthorization`
+
+Creates middleware that stores pending key authorizations and attaches them to fills.
+
+### Usage
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+
+const plugin = Relay.keyAuthorization({ store: Store.memory() })
+```
+
+### Parameters
+
+#### options.store
+
+- **Type:** `Store.Store`
+- **Default:** `Store.memory()`
+
+The store for pending key authorizations. Memory storage is process-local, so
+multiple relay instances must share a persistent [store](/tempo/utilities/Store).
+
+```ts twoslash
+import { Relay, Store } from 'viem/tempo'
+
+const store = Store.memory()
+// ---cut---
+const plugin = Relay.keyAuthorization({ store }) // [!code focus]
+```
+
+### Return Value
+
+`Relay.keyAuthorization.ReturnType`
+
+A relay plugin with the `keyAuthorization` capability. Clients use this capability
+to save signed key authorizations to the relay.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RpcResponse.InvalidParamsError` | The authorization is unsigned, expired, signed by another account, below multisig quorum, or for another chain. |
+
+## RPC Methods
+
+### `relay_setKeyAuthorization`
+
+Saves a signed key authorization for its account and access key, replacing any
+pending authorization for the same key. The authorization must be signed by the
+account itself: a root key, or a multisig quorum. Returns `null`.
+
+Authorizations signed by an admin access key are rejected, because only the admin
+key can submit them.
+
+### `eth_fillTransaction`
+
+When the request has a `keyId` and no `keyAuthorization`, the plugin attaches the
+pending authorization for that key before forwarding. Gas estimation and later
+plugins see the attached authorization.
+
+### `multisig_approveKeyAuthorization`
+
+When the multisig plugin reports a successful key authorization operation, the
+plugin saves the completed authorization.

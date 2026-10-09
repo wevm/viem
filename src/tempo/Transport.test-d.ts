@@ -19,6 +19,8 @@ test('local relay preserves transport attributes, capabilities, and RPC schemas'
   >()
   // @ts-expect-error Empty plugins do not advertise multisig.
   plain.transport.multisig
+  // @ts-expect-error Empty plugins do not advertise key authorization storage.
+  plain.transport.keyAuthorization
   // @ts-expect-error RPC parameters are preserved.
   request({ method: 'example_echo', params: ['1'] })
   const local = createClient({
@@ -28,6 +30,18 @@ test('local relay preserves transport attributes, capabilities, and RPC schemas'
   })
   expectTypeOf(local.transport.multisig).toEqualTypeOf<true>()
   expectTypeOf(local.transport.type).toEqualTypeOf<'http'>()
+  // @ts-expect-error Multisig alone does not advertise key authorization storage.
+  local.transport.keyAuthorization
+  const stored = createClient({
+    transport: withRelay(transport, {
+      plugins: [
+        Relay.keyAuthorization(),
+        Relay.multisig({ store: Store.memory() }),
+      ],
+    }),
+  })
+  expectTypeOf(stored.transport.keyAuthorization).toEqualTypeOf<true>()
+  expectTypeOf(stored.transport.multisig).toEqualTypeOf<true>()
   const nested = createClient({
     transport: withRelay(withRelay(http(), http('https://relay.example')), {}),
   })

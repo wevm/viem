@@ -237,6 +237,12 @@ const { receipt } = await client.token.transferSync({
 })
 ```
 
+:::tip
+With the [Key Authorization plugin](/tempo/relay/plugins/key-authorization), the relay
+saves the signed authorization and attaches it to the access key's next transaction,
+so you do not need to pass `keyAuthorization` yourself.
+:::
+
 ## Return Type
 
 ```ts

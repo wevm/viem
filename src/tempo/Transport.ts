@@ -96,6 +96,8 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
  * Multisig approvals, configs, operations, and operation-aware transaction
  * lookups are also sent to the relay so it can coordinate approvals in its store.
+ * Signed key authorizations are saved to relays with key authorization storage
+ * so they can attach them to the access key's next transaction.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
@@ -145,6 +147,9 @@ export function withRelay(
           })) as typeof transport.request,
         value: {
           ...transport.value,
+          ...(relayTransport.plugins?.some(Plugin_.isKeyAuthorization)
+            ? { keyAuthorization: true }
+            : {}),
           ...(relayTransport.plugins?.some(Plugin_.isMultisig)
             ? { multisig: true }
             : {}),
@@ -152,7 +157,7 @@ export function withRelay(
       }
     }
 
-  const { policy = 'sign-only' } = parameters ?? {}
+  const { keyAuthorization, policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
     const transport_default = defaultTransport(config)
@@ -208,7 +213,8 @@ export function withRelay(
           method === 'multisig_approveRawTransaction' ||
           method === 'multisig_approveRawTransactionSync' ||
           method === 'multisig_getConfig' ||
-          method === 'multisig_getOperation'
+          method === 'multisig_getOperation' ||
+          method === 'relay_setKeyAuthorization'
         )
           return transport_relay.request({ method, params }, options) as never
 
@@ -259,14 +265,23 @@ export function withRelay(
       },
       type: withRelay.type,
     })
-    return { ...transport, value: { multisig: true } }
+    return {
+      ...transport,
+      value: {
+        ...(keyAuthorization ? { keyAuthorization } : {}),
+        multisig: true,
+      },
+    }
   }
 }
 
 export declare namespace withRelay {
   export const type = 'relay'
 
-  export type Parameters = RelayProxyParameters
+  export type Parameters = RelayProxyParameters & {
+    /** Whether the relay stores key authorizations with `Relay.keyAuthorization`. Defaults to `false`. */
+    keyAuthorization?: boolean | undefined
+  }
 
   /** Plugins applied directly to the default transport. */
   export type LocalOptions<
@@ -284,6 +299,12 @@ export declare namespace withRelay {
     ? Transport<
         type,
         attributes &
+          (Extract<
+            plugins[number],
+            Relay_.keyAuthorization.ReturnType
+          > extends never
+            ? {}
+            : { keyAuthorization: true }) &
           (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
             ? {}
             : { multisig: true }),
