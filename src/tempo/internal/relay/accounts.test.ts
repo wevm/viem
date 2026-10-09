@@ -259,7 +259,7 @@ describe.runIf(
     'collects approvals with fee sponsorship: %s',
     async (sponsored) => {
       const owners = [Tempo.accounts[1]!, Tempo.accounts[2]!]
-      const account = Account.fromConfigurable({
+      const account = Account.fromConfig({
         owners,
         salt: toHex(sponsored ? 0x514001 : 0x514000, { size: 32 }),
         threshold: 2,
@@ -345,7 +345,7 @@ describe.runIf(
 
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x109701, { size: 32 }),

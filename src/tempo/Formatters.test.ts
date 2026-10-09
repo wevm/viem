@@ -226,7 +226,7 @@ describe('formatTransactionRequest', () => {
     })
     expect(() =>
       Formatters.formatTransactionRequest({
-        account: Account.fromConfigurable({ address: 'infer', ...config }),
+        account: Account.fromConfig({ address: 'infer', ...config }),
         calls: [{ data: '0xdeadbeef', to: accounts[2].address }],
         chainId: 1,
         owner: accounts[1].address,

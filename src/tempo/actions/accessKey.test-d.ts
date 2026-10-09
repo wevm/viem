@@ -15,7 +15,7 @@ import { expectTypeOf, test } from 'vitest'
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const configurable = Account.fromConfigurable({
+const configurable = Account.fromConfig({
   address: 'infer',
   owners: [owner],
 })

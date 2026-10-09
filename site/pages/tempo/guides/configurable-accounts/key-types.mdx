@@ -31,7 +31,7 @@ const webCryptoOwner = Account.fromWebCryptoP256(
 )
 
 // 2. Create an account from their addresses.
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     secp256k1Owner.address,

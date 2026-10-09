@@ -22,7 +22,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfigurable({ address: 'infer', ...config }),
+      account: Account.fromConfig({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
@@ -74,7 +74,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     const request = await prepareTransactionRequest(client, {
-      account: Account.fromConfigurable({ address: 'infer', ...config }),
+      account: Account.fromConfig({ address: 'infer', ...config }),
       parameters: ['chainId'],
     })
 
@@ -94,7 +94,7 @@ describe('prepareTransactionRequest', () => {
       owners: [{ owner: accounts[1].address, weight: 1 }],
       threshold: 1,
     })
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: AccountConfig.getAddress(initial, {
         factory: nativeMultisigFactory,
       }),
@@ -132,9 +132,9 @@ describe('prepareTransactionRequest', () => {
   })
 
   test('behavior: rejects nested account simulation', () => {
-    const child = Account.fromConfigurable({ owners: [accounts[1]] })
+    const child = Account.fromConfig({ owners: [accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
       'Configurable account owners must use primitive signatures.',
     )
   })
@@ -148,7 +148,7 @@ describe('prepareTransactionRequest', () => {
 
     await expect(
       prepareTransactionRequest(client, {
-        account: Account.fromConfigurable({ address: 'infer', ...config }),
+        account: Account.fromConfig({ address: 'infer', ...config }),
         owner,
         parameters: ['chainId'],
       } as never),

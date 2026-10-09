@@ -784,7 +784,7 @@ describe('withRelay', () => {
             { owner: owner_2.address, weight: 1 },
           ],
         })
-        const account = Account.fromConfigurable({
+        const account = Account.fromConfig({
           address: 'infer',
           ...config,
         })
@@ -826,7 +826,7 @@ describe('withRelay', () => {
       async () => {
         const owner_1 = Account.fromSecp256k1(generatePrivateKey())
         const owner_2 = Account.fromSecp256k1(generatePrivateKey())
-        const account = Account.fromConfigurable({
+        const account = Account.fromConfig({
           address: 'infer',
           owners: [owner_1, owner_2],
           threshold: 2,

@@ -16,7 +16,7 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import { type ConfigurableAccount, fromConfigurable } from '../Account.js'
+import { type ConfigurableAccount, fromConfig } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -192,7 +192,7 @@ export declare namespace getOperation {
  * const owner = Account.fromSecp256k1(
  *   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
  * )
- * const account = Account.fromConfigurable({
+ * const account = Account.fromConfig({
  *   address: 'infer',
  *   owners: [owner],
  * })
@@ -304,7 +304,7 @@ export namespace updateConfig {
     const resolvedAccount = (() => {
       if (account) return { ...account, config: currentConfig }
       if (typeof accountValue === 'object') return accountValue
-      if (address) return fromConfigurable({ address, ...currentConfig })
+      if (address) return fromConfig({ address, ...currentConfig })
       return undefined
     })()
     return (await action(client, {

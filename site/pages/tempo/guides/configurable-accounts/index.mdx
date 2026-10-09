@@ -20,7 +20,7 @@ without changing that address.
 ### Local Signing
 
 When one process holds enough owner accounts to reach the threshold, pass those accounts to
-[`Account.fromConfigurable`](/tempo/accounts/account.fromConfigurable) and use
+[`Account.fromConfig`](/tempo/accounts/account.fromConfig) and use
 [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync). The account creates the complete
 configurable signature locally.
 
@@ -35,7 +35,7 @@ const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 const owner_2 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1, owner_2],
 })
@@ -79,7 +79,7 @@ const owner_3 = Account.fromSecp256k1(
 )
 
 // 2. Create a 3-of-3 account from their addresses.
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1.address, owner_2.address, owner_3.address],
   threshold: 3,
@@ -134,7 +134,7 @@ const owner_1 = Account.fromSecp256k1(
 const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1.address, owner_2.address],
   threshold: 2,

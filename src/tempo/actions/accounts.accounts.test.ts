@@ -7,7 +7,7 @@ import * as Account from '../Account.js'
 import * as actions from './index.js'
 
 const client = getClient()
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [accounts[17], accounts[18]],
   salt: toHex(0x502200, { size: 32 }),
@@ -118,7 +118,7 @@ describe('updateConfig', () => {
 
 describe('updateConfigSync', () => {
   test('behavior: returns the committed config', async () => {
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [accounts[17], accounts[18]],
       salt: toHex(0x502201, { size: 32 }),

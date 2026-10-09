@@ -52,7 +52,7 @@ describe('stateless', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromConfigurable({ address: 'infer', ...config })
+    const account = Account.fromConfig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -125,9 +125,9 @@ describe('stateless', () => {
   })
 
   test('example: rejects nested ownership', () => {
-    const child = Account.fromConfigurable({ owners: [tempo.accounts[1]] })
+    const child = Account.fromConfig({ owners: [tempo.accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
       'Configurable account owners must use primitive signatures.',
     )
   })
@@ -146,7 +146,7 @@ describe('stateless', () => {
         { owner: light_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromConfigurable({ address: 'infer', ...config })
+    const account = Account.fromConfig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -212,7 +212,7 @@ describe('stateless', () => {
         { owner: owner_2.address, weight: 1 },
       ],
     })
-    const account = Account.fromConfigurable({ address: 'infer', ...config })
+    const account = Account.fromConfig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -296,7 +296,7 @@ describe('stateless', () => {
   test('example: initial config and immediate access key use', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106103, { size: 32 }),
@@ -351,7 +351,7 @@ describe('stateless', () => {
   test('example: independent transaction and access key signatures', async () => {
     const owner_1 = accounts[19]
     const owner_2 = accounts[20]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106104, { size: 32 }),
@@ -417,7 +417,7 @@ describe('stateless', () => {
     const owner_2 = accounts[15]
     const owner_3 = accounts[16]
     const owner_4 = accounts[17]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106105, { size: 32 }),
@@ -490,7 +490,7 @@ describe('stateless', () => {
       ]),
     })
 
-    const currentAccount = Account.fromConfigurable({
+    const currentAccount = Account.fromConfig({
       address: account.address,
       owners: [owner_3, owner_4],
       salt: initialConfig.salt,
@@ -521,7 +521,7 @@ describe('stateless', () => {
     { name: '1-of-4', ownerCount: 4, salt: 0x106132, threshold: 1 },
     { name: '2-of-4', ownerCount: 4, salt: 0x106133, threshold: 2 },
   ])('behavior: $name: sends with local quorum', async (options) => {
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: accounts.slice(1, options.ownerCount + 1),
       salt: toHex(options.salt, { size: 32 }),
@@ -565,7 +565,7 @@ describe('stateless', () => {
         { owner: owner_3.address, weight: 1 },
       ],
     })
-    const account = Account.fromConfigurable({ address: 'infer', ...config })
+    const account = Account.fromConfig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -612,7 +612,7 @@ describe('stateless', () => {
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
       threshold: owners.length,
     })
-    const account = Account.fromConfigurable({ address: 'infer', ...config })
+    const account = Account.fromConfig({ address: 'infer', ...config })
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
@@ -692,7 +692,7 @@ describe('stateless', () => {
   test('behavior: mixed local and external owners', async () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [localOwner, externalOwner.address],
       threshold: 2,
@@ -739,7 +739,7 @@ describe('stateless', () => {
   test('behavior: submits a complete local configurable account envelope', async () => {
     const owner_1 = accounts[8]
     const owner_2 = accounts[9]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       threshold: 2,
@@ -771,7 +771,7 @@ describe('stateless', () => {
   test('behavior: accepts a configurable account', async () => {
     const owner_1 = accounts[10]
     const owner_2 = accounts[11]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [
         { owner: owner_1.address, weight: 1 },
@@ -812,7 +812,7 @@ describe('stateless', () => {
   })
 
   test('behavior: address requires a config', async () => {
-    const account = Account.fromConfigurable(accounts[0].address)
+    const account = Account.fromConfig(accounts[0].address)
 
     await expect(
       sendTransactionSync(client, {
@@ -827,7 +827,7 @@ describe('stateless', () => {
   test('behavior: external owners authorize an access key', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x106106, { size: 32 }),
@@ -891,7 +891,7 @@ describe('stateful', () => {
 
     await expect(
       sendTransactionSync(client, {
-        account: Account.fromConfigurable(address),
+        account: Account.fromConfig(address),
         calls: [{ data: '0xdeadbeef', to: tempo.accounts[19].address }],
         owner: tempo.accounts[1],
       }),
@@ -947,7 +947,7 @@ describe('stateful', () => {
   test('example: repeatable initial config', async () => {
     const owner_1 = tempo.accounts[1]
     const owner_2 = tempo.accounts[2]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x106120, { size: 32 }),
@@ -1134,7 +1134,7 @@ describe('stateful', () => {
       AccountConfig.getCommitment(account.config),
     )
     const secondPending = await sendTransactionSync(client, {
-      account: Account.fromConfigurable(account.address),
+      account: Account.fromConfig(account.address),
       calls: [
         Actions.token.transfer.call(client, {
           amount: 2n,
@@ -1210,9 +1210,9 @@ describe('stateful', () => {
   })
 
   test('example: rejects nested ownership', () => {
-    const child = Account.fromConfigurable({ owners: [tempo.accounts[1]] })
+    const child = Account.fromConfig({ owners: [tempo.accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
       'Configurable account owners must use primitive signatures.',
     )
   })
@@ -1223,7 +1223,7 @@ describe('stateful', () => {
       tempo.accounts[7],
       tempo.accounts[8],
     ].sort((a, b) => a.address.localeCompare(b.address))
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [
         { owner: heavy.address, weight: 2 },
@@ -1301,7 +1301,7 @@ describe('stateful', () => {
   test('example: fee sponsorship', async () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10612a, { size: 32 }),
@@ -1337,7 +1337,7 @@ describe('stateful', () => {
   test('example: initial config and immediate access key use', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612b, { size: 32 }),
@@ -1384,7 +1384,7 @@ describe('stateful', () => {
   test('example: independent transaction and access key signatures', async () => {
     const owner_1 = tempo.accounts[19]
     const owner_2 = tempo.accounts[20]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612d, { size: 32 }),
@@ -1446,7 +1446,7 @@ describe('stateful', () => {
     const owner_2 = tempo.accounts[15]
     const owner_3 = tempo.accounts[16]
     const owner_4 = tempo.accounts[17]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612e, { size: 32 }),
@@ -1554,7 +1554,7 @@ describe('stateful', () => {
         "version": 1n,
       }
     `)
-    const currentAccount = Account.fromConfigurable(account.address)
+    const currentAccount = Account.fromConfig(account.address)
 
     const pending = await sendTransactionSync(client, {
       account: currentAccount,
@@ -1622,7 +1622,7 @@ describe('stateful', () => {
 
   test('behavior: rejects a JSON-RPC owner account', async () => {
     const owner = tempo.accounts[1]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner.address],
       salt: toHex(0x106139, { size: 32 }),
@@ -1650,7 +1650,7 @@ describe('stateful', () => {
   test('behavior: rejects an access key owner account', async () => {
     const owner_1 = tempo.accounts[3]
     const owner_2 = tempo.accounts[4]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613c, { size: 32 }),
@@ -1700,7 +1700,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[3]
     const owner_2 = tempo.accounts[4]
     const owner_3 = tempo.accounts[5]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address, owner_3.address],
       salt: toHex(0x106122, { size: 32 }),
@@ -1740,7 +1740,7 @@ describe('stateful', () => {
       }),
       Account.fromWebCryptoP256(await WebCryptoP256.createKeyPair()),
     ]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners,
       salt: toHex(0x106123, { size: 32 }),
@@ -1801,7 +1801,7 @@ describe('stateful', () => {
   test('behavior: mixed local and external owners', async () => {
     const localOwner = Account.fromSecp256k1(generatePrivateKey())
     const externalOwner = Account.fromSecp256k1(generatePrivateKey())
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [localOwner, externalOwner.address],
       salt: toHex(0x106124, { size: 32 }),
@@ -1844,9 +1844,9 @@ describe('stateful', () => {
   })
 
   test('behavior: rejects a nested owner after configuration rotation', () => {
-    const child = Account.fromConfigurable({ owners: [tempo.accounts[1]] })
+    const child = Account.fromConfig({ owners: [tempo.accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
       'Configurable account owners must use primitive signatures.',
     )
   })
@@ -1854,7 +1854,7 @@ describe('stateful', () => {
   test('behavior: allocates independent nonces for concurrent pending operations', async () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106138, { size: 32 }),
@@ -1929,7 +1929,7 @@ describe('stateful', () => {
   test('behavior: submits a complete local configurable account envelope', async () => {
     const owner_1 = tempo.accounts[8]
     const owner_2 = tempo.accounts[9]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106125, { size: 32 }),
@@ -1953,7 +1953,7 @@ describe('stateful', () => {
   })
 
   test('behavior: address requires a cached config', async () => {
-    const account = Account.fromConfigurable(tempo.accounts[0].address)
+    const account = Account.fromConfig(tempo.accounts[0].address)
 
     await expect(
       sendTransactionSync(client, {
@@ -1977,7 +1977,7 @@ describe('stateful', () => {
   test('behavior: coordinates access key authorization approvals', async () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x10612c, { size: 32 }),
@@ -2156,7 +2156,7 @@ describe('stateful', () => {
   test('behavior: coordinates current-config access key authorization approvals', async () => {
     const owner_1 = tempo.accounts[4]
     const owner_2 = tempo.accounts[5]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106140, { size: 32 }),
@@ -2192,7 +2192,7 @@ describe('stateful', () => {
     const config = await client.accounts.getConfig({ address: account.address })
     if (!config) throw new Error('Expected current account config.')
     expect(config.version).toMatchInlineSnapshot(`1n`)
-    const currentAccount = Account.fromConfigurable({
+    const currentAccount = Account.fromConfig({
       address: account.address,
       ...config,
     })
@@ -2247,7 +2247,7 @@ describe('stateful', () => {
       tempo.accounts[7],
       tempo.accounts[8],
     ].sort((a, b) => a.address.localeCompare(b.address))
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [
         { owner: heavy, weight: 2 },
@@ -2295,9 +2295,9 @@ describe('stateful', () => {
   })
 
   test('behavior: rejects nested access key authorization owners', () => {
-    const child = Account.fromConfigurable({ owners: [tempo.accounts[1]] })
+    const child = Account.fromConfig({ owners: [tempo.accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
-    expect(() => Account.fromConfigurable({ owners: [child] })).toThrow(
+    expect(() => Account.fromConfig({ owners: [child] })).toThrow(
       'Configurable account owners must use primitive signatures.',
     )
   })
@@ -2311,7 +2311,7 @@ describe('stateful', () => {
         rpId: 'example.com',
       }),
     ]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners,
       salt: toHex(0x106144, { size: 32 }),
@@ -2368,7 +2368,7 @@ describe('stateful', () => {
   test('behavior: accepts multiple access key approvals in one request', async () => {
     const owner_1 = tempo.accounts[11]
     const owner_2 = tempo.accounts[12]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106145, { size: 32 }),
@@ -2417,7 +2417,7 @@ describe('stateful', () => {
   test('behavior: invalidates a version-0 authorization after a config update', async () => {
     const owner_1 = tempo.accounts[13]
     const owner_2 = tempo.accounts[14]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106146, { size: 32 }),
@@ -2475,7 +2475,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[15]
     const owner_2 = tempo.accounts[16]
     const owner_3 = tempo.accounts[17]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2, owner_3],
       salt: toHex(0x106147, { size: 32 }),
@@ -2525,7 +2525,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[18]
     const owner_2 = tempo.accounts[19]
     const outsider = tempo.accounts[20]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106148, { size: 32 }),
@@ -2583,7 +2583,7 @@ describe('stateful', () => {
   test('behavior: upgrades a 1-of-1 account to a passkey-compatible 1-of-2 account', async () => {
     const owner = tempo.accounts[18]
     const passkeyOwner = Account.fromP256(P256.randomPrivateKey())
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner],
       salt: toHex(0x106135, { size: 32 }),
@@ -2634,7 +2634,7 @@ describe('stateful', () => {
   })
 
   test('behavior: broadcasts multiple approvals from one submission', async () => {
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [tempo.accounts[3], tempo.accounts[4]],
       salt: toHex(0x106121, { size: 32 }),
@@ -2702,7 +2702,7 @@ describe('stateful', () => {
     const owner_1 = tempo.accounts[5]
     const owner_2 = tempo.accounts[6]
     const owner_3 = tempo.accounts[7]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2, owner_3],
       salt: toHex(0x10612f, { size: 32 }),
@@ -2791,7 +2791,7 @@ describe('stateful', () => {
   test('behavior: removes an expired submission before retrying', async () => {
     const owner_1 = tempo.accounts[14]
     const owner_2 = tempo.accounts[15]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       owners: [owner_1, owner_2],
       salt: toHex(0x10613d, { size: 32 }),
       threshold: 2,
@@ -2872,7 +2872,7 @@ describe('stateful', () => {
   test('behavior: reconciles a successful broadcast after a transport error', async () => {
     const owner_1 = tempo.accounts[5]
     const owner_2 = tempo.accounts[6]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106134, { size: 32 }),
@@ -2939,7 +2939,7 @@ describe('stateful', () => {
   test('behavior: ignores cleanup errors after a successful submission', async () => {
     const owner_1 = tempo.accounts[10]
     const owner_2 = tempo.accounts[11]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613b, { size: 32 }),
@@ -3026,7 +3026,7 @@ describe('stateful', () => {
   test('behavior: does not settle a replaced submission', async () => {
     const owner_1 = tempo.accounts[12]
     const owner_2 = tempo.accounts[13]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10613c, { size: 32 }),
@@ -3142,7 +3142,7 @@ describe('stateful', () => {
   test('behavior: retries the same transaction after submission fails', async () => {
     const owner_1 = tempo.accounts[8]
     const owner_2 = tempo.accounts[9]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x106130, { size: 32 }),
@@ -3281,7 +3281,7 @@ test('infers the chain for independent owners through a Fetch relay', async () =
     })
     const owner_1 = tempo.accounts[17]
     const owner_2 = tempo.accounts[18]
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       threshold: 2,

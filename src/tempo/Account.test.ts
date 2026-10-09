@@ -22,11 +22,11 @@ const privateKey_secp256k1 =
 const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
-describe('fromConfigurable', () => {
+describe('fromConfig', () => {
   test('behavior: custom local owner', async () => {
     const owner = privateKeyToAccount(privateKey_secp256k1)
     const customOwner = toAccount(owner)
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       owners: [{ owner: customOwner, weight: 2 }],
       threshold: 2,
     })
@@ -54,7 +54,7 @@ describe('fromConfigurable', () => {
 
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       owners: [owner],
     })
 
@@ -88,7 +88,7 @@ describe('fromConfigurable', () => {
   })
 
   test('behavior: Tempo CREATE2 vector', () => {
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: ['0x1111111111111111111111111111111111111111'],
     })
@@ -98,7 +98,7 @@ describe('fromConfigurable', () => {
 
   test('behavior: current config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: '0x0000000000000000000000000000000000000001',
       owners: [owner],
       salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -136,7 +136,7 @@ describe('fromConfigurable', () => {
   })
 
   test('behavior: address-only account', () => {
-    const account = Account.fromConfigurable(
+    const account = Account.fromConfig(
       '0x0000000000000000000000000000000000000001',
     )
 
@@ -158,7 +158,7 @@ describe('fromConfigurable', () => {
 
   test('error: zero current config version', () => {
     expect(() =>
-      Account.fromConfigurable({
+      Account.fromConfig({
         address: '0x0000000000000000000000000000000000000001',
         owners: [tempo.accounts[0]],
         salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -172,7 +172,7 @@ describe('fromConfigurable', () => {
 
   test('error: nonzero initial config version', () => {
     expect(() =>
-      Account.fromConfigurable({
+      Account.fromConfig({
         address: 'infer',
         owners: [tempo.accounts[0]],
         version: 1,

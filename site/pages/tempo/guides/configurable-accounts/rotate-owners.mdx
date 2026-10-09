@@ -33,7 +33,7 @@ const credential = await WebAuthnP256.createCredential({ label: 'Example' })
 const passkeyOwner = Account.fromWebAuthnP256(credential)
 
 // 2. Recreate the account from its stable address and current config.
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: '0x7b378778e4b0dfd068bc74979508219e2ba2074c',
   owners: [owner],
   salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -81,7 +81,7 @@ const newOwner_2 = Account.fromSecp256k1(
 )
 
 // 2. Recreate the account from its stable address.
-const account = Account.fromConfigurable(
+const account = Account.fromConfig(
   '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
 )
 
@@ -130,7 +130,7 @@ const newOwner_2 = Account.fromSecp256k1(
 )
 
 // 2. Keep using the original address.
-const account = Account.fromConfigurable(
+const account = Account.fromConfig(
   '0x7b378778e4b0dfd068bc74979508219e2ba2074c'
 )
 
@@ -154,7 +154,7 @@ const receipt = await client.sendTransactionSync({
 ### Keep the Stable Account Address
 
 Do not derive another account from the rotated configuration. That configuration produces a
-different address. Store the original address and use `Account.fromConfigurable(address)` with a
+different address. Store the original address and use `Account.fromConfig(address)` with a
 coordinated client. Stateless clients must pair the original address with the complete config.
 
 ### Retain the Current Configuration

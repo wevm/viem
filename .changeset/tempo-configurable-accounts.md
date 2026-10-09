@@ -9,7 +9,7 @@
 +import { Account, AccountConfig, AccountOperation, Relay } from 'viem/tempo'
 
 -const account = Account.fromMultisig({ owners, threshold: 2 })
-+const account = Account.fromConfigurable({ owners, threshold: 2 })
++const account = Account.fromConfig({ owners, threshold: 2 })
 -account.source // 'multisig'
 +account.source // 'configurable'
 

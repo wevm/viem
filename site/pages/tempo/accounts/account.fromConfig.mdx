@@ -2,7 +2,7 @@
 description: Instantiates a configurable account from an initial or current config.
 ---
 
-# `Account.fromConfigurable`
+# `Account.fromConfig`
 
 Instantiates an Account for a [configurable account](https://tips.sh/1107). Omit `address` or set
 it to `infer` to derive the canonical CREATE2 account address. After the config changes, use the
@@ -37,7 +37,7 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
@@ -46,7 +46,7 @@ const account = Account.fromConfigurable({
 console.log('Address:', account.address)
 ```
 
-`Account.fromConfigurable` normalizes the config with `AccountConfig.from`, including canonical
+`Account.fromConfig` normalizes the config with `AccountConfig.from`, including canonical
 owner ordering. The initial config always uses version `0`.
 
 ### Current Config
@@ -57,7 +57,7 @@ The address does not change when the config changes.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: '0x0000000000000000000000000000000000000001',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -79,7 +79,7 @@ Use an address-only account when only the stable account identity is needed.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromConfigurable(
+const account = Account.fromConfig(
   '0x0000000000000000000000000000000000000001'
 )
 ```
@@ -100,7 +100,7 @@ Pass addresses when owner approvals are collected outside the current process.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -121,7 +121,7 @@ const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 
-const account = Account.fromConfigurable({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     { owner, weight: 2 },
@@ -152,7 +152,7 @@ supported.
 
 ### value
 
-- **Type:** `Account.fromConfigurable.Parameters`
+- **Type:** `Account.fromConfig.Parameters`
 
 An initial config, a stable address with its current config, or an address without a retained
 config.

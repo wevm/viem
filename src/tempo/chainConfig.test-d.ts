@@ -51,7 +51,7 @@ test('prepareTransactionRequest defaults to tempo from tempo-only fields', async
     ],
   })
   const request_configurable = await prepareTransactionRequest(client, {
-    account: Account.fromConfigurable({ address: 'infer', ...config }),
+    account: Account.fromConfig({ address: 'infer', ...config }),
     owner: Account.fromSecp256k1(
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     ),
@@ -68,7 +68,7 @@ test('behavior: prepareTransactionRequest rejects unsupported owners', async () 
     chain: tempoLocalnet,
     transport: http(),
   })
-  const account = Account.fromConfigurable({
+  const account = Account.fromConfig({
     owners: [Account.fromSecp256k1(`0x${'1'.repeat(64)}`)],
   })
 

@@ -251,7 +251,7 @@ describe('signAuthorization', () => {
   test('behavior: coordinates owner approvals', async () => {
     const owner_1 = accounts[18]
     const owner_2 = accounts[19]
-    const configurable = Account.fromConfigurable({
+    const configurable = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x10612c, { size: 32 }),
@@ -403,7 +403,7 @@ describe('signAuthorization', () => {
 
   test('behavior: requires a local owner for owner approval', async () => {
     const owner = accounts[18]
-    const configurable = Account.fromConfigurable({
+    const configurable = Account.fromConfig({
       address: 'infer',
       owners: [owner.address],
     })

@@ -297,7 +297,7 @@ export declare namespace fromSecp256k1 {
  * ```ts
  * import { Account } from 'viem/tempo'
  *
- * const account = Account.fromConfigurable({
+ * const account = Account.fromConfig({
  *   address: 'infer',
  *   owners: [owner_1, owner_2],
  *   threshold: 2,
@@ -312,21 +312,17 @@ export declare namespace fromSecp256k1 {
  * @param value Initial config, current config, or account address.
  * @returns Configurable account.
  */
-export function fromConfigurable(
-  value: fromConfigurable.InitialConfig,
+export function fromConfig(
+  value: fromConfig.InitialConfig,
 ): ConfigurableAccount<AccountConfig.Config>
-export function fromConfigurable(
-  value: fromConfigurable.CurrentConfig,
+export function fromConfig(
+  value: fromConfig.CurrentConfig,
 ): ConfigurableAccount<AccountConfig.Config>
-export function fromConfigurable(
+export function fromConfig(
   address: Address.Address,
 ): ConfigurableAccount<undefined>
-export function fromConfigurable(
-  value: fromConfigurable.Parameters,
-): ConfigurableAccount
-export function fromConfigurable(
-  value: fromConfigurable.Parameters,
-): ConfigurableAccount {
+export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount
+export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     const { address: _, ...config } = value
@@ -466,7 +462,7 @@ export function fromConfigurable(
   return account
 }
 
-export declare namespace fromConfigurable {
+export declare namespace fromConfig {
   /** Initial version-zero account config. */
   export type Config = InitialConfig
 
@@ -508,7 +504,7 @@ export declare namespace fromConfigurable {
           | (LocalAccount & { accessKeyAddress?: never; owners?: never })
       })
 
-  /** Parameters for {@link fromConfigurable}. */
+  /** Parameters for {@link fromConfig}. */
   export type Parameters = Address.Address | CurrentConfig | InitialConfig
 }
 

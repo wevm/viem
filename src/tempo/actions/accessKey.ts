@@ -35,7 +35,7 @@ import type {
   RootAccount,
 } from '../Account.js'
 import {
-  fromConfigurable,
+  fromConfig,
   getKeyAuthorizationSignPayload,
   resolveAccessKey,
   signKeyAuthorization,
@@ -1218,10 +1218,9 @@ export async function signAuthorization<
         )
       })()
       const account = (() => {
-        if (config.version !== 0n)
-          return fromConfigurable({ address, ...config })
+        if (config.version !== 0n) return fromConfig({ address, ...config })
         const { version: _, ...initialConfig } = config
-        return fromConfigurable({ address: 'infer', ...initialConfig })
+        return fromConfig({ address: 'infer', ...initialConfig })
       })()
       if (!isAddressEqual(account.address, address))
         throw new Error('Initial account config does not match the account.')

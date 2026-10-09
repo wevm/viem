@@ -393,7 +393,7 @@ describe.runIf(
   test('example: initial configuration', async () => {
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x109700, { size: 32 }),
@@ -483,10 +483,8 @@ describe.runIf(
   })
 
   test('rejects configurable accounts as owners', () => {
-    const child = Account.fromConfigurable({ owners: [Tempo.accounts[3]!] })
-    expect(() =>
-      Account.fromConfigurable({ owners: [child as never] }),
-    ).toThrow()
+    const child = Account.fromConfig({ owners: [Tempo.accounts[3]!] })
+    expect(() => Account.fromConfig({ owners: [child as never] })).toThrow()
   })
 
   test('example: weighted quorum', async () => {
@@ -498,7 +496,7 @@ describe.runIf(
     const heavy = owners[0]!
     const light_1 = owners[1]!
     const light_2 = owners[2]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [
         { owner: heavy.address, weight: 2 },
@@ -675,7 +673,7 @@ describe.runIf(
         sponsorship_details: { subsidized: true },
       })
 
-      const ownerFirst = Account.fromConfigurable({
+      const ownerFirst = Account.fromConfig({
         address: 'infer',
         owners: [owner_1.address, owner_2.address],
         salt: toHex(0x109704, { size: 32 }),
@@ -737,7 +735,7 @@ describe.runIf(
         }
       `)
 
-      const feePayerFirst = Account.fromConfigurable({
+      const feePayerFirst = Account.fromConfig({
         address: 'infer',
         owners: [owner_1.address, owner_2.address],
         salt: toHex(0x109705, { size: 32 }),
@@ -816,7 +814,7 @@ describe.runIf(
   test('example: initial config and immediate access key use', async () => {
     const owner_1 = Tempo.accounts[3]!
     const owner_2 = Tempo.accounts[4]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109706, { size: 32 }),
@@ -888,7 +886,7 @@ describe.runIf(
   test('example: initial config and subsequent access key use', async () => {
     const owner_1 = Tempo.accounts[6]!
     const owner_2 = Tempo.accounts[8]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109707, { size: 32 }),
@@ -974,7 +972,7 @@ describe.runIf(
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
     const owner_3 = Tempo.accounts[3]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109708, { size: 32 }),
@@ -1030,7 +1028,7 @@ describe.runIf(
       }
     `)
 
-    const currentAccount = Account.fromConfigurable(account.address)
+    const currentAccount = Account.fromConfig(account.address)
     const { receipt } = await Actions.token.transferSync(client, {
       account: currentAccount,
       amount: 11n,
@@ -1060,7 +1058,7 @@ describe.runIf(
   test('behavior: routes pathless approvals to their operation chain', async () => {
     const owner_1 = Tempo.accounts[1]!
     const owner_2 = Tempo.accounts[2]!
-    const account = Account.fromConfigurable({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109709, { size: 32 }),

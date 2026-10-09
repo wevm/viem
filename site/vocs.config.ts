@@ -118,7 +118,7 @@ export default defineConfig({
     },
     {
       source: '/tempo/accounts/account.fromMultisig',
-      destination: '/tempo/accounts/account.fromConfigurable',
+      destination: '/tempo/accounts/account.fromConfig',
       status: 308,
     },
     {
@@ -2588,7 +2588,7 @@ export default defineConfig({
             {
               badge: { text: 'EXP', variant: 'warning' },
               text: 'Configurable',
-              link: '/tempo/accounts/account.fromConfigurable',
+              link: '/tempo/accounts/account.fromConfig',
             },
           ],
         },
