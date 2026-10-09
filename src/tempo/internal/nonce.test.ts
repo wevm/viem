@@ -57,11 +57,10 @@ describe('transaction preparation', () => {
   test.each(['beforeFillTransaction', 'afterFillParameters'] as const)(
     'rejects reserved keys in the %s hook',
     async (phase) => {
+      const request = { chain: tempo, nonceKey: prefix }
+
       await expect(
-        chainConfig.prepareTransactionRequest[0](
-          { nonceKey: prefix },
-          { client, phase },
-        ),
+        chainConfig.prepareTransactionRequest[0](request, { client, phase }),
       ).rejects.toThrowError(ReservedNonceKeyError)
     },
   )
@@ -81,13 +80,14 @@ describe('transaction preparation', () => {
 describe('transaction serialization', () => {
   test.each(reserved)('rejects reserved key %s', async (nonceKey) => {
     await expect(
-      Transaction.serialize({ chainId: tempo.id, nonceKey }),
+      Transaction.serialize({ calls: [], chainId: tempo.id, nonceKey }),
     ).rejects.toThrowError(ReservedNonceKeyError)
   })
 
   test.each(allowed)('roundtrips allowed key %s', async (nonceKey) => {
     const serialized = await Transaction.serialize({
       type: 'tempo',
+      calls: [],
       chainId: tempo.id,
       nonceKey,
     })
