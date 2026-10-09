@@ -69,6 +69,17 @@ export type WaitForCallsStatusErrorType =
   | WaitForCallsStatusTimeoutError
   | ErrorType
 
+const functionIds = /*#__PURE__*/ new WeakMap<object, number>()
+let functionCount = 0
+function getFunctionId(fn: object): number {
+  let fnId = functionIds.get(fn)
+  if (fnId === undefined) {
+    fnId = ++functionCount
+    functionIds.set(fn, fnId)
+  }
+  return fnId
+}
+
 /**
  * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
  *
@@ -115,8 +126,17 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
     {
       pollingInterval,
       retryCount,
-      retryDelay: retryDelay.toString(),
-      status: status.toString(),
+      // Caller-provided functions are keyed by identity, not source text:
+      // two predicates built by the same factory have identical source
+      // but capture different values, so they must not share an observer.
+      // Keying on `parameters.*` (not the destructured defaults) keeps
+      // calls that use the defaults on one shared observer, since the
+      // default functions are recreated on every call.
+      retryDelay:
+        typeof parameters.retryDelay === 'function'
+          ? getFunctionId(parameters.retryDelay)
+          : parameters.retryDelay,
+      status: parameters.status ? getFunctionId(parameters.status) : undefined,
       throwOnFailure,
     },
   ])

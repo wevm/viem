@@ -393,6 +393,23 @@ test('behavior: concurrent waits resolve according to their own options', async 
   expect(second.statusCode).toBe(200)
 })
 
+test('behavior: concurrent waits with same-source status predicates do not share an observer', async () => {
+  const client = getStatusClient((request) => (request <= 2 ? 100 : 200))
+
+  const atLeast =
+    (code: number) =>
+    ({ statusCode }: { statusCode: number }) =>
+      statusCode >= code
+
+  const [pending, confirmed] = await Promise.all([
+    waitForCallsStatus(client, { id: '0x03', status: atLeast(100) }),
+    waitForCallsStatus(client, { id: '0x03', status: atLeast(200) }),
+  ])
+
+  expect(pending.statusCode).toBe(100)
+  expect(confirmed.statusCode).toBe(200)
+})
+
 test('behavior: resolves a later wait after concurrent waits', async () => {
   const client = getStatusClient(() => 200)
 
