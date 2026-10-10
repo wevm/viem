@@ -1,0 +1,95 @@
+---
+description: Verifies that a passport holding its chip is an owner of a configurable account.
+---
+
+# `passport.verify`
+
+Verifies a passport owner binding: a scheme `0x02` message signature showing that a passport holding its chip is an owner of a configurable account. [Learn more about passport signers](https://tips.sh/1142)
+
+The action checks the binding's proof with `verifyProof`, that the [Key Publisher](/tempo/actions/keyPublisher.getKeyValidUntil) still lists its document signer root, that `config` is the account's current configuration, and that the passport's address is one of its owners. It returns `false` when any check fails.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { MultisigConfig } from 'viem/tempo'
+import { client } from './viem.config'
+
+// Checks a Groth16 proof against scheme `0x02`'s verifying key.
+declare function verifyGroth16(parameters: {
+  proof: `0x${string}`
+  publicInput: `0x${string}`
+}): Promise<boolean>
+declare const config: MultisigConfig.Input
+
+const valid = await client.passport.verify({
+  account: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+  binding: '0x...',
+  config,
+  verifyProof: verifyGroth16,
+})
+
+console.log(valid)
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Standalone Action
+
+Call the action from `Actions` to pass the Client explicitly.
+
+```ts twoslash
+import { Actions, MultisigConfig } from 'viem/tempo'
+import { client } from './viem.config'
+
+declare function verifyGroth16(parameters: {
+  proof: `0x${string}`
+  publicInput: `0x${string}`
+}): Promise<boolean>
+declare const config: MultisigConfig.Input
+
+const valid = await Actions.passport.verify(client, {
+  account: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+  binding: '0x...',
+  config,
+  verifyProof: verifyGroth16,
+})
+```
+
+## Return Value
+
+`boolean`
+
+Whether the binding is valid for the account.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Configurable account the binding names.
+
+### binding
+
+- **Type:** `Hex | ZkSignature.MessageSignature`
+
+The passport's message signature over `Passport.getBindingTypedData({ account, chainId })`, serialized with `ZkSignature.serializeMessage` or as its decoded fields.
+
+### config
+
+- **Type:** `MultisigConfig.Input`
+
+The account's current configuration. For an account with no configuration update yet, it must derive the account's address. Otherwise, it must match the account's onchain configuration commitment.
+
+### verifyProof
+
+- **Type:** `(parameters: { proof: Hex; publicInput: Hex }) => boolean | Promise<boolean>`
+
+Verifies a 256-byte Groth16 proof for the given public input against scheme `0x02`'s verifying key. viem does not bundle a Groth16 verifier.

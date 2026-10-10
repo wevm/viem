@@ -14,6 +14,7 @@ import * as keyPublisherActions from './actions/keyPublisher.js'
 import * as multisigActions from './actions/multisig.js'
 import * as nonceActions from './actions/nonce.js'
 import * as oidcActions from './actions/oidc.js'
+import * as passportActions from './actions/passport.js'
 import * as policyActions from './actions/policy.js'
 import * as propAmmActions from './actions/propAmm.js'
 import * as receivePolicyActions from './actions/receivePolicy.js'
@@ -3000,6 +3001,37 @@ type DecoratorBase<
     prove: (
       parameters: oidcActions.prove.Parameters,
     ) => Promise<oidcActions.prove.ReturnValue>
+  }
+  passport: {
+    /**
+     * Verifies a passport owner binding: a scheme `0x02` message signature showing that
+     * a passport holding its chip is an owner of a configurable account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const valid = await client.passport.verify({
+     *   account: '0x...',
+     *   binding: '0x...',
+     *   config,
+     *   verifyProof: ({ proof, publicInput }) => verifyGroth16({ proof, publicInput }),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the binding is valid for the account.
+     */
+    verify: (
+      parameters: passportActions.verify.Parameters,
+    ) => Promise<passportActions.verify.ReturnValue>
   }
   fee: {
     /**
@@ -6612,6 +6644,10 @@ export type Decorator<
     DecoratorBase<chain, account>['oidc'],
     typeof oidcActions
   >
+  passport: DecorateNamespace<
+    DecoratorBase<chain, account>['passport'],
+    typeof passportActions
+  >
   fee: DecorateNamespace<
     DecoratorBase<chain, account>['fee'],
     typeof feeActions
@@ -6812,6 +6848,7 @@ export function decorator() {
         'watchNonceIncremented',
       ]),
       oidc: bindActions(client, oidcActions, ['prove']),
+      passport: bindActions(client, passportActions, ['verify']),
       fee: bindActions(client, feeActions, [
         'validateToken',
         'getUserToken',

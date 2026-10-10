@@ -13,6 +13,7 @@ test('exports tempo', () => {
       "MultisigConfig",
       "MultisigOperation",
       "Oidc",
+      "Passport",
       "Period",
       "PublisherId",
       "ReceivePolicyReceipt",
