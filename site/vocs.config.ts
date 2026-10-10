@@ -2994,6 +2994,17 @@ export default defineConfig({
               ],
             },
             {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Passport',
+              collapsed: true,
+              items: [
+                {
+                  text: 'verify',
+                  link: '/tempo/actions/passport.verify',
+                },
+              ],
+            },
+            {
               text: 'Policy',
               collapsed: true,
               items: [

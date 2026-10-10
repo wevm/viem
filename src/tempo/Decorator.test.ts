@@ -37,6 +37,7 @@ describe('decorator', () => {
         "multisig",
         "nonce",
         "oidc",
+        "passport",
         "fee",
         "policy",
         "propAmm",

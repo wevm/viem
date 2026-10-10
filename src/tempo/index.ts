@@ -17,6 +17,7 @@ export {
   MultisigConfig,
   MultisigOperation,
   Oidc,
+  Passport,
   Period,
   PublisherId,
   ReceivePolicyReceipt,

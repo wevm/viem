@@ -89,6 +89,7 @@ export default defineConfig({
               ? 'src/tempo/Relay.compat.test.ts'
               : '',
             'src/tempo/actions/keyPublisher.test.ts',
+            'src/tempo/actions/passport.test.ts',
             'src/tempo/internal/relay/oidc.test.ts',
             zoneNodeConfigured ? '' : 'src/tempo/actions/zone.test.ts',
             'src/tempo/**/*.fuzz.test.ts',
@@ -131,6 +132,7 @@ export default defineConfig({
                 name: 'tempo-zk',
                 include: [
                   'src/tempo/actions/keyPublisher.test.ts',
+                  'src/tempo/actions/passport.test.ts',
                   'src/tempo/internal/relay/oidc.test.ts',
                 ],
                 setupFiles: [join(__dirname, './src/tempo/setup.ts')],
