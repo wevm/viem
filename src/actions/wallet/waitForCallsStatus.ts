@@ -134,7 +134,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
       // default functions are recreated on every call.
       retryDelay:
         typeof parameters.retryDelay === 'function'
-          ? getFunctionId(parameters.retryDelay)
+          ? ['function', getFunctionId(parameters.retryDelay)]
           : parameters.retryDelay,
       status: parameters.status ? getFunctionId(parameters.status) : undefined,
       throwOnFailure,
