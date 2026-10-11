@@ -1011,3 +1011,48 @@ test('behavior: unsubscribed subscription is not re-subscribed on reconnect', as
 
   socketClient.close()
 })
+
+test('behavior: re-subscribe on reconnect delivers the new subscription id to the subscriber', async () => {
+  let active = true
+  let count = -1
+  let nextId = 0
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onError, onOpen, onResponse }) {
+      count++
+      onOpen()
+      active = true
+      return {
+        close() {},
+        request({ body }) {
+          wait(10).then(() => {
+            if (!active) return
+            // Like a real node, every `eth_subscribe` gets a new id.
+            onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: `0x${++nextId}` })
+            if (count === 0)
+              wait(10).then(() => {
+                active = false
+                onError(new Error('connection failed.'))
+              })
+          })
+        },
+      }
+    },
+    reconnect: { delay: 50, attempts: 5 },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  const ids: string[] = []
+  socketClient.request({
+    body: { method: 'eth_subscribe', params: ['newHeads'] },
+    onResponse: (data) => ids.push(data.result),
+  })
+
+  // Wait for subscribe, disconnect, reconnect and re-subscribe.
+  await wait(200)
+  expect(ids).toEqual(['0x1', '0x2'])
+  expect([...socketClient.subscriptions.keys()]).toEqual(['0x2'])
+
+  socketClient.close()
+})
