@@ -11,6 +11,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { withResolvers } from '../../utils/promise/withResolvers.js'
@@ -329,7 +330,7 @@ export async function waitForTransactionReceipt<
                   block.transactions as {} as Transaction[]
                 ).find(
                   ({ from, hash, nonce }) =>
-                    from === replacedTransaction!.from &&
+                    isAddressEqual(from, replacedTransaction!.from) &&
                     hash !== replacedTransaction!.hash &&
                     nonce === replacedTransaction!.nonce,
                 )
@@ -356,7 +357,12 @@ export async function waitForTransactionReceipt<
 
                 let reason: ReplacementReason = 'replaced'
                 if (
-                  replacementTransaction.to === replacedTransaction.to &&
+                  (replacementTransaction.to && replacedTransaction.to
+                    ? isAddressEqual(
+                        replacementTransaction.to,
+                        replacedTransaction.to,
+                      )
+                    : replacementTransaction.to === replacedTransaction.to) &&
                   replacementTransaction.value === replacedTransaction.value &&
                   replacementTransaction.input === replacedTransaction.input
                 ) {
