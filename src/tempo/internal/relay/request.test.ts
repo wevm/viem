@@ -101,7 +101,7 @@ test('preserves the requested fee token through an external relay', async () => 
 })
 
 test.each(
-  ['transaction', 'feePayer', 'multisig'].flatMap((mode) =>
+  ['transaction', 'feePayer', 'accounts'].flatMap((mode) =>
     [0, 1].map((retryCount) => ({ mode, retryCount })),
   ),
 )(
@@ -153,15 +153,15 @@ test.each(
                   ),
                 }),
               ]
-            : [Relay.multisig({ store: Store.memory() })],
+            : [Relay.accounts({ store: Store.memory() })],
     })
     await expect(
       relay.request(
         {
           method:
-            mode === 'multisig' ? 'multisig_getConfig' : 'eth_fillTransaction',
+            mode === 'accounts' ? 'account_getConfig' : 'eth_fillTransaction',
           params: [
-            mode !== 'multisig'
+            mode !== 'accounts'
               ? {
                   from: '0x0000000000000000000000000000000000000001',
                   to: '0x0000000000000000000000000000000000000002',

@@ -107,7 +107,7 @@ export type CreateClientErrorType = ErrorType
  * client can be created with `createClient()`. Pass `testnet` to use the
  * Tempo testnet, or `chain` to override the chain entirely. Pass `feeToken`
  * to set a default fee token for every transaction. Use `withRelay` with a
- * `Relay.multisig` plugin to coordinate multisig owner approvals.
+ * `Relay.accounts` plugin to coordinate owner approvals.
  *
  * @example
  * ```ts
@@ -143,10 +143,10 @@ export type CreateClientErrorType = ErrorType
  * ```ts
  * import { createClient, http, Relay, Store, withRelay } from 'viem/tempo'
  *
- * // Multisig coordination with a client-local in-memory store.
+ * // Account coordination with a client-local in-memory store.
  * const client = createClient({
  *   transport: withRelay(http(), {
- *     plugins: [Relay.multisig({ store: Store.memory() })],
+ *     plugins: [Relay.accounts({ store: Store.memory() })],
  *   }),
  * })
  * ```

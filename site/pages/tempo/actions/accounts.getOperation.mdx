@@ -1,14 +1,14 @@
 ---
-description: Gets a coordinated multisig operation by its operation hash.
+description: Gets a coordinated account operation by its operation hash.
 ---
 
-# `multisig.getOperation`
+# `accounts.getOperation`
 
-Gets the current state of a coordinated multisig transaction or key authorization. The action
+Gets the current state of a coordinated account transaction or key authorization. The action
 returns `null` when the operation hash is unknown.
 
 Configure the client with [`withRelay`](/tempo/transports/withRelay) to read operations
-coordinated by a local multisig plugin or a remote relay.
+coordinated by a local accounts plugin or a remote relay.
 
 ## Usage
 
@@ -17,7 +17,7 @@ coordinated by a local multisig plugin or a remote relay.
 ```ts [example.ts]
 import { client } from './viem.config'
 
-const operation = await client.multisig.getOperation({
+const operation = await client.accounts.getOperation({
   hash: '0x23a9cbceb2775b93cd60d3ca7c98435c700aa0d7254850efdce71468d326ddf6',
 })
 ```
@@ -28,7 +28,7 @@ import { store } from './store.db'
 
 export const client = createClient({
   transport: withRelay(http(), {
-    plugins: [Relay.multisig({ store })],
+    plugins: [Relay.accounts({ store })],
   }),
 })
 ```
@@ -41,7 +41,7 @@ Use the operation hash returned by `sendTransaction`, or the `transactionHash` f
 ## Return Type
 
 ```ts
-type ReturnType = MultisigOperation.Operation | null
+type ReturnType = AccountOperation.Operation | null
 ```
 
 Every operation includes its retained `approvals`, `signatureCount`, `threshold`, and current
@@ -57,4 +57,4 @@ Every operation includes its retained `approvals`, `signatureCount`, `threshold`
 
 - **Type:** `Hex`
 
-The deterministic multisig operation hash.
+The deterministic account operation hash.

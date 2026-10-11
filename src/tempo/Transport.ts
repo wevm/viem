@@ -86,7 +86,7 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
-export type Relay = Transport<typeof withRelay.type, { multisig: true }>
+export type Relay = Transport<typeof withRelay.type, { accounts: true }>
 
 /**
  * Creates a relay transport that routes requests between
@@ -94,7 +94,7 @@ export type Relay = Transport<typeof withRelay.type, { multisig: true }>
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
- * Multisig approvals, configs, operations, and operation-aware transaction
+ * Owner approvals, configs, operations, and operation-aware transaction
  * lookups are also sent to the relay so it can coordinate approvals in its store.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
@@ -145,8 +145,8 @@ export function withRelay(
           })) as typeof transport.request,
         value: {
           ...transport.value,
-          ...(relayTransport.plugins?.some(Plugin_.isMultisig)
-            ? { multisig: true }
+          ...(relayTransport.plugins?.some(Plugin_.isAccounts)
+            ? { accounts: true }
             : {}),
         },
       }
@@ -179,7 +179,7 @@ export function withRelay(
           const operation = await (async () => {
             try {
               return await transport_relay.request(
-                { method: 'multisig_getOperation', params },
+                { method: 'account_getOperation', params },
                 options,
               )
             } catch (error) {
@@ -187,7 +187,7 @@ export function withRelay(
                 error instanceof MethodNotFoundRpcError ||
                 error instanceof MethodNotSupportedRpcError
               ) {
-                // Relays created before multisig coordination do not expose this method.
+                // Relays without the accounts plugin do not expose this method.
                 return null
               }
               throw error
@@ -204,11 +204,11 @@ export function withRelay(
         }
 
         if (
-          method === 'multisig_approveKeyAuthorization' ||
-          method === 'multisig_approveRawTransaction' ||
-          method === 'multisig_approveRawTransactionSync' ||
-          method === 'multisig_getConfig' ||
-          method === 'multisig_getOperation'
+          method === 'account_approveKeyAuthorization' ||
+          method === 'account_approveRawTransaction' ||
+          method === 'account_approveRawTransactionSync' ||
+          method === 'account_getConfig' ||
+          method === 'account_getOperation'
         )
           return transport_relay.request({ method, params }, options) as never
 
@@ -219,7 +219,7 @@ export function withRelay(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          if (transaction.signature?.type === 'multisig')
+          if (transaction.signature?.type === 'configurable')
             return transport_relay.request({ method, params }, options) as never
 
           // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
@@ -259,7 +259,7 @@ export function withRelay(
       },
       type: withRelay.type,
     })
-    return { ...transport, value: { multisig: true } }
+    return { ...transport, value: { accounts: true } }
   }
 }
 
@@ -284,9 +284,9 @@ export declare namespace withRelay {
     ? Transport<
         type,
         attributes &
-          (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
+          (Extract<plugins[number], Relay_.accounts.ReturnType> extends never
             ? {}
-            : { multisig: true }),
+            : { accounts: true }),
         request
       >
     : never

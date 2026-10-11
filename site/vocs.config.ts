@@ -101,7 +101,34 @@ export default defineConfig({
     },
     {
       source: '/tempo/guides/multisig-transactions',
-      destination: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+
+    // Tempo multisig pages moved to configurable accounts.
+    {
+      source: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+    {
+      source: '/tempo/guides/multisig/:path*',
+      destination: '/tempo/guides/configurable-accounts/:path*',
+      status: 308,
+    },
+    {
+      source: '/tempo/accounts/account.fromMultisig',
+      destination: '/tempo/accounts/account.fromConfig',
+      status: 308,
+    },
+    {
+      source: '/tempo/actions/multisig.:action',
+      destination: '/tempo/actions/accounts.:action',
+      status: 308,
+    },
+    {
+      source: '/tempo/relay/plugins/multisig',
+      destination: '/tempo/relay/plugins/accounts',
       status: 308,
     },
 
@@ -2500,36 +2527,36 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
+              text: 'Configurable Accounts',
               collapsed: true,
               items: [
                 {
                   text: 'Overview',
-                  link: '/tempo/guides/multisig',
+                  link: '/tempo/guides/configurable-accounts',
                 },
                 {
                   text: 'Send Transactions',
-                  link: '/tempo/guides/multisig/send',
+                  link: '/tempo/guides/configurable-accounts/send',
                 },
                 {
                   text: 'Weighted Owners',
-                  link: '/tempo/guides/multisig/weighted-owners',
+                  link: '/tempo/guides/configurable-accounts/weighted-owners',
                 },
                 {
                   text: 'Passkeys & Other Keys',
-                  link: '/tempo/guides/multisig/key-types',
+                  link: '/tempo/guides/configurable-accounts/key-types',
                 },
                 {
                   text: 'Authorize Access Keys',
-                  link: '/tempo/guides/multisig/access-keys',
+                  link: '/tempo/guides/configurable-accounts/access-keys',
                 },
                 {
                   text: 'Sponsor Fees',
-                  link: '/tempo/guides/multisig/sponsor-fees',
+                  link: '/tempo/guides/configurable-accounts/sponsor-fees',
                 },
                 {
                   text: 'Rotate Owners',
-                  link: '/tempo/guides/multisig/rotate-owners',
+                  link: '/tempo/guides/configurable-accounts/rotate-owners',
                 },
               ],
             },
@@ -2560,8 +2587,8 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
-              text: 'Multisig',
-              link: '/tempo/accounts/account.fromMultisig',
+              text: 'Configurable',
+              link: '/tempo/accounts/account.fromConfig',
             },
           ],
         },
@@ -2627,6 +2654,32 @@ export default defineConfig({
                 {
                   text: 'watchWitnessBurned',
                   link: '/tempo/actions/accessKey.watchWitnessBurned',
+                },
+              ],
+            },
+            {
+              text: 'Accounts',
+              collapsed: true,
+              items: [
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getConfig',
+                  link: '/tempo/actions/accounts.getConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'getOperation',
+                  link: '/tempo/actions/accounts.getOperation',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfig',
+                  link: '/tempo/actions/accounts.updateConfig',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'updateConfigSync',
+                  link: '/tempo/actions/accounts.updateConfigSync',
                 },
               ],
             },
@@ -2856,32 +2909,6 @@ export default defineConfig({
                 {
                   text: 'takerAllowed',
                   link: '/tempo/actions/propAmm.takerAllowed',
-                },
-              ],
-            },
-            {
-              text: 'Multisig',
-              collapsed: true,
-              items: [
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getConfig',
-                  link: '/tempo/actions/multisig.getConfig',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'getOperation',
-                  link: '/tempo/actions/multisig.getOperation',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'updateConfig',
-                  link: '/tempo/actions/multisig.updateConfig',
-                },
-                {
-                  badge: { text: 'EXP', variant: 'warning' },
-                  text: 'updateConfigSync',
-                  link: '/tempo/actions/multisig.updateConfigSync',
                 },
               ],
             },
@@ -3399,8 +3426,8 @@ export default defineConfig({
                 { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
-                  text: 'Multisig',
-                  link: '/tempo/relay/plugins/multisig',
+                  text: 'Accounts',
+                  link: '/tempo/relay/plugins/accounts',
                 },
                 {
                   badge: { text: '🚧', variant: 'warning' },

@@ -1,15 +1,15 @@
 ---
-description: Instantiates a native multisig account from an initial or current config.
+description: Instantiates a configurable account from an initial or current config.
 ---
 
-# `Account.fromMultisig`
+# `Account.fromConfig`
 
-Instantiates an Account for a [native multisig](https://tips.sh/1061). Omit `address` or set it to
-`infer` to derive the canonical CREATE2 account address. After the config changes, use the stable
-address and pass the current config fields.
+Instantiates an Account for a [configurable account](https://tips.sh/1107). Omit `address` or set
+it to `infer` to derive the canonical CREATE2 account address. After the config changes, use the
+stable address and pass the current config fields.
 
 :::warning
-**Experimental.** Native multisig support is experimental and may change in a future release.
+**Experimental.** Configurable account support is experimental and may change in a future release.
 It is not yet available on Tempo mainnet or testnet.
 :::
 
@@ -21,8 +21,8 @@ you call `signTransaction`. Address-only owners support distributed signing, whe
 signs the same prepared request and the sender supplies the resulting `signatures`.
 
 :::tip
-See the [Multisig guides](/tempo/guides/multisig) for complete transaction, access key,
-fee sponsorship, and owner rotation workflows.
+See the [Configurable Accounts guides](/tempo/guides/configurable-accounts) for complete
+transaction, access key, fee sponsorship, and owner rotation workflows.
 :::
 
 ## Usage
@@ -37,7 +37,7 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
@@ -46,7 +46,7 @@ const account = Account.fromMultisig({
 console.log('Address:', account.address)
 ```
 
-`Account.fromMultisig` normalizes the config with `MultisigConfig.from`, including canonical
+`Account.fromConfig` normalizes the config with `AccountConfig.from`, including canonical
 owner ordering. The initial config always uses version `0`.
 
 ### Current Config
@@ -57,7 +57,7 @@ The address does not change when the config changes.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: '0x0000000000000000000000000000000000000001',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -79,7 +79,7 @@ Use an address-only account when only the stable account identity is needed.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromMultisig(
+const account = Account.fromConfig(
   '0x0000000000000000000000000000000000000001'
 )
 ```
@@ -100,7 +100,7 @@ Pass addresses when owner approvals are collected outside the current process.
 ```ts twoslash
 import { Account } from 'viem/tempo'
 
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -121,7 +121,7 @@ const owner = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 )
 
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [
     { owner, weight: 2 },
@@ -134,11 +134,11 @@ const account = Account.fromMultisig({
 ## Return Type
 
 ```ts
-type ReturnType = MultisigAccount
+type ReturnType = ConfigurableAccount
 
-type MultisigAccount = LocalAccount<'multisig'> & {
+type ConfigurableAccount = LocalAccount<'configurable'> & {
   /** Normalized config, when supplied. */
-  config: MultisigConfig.Config | undefined
+  config: AccountConfig.Config | undefined
   /** @internal Local owner accounts retained for signing. */
   owners: readonly LocalAccount[]
 }
@@ -152,7 +152,7 @@ supported.
 
 ### value
 
-- **Type:** `Account.fromMultisig.Parameters`
+- **Type:** `Account.fromConfig.Parameters`
 
 An initial config, a stable address with its current config, or an address without a retained
 config.
@@ -192,4 +192,4 @@ config and required for a current config.
 - **Type:** `bigint | number`
 
 The nonzero current config version. For an initial config, omit this field or pass `0` when
-spreading a normalized `MultisigConfig.Config` value.
+spreading a normalized `AccountConfig.Config` value.

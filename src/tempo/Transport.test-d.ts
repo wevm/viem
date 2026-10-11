@@ -17,21 +17,21 @@ test('local relay preserves transport attributes, capabilities, and RPC schemas'
   expectTypeOf(request({ method: 'example_echo', params: [1] })).toEqualTypeOf<
     Promise<string>
   >()
-  // @ts-expect-error Empty plugins do not advertise multisig.
-  plain.transport.multisig
+  // @ts-expect-error Empty plugins do not advertise accounts.
+  plain.transport.accounts
   // @ts-expect-error RPC parameters are preserved.
   request({ method: 'example_echo', params: ['1'] })
   const local = createClient({
     transport: withRelay(transport, {
-      plugins: [Relay.multisig({ store: Store.memory() })],
+      plugins: [Relay.accounts({ store: Store.memory() })],
     }),
   })
-  expectTypeOf(local.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(local.transport.accounts).toEqualTypeOf<true>()
   expectTypeOf(local.transport.type).toEqualTypeOf<'http'>()
   const nested = createClient({
     transport: withRelay(withRelay(http(), http('https://relay.example')), {}),
   })
-  expectTypeOf(nested.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(nested.transport.accounts).toEqualTypeOf<true>()
   expectTypeOf(nested.transport.type).toEqualTypeOf<'relay'>()
   // @ts-expect-error Sponsorship policy belongs to remote mode.
   withRelay(http(), { plugins: [], policy: 'sign-only' })

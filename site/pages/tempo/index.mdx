@@ -46,7 +46,7 @@ Tempo mainnet chain and an `http` transport, and comes preconfigured with `tempo
 :::tip
 `createClient` also accepts Tempo options like `testnet` to target the Tempo testnet and
 `feeToken` to set a default fee token for every transaction. Use
-[`withRelay`](/tempo/transports/withRelay) with a multisig plugin to coordinate approvals with a shared store.
+[`withRelay`](/tempo/transports/withRelay) with an accounts plugin to coordinate approvals with a shared store.
 
 ```ts
 import { createClient, http, Relay, withRelay } from 'viem/tempo'
@@ -54,7 +54,7 @@ import { store } from './store.db'
 
 export const client = createClient({
   transport: withRelay(http(), { // [!code hl]
-    plugins: [Relay.multisig({ store })], // [!code hl]
+    plugins: [Relay.accounts({ store })], // [!code hl]
   }), // [!code hl]
   feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
   testnet: true, // [!code hl]
@@ -64,7 +64,7 @@ export const client = createClient({
 The store must implement [`Store.Atomic`](/tempo/utilities/Store), including atomic
 `compareAndSet`. Coordinated owners use normal
 `sendTransaction` actions and pass the first approval's operation hash to later approvals. See
-[Send Multisig Transactions](/tempo/guides/multisig/send).
+[Send Configurable Account Transactions](/tempo/guides/configurable-accounts/send).
 :::
 
 ### Use Viem Actions

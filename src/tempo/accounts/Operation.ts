@@ -1,6 +1,6 @@
 import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import { MultisigOperation, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import { AccountOperation, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
 import type * as Store from '../Store.js'
 
@@ -13,11 +13,11 @@ const maxUpdateAttempts = 32
 /** Bounds abandoned operation state while allowing long-lived approval ceremonies. */
 const pendingOperationTtl = 30 * 24 * 60 * 60 * 1_000
 
-/** Reads a persisted multisig operation. */
+/** Reads a persisted account operation. */
 export async function read(
   store: Store.Store,
   hash: Hex.Hex,
-): Promise<MultisigOperation.Operation | null> {
+): Promise<AccountOperation.Operation | null> {
   const value = await store.getItem(operationKey(hash))
   if (value === null || value === undefined) return null
   const operation = deserialize(value)
@@ -26,14 +26,14 @@ export async function read(
   return operation
 }
 
-/** Atomically updates a multisig operation. */
+/** Atomically updates an account operation. */
 export async function update(
   store: Store.Atomic,
   hash: Hex.Hex,
   update: (
-    operation: MultisigOperation.Operation | null,
-  ) => MultisigOperation.Operation | Promise<MultisigOperation.Operation>,
-): Promise<MultisigOperation.Operation> {
+    operation: AccountOperation.Operation | null,
+  ) => AccountOperation.Operation | Promise<AccountOperation.Operation>,
+): Promise<AccountOperation.Operation> {
   const key = operationKey(hash)
   for (let attempt = 0; attempt < maxUpdateAttempts; attempt++) {
     const value = (await store.getItem(key)) ?? null
@@ -41,9 +41,9 @@ export async function update(
     if (current && current.hash.toLowerCase() !== hash.toLowerCase())
       throw new InvalidStoreValueError()
     const value_ = await update(current)
-    let next: MultisigOperation.Operation
+    let next: AccountOperation.Operation
     try {
-      next = MultisigOperation.from(value_)
+      next = AccountOperation.from(value_)
     } catch (cause) {
       throw new InvalidStoreValueError({ cause })
     }
@@ -62,7 +62,7 @@ export async function update(
 /** Reads a submission hash without rebuilding its envelope from mutable configurations. */
 export async function readSubmission(
   store: Store.Store,
-  operation: MultisigOperation.TransactionOperation,
+  operation: AccountOperation.TransactionOperation,
   submissionId: Hex.Hex,
 ): Promise<Hex.Hex | null> {
   const value = await store.getItem(submissionKey(operation.hash, submissionId))
@@ -72,9 +72,9 @@ export async function readSubmission(
     const transaction = TxEnvelopeTempo.deserialize(
       value as TxEnvelopeTempo.Serialized,
     )
-    if (transaction.signature?.type !== 'multisig')
+    if (transaction.signature?.type !== 'configurable')
       throw new InvalidStoreValueError()
-    const serialized = MultisigOperation.serializeTransaction(operation, {
+    const serialized = AccountOperation.serializeTransaction(operation, {
       approvals: transaction.signature.signatures.map((signature) =>
         SignatureEnvelope.serialize(signature),
       ),
@@ -123,11 +123,11 @@ export async function writeSubmission(
   }
 }
 
-/** Deserializes a multisig operation from storage. */
-function deserialize(value: string): MultisigOperation.Operation {
+/** Deserializes an account operation from storage. */
+function deserialize(value: string): AccountOperation.Operation {
   try {
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
-    const operation = MultisigOperation.from(Json.parse(value) as never)
+    const operation = AccountOperation.from(Json.parse(value) as never)
     assertHash(operation)
     return operation
   } catch (cause) {
@@ -136,10 +136,10 @@ function deserialize(value: string): MultisigOperation.Operation {
   }
 }
 
-/** Serializes a multisig operation for storage. */
-function serialize(operation: MultisigOperation.Operation): string {
+/** Serializes an account operation for storage. */
+function serialize(operation: AccountOperation.Operation): string {
   try {
-    const operation_ = MultisigOperation.from(operation)
+    const operation_ = AccountOperation.from(operation)
     assertHash(operation_)
     const value = Json.stringify(operation_)
     if (value.length > maxStoredValueLength) throw new InvalidStoreValueError()
@@ -151,8 +151,8 @@ function serialize(operation: MultisigOperation.Operation): string {
 }
 
 /** Verifies that the operation hash commits to its stored payload. */
-function assertHash(operation: MultisigOperation.Operation) {
-  const hash = MultisigOperation.getHash(
+function assertHash(operation: AccountOperation.Operation) {
+  const hash = AccountOperation.getHash(
     operation.type === 'transaction'
       ? {
           account: operation.account,
@@ -181,13 +181,13 @@ function submissionKey(hash: Hex.Hex, submissionId: Hex.Hex) {
   return `multisig:submission:${hash.toLowerCase()}:${submissionId.toLowerCase()}`
 }
 
-/** Thrown when a stored multisig operation is malformed or unsupported. */
+/** Thrown when a stored account operation is malformed or unsupported. */
 export class InvalidStoreValueError extends BaseError {
   /** Creates an invalid store value error. */
   constructor(options: InvalidStoreValueError.Options = {}) {
-    super('Stored multisig operation is malformed or unsupported.', {
+    super('Stored account operation is malformed or unsupported.', {
       cause: options.cause as Error | undefined,
-      name: 'Multisig.Operation.InvalidStoreValueError',
+      name: 'Accounts.Operation.InvalidStoreValueError',
     })
   }
 }
@@ -200,12 +200,12 @@ export declare namespace InvalidStoreValueError {
   }
 }
 
-/** Thrown when a multisig operation cannot be updated due to contention. */
+/** Thrown when an account operation cannot be updated due to contention. */
 class StoreConflictError extends BaseError {
   /** Creates a store conflict error. */
   constructor() {
-    super('Multisig operation could not be updated after repeated conflicts.', {
-      name: 'Multisig.Operation.StoreConflictError',
+    super('Account operation could not be updated after repeated conflicts.', {
+      name: 'Accounts.Operation.StoreConflictError',
     })
   }
 }

@@ -1,25 +1,25 @@
 import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
-import { MultisigConfig } from 'ox/tempo'
+import { AccountConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { nativeMultisigFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
 const owner = '0x1111111111111111111111111111111111111111'
-const initialConfig = MultisigConfig.from({
+const initialConfig = AccountConfig.from({
   owners: [{ owner, weight: 1 }],
   threshold: 1,
 })
-const address = MultisigConfig.getAddress(initialConfig, {
+const address = AccountConfig.getAddress(initialConfig, {
   factory: nativeMultisigFactory,
 })
 const zeroCommitment = Hex.fromNumber(0, { size: 32 })
-const currentConfig = MultisigConfig.from({
+const currentConfig = AccountConfig.from({
   ...initialConfig,
   version: 1,
 })
-const currentCommitment = MultisigConfig.getCommitment(currentConfig)
+const currentCommitment = AccountConfig.getCommitment(currentConfig)
 
 describe('read', () => {
   test('behavior: retains the initial config after initialization', async () => {
@@ -29,7 +29,7 @@ describe('read', () => {
       commitment: zeroCommitment,
       config: initialConfig,
     })
-    const commitment = MultisigConfig.getCommitment(initialConfig)
+    const commitment = AccountConfig.getCommitment(initialConfig)
     expect(await Config.read(store, { address, commitment })).toEqual(
       initialConfig,
     )
@@ -91,11 +91,11 @@ describe('read', () => {
 
   test('behavior: follows a previously seen commitment', async () => {
     const store = Store.memory()
-    const rotatedConfig = MultisigConfig.from({
+    const rotatedConfig = AccountConfig.from({
       ...initialConfig,
       version: 2,
     })
-    const rotatedCommitment = MultisigConfig.getCommitment(rotatedConfig)
+    const rotatedCommitment = AccountConfig.getCommitment(rotatedConfig)
     await Config.write(store, {
       address,
       commitment: currentCommitment,
@@ -146,9 +146,9 @@ describe('read', () => {
 
   test.each([
     'invalid json',
-    Json.stringify(MultisigConfig.toRpc(currentConfig)),
+    Json.stringify(AccountConfig.toRpc(currentConfig)),
     Json.stringify({
-      ...MultisigConfig.toRpc(initialConfig),
+      ...AccountConfig.toRpc(initialConfig),
       owners: [],
     }),
     'x'.repeat(65_537),
@@ -177,8 +177,8 @@ describe('read', () => {
     await expect(
       Config.read(store, { address, commitment: zeroCommitment }),
     ).rejects.toMatchObject({
-      name: 'Multisig.Config.InvalidStoreValueError',
-      shortMessage: 'Stored multisig config is malformed or mismatched.',
+      name: 'Accounts.Config.InvalidStoreValueError',
+      shortMessage: 'Stored account config is malformed or mismatched.',
     })
   })
 })
@@ -192,8 +192,8 @@ describe('write', () => {
         config: initialConfig,
       }),
     ).rejects.toMatchObject({
-      name: 'Multisig.Config.InvalidStoreValueError',
-      shortMessage: 'Stored multisig config is malformed or mismatched.',
+      name: 'Accounts.Config.InvalidStoreValueError',
+      shortMessage: 'Stored account config is malformed or mismatched.',
     })
   })
 
@@ -205,8 +205,8 @@ describe('write', () => {
         config: currentConfig,
       }),
     ).rejects.toMatchObject({
-      name: 'Multisig.Config.InvalidStoreValueError',
-      shortMessage: 'Stored multisig config is malformed or mismatched.',
+      name: 'Accounts.Config.InvalidStoreValueError',
+      shortMessage: 'Stored account config is malformed or mismatched.',
     })
   })
 })

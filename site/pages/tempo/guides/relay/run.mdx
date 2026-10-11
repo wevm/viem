@@ -6,7 +6,7 @@ import { Card, Cards } from 'vocs'
 
 Use [`Relay.create`](/tempo/utilities/Relay.create) to expose Tempo RPC over the
 Fetch API. The application hosts the endpoint and supplies its upstream client.
-Add [`Relay.multisig`](/tempo/relay/plugins/multisig) for approval coordination.
+Add [`Relay.accounts`](/tempo/relay/plugins/accounts) for approval coordination.
 
 ## Recipes
 
@@ -138,7 +138,7 @@ export const POST = relay.fetch
 
 Pass plugins to `Relay.create` to add services to the relay. Requests enter plugins
 in array order, and each plugin can handle the request or pass it to the next handler.
-For example, add the multisig plugin to coordinate owner approvals:
+For example, add the accounts plugin to coordinate owner approvals:
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -147,7 +147,7 @@ import { Relay, Store } from 'viem/tempo'
 
 const relay = Relay.create({
   client: createClient({ chain: tempo, transport: http() }),
-  plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+  plugins: [Relay.accounts({ store: Store.memory() })], // [!code focus]
 })
 
 export default { fetch: relay.fetch }
@@ -182,14 +182,14 @@ Independent processes and Worker isolates must share a persistent
   />
   <Card
     icon="lucide:users"
-    title="Multisig"
-    description="Coordinate owner approvals and share pending multisig transactions."
-    to="/tempo/relay/plugins/multisig"
+    title="Accounts"
+    description="Coordinate owner approvals and share pending account transactions."
+    to="/tempo/relay/plugins/accounts"
   />
 </Cards>
 
 To enable sponsorship, fee-token selection, and simulation together,
-list those plugins explicitly. Add multisig when you also need approval coordination:
+list those plugins explicitly. Add accounts when you also need approval coordination:
 
 ```ts twoslash
 import { createClient, http } from 'viem'
@@ -200,7 +200,7 @@ import { Relay, Store } from 'viem/tempo'
 const relay = Relay.create({
   client: createClient({ chain: tempo, transport: http() }),
   plugins: [ // [!code focus]
-    Relay.multisig({ store: Store.memory() }), // [!code focus]
+    Relay.accounts({ store: Store.memory() }), // [!code focus]
     Relay.simulate(), // [!code focus]
     Relay.feePayer({ account: privateKeyToAccount('0x...') }), // [!code focus]
     Relay.feeToken(), // [!code focus]
@@ -266,5 +266,5 @@ relay. Independent relay instances must use the same atomic storage.
 ## See More
 
 - [Connect to a Relay](/tempo/guides/relay/connect)
-- [Send Multisig Transactions](/tempo/guides/multisig/send)
+- [Send Configurable Account Transactions](/tempo/guides/configurable-accounts/send)
 - [`Relay.create`](/tempo/utilities/Relay.create)

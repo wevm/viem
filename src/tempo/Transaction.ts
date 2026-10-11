@@ -4,11 +4,11 @@ import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import * as Signature from 'ox/Signature'
 import {
+  AccountConfig,
+  type AccountOperation,
+  type AccountSimulation,
   type AuthorizationTempo,
   type KeyAuthorization,
-  MultisigConfig,
-  type MultisigOperation,
-  type MultisigSimulation,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
   type TempoAddress,
@@ -43,7 +43,7 @@ import {
 } from '../utils/transaction/parseTransaction.js'
 import { serializeTransaction as viem_serializeTransaction } from '../utils/transaction/serializeTransaction.js'
 import type { RootAccount } from './Account.js'
-import { parseApproval } from './multisig/Signature.js'
+import { parseApproval } from './accounts/Signature.js'
 
 export type Transaction<
   bigintType = bigint,
@@ -61,7 +61,7 @@ export type TransactionRpc<pending extends boolean = false> = OneOf<
     > & {
       authorizationList?: AuthorizationTempo.ListRpc | undefined
       keyAuthorization?: KeyAuthorization.Rpc | null | undefined
-      multisig?: MultisigOperation.TransactionRpc | undefined
+      operation?: AccountOperation.TransactionRpc | undefined
       signature: SignatureEnvelope.SignatureEnvelopeRpc
     })
 >
@@ -82,7 +82,7 @@ export type TransactionTempo<
   feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
-  multisig?: MultisigOperation.TransactionOperation | undefined
+  operation?: AccountOperation.TransactionOperation | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
@@ -98,7 +98,14 @@ export type TransactionRequest<
   | TransactionRequestTempo<bigintType, numberType>
 >
 export type TransactionRequestRpc = OneOf<
-  viem_RpcTransactionRequest | TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>
+  | viem_RpcTransactionRequest
+  | (Omit<
+      TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>,
+      'accountSimulation'
+    > & {
+      /** Account simulation spec, named `multisigSimulation` by the node. */
+      multisigSimulation?: AccountSimulation.Rpc | undefined
+    })
 >
 
 export type TransactionReceipt<
@@ -106,11 +113,11 @@ export type TransactionReceipt<
   index = number,
   status = 'success' | 'reverted' | 'pending',
   type = TransactionType,
-  multisig = MultisigOperation.TransactionOperation,
+  operation = AccountOperation.TransactionOperation,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
   feePayer?: Address | undefined
   feeToken?: Address | undefined
-  multisig?: multisig | undefined
+  operation?: operation | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
@@ -118,7 +125,7 @@ export type TransactionReceiptRpc = TransactionReceipt<
   Hex.Hex,
   ox_TransactionReceipt.RpcStatus | 'pending',
   ox_TransactionReceipt.RpcType,
-  MultisigOperation.TransactionRpc
+  AccountOperation.TransactionRpc
 >
 
 export type TransactionRequestTempo<
@@ -128,6 +135,7 @@ export type TransactionRequestTempo<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
+    accountSimulation?: AccountSimulation.Spec | undefined
     calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
     capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
     /** Fee-payer account, external relay URL, or sponsorship preference. */
@@ -135,7 +143,6 @@ export type TransactionRequestTempo<
     feeToken?: TempoAddress.Address | bigint | undefined
     hash?: Hex.Hex | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    multisigSimulation?: MultisigSimulation.Spec | undefined
     /** Nonce lane, or `'expiring'` for time-bounded transactions. `nonce` can distinguish otherwise identical expiring transactions. */
     nonceKey?: 'expiring' | quantity | undefined
     owner?: RootAccount | undefined
@@ -168,17 +175,17 @@ export type TransactionSerializableTempo<
   } & (
     | {
         from: Address
-        multisigSimulation?: MultisigSimulation.Spec | undefined
+        accountSimulation?: AccountSimulation.Spec | undefined
         signatures?: readonly SignatureEnvelope.Serialized[] | undefined
       }
     | {
         from?: Address | undefined
-        multisigSimulation?: undefined
+        accountSimulation?: undefined
         signatures?: readonly SignatureEnvelope.Serialized[] | undefined
       }
     | {
         from?: Address | undefined
-        multisigSimulation?: MultisigSimulation.Spec | undefined
+        accountSimulation?: AccountSimulation.Spec | undefined
         signatures?: undefined
       }
   )
@@ -201,13 +208,13 @@ export function getType(
   if (
     (account?.keyType && account.keyType !== 'secp256k1') ||
     account?.source === 'accessKey' ||
-    account?.source === 'multisig' ||
+    account?.source === 'configurable' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feePayerSignature !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
     typeof transaction.keyAuthorization !== 'undefined' ||
-    typeof transaction.multisigSimulation !== 'undefined' ||
+    typeof transaction.accountSimulation !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.owner !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
@@ -314,7 +321,7 @@ async function serializeTempo(
   },
   sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
 ) {
-  // Track caller signatures separately from synthesized multisig approvals.
+  // Track caller signatures separately from synthesized owner approvals.
   const signature_provided = (() => {
     if (transaction.signature) return transaction.signature
     if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
@@ -330,7 +337,7 @@ async function serializeTempo(
   const {
     chainId,
     feePayer,
-    multisigSimulation,
+    accountSimulation,
     nonce,
     owner: _owner,
     ...rest
@@ -352,7 +359,7 @@ async function serializeTempo(
     transaction.feePayerSignature !== null
   const hasSenderSignature =
     typeof signature_provided !== 'undefined' ||
-    Boolean(multisigSimulation && transaction.signatures)
+    Boolean(accountSimulation && transaction.signatures)
   // Sponsorship sender signatures omit `feeToken`.
   const shouldStripFeeTokenForSponsorship =
     // Relay fills a partial sender envelope first.
@@ -393,16 +400,17 @@ async function serializeTempo(
   // Combine owner approvals before fee-payer handling.
   const signature = (() => {
     if (signature_provided) return signature_provided
-    if (!multisigSimulation || !transaction.signatures) return undefined
+    if (!accountSimulation || !transaction.signatures) return undefined
 
     const payload = TxTempo.getSignPayload(TxTempo.from(transaction_sender_ox))
     const signatures = transaction.signatures.map((approval) =>
       parseApproval(approval),
     )
-    const config = MultisigConfig.from(multisigSimulation.config)
+    const config = AccountConfig.from(accountSimulation.config)
     const account = transaction.from
-    if (!account) throw new Error('A multisig sender is required for signing.')
-    const sorted = SignatureEnvelope.sortMultisigApprovals({
+    if (!account)
+      throw new Error('A configurable account sender is required for signing.')
+    const sorted = SignatureEnvelope.sortApprovals({
       account,
       config,
       payload,

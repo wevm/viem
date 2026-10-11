@@ -7,15 +7,15 @@ Connects to a remote Tempo relay or applies relay plugins directly to a transpor
 
 In remote mode, `withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's
 `feePayer` value so the relay can decide whether to sponsor the transaction. It also forwards
-multisig approvals, config and operation reads, and operation-aware transaction lookups. The relay
-can therefore own the shared multisig store instead of each client.
+owner approvals, config and operation reads, and operation-aware transaction lookups. The relay
+can therefore own the shared account store instead of each client.
 
 - `feePayer: true` asks the relay to sponsor the transaction.
 - If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
 - An explicit `feePayer` address is preserved.
 
 Transaction and receipt lookups query the default transport first. If no result exists,
-Viem asks the relay whether the hash identifies a multisig operation and routes a
+Viem asks the relay whether the hash identifies an account operation and routes a
 matching operation lookup through the relay. Other lookups retain the default result.
 
 ## Usage
@@ -95,20 +95,21 @@ import { Relay, Store, withRelay } from 'viem/tempo'
 const client = createClient({
   chain: tempo,
   transport: withRelay(http(), { // [!code focus]
-    plugins: [Relay.multisig({ store: Store.memory() })], // [!code focus]
+    plugins: [Relay.accounts({ store: Store.memory() })], // [!code focus]
   }), // [!code focus]
 })
 ```
 
 Local plugins wrap the default transport directly. See the [available plugins](/tempo/guides/relay/connect#connect-to-a-local-relay)
-for sponsorship, fee-token resolution, simulation, and multisig coordination.
-Memory storage is process-local; independent multisig clients must share persistent atomic storage.
+for sponsorship, fee-token resolution, simulation, and account coordination.
+Memory storage is process-local; clients for independent owners must share persistent atomic
+storage.
 
 ## Return Type
 
-Remote mode returns `Transport<'relay', { multisig: true }>`. Local mode preserves
-the default transport's attributes and RPC schema. It advertises multisig support
-when a multisig plugin or the underlying transport provides it.
+Remote mode returns `Transport<'relay', { accounts: true }>`. Local mode preserves
+the default transport's attributes and RPC schema. It advertises account coordination
+when an accounts plugin or the underlying transport provides it.
 
 ## Parameters
 
@@ -132,7 +133,7 @@ Local options also accept `resolveTokens`, shared by fee selection and sponsorsh
 - **Type:** `'sign-only' | 'sign-and-broadcast'`
 - **Default:** `'sign-only'`
 
-Available only in remote mode. For sponsored non-multisig transactions,
+Available only in remote mode. For sponsored uncoordinated transactions,
 `sign-only` requests a signature from the relay and broadcasts through the default
-transport. `sign-and-broadcast` submits through the relay. Multisig submissions
-always use the relay for coordination.
+transport. `sign-and-broadcast` submits through the relay. Coordinated account
+submissions always use the relay.
