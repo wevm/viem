@@ -1029,7 +1029,11 @@ test('behavior: re-subscribe on reconnect delivers the new subscription id to th
           wait(10).then(() => {
             if (!active) return
             // Like a real node, every `eth_subscribe` gets a new id.
-            onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: `0x${++nextId}` })
+            onResponse({
+              id: body.id ?? 0,
+              jsonrpc: '2.0',
+              result: `0x${++nextId}`,
+            })
             if (count === 0)
               wait(10).then(() => {
                 active = false

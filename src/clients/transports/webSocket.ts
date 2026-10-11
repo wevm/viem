@@ -169,36 +169,35 @@ export function webSocket(
               }),
             )
           }
-          await new Promise<any>(
-            (resolve, reject) =>
-              rpcClient.request({
-                body: {
-                  method: 'eth_subscribe',
-                  params,
-                },
-                onError(error) {
-                  reject(error)
-                  onError?.(error)
+          await new Promise<any>((resolve, reject) =>
+            rpcClient.request({
+              body: {
+                method: 'eth_subscribe',
+                params,
+              },
+              onError(error) {
+                reject(error)
+                onError?.(error)
+                return
+              },
+              onResponse(response) {
+                if (response.error) {
+                  reject(response.error)
+                  onError?.(response.error)
                   return
-                },
-                onResponse(response) {
-                  if (response.error) {
-                    reject(response.error)
-                    onError?.(response.error)
-                    return
-                  }
+                }
 
-                  if (typeof response.id === 'number') {
-                    subscriptionId = response.result
-                    // Re-subscribed while an unsubscribe was in flight.
-                    if (unsubscribed) unsubscribe()
-                    resolve(response)
-                    return
-                  }
-                  if (response.method !== 'eth_subscription') return
-                  onData(response.params)
-                },
-              }),
+                if (typeof response.id === 'number') {
+                  subscriptionId = response.result
+                  // Re-subscribed while an unsubscribe was in flight.
+                  if (unsubscribed) unsubscribe()
+                  resolve(response)
+                  return
+                }
+                if (response.method !== 'eth_subscription') return
+                onData(response.params)
+              },
+            }),
           )
           return {
             get subscriptionId() {
