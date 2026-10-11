@@ -115,35 +115,56 @@ export function getHttpRpcClient(
       const { headers, method, signal: signal_ } = fetchOptions
 
       try {
-        const response = await withTimeout(
-          async ({ signal }) => {
-            const init: RequestInit = {
-              ...fetchOptions,
-              body: Array.isArray(body)
-                ? stringify(
-                    body.map((body) => ({
+        const { response, responseBody } = await withTimeout(
+          async ({ signal: timeoutSignal }) => {
+            // Abort on whichever fires first so that a `signal` does not
+            // disable the timeout.
+            const { signal, cleanup } = anySignal([
+              signal_,
+              timeout > 0 ? timeoutSignal : null,
+            ])
+            try {
+              const init: RequestInit = {
+                ...fetchOptions,
+                body: Array.isArray(body)
+                  ? stringify(
+                      body.map((body) => ({
+                        jsonrpc: '2.0',
+                        id: body.id ?? idCache.take(),
+                        ...body,
+                      })),
+                    )
+                  : stringify({
                       jsonrpc: '2.0',
                       id: body.id ?? idCache.take(),
                       ...body,
-                    })),
-                  )
-                : stringify({
-                    jsonrpc: '2.0',
-                    id: body.id ?? idCache.take(),
-                    ...body,
-                  }),
-              headers: {
-                ...headers_url,
-                'Content-Type': 'application/json',
-                ...headers,
-              },
-              method: method || 'POST',
-              signal: signal_ || (timeout > 0 ? signal : null),
+                    }),
+                headers: {
+                  ...headers_url,
+                  'Content-Type': 'application/json',
+                  ...headers,
+                },
+                method: method || 'POST',
+                signal,
+              }
+              const request = new Request(url, init)
+              const args = (await onRequest?.(request, init)) ?? {
+                ...init,
+                url,
+              }
+              const response = await fetchFn(args.url ?? url, args)
+
+              if (onResponse) await onResponse(response)
+
+              // Read the body within the timeout too, so a response that stalls
+              // after its headers cannot hang the request.
+              const responseBody = await readResponseBody(response, {
+                maxResponseBodySize,
+              })
+              return { response, responseBody }
+            } finally {
+              cleanup()
             }
-            const request = new Request(url, init)
-            const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetchFn(args.url ?? url, args)
-            return response
           },
           {
             errorInstance: new TimeoutError({ body, url }),
@@ -152,12 +173,7 @@ export function getHttpRpcClient(
           },
         )
 
-        if (onResponse) await onResponse(response)
-
         let data: any
-        const responseBody = await readResponseBody(response, {
-          maxResponseBodySize,
-        })
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
@@ -205,6 +221,36 @@ export function getHttpRpcClient(
       }
     },
   }
+}
+
+/**
+ * Returns a signal that aborts as soon as any of `signals` aborts, and a
+ * `cleanup` function that detaches the listeners added to `signals`.
+ */
+function anySignal(signals: readonly (AbortSignal | null | undefined)[]) {
+  const signals_ = signals.filter((signal) => !!signal)
+  if (signals_.length < 2)
+    return { signal: signals_[0] ?? null, cleanup: () => {} }
+
+  const controller = new AbortController()
+  const onAbort = () => {
+    cleanup()
+    controller.abort(signals_.find((signal) => signal.aborted)?.reason)
+  }
+  const cleanup = () => {
+    for (const signal of signals_) signal.removeEventListener('abort', onAbort)
+  }
+
+  for (const signal of signals_) {
+    if (signal.aborted) {
+      cleanup()
+      controller.abort(signal.reason)
+      break
+    }
+    signal.addEventListener('abort', onAbort)
+  }
+
+  return { signal: controller.signal, cleanup }
 }
 
 async function readResponseBody(
