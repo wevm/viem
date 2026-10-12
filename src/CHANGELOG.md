@@ -1,5 +1,31 @@
 # viem
 
+## 2.57.5
+
+### Patch Changes
+
+- [#5193](https://github.com/wevm/viem/pull/5193) [`41f75635dd04b6bbcc51a91180b708caf3273c0f`](https://github.com/wevm/viem/commit/41f75635dd04b6bbcc51a91180b708caf3273c0f) Thanks [@ironoa](https://github.com/ironoa)! - Added QMS Testnet chain.
+
+- [#5202](https://github.com/wevm/viem/pull/5202) [`6501d059faac4f92cadc0099f67cf3fcc6aa6f4f`](https://github.com/wevm/viem/commit/6501d059faac4f92cadc0099f67cf3fcc6aa6f4f) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Updated Arc Testnet RPC and block explorer URLs from `arc.network` to `arc.io`.
+
+- [#5196](https://github.com/wevm/viem/pull/5196) [`cae835c03cea2d13e2d36b76805010e45c0f6b99`](https://github.com/wevm/viem/commit/cae835c03cea2d13e2d36b76805010e45c0f6b99) Thanks [@Kshot3000](https://github.com/Kshot3000)! - Fixed `waitForCallsStatus` resolving concurrent waits with the first call's options and hanging on a later wait for the same id after concurrent waits had settled.
+
+- [#5200](https://github.com/wevm/viem/pull/5200) [`a8f8a0786145728510f972c8feb2f9736cad6c07`](https://github.com/wevm/viem/commit/a8f8a0786145728510f972c8feb2f9736cad6c07) Thanks [@Ernesto-tha-great](https://github.com/Ernesto-tha-great)! - Fixed the `http` transport `timeout` not applying while the response body is read, or when the request is given an abort `signal`.
+
+- [#5220](https://github.com/wevm/viem/pull/5220) [`9285d18b18292c21c4288f02e2e91f375049a5da`](https://github.com/wevm/viem/commit/9285d18b18292c21c4288f02e2e91f375049a5da) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Changed `KeyAuthorizationManager.from` to build the manager from a `Store` instead of a custom `get`/`set`/`remove` source.
+
+- [#5201](https://github.com/wevm/viem/pull/5201) [`0c504acc549bf488c70ea93fd444bea251dcee87`](https://github.com/wevm/viem/commit/0c504acc549bf488c70ea93fd444bea251dcee87) Thanks [@ara-stock](https://github.com/ara-stock)! - Fixed `normalizeSignature` (and `toFunctionSelector`, `toEventSelector`, `toSignature`) dropping the first parameter when a space directly follows an opening parenthesis (e.g. `function foo( uint256 a )`).
+
+- [#5192](https://github.com/wevm/viem/pull/5192) [`700a6855a9139dfed72e9c7ee2e527775962a31b`](https://github.com/wevm/viem/commit/700a6855a9139dfed72e9c7ee2e527775962a31b) Thanks [@frontier159](https://github.com/frontier159)! - Fixed `waitForTransactionReceipt` missing a replacement transaction, or reporting a repriced one as `replaced`, when the RPC returned addresses in a different case than for the replaced transaction.
+
+- [#5214](https://github.com/wevm/viem/pull/5214) [`0dc5f580bbff294837237dd2793c666101cda91c`](https://github.com/wevm/viem/commit/0dc5f580bbff294837237dd2793c666101cda91c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `Relay.keyAuthorization` plugin to `viem/tempo`, which saves key authorizations signed with `Actions.accessKey.signAuthorization` (including configurable account authorizations at quorum) and attaches them to the access key's next transaction, and added `Actions.accessKey.saveAuthorization` for authorizations signed elsewhere.
+
+- [#5213](https://github.com/wevm/viem/pull/5213) [`dd7369899c45e78a0a5278cc207d425337e563c8`](https://github.com/wevm/viem/commit/dd7369899c45e78a0a5278cc207d425337e563c8) Thanks [@EperezOk](https://github.com/EperezOk)! - Fixed `unsubscribe()` on `webSocket` and `ipc` transports using a stale subscription id after a reconnect, which leaked the subscription.
+
+- [#5216](https://github.com/wevm/viem/pull/5216) [`0872b534d3d6217a64530e526e7c9c2a7751d44c`](https://github.com/wevm/viem/commit/0872b534d3d6217a64530e526e7c9c2a7751d44c) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed experimental native multisig APIs to configurable accounts ([TIP-1107](https://tips.sh/1107)).
+
+- [#5221](https://github.com/wevm/viem/pull/5221) [`21205c90f4b4c695c0db8a47a97f4130c85d327e`](https://github.com/wevm/viem/commit/21205c90f4b4c695c0db8a47a97f4130c85d327e) Thanks [@Slokh](https://github.com/Slokh)! - Updated the Tempo mainnet and testnet Earn factory addresses to the latest releases.
+
 ## 2.57.4
 
 ### Patch Changes
