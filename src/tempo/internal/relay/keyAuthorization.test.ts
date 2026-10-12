@@ -1,4 +1,5 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
+import { Hex } from 'ox'
 import { KeyAuthorization } from 'ox/tempo'
 import { createClient, http, isAddressEqual, zeroAddress } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
@@ -9,7 +10,7 @@ import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import { wait } from '../../../utils/wait.js'
 import { parseApproval } from '../../accounts/Signature.js'
-import { write } from './keyAuthorization.js'
+import { remove, write } from './keyAuthorization.js'
 
 const root = Tempo.accounts[1]!
 const feeToken = Tempo.addresses.alphaUsd
@@ -455,6 +456,69 @@ test('error: repeated compare-and-set conflicts', async () => {
     shortMessage:
       'Pending key authorization could not be written after repeated conflicts.',
   })
+})
+
+test('behavior: replaces a pending key authorization whose witness was burned', async () => {
+  const store = Store.memory()
+  const relay = Relay.create({
+    client: caller,
+    plugins: [Relay.keyAuthorization({ store })],
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.keyAuthorization({ store })],
+    }),
+  })
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const witness = Hex.random(32)
+  const [burned, replacement] = await Promise.all([
+    Actions.accessKey.signAuthorization(caller, {
+      account: root,
+      accessKey,
+      witness,
+    }),
+    Actions.accessKey.signAuthorization(caller, {
+      account: root,
+      accessKey,
+    }),
+  ])
+  const save = (keyAuthorization: KeyAuthorization.Signed) =>
+    relay.request({
+      method: 'relay_setKeyAuthorization',
+      params: [KeyAuthorization.toRpc(keyAuthorization)],
+    })
+
+  await save(burned)
+  await Actions.accessKey.burnWitnessSync(caller, {
+    account: root,
+    feeToken,
+    witness,
+  })
+
+  await expect(save(burned)).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: Key authorization witness has been burned.]`,
+  )
+  expect(await save(replacement)).toMatchInlineSnapshot(`null`)
+  const { transaction } = await fillTransaction(client, {
+    account: accessKey,
+    feeToken,
+    to: zeroAddress,
+  })
+  expect(transaction.keyAuthorization).toEqual(replacement)
+})
+
+test('behavior: removes only an unchanged stored value', async () => {
+  const store = Store.memory()
+
+  await store.setItem('key', 'newer')
+  await remove(store, { key: 'key', value: 'older' })
+
+  expect(await store.getItem('key')).toMatchInlineSnapshot(`"newer"`)
+
+  await remove(store, { key: 'key', value: 'newer' })
+
+  expect(await store.getItem('key')).toMatchInlineSnapshot(`null`)
 })
 
 test('error: requires an atomic store', () => {

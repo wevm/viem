@@ -40,11 +40,15 @@ export function create(
           throw new RpcResponse.InvalidParamsError({
             message: 'Conflicting chain ids.',
           })
-        const account = await check(
-          context.getClient(chainId),
-          keyAuthorization,
-        )
+        const client = context.getClient(chainId)
+        const account = await check(client, keyAuthorization)
         if (!account) return null
+        // Drop an unusable pending authorization so it cannot block this one.
+        await read(client, store, {
+          account,
+          accessKey: keyAuthorization.address,
+          chainId,
+        })
         if (!(await write(store, { account, keyAuthorization })))
           throw new RpcResponse.InvalidParamsError({
             message:
@@ -66,11 +70,18 @@ export function create(
         // stored success may predate a config rotation. The approval itself
         // succeeded, so an authorization that fails these checks, or loses to a
         // newer pending one, is skipped rather than reported.
-        const account = await check(
-          context.getClient(Number(keyAuthorization.chainId)),
-          keyAuthorization,
-        ).catch(() => undefined)
-        if (account) await write(store, { account, keyAuthorization })
+        const chainId = Number(keyAuthorization.chainId)
+        const client = context.getClient(chainId)
+        const account = await check(client, keyAuthorization).catch(
+          () => undefined,
+        )
+        if (!account) return
+        await read(client, store, {
+          account,
+          accessKey: keyAuthorization.address,
+          chainId,
+        })
+        await write(store, { account, keyAuthorization })
         return
       }
 
@@ -85,40 +96,22 @@ export function create(
       )
         return next()
 
-      const chainId = context.options.chainId!
-      const key = getKey({
+      const pending = await read(context.client, store, {
         account: account as Address,
         accessKey: accessKey as Address,
-        chainId,
+        chainId: context.options.chainId!,
       })
-      const keyAuthorization = await (async () => {
-        const value = await store.getItem(key)
-        if (!value) return undefined
-        const keyAuthorization = (() => {
-          try {
-            return KeyAuthorization.deserialize(value as `0x${string}`)
-          } catch {
-            return undefined
-          }
-        })()
-        if (!keyAuthorization || isExpired(keyAuthorization)) {
-          await store.removeItem(key)
-          return undefined
-        }
-        const metadata = await Actions.accessKey.getMetadata(context.client, {
-          account: account as Address,
-          accessKey: accessKey as Address,
-        })
-        // The key already landed onchain, so the authorization is spent.
-        if (isActive(metadata, accessKey as Address)) {
-          await store.removeItem(key)
-          return undefined
-        }
-        return KeyAuthorization.toRpc(
-          keyAuthorization as KeyAuthorization.Signed,
-        )
-      })()
-      if (!keyAuthorization) return next()
+      if (!pending) return next()
+      const metadata = await Actions.accessKey.getMetadata(context.client, {
+        account: account as Address,
+        accessKey: accessKey as Address,
+      })
+      // The key already landed onchain, so the authorization is spent.
+      if (isActive(metadata, accessKey as Address)) {
+        await remove(store, pending)
+        return next()
+      }
+      const keyAuthorization = KeyAuthorization.toRpc(pending.keyAuthorization)
 
       // Attach before forwarding so gas estimation and later plugins see the authorization.
       context.request = {
@@ -161,6 +154,10 @@ async function check(
       message: 'Key authorization has expired.',
     })
   const account = await verify(client, keyAuthorization)
+  if (await isBurned(client, { account, keyAuthorization }))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Key authorization witness has been burned.',
+    })
   // Authorizations for keys that are already active would only be removed on the next fill.
   const metadata = await Actions.accessKey.getMetadata(client, {
     account,
@@ -235,6 +232,64 @@ async function verify(
       message: 'Key authorization must be signed by its account.',
     })
   return signer
+}
+
+/**
+ * Reads the pending authorization for an access key. Entries that are malformed,
+ * expired, or whose witness has been burned are removed.
+ */
+async function read(
+  client: Client,
+  store: Store.Atomic,
+  options: { account: Address; accessKey: Address; chainId: number },
+) {
+  const { account } = options
+  const key = getKey(options)
+  const value = await store.getItem(key)
+  if (!value) return undefined
+  const keyAuthorization = (() => {
+    try {
+      return KeyAuthorization.deserialize(
+        value as `0x${string}`,
+      ) as KeyAuthorization.Signed
+    } catch {
+      return undefined
+    }
+  })()
+  if (
+    keyAuthorization &&
+    !isExpired(keyAuthorization) &&
+    !(await isBurned(client, { account, keyAuthorization }))
+  )
+    return { key, keyAuthorization, value }
+  await remove(store, { key, value })
+  return undefined
+}
+
+/**
+ * Removes a stored authorization only while it still holds the value that was read,
+ * so a concurrently saved replacement survives. The empty value expires immediately.
+ * @internal
+ */
+export async function remove(
+  store: Store.Atomic,
+  options: { key: string; value: string },
+) {
+  const { key, value } = options
+  await store.compareAndSet(key, value, '', { expiresAt: Date.now() })
+}
+
+/** Returns whether the authorization's witness has been burned onchain. */
+async function isBurned(
+  client: Client,
+  options: { account: Address; keyAuthorization: KeyAuthorization.Signed },
+) {
+  const { account, keyAuthorization } = options
+  if (!keyAuthorization.witness) return false
+  return Actions.accessKey.isWitnessBurned(client, {
+    account,
+    witness: keyAuthorization.witness,
+  })
 }
 
 /**
@@ -330,7 +385,7 @@ function getKey(options: {
 }
 
 /** Thrown when a pending key authorization cannot be written after repeated conflicts. */
-export class StoreConflictError extends BaseError {
+class StoreConflictError extends BaseError {
   constructor() {
     super(
       'Pending key authorization could not be written after repeated conflicts.',

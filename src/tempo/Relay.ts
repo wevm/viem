@@ -308,55 +308,6 @@ export declare namespace Plugin {
   }
 }
 
-declare const keyAuthorizationBrand: unique symbol
-
-/**
- * Stores pending key authorizations and attaches them to the next fill that needs them.
- *
- * Signing a key authorization with `Actions.accessKey.signAuthorization` through a
- * relay with this plugin saves it with `relay_setKeyAuthorization`. Configurable
- * account key authorizations are saved once they reach quorum. The next `eth_fillTransaction`
- * from the access key includes the authorization until the key is active onchain.
- * Remote `withRelay` transports opt in with `keyAuthorization: true`.
- *
- * Place this plugin before `Relay.accounts` so it can observe completed configurable
- * account key authorizations, and before plugins that read the filled transaction.
- *
- * A saved authorization only replaces a pending authorization that expires earlier,
- * so a replayed older authorization cannot replace a newer one.
- *
- * Memory storage is process-local. Multiple server instances must use the same
- * persistent atomic store to share pending authorizations.
- *
- * @example
- * ```ts
- * import { http } from 'viem'
- * import { Relay, Store, withRelay } from 'viem/tempo'
- *
- * const transport = withRelay(http(), {
- *   plugins: [Relay.keyAuthorization({ store: Store.memory() })],
- * })
- * ```
- *
- * @param options - Pending key authorization storage.
- * @returns A plugin that stores and attaches pending key authorizations.
- */
-export function keyAuthorization(
-  options: keyAuthorization.Options = {},
-): keyAuthorization.ReturnType {
-  return KeyAuthorization.create(options)
-}
-
-export declare namespace keyAuthorization {
-  /** Key authorization storage options. */
-  export type Options = {
-    /** Store for pending key authorizations, with atomic compare-and-set support. Defaults to a process-local memory store. */
-    store?: Store.Atomic | undefined
-  }
-  /** Middleware advertising pending key authorization storage. */
-  export type ReturnType = Plugin & { readonly [keyAuthorizationBrand]: true }
-}
-
 declare const accountsBrand: unique symbol
 
 /**
@@ -454,6 +405,55 @@ export declare namespace feePayer {
  */
 export function feeToken(): Plugin {
   return FeeToken.create()
+}
+
+declare const keyAuthorizationBrand: unique symbol
+
+/**
+ * Stores pending key authorizations and attaches them to the next fill that needs them.
+ *
+ * Signing a key authorization with `Actions.accessKey.signAuthorization` through a
+ * relay with this plugin saves it with `relay_setKeyAuthorization`. Configurable
+ * account key authorizations are saved once they reach quorum. The next `eth_fillTransaction`
+ * from the access key includes the authorization until the key is active onchain.
+ * Remote `withRelay` transports opt in with `keyAuthorization: true`.
+ *
+ * Place this plugin before `Relay.accounts` so it can observe completed configurable
+ * account key authorizations, and before plugins that read the filled transaction.
+ *
+ * A saved authorization only replaces a pending authorization that expires earlier,
+ * so a replayed older authorization cannot replace a newer one.
+ *
+ * Memory storage is process-local. Multiple server instances must use the same
+ * persistent atomic store to share pending authorizations.
+ *
+ * @example
+ * ```ts
+ * import { http } from 'viem'
+ * import { Relay, Store, withRelay } from 'viem/tempo'
+ *
+ * const transport = withRelay(http(), {
+ *   plugins: [Relay.keyAuthorization({ store: Store.memory() })],
+ * })
+ * ```
+ *
+ * @param options - Pending key authorization storage.
+ * @returns A plugin that stores and attaches pending key authorizations.
+ */
+export function keyAuthorization(
+  options: keyAuthorization.Options = {},
+): keyAuthorization.ReturnType {
+  return KeyAuthorization.create(options)
+}
+
+export declare namespace keyAuthorization {
+  /** Key authorization storage options. */
+  export type Options = {
+    /** Store for pending key authorizations, with atomic compare-and-set support. Defaults to a process-local memory store. */
+    store?: Store.Atomic | undefined
+  }
+  /** Middleware advertising pending key authorization storage. */
+  export type ReturnType = Plugin & { readonly [keyAuthorizationBrand]: true }
 }
 
 /**

@@ -196,7 +196,7 @@ to save signed key authorizations to the relay.
 
 | Error | Description |
 | --- | --- |
-| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, or the authorization is unsigned, expired, signed by another account, below quorum, for another chain, or older than the pending authorization. |
+| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, or the authorization is unsigned, expired, signed by another account, below quorum, for another chain, burned, or older than the pending authorization. |
 | `Relay.KeyAuthorization.StoreConflictError` | Concurrent writes to the same access key did not settle after repeated attempts. |
 
 ## RPC Methods
@@ -207,8 +207,10 @@ Saves a signed key authorization for its account and access key. The authorizati
 must be signed by the account itself: a root key, or an owner quorum. Returns `null`.
 
 A saved authorization only replaces a pending one that expires earlier, so a replayed
-older authorization cannot replace a newer one. Authorizations for keys that are
-already active onchain are not saved.
+older authorization cannot replace a newer one. A pending authorization whose
+[witness has been burned](/tempo/actions/accessKey.burnWitness) is discarded, so a
+replacement can take its place. Authorizations for keys that are already active
+onchain, or whose own witness has been burned, are not saved.
 
 Anyone can save authorizations for accounts they control. Public relays should
 rate-limit this method at the HTTP layer.
