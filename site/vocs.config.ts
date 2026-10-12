@@ -3442,11 +3442,6 @@ export default defineConfig({
                   disabled: true,
                   text: 'Funding',
                 },
-                {
-                  badge: { text: '🚧', variant: 'warning' },
-                  disabled: true,
-                  text: 'Access Key State',
-                },
               ],
             },
           ],

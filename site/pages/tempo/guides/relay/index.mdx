@@ -22,7 +22,7 @@ flowchart LR
     feeToken[Best Fee Tokens]
     simulate[Balance Diffs]
     funding["🚧 Funding"]
-    accessKeyState["🚧 Access Key State"]
+    accessKeyState[Key Authorizations]
     accounts ~~~ simulate ~~~ accessKeyState
     feePayer ~~~ feeToken ~~~ funding
   end
@@ -36,11 +36,11 @@ chain rules. Clients rely on it for service availability and persistence.
 ## Plugins
 
 Compose plugins to sponsor transactions, resolve fee tokens, simulate
-balance changes, and coordinate owner approvals. The transaction plugins share
+balance changes, coordinate owner approvals, and attach pending key authorizations. The transaction plugins share
 the same middleware contract as custom plugins. Requests enter plugins in array
 order, and responses return in reverse order.
 
-Funding and access-key state plugins are planned.
+A funding plugin is planned.
 
 <Cards>
   <Card

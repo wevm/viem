@@ -9,10 +9,12 @@ through a relay. Use this action for authorizations signed elsewhere, such as on
 
 ## Usage
 
+### Standalone Action
+
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, P256 } from 'viem/tempo'
+import { Account, Actions, P256 } from 'viem/tempo'
 import { client } from './viem.config'
 
 const account = Account.fromSecp256k1('0x...')
@@ -25,20 +27,20 @@ const keyAuthorization = await account.signKeyAuthorization(accessKey, {
   expiry: Math.floor(Date.now() / 1000) + 86_400,
 })
 
-await client.accessKey.saveAuthorization({ keyAuthorization }) // [!code focus]
+await Actions.accessKey.saveAuthorization(client, { keyAuthorization }) // [!code focus]
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { http } from 'viem'
 import { tempo } from 'viem/chains'
-import { createClient, Relay, Store, tempoActions, withRelay } from 'viem/tempo'
+import { createClient, Relay, Store, withRelay } from 'viem/tempo'
 
 export const client = createClient({
   chain: tempo,
   transport: withRelay(http(), {
     plugins: [Relay.keyAuthorization({ store: Store.memory() })],
   }),
-}).extend(tempoActions())
+})
 ```
 
 :::
@@ -48,11 +50,9 @@ For a remote relay, pass `keyAuthorization: true` to [`withRelay`](/tempo/transp
 so `accessKey.signAuthorization` also saves automatically. This action works either way.
 :::
 
-## Return Type
+## Return Value
 
-```ts
-type ReturnType = void
-```
+`void`
 
 Resolves once the relay has stored the authorization, or has skipped it because the key is already active onchain.
 
@@ -65,6 +65,24 @@ Resolves once the relay has stored the authorization, or has skipped it because 
 The signed key authorization to save. It must be signed by the account itself (a root key or an owner
 quorum), unexpired, and for the relay's chain. A pending authorization for the same key is only
 replaced when the new one expires later.
+
+```ts twoslash
+import { http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Actions, createClient, Relay, withRelay } from 'viem/tempo'
+import type { KeyAuthorization } from 'ox/tempo'
+
+declare const keyAuthorization: KeyAuthorization.Signed
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), { plugins: [Relay.keyAuthorization()] }),
+})
+// ---cut---
+await Actions.accessKey.saveAuthorization(client, {
+  keyAuthorization, // [!code focus]
+})
+```
 
 ## Errors
 
