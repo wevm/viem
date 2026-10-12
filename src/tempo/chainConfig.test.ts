@@ -334,14 +334,14 @@ describe('prepareTransactionRequest', () => {
       releaseSecondRead = () => resolve(undefined)
     })
     const keyAuthorizationManager = KeyAuthorizationManager.from({
-      source: {
-        get() {
+      store: {
+        getItem() {
           reads++
           if (reads === 1) return undefined
           return secondRead
         },
-        remove() {},
-        set() {},
+        removeItem() {},
+        setItem() {},
       },
     })
     const account = Account.fromP256(generatePrivateKey(), {
@@ -371,16 +371,16 @@ describe('prepareTransactionRequest', () => {
     const release = withResolvers<void>()
     let getCount = 0
     const keyAuthorizationManager = KeyAuthorizationManager.from({
-      source: {
-        async get() {
+      store: {
+        async getItem() {
           getCount++
           if (getCount === 1) entered_1.resolve()
           if (getCount === 2) entered_2.resolve()
           await release.promise
           return undefined
         },
-        remove() {},
-        set() {},
+        removeItem() {},
+        setItem() {},
       },
     })
     const accessKey = Account.fromP256(generatePrivateKey(), {
@@ -491,7 +491,7 @@ describe('prepareTransactionRequest', () => {
       parameters: ['chainId'],
     })
 
-    expect(request.keyAuthorization).toBe(keyAuthorization)
+    expect(request.keyAuthorization).toEqual(keyAuthorization)
   })
 
   test('behavior: keyAuthorizationManager reads metadata without client account', async () => {
@@ -536,7 +536,7 @@ describe('prepareTransactionRequest', () => {
       | { from?: string | undefined }
       | undefined
 
-    expect(request.keyAuthorization).toBe(keyAuthorization)
+    expect(request.keyAuthorization).toEqual(keyAuthorization)
     expect(call?.from).toBeUndefined()
   })
 
