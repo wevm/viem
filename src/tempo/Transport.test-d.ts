@@ -17,35 +17,45 @@ test('local relay preserves transport attributes, capabilities, and RPC schemas'
   expectTypeOf(request({ method: 'example_echo', params: [1] })).toEqualTypeOf<
     Promise<string>
   >()
-  // @ts-expect-error Empty plugins do not advertise multisig.
-  plain.transport.multisig
+  // @ts-expect-error Empty plugins do not advertise accounts.
+  plain.transport.accounts
   // @ts-expect-error Empty plugins do not advertise key authorization storage.
   plain.transport.keyAuthorization
   // @ts-expect-error RPC parameters are preserved.
   request({ method: 'example_echo', params: ['1'] })
   const local = createClient({
     transport: withRelay(transport, {
-      plugins: [Relay.multisig({ store: Store.memory() })],
+      plugins: [Relay.accounts({ store: Store.memory() })],
     }),
   })
-  expectTypeOf(local.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(local.transport.accounts).toEqualTypeOf<true>()
   expectTypeOf(local.transport.type).toEqualTypeOf<'http'>()
-  // @ts-expect-error Multisig alone does not advertise key authorization storage.
+  // @ts-expect-error Accounts alone do not advertise key authorization storage.
   local.transport.keyAuthorization
   const stored = createClient({
     transport: withRelay(transport, {
       plugins: [
         Relay.keyAuthorization(),
-        Relay.multisig({ store: Store.memory() }),
+        Relay.accounts({ store: Store.memory() }),
       ],
     }),
   })
   expectTypeOf(stored.transport.keyAuthorization).toEqualTypeOf<true>()
-  expectTypeOf(stored.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(stored.transport.accounts).toEqualTypeOf<true>()
   const nested = createClient({
     transport: withRelay(withRelay(http(), http('https://relay.example')), {}),
   })
-  expectTypeOf(nested.transport.multisig).toEqualTypeOf<true>()
+  expectTypeOf(nested.transport.accounts).toEqualTypeOf<true>()
+  // @ts-expect-error Remote relays advertise key authorization storage only when enabled.
+  nested.transport.keyAuthorization
+  const remote = createClient({
+    transport: withRelay(http(), http('https://relay.example'), {
+      keyAuthorization: true,
+    }),
+  })
+  expectTypeOf(remote.transport.accounts).toEqualTypeOf<true>()
+  expectTypeOf(remote.transport.keyAuthorization).toEqualTypeOf<true>()
+  expectTypeOf(remote.transport.type).toEqualTypeOf<'relay'>()
   expectTypeOf(nested.transport.type).toEqualTypeOf<'relay'>()
   // @ts-expect-error Sponsorship policy belongs to remote mode.
   withRelay(http(), { plugins: [], policy: 'sign-only' })

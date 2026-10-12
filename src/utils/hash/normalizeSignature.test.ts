@@ -123,6 +123,24 @@ test('trim spaces', () => {
   )
 })
 
+test('leading space after opening parenthesis', () => {
+  expect(normalizeSignature('function foo( uint256 a )')).toBe('foo(uint256)')
+  expect(normalizeSignature('foo( uint256 a, address b)')).toBe(
+    'foo(uint256,address)',
+  )
+  expect(
+    normalizeSignature(
+      'event Transfer( address indexed from, address indexed to, uint256 value)',
+    ),
+  ).toBe('Transfer(address,address,uint256)')
+  expect(normalizeSignature('function foo(( uint256 a, bool b) c)')).toBe(
+    'foo((uint256,bool))',
+  )
+  expect(normalizeSignature('function foo( ( uint256 a, bool b)[] c)')).toBe(
+    'foo((uint256,bool)[])',
+  )
+})
+
 test('error: invalid signatures', () => {
   expect(() => normalizeSignature('bar')).toThrowErrorMatchingInlineSnapshot(
     `

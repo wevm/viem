@@ -46,8 +46,9 @@ export function normalizeSignature(
 
     // Ignore spaces
     if (char === ' ') {
-      // If the previous character is a separator, and the current section isn't empty, we want to deactivate.
-      if (signature[i - 1] !== ',' && current !== ',' && current !== ',(') {
+      // A space directly after a `(` or `,` separator is leading whitespace.
+      // Otherwise, it ends the type, so we want to deactivate.
+      if (!current.endsWith(',') && !current.endsWith('(')) {
         current = ''
         active = false
       }

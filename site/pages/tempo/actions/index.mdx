@@ -9,6 +9,11 @@
 | [`accessKey.revoke`](/tempo/actions/accessKey.revoke) | Revokes an authorized access key |
 | [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs or coordinates a key authorization (no transaction sent) |
 | [`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit) | Updates the spending limit for a specific token on an access key |
+| **Accounts Actions** | |
+| [`accounts.getConfig`](/tempo/actions/accounts.getConfig) | Gets the cached config selected by current chain state |
+| [`accounts.getOperation`](/tempo/actions/accounts.getOperation) | Gets a coordinated account operation by its hash |
+| [`accounts.updateConfig`](/tempo/actions/accounts.updateConfig) | Replaces a configurable account's current configuration |
+| [`accounts.updateConfigSync`](/tempo/actions/accounts.updateConfigSync) | Replaces a configurable account's current configuration and waits for confirmation |
 | **AMM Actions** | |
 | [`amm.burn`](/tempo/actions/amm.burn) | Burns liquidity tokens and receives the underlying token pair |
 | [`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance) | Gets the liquidity balance for an address in a specific pool |
@@ -54,11 +59,6 @@
 | [`fee.getUserToken`](/tempo/actions/fee.getUserToken) | Gets the user's default fee token preference |
 | [`fee.setUserToken`](/tempo/actions/fee.setUserToken) | Sets the user's default fee token preference |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
-| **Multisig Actions** | |
-| [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
-| [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |
-| [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) | Replaces a multisig account's current configuration |
-| [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync) | Replaces a multisig account's current configuration and waits for confirmation |
 | **Nonce Actions** | |
 | [`nonce.getNonce`](/tempo/actions/nonce.getNonce) | Gets the nonce for an account and nonce key |
 | [`nonce.watchNonceIncremented`](/tempo/actions/nonce.watchNonceIncremented) | Watches for nonce incremented events |

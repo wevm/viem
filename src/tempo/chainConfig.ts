@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 import {
-  MultisigConfig,
-  MultisigOperation,
-  type MultisigSimulation,
+  AccountConfig,
+  AccountOperation,
+  type AccountSimulation,
   SignatureEnvelope,
   type TokenId,
 } from 'ox/tempo'
@@ -20,9 +20,9 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account, MultisigAccount } from './Account.js'
+import type { Account, ConfigurableAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
-import { getConfig } from './actions/multisig.js'
+import { getConfig } from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
@@ -55,7 +55,7 @@ export const chainConfig = {
   prepareTransactionRequest: [
     async (r, { client, phase }) => {
       const request = r as Transaction.TransactionRequest & {
-        account?: Account | MultisigAccount | undefined
+        account?: Account | ConfigurableAccount | undefined
         chainId?: number | undefined
         chain?:
           | (Chain & {
@@ -67,8 +67,8 @@ export const chainConfig = {
         hash?: Hex.Hex | undefined
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
-        multisigSimulation?: MultisigSimulation.Spec | undefined
-        owner?: Account | MultisigAccount | Address | undefined
+        accountSimulation?: AccountSimulation.Spec | undefined
+        owner?: Account | ConfigurableAccount | Address | undefined
         signatures?: readonly unknown[] | undefined
       }
 
@@ -76,18 +76,18 @@ export const chainConfig = {
         if (
           !request.account ||
           typeof request.account === 'string' ||
-          request.account.source !== 'multisig'
+          request.account.source !== 'configurable'
         )
           throw new Error(
-            'A local multisig account is required to approve a stored multisig transaction.',
+            'A local configurable account is required to approve a stored configurable account transaction.',
           )
         if (!request.owner || typeof request.owner === 'string')
           throw new Error(
-            'A local owner account is required to approve a stored multisig transaction.',
+            'A local owner account is required to approve a stored configurable account transaction.',
           )
         if (request.owner.source !== 'root')
           throw new Error(
-            'A Tempo owner account is required to approve a stored multisig transaction.',
+            'A Tempo owner account is required to approve a stored configurable account transaction.',
           )
         const transaction = await getAction(
           client,
@@ -95,28 +95,28 @@ export const chainConfig = {
           'getTransaction',
         )({ hash: request.hash })
         const operation =
-          'multisig' in transaction
-            ? (transaction.multisig as
-                | MultisigOperation.TransactionOperation
+          'operation' in transaction
+            ? (transaction.operation as
+                | AccountOperation.TransactionOperation
                 | undefined)
             : undefined
         if (!operation)
-          throw new Error('Expected a multisig operation transaction.')
+          throw new Error('Expected an account operation transaction.')
         if (!isAddressEqual(operation.account, request.account.address))
           throw new Error(
-            'Multisig operation account does not match the requested account.',
+            'Account operation account does not match the requested account.',
           )
         const storedTransaction = Transaction.deserialize(
           operation.transaction as Transaction.TransactionSerializedTempo,
         )
-        const hash = MultisigOperation.getHash({
+        const hash = AccountOperation.getHash({
           account: operation.account,
           config: operation.config,
           transaction: operation.transaction,
           type: 'transaction',
         })
         if (hash.toLowerCase() !== request.hash.toLowerCase())
-          throw new Error('Multisig operation hash does not match transaction.')
+          throw new Error('Account operation hash does not match transaction.')
         return {
           ...storedTransaction,
           // Serialized zero values must not trigger a new fill of an approved transaction.
@@ -125,7 +125,7 @@ export const chainConfig = {
           maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
           account: request.account,
           from: operation.account,
-          multisigSimulation: getMultisigSimulation({
+          accountSimulation: getAccountSimulation({
             config: operation.config,
             local: request.account,
           }),
@@ -151,40 +151,40 @@ export const chainConfig = {
         return request as unknown as typeof r
       }
 
-      const multisigIdentity = (() => {
-        if (request.account?.source === 'multisig')
+      const configurableIdentity = (() => {
+        if (request.account?.source === 'configurable')
           return {
             account: request.account.address,
-            config: (request.account as MultisigAccount).config,
-            local: request.account as MultisigAccount,
+            config: (request.account as ConfigurableAccount).config,
+            local: request.account as ConfigurableAccount,
           }
         return undefined
       })()
-      if (request.owner && !multisigIdentity)
+      if (request.owner && !configurableIdentity)
         throw new Error(
-          'A multisig account is required when an owner is provided.',
+          'A configurable account is required when an owner is provided.',
         )
       if (request.owner && typeof request.owner === 'string')
         throw new Error(
-          'A local owner account is required to approve a multisig transaction.',
+          'A local owner account is required to approve a configurable account transaction.',
         )
       if (request.owner && request.owner.source !== 'root')
         throw new Error(
-          'A Tempo owner account is required to approve a multisig transaction.',
+          'A Tempo owner account is required to approve a configurable account transaction.',
         )
-      const coordinatedMultisig =
-        !!multisigIdentity &&
+      const coordinated =
+        !!configurableIdentity &&
         !!request.owner &&
-        (client.transport as { multisig?: boolean }).multisig === true
-      if (multisigIdentity) {
-        const { account, local } = multisigIdentity
+        (client.transport as { accounts?: boolean }).accounts === true
+      if (configurableIdentity) {
+        const { account, local } = configurableIdentity
         if (!account)
           throw new Error(
-            'A multisig account address is required with a current config.',
+            'A configurable account address is required with a current config.',
           )
         const config = await (async () => {
-          if (multisigIdentity.config) return multisigIdentity.config
-          if (!coordinatedMultisig) return undefined
+          if (configurableIdentity.config) return configurableIdentity.config
+          if (!coordinated) return undefined
           const cachedConfig = await getAction(
             client,
             getConfig,
@@ -192,16 +192,16 @@ export const chainConfig = {
           )({ address: account })
           if (!cachedConfig)
             throw new Error(
-              `No current multisig config is cached for account ${account}. Provide the current config.`,
+              `No current account config is cached for account ${account}. Provide the current config.`,
             )
           return cachedConfig
         })()
         if (!config)
           throw new Error(
-            'A multisig config is required to prepare a transaction.',
+            'An account config is required to prepare a transaction.',
           )
         request.from = account
-        request.multisigSimulation = getMultisigSimulation({
+        request.accountSimulation = getAccountSimulation({
           config,
           local,
         })
@@ -213,12 +213,12 @@ export const chainConfig = {
         if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
           return true
         if (typeof request.nonceKey !== 'undefined') return false
-        if (multisigIdentity) return false
+        if (configurableIdentity) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
         const account = request.account as
           | Account
-          | MultisigAccount
+          | ConfigurableAccount
           | Address
           | undefined
         const address = typeof account === 'string' ? account : account?.address
@@ -227,7 +227,7 @@ export const chainConfig = {
         return false
       })()
 
-      if (coordinatedMultisig && typeof request.nonceKey === 'undefined') {
+      if (coordinated && typeof request.nonceKey === 'undefined') {
         // A random nonce lane lets a stored approval ceremony remain valid
         // indefinitely without blocking other pending operations.
         request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
@@ -294,17 +294,17 @@ export const chainConfig = {
     transaction: serializeTransaction,
     async transactionEnvelope({ serializedTransaction, transaction }) {
       const request = transaction as Transaction.TransactionSerializableTempo
-      if (!request.multisigSimulation) return serializedTransaction
+      if (!request.accountSimulation) return serializedTransaction
       try {
         SignatureEnvelope.deserialize(serializedTransaction)
       } catch {
         const transaction = Transaction.deserialize(
           serializedTransaction as Transaction.TransactionSerializedTempo,
         )
-        if (transaction.signature?.type === 'multisig')
+        if (transaction.signature?.type === 'configurable')
           return serializedTransaction
         throw new Error(
-          'A Tempo owner account is required to approve a multisig transaction.',
+          'A Tempo owner account is required to approve a configurable account transaction.',
         )
       }
       return await serializeTransaction({
@@ -402,11 +402,11 @@ export const chainConfig = {
 
 export type ChainConfig = typeof chainConfig
 
-/** Builds a bounded multisig spec for gas simulation. */
-function getMultisigSimulation(options: {
-  config: MultisigConfig.Config
-  local?: MultisigAccount | undefined
-}): MultisigSimulation.Spec {
+/** Builds a bounded account spec for gas simulation. */
+function getAccountSimulation(options: {
+  config: AccountConfig.Config
+  local?: ConfigurableAccount | undefined
+}): AccountSimulation.Spec {
   const { config, local } = options
   return {
     approvals: selectOwners(config).map((owner) => {
@@ -453,7 +453,7 @@ function randomValidAfter(): number {
 }
 
 /** Selects a deterministic minimum-cardinality owner quorum. */
-function selectOwners(config: MultisigConfig.Config) {
+function selectOwners(config: AccountConfig.Config) {
   const owners = [...config.owners].sort(
     (a, b) =>
       Number(b.weight) - Number(a.weight) ||
@@ -461,7 +461,7 @@ function selectOwners(config: MultisigConfig.Config) {
   )
   const selected: typeof owners = []
   let weight = 0
-  for (const owner of owners.slice(0, MultisigConfig.maxSignatures)) {
+  for (const owner of owners.slice(0, AccountConfig.maxSignatures)) {
     if (weight >= Number(config.threshold)) break
     selected.push(owner)
     weight += Number(owner.weight)

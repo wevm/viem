@@ -3,7 +3,7 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
+import { AccountConfig, Channel, Period, SignatureEnvelope } from 'ox/tempo'
 import { privateKeyToAccount, toAccount } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
@@ -22,11 +22,11 @@ const privateKey_secp256k1 =
 const privateKey_p256 =
   '0x5c878151adef73f88b1c360d33e9bf9dd1b6e2e0e07bc555fc33cb8cf6bc9b28'
 
-describe('fromMultisig', () => {
+describe('fromConfig', () => {
   test('behavior: custom local owner', async () => {
     const owner = privateKeyToAccount(privateKey_secp256k1)
     const customOwner = toAccount(owner)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [{ owner: customOwner, weight: 2 }],
       threshold: 2,
     })
@@ -36,13 +36,13 @@ describe('fromMultisig', () => {
     )
 
     expect(customOwner.source).toBe('custom')
-    expect(signature.type).toBe('multisig')
-    if (signature.type !== 'multisig')
-      throw new Error('Expected multisig signature.')
+    expect(signature.type).toBe('configurable')
+    if (signature.type !== 'configurable')
+      throw new Error('Expected configurable account signature.')
     expect(signature.signatures).toHaveLength(1)
     expect(
       SignatureEnvelope.verify(signature.signatures[0]!, {
-        payload: MultisigConfig.getSignPayload({
+        payload: AccountConfig.getSignPayload({
           account: account.address,
           config: account.config,
           payload,
@@ -54,7 +54,7 @@ describe('fromMultisig', () => {
 
   test('behavior: initial config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [owner],
     })
 
@@ -80,7 +80,7 @@ describe('fromMultisig', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "multisig",
+        "source": "configurable",
         "type": "local",
       }
     `,
@@ -88,7 +88,7 @@ describe('fromMultisig', () => {
   })
 
   test('behavior: Tempo CREATE2 vector', () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: ['0x1111111111111111111111111111111111111111'],
     })
@@ -98,7 +98,7 @@ describe('fromMultisig', () => {
 
   test('behavior: current config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: '0x0000000000000000000000000000000000000001',
       owners: [owner],
       salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -128,7 +128,7 @@ describe('fromMultisig', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "multisig",
+        "source": "configurable",
         "type": "local",
       }
     `,
@@ -136,7 +136,7 @@ describe('fromMultisig', () => {
   })
 
   test('behavior: address-only account', () => {
-    const account = Account.fromMultisig(
+    const account = Account.fromConfig(
       '0x0000000000000000000000000000000000000001',
     )
 
@@ -150,7 +150,7 @@ describe('fromMultisig', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "multisig",
+        "source": "configurable",
         "type": "local",
       }
     `)
@@ -158,7 +158,7 @@ describe('fromMultisig', () => {
 
   test('error: zero current config version', () => {
     expect(() =>
-      Account.fromMultisig({
+      Account.fromConfig({
         address: '0x0000000000000000000000000000000000000001',
         owners: [tempo.accounts[0]],
         salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -166,19 +166,19 @@ describe('fromMultisig', () => {
         version: 0,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: A current multisig config must have a version.]`,
+      `[Error: A current account config must have a version.]`,
     )
   })
 
   test('error: nonzero initial config version', () => {
     expect(() =>
-      Account.fromMultisig({
+      Account.fromConfig({
         address: 'infer',
         owners: [tempo.accounts[0]],
         version: 1,
       } as never),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: An initial multisig config must have version zero.]`,
+      `[Error: An initial account config must have version zero.]`,
     )
   })
 })
@@ -573,21 +573,21 @@ describe('signTransaction', () => {
     )
   })
 
-  test('behavior: current multisig simulation', async () => {
+  test('behavior: current account simulation', async () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
-    const initialConfig = MultisigConfig.from({
+    const initialConfig = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
-    const config = MultisigConfig.from({ ...initialConfig, version: 1 })
+    const config = AccountConfig.from({ ...initialConfig, version: 1 })
     const request = {
       calls: [],
       chainId: 1,
       maxFeePerGas: parseGwei('10'),
-      from: MultisigConfig.getAddress(initialConfig, {
+      from: AccountConfig.getAddress(initialConfig, {
         factory: nativeMultisigFactory,
       }),
-      multisigSimulation: {
+      accountSimulation: {
         approvals: [{ owner: owner.address }],
         config,
       },
@@ -595,9 +595,9 @@ describe('signTransaction', () => {
     const signature = SignatureEnvelope.from(
       await owner.signTransaction(request),
     )
-    const { multisigSimulation: _, ...unsigned } = request
+    const { accountSimulation: _, ...unsigned } = request
     const payload = keccak256(await Transaction.serialize(unsigned))
-    const digest = MultisigConfig.getSignPayload({
+    const digest = AccountConfig.getSignPayload({
       account: request.from,
       config,
       payload,

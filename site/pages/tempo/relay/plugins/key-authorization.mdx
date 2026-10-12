@@ -74,11 +74,11 @@ Remote relays opt in with `keyAuthorization: true`, since the client cannot dete
 the relay's plugins. The relay checks onchain before attaching the authorization. Once the key is active,
 the stored authorization is removed. Expired authorizations are removed when read.
 
-### Authorize an Access Key for a Multisig
+### Authorize an Access Key for a Configurable Account
 
-Place `Relay.keyAuthorization` before [`Relay.multisig`](/tempo/relay/plugins/multisig).
-When owners approve a key authorization through the relay, the plugin saves it as
-soon as the approvals reach quorum.
+Place `Relay.keyAuthorization` before [`Relay.accounts`](/tempo/relay/plugins/accounts).
+When owners approve a key authorization through the relay, the plugin checks it again
+and saves it as soon as the approvals reach quorum.
 
 :::code-group
 
@@ -89,7 +89,7 @@ import { client } from './viem.config'
 
 const owner_1 = Account.fromSecp256k1(generatePrivateKey())
 const owner_2 = Account.fromSecp256k1(generatePrivateKey())
-const account = Account.fromMultisig({
+const account = Account.fromConfig({
   address: 'infer',
   owners: [owner_1, owner_2],
   threshold: 2,
@@ -127,7 +127,7 @@ export const client = createClient({
   transport: withRelay(http(), {
     plugins: [
       Relay.keyAuthorization({ store }), // [!code focus]
-      Relay.multisig({ store }), // [!code focus]
+      Relay.accounts({ store }), // [!code focus]
     ],
   }),
 })
@@ -148,7 +148,7 @@ export const client = createClient({
 :::
 
 Authorizations signed with external owner signatures are saved too. The relay checks
-the multisig config onchain and requires the approvals to reach quorum.
+the account config onchain and requires the approvals to reach quorum.
 
 ## `Relay.keyAuthorization`
 
@@ -196,14 +196,15 @@ to save signed key authorizations to the relay.
 
 | Error | Description |
 | --- | --- |
-| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, or the authorization is unsigned, expired, signed by another account, below multisig quorum, for another chain, or older than the pending authorization. |
+| `RpcResponse.InvalidParamsError` | The store lacks atomic operations, or the authorization is unsigned, expired, signed by another account, below quorum, for another chain, or older than the pending authorization. |
+| `Relay.KeyAuthorization.StoreConflictError` | Concurrent writes to the same access key did not settle after repeated attempts. |
 
 ## RPC Methods
 
 ### `relay_setKeyAuthorization`
 
 Saves a signed key authorization for its account and access key. The authorization
-must be signed by the account itself: a root key, or a multisig quorum. Returns `null`.
+must be signed by the account itself: a root key, or an owner quorum. Returns `null`.
 
 A saved authorization only replaces a pending one that expires earlier, so a replayed
 older authorization cannot replace a newer one. Authorizations for keys that are
@@ -221,7 +222,8 @@ When the request has a `keyId` and no `keyAuthorization`, the plugin attaches th
 pending authorization for that key before forwarding. Gas estimation and later
 plugins see the attached authorization.
 
-### `multisig_approveKeyAuthorization`
+### `account_approveKeyAuthorization`
 
-When the multisig plugin reports a successful key authorization operation, the
-plugin saves the completed authorization.
+When the accounts plugin reports a successful key authorization operation, the
+plugin checks the completed authorization again and saves it. Authorizations that
+expired before quorum, or whose account config has since changed, are skipped.

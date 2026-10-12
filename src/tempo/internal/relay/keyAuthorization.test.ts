@@ -8,7 +8,7 @@ import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import { wait } from '../../../utils/wait.js'
-import { parseApproval } from '../../multisig/Signature.js'
+import { parseApproval } from '../../accounts/Signature.js'
 import { write } from './keyAuthorization.js'
 
 const root = Tempo.accounts[1]!
@@ -432,6 +432,29 @@ test('behavior: writes replace malformed values and keep unbounded authorization
     ]
   `)
   expect(await store.getItem(key)).toBe(KeyAuthorization.serialize(admin))
+})
+
+test('error: repeated compare-and-set conflicts', async () => {
+  const store = Store.from({
+    compareAndSet: async () => false,
+    getItem: async () => null,
+    removeItem() {},
+    setItem() {},
+  })
+  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+  const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
+    account: root,
+    accessKey,
+    expiry: expiry(),
+  })
+
+  await expect(
+    write(store, { account: root.address, keyAuthorization }),
+  ).rejects.toMatchObject({
+    name: 'Relay.KeyAuthorization.StoreConflictError',
+    shortMessage:
+      'Pending key authorization could not be written after repeated conflicts.',
+  })
 })
 
 test('error: requires an atomic store', () => {

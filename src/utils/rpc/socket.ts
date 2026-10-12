@@ -260,8 +260,10 @@ export async function getSocketRpcClient<socket extends {}>(
               body.method === 'eth_subscribe' &&
               typeof response.result === 'string'
             )
+              // Store `onResponse` rather than `callback` (which filters by this request's
+              // id) so the re-subscribe on reconnect delivers the new id to the subscriber.
               subscriptions.set(response.result, {
-                onResponse: callback,
+                onResponse,
                 onError,
                 body,
               })

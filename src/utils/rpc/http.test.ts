@@ -214,6 +214,86 @@ describe('request', () => {
     await server.close()
   })
 
+  test('fetchOptions: signal does not disable timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+        timeout: 100,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+    expect(controller.signal.aborted).toBe(false)
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal listener is removed after request', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+    const addEventListener = vi.spyOn(controller.signal, 'addEventListener')
+    const removeEventListener = vi.spyOn(
+      controller.signal,
+      'removeEventListener',
+    )
+
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+      fetchOptions: { signal: controller.signal },
+    })
+
+    expect(addEventListener).toHaveBeenCalledTimes(1)
+    expect(removeEventListener).toHaveBeenCalledWith(
+      'abort',
+      addEventListener.mock.calls[0]![1],
+    )
+
+    await server.close()
+  })
+
+  test('timeout: response body stalls', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      // Send the headers and part of the body, then never finish it.
+      res.write('{"jsonrpc":"2.0","id":0,')
+    })
+    const client = getHttpRpcClient(server.url)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        timeout: 100,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"web3_clientVersion"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('onRequest', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))

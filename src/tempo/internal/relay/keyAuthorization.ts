@@ -1,18 +1,19 @@
 import type { Address } from 'abitype'
 import * as RpcResponse from 'ox/RpcResponse'
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   SignatureEnvelope,
 } from 'ox/tempo'
 import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
 import type { Client } from '../../../clients/createClient.js'
+import { BaseError } from '../../../errors/base.js'
 import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
 import * as Store from '../../Store.js'
-import { selectApprovals, validateConfig } from './multisig.js'
+import { selectApprovals, validateConfig } from './accounts.js'
 import * as Plugin from './plugin.js'
 
 /** Creates middleware that stores pending key authorizations and attaches them to fills. @internal */
@@ -39,18 +40,11 @@ export function create(
           throw new RpcResponse.InvalidParamsError({
             message: 'Conflicting chain ids.',
           })
-        if (isExpired(keyAuthorization))
-          throw new RpcResponse.InvalidParamsError({
-            message: 'Key authorization has expired.',
-          })
-        const client = context.getClient(chainId)
-        const account = await verify(client, keyAuthorization)
-        // Authorizations for keys that are already active would only be removed on the next fill.
-        const metadata = await Actions.accessKey.getMetadata(client, {
-          account,
-          accessKey: keyAuthorization.address,
-        })
-        if (isActive(metadata, keyAuthorization.address)) return null
+        const account = await check(
+          context.getClient(chainId),
+          keyAuthorization,
+        )
+        if (!account) return null
         if (!(await write(store, { account, keyAuthorization })))
           throw new RpcResponse.InvalidParamsError({
             message:
@@ -59,21 +53,24 @@ export function create(
         return null
       }
 
-      if (request.method === 'multisig_approveKeyAuthorization') {
+      if (request.method === 'account_approveKeyAuthorization') {
         await next()
-        // The multisig plugin validates the config and owner approvals before
-        // reporting success, so the completed authorization can be stored as is.
-        const operation = MultisigOperation.fromRpc(
-          context.result as MultisigOperation.Rpc,
-        ) as MultisigOperation.KeyAuthorizationOperation
+        const operation = AccountOperation.fromRpc(
+          context.result as AccountOperation.Rpc,
+        ) as AccountOperation.KeyAuthorizationOperation
         if (operation.status !== 'success') return
-        // A pending authorization that expires later is kept; the approval itself still succeeds.
-        await write(store, {
-          account: operation.account,
-          keyAuthorization: KeyAuthorization.deserialize(
-            operation.keyAuthorization,
-          ) as KeyAuthorization.Signed,
-        })
+        const keyAuthorization = KeyAuthorization.deserialize(
+          operation.keyAuthorization,
+        ) as KeyAuthorization.Signed
+        // Re-check completed operations: quorum may land after expiry, and a
+        // stored success may predate a config rotation. The approval itself
+        // succeeded, so an authorization that fails these checks, or loses to a
+        // newer pending one, is skipped rather than reported.
+        const account = await check(
+          context.getClient(Number(keyAuthorization.chainId)),
+          keyAuthorization,
+        ).catch(() => undefined)
+        if (account) await write(store, { account, keyAuthorization })
         return
       }
 
@@ -151,6 +148,28 @@ function parse(value: unknown) {
   return keyAuthorization as KeyAuthorization.Signed
 }
 
+/**
+ * Validates an authorization and returns the account it authorizes, or `undefined`
+ * when the access key is already active onchain.
+ */
+async function check(
+  client: Client,
+  keyAuthorization: KeyAuthorization.Signed,
+): Promise<Address | undefined> {
+  if (isExpired(keyAuthorization))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Key authorization has expired.',
+    })
+  const account = await verify(client, keyAuthorization)
+  // Authorizations for keys that are already active would only be removed on the next fill.
+  const metadata = await Actions.accessKey.getMetadata(client, {
+    account,
+    accessKey: keyAuthorization.address,
+  })
+  if (isActive(metadata, keyAuthorization.address)) return undefined
+  return account
+}
+
 /** Verifies the authorization signature and returns the account it authorizes. */
 async function verify(
   client: Client,
@@ -159,16 +178,16 @@ async function verify(
   const { signature, ...unsigned } = keyAuthorization
   const payload = KeyAuthorization.getSignPayload(unsigned)
 
-  if (signature.type === 'multisig') {
+  if (signature.type === 'configurable') {
     if (
       !keyAuthorization.account ||
       !isAddressEqual(keyAuthorization.account, signature.account)
     )
       throw new RpcResponse.InvalidParamsError({
         message:
-          'Multisig key authorization account does not match its signature.',
+          'Configurable account key authorization account does not match its signature.',
       })
-    const config = MultisigConfig.from(signature.config)
+    const config = AccountConfig.from(signature.config)
     await validateConfig({
       account: signature.account,
       blockNumber: await getBlockNumber(client, { cacheTime: 0 }),
@@ -181,7 +200,7 @@ async function verify(
         SignatureEnvelope.serialize(signature),
       ),
       config,
-      hash: MultisigConfig.getSignPayload({
+      hash: AccountConfig.getSignPayload({
         account: signature.account,
         config,
         payload,
@@ -189,7 +208,8 @@ async function verify(
     })
     if (approvals.weight < approvals.threshold)
       throw new RpcResponse.InvalidParamsError({
-        message: 'Multisig key authorization has not reached quorum.',
+        message:
+          'Configurable account key authorization has not reached quorum.',
       })
     return signature.account
   }
@@ -236,26 +256,32 @@ export async function write(
     chainId: Number(keyAuthorization.chainId),
   })
   const value = KeyAuthorization.serialize(keyAuthorization)
-  const current = (await store.getItem(key)) ?? null
-  const existing = (() => {
-    if (!current) return undefined
-    try {
-      return KeyAuthorization.deserialize(current as `0x${string}`)
-    } catch {
-      return undefined
-    }
-  })()
-  if (existing && current!.toLowerCase() === value.toLowerCase()) return true
-  if (existing && getExpiry(existing) >= getExpiry(keyAuthorization))
-    return false
   const expiresAt = Math.min(
     Date.now() + maxTtl,
     getExpiry(keyAuthorization) * 1_000,
   )
-  if (await store.compareAndSet(key, current, value, { expiresAt })) return true
-  // Another writer replaced the value, so compare against the new one.
-  return write(store, options)
+  for (let attempt = 0; attempt < maxWriteAttempts; attempt++) {
+    const current = (await store.getItem(key)) ?? null
+    const existing = (() => {
+      if (!current) return undefined
+      try {
+        return KeyAuthorization.deserialize(current as `0x${string}`)
+      } catch {
+        return undefined
+      }
+    })()
+    if (existing && current!.toLowerCase() === value.toLowerCase()) return true
+    if (existing && getExpiry(existing) >= getExpiry(keyAuthorization))
+      return false
+    // A lost compare-and-set means another writer replaced the value, so compare again.
+    if (await store.compareAndSet(key, current, value, { expiresAt }))
+      return true
+  }
+  throw new StoreConflictError()
 }
+
+/** Maximum compare-and-set attempts before a write is abandoned. */
+const maxWriteAttempts = 32
 
 /** Maximum time a pending key authorization is kept. */
 const maxTtl = 30 * 24 * 60 * 60 * 1_000
@@ -301,4 +327,14 @@ function getKey(options: {
     account.toLowerCase(),
     accessKey.toLowerCase(),
   ].join(':')
+}
+
+/** Thrown when a pending key authorization cannot be written after repeated conflicts. */
+export class StoreConflictError extends BaseError {
+  constructor() {
+    super(
+      'Pending key authorization could not be written after repeated conflicts.',
+      { name: 'Relay.KeyAuthorization.StoreConflictError' },
+    )
+  }
 }

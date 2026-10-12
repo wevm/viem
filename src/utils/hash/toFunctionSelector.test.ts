@@ -21,6 +21,9 @@ test('creates function signature', () => {
   )
   expect(toFunctionSelector('claimed()')).toEqual('0xe834a834')
   expect(toFunctionSelector('function claimed()')).toEqual('0xe834a834')
+  expect(toFunctionSelector('function ownerOf( uint256 tokenId )')).toEqual(
+    '0x6352211e',
+  )
 })
 
 test('creates function signature from `AbiFunction`', () => {

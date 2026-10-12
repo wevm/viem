@@ -3,6 +3,7 @@ import {
   createPublicClient,
   createTestClient,
   custom,
+  getAddress,
   http,
   type ReplacementReturnType,
 } from 'viem'
@@ -368,6 +369,77 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
+  })
+
+  test('repriced (rpc returns differently-cased addresses)', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    // Checksum pending transaction addresses; anvil returns mined ones lowercase.
+    const checksummingClient = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: custom({
+        async request(options) {
+          if (options.method !== 'eth_getTransactionByHash')
+            return client.request(options)
+          const transaction = await client.request({
+            method: 'eth_getTransactionByHash',
+            params: options.params,
+          })
+          if (transaction?.blockNumber !== null) return transaction
+          return {
+            ...transaction,
+            from: getAddress(transaction.from),
+            to: getAddress(transaction.to!),
+          }
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const [receipt, replacementHash] = await Promise.all([
+      waitForTransactionReceipt(checksummingClient, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+        timeout: 10_000,
+      }),
+      (async () => {
+        await wait(500)
+
+        // speed up
+        return sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
+        })
+      })(),
+    ])
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
   })
 
   test('replaced (different input)', async () => {
