@@ -413,7 +413,7 @@ declare const keyAuthorizationBrand: unique symbol
  * Stores pending key authorizations and attaches them to the next fill that needs them.
  *
  * Signing a key authorization with `Actions.accessKey.signAuthorization` through a
- * relay with this plugin saves it with `relay_setKeyAuthorization`. Configurable
+ * relay with this plugin saves it with `relay_saveKeyAuthorization`. Configurable
  * account key authorizations are saved once they reach quorum. The next `eth_fillTransaction`
  * from the access key includes the authorization until the key is active onchain.
  * Remote `withRelay` transports opt in with `keyAuthorization: true`.

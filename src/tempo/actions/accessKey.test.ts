@@ -4,6 +4,7 @@ import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
 import { toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
+import { fillTransaction } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import {
   Account,
@@ -15,7 +16,7 @@ import {
   withRelay,
 } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient, http } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -146,6 +147,44 @@ describe('authorize', () => {
       token: feeToken,
     })
     expect(remaining).toBe(1000000n)
+  })
+})
+
+describe('saveAuthorization', () => {
+  test('default', async () => {
+    const relayClient = getClient({
+      transport: withRelay(http(), { plugins: [Relay.keyAuthorization()] }),
+    })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 3_600,
+    })
+
+    await actions.accessKey.saveAuthorization(relayClient, { keyAuthorization })
+    const { transaction } = await fillTransaction(relayClient, {
+      account: accessKey,
+      feeToken,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(transaction.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('error: relay without key authorization storage', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 3_600,
+    })
+
+    await expect(
+      actions.accessKey.saveAuthorization(client, { keyAuthorization }),
+    ).rejects.toMatchObject({ name: 'MethodNotFoundRpcError' })
   })
 })
 

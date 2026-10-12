@@ -300,7 +300,7 @@ test('behavior: keeps a newer pending key authorization', async () => {
   )
   const save = (keyAuthorization: KeyAuthorization.Signed) =>
     relay.request({
-      method: 'relay_setKeyAuthorization',
+      method: 'relay_saveKeyAuthorization',
       params: [KeyAuthorization.toRpc(keyAuthorization)],
     })
   const fill = async () => {
@@ -346,7 +346,7 @@ test('behavior: does not save key authorizations for active keys', async () => {
 
   expect(
     await relay.request({
-      method: 'relay_setKeyAuthorization',
+      method: 'relay_saveKeyAuthorization',
       params: [KeyAuthorization.toRpc(keyAuthorization)],
     }),
   ).toMatchInlineSnapshot(`null`)
@@ -462,7 +462,7 @@ test('behavior: replaces a pending key authorization whose witness was burned', 
   ])
   const save = (keyAuthorization: KeyAuthorization.Signed) =>
     relay.request({
-      method: 'relay_setKeyAuthorization',
+      method: 'relay_saveKeyAuthorization',
       params: [KeyAuthorization.toRpc(keyAuthorization)],
     })
 
@@ -508,7 +508,7 @@ test('error: requires an atomic store', () => {
   )
 })
 
-describe('relay_setKeyAuthorization', () => {
+describe('relay_saveKeyAuthorization', () => {
   const relay = Relay.create({
     client: caller,
     plugins: [Relay.keyAuthorization()],
@@ -524,7 +524,7 @@ describe('relay_setKeyAuthorization', () => {
 
     expect(
       await relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.serialize(keyAuthorization)],
       }),
     ).toMatchInlineSnapshot(`null`)
@@ -548,7 +548,7 @@ describe('relay_setKeyAuthorization', () => {
 
     expect(
       await relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.toRpc(keyAuthorization)],
       }),
     ).toMatchInlineSnapshot(`null`)
@@ -565,7 +565,7 @@ describe('relay_setKeyAuthorization', () => {
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [
           KeyAuthorization.toRpc({
             ...keyAuthorization,
@@ -590,7 +590,7 @@ describe('relay_setKeyAuthorization', () => {
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [keyAuthorization],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -608,7 +608,7 @@ describe('relay_setKeyAuthorization', () => {
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.toRpc(keyAuthorization)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -627,7 +627,7 @@ describe('relay_setKeyAuthorization', () => {
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.toRpc(keyAuthorization)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -645,7 +645,7 @@ describe('relay_setKeyAuthorization', () => {
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [
           KeyAuthorization.toRpc({
             ...keyAuthorization,

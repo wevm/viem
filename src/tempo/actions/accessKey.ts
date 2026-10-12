@@ -1148,6 +1148,61 @@ export namespace prepareAuthorization {
 }
 
 /**
+ * Saves a signed key authorization to a relay with key authorization storage.
+ *
+ * The relay attaches the authorization to the access key's next transaction until
+ * the key is active onchain. Use this for authorizations signed outside
+ * {@link signAuthorization}, such as on another device. Requires a relay running the
+ * `Relay.keyAuthorization` plugin.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, withRelay } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: withRelay(http(), http('https://relay.example.com'), {
+ *     keyAuthorization: true,
+ *   }),
+ * })
+ *
+ * await Actions.accessKey.saveAuthorization(client, {
+ *   keyAuthorization,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ */
+export async function saveAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: saveAuthorization.Parameters,
+): Promise<saveAuthorization.ReturnValue> {
+  const { keyAuthorization } = parameters
+  await client.request<relay_saveKeyAuthorization>({
+    method: 'relay_saveKeyAuthorization',
+    params: [KeyAuthorization.toRpc(keyAuthorization)],
+  })
+}
+
+export namespace saveAuthorization {
+  export type Parameters = {
+    /** Signed key authorization to save. */
+    keyAuthorization: KeyAuthorization.Signed
+  }
+
+  export type ReturnValue = void
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Signs a key authorization for an access key.
  *
  * Use {@link prepareAuthorization} before this action when signing requires
@@ -1313,20 +1368,15 @@ export async function signAuthorization<
     signer &&
     parseAccount(signer).source !== 'accessKey'
   )
-    await client
-      .request<relay_setKeyAuthorization>({
-        method: 'relay_setKeyAuthorization',
-        params: [KeyAuthorization.toRpc(keyAuthorization)],
-      })
-      .catch((error) => {
-        // Remote relays without key authorization storage do not expose this method.
-        if (
-          error instanceof MethodNotFoundRpcError ||
-          error instanceof MethodNotSupportedRpcError
-        )
-          return
-        throw error
-      })
+    await saveAuthorization(client, { keyAuthorization }).catch((error) => {
+      // Remote relays without key authorization storage do not expose this method.
+      if (
+        error instanceof MethodNotFoundRpcError ||
+        error instanceof MethodNotSupportedRpcError
+      )
+        return
+      throw error
+    })
   return keyAuthorization
 }
 
@@ -1414,8 +1464,8 @@ async function signLocal<
   })
 }
 
-type relay_setKeyAuthorization = {
-  Method: 'relay_setKeyAuthorization'
+type relay_saveKeyAuthorization = {
+  Method: 'relay_saveKeyAuthorization'
   Parameters: [KeyAuthorization.Rpc]
   ReturnType: null
 }

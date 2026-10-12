@@ -692,7 +692,7 @@ describe.runIf(
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.toRpc(keyAuthorization)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -722,7 +722,7 @@ describe.runIf(
 
     await expect(
       relay.request({
-        method: 'relay_setKeyAuthorization',
+        method: 'relay_saveKeyAuthorization',
         params: [KeyAuthorization.toRpc(keyAuthorization)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(

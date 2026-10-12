@@ -152,6 +152,27 @@ export const client = createClient({
 Authorizations signed with external owner signatures are saved too. The relay checks
 the account config onchain and requires the approvals to reach quorum.
 
+### Save an Authorization Signed Elsewhere
+
+Authorizations signed outside the relay client, such as on another device, can be
+saved with [`accessKey.saveAuthorization`](/tempo/actions/accessKey.saveAuthorization).
+
+```ts twoslash
+import { http } from 'viem'
+import { tempo } from 'viem/chains'
+import { Actions, createClient, withRelay } from 'viem/tempo'
+import type { KeyAuthorization } from 'ox/tempo'
+
+declare const keyAuthorization: KeyAuthorization.Signed
+
+const client = createClient({
+  chain: tempo,
+  transport: withRelay(http(), http('https://relay.example.com/rpc')),
+})
+
+await Actions.accessKey.saveAuthorization(client, { keyAuthorization }) // [!code focus]
+```
+
 ## `Relay.keyAuthorization`
 
 Creates middleware that stores pending key authorizations and attaches them to fills.
@@ -203,7 +224,7 @@ to save signed key authorizations to the relay.
 
 ## RPC Methods
 
-### `relay_setKeyAuthorization`
+### `relay_saveKeyAuthorization`
 
 Saves a signed key authorization for its account and access key. The authorization
 must be signed by the account itself: a root key, or an owner quorum. Returns `null`.

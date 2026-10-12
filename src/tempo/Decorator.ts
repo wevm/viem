@@ -308,6 +308,34 @@ type DecoratorBase<
       parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.revokeSync.ReturnValue>
     /**
+     * Saves a signed key authorization to a relay with key authorization storage.
+     *
+     * The relay attaches the authorization to the access key's next transaction
+     * until the key is active onchain. Requires a relay running the
+     * `Relay.keyAuthorization` plugin.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions, withRelay } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: withRelay(http(), http('https://relay.example.com'), {
+     *     keyAuthorization: true,
+     *   }),
+     * }).extend(tempoActions())
+     *
+     * await client.accessKey.saveAuthorization({ keyAuthorization })
+     * ```
+     *
+     * @param parameters - Parameters.
+     */
+    saveAuthorization: (
+      parameters: accessKeyActions.saveAuthorization.Parameters,
+    ) => Promise<accessKeyActions.saveAuthorization.ReturnValue>
+    /**
      * Signs a key authorization or adds one coordinated owner approval.
      *
      * @example
@@ -6166,6 +6194,7 @@ export function decorator() {
         'prepareAuthorization',
         'revoke',
         'revokeSync',
+        'saveAuthorization',
         'signAuthorization',
         'updateLimit',
         'updateLimitSync',

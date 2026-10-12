@@ -2632,6 +2632,10 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.revoke',
                 },
                 {
+                  text: 'saveAuthorization',
+                  link: '/tempo/actions/accessKey.saveAuthorization',
+                },
+                {
                   text: 'signAuthorization',
                   link: '/tempo/actions/accessKey.signAuthorization',
                 },

@@ -30,7 +30,7 @@ export function create(
     async handleRequest(context, next) {
       const { request } = context
 
-      if (request.method === 'relay_setKeyAuthorization') {
+      if (request.method === 'relay_saveKeyAuthorization') {
         const keyAuthorization = parse(request.params?.[0])
         const chainId = Number(keyAuthorization.chainId)
         if (

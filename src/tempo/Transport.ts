@@ -214,7 +214,7 @@ export function withRelay(
           method === 'account_approveRawTransactionSync' ||
           method === 'account_getConfig' ||
           method === 'account_getOperation' ||
-          method === 'relay_setKeyAuthorization'
+          method === 'relay_saveKeyAuthorization'
         )
           return transport_relay.request({ method, params }, options) as never
 
