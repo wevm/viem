@@ -69,12 +69,14 @@ export function create(
         // Re-check completed operations: quorum may land after expiry, and a
         // stored success may predate a config rotation. The approval itself
         // succeeded, so an authorization that fails these checks, or loses to a
-        // newer pending one, is skipped rather than reported.
+        // newer pending one, is skipped rather than reported. Operational
+        // failures propagate so callers know storage did not complete.
         const chainId = Number(keyAuthorization.chainId)
         const client = context.getClient(chainId)
-        const account = await check(client, keyAuthorization).catch(
-          () => undefined,
-        )
+        const account = await check(client, keyAuthorization).catch((error) => {
+          if (error instanceof RpcResponse.InvalidParamsError) return undefined
+          throw error
+        })
         if (!account) return
         await read(client, store, {
           account,
@@ -259,6 +261,7 @@ async function read(
   if (
     keyAuthorization &&
     !isExpired(keyAuthorization) &&
+    (await isVerified(client, keyAuthorization)) &&
     !(await isBurned(client, { account, keyAuthorization }))
   )
     return { key, keyAuthorization, value }
@@ -277,6 +280,23 @@ export async function remove(
 ) {
   const { key, value } = options
   await store.compareAndSet(key, value, '', { expiresAt: Date.now() })
+}
+
+/**
+ * Returns whether the authorization still verifies, such as after a configurable
+ * account rotates its config. Operational failures propagate.
+ */
+async function isVerified(
+  client: Client,
+  keyAuthorization: KeyAuthorization.Signed,
+) {
+  try {
+    await verify(client, keyAuthorization)
+    return true
+  } catch (error) {
+    if (error instanceof RpcResponse.InvalidParamsError) return false
+    throw error
+  }
 }
 
 /** Returns whether the authorization's witness has been burned onchain. */

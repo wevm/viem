@@ -72,7 +72,9 @@ export const client = createClient({
 
 Remote relays opt in with `keyAuthorization: true`, since the client cannot detect
 the relay's plugins. The relay checks onchain before attaching the authorization. Once the key is active,
-the stored authorization is removed. Expired authorizations are removed when read.
+the stored authorization is removed. Authorizations that have expired, or no longer
+verify (for example after a configurable account rotates its config), are removed
+when read.
 
 ### Authorize an Access Key for a Configurable Account
 

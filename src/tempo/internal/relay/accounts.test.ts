@@ -542,6 +542,73 @@ describe.runIf(
     ).rejects.toThrow('KeyNotFound')
   })
 
+  test('behavior: discards a pending key authorization after a config rotation', async () => {
+    const owner = Tempo.accounts[18]!
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner],
+      salt: toHex(0x514104, { size: 32 }),
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    const store = Store.memory()
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.keyAuthorization({ store }),
+          Relay.accounts({ store: Store.memory() }),
+        ],
+      }),
+    })
+    const key = [
+      'keyAuthorization',
+      Tempo.chain.id,
+      account.address.toLowerCase(),
+      accessKey.accessKeyAddress.toLowerCase(),
+    ].join(':')
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token: Tempo.addresses.alphaUsd,
+      to: account.address,
+      amount: 100_000n,
+    })
+    await Actions.token.transferSync(caller, {
+      account,
+      amount: 1n,
+      feeToken: Tempo.addresses.alphaUsd,
+      to: recipient.address,
+      token: Tempo.addresses.alphaUsd,
+    })
+
+    await Actions.accessKey.signAuthorization(client, { account, accessKey })
+
+    expect(await store.getItem(key)).toBeTruthy()
+
+    await Actions.accounts.updateConfigSync(caller, {
+      account,
+      currentConfig: account.config,
+      feeToken: Tempo.addresses.alphaUsd,
+      nextConfig: {
+        owners: [
+          { owner: owner.address, weight: 1 },
+          { owner: recipient.address, weight: 1 },
+        ],
+        threshold: 1,
+      },
+    })
+
+    await expect(
+      fillTransaction(client, {
+        account: accessKey,
+        feeToken: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+      }),
+    ).rejects.toThrow('KeyNotFound')
+    expect(await store.getItem(key)).toBeNull()
+  })
+
   test('behavior: attaches a key authorization signed by external owners', async () => {
     const owners = [Tempo.accounts[13]!, Tempo.accounts[14]!] as const
     const account = Account.fromConfig({

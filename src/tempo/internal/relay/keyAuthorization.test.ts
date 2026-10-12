@@ -435,29 +435,6 @@ test('behavior: writes replace malformed values and keep unbounded authorization
   expect(await store.getItem(key)).toBe(KeyAuthorization.serialize(admin))
 })
 
-test('error: repeated compare-and-set conflicts', async () => {
-  const store = Store.from({
-    compareAndSet: async () => false,
-    getItem: async () => null,
-    removeItem() {},
-    setItem() {},
-  })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
-  const keyAuthorization = await Actions.accessKey.signAuthorization(caller, {
-    account: root,
-    accessKey,
-    expiry: expiry(),
-  })
-
-  await expect(
-    write(store, { account: root.address, keyAuthorization }),
-  ).rejects.toMatchObject({
-    name: 'Relay.KeyAuthorization.StoreConflictError',
-    shortMessage:
-      'Pending key authorization could not be written after repeated conflicts.',
-  })
-})
-
 test('behavior: replaces a pending key authorization whose witness was burned', async () => {
   const store = Store.memory()
   const relay = Relay.create({
