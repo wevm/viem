@@ -1,8 +1,6 @@
 # `zone.getZoneInfo`
 
-Returns metadata about the current zone, including account access enforcement and callback gateway
-registration enforcement. The Zone RPC must include `tempoBlockNumber` in `zone_getZoneInfo`; nodes
-without that field are unsupported.
+Returns metadata about the current zone, including account access enforcement and callback gateway registration enforcement. The Zone RPC must include `tempoBlockNumber` in `zone_getZoneInfo`; nodes without that field are unsupported.
 
 ## Usage
 
@@ -45,6 +43,4 @@ type ReturnType = {
 }
 ```
 
-`isAccessEnforced` is `true` when account allowlist enforcement is enabled. `isGatewayOpen` is `true`
-when withdrawal callbacks may target unregistered gateways. `tempoBlockNumber` is the latest Tempo
-block imported by the zone.
+`isAccessEnforced` is `true` when account allowlist enforcement is enabled. `isGatewayOpen` is `true` when withdrawal callbacks may target unregistered gateways. `tempoBlockNumber` is the latest Tempo block imported by the zone.

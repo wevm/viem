@@ -8,28 +8,21 @@ import { Card, Cards } from 'vocs'
 
 ## Overview
 
-Funds enter a zone by depositing them from Tempo Mainnet into the zone's contract. The deposit is
-submitted on Mainnet against the L1 client, and the corresponding balance appears inside the zone once
-the deposit is processed. The current ZonePortal protocol encrypts the recipient and memo before
-submitting the deposit.
+Funds enter a zone by depositing them from Tempo Mainnet into the zone's contract. The deposit is submitted on Mainnet against the L1 client, and the corresponding balance appears inside the zone once the deposit is processed. The current ZonePortal protocol encrypts the recipient and memo before submitting the deposit.
 
 [See the Zone Bridging specification](https://docs.tempo.xyz/protocol/zones/bridging)
 
 :::warning
-Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and
-do not use them in production.
+Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and do not use them in production.
 :::
 
 ## Recipes
 
-These recipes assume you have [set up a Tempo client](/tempo) for Mainnet and
-[connected to a zone](/tempo/guides/zones/connect).
+These recipes assume you have [set up a Tempo client](/tempo) for Mainnet and [connected to a zone](/tempo/guides/zones/connect).
 
 ### Deposit to a Zone
 
-Deposit a TIP-20 token from your Mainnet balance with
-[`zone.encryptedDepositSync`](/tempo/actions/zone.encryptedDeposit). The deposit runs on Mainnet, and
-the recipient and memo are decryptable only by the zone operator.
+Deposit a TIP-20 token from your Mainnet balance with [`zone.encryptedDepositSync`](/tempo/actions/zone.encryptedDeposit). The deposit runs on Mainnet, and the recipient and memo are decryptable only by the zone operator.
 
 :::code-group
 
@@ -74,14 +67,9 @@ const info = await client.zone.waitForTempoBlock({
 
 ### Read Deposit Outcomes
 
-After the zone imports a Tempo block, use [`getContractEvents`](/docs/contract/getContractEvents)
-with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. The inbox
-`depositHash` is the running queue hash emitted as `newCurrentDepositQueueHash` by the portal's
-`DepositMade` event for that deposit, including the earlier queue entries.
+After the zone imports a Tempo block, use [`getContractEvents`](/docs/contract/getContractEvents) with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. The inbox `depositHash` is the running queue hash emitted as `newCurrentDepositQueueHash` by the portal's `DepositMade` event for that deposit, including the earlier queue entries.
 
-Extract that hash from the parent-chain receipt with [`parseEventLogs`](/docs/contract/parseEventLogs)
-and filter inbox outcomes by it. Importing a block alone does not establish that its deposits were
-credited.
+Extract that hash from the parent-chain receipt with [`parseEventLogs`](/docs/contract/parseEventLogs) and filter inbox outcomes by it. Importing a block alone does not establish that its deposits were credited.
 
 :::code-group
 
@@ -138,17 +126,11 @@ const outcome = outcomes.find((log) =>
 
 ### Deposit on Mainnet, Read on the Zone
 
-Deposits are L1 actions sent with your Mainnet client, while outcome events and balance reads come
-from the zone client. Keep both clients configured so you can submit a deposit and then check its
-processing result.
+Deposits are L1 actions sent with your Mainnet client, while outcome events and balance reads come from the zone client. Keep both clients configured so you can submit a deposit and then check its processing result.
 
 ### Prepare Private Details Before Broadcasting
 
-If another wallet or service will broadcast the deposit, use
-[`zone.encryptedDeposit.prepare`](/tempo/actions/zone.encryptedDeposit#prepared-usage) to encrypt the
-private recipient and memo first. The broadcaster can pass the returned payload directly to
-[`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) without learning the private details.
-Validate the public transaction details before broadcasting a prepared payload from another party.
+If another wallet or service will broadcast the deposit, use [`zone.encryptedDeposit.prepare`](/tempo/actions/zone.encryptedDeposit#prepared-usage) to encrypt the private recipient and memo first. The broadcaster can pass the returned payload directly to [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) without learning the private details. Validate the public transaction details before broadcasting a prepared payload from another party.
 
 ## See More
 
