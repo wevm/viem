@@ -86,6 +86,7 @@ describe('decorator', () => {
     expect(typeof client2.token.watchUpdateQuoteToken).toBe('function')
     expect(typeof client2.accessKey.verifyHash).toBe('function')
     expect(typeof client2.accessKey.prepareAuthorization).toBe('function')
+    expect(typeof client2.accessKey.saveAuthorization).toBe('function')
     expect(typeof client2.accessKey.signAuthorization).toBe('function')
     expect(typeof client2.zone.getEncryptionKey).toBe('function')
     expect(typeof client2.zone.waitForTempoBlock).toBe('function')

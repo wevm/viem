@@ -775,8 +775,8 @@ function assertConfig(options: {
     })
 }
 
-/** Reads and validates a config commitment at one block. */
-async function validateConfig(options: {
+/** Reads and validates a config commitment at one block. @internal */
+export async function validateConfig(options: {
   account: `0x${string}`
   blockNumber: bigint
   client: ReturnType<typeof createClient>
@@ -855,8 +855,8 @@ declare namespace cacheNextConfigs {
   }
 }
 
-/** Validates primitive approvals and translates invalid input into an RPC error. */
-async function selectApprovals(
+/** Validates primitive approvals and translates invalid input into an RPC error. @internal */
+export async function selectApprovals(
   options: AccountOperation.selectApprovals.Options,
 ) {
   try {

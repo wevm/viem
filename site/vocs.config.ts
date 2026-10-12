@@ -2632,6 +2632,10 @@ export default defineConfig({
                   link: '/tempo/actions/accessKey.revoke',
                 },
                 {
+                  text: 'saveAuthorization',
+                  link: '/tempo/actions/accessKey.saveAuthorization',
+                },
+                {
                   text: 'signAuthorization',
                   link: '/tempo/actions/accessKey.signAuthorization',
                 },
@@ -3423,6 +3427,10 @@ export default defineConfig({
                   link: '/tempo/relay/plugins/fee-payer',
                 },
                 { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+                {
+                  text: 'Key Authorization',
+                  link: '/tempo/relay/plugins/key-authorization',
+                },
                 { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
                 {
                   badge: { text: 'EXP', variant: 'warning' },
@@ -3433,11 +3441,6 @@ export default defineConfig({
                   badge: { text: '🚧', variant: 'warning' },
                   disabled: true,
                   text: 'Funding',
-                },
-                {
-                  badge: { text: '🚧', variant: 'warning' },
-                  disabled: true,
-                  text: 'Access Key State',
                 },
               ],
             },

@@ -21,6 +21,10 @@ import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../../errors/rpc.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
@@ -174,7 +178,7 @@ export namespace authorize {
     const account_ = rest.account ?? client.account
     if (!account_) throw new Error('account is required.')
     if (!chainId) throw new Error('chainId is required.')
-    const keyAuthorization = await signAuthorization(client, {
+    const keyAuthorization = await signLocal(client, {
       account: account_,
       accessKey,
       chainId,
@@ -1144,10 +1148,69 @@ export namespace prepareAuthorization {
 }
 
 /**
+ * Saves a signed key authorization to a relay with key authorization storage.
+ *
+ * The relay attaches the authorization to the access key's next transaction until
+ * the key is active onchain. Use this for authorizations signed outside
+ * {@link signAuthorization}, such as on another device. Requires a relay running the
+ * `Relay.keyAuthorization` plugin.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, withRelay } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: withRelay(http(), http('https://relay.example.com'), {
+ *     keyAuthorization: true,
+ *   }),
+ * })
+ *
+ * await Actions.accessKey.saveAuthorization(client, {
+ *   keyAuthorization,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ */
+export async function saveAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: saveAuthorization.Parameters,
+): Promise<saveAuthorization.ReturnValue> {
+  const { keyAuthorization } = parameters
+  await client.request<relay_saveKeyAuthorization>({
+    method: 'relay_saveKeyAuthorization',
+    params: [KeyAuthorization.toRpc(keyAuthorization)],
+  })
+}
+
+export namespace saveAuthorization {
+  export type Parameters = {
+    /** Signed key authorization to save. */
+    keyAuthorization: KeyAuthorization.Signed
+  }
+
+  export type ReturnValue = void
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Signs a key authorization for an access key.
  *
  * Use {@link prepareAuthorization} before this action when signing requires
  * transient user activation.
+ *
+ * When the client transport is a relay with the `Relay.keyAuthorization` plugin,
+ * an authorization signed by the account is saved to the relay, which attaches it
+ * to the access key's next transaction.
  *
  * @param client - Client.
  * @param parameters - Authorization fields, or a stored operation hash.
@@ -1293,28 +1356,28 @@ export async function signAuthorization<
     } as never
   }
 
-  const prepared = (
-    'signPayload' in parameters
-      ? parameters
-      : await prepareAuthorization(
-          client,
-          parameters as signAuthorization.LocalParameters<account>,
-        )
-  ) as prepareAuthorization.ReturnValue
-  const {
-    accessKey,
-    account: account_,
-    chainId,
-    configurable: configurableState,
-    signPayload: _,
-    ...rest
-  } = prepared
-  return signKeyAuthorization(account_ as never, {
-    chainId: BigInt(chainId),
-    key: accessKey,
-    configurable: configurableState,
-    ...rest,
-  }) as never
+  const keyAuthorization = await signLocal(
+    client,
+    parameters as signAuthorization.LocalParameters<account>,
+  )
+  const signer = parameters.account ?? client.account
+  // Relays with key authorization storage attach it to the access key's next
+  // transaction. Admin-signed authorizations can only be submitted by the admin key.
+  if (
+    (client.transport as { keyAuthorization?: boolean }).keyAuthorization &&
+    signer &&
+    parseAccount(signer).source !== 'accessKey'
+  )
+    await saveAuthorization(client, { keyAuthorization }).catch((error) => {
+      // Remote relays without key authorization storage do not expose this method.
+      if (
+        error instanceof MethodNotFoundRpcError ||
+        error instanceof MethodNotSupportedRpcError
+      )
+        return
+      throw error
+    })
+  return keyAuthorization
 }
 
 export namespace signAuthorization {
@@ -1370,6 +1433,41 @@ export namespace signAuthorization {
 
   /** Error type for {@link signAuthorization}. */
   export type ErrorType = BaseErrorType
+}
+
+/** Signs a key authorization locally without saving it to a relay. */
+async function signLocal<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.LocalParameters<account>,
+): Promise<signAuthorization.ReturnValue> {
+  const prepared = (
+    'signPayload' in parameters
+      ? parameters
+      : await prepareAuthorization(client, parameters)
+  ) as prepareAuthorization.ReturnValue
+  const {
+    accessKey,
+    account: account_,
+    chainId,
+    configurable: configurableState,
+    signPayload: _,
+    ...rest
+  } = prepared
+  return signKeyAuthorization(account_ as never, {
+    chainId: BigInt(chainId),
+    key: accessKey,
+    configurable: configurableState,
+    ...rest,
+  })
+}
+
+type relay_saveKeyAuthorization = {
+  Method: 'relay_saveKeyAuthorization'
+  Parameters: [KeyAuthorization.Rpc]
+  ReturnType: null
 }
 
 /**

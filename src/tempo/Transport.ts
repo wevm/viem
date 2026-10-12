@@ -96,6 +96,8 @@ export type Relay = Transport<typeof withRelay.type, { accounts: true }>
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
  * Owner approvals, configs, operations, and operation-aware transaction
  * lookups are also sent to the relay so it can coordinate approvals in its store.
+ * Signed key authorizations are saved to relays with key authorization storage
+ * so they can attach them to the access key's next transaction.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
@@ -116,11 +118,11 @@ export function withRelay<
   defaultTransport: transport,
   options: withRelay.LocalOptions<plugins>,
 ): withRelay.LocalReturnValue<transport, plugins>
-export function withRelay(
+export function withRelay<const parameters extends withRelay.Parameters = {}>(
   defaultTransport: Transport,
   relayTransport: Transport,
-  parameters?: withRelay.Parameters,
-): withRelay.ReturnValue
+  parameters?: parameters | withRelay.Parameters,
+): withRelay.ReturnValue<parameters>
 export function withRelay(
   defaultTransport: Transport,
   relayTransport: Transport | withRelay.LocalOptions,
@@ -148,11 +150,14 @@ export function withRelay(
           ...(relayTransport.plugins?.some(Plugin_.isAccounts)
             ? { accounts: true }
             : {}),
+          ...(relayTransport.plugins?.some(Plugin_.isKeyAuthorization)
+            ? { keyAuthorization: true }
+            : {}),
         },
       }
     }
 
-  const { policy = 'sign-only' } = parameters ?? {}
+  const { keyAuthorization, policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
     const transport_default = defaultTransport(config)
@@ -208,7 +213,8 @@ export function withRelay(
           method === 'account_approveRawTransaction' ||
           method === 'account_approveRawTransactionSync' ||
           method === 'account_getConfig' ||
-          method === 'account_getOperation'
+          method === 'account_getOperation' ||
+          method === 'relay_saveKeyAuthorization'
         )
           return transport_relay.request({ method, params }, options) as never
 
@@ -259,14 +265,23 @@ export function withRelay(
       },
       type: withRelay.type,
     })
-    return { ...transport, value: { accounts: true } }
+    return {
+      ...transport,
+      value: {
+        accounts: true,
+        ...(keyAuthorization ? { keyAuthorization } : {}),
+      },
+    }
   }
 }
 
 export declare namespace withRelay {
   export const type = 'relay'
 
-  export type Parameters = RelayProxyParameters
+  export type Parameters = RelayProxyParameters & {
+    /** Whether the relay stores key authorizations with `Relay.keyAuthorization`. Defaults to `false`. */
+    keyAuthorization?: boolean | undefined
+  }
 
   /** Plugins applied directly to the default transport. */
   export type LocalOptions<
@@ -286,12 +301,25 @@ export declare namespace withRelay {
         attributes &
           (Extract<plugins[number], Relay_.accounts.ReturnType> extends never
             ? {}
-            : { accounts: true }),
+            : { accounts: true }) &
+          (Extract<
+            plugins[number],
+            Relay_.keyAuthorization.ReturnType
+          > extends never
+            ? {}
+            : { keyAuthorization: true }),
         request
       >
     : never
 
-  export type ReturnValue = Relay
+  /** Remote relay transport, advertising key authorization storage when enabled. */
+  export type ReturnValue<parameters extends Parameters = {}> =
+    parameters extends { keyAuthorization: true }
+      ? Transport<
+          typeof withRelay.type,
+          { accounts: true; keyAuthorization: true }
+        >
+      : Relay
 }
 
 /** @deprecated Use `withRelay` instead. */

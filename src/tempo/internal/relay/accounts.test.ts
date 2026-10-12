@@ -12,7 +12,8 @@ import {
   parseUnits,
   toHex,
 } from 'viem'
-import { sendTransactionSync } from 'viem/actions'
+import { generatePrivateKey } from 'viem/accounts'
+import { fillTransaction, sendTransactionSync } from 'viem/actions'
 import { tempo, tempoModerato } from 'viem/chains'
 import {
   Account,
@@ -422,5 +423,310 @@ describe.runIf(
         hash: pending.transactionHash,
       }),
     ).toMatchObject({ status: 'success' })
+  })
+})
+
+describe.runIf(
+  import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
+    import.meta.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
+)('plugin: keyAuthorization', () => {
+  const relay = Relay.create({
+    client: caller,
+    plugins: [
+      Relay.keyAuthorization(),
+      Relay.accounts({ store: Store.memory() }),
+    ],
+  })
+
+  beforeAll(async () => {
+    await Actions.faucet.fundSync(caller, {
+      account: feePayerAccount,
+      timeout: 60_000,
+    })
+  })
+
+  test('behavior: attaches a coordinated key authorization at quorum', async () => {
+    const owners = [Tempo.accounts[10]!, Tempo.accounts[11]!] as const
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners,
+      salt: toHex(0x514100, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token: Tempo.addresses.alphaUsd,
+      to: account.address,
+      amount: 100_000n,
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.keyAuthorization(),
+          Relay.accounts({ store: Store.memory() }),
+        ],
+      }),
+    })
+
+    const pending = await Actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account,
+      owner: owners[0],
+    })
+
+    expect(pending.status).toMatchInlineSnapshot(`"pending"`)
+
+    await Actions.accessKey.signAuthorization(client, {
+      hash: pending.hash,
+      owner: owners[1],
+    })
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      feeToken: Tempo.addresses.alphaUsd,
+      to: recipient.address,
+      token: Tempo.addresses.alphaUsd,
+    })
+    const transaction = await Actions.accounts.getOperation(client, {
+      hash: pending.hash,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(transaction?.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('behavior: skips a coordinated key authorization that expired before quorum', async () => {
+    const owners = [Tempo.accounts[16]!, Tempo.accounts[17]!] as const
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners,
+      salt: toHex(0x514103, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.keyAuthorization(),
+          Relay.accounts({ store: Store.memory() }),
+        ],
+      }),
+    })
+
+    const pending = await Actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account,
+      expiry: Math.floor(Date.now() / 1000) + 2,
+      owner: owners[0],
+    })
+    await new Promise((resolve) => setTimeout(resolve, 2_000))
+    const success = await Actions.accessKey.signAuthorization(client, {
+      hash: pending.hash,
+      owner: owners[1],
+    })
+
+    expect(success.status).toMatchInlineSnapshot(`"success"`)
+    await expect(
+      fillTransaction(client, {
+        account: accessKey,
+        feeToken: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+      }),
+    ).rejects.toThrow('KeyNotFound')
+  })
+
+  test('behavior: discards a pending key authorization after a config rotation', async () => {
+    const owner = Tempo.accounts[18]!
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner],
+      salt: toHex(0x514104, { size: 32 }),
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    const store = Store.memory()
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [
+          Relay.keyAuthorization({ store }),
+          Relay.accounts({ store: Store.memory() }),
+        ],
+      }),
+    })
+    const key = [
+      'keyAuthorization',
+      Tempo.chain.id,
+      account.address.toLowerCase(),
+      accessKey.accessKeyAddress.toLowerCase(),
+    ].join(':')
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token: Tempo.addresses.alphaUsd,
+      to: account.address,
+      amount: 100_000n,
+    })
+    await Actions.token.transferSync(caller, {
+      account,
+      amount: 1n,
+      feeToken: Tempo.addresses.alphaUsd,
+      to: recipient.address,
+      token: Tempo.addresses.alphaUsd,
+    })
+
+    await Actions.accessKey.signAuthorization(client, { account, accessKey })
+
+    expect(await store.getItem(key)).toBeTruthy()
+
+    await Actions.accounts.updateConfigSync(caller, {
+      account,
+      currentConfig: account.config,
+      feeToken: Tempo.addresses.alphaUsd,
+      nextConfig: {
+        owners: [
+          { owner: owner.address, weight: 1 },
+          { owner: recipient.address, weight: 1 },
+        ],
+        threshold: 1,
+      },
+    })
+
+    await expect(
+      fillTransaction(client, {
+        account: accessKey,
+        feeToken: Tempo.addresses.alphaUsd,
+        to: recipient.address,
+      }),
+    ).rejects.toThrow('KeyNotFound')
+    expect(await store.getItem(key)).toBeNull()
+  })
+
+  test('behavior: attaches a key authorization signed by external owners', async () => {
+    const owners = [Tempo.accounts[13]!, Tempo.accounts[14]!] as const
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: owners.map((owner) => owner.address),
+      salt: toHex(0x514101, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token: Tempo.addresses.alphaUsd,
+      to: account.address,
+      amount: 100_000n,
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [Relay.keyAuthorization()],
+      }),
+    })
+
+    const authorization = await Actions.accessKey.prepareAuthorization(client, {
+      account,
+      accessKey,
+    })
+    const signatures = await Promise.all(
+      owners.map((owner) => owner.sign({ hash: authorization.signPayload })),
+    )
+    await Actions.accessKey.signAuthorization(client, {
+      ...authorization,
+      signatures,
+    })
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      amount: 1n,
+      feeToken: Tempo.addresses.alphaUsd,
+      to: recipient.address,
+      token: Tempo.addresses.alphaUsd,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+  })
+
+  test('error: rejects a configurable account key authorization below quorum', async () => {
+    const owners = [Tempo.accounts[13]!, Tempo.accounts[14]!] as const
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: owners.map((owner) => owner.address),
+      salt: toHex(0x514102, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    const authorization = await Actions.accessKey.prepareAuthorization(caller, {
+      account,
+      accessKey,
+    })
+    const keyAuthorization = KeyAuthorization.from(
+      {
+        account: account.address,
+        address: accessKey.accessKeyAddress,
+        chainId: BigInt(Tempo.chain.id),
+        type: 'secp256k1',
+      },
+      {
+        signature: SignatureEnvelope.from({
+          account: account.address,
+          config: account.config,
+          signatures: [
+            parseApproval(
+              await owners[0].sign({ hash: authorization.signPayload }),
+            ),
+          ],
+        }),
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'relay_saveKeyAuthorization',
+        params: [KeyAuthorization.toRpc(keyAuthorization)],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Configurable account key authorization has not reached quorum.]`,
+    )
+  })
+
+  test('error: rejects a configurable account key authorization for another account', async () => {
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: account,
+    })
+    const keyAuthorization = KeyAuthorization.from(
+      {
+        account: recipient.address,
+        address: accessKey.accessKeyAddress,
+        chainId: BigInt(Tempo.chain.id),
+        type: 'secp256k1',
+      },
+      {
+        signature: SignatureEnvelope.from({
+          account,
+          config,
+          signatures: [parseApproval(serializedApproval)],
+        }),
+      },
+    )
+
+    await expect(
+      relay.request({
+        method: 'relay_saveKeyAuthorization',
+        params: [KeyAuthorization.toRpc(keyAuthorization)],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Configurable account key authorization account does not match its signature.]`,
+    )
   })
 })
