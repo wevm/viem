@@ -124,8 +124,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Rewrite examples for client-extension calls.
 - **JSDoc annotations**; include `@example`, `@param`, and `@returns` when appropriate.
 - **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
-- **Twoslash needs built declarations**; finish `pnpm build:types` before running `pnpm --filter site exec vocs twoslash`. Rebuilding `src/_types` concurrently causes module resolution failures in the examples.
-- **Twoslash filenames share page scope**; code groups on the same page must use distinct virtual config filenames when their exports differ. Repeating `viem.config.ts` can overwrite a recipe config and hide exports from another example.
+- **Twoslash needs built declarations**; finish `pnpm build:types` before running `pnpm --filter site exec vocs twoslash`.
 - **Do not hard-wrap Markdown prose**; keep each paragraph or list item on one source line, preserving code blocks and intentional Markdown structure.
 - **Use Viem clients and transports in examples**; do not use Ox RPC transports to demonstrate Viem APIs.
 - **Callouts follow code examples**; place callouts immediately below the code snippet or code group they supplement.
@@ -235,7 +234,6 @@ This document contains general guidelines for AI agents working on the Viem code
   `scripts/generateTypedArtifacts.ts`.
 - **Install hooks can mutate**; `pnpm install` initializes Git submodules and rebuilds contracts.
   - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
-  - `pnpm exec` can automatically install when dependencies are out of sync, running the same hooks. Use an already-installed binary directly for read-only inspection when dependency synchronization is unwanted.
 - **Contract dependencies use Git submodules**; `contracts/foundry.toml` remaps to packages in
   `contracts/lib`. `pnpm contracts:build` needs Foundry and runs on demand.
 - **Full type checks need generated contract fixtures**; `pnpm check:types` includes tests that import the ignored `contracts/generated.ts`. Generate it with `pnpm contracts:build` before a full check. Declaration builds do not require these fixtures.
@@ -248,7 +246,6 @@ This document contains general guidelines for AI agents working on the Viem code
 - **Update existing changesets first**; if the branch already has a changeset for the same area, update it instead of adding a duplicate.
 - **Concise, past-tense entries**; use one sentence per change, splitting related changes into bullets with migration `diff` fences where useful instead of one long sentence.
 - **Start changesets with prose, not a bullet**; the changelog formatter creates the outer bullet from the first line, so place any nested list after an opening summary paragraph.
-- **Tempo breaking changes use minor releases**; use `"viem": minor` and prefix the entry with `**Breaking (viem/tempo):**`, matching the changelog convention.
 - **Breaking changes include migration shape**; major changes include a `diff` fence showing the before/after migration shape.
 
 ## Git Conventions

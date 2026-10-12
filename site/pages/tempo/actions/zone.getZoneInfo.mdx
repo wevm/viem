@@ -34,13 +34,14 @@ console.log('Tempo block number:', info.tempoBlockNumber)
 ```ts
 type ReturnType = {
   chainId: number
+  /** Whether account allowlist enforcement is enabled */
   isAccessEnforced: boolean
+  /** Whether withdrawal callbacks may target unregistered gateways */
   isGatewayOpen: boolean
   sequencers: readonly Address[]
+  /** Latest Tempo block imported by the zone */
   tempoBlockNumber: bigint
   zoneId: number
   zoneTokens: readonly Address[]
 }
 ```
-
-`isAccessEnforced` is `true` when account allowlist enforcement is enabled. `isGatewayOpen` is `true` when withdrawal callbacks may target unregistered gateways. `tempoBlockNumber` is the latest Tempo block imported by the zone.
