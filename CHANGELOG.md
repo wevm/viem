@@ -1,5 +1,33 @@
 # viem
 
+## 3.0.0-next.14
+
+### Patch Changes
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Updated Arc Testnet RPC and block explorer URLs from `arc.network` to `arc.io`.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Updated the Tempo mainnet and testnet Earn factory addresses to the latest releases.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport `timeout` not applying while the response body is read, or when the request is given an abort `signal`.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Changed `KeyAuthorizationManager.from` to build the manager from a `Store` instead of a custom `get`/`set`/`remove` source.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `1.8.8`, which keeps absent Tempo key-authorization `limits` distinct from an empty list and fixes signatures dropping the first parameter after `( `.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Added QMS Testnet chain.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `Relay.keyAuthorization` plugin, which saves signed key authorizations and attaches them to the access key's next transaction, and `Actions.accessKey.saveAuthorization` for authorizations signed elsewhere.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Fixed `unsubscribe()` on `webSocket` and `ipc` transports using a stale subscription id after a reconnect, which leaked the subscription.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed experimental native multisig APIs to configurable accounts ([TIP-1107](https://tips.sh/1107)), including `Account.fromConfig`, `Relay.accounts`, and `Actions.accounts`.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.wallet.waitForCallsStatus` resolving concurrent waits for the same id with the first caller's polling, retry, and status options.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Fixed `Actions.transaction.waitForReceipt` missing a replacement transaction, or reporting a repriced one as `replaced`, when the RPC returned addresses in a different case.
+
+- [#5222](https://github.com/wevm/viem/pull/5222) [`9b06f93`](https://github.com/wevm/viem/commit/9b06f93a587bd4ead27fa77c7bc192b404a1b8c5) Thanks [@jxom](https://github.com/jxom)! - Added the current Tempo ZoneInbox ABI, selectors, and predeploy address for reading deposit outcomes.
+
 ## 3.0.0-next.13
 
 ### Patch Changes
