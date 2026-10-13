@@ -229,6 +229,7 @@ overrides:
   baseline-browser-mapping@>=2.0.0 <2.11.0: 2.11.21
   '@toon-format/toon@<2.3.1': 2.3.1
   toml@<4.2.0: 4.2.0
+  tinypool@<2.1.2: 2.2.0
   proxy-addr@>=1.1.0 <2.0.8: 2.0.8
   source-map-js@>=1.0.0 <1.2.2: 1.2.2
   vue@<3.5.42: 3.5.42
@@ -7600,8 +7601,8 @@ packages:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
 
-  tinypool@2.1.0:
-    resolution: {integrity: sha512-Pugqs6M0m7Lv1I7FtxN4aoyToKg1C4tu+/381vH35y8oENM/Ai7f7C4StcoK4/+BSw9ebcS8jRiVrORFKCALLw==}
+  tinypool@2.2.0:
+    resolution: {integrity: sha512-jBrmx4lYmaC9k/mgPbylxs7kBUxHtD8256up+HjLaDFfXScKJQyil+SWXSvhAtT7XHo+yTVlpB81PGmHP8oLSQ==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
   tinyrainbow@3.1.0:
@@ -14959,7 +14960,7 @@ snapshots:
 
   oxfmt@0.51.0:
     dependencies:
-      tinypool: 2.1.0
+      tinypool: 2.2.0
     optionalDependencies:
       '@oxfmt/binding-android-arm-eabi': 0.51.0
       '@oxfmt/binding-android-arm64': 0.51.0
@@ -14983,7 +14984,7 @@ snapshots:
 
   oxfmt@0.52.0(vite-plus@0.1.24(@arethetypeswrong/core@0.18.3)(@opentelemetry/api@1.7.0)(@types/node@24.5.2)(@vitest/coverage-v8@4.1.8)(esbuild@0.27.2)(jiti@2.7.0)(publint@0.3.21)(terser@5.36.0)(tsx@4.21.0)(typescript@7.0.2)(yaml@2.8.3)):
     dependencies:
-      tinypool: 2.1.0
+      tinypool: 2.2.0
     optionalDependencies:
       '@oxfmt/binding-android-arm-eabi': 0.52.0
       '@oxfmt/binding-android-arm64': 0.52.0
@@ -16378,7 +16379,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
 
-  tinypool@2.1.0: {}
+  tinypool@2.2.0: {}
 
   tinyrainbow@3.1.0: {}
 

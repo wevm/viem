@@ -9,7 +9,7 @@ export const accessKey = Account.fromSecp256k1(
   { access: root },
 )
 
-export const multisig = Account.fromMultisig({
+export const configurable = Account.fromConfig({
   owners: [{ owner: root.address, weight: 1 }],
   threshold: 1,
 })
