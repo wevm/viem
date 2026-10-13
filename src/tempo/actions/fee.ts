@@ -88,7 +88,7 @@ export async function validateToken<chain extends Chain | undefined>(
 
   const isPathUsd = address.toLowerCase() === Addresses.pathUsd.toLowerCase()
   if (!isPathUsd) {
-    const isTip20 = await readContract(client, {
+    const isTip20 = await withExecutionError(readContract)(client, {
       ...rest,
       address: Addresses.tip20Factory,
       abi: Abis.tip20Factory,
@@ -185,7 +185,7 @@ export async function getUserToken<
   const { account: account_ = client.account, ...rest } = parameters[0] ?? {}
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...rest,
     ...getUserToken.call({ account: account.address }),
   })
@@ -521,7 +521,7 @@ export async function getValidatorToken<
   parameters: getValidatorToken.Parameters,
 ): Promise<getValidatorToken.ReturnValue> {
   const { validator, ...rest } = parameters
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...rest,
     ...getValidatorToken.call({ validator }),
   })

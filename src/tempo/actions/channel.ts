@@ -241,7 +241,7 @@ export async function getStates<
   const chainId = client.chain?.id
   const { channel, ...rest } = parameters
 
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getStates.call({ channel, chainId } as never),
   } as never) as never

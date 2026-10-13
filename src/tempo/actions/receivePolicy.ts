@@ -498,7 +498,7 @@ export async function get<
     tokenPolicyId,
     tokenPolicyType,
     recoveryAuthority,
-  ] = await readContract(client, {
+  ] = await withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...get.call({ account: account.address }),
@@ -586,7 +586,7 @@ export async function getBlockedBalance<chain extends Chain | undefined>(
   parameters: getBlockedBalance.Parameters,
 ): Promise<getBlockedBalance.ReturnValue> {
   const { receipt, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getBlockedBalance.call({ receipt }),
   })
@@ -888,10 +888,13 @@ export async function validate<chain extends Chain | undefined>(
   parameters: validate.Parameters,
 ): Promise<validate.ReturnValue> {
   const { token, sender, receiver, ...rest } = parameters
-  const [authorized, blockedReason] = await readContract(client, {
-    ...rest,
-    ...validate.call({ token, sender, receiver }),
-  })
+  const [authorized, blockedReason] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...validate.call({ token, sender, receiver }),
+    },
+  )
   return {
     authorized,
     blockedReason: blockedReasons[blockedReason] ?? 'none',

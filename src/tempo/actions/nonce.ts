@@ -53,7 +53,7 @@ export async function getNonce<
   parameters: getNonce.Parameters,
 ): Promise<getNonce.ReturnValue> {
   const { account, nonceKey, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getNonce.call({ account, nonceKey }),
   })

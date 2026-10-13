@@ -279,20 +279,20 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
     parameters
   const [tokenPolicyId, compound, simplePolicy, memberResults] =
     await Promise.all([
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip20,
         address: shareToken,
         functionName: 'transferPolicyId',
       }),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
         args: [policy.transferPolicyId],
         functionName: 'compoundPolicyData',
       }),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.tip403Registry,
         address: Addresses.tip403Registry,
@@ -302,14 +302,14 @@ export async function validateExitSafePolicy<chain extends Chain | undefined>(
       Promise.all(
         requiredMembers.map(async (member) => {
           const [recipient, mintRecipient] = await Promise.all([
-            readContract(client, {
+            withExecutionError(readContract)(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
               args: [policy.transferPolicyId, member],
               functionName: 'isAuthorizedRecipient',
             }),
-            readContract(client, {
+            withExecutionError(readContract)(client, {
               ...rest,
               abi: Abis.tip403Registry,
               address: Addresses.tip403Registry,
@@ -443,7 +443,7 @@ export namespace deposit {
   ): Promise<ReturnType<action>> {
     const [args, assetToken] = await Promise.all([
       toDepositArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'asset',
@@ -744,7 +744,7 @@ export namespace depositShares {
     client: Client<Transport, chain, account>,
     parameters: depositShares.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const engine = await readContract(client, {
+    const engine = await withExecutionError(readContract)(client, {
       abi: Abis.earnVault,
       address: parameters.vault,
       functionName: 'engine',
@@ -1328,7 +1328,7 @@ export async function getFeeState<chain extends Chain | undefined>(
   parameters: getFeeState.Parameters,
 ): Promise<getFeeState.ReturnValue> {
   const { recipient, vault, ...rest } = parameters
-  const fees = await readContract(client, {
+  const fees = await withExecutionError(readContract)(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1365,7 +1365,7 @@ export async function getFeeState<chain extends Chain | undefined>(
   // consistent with the batched id.
   const feeConfig = async (configId: bigint) =>
     toFeeConfig(
-      await readContract(client, {
+      await withExecutionError(readContract)(client, {
         ...rest,
         abi: Abis.earnFees,
         address: fees,
@@ -1573,7 +1573,7 @@ export async function getPosition<
       ],
       deployless: true,
     })
-  const value = await readContract(client, {
+  const value = await withExecutionError(readContract)(client, {
     ...rest,
     abi: Abis.earnVault,
     address: vault,
@@ -1649,7 +1649,7 @@ export async function getRedeemQuote<chain extends Chain | undefined>(
   parameters: getRedeemQuote.Parameters,
 ): Promise<getRedeemQuote.ReturnValue> {
   const { shareAmount, vault, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getRedeemQuote.call({ shareAmount, vault }),
   })
@@ -1734,13 +1734,13 @@ export async function getVault<chain extends Chain | undefined>(
 ): Promise<getVault.ReturnValue> {
   const { vault, ...rest } = parameters
   const [engine, fees] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
       functionName: 'engine',
     }),
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       abi: Abis.earnVault,
       address: vault,
@@ -2001,7 +2001,7 @@ export async function getWithdrawQuote<chain extends Chain | undefined>(
   parameters: getWithdrawQuote.Parameters,
 ): Promise<getWithdrawQuote.ReturnValue> {
   const { assetAmount, vault, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getWithdrawQuote.call({ assetAmount, vault }),
   })
@@ -2138,7 +2138,7 @@ export namespace redeem {
   ): Promise<ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
       toRedeemArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'earnShare',
@@ -2796,7 +2796,7 @@ export namespace withdrawExact {
   ): Promise<ReturnType<action>> {
     const [args, shareToken] = await Promise.all([
       toWithdrawExactArgs(client, parameters as never),
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         abi: Abis.earnVault,
         address: parameters.vault,
         functionName: 'earnShare',
@@ -3404,7 +3404,7 @@ async function toBaseUnitsLive(
   if (typeof amount === 'bigint') return amount
   if (amount.decimals !== undefined)
     return internal_Token.toBaseUnits(amount, amount.decimals)
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     abi: Abis.earnVault,
     address: vault,
     functionName: token === 'asset' ? 'asset' : 'earnShare',

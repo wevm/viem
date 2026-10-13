@@ -527,7 +527,7 @@ export async function getMetadata<
   const { account: account_ = client.account, accessKey, ...rest } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  const result = await readContract(client, {
+  const result = await withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...getMetadata.call({ account: account.address, accessKey }),
@@ -631,21 +631,24 @@ export async function getRemainingLimit<
   // TODO: remove pre-t3 branch once mainnet is on t3.
   const hardfork = (client.chain as { hardfork?: string } | undefined)?.hardfork
   if (hardfork && Hardfork.lt(hardfork, 't3')) {
-    const remaining = await readContract(client, {
+    const remaining = await withExecutionError(readContract)(client, {
       ...rest,
       ...getRemainingLimit.call({ account: account.address, accessKey, token }),
     })
     return { remaining, periodEnd: undefined }
   }
 
-  const [remaining, periodEnd] = await readContract(client, {
-    ...rest,
-    ...getRemainingLimit.callWithPeriod({
-      account: account.address,
-      accessKey,
-      token,
-    }),
-  })
+  const [remaining, periodEnd] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...getRemainingLimit.callWithPeriod({
+        account: account.address,
+        accessKey,
+        token,
+      }),
+    },
+  )
   return { remaining, periodEnd }
 }
 
@@ -742,7 +745,7 @@ export async function isAdmin<
   const { account: account_ = client.account, accessKey, ...rest } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...isAdmin.call({ account: account.address, accessKey }),
@@ -818,7 +821,7 @@ export async function isWitnessBurned<
   const { account: account_ = client.account, witness, ...rest } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...isWitnessBurned.call({ account: account.address, witness }),
@@ -1971,7 +1974,7 @@ export async function verifyHash<
   parameters: verifyHash.Parameters,
 ): Promise<verifyHash.ReturnValue> {
   const { account, admin, hash, signature, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...verifyHash.call({ account, admin, hash, signature }),
   })

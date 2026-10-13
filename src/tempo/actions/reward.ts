@@ -459,7 +459,7 @@ export async function getGlobalRewardPerToken<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getGlobalRewardPerToken.Parameters,
 ): Promise<getGlobalRewardPerToken.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getGlobalRewardPerToken.call(parameters),
   })
@@ -526,7 +526,7 @@ export async function getPendingRewards<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPendingRewards.Parameters,
 ): Promise<getPendingRewards.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getPendingRewards.call(parameters),
   })
@@ -599,7 +599,7 @@ export async function getUserRewardInfo<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getUserRewardInfo.Parameters,
 ): Promise<getUserRewardInfo.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getUserRewardInfo.call(parameters),
   })

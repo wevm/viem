@@ -157,7 +157,7 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
   parameters: getLiquidityBalance.Parameters,
 ): Promise<getLiquidityBalance.ReturnValue> {
   const { address, poolId, userToken, validatorToken, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getLiquidityBalance.call({
       address,

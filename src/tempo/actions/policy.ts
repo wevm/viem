@@ -929,7 +929,7 @@ export async function getData<chain extends Chain | undefined>(
   parameters: getData.Parameters,
 ): Promise<getData.ReturnValue> {
   const { policyId, ...rest } = parameters
-  const result = await readContract(client, {
+  const result = await withExecutionError(readContract)(client, {
     ...rest,
     ...getData.call({ policyId }),
   })
@@ -1000,7 +1000,7 @@ export async function isAuthorized<chain extends Chain | undefined>(
   parameters: isAuthorized.Parameters,
 ): Promise<isAuthorized.ReturnValue> {
   const { policyId, user, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...isAuthorized.call({ policyId, user }),
   })

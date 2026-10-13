@@ -1264,7 +1264,7 @@ export async function getAllowance<chain extends Chain | undefined>(
 ): Promise<getAllowance.ReturnValue> {
   const { account, decimals, spender, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getAllowance.call(client, { account, spender, token } as never),
     }),
@@ -1351,7 +1351,7 @@ export async function getBalance<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_).address
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getBalance.call(client, { account, token } as never),
     }),
@@ -1606,7 +1606,7 @@ async function readMetadataContracts<chain extends Chain | undefined>(
   const { contracts, ...rest } = parameters
   const results = await Promise.allSettled(
     contracts.map((contract) =>
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         ...contract,
       }),
@@ -1729,7 +1729,7 @@ export async function getTotalSupply<chain extends Chain | undefined>(
 ): Promise<getTotalSupply.ReturnValue> {
   const { decimals, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getTotalSupply.call(client, { token } as never),
     }),
@@ -1797,7 +1797,7 @@ export async function getRoleAdmin<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getRoleAdmin.Parameters,
 ): Promise<getRoleAdmin.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getRoleAdmin.call(client, parameters),
   })
@@ -1874,7 +1874,7 @@ export async function hasRole<
   const { account = client.account } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...hasRole.call(client, { ...parameters, account: address }),
   })

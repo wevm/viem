@@ -594,7 +594,7 @@ export async function getNextFullDkgCeremony<
   client: Client<Transport, chain, account>,
   parameters: getNextFullDkgCeremony.Parameters = {},
 ): Promise<getNextFullDkgCeremony.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getNextFullDkgCeremony.call(),
   })
@@ -673,7 +673,7 @@ export async function getOwner<
   client: Client<Transport, chain, account>,
   parameters: getOwner.Parameters = {},
 ): Promise<getOwner.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getOwner.call(),
   })
@@ -755,7 +755,7 @@ export async function get<
   parameters: get.Parameters,
 ): Promise<get.ReturnValue> {
   const { validator, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...get.call({ validator }),
   })
@@ -846,7 +846,7 @@ export async function getByIndex<
   parameters: getByIndex.Parameters,
 ): Promise<getByIndex.ReturnValue> {
   const { index, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getByIndex.call({ index }),
   })
@@ -935,7 +935,7 @@ export async function getCount<
   client: Client<Transport, chain, account>,
   parameters: getCount.Parameters = {},
 ): Promise<getCount.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getCount.call(),
   })
@@ -1014,7 +1014,7 @@ export async function list<
   client: Client<Transport, chain, account>,
   parameters: list.Parameters = {},
 ): Promise<list.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...list.call(),
   })

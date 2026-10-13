@@ -860,7 +860,7 @@ export async function getBalance<
   const { account: acc = client.account, token, ...rest } = parameters
   const address = acc ? parseAccount(acc).address : undefined
   if (!address) throw new Error('account is required.')
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getBalance.call({ account: address, token }),
   })
@@ -931,7 +931,7 @@ export async function getBuyQuote<chain extends Chain | undefined>(
   parameters: getBuyQuote.Parameters,
 ): Promise<getBuyQuote.ReturnValue> {
   const { tokenIn, tokenOut, amountOut, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getBuyQuote.call({ tokenIn, tokenOut, amountOut }),
   })
@@ -1000,7 +1000,7 @@ export async function getOrder<chain extends Chain | undefined>(
   parameters: getOrder.Parameters,
 ): Promise<getOrder.ReturnValue> {
   const { orderId, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getOrder.call({ orderId }),
   })
@@ -1066,7 +1066,7 @@ export async function getOrderbook<chain extends Chain | undefined>(
   parameters: getOrderbook.Parameters,
 ): Promise<getOrderbook.ReturnValue> {
   const { base, quote, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getOrderbook.call({ base, quote }),
   })
@@ -1136,10 +1136,13 @@ export async function getTickLevel<chain extends Chain | undefined>(
   parameters: getTickLevel.Parameters,
 ): Promise<getTickLevel.ReturnValue> {
   const { base, tick, isBid, ...rest } = parameters
-  const [head, tail, totalLiquidity] = await readContract(client, {
-    ...rest,
-    ...getTickLevel.call({ base, tick, isBid }),
-  })
+  const [head, tail, totalLiquidity] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...getTickLevel.call({ base, tick, isBid }),
+    },
+  )
   return { head, tail, totalLiquidity }
 }
 
@@ -1211,7 +1214,7 @@ export async function getSellQuote<chain extends Chain | undefined>(
   parameters: getSellQuote.Parameters,
 ): Promise<getSellQuote.ReturnValue> {
   const { tokenIn, tokenOut, amountIn, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getSellQuote.call({ tokenIn, tokenOut, amountIn }),
   })

@@ -52,7 +52,7 @@ export async function getMasterAddress<
   client: Client<Transport, chain, account>,
   parameters: getMasterAddress.Parameters,
 ): Promise<getMasterAddress.ReturnValue> {
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...parameters,
     ...getMasterAddress.call({ masterId: parameters.masterId }),
   })

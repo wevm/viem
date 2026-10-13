@@ -54,7 +54,10 @@ export async function baseToken<chain extends Chain | undefined>(
   parameters: baseToken.Parameters,
 ): Promise<baseToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...baseToken.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...baseToken.call({ pool }),
+  })
 }
 
 export namespace baseToken {
@@ -105,7 +108,10 @@ export async function quoteToken<chain extends Chain | undefined>(
   parameters: quoteToken.Parameters,
 ): Promise<quoteToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...quoteToken.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...quoteToken.call({ pool }),
+  })
 }
 
 export namespace quoteToken {
@@ -156,7 +162,10 @@ export async function paused<chain extends Chain | undefined>(
   parameters: paused.Parameters,
 ): Promise<paused.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...paused.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...paused.call({ pool }),
+  })
 }
 
 export namespace paused {
@@ -207,7 +216,7 @@ export async function takerAllowed<chain extends Chain | undefined>(
   parameters: takerAllowed.Parameters,
 ): Promise<takerAllowed.ReturnValue> {
   const { pool, taker, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...takerAllowed.call({ pool, taker }),
   })
@@ -264,7 +273,7 @@ export async function recipientAllowed<chain extends Chain | undefined>(
   parameters: recipientAllowed.Parameters,
 ): Promise<recipientAllowed.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...recipientAllowed.call({ pool, recipient }),
   })
@@ -321,7 +330,7 @@ export async function resolveRecipient<chain extends Chain | undefined>(
   parameters: resolveRecipient.Parameters,
 ): Promise<resolveRecipient.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...resolveRecipient.call({ pool, recipient }),
   })

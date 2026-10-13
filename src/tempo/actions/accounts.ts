@@ -103,7 +103,7 @@ export async function getConfigCommitment<
   parameters: getConfigCommitment.Parameters,
 ): Promise<getConfigCommitment.ReturnValue> {
   const { account, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getConfigCommitment.call({ account }),
   })
