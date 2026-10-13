@@ -235,40 +235,35 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
   {
     'CallNotAllowed()': [
       "The access key's scopes do not allow this target, selector, or recipient.",
-      'Authorize an access key whose `scopes` include this call with `accessKey.authorize`.',
+      'Authorize an access key whose scopes include this call.',
     ],
     'ContractPaused()': [
-      'The token is paused. An account with the `unpause` role can unpause it with `token.unpause`.',
+      'The token is paused. An account with the unpause role can unpause it.',
     ],
-    'ExpiringNonceReplay()': [
-      'Resend the transaction with a new `nonceKey` or `validBefore`.',
-    ],
-    'ExpiryInPast()': ['Set `expiry` to a future Unix timestamp in seconds.'],
+    'ExpiringNonceReplay()': ['Resend the transaction with a new nonce.'],
+    'ExpiryInPast()': ['Set the expiry to a future time.'],
     'InsufficientAllowance()': [
-      'Approve the spender for at least this amount with `token.approve`.',
+      'Approve the spender for at least this amount.',
     ],
     'InsufficientBalance(uint256,uint256,address)': [
-      'Fund the account or lower the amount. Check the balance with `token.getBalance`.',
+      'Fund the account or lower the amount.',
     ],
     'InsufficientFeeTokenBalance()': [
-      'Fund the account with the fee token, or pay fees with another token via `feeToken`.',
+      'Fund the account with the fee token, or pay fees with another token.',
     ],
-    'KeyAlreadyExists()': [
-      'Use a new access key, or revoke the existing one with `accessKey.revoke`.',
-    ],
+    'KeyAlreadyExists()': ['Use a new access key, or revoke the existing one.'],
     'KeyAlreadyRevoked()': [
-      'Revoked access keys cannot be used or re-authorized. Authorize a new access key with `accessKey.authorize`.',
+      'Revoked access keys cannot be used or re-authorized. Authorize a new access key.',
     ],
-    'KeyExpired()': ['Authorize a new access key with `accessKey.authorize`.'],
+    'KeyExpired()': ['Authorize a new access key.'],
     'KeyNotFound()': [
-      'Authorize the access key with `accessKey.authorize`, or pass `keyAuthorization` to authorize it in the same transaction.',
+      'Authorize the access key first, or authorize it in the same transaction with a key authorization.',
     ],
     'PolicyForbids()': [
-      'The token transfer policy forbids this sender or recipient. Check with `policy.isAuthorized`.',
+      'The token transfer policy forbids this sender or recipient.',
     ],
     'SpendingLimitExceeded()': [
-      'Raise the limit with `accessKey.updateLimit`, or wait for a periodic limit to reset.',
-      'Read the remaining limit with `accessKey.getRemainingLimit`.',
+      'Raise the spending limit, or wait for a periodic limit to reset.',
     ],
     'UnauthorizedCaller()': ['Sign with the root key or an admin access key.'],
   }

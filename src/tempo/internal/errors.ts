@@ -96,9 +96,7 @@ async function toExecutionError(
       return new AccessKeySpendingLimitExceededError({
         ...keyed,
         fee,
-        hints: fee
-          ? [...hints, 'Pass `feeToken` to pay fees with another token.']
-          : hints,
+        hints: fee ? [...hints, 'Pay fees with another token.'] : hints,
       })
     const args = [keyed.account, keyed.accessKey, token] as const
     const [withPeriod, legacy, decimals] = await multicall(client, {

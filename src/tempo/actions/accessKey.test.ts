@@ -1115,8 +1115,7 @@ describe('errors', () => {
     expect(error.message).toContain('exceeded by:  5 (5000000)')
     expect(error.hints).toMatchInlineSnapshot(`
       [
-        "Raise the limit with \`accessKey.updateLimit\`, or wait for a periodic limit to reset.",
-        "Read the remaining limit with \`accessKey.getRemainingLimit\`.",
+        "Raise the spending limit, or wait for a periodic limit to reset.",
       ]
     `)
   })
@@ -1148,7 +1147,7 @@ describe('errors', () => {
       errorName: 'KeyNotFound',
       name: 'AccessKeyError',
     })
-    expect(error.hints[0]).toContain('accessKey.authorize')
+    expect(error.hints[0]).toContain('Authorize the access key')
   })
 
   test('behavior: key revoked', async () => {
@@ -1214,8 +1213,8 @@ describe('errors', () => {
     expect(error.errorName).toBe('KeyAlreadyExists')
     expect(error.hints).toMatchInlineSnapshot(`
       [
-        "This access key is already authorized. Change its limits with \`accessKey.updateLimit\` instead.",
-        "Use a new access key, or revoke the existing one with \`accessKey.revoke\`.",
+        "This access key is already authorized. Update its spending limits instead.",
+        "Use a new access key, or revoke the existing one.",
       ]
     `)
   })

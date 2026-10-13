@@ -2202,11 +2202,9 @@ export namespace mint {
     const call = mint.call(client, { amount, memo, to, token } as never)
     return (await withExecutionError(action, {
       hints: {
-        SupplyCapExceeded: [
-          'Mint a smaller amount, or raise the cap with `token.setSupplyCap`.',
-        ],
+        SupplyCapExceeded: ['Mint a smaller amount, or raise the supply cap.'],
         Unauthorized: [
-          'Minting requires the `issuer` role. Grant it with `token.grantRoles`.',
+          'Minting requires the issuer role. Grant it to this account first.',
         ],
       },
     })(client, {

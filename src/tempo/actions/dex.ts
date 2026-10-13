@@ -115,10 +115,10 @@ export namespace buy {
     return (await withExecutionError(action, {
       hints: {
         InsufficientLiquidity: [
-          'Buy a smaller amount, or check the quote with `dex.getBuyQuote`.',
+          'Buy a smaller amount, or check the quote first.',
         ],
         MaxInputExceeded: [
-          'Raise `maxAmountIn`, or check the quote with `dex.getBuyQuote`.',
+          'Raise the maximum input amount, or check the quote first.',
         ],
       },
     })(client, {
@@ -1762,10 +1762,10 @@ export namespace sell {
     return (await withExecutionError(action, {
       hints: {
         InsufficientLiquidity: [
-          'Sell a smaller amount, or check the quote with `dex.getSellQuote`.',
+          'Sell a smaller amount, or check the quote first.',
         ],
         InsufficientOutput: [
-          'Lower `minAmountOut`, or check the quote with `dex.getSellQuote`.',
+          'Lower the minimum output amount, or check the quote first.',
         ],
       },
     })(client, {

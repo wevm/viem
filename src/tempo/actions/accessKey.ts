@@ -192,7 +192,7 @@ export namespace authorize {
     return (await withExecutionError(action, {
       hints: {
         KeyAlreadyExists: [
-          'This access key is already authorized. Change its limits with `accessKey.updateLimit` instead.',
+          'This access key is already authorized. Update its spending limits instead.',
         ],
       },
     })(client, {

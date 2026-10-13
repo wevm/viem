@@ -744,7 +744,7 @@ describe('mint', () => {
     expect(error.errorName).toBe('Unauthorized')
     expect(error.hints).toMatchInlineSnapshot(`
       [
-        "Minting requires the \`issuer\` role. Grant it with \`token.grantRoles\`.",
+        "Minting requires the issuer role. Grant it to this account first.",
       ]
     `)
   })
