@@ -3,13 +3,13 @@ import type * as Chain from '../core/Chain.js'
 import type * as Client from '../core/Client.js'
 import type * as Transport from '../core/Transport.js'
 import * as accessKey from './actions/accessKey/index.js'
+import * as accounts from './actions/accounts/index.js'
 import * as amm from './actions/amm/index.js'
 import * as channel from './actions/channel/index.js'
 import * as dex from './actions/dex/index.js'
 import * as earn from './actions/earn.js'
 import * as faucet from './actions/faucet/index.js'
 import * as fee from './actions/fee/index.js'
-import * as multisig from './actions/multisig/index.js'
 import * as nonce from './actions/nonce/index.js'
 import * as policy from './actions/policy/index.js'
 import * as propAmmActions from './actions/propAmm.js'
@@ -55,6 +55,8 @@ export function tempoActions() {
       isWitnessBurned: (options) => accessKey.isWitnessBurned(client, options),
       revoke: (options) => accessKey.revoke(client, options),
       revokeSync: (options) => accessKey.revokeSync(client, options),
+      saveAuthorization: (options) =>
+        accessKey.saveAuthorization(client, options),
       signAuthorization: ((options: accessKey.signAuthorization.Options) =>
         accessKey.signAuthorization(
           client,
@@ -70,6 +72,14 @@ export function tempoActions() {
       watchWitness: (options) => accessKey.watchWitness(client, options),
       watchWitnessBurned: (options) =>
         accessKey.watchWitnessBurned(client, options),
+    },
+    accounts: {
+      getConfig: (options) => accounts.getConfig(client, options),
+      getConfigCommitment: (options) =>
+        accounts.getConfigCommitment(client, options),
+      getOperation: (options) => accounts.getOperation(client, options),
+      updateConfig: (options) => accounts.updateConfig(client, options),
+      updateConfigSync: (options) => accounts.updateConfigSync(client, options),
     },
     amm: {
       burn: (options) => amm.burn(client, options),
@@ -288,14 +298,6 @@ export function tempoActions() {
     nonce: {
       get: (options) => nonce.get(client, options),
       watchIncremented: (options) => nonce.watchIncremented(client, options),
-    },
-    multisig: {
-      getConfig: (options) => multisig.getConfig(client, options),
-      getConfigCommitment: (options) =>
-        multisig.getConfigCommitment(client, options),
-      getOperation: (options) => multisig.getOperation(client, options),
-      updateConfig: (options) => multisig.updateConfig(client, options),
-      updateConfigSync: (options) => multisig.updateConfigSync(client, options),
     },
     policy: {
       create: (options) => policy.create(client, options),
@@ -727,6 +729,31 @@ export type Decorator<
       options: accessKey.revokeSync.Options,
     ) => Promise<accessKey.revokeSync.ReturnType>
     /**
+     * Saves a signed key authorization to a relay with key authorization storage.
+     *
+     * The relay attaches the authorization to the access key's next transaction
+     * until the key is active onchain. Requires a relay running the
+     * `Relay.keyAuthorization` plugin.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, withRelay } from 'viem/tempo'
+     *
+     * const client = Client.create({
+     *   transport: withRelay(http(), http('https://relay.example.com'), {
+     *     keyAuthorization: true,
+     *   }),
+     * })
+     *
+     * await client.accessKey.saveAuthorization({ keyAuthorization })
+     * ```
+     *
+     * @param options - Options.
+     */
+    saveAuthorization: (
+      options: accessKey.saveAuthorization.Options,
+    ) => Promise<accessKey.saveAuthorization.ReturnType>
+    /**
      * Signs a key authorization for an access key.
      *
      * The signed authorization can be attached to a transaction via the
@@ -764,7 +791,7 @@ export type Decorator<
         options: accessKey.signAuthorization.LocalOptions<account>,
       ): Promise<accessKey.signAuthorization.ReturnType>
     }
-    /** Prepares a key authorization for local or multisig signing. */
+    /** Prepares a key authorization for local or configurable account signing. */
     prepareAuthorization: (
       options: accessKey.prepareAuthorization.Options<account>,
     ) => Promise<accessKey.prepareAuthorization.ReturnType>
@@ -919,6 +946,24 @@ export type Decorator<
     watchWitnessBurned: (
       options?: accessKey.watchWitnessBurned.Options,
     ) => accessKey.watchWitnessBurned.ReturnType
+  }
+  /** Configurable account configuration and coordinated operations. */
+  accounts: {
+    getConfig: (
+      options: accounts.getConfig.Options,
+    ) => Promise<accounts.getConfig.ReturnType>
+    getConfigCommitment: (
+      options: accounts.getConfigCommitment.Options,
+    ) => Promise<accounts.getConfigCommitment.ReturnType>
+    getOperation: (
+      options: accounts.getOperation.Options,
+    ) => Promise<accounts.getOperation.ReturnType>
+    updateConfig: (
+      options: accounts.updateConfig.Options,
+    ) => Promise<accounts.updateConfig.ReturnType>
+    updateConfigSync: (
+      options: accounts.updateConfigSync.Options,
+    ) => Promise<accounts.updateConfigSync.ReturnType>
   }
   amm: {
     /**
@@ -2944,24 +2989,6 @@ export type Decorator<
     watchIncremented: (
       options?: nonce.watchIncremented.Options,
     ) => nonce.watchIncremented.ReturnType
-  }
-  /** Native multisig configuration and coordinated operations. */
-  multisig: {
-    getConfig: (
-      options: multisig.getConfig.Options,
-    ) => Promise<multisig.getConfig.ReturnType>
-    getConfigCommitment: (
-      options: multisig.getConfigCommitment.Options,
-    ) => Promise<multisig.getConfigCommitment.ReturnType>
-    getOperation: (
-      options: multisig.getOperation.Options,
-    ) => Promise<multisig.getOperation.ReturnType>
-    updateConfig: (
-      options: multisig.updateConfig.Options,
-    ) => Promise<multisig.updateConfig.ReturnType>
-    updateConfigSync: (
-      options: multisig.updateConfigSync.Options,
-    ) => Promise<multisig.updateConfigSync.ReturnType>
   }
 
   policy: {

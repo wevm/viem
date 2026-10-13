@@ -8,7 +8,7 @@ import { tempoLocalnet } from 'viem/chains'
 import { Account, Actions as TempoActions, Client, http } from 'viem/tempo'
 
 import * as constants from './constants.js'
-import * as TempoMultisig from './tempoMultisigInstance.js'
+import * as TempoAccounts from './tempoAccountsInstance.js'
 
 export const port = Number(process.env.VITE_TEMPO_PORT ?? 9545)
 
@@ -421,8 +421,8 @@ export function createInstance(options: createInstance.Options = {}) {
   const tag = process.env.VITE_TEMPO_TAG ?? 'latest'
   const blockTime = options.zones ? '500ms' : process.env.CI ? '50ms' : '2ms'
   const image = resolveImage('ghcr.io/tempoxyz/tempo', tag)
-  if (process.env.VITE_TEMPO_MULTISIG)
-    return TempoMultisig.create({ image, blockTime })
+  if (process.env.VITE_TEMPO_ACCOUNTS)
+    return TempoAccounts.create({ image, blockTime })
   return TestContainers.Instance.tempo({
     blockTime,
     hardfork:

@@ -362,9 +362,9 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
 
 describe.runIf(
   nodeEnv === 'localnet' &&
-    process.env.VITE_TEMPO_MULTISIG === 'true' &&
+    process.env.VITE_TEMPO_ACCOUNTS === 'true' &&
     process.env.VITE_TEMPO_TAG === 'sha-83f3ccd',
-)('multisig', () => {
+)('accounts', () => {
   let client: CoreClient_.Client<typeof chain_>
   let server: Server
   const store = Store.memory()
@@ -376,7 +376,7 @@ describe.runIf(
       client: Tempo.getClient({
         batch: { multicall: { deployless: true } },
       }),
-      plugins: [Relay.multisig({ store }), Relay.feePayer(), Relay.feeToken()],
+      plugins: [Relay.accounts({ store }), Relay.feePayer(), Relay.feeToken()],
     })
 
     server = await createHttpServer(createRequestListener(relay.fetch))
@@ -394,7 +394,7 @@ describe.runIf(
   test('example: initial configuration', async () => {
     const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
     const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1.address, owner_2.address],
       salt: toHex(0x109700, { size: 32 }),
@@ -420,10 +420,10 @@ describe.runIf(
       token: Tempo.alphaUsd,
     })
     expect({
-      signatureCount: (pending as TempoReceipt_).multisig?.signatureCount,
+      signatureCount: (pending as TempoReceipt_).operation?.signatureCount,
       status: pending.status,
-      threshold: (pending as TempoReceipt_).multisig?.threshold,
-      weight: (pending as TempoReceipt_).multisig?.weight,
+      threshold: (pending as TempoReceipt_).operation?.threshold,
+      weight: (pending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 1,
@@ -442,10 +442,10 @@ describe.runIf(
       token: Tempo.alphaUsd,
     } as never)
     expect({
-      signatureCount: (receipt as TempoReceipt_).multisig?.signatureCount,
+      signatureCount: (receipt as TempoReceipt_).operation?.signatureCount,
       status: receipt.status,
-      threshold: (receipt as TempoReceipt_).multisig?.threshold,
-      weight: (receipt as TempoReceipt_).multisig?.weight,
+      threshold: (receipt as TempoReceipt_).operation?.threshold,
+      weight: (receipt as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 2,
@@ -466,8 +466,8 @@ describe.runIf(
     const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
-    if (transaction.signature?.type !== 'multisig')
-      throw new Error('Expected a multisig signature.')
+    if (transaction.signature?.type !== 'configurable')
+      throw new Error('Expected a configurable account signature.')
     expect({
       account: transaction.signature.account,
       signatureCount: transaction.signature.signatures.length,
@@ -477,17 +477,17 @@ describe.runIf(
       {
         "account": "${account.address.toLowerCase()}",
         "signatureCount": 2,
-        "type": "multisig",
+        "type": "configurable",
         "version": 0n,
       }
     `)
   })
 
-  test('rejects multisig accounts as owners', () => {
-    const child = Account.fromMultisig({
+  test('rejects configurable accounts as owners', () => {
+    const child = Account.fromConfig({
       owners: [TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)],
     })
-    expect(() => Account.fromMultisig({ owners: [child as never] })).toThrow()
+    expect(() => Account.fromConfig({ owners: [child as never] })).toThrow()
   })
 
   test('example: weighted quorum', async () => {
@@ -499,7 +499,7 @@ describe.runIf(
     const heavy = owners[0]!
     const light_1 = owners[1]!
     const light_2 = owners[2]!
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [
         { owner: heavy.address, weight: 2 },
@@ -526,7 +526,7 @@ describe.runIf(
     })
     expect({
       status: alicePending.status,
-      weight: (alicePending as TempoReceipt_).multisig?.weight,
+      weight: (alicePending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -583,7 +583,7 @@ describe.runIf(
     )
     expect({
       status: bobCarolPending.status,
-      weight: (bobCarolPending as TempoReceipt_).multisig?.weight,
+      weight: (bobCarolPending as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -604,12 +604,12 @@ describe.runIf(
     const transaction = await CoreActions_.transaction.get(client, {
       hash: receipt.transactionHash,
     })
-    if (transaction.signature?.type !== 'multisig')
-      throw new Error('Expected a multisig signature.')
+    if (transaction.signature?.type !== 'configurable')
+      throw new Error('Expected a configurable account signature.')
     expect({
       signatureCount: transaction.signature.signatures.length,
       status: receipt.status,
-      weight: (receipt as TempoReceipt_).multisig?.weight,
+      weight: (receipt as TempoReceipt_).operation?.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 2,
@@ -628,7 +628,7 @@ describe.runIf(
         batch: { multicall: { deployless: true } },
       }),
       plugins: [
-        Relay.multisig({ store: sponsorStore }),
+        Relay.accounts({ store: sponsorStore }),
         Relay.feePayer({
           account: feePayerAccount,
           onSponsored: () => ({ subsidized: true }),
@@ -681,7 +681,7 @@ describe.runIf(
         sponsorship_details: { subsidized: true },
       })
 
-      const ownerFirst = Account.fromMultisig({
+      const ownerFirst = Account.fromConfig({
         address: 'infer',
         owners: [owner_1.address, owner_2.address],
         salt: toHex(0x109704, { size: 32 }),
@@ -706,9 +706,9 @@ describe.runIf(
         },
       )
       const ownerFirstPendingOperation = (ownerFirstPending as TempoReceipt_)
-        .multisig
+        .operation
       if (!ownerFirstPendingOperation)
-        throw new Error('Expected a multisig operation.')
+        throw new Error('Expected an account operation.')
       const ownerFirstTransaction = Transaction.deserialize(
         ownerFirstPendingOperation.transaction as Transaction.Serialized,
       )
@@ -745,7 +745,7 @@ describe.runIf(
         }
       `)
 
-      const feePayerFirst = Account.fromMultisig({
+      const feePayerFirst = Account.fromConfig({
         address: 'infer',
         owners: [owner_1.address, owner_2.address],
         salt: toHex(0x109705, { size: 32 }),
@@ -770,9 +770,9 @@ describe.runIf(
         })
       const feePayerFirstPendingOperation = (
         feePayerFirstPending as TempoReceipt_
-      ).multisig
+      ).operation
       if (!feePayerFirstPendingOperation)
-        throw new Error('Expected a multisig operation.')
+        throw new Error('Expected an account operation.')
       const feePayerFirstTransaction = Transaction.deserialize(
         feePayerFirstPendingOperation.transaction as Transaction.Serialized,
       )
@@ -830,7 +830,7 @@ describe.runIf(
   test('example: initial config and immediate access key use', async () => {
     const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)
     const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[4]!.privateKey)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109706, { size: 32 }),
@@ -852,10 +852,10 @@ describe.runIf(
       owner: owner_1,
     })
     expect({
-      signatureCount: pending.multisig.signatureCount,
+      signatureCount: pending.operation.signatureCount,
       status: pending.status,
-      threshold: pending.multisig.threshold,
-      weight: pending.multisig.weight,
+      threshold: pending.operation.threshold,
+      weight: pending.operation.weight,
     }).toMatchInlineSnapshot(`
       {
         "signatureCount": 1,
@@ -885,13 +885,13 @@ describe.runIf(
       status: receipt.status,
       transactionSignature: transaction.signature?.type,
       version:
-        transaction.keyAuthorization?.signature.type === 'multisig'
+        transaction.keyAuthorization?.signature.type === 'configurable'
           ? transaction.keyAuthorization.signature.config.version
           : undefined,
     }).toMatchInlineSnapshot(`
       {
         "from": "${account.address.toLowerCase()}",
-        "keyAuthorizationSignature": "multisig",
+        "keyAuthorizationSignature": "configurable",
         "status": "success",
         "transactionSignature": "keychain",
         "version": 0n,
@@ -902,7 +902,7 @@ describe.runIf(
   test('example: initial config and subsequent access key use', async () => {
     const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[6]!.privateKey)
     const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[8]!.privateKey)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109707, { size: 32 }),
@@ -961,9 +961,9 @@ describe.runIf(
       transactionSignature: initialTransaction.signature?.type,
     }).toMatchInlineSnapshot(`
       {
-        "keyAuthorizationSignature": "multisig",
+        "keyAuthorizationSignature": "configurable",
         "status": "success",
-        "transactionSignature": "multisig",
+        "transactionSignature": "configurable",
       }
     `)
 
@@ -988,7 +988,7 @@ describe.runIf(
     const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
     const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
     const owner_3 = TempoAccount_.fromSecp256k1(Tempo.accounts[3]!.privateKey)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109708, { size: 32 }),
@@ -1005,7 +1005,7 @@ describe.runIf(
       to: account.address,
       token: Tempo.alphaUsd,
     })
-    const { receipt: pending } = await Actions.multisig.updateConfigSync(
+    const { receipt: pending } = await Actions.accounts.updateConfigSync(
       client,
       {
         account,
@@ -1015,7 +1015,7 @@ describe.runIf(
     )
     expect({
       status: pending.status,
-      version: (pending as TempoReceipt_).multisig?.config.version,
+      version: (pending as TempoReceipt_).operation?.config.version,
     }).toMatchInlineSnapshot(`
       {
         "status": "pending",
@@ -1024,7 +1024,7 @@ describe.runIf(
     `)
 
     const { receipt: updateReceipt, ...rotation } =
-      await Actions.multisig.updateConfigSync(client, {
+      await Actions.accounts.updateConfigSync(client, {
         account,
         hash: pending.transactionHash,
         nextConfig,
@@ -1044,7 +1044,7 @@ describe.runIf(
       }
     `)
 
-    const currentAccount = Account.fromMultisig(account.address)
+    const currentAccount = Account.fromConfig(account.address)
     const { receipt } = await Actions.token.transferSync(client, {
       account: currentAccount,
       amount: 11n,
@@ -1059,7 +1059,7 @@ describe.runIf(
       account: transaction.from,
       status: receipt.status,
       version:
-        transaction.signature?.type === 'multisig'
+        transaction.signature?.type === 'configurable'
           ? transaction.signature.config.version
           : undefined,
     }).toMatchInlineSnapshot(`
@@ -1074,7 +1074,7 @@ describe.runIf(
   test('behavior: routes pathless approvals to their operation chain', async () => {
     const owner_1 = TempoAccount_.fromSecp256k1(Tempo.accounts[1]!.privateKey)
     const owner_2 = TempoAccount_.fromSecp256k1(Tempo.accounts[2]!.privateKey)
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       address: 'infer',
       owners: [owner_1, owner_2],
       salt: toHex(0x109709, { size: 32 }),
@@ -1100,12 +1100,12 @@ describe.runIf(
 
       getClient({ chainId }) {
         if (chainId !== chain_.id)
-          throw new Error('Expected the multisig operation chain.')
+          throw new Error('Expected the account operation chain.')
         return Tempo.getClient({
           batch: { multicall: { deployless: true } },
         })
       },
-      plugins: [Relay.multisig({ store }), Relay.feePayer(), Relay.feeToken()],
+      plugins: [Relay.accounts({ store }), Relay.feePayer(), Relay.feeToken()],
     })
 
     const routedServer = await createHttpServer(

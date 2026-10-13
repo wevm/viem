@@ -1,5 +1,5 @@
 import type { Address, Hex, TransactionEnvelope as TxEnvelope } from 'ox'
-import type { MultisigSimulation } from 'ox/tempo'
+import type { AccountSimulation } from 'ox/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 import type { Account, Chain } from 'viem'
@@ -18,13 +18,13 @@ test('ExtractTransactionRequest: native tempo request shape', () => {
     Account.Account | boolean | string | undefined
   >()
   expectTypeOf<Request['keyType']>().toEqualTypeOf<
-    'multisig' | 'secp256k1' | 'p256' | 'webAuthn' | undefined
+    'configurable' | 'secp256k1' | 'p256' | 'webAuthn' | undefined
   >()
   expectTypeOf<Request['nonceKey']>().toEqualTypeOf<
     'expiring' | 'random' | bigint | undefined
   >()
-  expectTypeOf<Request['multisigSimulation']>().toEqualTypeOf<
-    MultisigSimulation.Spec | undefined
+  expectTypeOf<Request['accountSimulation']>().toEqualTypeOf<
+    AccountSimulation.Spec | undefined
   >()
   // Numberish quantities (matching `TransactionRequest.toRpc.Input`).
   expectTypeOf<Request['gas']>().toEqualTypeOf<
@@ -79,8 +79,8 @@ test('extension record: feeToken and hardfork typed on the chain root', () => {
   >().toEqualTypeOf<Address.Address | undefined>()
 })
 
-test('MultisigSimulation config', () => {
+test('AccountSimulation config', () => {
   expectTypeOf<
-    NonNullable<TransactionRequest['multisigSimulation']>['config']['owners']
+    NonNullable<TransactionRequest['accountSimulation']>['config']['owners']
   >().toEqualTypeOf<readonly { owner: Address.Address; weight: number }[]>()
 })

@@ -115,7 +115,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidMasterAddress()': 'Invalid master address.',
   'InvalidMigrationIndex()': 'Invalid migration index.',
   'InvalidMode()': 'Invalid mode.',
-  'InvalidMultisigOwner()': 'Invalid multisig owner.',
+  'InvalidMultisigOwner()': 'Invalid owner.',
   'InvalidNonceKey()': 'Invalid nonce key.',
   'InvalidOwner()': 'Invalid owner.',
   'InvalidOwnerOrder()': 'Invalid owner order.',

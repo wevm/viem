@@ -1,7 +1,8 @@
-import type { Address } from 'ox'
-import type { KeyAuthorization } from 'ox/tempo'
+import type { Address, Hex } from 'ox'
+import { KeyAuthorization } from 'ox/tempo'
 
 import type { MaybePromise } from '../core/internal/types.js'
+import * as Store from './Store.js'
 
 /** Cache key identifying a signed key authorization. */
 export type Key = {
@@ -13,42 +14,74 @@ export type Key = {
   chainId: number
 }
 
-/** Store for signed key authorizations, keyed by account, access key, and chain. */
+/** Pending key authorizations that the client attaches to an access key's next transaction. */
 export type KeyAuthorizationManager = {
+  /** Reads the pending authorization for a key. */
   get(key: Key): MaybePromise<KeyAuthorization.Signed | undefined>
+  /** Removes the pending authorization for a key. */
   remove(key: Key): MaybePromise<void>
+  /** Stores a pending authorization for a key. */
   set(key: Key, keyAuthorization: KeyAuthorization.Signed): MaybePromise<void>
 }
 
 /**
- * Instantiates a key authorization manager from a source.
+ * Creates a key authorization manager backed by a store.
+ *
+ * Entries use the same keys as the `Relay.keyAuthorization` plugin, so both can
+ * share one store.
  *
  * @example
  * ```ts
- * import { KeyAuthorizationManager } from 'viem/tempo'
+ * import { Account, KeyAuthorizationManager, Store } from 'viem/tempo'
  *
- * const manager = KeyAuthorizationManager.from({
- *   source: {
- *     get(key) { … },
- *     remove(key) { … },
- *     set(key, keyAuthorization) { … },
- *   },
+ * const accessKey = Account.fromP256(privateKey, {
+ *   access: root,
+ *   keyAuthorizationManager: KeyAuthorizationManager.from({
+ *     store: Store.session(),
+ *   }),
  * })
  * ```
+ *
+ * @param options - Options.
+ * @returns A key authorization manager.
  */
 export function from(options: from.Options): KeyAuthorizationManager {
-  return options.source
+  const { store } = options
+  return {
+    async get(key) {
+      const value = await store.getItem(getStoreKey(key))
+      if (!value) return undefined
+      try {
+        const { signature, ...rest } = KeyAuthorization.deserialize(
+          value as Hex.Hex,
+        )
+        if (!signature) return undefined
+        return { ...rest, signature }
+      } catch {
+        return undefined
+      }
+    },
+    async remove(key) {
+      await store.removeItem(getStoreKey(key))
+    },
+    async set(key, keyAuthorization) {
+      await store.setItem(
+        getStoreKey(key),
+        KeyAuthorization.serialize(keyAuthorization),
+      )
+    },
+  }
 }
 
 export declare namespace from {
   type Options = {
-    /** Source implementation backing the manager. */
-    source: KeyAuthorizationManager
+    /** Store for pending key authorizations. */
+    store: Store.Store
   }
 }
 
 /**
- * Creates an in-memory key authorization manager backed by a `Map`.
+ * Creates a key authorization manager backed by a process-local memory store.
  *
  * @example
  * ```ts
@@ -56,27 +89,16 @@ export declare namespace from {
  *
  * const manager = KeyAuthorizationManager.memory()
  * ```
+ *
+ * @returns A key authorization manager.
  */
 export function memory(): KeyAuthorizationManager {
-  const keyAuthorizations = new Map<string, KeyAuthorization.Signed>()
-
-  return from({
-    source: {
-      get(key) {
-        return keyAuthorizations.get(serializeKey(key))
-      },
-      remove(key) {
-        keyAuthorizations.delete(serializeKey(key))
-      },
-      set(key, keyAuthorization) {
-        keyAuthorizations.set(serializeKey(key), keyAuthorization)
-      },
-    },
-  })
+  return from({ store: Store.memory() })
 }
 
-function serializeKey(key: Key) {
+function getStoreKey(key: Key) {
   return [
+    'keyAuthorization',
     key.chainId,
     key.address.toLowerCase(),
     key.accessKey.toLowerCase(),

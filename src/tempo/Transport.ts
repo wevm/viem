@@ -10,7 +10,7 @@ import type * as Relay_ from './Relay.js'
 import * as Store from './Store.js'
 
 /** A relay {@link Transport.Transport}: routes fee sponsorship traffic to a relay (fee payer service). */
-export type Relay = Transport.Transport<'relay', { multisig: true }>
+export type Relay = Transport.Transport<'relay', { accounts: true }>
 
 /**
  * Creates a {@link Transport.Transport} that routes requests between a
@@ -28,8 +28,10 @@ export type Relay = Transport.Transport<'relay', { multisig: true }>
  * - `'sign-and-broadcast'`: the submission is forwarded to the relay, which
  *   co-signs and broadcasts it itself.
  *
- * Multisig approvals and submissions are sent to the relay. Transaction and
- * receipt lookups fall back to the relay for pending multisig operations.
+ * Owner approvals and submissions are sent to the relay. Transaction and
+ * receipt lookups fall back to the relay for pending account operations.
+ * Signed key authorizations are saved to relays with key authorization storage
+ * so they can attach them to the access key's next transaction.
  * Other requests are forwarded to the default transport.
  *
  * @example
@@ -53,11 +55,11 @@ export function withRelay<
   defaultTransport: transport,
   options: withRelay.LocalOptions<plugins>,
 ): withRelay.LocalReturnValue<transport, plugins>
-export function withRelay(
+export function withRelay<const options extends withRelay.Options = {}>(
   defaultTransport: Transport.Transport,
   relayTransport: Transport.Transport,
-  options?: withRelay.Options,
-): Relay
+  options?: options | withRelay.Options,
+): withRelay.ReturnValue<options>
 export function withRelay(
   defaultTransport: Transport.Transport,
   relayTransport: Transport.Transport | withRelay.LocalOptions,
@@ -81,15 +83,20 @@ export function withRelay(
               ...options,
             })) as typeof transport.request,
           ...(relayTransport.plugins?.some((plugin) =>
-            Plugin.isMultisig(plugin),
+            Plugin.isAccounts(plugin),
           )
-            ? { multisig: true }
+            ? { accounts: true }
+            : {}),
+          ...(relayTransport.plugins?.some((plugin) =>
+            Plugin.isKeyAuthorization(plugin),
+          )
+            ? { keyAuthorization: true }
             : {}),
         }
       },
     }
 
-  const { policy = 'sign-only' } = options
+  const { keyAuthorization, policy = 'sign-only' } = options
   return Transport.from({
     key: options.key ?? 'relay',
     name: options.name ?? 'Relay Proxy',
@@ -103,7 +110,8 @@ export function withRelay(
       const relay = relayTransport.setup({ chain, retryCount: 0, timeout })
 
       return {
-        multisig: true as const,
+        accounts: true as const,
+        ...(keyAuthorization ? { keyAuthorization: true as const } : {}),
         methods: options.methods,
         retryCount: 0,
         retryDelay: options.retryDelay,
@@ -112,6 +120,9 @@ export function withRelay(
 
           // The relay decides whether to sponsor from the fill request's `feePayer`.
           if (method === 'eth_fillTransaction') return relay.request(args, opts)
+
+          if (method === 'relay_saveKeyAuthorization')
+            return relay.request(args, opts)
 
           if (
             method === 'eth_getTransactionByHash' ||
@@ -126,7 +137,7 @@ export function withRelay(
             const operation = await (async () => {
               try {
                 return await relay.request(
-                  { method: 'multisig_getOperation', params },
+                  { method: 'account_getOperation', params },
                   opts,
                 )
               } catch (error) {
@@ -134,7 +145,7 @@ export function withRelay(
                   error instanceof RpcResponse.MethodNotFoundError ||
                   error instanceof RpcResponse.MethodNotSupportedError
                 ) {
-                  // Relays created before multisig coordination do not expose this method.
+                  // Relays without the accounts plugin do not expose this method.
                   return null
                 }
                 throw error
@@ -151,11 +162,11 @@ export function withRelay(
           }
 
           if (
-            method === 'multisig_approveKeyAuthorization' ||
-            method === 'multisig_approveRawTransaction' ||
-            method === 'multisig_approveRawTransactionSync' ||
-            method === 'multisig_getConfig' ||
-            method === 'multisig_getOperation'
+            method === 'account_approveKeyAuthorization' ||
+            method === 'account_approveRawTransaction' ||
+            method === 'account_approveRawTransactionSync' ||
+            method === 'account_getConfig' ||
+            method === 'account_getOperation'
           )
             return relay.request({ method, params: params as [Hex.Hex] }, opts)
 
@@ -178,7 +189,7 @@ export function withRelay(
                   return undefined
                 }
               })()
-              if (envelope?.signature?.type === 'multisig')
+              if (envelope?.signature?.type === 'configurable')
                 return relay.request(
                   { method, params: [serialized as Hex.Hex] },
                   opts,
@@ -226,9 +237,15 @@ export declare namespace withRelay {
       ? Transport.Transport<
           type,
           properties &
-            (Extract<plugins[number], Relay_.multisig.ReturnType> extends never
+            (Extract<plugins[number], Relay_.accounts.ReturnType> extends never
               ? {}
-              : { multisig: true }),
+              : { accounts: true }) &
+            (Extract<
+              plugins[number],
+              Relay_.keyAuthorization.ReturnType
+            > extends never
+              ? {}
+              : { keyAuthorization: true }),
           request
         >
       : never
@@ -236,6 +253,8 @@ export declare namespace withRelay {
   type Options = {
     /** Transport key. @default 'relay' */
     key?: string | undefined
+    /** Whether the relay stores key authorizations with `Relay.keyAuthorization`. @default false */
+    keyAuthorization?: boolean | undefined
     /** RPC methods to include or exclude. */
     methods?: { include?: string[] } | { exclude?: string[] } | undefined
     /** Transport name. @default 'Relay Proxy' */
@@ -247,6 +266,13 @@ export declare namespace withRelay {
     /** Base delay (ms) between retries. @default 150 */
     retryDelay?: number | undefined
   }
+
+  /** Remote relay transport, advertising key authorization storage when enabled. */
+  type ReturnValue<options extends Options = {}> = options extends {
+    keyAuthorization: true
+  }
+    ? Transport.Transport<'relay', { accounts: true; keyAuthorization: true }>
+    : Relay
 }
 
 /**

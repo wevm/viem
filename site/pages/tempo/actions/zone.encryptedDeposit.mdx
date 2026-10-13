@@ -6,6 +6,10 @@ Deposits tokens into a zone from the parent Tempo chain, encrypting the recipien
 
 Batches an approval and a ZonePortal encrypted deposit into a single transaction.
 
+The transaction receipt confirms the parent-chain deposit, but does not confirm that the zone credited
+it. See [Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the
+ZoneInbox processing result.
+
 ## Usage
 
 :::code-group

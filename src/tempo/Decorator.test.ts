@@ -1,7 +1,15 @@
 import { AbiEvent, Address, Hex, P256, Secp256k1, Value } from 'ox'
 import { Channel, VirtualAddress } from 'ox/tempo'
 import { Actions as CoreActions } from 'viem'
-import { Abis, Account, Actions, Client, http } from 'viem/tempo'
+import {
+  Abis,
+  Account,
+  Actions,
+  Client,
+  http,
+  Relay,
+  withRelay,
+} from 'viem/tempo'
 import { expect, test } from 'vitest'
 import * as tempo from '~test/tempo.js'
 
@@ -345,6 +353,32 @@ test('access key lifecycle', async () => {
   } finally {
     stopWatchers(watchers)
   }
+})
+
+test('access key authorization saving', async () => {
+  const relayClient = tempo.getClient({
+    account,
+    feeToken: tempo.pathUsd,
+    transport: withRelay(http(tempo.rpcUrl), {
+      plugins: [Relay.keyAuthorization()],
+    }),
+  })
+  const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+    access: account,
+  })
+  const keyAuthorization = await client.accessKey.signAuthorization({
+    accessKey,
+    expiry: Math.floor((Date.now() + 30_000) / 1_000),
+  })
+
+  await relayClient.accessKey.saveAuthorization({ keyAuthorization })
+  const receipt = await relayClient.transaction.sendSync({
+    account: accessKey,
+    feeToken: tempo.pathUsd,
+    to: account2.address,
+  })
+
+  expect(receipt.status).toMatchInlineSnapshot(`"success"`)
 })
 
 test('policy lifecycle', async () => {
