@@ -408,9 +408,10 @@ export type {
 export type { MineErrorType, MineParameters } from './actions/test/mine.js'
 export type { RemoveBlockTimestampIntervalErrorType } from './actions/test/removeBlockTimestampInterval.js'
 export type { ResetErrorType, ResetParameters } from './actions/test/reset.js'
-export type {
-  RevertErrorType,
-  RevertParameters,
+export {
+  RevertError,
+  type RevertErrorType,
+  type RevertParameters,
 } from './actions/test/revert.js'
 export type {
   SendUnsignedTransactionErrorType,

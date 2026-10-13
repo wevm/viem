@@ -418,6 +418,7 @@ export {
   reset,
 } from './test/reset.js'
 export {
+  RevertError,
   type RevertErrorType,
   type RevertParameters,
   revert,
