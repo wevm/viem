@@ -16,9 +16,9 @@ import {
   WebCryptoP256,
 } from 'ox'
 import {
+  AccountConfig,
   Channel,
   KeyAuthorization,
-  MultisigConfig,
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
@@ -638,27 +638,27 @@ describe('signTransaction', () => {
     expect(deserialized.signature?.type).toBe('keychain')
   })
 
-  test('behavior: multisig metadata returns an owner approval', async () => {
+  test('behavior: configurable account metadata returns an owner approval', async () => {
     const owner = Account.fromSecp256k1(privateKey)
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       owners: [{ owner: owner.address, weight: 1 }],
       threshold: 1,
     })
 
     const approval = await owner.signTransaction({
       ...envelope,
-      from: MultisigConfig.getAddress(config, {
+      from: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
-      multisigSimulation: {
+      accountSimulation: {
         config,
         approvals: [],
       },
     } as never)
 
     const payload = TxEnvelopeTempo.getSignPayload(envelope)
-    const digest = MultisigConfig.getSignPayload({
-      account: MultisigConfig.getAddress(config, {
+    const digest = AccountConfig.getSignPayload({
+      account: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
       config,
@@ -677,35 +677,37 @@ describe('signTransaction', () => {
   })
 })
 
-describe('fromMultisig', () => {
+describe('fromConfig', () => {
   const owner_1 = Account.fromSecp256k1(privateKey)
 
   test('default', () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [{ owner: owner_1.address, weight: 1 }],
       threshold: 1,
     })
 
-    expect(account.source).toBe('multisig')
+    expect(account.source).toBe('configurable')
     expect(account.type).toBe('local')
     expect(account.address).toBe(
-      Account.fromMultisig({ ...account.config, version: 0n }).address,
+      Account.fromConfig({ ...account.config, version: 0n }).address,
     )
   })
 
   test('rejects nested and access-key owners', () => {
-    const child = Account.fromMultisig({ owners: [owner_1] })
+    const child = Account.fromConfig({ owners: [owner_1] })
     const accessKey = Account.fromSecp256k1(privateKey_p256, { access: child })
     for (const owner of [child, accessKey]) {
       expect(() => {
         // @ts-expect-error Exercise invalid owner rejection at runtime.
-        Account.fromMultisig({ owners: [owner] })
-      }).toThrowError('Multisig owners must use primitive signatures.')
+        Account.fromConfig({ owners: [owner] })
+      }).toThrowError(
+        'Configurable account owners must use primitive signatures.',
+      )
     }
   })
 
   test('sign requires local owners; message signing is unsupported', async () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [{ owner: owner_1.address, weight: 1 }],
       threshold: 1,
     })
@@ -713,22 +715,22 @@ describe('fromMultisig', () => {
     await expect(
       account.sign({ hash }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Local multisig owners do not meet the threshold.]`,
+      `[Error: Local owners do not meet the threshold.]`,
     )
     await expect(
       account.signMessage({ message: 'hello' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`signMessage\` is not supported for multisig accounts.]`,
+      `[Error: \`signMessage\` is not supported for configurable accounts.]`,
     )
     await expect(
       account.signTypedData({} as never),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`signTypedData\` is not supported for multisig accounts.]`,
+      `[Error: \`signTypedData\` is not supported for configurable accounts.]`,
     )
   })
 
   test('signTransaction serializes the envelope', async () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [{ owner: owner_1, weight: 1 }],
       threshold: 1,
     })
@@ -742,7 +744,7 @@ describe('fromMultisig', () => {
   })
 
   test('signTransaction co-signs a local fee payer', async () => {
-    const account = Account.fromMultisig({
+    const account = Account.fromConfig({
       owners: [{ owner: owner_1.address, weight: 1 }],
       threshold: 1,
     })
@@ -751,7 +753,7 @@ describe('fromMultisig', () => {
     const approval = await owner_1.signTransaction({
       ...envelope,
       from: account.address,
-      multisigSimulation: {
+      accountSimulation: {
         config: account.config,
         approvals: [],
       },
@@ -762,7 +764,7 @@ describe('fromMultisig', () => {
         ...envelope,
         feePayer,
         from: account.address,
-        multisigSimulation: {
+        accountSimulation: {
           config: account.config,
           approvals: [],
         },
@@ -774,7 +776,7 @@ describe('fromMultisig', () => {
       serialized as TxEnvelopeTempo.Serialized,
     )
     expect(serialized.startsWith('0x76')).toBe(true)
-    expect(transaction.signature?.type).toBe('multisig')
+    expect(transaction.signature?.type).toBe('configurable')
     expect(transaction.feePayerSignature).toBeTruthy()
     expect(
       Address.checksum(

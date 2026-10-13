@@ -5,9 +5,9 @@ export {
   Channel,
   EarnShares,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
-  MultisigSimulation,
+  AccountConfig,
+  AccountOperation,
+  AccountSimulation,
   Period,
   ReceivePolicyReceipt,
   SignatureEnvelope,
@@ -67,7 +67,7 @@ export * as Expiry from './Expiry.js'
 /** Tempo hardforks & activation helpers. */
 export * as Hardfork from './Hardfork.js'
 
-/** Store for signed key authorizations. */
+/** Client-side storage for pending key authorizations, backed by a `Store`. */
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 
 /** P256 (secp256r1) key utilities. Re-exports `ox/P256`. */

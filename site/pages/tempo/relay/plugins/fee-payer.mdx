@@ -336,7 +336,7 @@ appear as `sponsorship_details` on the Fetch JSON-RPC response envelope.
 
 ## `Relay.feePayer`
 
-Creates a fee-payer plugin. Place [`Relay.multisig`](/tempo/relay/plugins/multisig)
+Creates a fee-payer plugin. Place [`Relay.accounts`](/tempo/relay/plugins/accounts)
 before `feePayer` so fee-payer signing waits until the transaction reaches quorum.
 Place `feeToken` after `feePayer` so sender-paid retries select a fee token again.
 

@@ -128,7 +128,7 @@ export default defineConfig({
             '**/node_modules/**',
             '**/*.fuzz-int.test.ts',
             '**/*.fuzz.test.ts',
-            '**/*.multisig.test.ts',
+            '**/*.accounts.test.ts',
           ],
           globalSetup: ['./test/setup.tempo.global.ts'],
           setupFiles: ['./test/setup.tempo.ts'],
@@ -139,15 +139,15 @@ export default defineConfig({
           testTimeout: 60_000,
         },
       },
-      // Register the multisig project only when explicitly enabled so
+      // Register the accounts project only when explicitly enabled so
       // unfiltered test runs skip its pinned Tempo image.
-      ...(process.env.VITE_TEMPO_MULTISIG
+      ...(process.env.VITE_TEMPO_ACCOUNTS
         ? [
             {
               extends: true,
               test: {
-                name: 'tempo-multisig',
-                include: ['src/tempo/**/*.multisig.test.ts'],
+                name: 'tempo-accounts',
+                include: ['src/tempo/**/*.accounts.test.ts'],
                 globalSetup: ['./test/setup.tempo.global.ts'],
                 setupFiles: ['./test/setup.tempo.ts'],
                 retry: 0,

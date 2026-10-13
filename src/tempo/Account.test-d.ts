@@ -28,11 +28,11 @@ test('accounts satisfy the core local account shape', () => {
   const accessKey = Account.fromP256(privateKey_p256, { access: root })
   expectTypeOf(accessKey).toMatchTypeOf<viem_Account.Local>()
 
-  const multisig = Account.fromMultisig({
+  const configurable = Account.fromConfig({
     owners: [{ owner: root.address, weight: 1 }],
     threshold: 1,
   })
-  expectTypeOf(multisig).toMatchTypeOf<viem_Account.Local>()
+  expectTypeOf(configurable).toMatchTypeOf<viem_Account.Local>()
 })
 
 test('keyType is narrowed to signature envelope types', () => {
@@ -54,31 +54,31 @@ test('Account union discriminates on `source`', () => {
 
 const owner = Account.fromSecp256k1(privateKey)
 
-test('fromMultisig rejects non-root owner accounts', () => {
-  const child = Account.fromMultisig({ owners: [owner] })
+test('fromConfig rejects non-root owner accounts', () => {
+  const child = Account.fromConfig({ owners: [owner] })
   const accessKey = Account.fromSecp256k1(`0x${'2'.repeat(64)}`, {
     access: child,
   })
-  // @ts-expect-error Nested multisig owners are unsupported.
-  Account.fromMultisig({ owners: [child] })
-  // @ts-expect-error Weighted nested multisig owners are unsupported.
-  Account.fromMultisig({ owners: [{ owner: child, weight: 1 }] })
+  // @ts-expect-error Nested owners are unsupported.
+  Account.fromConfig({ owners: [child] })
+  // @ts-expect-error Weighted nested owners are unsupported.
+  Account.fromConfig({ owners: [{ owner: child, weight: 1 }] })
   // @ts-expect-error Access-key owners are unsupported.
-  Account.fromMultisig({ owners: [accessKey] })
+  Account.fromConfig({ owners: [accessKey] })
   // @ts-expect-error Weighted access-key owners are unsupported.
-  Account.fromMultisig({ owners: [{ owner: accessKey, weight: 1 }] })
+  Account.fromConfig({ owners: [{ owner: accessKey, weight: 1 }] })
 })
 
-test('fromMultisig accepts primitive owner accounts', () => {
+test('fromConfig accepts primitive owner accounts', () => {
   const ethereumOwner = viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`)
-  Account.fromMultisig({ owners: [owner, ethereumOwner, owner.address] })
-  Account.fromMultisig({ owners: [{ owner: ethereumOwner, weight: 2 }] })
+  Account.fromConfig({ owners: [owner, ethereumOwner, owner.address] })
+  Account.fromConfig({ owners: [{ owner: ethereumOwner, weight: 2 }] })
 })
 
-test('fromMultisig accepts custom local owners', () => {
+test('fromConfig accepts custom local owners', () => {
   const customOwner = viem_Account.from(
     viem_Account.fromPrivateKey(`0x${'1'.repeat(64)}`),
   )
-  Account.fromMultisig({ owners: [customOwner] })
-  Account.fromMultisig({ owners: [{ owner: customOwner, weight: 2 }] })
+  Account.fromConfig({ owners: [customOwner] })
+  Account.fromConfig({ owners: [{ owner: customOwner, weight: 2 }] })
 })

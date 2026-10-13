@@ -140,8 +140,9 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
       const { headers, method, signal: signal_ } = fetchOptions
 
       try {
-        const response = await promise.withTimeout(
+        const { response, responseBody } = await promise.withTimeout(
           async ({ signal }) => {
+            const timeoutSignal = timeout > 0 ? signal : null
             const init: RequestInit = {
               ...fetchOptions,
               body: stringify(body),
@@ -151,14 +152,24 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
                 ...headers,
               },
               method: method || 'POST',
-              signal: signal_ || (timeout > 0 ? signal : null),
+              // A caller `signal` must not disable the timeout.
+              signal:
+                signal_ && timeoutSignal
+                  ? AbortSignal.any([signal_, timeoutSignal])
+                  : (signal_ ?? timeoutSignal),
             }
             const request = new Request(url, init)
             const overrides = (await onRequest?.(request, init)) ?? {
               ...init,
               url,
             }
-            return fetchFn(overrides.url ?? url, overrides)
+            const response = await fetchFn(overrides.url ?? url, overrides)
+            if (onResponse) await onResponse(response)
+            // Read the body within the timeout so a stalled body cannot hang.
+            const responseBody = await readResponseBody(response, {
+              maxResponseBodySize,
+            })
+            return { response, responseBody }
           },
           {
             errorInstance: new TimeoutError({ body: errorBody, url }),
@@ -167,12 +178,7 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
           },
         )
 
-        if (onResponse) await onResponse(response)
-
         let data: any
-        const responseBody = await readResponseBody(response, {
-          maxResponseBodySize,
-        })
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
@@ -556,6 +562,19 @@ export async function fromSocket<
           else errorQueue.push(error)
         }
 
+        // Reassigned when a reconnect re-subscribes with a new id.
+        let subscriptionId: Hex.Hex | undefined
+        let unsubscribed = false
+        function unsubscribe() {
+          unsubscribed = true
+          return new Promise<Socket.Response>((resolve) =>
+            requestInternal({
+              body: { method: 'eth_unsubscribe', params: [subscriptionId] },
+              onResponse: resolve,
+            }),
+          ) as Promise<RpcResponse.RpcResponse<boolean>>
+        }
+
         return new Promise<Socket.subscribe.ReturnType>((resolve, reject) => {
           requestInternal({
             body: { method: 'eth_subscribe', params },
@@ -571,9 +590,17 @@ export async function fromSocket<
                 return
               }
               if (typeof response.id === 'number') {
-                const subscriptionId = response.result as Hex.Hex
+                const resubscribed = subscriptionId !== undefined
+                subscriptionId = response.result as Hex.Hex
+                if (resubscribed) {
+                  // Re-subscribed while an unsubscribe was in flight.
+                  if (unsubscribed) unsubscribe()
+                  return
+                }
                 resolve({
-                  subscriptionId,
+                  get subscriptionId() {
+                    return subscriptionId!
+                  },
                   onData(listener) {
                     onDataFn = listener
                     while (dataQueue.length) listener(dataQueue.shift()!)
@@ -582,17 +609,7 @@ export async function fromSocket<
                     onErrorFn = listener
                     while (errorQueue.length) listener(errorQueue.shift()!)
                   },
-                  unsubscribe() {
-                    return new Promise<Socket.Response>((resolve) =>
-                      requestInternal({
-                        body: {
-                          method: 'eth_unsubscribe',
-                          params: [subscriptionId],
-                        },
-                        onResponse: resolve,
-                      }),
-                    ) as Promise<RpcResponse.RpcResponse<boolean>>
-                  },
+                  unsubscribe,
                 })
                 return
               }

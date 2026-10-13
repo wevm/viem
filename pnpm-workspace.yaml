@@ -52,7 +52,7 @@ overrides:
   '@grpc/grpc-js@>=1.14.0 <1.14.5': '1.14.5'
   '@hono/node-server@<2.0.10': '2.0.10'
   '@isaacs/brace-expansion@<=5.0.0': '5.0.1'
-  '@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3': '1.26.0'
+  '@modelcontextprotocol/sdk@>=1.10.0 <1.31.0': '1.31.0'
   '@opentelemetry/propagator-jaeger@<2.9.0': '2.9.0'
   'ajv@<8.18.0': '8.18.0'
   'body-parser@>=2.0.0 <2.3.0': '2.3.0'
@@ -118,15 +118,20 @@ overrides:
   'basic-ftp@<=6.2.0': '6.2.1'
   fflate@>=0.8.0 <0.8.3: 0.8.3
   qs@>=6.11.1 <6.16.0: 6.16.0
-  smol-toml@<1.7.1: 1.7.1
+  smol-toml@<=1.8.0: 1.9.0
   js-yaml@>=4.0.0 <4.3.2: 4.3.2
-  next@>=16.0.0-beta.0 <16.3.6: 16.3.6
+  next@>=16.0.0-beta.0 <16.3.8: 16.3.8
   fast-uri@>=3.0.0 <3.1.8: 3.1.8
   fast-uri@>=4.0.0 <4.1.5: 4.1.5
-  sharp@<0.35.4: 0.35.4
+  sharp@<0.35.5: 0.35.5
   baseline-browser-mapping@>=2.0.0 <2.11.0: 2.11.21
   "@toon-format/toon@<2.3.1": 2.3.1
   toml@<4.2.0: 4.2.0
+  proxy-addr@>=1.1.0 <2.0.8: 2.0.8
+  source-map-js@>=1.0.0 <1.2.2: 1.2.2
+  vue@<3.5.42: 3.5.42
+  fast-copy@>=3.0.0 <3.1.0: 3.1.0
+  katex@>=0.11.0 <0.18.2: 0.18.2
 
 patchedDependencies:
   vocs@2.10.1: patches/vocs@2.10.1.patch

@@ -156,6 +156,40 @@ describe('http', () => {
     }
   })
 
+  test('throws TimeoutError when the response body stalls', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write('{"jsonrpc":"2.0","id":0,')
+    })
+    try {
+      const error = (await RpcClient.http(server.url, { timeout: 50 })
+        .request({ body: { method: 'eth_chainId' } })
+        .catch((error) => error)) as RpcClient.TimeoutError
+      expect(error).toBeInstanceOf(RpcClient.TimeoutError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('throws TimeoutError when a caller-provided signal is set', async () => {
+    const server = await Http.createServer((_req, res) => {
+      setTimeout(() => res.end(ok('0x1')), 200)
+    })
+    try {
+      const controller = new AbortController()
+      const error = (await RpcClient.http(server.url, { timeout: 50 })
+        .request({
+          body: { method: 'eth_chainId' },
+          fetchOptions: { signal: controller.signal },
+        })
+        .catch((error) => error)) as RpcClient.TimeoutError
+      expect(error).toBeInstanceOf(RpcClient.TimeoutError)
+      expect(controller.signal.aborted).toBe(false)
+    } finally {
+      await server.close()
+    }
+  })
+
   test('aborts when the caller-provided signal aborts', async () => {
     const server = await Http.createServer((_req, res) => {
       setTimeout(() => res.end(ok('0x1')), 200)
@@ -976,6 +1010,90 @@ describe('webSocket', () => {
         notify('0xsub2')
         await wait(50)
         expect(data).toEqual([{ subscription: '0xsub2', result: 1 }])
+        client.close()
+      } finally {
+        await server.close()
+      }
+    })
+
+    test('unsubscribes with the current id after a reconnect', async () => {
+      let count = 0
+      const unsubscribed: unknown[] = []
+      const server = await Ws.createServer((connection, message) => {
+        const request = JSON.parse(message)
+        if (request.method === 'eth_subscribe') {
+          count++
+          connection.send(
+            JSON.stringify({
+              id: request.id,
+              jsonrpc: '2.0',
+              result: `0xsub${count}`,
+            }),
+          )
+        }
+        if (request.method === 'eth_unsubscribe') {
+          unsubscribed.push(request.params[0])
+          connection.send(
+            JSON.stringify({ id: request.id, jsonrpc: '2.0', result: true }),
+          )
+        }
+      })
+      try {
+        const client = await RpcClient.webSocket(server.url, {
+          keepAlive: false,
+          reconnect: { minReconnectionDelay: 10, maxReconnectionDelay: 10 },
+        })
+        const sub = await client.subscribe({ params: ['newHeads'] })
+        expect(sub.subscriptionId).toBe('0xsub1')
+        server.dropAll()
+        await wait(300)
+        expect(sub.subscriptionId).toBe('0xsub2')
+        await sub.unsubscribe()
+        expect(unsubscribed).toEqual(['0xsub2'])
+        expect(client.subscriptions.size).toBe(0)
+        client.close()
+      } finally {
+        await server.close()
+      }
+    })
+
+    test('unsubscribes a re-subscription that lands after unsubscribe', async () => {
+      let count = 0
+      const unsubscribed: unknown[] = []
+      const server = await Ws.createServer((connection, message) => {
+        const request = JSON.parse(message)
+        if (request.method === 'eth_subscribe') {
+          count++
+          const result = `0xsub${count}`
+          // Delay the re-subscribe ack so `unsubscribe` runs before it lands.
+          setTimeout(
+            () =>
+              connection.send(
+                JSON.stringify({ id: request.id, jsonrpc: '2.0', result }),
+              ),
+            count === 1 ? 0 : 100,
+          )
+        }
+        if (request.method === 'eth_unsubscribe') {
+          unsubscribed.push(request.params[0])
+          connection.send(
+            JSON.stringify({ id: request.id, jsonrpc: '2.0', result: true }),
+          )
+        }
+      })
+      try {
+        const client = await RpcClient.webSocket(server.url, {
+          keepAlive: false,
+          reconnect: { minReconnectionDelay: 10, maxReconnectionDelay: 10 },
+        })
+        const sub = await client.subscribe({ params: ['newHeads'] })
+        server.dropAll()
+        await wait(50)
+        expect(count).toBe(2)
+        await sub.unsubscribe()
+        await wait(150)
+        expect(unsubscribed).toEqual(['0xsub1', '0xsub2'])
+        expect(client.subscriptions.size).toBe(0)
         client.close()
       } finally {
         await server.close()

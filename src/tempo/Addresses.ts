@@ -47,6 +47,8 @@ export const validator = '0xcccccccc00000000000000000000000000000000'
 export const validatorV2 = '0xcccccccc00000000000000000000000000000001'
 export const zoneFactory = '0x5aF2000000000000000000000000000000000000'
 export const zoneMessenger = '0x5A4d000000000000000000000000000000000000'
+/** Address of the zone inbox precompile. */
+export const zoneInbox = '0x1c00000000000000000000000000000000000001'
 /** Address of the zone outbox precompile. */
 export const zoneOutbox = '0x1c00000000000000000000000000000000000002'
 export const zonePortalImplementation =

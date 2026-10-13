@@ -150,8 +150,8 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       if (!sponsored) return Request.fill(client, { ...base, feePayer: false })
 
       const defer =
-        typeof normalized.multisigSimulation === 'object' &&
-        normalized.multisigSimulation !== null
+        typeof normalized.accountSimulation === 'object' &&
+        normalized.accountSimulation !== null
 
       const sponsor = sponsored
         ? external
@@ -197,8 +197,8 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         typeof parameters.feePayer === 'string' ||
         parameters.feePayer === false ||
         !result.capabilities?.sponsored ||
-        (typeof parameters.multisigSimulation === 'object' &&
-          parameters.multisigSimulation !== null)
+        (typeof parameters.accountSimulation === 'object' &&
+          parameters.accountSimulation !== null)
       )
         return undefined
       const transaction = Utils.normalizeTempoTransaction(result.tx)
@@ -420,7 +420,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
     })
 
   const transaction = Transaction.deserialize(serialized)
-  // Prefer sender recovered from raw envelope; multisig finalize path supplies fallback sender.
+  // Prefer sender recovered from raw envelope; configurable account finalize path supplies fallback sender.
   const sender = transaction.from ?? options.sender
 
   // Sponsorship only applies after sender has signed original transaction.

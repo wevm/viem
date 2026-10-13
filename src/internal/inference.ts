@@ -76,7 +76,7 @@ export type { Withdrawal as z_Withdrawal } from 'ox/Withdrawal'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { Scope as z_KeyAuthorizationScope } from 'ox/tempo/KeyAuthorization'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
-export type { Owner as z_MultisigConfigOwner } from 'ox/tempo/MultisigConfig'
+export type { Owner as z_AccountConfigOwner } from 'ox/tempo/AccountConfig'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { Rpc as z_FrameReceiptRpc } from 'ox/FrameReceipt'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
@@ -92,8 +92,8 @@ export type { FrameReceipt as z_FrameReceipt } from 'ox/FrameReceipt'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { TokenLimit as z_KeyAuthorizationTokenLimit } from 'ox/tempo/KeyAuthorization'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
-export type { KeyAuthorizationOperation as z_MultisigKeyAuthorizationOperation } from 'ox/tempo/MultisigOperation'
+export type { KeyAuthorizationOperation as z_AccountKeyAuthorizationOperation } from 'ox/tempo/AccountOperation'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
-export type { Multisig as z_SignatureEnvelopeMultisig } from 'ox/tempo/SignatureEnvelope'
+export type { Configurable as z_SignatureEnvelopeConfigurable } from 'ox/tempo/SignatureEnvelope'
 /** @deprecated Compiler support for declaration emit, not Viem API. */
 export type { Primitive as z_SignatureEnvelopePrimitive } from 'ox/tempo/SignatureEnvelope'

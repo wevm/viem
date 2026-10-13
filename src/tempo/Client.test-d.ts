@@ -2,13 +2,13 @@ import { Client as TempoClient_ } from 'viem/tempo'
 import { http, Relay, Store, withRelay } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
-test('multisig coordination is configured through the transport', () => {
+test('account coordination is configured through the transport', () => {
   const client = TempoClient_.create({
     transport: withRelay(http(), {
-      plugins: [Relay.multisig({ store: Store.memory() })],
+      plugins: [Relay.accounts({ store: Store.memory() })],
     }),
   })
-  expectTypeOf(client.transport.multisig).toEqualTypeOf<true>()
-  // @ts-expect-error Multisig coordination is configured with withRelay.
-  TempoClient_.create({ experimental_multisig: true })
+  expectTypeOf(client.transport.accounts).toEqualTypeOf<true>()
+  // @ts-expect-error Account coordination is configured with withRelay.
+  TempoClient_.create({ experimental_accounts: true })
 })

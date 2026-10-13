@@ -43,7 +43,20 @@ export async function waitForCallsStatus(
     timeout = 60_000,
     throwOnFailure = false,
   } = options
-  const observerId = stringify(['waitForCallsStatus', client.uid, id])
+  // Concurrent waits share a poll only when their behavior matches. Functions
+  // key by identity; `timeout` is per caller.
+  const observerId = stringify([
+    'waitForCallsStatus',
+    client.uid,
+    id,
+    pollingInterval,
+    retryCount,
+    typeof options.retryDelay === 'function'
+      ? ['function', getFunctionId(options.retryDelay)]
+      : options.retryDelay,
+    options.status ? getFunctionId(options.status) : undefined,
+    throwOnFailure,
+  ])
 
   const { promise, resolve, reject } =
     withResolvers<waitForCallsStatus.ReturnType>()
@@ -105,6 +118,17 @@ export async function waitForCallsStatus(
     : undefined
 
   return await promise
+}
+
+let functionCount = 0
+const functionIds = /*#__PURE__*/ new WeakMap<object, number>()
+function getFunctionId(fn: object): number {
+  let functionId = functionIds.get(fn)
+  if (functionId === undefined) {
+    functionId = ++functionCount
+    functionIds.set(fn, functionId)
+  }
+  return functionId
 }
 
 export declare namespace waitForCallsStatus {

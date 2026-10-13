@@ -8,7 +8,7 @@ to a Viem client.
 
 Choose a chain-configured `client` for one chain or `getClient` for multiple
 chains. Exactly one is required. A relay with no plugins forwards requests without
-adding multisig coordination or fee sponsorship.
+adding account coordination or fee sponsorship.
 
 ## Recipes
 
@@ -120,7 +120,7 @@ const store = Store.memory()
 // ---cut---
 const relay = Relay.create({
   client,
-  plugins: [Relay.multisig({ store })], // [!code focus]
+  plugins: [Relay.accounts({ store })], // [!code focus]
 })
 ```
 
@@ -151,7 +151,7 @@ const relay = Relay.create({
 
 Deadline in milliseconds for a plugin-handled fill, including token resolution, validation, signing, and enrichment. Expiry aborts downstream requests and rejects the fill.
 
-Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and multisig polling use their existing timeouts.
+Custom callbacks must observe cancellation themselves to stop their own work. Raw transaction submission and account operation polling use their existing timeouts.
 
 The timeout must be a positive integer no greater than `2_147_483_647` milliseconds. Exceeding the deadline rejects the fill with RPC error code `-32005`. Transport retries run within the same deadline.
 
@@ -243,7 +243,7 @@ Applications supply routing, authentication, CORS, and persistent storage. Read
 
 ## Migration
 
-Replace `Multisig.handleRequest` with the multisig plugin. The low-level composer
+Replace `Multisig.handleRequest` with the accounts plugin. The low-level composer
 retains an existing downstream callback:
 
 ```diff
@@ -252,7 +252,7 @@ retains an existing downstream callback:
 
 -const request = Multisig.handleRequest(next, { store })
 +const request = Relay.handleRequest(next, {
-+  plugins: [Relay.multisig({ store })],
++  plugins: [Relay.accounts({ store })],
 +})
 ```
 

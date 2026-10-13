@@ -1,5 +1,5 @@
 import { Address, type Hex } from 'ox'
-import { KeyAuthorization, MultisigConfig } from 'ox/tempo'
+import { AccountConfig, KeyAuthorization } from 'ox/tempo'
 import * as CoreAccount from '../../../core/Account.js'
 import type * as Chain from '../../../core/Chain.js'
 import type * as Client from '../../../core/Client.js'
@@ -8,7 +8,7 @@ import {
   getKeyAuthorizationSignPayload,
   resolveAccessKey,
   signKeyAuthorization,
-  type MultisigAccount,
+  type ConfigurableAccount,
 } from '../../Account.js'
 
 /**
@@ -42,13 +42,14 @@ export async function prepareAuthorization<
   if (!account_) throw new Error('account is required.')
   if (!chainId) throw new Error('chainId is required.')
   const parsed = CoreAccount.from(account_)
-  const multisigState = await (async () => {
-    if ('multisig' in parameters) return parameters.multisig
-    if (!('source' in parsed) || parsed.source !== 'multisig') return undefined
-    const account = parsed as MultisigAccount
+  const configurableState = await (async () => {
+    if ('configurable' in parameters) return parameters.configurable
+    if (!('source' in parsed) || parsed.source !== 'configurable')
+      return undefined
+    const account = parsed as ConfigurableAccount
     if (!account.config)
       throw new Error(
-        'A multisig config is required to prepare a key authorization.',
+        'An account config is required to prepare a key authorization.',
       )
     return { config: account.config }
   })()
@@ -61,10 +62,10 @@ export async function prepareAuthorization<
     },
   )
   const signPayload =
-    'source' in parsed && parsed.source === 'multisig' && multisigState
-      ? MultisigConfig.getSignPayload({
+    'source' in parsed && parsed.source === 'configurable' && configurableState
+      ? AccountConfig.getSignPayload({
           account: parsed.address,
-          config: multisigState.config,
+          config: configurableState.config,
           payload: authorizationSignPayload,
         })
       : authorizationSignPayload
@@ -72,7 +73,7 @@ export async function prepareAuthorization<
     ...parameters,
     account: parsed,
     chainId,
-    multisig: multisigState,
+    configurable: configurableState,
     signPayload,
   } as prepareAuthorization.ReturnType
 }
@@ -103,8 +104,8 @@ export namespace prepareAuthorization {
     limits?:
       | { token: Address.Address; limit: bigint; period?: number | undefined }[]
       | undefined
-    /** @internal Prepared multisig state. */
-    multisig?: signKeyAuthorization.Parameters['multisig']
+    /** @internal Prepared configurable account state. */
+    configurable?: signKeyAuthorization.Parameters['configurable']
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
     /**
@@ -124,8 +125,8 @@ export namespace prepareAuthorization {
     Omit<Options<CoreAccount.Account | undefined>, 'account' | 'chainId'> & {
       account: CoreAccount.Account
       chainId: number
-      multisig: signKeyAuthorization.Parameters['multisig']
-      /** Payload that the authorizing account or multisig owners sign. */
+      configurable: signKeyAuthorization.Parameters['configurable']
+      /** Payload that the authorizing account or owners sign. */
       signPayload: Hex.Hex
     }
   >

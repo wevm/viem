@@ -1,5 +1,7 @@
 // biome-ignore lint/performance/noBarrelFile: namespace module
 export * as accessKey from './accessKey/index.js'
+/** Configurable account configuration and approval actions. */
+export * as accounts from './accounts/index.js'
 export * as amm from './amm/index.js'
 export * as channel from './channel/index.js'
 export * as dex from './dex/index.js'
@@ -15,6 +17,3 @@ export * as validator from './validator/index.js'
 export * as virtualAddress from './virtualAddress/index.js'
 export * as wallet from './wallet/index.js'
 export * as zone from './zone/index.js'
-
-/** Native multisig configuration and approval actions. */
-export * as multisig from './multisig/index.js'

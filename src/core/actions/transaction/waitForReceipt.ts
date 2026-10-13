@@ -1,4 +1,4 @@
-import type { Errors, Hex } from 'ox'
+import { Address, type Errors, type Hex } from 'ox'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -210,7 +210,7 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
                 ({ from, hash: hash_, nonce }) =>
                   // Ignore the original transaction (slow-RPC race).
                   hash_ !== hash &&
-                  from === replacedTransaction!.from &&
+                  Address.isEqual(from, replacedTransaction!.from) &&
                   nonce === replacedTransaction!.nonce,
               )
 
@@ -223,7 +223,9 @@ export function waitForReceipt<chain extends Chain.Chain | undefined>(
 
               let reason: waitForReceipt.ReplacementReason = 'replaced'
               if (
-                replacement.to === replacedTransaction.to &&
+                (replacement.to && replacedTransaction.to
+                  ? Address.isEqual(replacement.to, replacedTransaction.to)
+                  : replacement.to === replacedTransaction.to) &&
                 replacement.value === replacedTransaction.value &&
                 replacement.input === replacedTransaction.input
               )

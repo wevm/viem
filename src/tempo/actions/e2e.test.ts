@@ -42,7 +42,7 @@ async function fund(address: `0x${string}`, amount = 10_000_000n) {
 /**
  * End-to-end signing gate: every account kind flows through the chain hooks
  * (`toEnvelope` → `getSignPayload` → `serialize`) and the prepare hook
- * (fee tokens, expiring nonces, key authorizations, multisig senders).
+ * (fee tokens, expiring nonces, key authorizations, configurable account senders).
  */
 describe('transaction.sendSync', () => {
   test('root secp256k1: transaction round-trips', async () => {
@@ -155,18 +155,18 @@ describe('transaction.sendSync', () => {
     expect(receipt.feePayer?.toLowerCase()).toBe(feePayer.address.toLowerCase())
   })
 
-  // Native multisig (TIP-1061) runs only on a multisig-capable node: the
-  // public node image has no `0x05` (multisig) signature-envelope decoding
+  // Configurable accounts (TIP-1107) run only on a capable node: the
+  // public node image has no `0x05` (configurable) signature-envelope decoding
   // yet, so it rejects the transaction with `failed to decode signed
-  // transaction`. Opt in with `VITE_TEMPO_MULTISIG=true` against a
-  // multisig-enabled node. (The combining itself is covered hermetically in
+  // transaction`. Opt in with `VITE_TEMPO_ACCOUNTS=true` against a
+  // configurable-account-enabled node. (The combining itself is covered hermetically in
   // `chainConfig.test.ts`.)
-  test.runIf(process.env.VITE_TEMPO_MULTISIG)(
-    'multisig (2-of-2): owner approvals combine into the envelope',
+  test.runIf(process.env.VITE_TEMPO_ACCOUNTS)(
+    'configurable (2-of-2): owner approvals combine into the envelope',
     async () => {
       const owner1 = Account.fromSecp256k1(accounts[8]!.privateKey)
       const owner2 = Account.fromSecp256k1(accounts[9]!.privateKey)
-      const account = Account.fromMultisig({
+      const account = Account.fromConfig({
         threshold: 2,
         owners: [
           { owner: owner1.address, weight: 1 },
@@ -174,7 +174,7 @@ describe('transaction.sendSync', () => {
         ],
       })
 
-      // Fund the derived multisig account with the fee token.
+      // Fund the derived configurable account with the fee token.
       const funder = tempo.getClient({ account: owner1 })
       await Actions.contract.writeSync(funder, {
         abi: transferAbi,

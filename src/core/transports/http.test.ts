@@ -162,6 +162,45 @@ describe('http', () => {
     }
   })
 
+  test('times out when the response body stalls', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write('{"jsonrpc":"2.0","id":0,')
+    })
+    try {
+      const transport = http(server.url, {
+        retryCount: 0,
+        timeout: 100,
+      }).setup()
+      await expect(
+        transport.request({ method: 'eth_blockNumber' }),
+      ).rejects.toBeInstanceOf(RpcClient.TimeoutError)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('times out when a request signal is set', async () => {
+    const server = await Http.createServer((_req, res) => {
+      setTimeout(() => res.end(ok('0x1')), 1_000)
+    })
+    try {
+      const transport = http(server.url, {
+        retryCount: 0,
+        timeout: 100,
+      }).setup()
+      const controller = new AbortController()
+      await expect(
+        transport.request(
+          { method: 'eth_blockNumber' },
+          { signal: controller.signal },
+        ),
+      ).rejects.toBeInstanceOf(RpcClient.TimeoutError)
+    } finally {
+      await server.close()
+    }
+  })
+
   test('scopes batches by abort signal', async () => {
     const server = await Http.createServer((req, res) => {
       let raw = ''
