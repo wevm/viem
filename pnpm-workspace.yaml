@@ -30,6 +30,8 @@ auditConfig:
     - GHSA-w3rx-r6r6-pgpr # image-size has no published patched release.
     - GHSA-c96f-x56v-gq3h # Alto's Fastify major has no patched release.
     - GHSA-jx2c-rxcm-jvmq # Alto's Fastify major has no patched release.
+    - GHSA-qqmp-wf37-98f9 # Alto's OpenTelemetry instrumentation major has no patched release.
+    - GHSA-hp3w-g68c-fv3c # sprintf-js has no published patched release.
     - GHSA-jmr9-qjv8-65gv # extract-zip has no published patched release.
     - GHSA-mrq3-vjjr-p77c # Alto's Fastify major has no patched release.
     - GHSA-w2qp-rph6-63g4 # Alto's Fastify major has no patched release.
@@ -127,6 +129,7 @@ overrides:
   baseline-browser-mapping@>=2.0.0 <2.11.0: 2.11.21
   "@toon-format/toon@<2.3.1": 2.3.1
   toml@<4.2.0: 4.2.0
+  tinypool@<2.1.2: 2.2.0
   proxy-addr@>=1.1.0 <2.0.8: 2.0.8
   source-map-js@>=1.0.0 <1.2.2: 1.2.2
   vue@<3.5.42: 3.5.42
