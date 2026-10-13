@@ -54,6 +54,11 @@ test('estimates a modern proof', async () => {
 }, 60_000)
 
 test('estimates a legacy proof', async () => {
+  // A fresh client skips the portal version cached by the modern case.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 18_772_363n,
     jsonRpcUrl: anvil.mainnet.forkUrl,

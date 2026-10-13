@@ -64,9 +64,10 @@ beforeAll(async () => {
   })
 }, 60_000)
 
+// Only game 13219 is anchored at or after this block, so the random pick is deterministic.
 test('returns an already-proposed game', async () => {
   const game = await Actions.l1.waitForNextGame(client, {
-    l2BlockNumber: 144_990_134n,
+    l2BlockNumber: 144_990_135n,
     limit: 3,
     pollingInterval: 10,
     targetChain: optimism,
@@ -106,7 +107,7 @@ test('retries until a game is proposed', async () => {
 
   try {
     const game = await Actions.l1.waitForNextGame(proxyClient, {
-      l2BlockNumber: 144_990_134n,
+      l2BlockNumber: 144_990_135n,
       limit: 3,
       pollingInterval: 10,
       targetChain: optimism,
@@ -142,7 +143,7 @@ test('rejects unexpected polling errors', async () => {
   try {
     await expect(
       Actions.l1.waitForNextGame(proxyClient, {
-        l2BlockNumber: 144_990_134n,
+        l2BlockNumber: 144_990_135n,
         limit: 3,
         pollingInterval: 10,
         targetChain: optimism,
