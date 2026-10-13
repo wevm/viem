@@ -42,6 +42,11 @@ test('returns a dispute-game output', async () => {
 })
 
 test('returns a legacy output', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 18_772_363n,
     jsonRpcUrl: anvil.mainnet.forkUrl,

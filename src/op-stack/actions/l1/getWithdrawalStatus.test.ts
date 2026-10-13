@@ -52,6 +52,11 @@ const emptyReceipt = opStack.getReceipt({
 })
 
 test('returns waiting-to-prove before an output is available', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 19_868_020n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
@@ -67,6 +72,11 @@ test('returns waiting-to-prove before an output is available', async () => {
 }, 60_000)
 
 test('returns ready-to-prove for an unproven withdrawal', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: anvil.mainnet.forkBlockNumber,
     jsonRpcUrl: anvil.mainnet.forkUrl,
@@ -82,6 +92,11 @@ test('returns ready-to-prove for an unproven withdrawal', async () => {
 }, 60_000)
 
 test('returns waiting-to-finalize for a proven withdrawal', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 22_991_516n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
@@ -97,6 +112,11 @@ test('returns waiting-to-finalize for a proven withdrawal', async () => {
 }, 60_000)
 
 test('returns finalized for a finalized withdrawal', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 21_890_440n,
     jsonRpcUrl: anvil.mainnet.forkUrl,

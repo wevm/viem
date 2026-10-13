@@ -84,6 +84,11 @@ test('uses an explicit portal address and gas', async () => {
 })
 
 test('finalizes for an external proof submitter', async () => {
+  // A fresh client skips the portal version cached by earlier cases.
+  const client = Client.create({
+    chain: mainnet,
+    transport: http(anvil.mainnet.rpcUrl.http),
+  })
   await CoreActions.state.reset(client, {
     blockNumber: 21_165_285n,
     jsonRpcUrl: anvil.mainnet.forkUrl,
