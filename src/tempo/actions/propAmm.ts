@@ -23,6 +23,7 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { pad } from '../../utils/data/pad.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -778,7 +779,7 @@ export namespace swap {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: await getCalls(client, parameters),
     } as never)) as never

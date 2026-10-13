@@ -21,6 +21,7 @@ import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
@@ -287,7 +288,7 @@ export namespace rebalanceSwap {
       amountOut,
       to,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -515,7 +516,7 @@ export namespace mint {
       validatorTokenAddress,
       validatorTokenAmount,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -737,7 +738,7 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { liquidity, to, userToken, validatorToken, ...rest } = parameters
     const call = burn.call({ liquidity, to, userToken, validatorToken })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

@@ -44,6 +44,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -123,7 +124,7 @@ export namespace approve {
     client: Client<Transport, chain, account>,
     parameters: approve.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       ...approve.call(client, parameters as never),
     } as never)) as never
@@ -360,7 +361,7 @@ export namespace burnBlocked {
   ): Promise<ReturnType<action>> {
     const { amount, from, token, ...rest } = parameters
     const call = burnBlocked.call(client, { amount, from, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -583,7 +584,7 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { amount, from, memo, token, ...rest } = parameters
     const call = burn.call(client, { amount, from, memo, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -810,7 +811,7 @@ export namespace changeTransferPolicy {
   ): Promise<ReturnType<action>> {
     const { policyId, token, ...rest } = parameters
     const call = changeTransferPolicy.call(client, { policyId, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1041,7 +1042,7 @@ export namespace create {
 
     const call = create.call(client, { ...rest, admin: admin.address })
 
-    return (await action(
+    return (await withExecutionError(action)(
       client as never,
       {
         ...parameters,
@@ -1983,7 +1984,7 @@ export namespace grantRoles {
     client: Client<Transport, chain, account>,
     parameters: grantRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
         const call = grantRoles.call(client, { ...parameters, role })
@@ -2199,7 +2200,16 @@ export namespace mint {
   ): Promise<ReturnType<action>> {
     const { amount, memo, to, token, ...rest } = parameters
     const call = mint.call(client, { amount, memo, to, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        SupplyCapExceeded: [
+          'Mint a smaller amount, or raise the cap with `token.setSupplyCap`.',
+        ],
+        Unauthorized: [
+          'Minting requires the `issuer` role. Grant it with `token.grantRoles`.',
+        ],
+      },
+    })(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2416,7 +2426,7 @@ export namespace pause {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = pause.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2617,7 +2627,7 @@ export namespace renounceRoles {
     client: Client<Transport, chain, account>,
     parameters: renounceRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
         const call = renounceRoles.call(client, { ...parameters, role })
@@ -2834,7 +2844,7 @@ export namespace revokeRoles {
     parameters: revokeRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { from: _, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       calls: parameters.roles.map((role) => {
         const call = revokeRoles.call(client, { ...parameters, role })
@@ -3047,7 +3057,7 @@ export namespace setSupplyCap {
   ): Promise<ReturnType<action>> {
     const { supplyCap, token, ...rest } = parameters
     const call = setSupplyCap.call(client, { supplyCap, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3251,7 +3261,7 @@ export namespace setRoleAdmin {
   ): Promise<ReturnType<action>> {
     const { adminRole, role, token, ...rest } = parameters
     const call = setRoleAdmin.call(client, { adminRole, role, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3455,7 +3465,7 @@ export namespace transfer {
     client: Client<Transport, chain, account>,
     parameters: transfer.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       ...transfer.call(client, parameters as never),
     } as never)) as never
@@ -3712,7 +3722,7 @@ export namespace unpause {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = unpause.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3911,7 +3921,7 @@ export namespace prepareUpdateQuoteToken {
   ): Promise<ReturnType<action>> {
     const { quoteToken, token, ...rest } = parameters
     const call = prepareUpdateQuoteToken.call(client, { quoteToken, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -4114,7 +4124,7 @@ export namespace updateQuoteToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = updateQuoteToken.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

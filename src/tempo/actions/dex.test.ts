@@ -63,7 +63,10 @@ describe('buy', () => {
         amountOut: parseUnits('100', 6),
         maxAmountIn: parseUnits('100', 6), // Way too low for 1% premium
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'MaxInputExceeded',
+    })
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
@@ -79,7 +82,10 @@ describe('buy', () => {
         amountOut: parseUnits('100', 6),
         maxAmountIn: parseUnits('150', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountOut" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'InsufficientLiquidity',
+    })
   })
 })
 
@@ -160,7 +166,10 @@ describe('cancel', () => {
       Actions.dex.cancelSync(client, {
         orderId: 999n,
       }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'OrderDoesNotExist',
+    })
   })
 })
 
@@ -221,7 +230,10 @@ describe('cancelStale', () => {
       Actions.dex.cancelStaleSync(client, {
         orderId,
       }),
-    ).rejects.toThrow('The contract function "cancelStaleOrder" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'OrderNotStale',
+    })
   })
 })
 
@@ -1028,7 +1040,10 @@ describe('place', () => {
         type: 'buy',
         tick: Tick.maxTick + 1,
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'TickOutOfBounds',
+    })
 
     // Test tick below min tick should fail
     await expect(
@@ -1038,7 +1053,10 @@ describe('place', () => {
         type: 'sell',
         tick: Tick.minTick - 1,
       }),
-    ).rejects.toThrow('The contract function "place" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'TickOutOfBounds',
+    })
   })
 
   test('behavior: transfers from wallet', async () => {
@@ -1171,7 +1189,10 @@ describe('placeFlip', () => {
         tick: Tick.fromPrice('1.001'),
         flipTick: Tick.fromPrice('1.0005'), // Less than
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'InvalidFlipTick',
+    })
   })
 
   test('behavior: flip ask requires flipTick <= tick', async () => {
@@ -1206,7 +1227,10 @@ describe('placeFlip', () => {
         tick: Tick.fromPrice('1.0005'),
         flipTick: Tick.fromPrice('1.001'), // Greater than
       }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'InvalidFlipTick',
+    })
   })
 
   test('behavior: flip ticks at boundaries', async () => {
@@ -1267,7 +1291,10 @@ describe('sell', () => {
         amountIn: parseUnits('100', 6),
         minAmountOut: parseUnits('150', 6), // Way too high
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'InsufficientOutput',
+    })
   })
 
   test('behavior: fails with insufficient liquidity', async () => {
@@ -1283,7 +1310,10 @@ describe('sell', () => {
         amountIn: parseUnits('100', 6),
         minAmountOut: parseUnits('100', 6),
       }),
-    ).rejects.toThrow('The contract function "swapExactAmountIn" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'InsufficientLiquidity',
+    })
   })
 })
 

@@ -47,6 +47,7 @@ import {
 import * as Addresses from '../Addresses.js'
 import { parseApproval } from '../accounts/Signature.js'
 import * as Hardfork from '../Hardfork.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -188,7 +189,13 @@ export namespace authorize {
       scopes,
       witness,
     })
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        KeyAlreadyExists: [
+          'This access key is already authorized. Change its limits with `accessKey.updateLimit` instead.',
+        ],
+      },
+    })(client, {
       ...rest,
       keyAuthorization,
     } as never)) as never
@@ -350,7 +357,7 @@ export namespace burnWitness {
   ): Promise<ReturnType<action>> {
     const { witness, ...rest } = parameters
     const call = burnWitness.call({ witness })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -906,7 +913,7 @@ export namespace revoke {
   ): Promise<ReturnType<action>> {
     const { accessKey, ...rest } = parameters
     const call = revoke.call({ accessKey })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1539,7 +1546,7 @@ export namespace updateLimit {
   ): Promise<ReturnType<action>> {
     const { accessKey, token, limit, ...rest } = parameters
     const call = updateLimit.call({ accessKey, token, limit })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

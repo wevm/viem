@@ -26,6 +26,7 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -111,7 +112,16 @@ export namespace buy {
   ): Promise<ReturnType<action>> {
     const { tokenIn, tokenOut, amountOut, maxAmountIn, ...rest } = parameters
     const call = buy.call({ tokenIn, tokenOut, amountOut, maxAmountIn })
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        InsufficientLiquidity: [
+          'Buy a smaller amount, or check the quote with `dex.getBuyQuote`.',
+        ],
+        MaxInputExceeded: [
+          'Raise `maxAmountIn`, or check the quote with `dex.getBuyQuote`.',
+        ],
+      },
+    })(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -285,7 +295,7 @@ export namespace cancel {
   ): Promise<ReturnType<action>> {
     const { orderId, ...rest } = parameters
     const call = cancel.call({ orderId })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -485,7 +495,7 @@ export namespace cancelStale {
   ): Promise<ReturnType<action>> {
     const { orderId, ...rest } = parameters
     const call = cancelStale.call({ orderId })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -685,7 +695,7 @@ export namespace createPair {
   ): Promise<ReturnType<action>> {
     const { base, ...rest } = parameters
     const call = createPair.call({ base })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1317,7 +1327,7 @@ export namespace place {
   ): Promise<ReturnType<action>> {
     const { amount, token, type, tick, ...rest } = parameters
     const call = place.call({ amount, token, type, tick })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1461,7 +1471,7 @@ export namespace placeFlip {
   ): Promise<ReturnType<action>> {
     const { amount, flipTick, tick, token, type, ...rest } = parameters
     const call = placeFlip.call({ amount, flipTick, tick, token, type })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1749,7 +1759,16 @@ export namespace sell {
   ): Promise<ReturnType<action>> {
     const { tokenIn, tokenOut, amountIn, minAmountOut, ...rest } = parameters
     const call = sell.call({ tokenIn, tokenOut, amountIn, minAmountOut })
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        InsufficientLiquidity: [
+          'Sell a smaller amount, or check the quote with `dex.getSellQuote`.',
+        ],
+        InsufficientOutput: [
+          'Lower `minAmountOut`, or check the quote with `dex.getSellQuote`.',
+        ],
+      },
+    })(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2250,7 +2269,7 @@ export namespace withdraw {
   ): Promise<ReturnType<action>> {
     const { token, amount, ...rest } = parameters
     const call = withdraw.call({ token, amount })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

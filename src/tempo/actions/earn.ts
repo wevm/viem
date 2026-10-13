@@ -48,6 +48,7 @@ import {
   WaitForPrivateRedeemTimeoutError,
   type WaitForPrivateRedeemTimeoutErrorType,
 } from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -447,7 +448,7 @@ export namespace deposit {
         functionName: 'asset',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: deposit.calls({ ...args, assetToken }),
     } as never)) as never
@@ -747,7 +748,7 @@ export namespace depositShares {
       address: parameters.vault,
       functionName: 'engine',
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: depositShares.calls({
         ...toDepositSharesArgs(client, parameters as never),
@@ -2142,7 +2143,7 @@ export namespace redeem {
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: redeem.calls({ ...args, shareToken }),
     } as never)) as never
@@ -2800,7 +2801,7 @@ export namespace withdrawExact {
         functionName: 'earnShare',
       }),
     ])
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: withdrawExact.calls({ ...args, shareToken }),
     } as never)) as never

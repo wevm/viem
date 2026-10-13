@@ -322,7 +322,10 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       actions.channel.withdrawSync(payerClient, {
         channel,
       }),
-    ).rejects.toThrow('The contract function "withdraw" reverted')
+    ).rejects.toMatchObject({
+      name: 'TempoExecutionError',
+      errorName: 'CloseNotReady',
+    })
 
     const { blocks } = await actions.simulate.simulateBlocks(payerClient, {
       blocks: [

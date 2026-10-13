@@ -19,6 +19,7 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { signVoucher as signVoucher_ } from '../Account.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -90,7 +91,7 @@ export namespace close {
   ): Promise<ReturnType<action>> {
     const { captureAmount, cumulativeAmount, channel, signature, ...rest } =
       parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...close.call({
         captureAmount,
@@ -412,7 +413,7 @@ export namespace open {
   ): Promise<ReturnType<action>> {
     const { authorizedSigner, deposit, operator, payee, salt, token, ...rest } =
       parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...open.call({
         authorizedSigner,
@@ -592,7 +593,7 @@ export namespace requestClose {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...requestClose.call({ channel }),
     } as never)) as never
@@ -747,7 +748,7 @@ export namespace settle {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { cumulativeAmount, channel, signature, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...settle.call({ cumulativeAmount, channel, signature }),
     } as never)) as never
@@ -964,7 +965,7 @@ export namespace topUp {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { additionalDeposit, channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...topUp.call({ additionalDeposit, channel }),
     } as never)) as never
@@ -1113,7 +1114,7 @@ export namespace withdraw {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...withdraw.call({ channel }),
     } as never)) as never

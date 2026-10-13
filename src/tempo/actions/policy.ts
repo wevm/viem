@@ -18,6 +18,7 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -112,7 +113,7 @@ export namespace create {
     const admin = parseAccount(account).address!
 
     const call = create.call({ admin, type, addresses })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -330,7 +331,7 @@ export namespace setAdmin {
   ): Promise<ReturnType<action>> {
     const { policyId, admin, ...rest } = parameters
     const call = setAdmin.call({ policyId, admin })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -542,7 +543,7 @@ export namespace modifyWhitelist {
       allowed,
       policyId,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -757,7 +758,7 @@ export namespace modifyBlacklist {
       policyId,
       restricted,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

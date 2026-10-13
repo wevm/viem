@@ -25,6 +25,7 @@ import {
   FeeTokenPausedError,
   InvalidFeeTokenError,
 } from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -284,7 +285,7 @@ export namespace setUserToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = setUserToken.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -618,7 +619,7 @@ export namespace setValidatorToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = setValidatorToken.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

@@ -279,6 +279,8 @@ export function defineCall<
 } {
   return {
     ...(call as any),
+    // Precompile errors bubble up across contracts (e.g. `AccountKeychain` errors from a TIP-20 `transfer`).
+    abi: [...call.abi, ...Abis.coreErrors],
     data: encodeFunctionData(call as never),
     to: call.address,
   } as const

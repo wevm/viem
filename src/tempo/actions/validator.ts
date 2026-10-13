@@ -13,6 +13,7 @@ import type { Chain } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
@@ -104,7 +105,7 @@ export namespace add {
       inboundAddress,
       outboundAddress,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -288,7 +289,7 @@ export namespace changeOwner {
   ): Promise<ReturnType<action>> {
     const { newOwner, ...rest } = parameters
     const callData = changeOwner.call({ newOwner })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -455,7 +456,7 @@ export namespace changeStatus {
   ): Promise<ReturnType<action>> {
     const { validator, active, ...rest } = parameters
     const callData = changeStatus.call({ validator, active })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -1120,7 +1121,7 @@ export namespace setNextFullDkgCeremony {
   ): Promise<ReturnType<action>> {
     const { epoch, ...rest } = parameters
     const callData = setNextFullDkgCeremony.call({ epoch })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -1308,7 +1309,7 @@ export namespace update {
       inboundAddress,
       outboundAddress,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never

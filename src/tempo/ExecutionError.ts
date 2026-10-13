@@ -8,7 +8,7 @@ import { formatAbiItem } from '../utils/abi/formatAbiItem.js'
 import { toFunctionSelector } from '../utils/hash/toFunctionSelector.js'
 import * as Abis from './Abis.js'
 
-type AllAbis = typeof Abis.core
+type AllAbis = typeof Abis.coreErrors
 type AbiErrorName = Extract<AllAbis[number], { type: 'error' }>['name']
 
 type DecodedError<error = DecodeErrorResultReturnType<AllAbis>> =
@@ -230,6 +230,49 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'ZeroPublicKey()': 'Public key cannot be zero.',
 }
 
+/** Steps to resolve an error, keyed by error signature in `Abis.core`. */
+export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
+  {
+    'CallNotAllowed()': [
+      "The access key's scopes do not allow this target, selector, or recipient.",
+      'Authorize an access key whose `scopes` include this call with `accessKey.authorize`.',
+    ],
+    'ContractPaused()': [
+      'The token is paused. An account with the `unpause` role can unpause it with `token.unpause`.',
+    ],
+    'ExpiringNonceReplay()': [
+      'Resend the transaction with a new `nonceKey` or `validBefore`.',
+    ],
+    'ExpiryInPast()': ['Set `expiry` to a future Unix timestamp in seconds.'],
+    'InsufficientAllowance()': [
+      'Approve the spender for at least this amount with `token.approve`.',
+    ],
+    'InsufficientBalance(uint256,uint256,address)': [
+      'Fund the account or lower the amount. Check the balance with `token.getBalance`.',
+    ],
+    'InsufficientFeeTokenBalance()': [
+      'Fund the account with the fee token, or pay fees with another token via `feeToken`.',
+    ],
+    'KeyAlreadyExists()': [
+      'Use a new access key, or revoke the existing one with `accessKey.revoke`.',
+    ],
+    'KeyAlreadyRevoked()': [
+      'Revoked access keys cannot be used or re-authorized. Authorize a new access key with `accessKey.authorize`.',
+    ],
+    'KeyExpired()': ['Authorize a new access key with `accessKey.authorize`.'],
+    'KeyNotFound()': [
+      'Authorize the access key with `accessKey.authorize`, or pass `keyAuthorization` to authorize it in the same transaction.',
+    ],
+    'PolicyForbids()': [
+      'The token transfer policy forbids this sender or recipient. Check with `policy.isAuthorized`.',
+    ],
+    'SpendingLimitExceeded()': [
+      'Raise the limit with `accessKey.updateLimit`, or wait for a periodic limit to reset.',
+      'Read the remaining limit with `accessKey.getRemainingLimit`.',
+    ],
+    'UnauthorizedCaller()': ['Sign with the root key or an admin access key.'],
+  }
+
 /** Interpolate `{0}`, `{1}`, … placeholders with args. */
 function interpolate(template: string, args?: readonly unknown[]): string {
   if (!args) return template
@@ -370,7 +413,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
   const data = extractRevertData(error)
   if (data) {
     try {
-      const decoded = decodeErrorResult({ abi: Abis.core, data })
+      const decoded = decodeErrorResult({ abi: Abis.coreErrors, data })
       const template =
         messages[formatAbiItem(decoded.abiItem) as keyof typeof messages]
       return {
@@ -382,7 +425,7 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
       } as never
     } catch {
       if (data.length === 10) {
-        const abiItem = Abis.core.find(
+        const abiItem = Abis.coreErrors.find(
           (item) =>
             item.type === 'error' &&
             toFunctionSelector(formatAbiItem(item)) === data.toLowerCase(),
@@ -398,6 +441,22 @@ function parse(error: Exclude<from.Parameters, Hex>): ExecutionError {
       }
     }
   }
+
+  // Nodes print zero-argument errors as `Name(Name)`, whose revert data is the selector alone.
+  const debugMatch = /\b(\w+)\(\1\)/.exec(raw)
+  const abiItem = debugMatch
+    ? Abis.coreErrors.find(
+        (item) => item.name === debugMatch[1] && item.inputs.length === 0,
+      )
+    : undefined
+  if (abiItem)
+    return {
+      abiItem,
+      args: undefined,
+      data: toFunctionSelector(formatAbiItem(abiItem)),
+      errorName: abiItem.name,
+      message: messages[formatAbiItem(abiItem) as keyof typeof messages]!,
+    } as DecodedError
 
   // Human-readable names cannot distinguish overloads with different templates.
   const nameMatch = /:\s*(\w+)\(([^)]*)\)/.exec(raw)

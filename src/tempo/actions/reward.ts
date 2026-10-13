@@ -19,6 +19,7 @@ import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -100,7 +101,7 @@ export namespace claim {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = claim.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -345,7 +346,7 @@ export namespace distribute {
   ): Promise<ReturnType<action>> {
     const { amount, token, ...rest } = parameters
     const call = distribute.call({ amount, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -767,7 +768,7 @@ export namespace setRecipient {
   ): Promise<ReturnType<action>> {
     const { recipient, token, ...rest } = parameters
     const call = setRecipient.call({ recipient, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

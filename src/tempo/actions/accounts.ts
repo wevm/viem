@@ -18,6 +18,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { type ConfigurableAccount, fromConfig } from '../Account.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
@@ -307,7 +308,7 @@ export namespace updateConfig {
       if (address) return fromConfig({ address, ...currentConfig })
       return undefined
     })()
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...(resolvedAccount ? { account: resolvedAccount } : {}),
       ...updateConfig.call({ currentConfig, nextConfig }),

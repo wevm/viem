@@ -9,7 +9,13 @@ import {
   parseUnits,
 } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
-import { Abis, Addresses, Selectors, TokenIds } from 'viem/tempo'
+import {
+  Abis,
+  Addresses,
+  Selectors,
+  TempoExecutionError,
+  TokenIds,
+} from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import {
   accounts,
@@ -725,6 +731,24 @@ describe('getMetadata', () => {
 })
 
 describe('mint', () => {
+  test('behavior: unauthorized minter', async () => {
+    const error = await actions.token
+      .mint(getClient({ account: account3 }), {
+        amount: 1n,
+        to: account3.address,
+        token: addresses.alphaUsd,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(TempoExecutionError)
+    expect(error.errorName).toBe('Unauthorized')
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "Minting requires the \`issuer\` role. Grant it with \`token.grantRoles\`.",
+      ]
+    `)
+  })
+
   test('amount: supports formatted amounts', () => {
     const amount = parseUnits('1.25', 6)
 

@@ -22,6 +22,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -160,7 +161,7 @@ export namespace burn {
     if (!account) throw new Error('`account` is required')
 
     const call = burn.call({ receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -345,7 +346,7 @@ export namespace claim {
     if (!account) throw new Error('`account` is required')
 
     const call = claim.call({ to, receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -721,7 +722,7 @@ export namespace set {
       tokenFilterId: resolvePolicyRef(tokenPolicyId),
       recoveryAuthority,
     })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
