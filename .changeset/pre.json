@@ -8,19 +8,31 @@
     "site": "0.0.0"
   },
   "changesets": [
+    "arc-testnet-urls",
     "brave-passkeys-sign",
     "bright-keys-protect",
     "calm-zones-withdraw",
     "clean-dingos-breathe",
+    "earn-factories-latest",
     "extract-event-log-shape",
     "fresh-frames-infer",
     "friendly-client-bridges",
+    "http-timeout-body",
+    "key-authorization-manager-store",
     "lucky-otters-discover",
+    "ox-1-8-8",
+    "qms-testnet",
     "quiet-donuts-attack",
+    "relay-key-authorization",
     "released-v3",
     "siwe-resources-anchor",
     "siwe-scheme-validation",
+    "socket-unsubscribe-reconnect",
+    "tempo-configurable-accounts",
     "tidy-actions-gather",
-    "tidy-relay-sponsors"
+    "tidy-relay-sponsors",
+    "wait-for-calls-status-options",
+    "wait-for-receipt-address-case",
+    "zone-inbox-abi"
   ]
 }
