@@ -2032,6 +2032,7 @@ function resolveAccessKeyAddress(
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType =
   | AccessKeyAlreadyExistsErrorType
   | AccessKeyCallNotAllowedErrorType
@@ -2041,6 +2042,7 @@ export type ExecutionErrorType =
   | AccessKeySignatureTypeMismatchErrorType
   | AccessKeySpendingLimitExceededErrorType
 
+/** `AccessKeyError` with a literal `name`, for narrowing. */
 export type AccessKeyErrorType = AccessKeyError & { name: 'AccessKeyError' }
 
 /** Thrown when an access key fails an `AccountKeychain` check. */
@@ -2071,12 +2073,16 @@ export class AccessKeyError<
 }
 
 export declare namespace AccessKeyError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Root account that owns the access key. */
     account: Address
+    /** Access key address. */
     accessKey: Address
   }
 }
 
+/** `AccessKeySpendingLimitExceededError` with a literal `name`, for narrowing. */
 export type AccessKeySpendingLimitExceededErrorType =
   AccessKeySpendingLimitExceededError & {
     name: 'AccessKeySpendingLimitExceededError'
@@ -2125,16 +2131,24 @@ export class AccessKeySpendingLimitExceededError extends AccessKeyError<
 }
 
 export declare namespace AccessKeySpendingLimitExceededError {
+  /** Constructor parameters. */
   type Parameters = AccessKeyError.Parameters & {
+    /** Amount the call tried to spend, when known. */
     amount?: bigint | undefined
+    /** Token decimals, when known. */
     decimals?: number | undefined
+    /** Whether the fee payment, rather than the call, exceeded the limit. */
     fee: boolean
+    /** End of the current period (Unix seconds) for periodic limits, when known. */
     periodEnd?: bigint | undefined
+    /** Remaining limit for `token`, when known. */
     remaining?: bigint | undefined
+    /** Token the limit applies to, when known. */
     token?: Address | undefined
   }
 }
 
+/** `AccessKeyExpiredError` with a literal `name`, for narrowing. */
 export type AccessKeyExpiredErrorType = AccessKeyExpiredError & {
   name: 'AccessKeyExpiredError'
 }
@@ -2158,6 +2172,7 @@ export class AccessKeyExpiredError extends AccessKeyError<
   }
 }
 
+/** `AccessKeyCallNotAllowedError` with a literal `name`, for narrowing. */
 export type AccessKeyCallNotAllowedErrorType = AccessKeyCallNotAllowedError & {
   name: 'AccessKeyCallNotAllowedError'
 }
@@ -2188,6 +2203,7 @@ export class AccessKeyCallNotAllowedError extends AccessKeyError<
   }
 }
 
+/** `AccessKeyAlreadyExistsError` with a literal `name`, for narrowing. */
 export type AccessKeyAlreadyExistsErrorType = AccessKeyAlreadyExistsError & {
   name: 'AccessKeyAlreadyExistsError'
 }
@@ -2222,6 +2238,7 @@ export class AccessKeyAlreadyExistsError extends AccessKeyError<
   }
 }
 
+/** `AccessKeySignatureTypeMismatchError` with a literal `name`, for narrowing. */
 export type AccessKeySignatureTypeMismatchErrorType =
   AccessKeySignatureTypeMismatchError & {
     name: 'AccessKeySignatureTypeMismatchError'
@@ -2250,6 +2267,7 @@ export class AccessKeySignatureTypeMismatchError extends AccessKeyError<
   }
 }
 
+/** `AccessKeyExpiryInPastError` with a literal `name`, for narrowing. */
 export type AccessKeyExpiryInPastErrorType = AccessKeyExpiryInPastError & {
   name: 'AccessKeyExpiryInPastError'
 }

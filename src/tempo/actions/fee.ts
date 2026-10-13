@@ -830,8 +830,10 @@ export declare namespace watchSetValidatorToken {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType = FeeInsufficientBalanceErrorType
 
+/** `FeeInsufficientBalanceError` with a literal `name`, for narrowing. */
 export type FeeInsufficientBalanceErrorType = FeeInsufficientBalanceError & {
   name: 'FeeInsufficientBalanceError'
 }

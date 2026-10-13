@@ -4875,6 +4875,7 @@ export declare namespace watchUpdateQuoteToken {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType =
   | TokenInsufficientAllowanceErrorType
   | TokenInsufficientBalanceErrorType
@@ -4883,6 +4884,7 @@ export type ExecutionErrorType =
   | TokenSupplyCapExceededErrorType
   | TokenUnauthorizedErrorType
 
+/** `TokenInsufficientBalanceError` with a literal `name`, for narrowing. */
 export type TokenInsufficientBalanceErrorType =
   TokenInsufficientBalanceError & { name: 'TokenInsufficientBalanceError' }
 
@@ -4927,6 +4929,7 @@ export class TokenInsufficientBalanceError extends Errors.TempoExecutionError<
   }
 }
 
+/** `TokenInsufficientAllowanceError` with a literal `name`, for narrowing. */
 export type TokenInsufficientAllowanceErrorType =
   TokenInsufficientAllowanceError & { name: 'TokenInsufficientAllowanceError' }
 
@@ -4970,16 +4973,24 @@ export class TokenInsufficientAllowanceError extends Errors.TempoExecutionError<
 }
 
 export declare namespace TokenInsufficientAllowanceError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Current allowance, when known. */
     allowance?: bigint | undefined
+    /** Amount the spender tried to transfer. */
     amount?: bigint | undefined
+    /** Token decimals, when known. */
     decimals?: number | undefined
+    /** Token owner. */
     owner: Address
+    /** Spender. */
     spender: Address
+    /** Token address. */
     token: Address
   }
 }
 
+/** `TokenSupplyCapExceededError` with a literal `name`, for narrowing. */
 export type TokenSupplyCapExceededErrorType = TokenSupplyCapExceededError & {
   name: 'TokenSupplyCapExceededError'
 }
@@ -5024,15 +5035,22 @@ export class TokenSupplyCapExceededError extends Errors.TempoExecutionError<
 }
 
 export declare namespace TokenSupplyCapExceededError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Amount to mint. */
     amount?: bigint | undefined
+    /** Token decimals, when known. */
     decimals?: number | undefined
+    /** Supply cap, when known. */
     supplyCap?: bigint | undefined
+    /** Token address. */
     token: Address
+    /** Current total supply, when known. */
     totalSupply?: bigint | undefined
   }
 }
 
+/** `TokenPolicyForbidsError` with a literal `name`, for narrowing. */
 export type TokenPolicyForbidsErrorType = TokenPolicyForbidsError & {
   name: 'TokenPolicyForbidsError'
 }
@@ -5085,16 +5103,24 @@ export class TokenPolicyForbidsError extends Errors.TempoExecutionError<
 }
 
 export declare namespace TokenPolicyForbidsError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Sender, when known. */
     from?: Address | undefined
+    /** Transfer policy ID, when known. */
     policyId?: bigint | undefined
+    /** Whether the policy authorizes the recipient, when known. */
     recipientAuthorized?: boolean | undefined
+    /** Whether the policy authorizes the sender, when known. */
     senderAuthorized?: boolean | undefined
+    /** Recipient, when known. */
     to?: Address | undefined
+    /** Token address. */
     token: Address
   }
 }
 
+/** `TokenPausedError` with a literal `name`, for narrowing. */
 export type TokenPausedErrorType = TokenPausedError & {
   name: 'TokenPausedError'
 }
@@ -5117,6 +5143,7 @@ export class TokenPausedError extends Errors.TempoExecutionError<
   }
 }
 
+/** `TokenUnauthorizedError` with a literal `name`, for narrowing. */
 export type TokenUnauthorizedErrorType = TokenUnauthorizedError & {
   name: 'TokenUnauthorizedError'
 }

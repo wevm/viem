@@ -1231,12 +1231,14 @@ export namespace withdrawSync {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType =
   | ChannelAmountExceedsDepositErrorType
   | ChannelAmountNotIncreasingErrorType
   | ChannelCloseNotReadyErrorType
   | ChannelNotFoundErrorType
 
+/** `ChannelNotFoundError` with a literal `name`, for narrowing. */
 export type ChannelNotFoundErrorType = ChannelNotFoundError & {
   name: 'ChannelNotFoundError'
 }
@@ -1266,6 +1268,7 @@ export class ChannelNotFoundError extends Errors.TempoExecutionError<
   }
 }
 
+/** `ChannelCloseNotReadyError` with a literal `name`, for narrowing. */
 export type ChannelCloseNotReadyErrorType = ChannelCloseNotReadyError & {
   name: 'ChannelCloseNotReadyError'
 }
@@ -1304,6 +1307,7 @@ export class ChannelCloseNotReadyError extends Errors.TempoExecutionError<
   }
 }
 
+/** `ChannelAmountExceedsDepositError` with a literal `name`, for narrowing. */
 export type ChannelAmountExceedsDepositErrorType =
   ChannelAmountExceedsDepositError & {
     name: 'ChannelAmountExceedsDepositError'
@@ -1334,6 +1338,7 @@ export class ChannelAmountExceedsDepositError extends Errors.TempoExecutionError
   }
 }
 
+/** `ChannelAmountNotIncreasingError` with a literal `name`, for narrowing. */
 export type ChannelAmountNotIncreasingErrorType =
   ChannelAmountNotIncreasingError & {
     name: 'ChannelAmountNotIncreasingError'

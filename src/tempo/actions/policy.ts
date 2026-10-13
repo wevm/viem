@@ -1340,8 +1340,10 @@ export declare namespace watchBlacklistUpdated {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType = PolicyNotFoundErrorType
 
+/** `PolicyNotFoundError` with a literal `name`, for narrowing. */
 export type PolicyNotFoundErrorType = PolicyNotFoundError & {
   name: 'PolicyNotFoundError'
 }

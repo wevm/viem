@@ -2373,6 +2373,7 @@ function getPairKey(base: Address, quote: Address) {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType =
   | DexBelowMinimumOrderSizeErrorType
   | DexInsufficientBalanceErrorType
@@ -2385,6 +2386,7 @@ export type ExecutionErrorType =
   | DexPairNotFoundErrorType
   | DexTickOutOfBoundsErrorType
 
+/** `DexInsufficientOutputError` with a literal `name`, for narrowing. */
 export type DexInsufficientOutputErrorType = DexInsufficientOutputError & {
   name: 'DexInsufficientOutputError'
 }
@@ -2425,15 +2427,22 @@ export class DexInsufficientOutputError extends Errors.TempoExecutionError<
 }
 
 export declare namespace DexInsufficientOutputError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Amount of `tokenIn` to sell. */
     amountIn?: bigint | undefined
+    /** Minimum amount of `tokenOut` to receive. */
     minAmountOut?: bigint | undefined
+    /** Current quote for `amountIn`, when available. */
     quote?: bigint | undefined
+    /** Token to sell. */
     tokenIn?: Address | undefined
+    /** Token to buy. */
     tokenOut?: Address | undefined
   }
 }
 
+/** `DexMaxInputExceededError` with a literal `name`, for narrowing. */
 export type DexMaxInputExceededErrorType = DexMaxInputExceededError & {
   name: 'DexMaxInputExceededError'
 }
@@ -2474,15 +2483,22 @@ export class DexMaxInputExceededError extends Errors.TempoExecutionError<
 }
 
 export declare namespace DexMaxInputExceededError {
+  /** Constructor parameters. */
   type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Amount of `tokenOut` to buy. */
     amountOut?: bigint | undefined
+    /** Maximum amount of `tokenIn` to spend. */
     maxAmountIn?: bigint | undefined
+    /** Current cost of `amountOut`, when available. */
     quote?: bigint | undefined
+    /** Token to spend. */
     tokenIn?: Address | undefined
+    /** Token to buy. */
     tokenOut?: Address | undefined
   }
 }
 
+/** `DexInsufficientLiquidityError` with a literal `name`, for narrowing. */
 export type DexInsufficientLiquidityErrorType =
   DexInsufficientLiquidityError & { name: 'DexInsufficientLiquidityError' }
 
@@ -2524,6 +2540,7 @@ export class DexInsufficientLiquidityError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexBelowMinimumOrderSizeError` with a literal `name`, for narrowing. */
 export type DexBelowMinimumOrderSizeErrorType =
   DexBelowMinimumOrderSizeError & { name: 'DexBelowMinimumOrderSizeError' }
 
@@ -2553,6 +2570,7 @@ export class DexBelowMinimumOrderSizeError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexTickOutOfBoundsError` with a literal `name`, for narrowing. */
 export type DexTickOutOfBoundsErrorType = DexTickOutOfBoundsError & {
   name: 'DexTickOutOfBoundsError'
 }
@@ -2592,6 +2610,7 @@ export class DexTickOutOfBoundsError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexInvalidFlipTickError` with a literal `name`, for narrowing. */
 export type DexInvalidFlipTickErrorType = DexInvalidFlipTickError & {
   name: 'DexInvalidFlipTickError'
 }
@@ -2640,6 +2659,7 @@ export class DexInvalidFlipTickError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexOrderNotFoundError` with a literal `name`, for narrowing. */
 export type DexOrderNotFoundErrorType = DexOrderNotFoundError & {
   name: 'DexOrderNotFoundError'
 }
@@ -2663,6 +2683,7 @@ export class DexOrderNotFoundError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexOrderNotStaleError` with a literal `name`, for narrowing. */
 export type DexOrderNotStaleErrorType = DexOrderNotStaleError & {
   name: 'DexOrderNotStaleError'
 }
@@ -2686,6 +2707,7 @@ export class DexOrderNotStaleError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexPairNotFoundError` with a literal `name`, for narrowing. */
 export type DexPairNotFoundErrorType = DexPairNotFoundError & {
   name: 'DexPairNotFoundError'
 }
@@ -2710,6 +2732,7 @@ export class DexPairNotFoundError extends Errors.TempoExecutionError<
   }
 }
 
+/** `DexInsufficientBalanceError` with a literal `name`, for narrowing. */
 export type DexInsufficientBalanceErrorType = DexInsufficientBalanceError & {
   name: 'DexInsufficientBalanceError'
 }

@@ -162,10 +162,12 @@ export declare namespace watchNonceIncremented {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType =
   | NonceInvalidExpiryErrorType
   | NonceReplayErrorType
 
+/** `NonceReplayError` with a literal `name`, for narrowing. */
 export type NonceReplayErrorType = NonceReplayError & {
   name: 'NonceReplayError'
 }
@@ -190,6 +192,7 @@ export class NonceReplayError extends Errors.TempoExecutionError<
   }
 }
 
+/** `NonceInvalidExpiryError` with a literal `name`, for narrowing. */
 export type NonceInvalidExpiryErrorType = NonceInvalidExpiryError & {
   name: 'NonceInvalidExpiryError'
 }

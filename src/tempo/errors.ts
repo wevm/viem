@@ -175,9 +175,13 @@ export type TempoExecutionErrorType<
 export class TempoExecutionError<
   decoded extends TempoExecutionError.Decoded = TempoExecutionError.Decoded,
 > extends BaseError {
+  /** ABI item of the error. */
   abiItem: AbiError
+  /** Decoded error arguments, when the revert data carried them. */
   args: decoded['args']
+  /** Revert data, or the error selector when only the name is known. */
   data: Hex.Hex
+  /** Error name from `Abis.coreErrors`. */
   errorName: decoded['errorName']
   /** Steps to resolve the error. */
   hints: readonly string[]
@@ -224,17 +228,26 @@ export declare namespace TempoExecutionError {
     Exclude<ExecutionError.ExecutionError, { errorName: 'unknown' }>,
     { errorName: name }
   >
+  /** Name of any decoded Tempo error. */
   type ErrorName = Decoded['errorName']
+  /** Message options for subclasses. */
   type Options = {
     /** Rows printed below the short message. Empty values are omitted. */
     details?: Record<string, unknown> | undefined
+    /** Documentation path. */
     docsPath?: string | undefined
+    /** Error name. Defaults to `TempoExecutionError`. */
     name?: string | undefined
+    /** Short message. Defaults to the decoded error message. */
     shortMessage?: string | undefined
   }
+  /** Constructor parameters. */
   type Parameters = {
+    /** Original error. */
     cause: BaseError
+    /** Decoded Tempo error. */
     error: Decoded
+    /** Steps to resolve the error. */
     hints: readonly string[]
   }
 }

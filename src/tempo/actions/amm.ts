@@ -1150,8 +1150,10 @@ export declare namespace watchBurn {
 
 // Errors
 
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
 export type ExecutionErrorType = AmmInsufficientLiquidityErrorType
 
+/** `AmmInsufficientLiquidityError` with a literal `name`, for narrowing. */
 export type AmmInsufficientLiquidityErrorType =
   AmmInsufficientLiquidityError & {
     name: 'AmmInsufficientLiquidityError'
