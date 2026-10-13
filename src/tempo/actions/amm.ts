@@ -12,6 +12,7 @@ import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
@@ -21,6 +22,7 @@ import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -365,6 +367,9 @@ export namespace rebalanceSwap {
     if (!log) throw new Error('`RebalanceSwap` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -434,6 +439,8 @@ export namespace rebalanceSwapSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = rebalanceSwap.ErrorType
 }
 
 /**
@@ -598,6 +605,9 @@ export namespace mint {
     if (!log) throw new Error('`Mint` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -667,6 +677,8 @@ export namespace mintSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = mint.ErrorType
 }
 
 /**
@@ -815,6 +827,9 @@ export namespace burn {
     if (!log) throw new Error('`Burn` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -884,6 +899,8 @@ export namespace burnSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = burn.ErrorType
 }
 
 /**

@@ -19,6 +19,7 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { signVoucher as signVoucher_ } from '../Account.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
@@ -77,7 +78,7 @@ export namespace close {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -196,6 +197,8 @@ export namespace closeSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = close.ErrorType
 }
 
 /**
@@ -399,7 +402,7 @@ export namespace open {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -538,6 +541,8 @@ export namespace openSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = open.ErrorType
 }
 
 /**
@@ -580,7 +585,7 @@ export namespace requestClose {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -685,6 +690,8 @@ export namespace requestCloseSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = requestClose.ErrorType
 }
 
 /**
@@ -735,7 +742,7 @@ export namespace settle {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -842,6 +849,8 @@ export namespace settleSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = settle.ErrorType
 }
 
 /**
@@ -952,7 +961,7 @@ export namespace topUp {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1059,6 +1068,8 @@ export namespace topUpSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = topUp.ErrorType
 }
 
 /**
@@ -1101,7 +1112,7 @@ export namespace withdraw {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1207,4 +1218,6 @@ export namespace withdrawSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = withdraw.ErrorType
 }

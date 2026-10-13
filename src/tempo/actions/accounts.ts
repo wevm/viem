@@ -18,6 +18,7 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { type ConfigurableAccount, fromConfig } from '../Account.js'
 import * as Addresses from '../Addresses.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -251,7 +252,7 @@ export namespace updateConfig {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<

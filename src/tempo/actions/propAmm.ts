@@ -23,6 +23,7 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { pad } from '../../utils/data/pad.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
@@ -767,7 +768,7 @@ export namespace swap {
 
   export type ReturnValue = SendTransactionReturnType
 
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -996,4 +997,6 @@ export namespace swapSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = swap.ErrorType
 }

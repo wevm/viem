@@ -40,6 +40,7 @@ import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type { ExecutionErrorType } from '../errors.js'
 import {
   GetVaultEngineChangedError,
   type GetVaultEngineChangedErrorType,
@@ -428,7 +429,7 @@ export namespace deposit {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the asset for the approval. */
   export async function inner<
@@ -660,7 +661,7 @@ export namespace depositSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -731,7 +732,7 @@ export namespace depositShares {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the engine for the approval. */
   export async function inner<
@@ -969,7 +970,7 @@ export namespace depositSharesSync {
     venueShareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2123,7 +2124,7 @@ export namespace redeem {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -2355,7 +2356,7 @@ export namespace redeemSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2781,7 +2782,7 @@ export namespace withdrawExact {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = SendTransactionReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal Shared dispatch; reads the Earn share token for the approval. */
   export async function inner<
@@ -3022,7 +3023,7 @@ export namespace withdrawExactSync {
     shareAmount: bigint
   }>
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 type MinimumShareAmountParameters = OneOf<

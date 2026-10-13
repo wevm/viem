@@ -26,6 +26,7 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
@@ -98,7 +99,7 @@ export namespace buy {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -229,7 +230,7 @@ export namespace buySync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -281,7 +282,7 @@ export namespace cancel {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -426,7 +427,7 @@ export namespace cancelSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -481,7 +482,7 @@ export namespace cancelStale {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -629,7 +630,7 @@ export namespace cancelStaleSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -681,7 +682,7 @@ export namespace createPair {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -826,7 +827,7 @@ export namespace createPairSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1313,7 +1314,7 @@ export namespace place {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1457,7 +1458,7 @@ export namespace placeFlip {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1612,7 +1613,7 @@ export namespace placeFlipSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1684,7 +1685,7 @@ export namespace placeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1745,7 +1746,7 @@ export namespace sell {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1876,7 +1877,7 @@ export namespace sellSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2255,7 +2256,7 @@ export namespace withdraw {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2373,7 +2374,7 @@ export namespace withdrawSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 function getPairKey(base: Address, quote: Address) {

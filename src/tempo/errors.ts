@@ -142,6 +142,14 @@ export class FeeTokenPausedError extends BaseError {
   }
 }
 
+/** Errors thrown by Tempo actions for decoded Tempo precompile errors. Narrow with `error.name`. */
+export type ExecutionErrorType =
+  | TempoExecutionErrorType
+  | AccessKeyErrorType
+  | AccessKeySpendingLimitExceededErrorType
+  | AccessKeyExpiredErrorType
+  | AccessKeyCallNotAllowedErrorType
+
 export type TempoExecutionErrorType = TempoExecutionError & {
   name: 'TempoExecutionError'
 }

@@ -13,6 +13,7 @@ import type { Chain } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type { ExecutionErrorType } from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -78,7 +79,7 @@ export namespace add {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -224,6 +225,8 @@ export namespace addSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = add.ErrorType
 }
 
 /**
@@ -275,7 +278,7 @@ export namespace changeOwner {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -388,6 +391,8 @@ export namespace changeOwnerSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = changeOwner.ErrorType
 }
 
 /**
@@ -442,7 +447,7 @@ export namespace changeStatus {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -557,6 +562,8 @@ export namespace changeStatusSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = changeStatus.ErrorType
 }
 
 /**
@@ -1107,7 +1114,7 @@ export namespace setNextFullDkgCeremony {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1224,6 +1231,8 @@ export namespace setNextFullDkgCeremonySync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = setNextFullDkgCeremony.ErrorType
 }
 
 /**
@@ -1284,7 +1293,7 @@ export namespace update {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1415,4 +1424,6 @@ export namespace updateSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = update.ErrorType
 }

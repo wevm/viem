@@ -46,6 +46,7 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import { parseApproval } from '../accounts/Signature.js'
+import type { ExecutionErrorType } from '../errors.js'
 import * as Hardfork from '../Hardfork.js'
 import { withExecutionError } from '../internal/errors.js'
 import type {
@@ -154,7 +155,7 @@ export namespace authorize {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -284,7 +285,7 @@ export namespace authorizeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -343,7 +344,7 @@ export namespace burnWitness {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -480,7 +481,7 @@ export namespace burnWitnessSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -899,7 +900,7 @@ export namespace revoke {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1035,7 +1036,7 @@ export namespace revokeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1532,7 +1533,7 @@ export namespace updateLimit {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1680,7 +1681,7 @@ export namespace updateLimitSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = ExecutionErrorType | BaseErrorType
 }
 
 /**
