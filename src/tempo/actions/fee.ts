@@ -19,12 +19,13 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
 import {
   FeeTokenNotTip20Error,
   FeeTokenNotUsdError,
   FeeTokenPausedError,
   InvalidFeeTokenError,
+  TempoExecutionError,
 } from '../errors.js'
 import {
   formatAmount,
@@ -143,6 +144,7 @@ export declare namespace validateToken {
   }>
 
   export type ErrorType =
+    | Errors.ExecutionErrorType
     | FeeTokenNotTip20Error
     | FeeTokenNotUsdError
     | FeeTokenPausedError
@@ -226,6 +228,8 @@ export namespace getUserToken {
       functionName: 'userTokens',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -560,6 +564,8 @@ export namespace getValidatorToken {
       functionName: 'validatorTokens',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -839,7 +845,7 @@ export type FeeInsufficientBalanceErrorType = FeeInsufficientBalanceError & {
 }
 
 /** Thrown when an account cannot pay transaction fees in its fee token. */
-export class FeeInsufficientBalanceError extends Errors.TempoExecutionError<
+export class FeeInsufficientBalanceError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientFeeTokenBalance'>
 > {
   /** Fee token balance, when known. */
@@ -874,8 +880,15 @@ export class FeeInsufficientBalanceError extends Errors.TempoExecutionError<
 /** @internal */
 export const errorResolvers: Resolvers = {
   'InsufficientFeeTokenBalance()': async (context) => {
-    const { signer } = context
-    if (!signer) return new FeeInsufficientBalanceError(context.base)
+    const { feePayer } = context.parameters
+    // A local fee payer pays instead of the sender. External fee payers cannot be read.
+    const payer =
+      typeof feePayer === 'object'
+        ? parseAccount(feePayer).address
+        : feePayer
+          ? undefined
+          : context.signer?.address
+    if (!payer) return new FeeInsufficientBalanceError(context.base)
     const [userToken] = getFeeToken(context)
       ? []
       : await context.read([
@@ -883,7 +896,7 @@ export const errorResolvers: Resolvers = {
             address: Addresses.feeManager,
             abi: Abis.feeManager,
             functionName: 'userTokens',
-            args: [signer.address],
+            args: [payer],
           },
         ])
     const feeToken =
@@ -897,7 +910,7 @@ export const errorResolvers: Resolvers = {
         address: feeToken,
         abi: Abis.tip20,
         functionName: 'balanceOf',
-        args: [signer.address],
+        args: [payer],
       },
       { address: feeToken, abi: Abis.tip20, functionName: 'decimals' },
     ])

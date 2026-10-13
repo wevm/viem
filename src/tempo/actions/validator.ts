@@ -643,6 +643,8 @@ export namespace getNextFullDkgCeremony {
       functionName: 'getNextFullDkgCeremony',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -722,6 +724,8 @@ export namespace getOwner {
       functionName: 'owner',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -813,6 +817,8 @@ export namespace get {
       functionName: 'validators',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -905,6 +911,8 @@ export namespace getByIndex {
       functionName: 'validatorsArray',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -984,6 +992,8 @@ export namespace getCount {
       functionName: 'validatorCount',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1063,6 +1073,8 @@ export namespace list {
       functionName: 'getValidators',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

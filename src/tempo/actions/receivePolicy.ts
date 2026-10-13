@@ -556,6 +556,8 @@ export namespace get {
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -621,6 +623,8 @@ export namespace getBlockedBalance {
       args: [receipt],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -935,6 +939,8 @@ export namespace validate {
       args: [token, sender, receiver],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

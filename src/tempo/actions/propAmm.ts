@@ -83,6 +83,8 @@ export namespace baseToken {
       functionName: 'baseToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -137,6 +139,8 @@ export namespace quoteToken {
       functionName: 'quoteToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -191,6 +195,8 @@ export namespace paused {
       functionName: 'paused',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -248,6 +254,8 @@ export namespace takerAllowed {
       functionName: 'takerAllowed',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -305,6 +313,8 @@ export namespace recipientAllowed {
       functionName: 'recipientAllowed',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -362,6 +372,8 @@ export namespace resolveRecipient {
       functionName: 'resolveRecipient',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

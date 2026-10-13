@@ -45,7 +45,8 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import {
   formatAmount,
   isTip20,
@@ -1307,6 +1308,8 @@ export namespace getAllowance {
       args: [args.account, args.spender],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1401,6 +1404,8 @@ export namespace getBalance {
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1698,6 +1703,8 @@ export declare namespace getMetadata {
      */
     transferPolicyId?: bigint | undefined
   }>
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1767,6 +1774,8 @@ export namespace getTotalSupply {
       functionName: 'totalSupply',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1837,6 +1846,8 @@ export namespace getRoleAdmin {
       args: [TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1918,6 +1929,8 @@ export namespace hasRole {
       args: [account, TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -4889,7 +4902,7 @@ export type TokenInsufficientBalanceErrorType =
   TokenInsufficientBalanceError & { name: 'TokenInsufficientBalanceError' }
 
 /** Thrown when an account's TIP-20 balance is lower than the amount a call needs. */
-export class TokenInsufficientBalanceError extends Errors.TempoExecutionError<
+export class TokenInsufficientBalanceError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientBalance'>
 > {
   /** Balance available. */
@@ -4934,7 +4947,7 @@ export type TokenInsufficientAllowanceErrorType =
   TokenInsufficientAllowanceError & { name: 'TokenInsufficientAllowanceError' }
 
 /** Thrown when a spender's TIP-20 allowance is lower than the amount it tries to transfer. */
-export class TokenInsufficientAllowanceError extends Errors.TempoExecutionError<
+export class TokenInsufficientAllowanceError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientAllowance'>
 > {
   /** Current allowance, when known. */
@@ -4996,7 +5009,7 @@ export type TokenSupplyCapExceededErrorType = TokenSupplyCapExceededError & {
 }
 
 /** Thrown when minting would exceed a TIP-20 token's supply cap. */
-export class TokenSupplyCapExceededError extends Errors.TempoExecutionError<
+export class TokenSupplyCapExceededError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'SupplyCapExceeded'>
 > {
   /** Amount to mint. */
@@ -5056,7 +5069,7 @@ export type TokenPolicyForbidsErrorType = TokenPolicyForbidsError & {
 }
 
 /** Thrown when a TIP-20 token's transfer policy forbids the sender or recipient. */
-export class TokenPolicyForbidsError extends Errors.TempoExecutionError<
+export class TokenPolicyForbidsError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'PolicyForbids'>
 > {
   /** Sender, when known. */
@@ -5126,7 +5139,7 @@ export type TokenPausedErrorType = TokenPausedError & {
 }
 
 /** Thrown when calling a paused TIP-20 token. */
-export class TokenPausedError extends Errors.TempoExecutionError<
+export class TokenPausedError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'ContractPaused'>
 > {
   /** Token address. */
@@ -5149,7 +5162,7 @@ export type TokenUnauthorizedErrorType = TokenUnauthorizedError & {
 }
 
 /** Thrown when an account lacks the TIP-20 role a call requires. */
-export class TokenUnauthorizedError extends Errors.TempoExecutionError<
+export class TokenUnauthorizedError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'Unauthorized'>
 > {
   /** Account that made the call. */
@@ -5226,7 +5239,9 @@ export const errorResolvers: Resolvers = {
     })
   },
   'InsufficientBalance(uint256,uint256,address)': async (context) => {
-    const token = context.base.error.args?.[2] as Address
+    // Selector-only revert data carries no arguments.
+    const token = context.base.error.args?.[2] as Address | undefined
+    if (!token) return undefined
     const [decimals] = await context.read([
       { address: token, abi: Abis.tip20, functionName: 'decimals' },
     ])

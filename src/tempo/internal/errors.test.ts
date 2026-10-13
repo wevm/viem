@@ -7,9 +7,10 @@ import {
   toFunctionSelector,
 } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Account, TempoExecutionError } from 'viem/tempo'
+import { Abis, Account, Addresses, TempoExecutionError } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import * as accessKeyActions from '../actions/accessKey.js'
+import * as feeActions from '../actions/fee.js'
 import { formatTime, withExecutionError } from './errors.js'
 
 const root = privateKeyToAccount(generatePrivateKey())
@@ -81,6 +82,44 @@ describe('withExecutionError', () => {
     }).catch((error) => error)
     expect(error).toBeInstanceOf(TempoExecutionError)
     expect(error).not.toBeInstanceOf(accessKeyActions.AccessKeyError)
+  })
+})
+
+describe('resolvers', () => {
+  test('behavior: reads the expiry and minimum from the pool message', async () => {
+    const cause = new BaseError('failed', {
+      details: 'Access key expired: expiry 10 <= min allowed 12',
+    })
+    const error = await fail(cause)(client, {
+      keyAuthorization: { address: accessKey.accessKeyAddress },
+    }).catch((error) => error)
+    expect(error).toBeInstanceOf(accessKeyActions.AccessKeyExpiryInPastError)
+    expect(error).toMatchObject({ expiry: 10n, minimum: 12n })
+  })
+
+  test('behavior: selector-only data for a parameterized error falls back to the base error', async () => {
+    const cause = new RawContractError({
+      data: toFunctionSelector('TickOutOfBounds(int16)'),
+    })
+    const error = await fail(cause)(client, {
+      abi: Abis.stablecoinDex,
+      address: Addresses.stablecoinDex,
+      args: [],
+      functionName: 'place',
+    }).catch((error) => error)
+    expect(error.name).toBe('TempoExecutionError')
+    expect(error.errorName).toBe('TickOutOfBounds')
+  })
+
+  test('behavior: skips fee balance reads for an external fee payer', async () => {
+    const cause = new RawContractError({
+      data: toFunctionSelector('InsufficientFeeTokenBalance()'),
+    })
+    const error = await fail(cause)(client, { feePayer: true }).catch(
+      (error) => error,
+    )
+    expect(error).toBeInstanceOf(feeActions.FeeInsufficientBalanceError)
+    expect(error.feeToken).toBeUndefined()
   })
 })
 

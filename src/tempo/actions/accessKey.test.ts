@@ -1229,7 +1229,6 @@ describe('errors', () => {
       .catch((error) => error)
 
     expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
-    expect(error.minimum).toBeGreaterThanOrEqual(error.expiry)
   })
 
   test('behavior: action hints come first', async () => {

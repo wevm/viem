@@ -139,6 +139,8 @@ export namespace getConfigCommitment {
       functionName: 'getConfigCommitment',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

@@ -18,7 +18,8 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import { type Resolvers, withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -969,6 +970,8 @@ export namespace getData {
       functionName: 'policyData',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1037,6 +1040,8 @@ export namespace isAuthorized {
       functionName: 'isAuthorized',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1349,7 +1354,7 @@ export type PolicyNotFoundErrorType = PolicyNotFoundError & {
 }
 
 /** Thrown when a transfer policy does not exist. */
-export class PolicyNotFoundError extends Errors.TempoExecutionError<
+export class PolicyNotFoundError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'PolicyNotFound'>
 > {
   /** Policy ID, when known. */

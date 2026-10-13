@@ -71,7 +71,7 @@ export namespace getMasterAddress {
   export type ReturnValue = Address | null
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the `getMaster` function.

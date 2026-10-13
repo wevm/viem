@@ -1169,7 +1169,10 @@ export namespace getWithdrawalFee {
 
   export type ReturnType = bigint
 
-  export type ErrorType = RequestErrorType | BaseErrorType
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | RequestErrorType
+    | BaseErrorType
 }
 
 /**

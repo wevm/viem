@@ -27,7 +27,8 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import {
   type Context,
   type Resolvers,
@@ -899,6 +900,8 @@ export namespace getBalance {
       functionName: 'balanceOf',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -970,6 +973,8 @@ export namespace getBuyQuote {
       functionName: 'quoteSwapExactAmountOut',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1035,6 +1040,8 @@ export namespace getOrder {
       functionName: 'getOrder',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1104,6 +1111,8 @@ export namespace getOrderbook {
       functionName: 'books',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1182,6 +1191,8 @@ export namespace getTickLevel {
       functionName: 'getTickLevel',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1253,6 +1264,8 @@ export namespace getSellQuote {
       functionName: 'quoteSwapExactAmountIn',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2392,7 +2405,7 @@ export type DexInsufficientOutputErrorType = DexInsufficientOutputError & {
 }
 
 /** Thrown when a sell would return less than `minAmountOut`. */
-export class DexInsufficientOutputError extends Errors.TempoExecutionError<
+export class DexInsufficientOutputError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientOutput'>
 > {
   /** Amount of `tokenIn` to sell. */
@@ -2448,7 +2461,7 @@ export type DexMaxInputExceededErrorType = DexMaxInputExceededError & {
 }
 
 /** Thrown when a buy would cost more than `maxAmountIn`. */
-export class DexMaxInputExceededError extends Errors.TempoExecutionError<
+export class DexMaxInputExceededError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'MaxInputExceeded'>
 > {
   /** Amount of `tokenOut` to buy. */
@@ -2503,7 +2516,7 @@ export type DexInsufficientLiquidityErrorType =
   DexInsufficientLiquidityError & { name: 'DexInsufficientLiquidityError' }
 
 /** Thrown when the order book cannot fill a swap. */
-export class DexInsufficientLiquidityError extends Errors.TempoExecutionError<
+export class DexInsufficientLiquidityError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientLiquidity'>
 > {
   /** Amount of `tokenIn` to sell, for sells. */
@@ -2545,7 +2558,7 @@ export type DexBelowMinimumOrderSizeErrorType =
   DexBelowMinimumOrderSizeError & { name: 'DexBelowMinimumOrderSizeError' }
 
 /** Thrown when an order is smaller than the minimum order size. */
-export class DexBelowMinimumOrderSizeError extends Errors.TempoExecutionError<
+export class DexBelowMinimumOrderSizeError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'BelowMinimumOrderSize'>
 > {
   /** Order amount. */
@@ -2576,7 +2589,7 @@ export type DexTickOutOfBoundsErrorType = DexTickOutOfBoundsError & {
 }
 
 /** Thrown when an order's tick or flip tick is outside the allowed range. */
-export class DexTickOutOfBoundsError extends Errors.TempoExecutionError<
+export class DexTickOutOfBoundsError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'TickOutOfBounds'>
 > {
   /** Highest allowed tick, when known. */
@@ -2616,7 +2629,7 @@ export type DexInvalidFlipTickErrorType = DexInvalidFlipTickError & {
 }
 
 /** Thrown when a flip order's flip tick is on the wrong side of its tick or off the tick spacing. */
-export class DexInvalidFlipTickError extends Errors.TempoExecutionError<
+export class DexInvalidFlipTickError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InvalidFlipTick'>
 > {
   /** Flip tick. */
@@ -2665,7 +2678,7 @@ export type DexOrderNotFoundErrorType = DexOrderNotFoundError & {
 }
 
 /** Thrown when an order does not exist or is already filled. */
-export class DexOrderNotFoundError extends Errors.TempoExecutionError<
+export class DexOrderNotFoundError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'OrderDoesNotExist'>
 > {
   /** Order ID. */
@@ -2689,7 +2702,7 @@ export type DexOrderNotStaleErrorType = DexOrderNotStaleError & {
 }
 
 /** Thrown when cancelling a stale order whose maker is still authorized by the token's policy. */
-export class DexOrderNotStaleError extends Errors.TempoExecutionError<
+export class DexOrderNotStaleError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'OrderNotStale'>
 > {
   /** Order ID. */
@@ -2713,7 +2726,7 @@ export type DexPairNotFoundErrorType = DexPairNotFoundError & {
 }
 
 /** Thrown when no trading pair exists for a token. */
-export class DexPairNotFoundError extends Errors.TempoExecutionError<
+export class DexPairNotFoundError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'PairDoesNotExist'>
 > {
   /** Tokens of the call. */
@@ -2738,7 +2751,7 @@ export type DexInsufficientBalanceErrorType = DexInsufficientBalanceError & {
 }
 
 /** Thrown when withdrawing more than the account's exchange balance. */
-export class DexInsufficientBalanceError extends Errors.TempoExecutionError<
+export class DexInsufficientBalanceError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InsufficientBalance'>
 > {
   /** Amount to withdraw. */
@@ -2783,7 +2796,7 @@ function getExchangeCall(context: Context) {
 /** @internal */
 export const errorResolvers: Resolvers = {
   'BelowMinimumOrderSize(uint128)': async (context) => {
-    if (!getExchangeCall(context)) return undefined
+    if (!getExchangeCall(context) || !context.base.error.args) return undefined
     const [minimum] = await context.read([
       { ...exchange, functionName: 'MIN_ORDER_AMOUNT' },
     ])
@@ -2901,7 +2914,7 @@ export const errorResolvers: Resolvers = {
     return new DexPairNotFoundError({ ...context.base, tokens })
   },
   'TickOutOfBounds(int16)': async (context) => {
-    if (!getExchangeCall(context)) return undefined
+    if (!getExchangeCall(context) || !context.base.error.args) return undefined
     const [minTick, maxTick] = await context.read([
       { ...exchange, functionName: 'MIN_TICK' },
       { ...exchange, functionName: 'MAX_TICK' },

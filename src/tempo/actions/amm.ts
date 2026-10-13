@@ -23,7 +23,8 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import {
   type Context,
   type Resolvers,
@@ -219,6 +220,8 @@ export namespace getLiquidityBalance {
       functionName: 'liquidityBalances',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1160,7 +1163,7 @@ export type AmmInsufficientLiquidityErrorType =
   }
 
 /** Thrown when a fee AMM pool cannot cover a swap, deposit, or withdrawal. */
-export class AmmInsufficientLiquidityError extends Errors.TempoExecutionError<
+export class AmmInsufficientLiquidityError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<
     'InsufficientLiquidity' | 'InsufficientReserves'
   >

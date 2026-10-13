@@ -21,7 +21,8 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import { signVoucher as signVoucher_ } from '../Account.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import {
   type Context,
   formatTime,
@@ -280,7 +281,7 @@ export namespace getStates {
     channel extends readonly Channel[] ? readonly State[] : State
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the `getChannelState` or `getChannelStatesBatch` function.
@@ -1244,7 +1245,7 @@ export type ChannelNotFoundErrorType = ChannelNotFoundError & {
 }
 
 /** Thrown when a payment channel does not exist. */
-export class ChannelNotFoundError extends Errors.TempoExecutionError<
+export class ChannelNotFoundError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'ChannelNotFound'>
 > {
   /** Channel descriptor, when known. */
@@ -1274,7 +1275,7 @@ export type ChannelCloseNotReadyErrorType = ChannelCloseNotReadyError & {
 }
 
 /** Thrown when withdrawing from a channel before its close grace period ends. */
-export class ChannelCloseNotReadyError extends Errors.TempoExecutionError<
+export class ChannelCloseNotReadyError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'CloseNotReady'>
 > {
   /** When the close was requested (Unix seconds), or `0` when it was not. */
@@ -1314,7 +1315,7 @@ export type ChannelAmountExceedsDepositErrorType =
   }
 
 /** Thrown when a voucher amount exceeds the channel deposit. */
-export class ChannelAmountExceedsDepositError extends Errors.TempoExecutionError<
+export class ChannelAmountExceedsDepositError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'AmountExceedsDeposit'>
 > {
   /** Cumulative voucher amount. */
@@ -1345,7 +1346,7 @@ export type ChannelAmountNotIncreasingErrorType =
   }
 
 /** Thrown when a voucher amount is not above the amount already settled. */
-export class ChannelAmountNotIncreasingError extends Errors.TempoExecutionError<
+export class ChannelAmountNotIncreasingError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'AmountNotIncreasing'>
 > {
   /** Cumulative voucher amount. */

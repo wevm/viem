@@ -30,7 +30,6 @@ import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
-import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
@@ -47,7 +46,8 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import { parseApproval } from '../accounts/Signature.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import * as Hardfork from '../Hardfork.js'
 import {
   type Context,
@@ -583,6 +583,8 @@ export namespace getMetadata {
       args: [account, resolveAccessKeyAddress(accessKey)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -704,6 +706,8 @@ export namespace getRemainingLimit {
       args: [account, resolveAccessKeyAddress(accessKey), token],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -785,6 +789,8 @@ export namespace isAdmin {
       args: [account, resolveAccessKeyAddress(accessKey)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -861,6 +867,8 @@ export namespace isWitnessBurned {
       args: [account, witness],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2020,6 +2028,8 @@ export namespace verifyHash {
       args: [account, hash, signature],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /** @internal */
@@ -2049,7 +2059,7 @@ export type AccessKeyErrorType = AccessKeyError & { name: 'AccessKeyError' }
 export class AccessKeyError<
   decoded extends
     Errors.TempoExecutionError.Decoded = Errors.TempoExecutionError.Decoded,
-> extends Errors.TempoExecutionError<decoded> {
+> extends TempoExecutionError<decoded> {
   /** Root account that owns the access key. */
   account: Address
   /** Access key address. */
@@ -2332,23 +2342,18 @@ function getAuthorization(context: Context) {
   return { ...context.base, account: signer.address, accessKey }
 }
 
+/**
+ * Fallback for `AccountKeychain` errors without a specific resolver.
+ *
+ * @internal
+ */
+export function resolveKeychainError(context: Context) {
+  const parameters = getSigner(context)
+  return parameters && new AccessKeyError(parameters)
+}
+
 /** @internal */
 export const errorResolvers: Resolvers = {
-  ...Object.fromEntries(
-    Abis.accountKeychain.flatMap((item) =>
-      item.type === 'error'
-        ? [
-            [
-              formatAbiItem(item),
-              (context: Context) => {
-                const parameters = getSigner(context)
-                return parameters && new AccessKeyError(parameters)
-              },
-            ],
-          ]
-        : [],
-    ),
-  ),
   'CallNotAllowed()': (context) => {
     const parameters = getSigner(context)
     if (!parameters) return undefined

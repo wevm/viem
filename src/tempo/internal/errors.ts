@@ -1,30 +1,13 @@
-import type { Abi, Address } from 'abitype'
+import type { Address } from 'abitype'
 import { TokenId } from 'ox/tempo'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { call } from '../../actions/public/call.js'
-import {
-  type MulticallParameters,
-  type MulticallReturnType,
-  multicall,
+import type {
+  MulticallParameters,
+  MulticallReturnType,
 } from '../../actions/public/multicall.js'
 import type { Client } from '../../clients/createClient.js'
-import { BaseError } from '../../errors/base.js'
-import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
-import type { ContractFunctionParameters } from '../../types/contract.js'
-import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
-import { toFunctionSelector } from '../../utils/hash/toFunctionSelector.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
-// Resolvers are read lazily: these modules import this one.
-import * as accessKey from '../actions/accessKey.js'
-import * as amm from '../actions/amm.js'
-import * as channel from '../actions/channel.js'
-import * as dex from '../actions/dex.js'
-import * as fee from '../actions/fee.js'
-import * as nonce from '../actions/nonce.js'
-import * as policy from '../actions/policy.js'
-import * as token from '../actions/token.js'
-import * as ExecutionError from '../ExecutionError.js'
-import { TempoExecutionError } from '../errors.js'
+import type * as ExecutionError from '../ExecutionError.js'
+import type { TempoExecutionError } from '../errors.js'
 
 /** Action-specific steps to resolve errors, keyed by error name. Listed before the default steps. */
 export type Hints = {
@@ -81,147 +64,11 @@ export function withExecutionError<
     try {
       return await action(client, parameters)
     } catch (error) {
+      // Loaded on failure only, so resolvers and error tables stay out of the success path.
+      const { toExecutionError } = await import('./resolveError.js')
       throw await toExecutionError(error, { ...options, client, parameters })
     }
   }) as action
-}
-
-/** Node messages that carry no revert data, mapped to the error they describe. */
-const messages = [
-  [/Access key expired: expiry \d+ <= min allowed \d+/, 'ExpiryInPast()'],
-] as const
-
-async function toExecutionError(
-  cause: unknown,
-  options: {
-    client: Client
-    hints?: Hints | undefined
-    parameters: Record<string, any>
-  },
-) {
-  if (!(cause instanceof BaseError)) return cause
-  const { client, parameters } = options
-  const source = (await replay(cause, client, parameters)) ?? cause
-  const details = source.details ?? ''
-  let error: ExecutionError.ExecutionError = ExecutionError.from(source)
-  if (error.errorName === 'unknown') {
-    const signature = messages.find(([pattern]) => pattern.test(details))?.[1]
-    if (!signature) return cause
-    error = ExecutionError.from(toFunctionSelector(signature))
-  }
-  if (error.errorName === 'unknown') return cause
-
-  const signature = formatAbiItem(
-    error.abiItem,
-  ) as keyof typeof ExecutionError.messages
-  // Solidity `Error(string)` and `Panic(uint256)` are not Tempo errors.
-  if (!(signature in ExecutionError.messages)) return cause
-  const hints = [
-    ...(options.hints?.[error.errorName] ?? []),
-    ...(ExecutionError.hints[signature] ?? []),
-  ]
-  const base = { cause, error, hints } as TempoExecutionError.Parameters
-
-  const account_ = parameters.account ?? client.account
-  const account = account_ ? parseAccount(account_) : undefined
-  const context: Context = {
-    base,
-    call: getCall(parameters),
-    client,
-    details,
-    parameters,
-    read: (contracts) =>
-      multicall(client, {
-        allowFailure: true,
-        contracts: contracts as readonly ContractFunctionParameters[],
-        deployless: true,
-      }).catch(() => []) as never,
-    signer: account && {
-      address: account.address,
-      accessKey:
-        account.source === 'accessKey' && 'accessKeyAddress' in account
-          ? (account.accessKeyAddress as Address)
-          : undefined,
-    },
-    validation: !hasRevertData(source),
-  }
-
-  for (const resolvers of [
-    accessKey.errorResolvers,
-    amm.errorResolvers,
-    channel.errorResolvers,
-    dex.errorResolvers,
-    fee.errorResolvers,
-    nonce.errorResolvers,
-    policy.errorResolvers,
-    token.errorResolvers,
-  ] as readonly Resolvers[]) {
-    const result = await resolvers[signature]?.(context)
-    if (result) return result
-  }
-  return new TempoExecutionError(base)
-}
-
-/** Replays a call whose receipt reverted, to recover its revert data. */
-async function replay(
-  cause: BaseError,
-  client: Client,
-  parameters: Record<string, any>,
-) {
-  const reverted = cause.walk(
-    (error) => error instanceof TransactionReceiptRevertedError,
-  ) as TransactionReceiptRevertedError | null
-  const to = parameters.to ?? parameters.address
-  if (!reverted || !to || !parameters.data) return undefined
-  // ponytail: replays on the parent block, so earlier transactions in the same block are not applied.
-  return call(client, {
-    account: parameters.account ?? client.account,
-    blockNumber: reverted.receipt.blockNumber - 1n,
-    data: parameters.data,
-    to,
-    value: parameters.value,
-  }).then(
-    () => undefined,
-    (error) => (error instanceof BaseError ? error : undefined),
-  )
-}
-
-/** Whether an error carries revert data, which only execution reverts have. */
-function hasRevertData(error: BaseError) {
-  return !!error.walk((error) => {
-    const { data, raw } = error as { data?: unknown; raw?: unknown }
-    const hex =
-      typeof data === 'object' && data !== null
-        ? (data as { data?: unknown }).data
-        : (data ?? raw)
-    return typeof hex === 'string' && hex.length >= 10
-  })
-}
-
-function getCall(parameters: Record<string, any>): Context['call'] {
-  const {
-    abi,
-    address,
-    args = [],
-    functionName,
-  } = parameters as {
-    abi?: Abi
-    address?: Address
-    args?: readonly unknown[]
-    functionName?: string
-  }
-  if (!address || !functionName) return undefined
-  const item = abi?.find(
-    (item) => item.type === 'function' && item.name === functionName,
-  )
-  const inputs = item?.type === 'function' ? item.inputs : []
-  return {
-    address,
-    args,
-    functionName,
-    arg: (name) =>
-      args[inputs.findIndex((input) => input.name === name)] as never,
-  }
 }
 
 /** Fee token from the action parameters or chain, when set. */

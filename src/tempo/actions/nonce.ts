@@ -6,13 +6,15 @@ import type { WatchContractEventParameters } from '../../actions/public/watchCon
 import { watchContractEvent } from '../../actions/public/watchContractEvent.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log as viem_Log } from '../../types/log.js'
 import type { UnionOmit } from '../../types/utils.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import * as Errors from '../errors.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 import {
   formatTime,
   type Resolvers,
@@ -114,6 +116,8 @@ export namespace getNonce {
       functionName: 'getNonce',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 export function watchNonceIncremented<
@@ -173,7 +177,7 @@ export type NonceReplayErrorType = NonceReplayError & {
 }
 
 /** Thrown when an expiring nonce transaction was already submitted. */
-export class NonceReplayError extends Errors.TempoExecutionError<
+export class NonceReplayError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'ExpiringNonceReplay'>
 > {
   /** Transaction expiry (Unix seconds), when known. */
@@ -198,7 +202,7 @@ export type NonceInvalidExpiryErrorType = NonceInvalidExpiryError & {
 }
 
 /** Thrown when an expiring nonce transaction's `validBefore` is in the past or too far ahead. */
-export class NonceInvalidExpiryError extends Errors.TempoExecutionError<
+export class NonceInvalidExpiryError extends TempoExecutionError<
   Errors.TempoExecutionError.Decoded<'InvalidExpiringNonceExpiry'>
 > {
   /** Current time (Unix seconds) when the error was handled. */

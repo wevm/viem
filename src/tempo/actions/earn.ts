@@ -361,7 +361,7 @@ export namespace validateExitSafePolicy {
   export type Parameters = Omit<ReadParameters, 'account'> & Args
   export type ReturnValue = void
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1441,7 +1441,7 @@ export namespace getFeeState {
     targetBase: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /** Vault fee configuration. */
@@ -1617,7 +1617,7 @@ export namespace getPosition {
     value: bigint
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1670,7 +1670,7 @@ export namespace getRedeemQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the vault's `previewRedeem` function.
@@ -1851,7 +1851,10 @@ export namespace getVault {
     shareToken: Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = GetVaultEngineChangedErrorType | BaseErrorType
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | GetVaultEngineChangedErrorType
+    | BaseErrorType
 
   /**
    * Defines the reads used by {@link getVault}. Pass the current engine and
@@ -2022,7 +2025,7 @@ export namespace getWithdrawQuote {
     never
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the vault's `previewWithdraw` function.

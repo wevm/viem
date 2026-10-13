@@ -494,6 +494,8 @@ export namespace getGlobalRewardPerToken {
       functionName: 'globalRewardPerToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -563,6 +565,8 @@ export namespace getPendingRewards {
       functionName: 'getPendingRewards',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -636,6 +640,8 @@ export namespace getUserRewardInfo {
       functionName: 'userRewardInfo',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
