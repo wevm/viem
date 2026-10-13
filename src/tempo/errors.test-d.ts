@@ -22,9 +22,7 @@ test('narrows action errors by name', () => {
   if (error.name === 'DexOrderNotFoundError')
     expectTypeOf(error.orderId).toEqualTypeOf<bigint>()
   if (error.name === 'TempoExecutionError') {
-    expectTypeOf(
-      error.errorName,
-    ).toEqualTypeOf<TempoExecutionError.ErrorName>()
+    expectTypeOf(error.errorName).toEqualTypeOf<TempoExecutionError.ErrorName>()
     expectTypeOf(error.hints).toEqualTypeOf<readonly string[]>()
   }
 })
@@ -42,7 +40,5 @@ test('narrows args by error name', () => {
 })
 
 test('sync and async variants share error types', () => {
-  expectTypeOf<
-    Actions.amm.mintSync.ErrorType
-  >().toEqualTypeOf<Actions.amm.mint.ErrorType>()
+  expectTypeOf<Actions.amm.mintSync.ErrorType>().toEqualTypeOf<Actions.amm.mint.ErrorType>()
 })

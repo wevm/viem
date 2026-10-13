@@ -3347,6 +3347,26 @@ describe('errors', () => {
     expect(error.message).toContain('shortfall:  10000 (10000000000)')
   })
 
+  test('behavior: decodes a reverted receipt by replaying the call', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        gas: 200_000n,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error.required).toBe(parseUnits('20000', 6))
+    expect(
+      error.walk(
+        (error: Error) => error.name === 'TransactionReceiptRevertedError',
+      ),
+    ).toBeTruthy()
+  })
+
   test('behavior: insufficient allowance', async () => {
     const { token } = await setupToken(client)
     const error = await actions.token

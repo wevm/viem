@@ -29,6 +29,8 @@ import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
 import { getChainContractAddress } from '../../../utils/chain/getChainContractAddress.js'
 import * as Abis from '../../Abis.js'
 import * as Addresses from '../../Addresses.js'
+import type * as Errors from '../../errors.js'
+import { withExecutionError } from '../../internal/errors.js'
 import type {
   WriteParameters,
   WriteSyncParameters,
@@ -195,7 +197,7 @@ export namespace createErc4626Engine {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -221,7 +223,7 @@ export namespace createErc4626Engine {
     if (!account) throw new AccountNotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
     const owner = parseAccount(owner_).address
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -389,7 +391,7 @@ export namespace createErc4626EngineSync {
     > & { receipt: TransactionReceipt }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -462,7 +464,7 @@ export namespace createStack {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -489,7 +491,7 @@ export namespace createStack {
     } = parameters
     if (!account) throw new AccountNotFoundError()
     if (!owner_) throw new Error('`owner` is required.')
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -657,7 +659,7 @@ export namespace createStackSync {
     > & { receipt: TransactionReceipt }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -713,7 +715,7 @@ export namespace bindEngine {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -726,7 +728,7 @@ export namespace bindEngine {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { engine, finalOwner, vault, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...bindEngine.call({ engine, finalOwner, vault }),
     } as never)) as never
@@ -860,7 +862,7 @@ export namespace bindEngineSync {
     vault: Address
   }
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 export type DeployErc4626StackErrorType = DeployErc4626StackError & {

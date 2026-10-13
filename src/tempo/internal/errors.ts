@@ -1,6 +1,7 @@
 import type { Abi, Address } from 'abitype'
 import { TokenId } from 'ox/tempo'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import { call } from '../../actions/public/call.js'
 import {
   type MulticallParameters,
   type MulticallReturnType,
@@ -8,6 +9,7 @@ import {
 } from '../../actions/public/multicall.js'
 import type { Client } from '../../clients/createClient.js'
 import { BaseError } from '../../errors/base.js'
+import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
 import type { ContractFunctionParameters } from '../../types/contract.js'
 import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { toFunctionSelector } from '../../utils/hash/toFunctionSelector.js'
@@ -98,8 +100,10 @@ async function toExecutionError(
   },
 ) {
   if (!(cause instanceof BaseError)) return cause
-  const details = cause.details ?? ''
-  let error: ExecutionError.ExecutionError = ExecutionError.from(cause)
+  const { client, parameters } = options
+  const source = (await replay(cause, client, parameters)) ?? cause
+  const details = source.details ?? ''
+  let error: ExecutionError.ExecutionError = ExecutionError.from(source)
   if (error.errorName === 'unknown') {
     const signature = messages.find(([pattern]) => pattern.test(details))?.[1]
     if (!signature) return cause
@@ -107,10 +111,11 @@ async function toExecutionError(
   }
   if (error.errorName === 'unknown') return cause
 
-  const { client, parameters } = options
   const signature = formatAbiItem(
     error.abiItem,
   ) as keyof typeof ExecutionError.messages
+  // Solidity `Error(string)` and `Panic(uint256)` are not Tempo errors.
+  if (!(signature in ExecutionError.messages)) return cause
   const hints = [
     ...(options.hints?.[error.errorName] ?? []),
     ...(ExecutionError.hints[signature] ?? []),
@@ -138,7 +143,7 @@ async function toExecutionError(
           ? (account.accessKeyAddress as Address)
           : undefined,
     },
-    validation: !/execution reverted/i.test(details),
+    validation: !hasRevertData(source),
   }
 
   for (const resolvers of [
@@ -155,6 +160,42 @@ async function toExecutionError(
     if (result) return result
   }
   return new TempoExecutionError(base)
+}
+
+/** Replays a call whose receipt reverted, to recover its revert data. */
+async function replay(
+  cause: BaseError,
+  client: Client,
+  parameters: Record<string, any>,
+) {
+  const reverted = cause.walk(
+    (error) => error instanceof TransactionReceiptRevertedError,
+  ) as TransactionReceiptRevertedError | null
+  const to = parameters.to ?? parameters.address
+  if (!reverted || !to || !parameters.data) return undefined
+  // ponytail: replays on the parent block, so earlier transactions in the same block are not applied.
+  return call(client, {
+    account: parameters.account ?? client.account,
+    blockNumber: reverted.receipt.blockNumber - 1n,
+    data: parameters.data,
+    to,
+    value: parameters.value,
+  }).then(
+    () => undefined,
+    (error) => (error instanceof BaseError ? error : undefined),
+  )
+}
+
+/** Whether an error carries revert data, which only execution reverts have. */
+function hasRevertData(error: BaseError) {
+  return !!error.walk((error) => {
+    const { data, raw } = error as { data?: unknown; raw?: unknown }
+    const hex =
+      typeof data === 'object' && data !== null
+        ? (data as { data?: unknown }).data
+        : (data ?? raw)
+    return typeof hex === 'string' && hex.length >= 10
+  })
 }
 
 function getCall(parameters: Record<string, any>): Context['call'] {
@@ -215,5 +256,8 @@ export function formatAmount(
 /** Formats Unix seconds as an ISO 8601 string. */
 export function formatTime(seconds: bigint | number | undefined) {
   if (!seconds) return undefined
-  return new Date(Number(seconds) * 1000).toISOString()
+  const milliseconds = Number(seconds) * 1000
+  // `Date` cannot represent times past ±8.64e15 milliseconds.
+  if (!(Math.abs(milliseconds) <= 8.64e15)) return seconds.toString()
+  return new Date(milliseconds).toISOString()
 }

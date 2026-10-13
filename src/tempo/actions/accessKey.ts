@@ -2305,10 +2305,16 @@ const keychain = {
   abi: Abis.accountKeychain,
 } as const
 
-/** Signer and key for errors raised while signing with an access key. */
+/** Signer and key for errors raised while validating the signing access key. */
 function getSigner(context: Context) {
-  const { signer } = context
+  const { call, parameters, signer } = context
   if (!signer?.accessKey) return undefined
+  // Key management calls and authorizations of another key fail about that key, not the signer.
+  if (call && isAddressEqual(call.address, Addresses.accountKeychain))
+    return undefined
+  const authorized = parameters.keyAuthorization?.address as Address | undefined
+  if (authorized && !isAddressEqual(authorized, signer.accessKey))
+    return undefined
   return {
     ...context.base,
     account: signer.address,
