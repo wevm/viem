@@ -19,14 +19,19 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ExecutionErrorType } from '../errors.js'
+import * as Errors from '../errors.js'
 import {
   FeeTokenNotTip20Error,
   FeeTokenNotUsdError,
   FeeTokenPausedError,
   InvalidFeeTokenError,
 } from '../errors.js'
-import { withExecutionError } from '../internal/errors.js'
+import {
+  formatAmount,
+  getFeeToken,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -272,7 +277,7 @@ export namespace setUserToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -413,7 +418,7 @@ export namespace setUserTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -606,7 +611,7 @@ export namespace setValidatorToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -747,7 +752,7 @@ export namespace setValidatorTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -821,4 +826,84 @@ export declare namespace watchSetValidatorToken {
     /** Callback to invoke when a validator token is set. */
     onValidatorTokenSet: (args: Args, log: Log) => void
   }
+}
+
+// Errors
+
+export type ExecutionErrorType = FeeInsufficientBalanceErrorType
+
+export type FeeInsufficientBalanceErrorType = FeeInsufficientBalanceError & {
+  name: 'FeeInsufficientBalanceError'
+}
+
+/** Thrown when an account cannot pay transaction fees in its fee token. */
+export class FeeInsufficientBalanceError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientFeeTokenBalance'>
+> {
+  /** Fee token balance, when known. */
+  balance: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Fee token, when known. */
+  feeToken: Address | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      balance?: bigint | undefined
+      decimals?: number | undefined
+      feeToken?: Address | undefined
+    },
+  ) {
+    const { balance, decimals, feeToken } = parameters
+    super(parameters, {
+      details: {
+        'fee token': feeToken,
+        balance: formatAmount(balance, decimals),
+      },
+      name: 'FeeInsufficientBalanceError',
+      shortMessage: `Insufficient balance to pay fees${feeToken ? ` in token "${feeToken}"` : ''}.`,
+    })
+    this.balance = balance
+    this.decimals = decimals
+    this.feeToken = feeToken
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'InsufficientFeeTokenBalance()': async (context) => {
+    const { signer } = context
+    if (!signer) return new FeeInsufficientBalanceError(context.base)
+    const [userToken] = getFeeToken(context)
+      ? []
+      : await context.read([
+          {
+            address: Addresses.feeManager,
+            abi: Abis.feeManager,
+            functionName: 'userTokens',
+            args: [signer.address],
+          },
+        ])
+    const feeToken =
+      getFeeToken(context) ??
+      (userToken?.result && userToken.result !== zeroAddress
+        ? userToken.result
+        : undefined)
+    if (!feeToken) return new FeeInsufficientBalanceError(context.base)
+    const [balance, decimals] = await context.read([
+      {
+        address: feeToken,
+        abi: Abis.tip20,
+        functionName: 'balanceOf',
+        args: [signer.address],
+      },
+      { address: feeToken, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new FeeInsufficientBalanceError({
+      ...context.base,
+      balance: balance?.result,
+      decimals: decimals?.result,
+      feeToken,
+    })
+  },
 }

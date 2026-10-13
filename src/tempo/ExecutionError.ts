@@ -266,6 +266,50 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
       'Raise the spending limit, or wait for a periodic limit to reset.',
     ],
     'UnauthorizedCaller()': ['Sign with the root key or an admin access key.'],
+    'AmountExceedsDeposit()': [
+      'Top up the channel, or use a voucher for a smaller amount.',
+    ],
+    'AmountNotIncreasing()': [
+      'Use a voucher with a higher cumulative amount than the amount already settled.',
+    ],
+    'BelowMinimumOrderSize(uint128)': ['Place a larger order.'],
+    'ChannelNotFound()': [
+      'Check the channel details, or open the channel first.',
+    ],
+    'CloseNotReady()': [
+      'Request a close, then wait for the grace period to end before withdrawing.',
+    ],
+    'InsufficientBalance()': [
+      'Deposit more of the token, or lower the amount.',
+    ],
+    'InsufficientLiquidity()': ['Use a smaller amount.'],
+    'InsufficientOutput()': [
+      'Lower the minimum output amount, or sell a smaller amount.',
+    ],
+    'InsufficientReserves()': ['Use a smaller amount.'],
+    'InvalidExpiringNonceExpiry()': [
+      'Set the transaction expiry to a time in the near future.',
+    ],
+    'InvalidFlipTick()': [
+      'Choose a flip tick on the correct side of the order tick.',
+    ],
+    'MaxInputExceeded()': [
+      'Raise the maximum input amount, or buy a smaller amount.',
+    ],
+    'OrderDoesNotExist()': [
+      'Check the order ID. Filled and cancelled orders no longer exist.',
+    ],
+    'OrderNotStale()': [
+      'Only orders whose maker lost authorization can be cancelled as stale.',
+    ],
+    'PairDoesNotExist()': ['Create the trading pair first.'],
+    'PolicyNotFound()': ['Check the policy ID, or create the policy first.'],
+    'SignatureTypeMismatch(uint8,uint8)': [
+      'Sign with the same key type the access key was authorized with.',
+    ],
+    'SupplyCapExceeded()': ['Mint a smaller amount, or raise the supply cap.'],
+    'TickOutOfBounds(int16)': ['Use a tick within the allowed range.'],
+    'Unauthorized()': ['The account lacks the permission this call requires.'],
   }
 
 /** Interpolate `{0}`, `{1}`, … placeholders with args. */

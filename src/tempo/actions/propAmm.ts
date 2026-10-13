@@ -23,7 +23,7 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { pad } from '../../utils/data/pad.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
-import type { ExecutionErrorType } from '../errors.js'
+import type * as Errors from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
@@ -398,7 +398,9 @@ export async function getSwapQuote(
   if (!recipient) throw new AccountNotFoundError()
   const baseToQuote = parameters.baseToQuote ?? true
   const customerId = parameters.customerId ?? pad(taker, { size: 32 })
-  const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
+  const [amount, price, updatedAt, creditAfter] = await (withExecutionError(
+    readContract,
+  )(client, {
     ...parameters,
     ...getSwapQuote.call({
       ...parameters,
@@ -768,7 +770,7 @@ export namespace swap {
 
   export type ReturnValue = SendTransactionReturnType
 
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<

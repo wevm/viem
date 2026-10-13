@@ -59,10 +59,6 @@ test('exports tempo', () => {
       "FeeTokenNotUsdError",
       "FeeTokenPausedError",
       "TempoExecutionError",
-      "AccessKeyError",
-      "AccessKeySpendingLimitExceededError",
-      "AccessKeyExpiredError",
-      "AccessKeyCallNotAllowedError",
     ]
   `)
 })

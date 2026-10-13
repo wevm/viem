@@ -1,25 +1,69 @@
 import type { Abi, Address } from 'abitype'
 import { TokenId } from 'ox/tempo'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { multicall } from '../../actions/public/multicall.js'
+import {
+  type MulticallParameters,
+  type MulticallReturnType,
+  multicall,
+} from '../../actions/public/multicall.js'
 import type { Client } from '../../clients/createClient.js'
 import { BaseError } from '../../errors/base.js'
-import type { Hex } from '../../types/misc.js'
+import type { ContractFunctionParameters } from '../../types/contract.js'
 import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
-import * as Abis from '../Abis.js'
-import * as Addresses from '../Addresses.js'
+import { toFunctionSelector } from '../../utils/hash/toFunctionSelector.js'
+import { formatUnits } from '../../utils/unit/formatUnits.js'
+// Resolvers are read lazily: these modules import this one.
+import * as accessKey from '../actions/accessKey.js'
+import * as amm from '../actions/amm.js'
+import * as channel from '../actions/channel.js'
+import * as dex from '../actions/dex.js'
+import * as fee from '../actions/fee.js'
+import * as nonce from '../actions/nonce.js'
+import * as policy from '../actions/policy.js'
+import * as token from '../actions/token.js'
 import * as ExecutionError from '../ExecutionError.js'
-import {
-  AccessKeyCallNotAllowedError,
-  AccessKeyError,
-  AccessKeyExpiredError,
-  AccessKeySpendingLimitExceededError,
-  TempoExecutionError,
-} from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
 
 /** Action-specific steps to resolve errors, keyed by error name. Listed before the default steps. */
 export type Hints = {
   [name in TempoExecutionError.ErrorName]?: readonly string[]
+}
+
+/** Builds a specific error for a decoded Tempo error, or returns `undefined` when it does not apply. */
+export type Resolver = (
+  context: Context,
+) => Promise<TempoExecutionError | undefined> | TempoExecutionError | undefined
+
+/** Resolvers keyed by error signature. */
+export type Resolvers = {
+  [signature in keyof typeof ExecutionError.messages]?: Resolver
+}
+
+export type Context = {
+  /** Parameters for the base `TempoExecutionError`. */
+  base: TempoExecutionError.Parameters
+  client: Client
+  /** Signer, with its access key when signing with one. */
+  signer: { address: Address; accessKey: Address | undefined } | undefined
+  /** Contract call that failed, when the action made one. */
+  call:
+    | {
+        address: Address
+        args: readonly unknown[]
+        functionName: string
+        /** Reads an argument by its ABI input name. */
+        arg: <type = unknown>(name: string) => type | undefined
+      }
+    | undefined
+  /** Whether the error came from transaction validation or fee payment rather than a revert. */
+  validation: boolean
+  /** Raw node message. */
+  details: string
+  parameters: Record<string, any>
+  /** Multicall with `allowFailure: true`. Resolves an empty array when the request fails. */
+  read: <const contracts extends readonly unknown[]>(
+    contracts: MulticallParameters<contracts>['contracts'],
+  ) => Promise<Partial<MulticallReturnType<contracts, true>>>
 }
 
 /**
@@ -40,11 +84,10 @@ export function withExecutionError<
   }) as action
 }
 
-const keychainErrors = new Set<string>(
-  Abis.accountKeychain.flatMap((item) =>
-    item.type === 'error' ? [item.name] : [],
-  ),
-)
+/** Node messages that carry no revert data, mapped to the error they describe. */
+const messages = [
+  [/Access key expired: expiry \d+ <= min allowed \d+/, 'ExpiryInPast()'],
+] as const
 
 async function toExecutionError(
   cause: unknown,
@@ -55,125 +98,122 @@ async function toExecutionError(
   },
 ) {
   if (!(cause instanceof BaseError)) return cause
-  const error = ExecutionError.from(cause)
+  const details = cause.details ?? ''
+  let error: ExecutionError.ExecutionError = ExecutionError.from(cause)
+  if (error.errorName === 'unknown') {
+    const signature = messages.find(([pattern]) => pattern.test(details))?.[1]
+    if (!signature) return cause
+    error = ExecutionError.from(toFunctionSelector(signature))
+  }
   if (error.errorName === 'unknown') return cause
 
   const { client, parameters } = options
+  const signature = formatAbiItem(
+    error.abiItem,
+  ) as keyof typeof ExecutionError.messages
   const hints = [
     ...(options.hints?.[error.errorName] ?? []),
-    ...(ExecutionError.hints[
-      formatAbiItem(error.abiItem) as keyof typeof ExecutionError.hints
-    ] ?? []),
+    ...(ExecutionError.hints[signature] ?? []),
   ]
-  const base = { cause, error, hints }
+  const base = { cause, error, hints } as TempoExecutionError.Parameters
 
   const account_ = parameters.account ?? client.account
   const account = account_ ? parseAccount(account_) : undefined
-  if (
-    account?.source !== 'accessKey' ||
-    !('accessKeyAddress' in account) ||
-    !keychainErrors.has(error.errorName)
-  )
-    return new TempoExecutionError(base)
-
-  const keyed = {
-    ...base,
-    account: account.address,
-    accessKey: account.accessKeyAddress as Address,
-  }
-  const keychain = {
-    address: Addresses.accountKeychain,
-    abi: Abis.accountKeychain,
-  } as const
-
-  if (error.errorName === 'SpendingLimitExceeded') {
-    // Reverts come from the call itself. Without revert data, the fee payment exceeded the limit.
-    const fee = !/execution reverted/i.test(cause.details)
-    const { amount, token } = fee
-      ? { amount: undefined, token: getFeeToken(client, parameters) }
-      : getSpend(parameters)
-    if (!token)
-      return new AccessKeySpendingLimitExceededError({
-        ...keyed,
-        fee,
-        hints: fee ? [...hints, 'Pay fees with another token.'] : hints,
-      })
-    const args = [keyed.account, keyed.accessKey, token] as const
-    const [withPeriod, legacy, decimals] = await multicall(client, {
-      allowFailure: true,
-      contracts: [
-        // `getRemainingLimitWithPeriod` is T3+; `getRemainingLimit` covers earlier hardforks.
-        { ...keychain, functionName: 'getRemainingLimitWithPeriod', args },
-        { ...keychain, functionName: 'getRemainingLimit', args },
-        { address: token, abi: Abis.tip20, functionName: 'decimals' },
-      ],
-      deployless: true,
-    }).catch(() => [])
-    return new AccessKeySpendingLimitExceededError({
-      ...keyed,
-      amount,
-      decimals: decimals?.result,
-      fee,
-      periodEnd: withPeriod?.result?.[1] || undefined,
-      remaining: withPeriod?.result?.[0] ?? legacy?.result,
-      token,
-    })
+  const context: Context = {
+    base,
+    call: getCall(parameters),
+    client,
+    details,
+    parameters,
+    read: (contracts) =>
+      multicall(client, {
+        allowFailure: true,
+        contracts: contracts as readonly ContractFunctionParameters[],
+        deployless: true,
+      }).catch(() => []) as never,
+    signer: account && {
+      address: account.address,
+      accessKey:
+        account.source === 'accessKey' && 'accessKeyAddress' in account
+          ? (account.accessKeyAddress as Address)
+          : undefined,
+    },
+    validation: !/execution reverted/i.test(details),
   }
 
-  if (error.errorName === 'KeyExpired') {
-    const [key] = await multicall(client, {
-      allowFailure: true,
-      contracts: [
-        {
-          ...keychain,
-          functionName: 'getKey',
-          args: [keyed.account, keyed.accessKey],
-        },
-      ],
-      deployless: true,
-    }).catch(() => [])
-    return new AccessKeyExpiredError({ ...keyed, expiry: key?.result?.expiry })
+  for (const resolvers of [
+    accessKey.errorResolvers,
+    amm.errorResolvers,
+    channel.errorResolvers,
+    dex.errorResolvers,
+    fee.errorResolvers,
+    nonce.errorResolvers,
+    policy.errorResolvers,
+    token.errorResolvers,
+  ] as readonly Resolvers[]) {
+    const result = await resolvers[signature]?.(context)
+    if (result) return result
   }
-
-  if (error.errorName === 'CallNotAllowed')
-    return new AccessKeyCallNotAllowedError({
-      ...keyed,
-      selector: (parameters.data as Hex | undefined)?.slice(0, 10) as Hex,
-      target: parameters.to ?? parameters.address,
-    })
-
-  return new AccessKeyError(keyed)
+  return new TempoExecutionError(base)
 }
 
-/** Reads the TIP-20 token and `amount` argument of a call. */
-function getSpend(parameters: Record<string, any>) {
-  const { abi, address, args, functionName } = parameters as {
+function getCall(parameters: Record<string, any>): Context['call'] {
+  const {
+    abi,
+    address,
+    args = [],
+    functionName,
+  } = parameters as {
     abi?: Abi
     address?: Address
     args?: readonly unknown[]
     functionName?: string
   }
-  if (!address?.toLowerCase().startsWith('0x20c0')) return {}
+  if (!address || !functionName) return undefined
   const item = abi?.find(
     (item) => item.type === 'function' && item.name === functionName,
   )
-  const index =
-    item?.type === 'function'
-      ? item.inputs.findIndex((input) => input.name === 'amount')
-      : -1
-  const amount = index >= 0 ? args?.[index] : undefined
+  const inputs = item?.type === 'function' ? item.inputs : []
   return {
-    amount: typeof amount === 'bigint' ? amount : undefined,
-    token: address,
+    address,
+    args,
+    functionName,
+    arg: (name) =>
+      args[inputs.findIndex((input) => input.name === name)] as never,
   }
 }
 
-function getFeeToken(client: Client, parameters: Record<string, any>) {
+/** Fee token from the action parameters or chain, when set. */
+export function getFeeToken(context: Context) {
   const feeToken =
-    parameters.feeToken ??
-    (client.chain as { feeToken?: TokenId.TokenIdOrAddress } | undefined)
-      ?.feeToken
+    context.parameters.feeToken ??
+    (
+      context.client.chain as
+        | { feeToken?: TokenId.TokenIdOrAddress }
+        | undefined
+    )?.feeToken
   return feeToken === undefined || feeToken === null
     ? undefined
     : TokenId.toAddress(feeToken)
+}
+
+/** Whether `address` is a TIP-20 token. */
+export function isTip20(address: Address | undefined): address is Address {
+  return !!address?.toLowerCase().startsWith('0x20c0')
+}
+
+/** Formats an amount as `formatted (raw)` when decimals are known. */
+export function formatAmount(
+  value: bigint | undefined,
+  decimals: number | undefined,
+) {
+  if (value === undefined) return undefined
+  if (decimals === undefined) return value.toString()
+  return `${formatUnits(value, decimals)} (${value})`
+}
+
+/** Formats Unix seconds as an ISO 8601 string. */
+export function formatTime(seconds: bigint | number | undefined) {
+  if (!seconds) return undefined
+  return new Date(Number(seconds) * 1000).toISOString()
 }

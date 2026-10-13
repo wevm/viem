@@ -30,6 +30,7 @@ import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
+import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
@@ -46,9 +47,17 @@ import {
 } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import { parseApproval } from '../accounts/Signature.js'
-import type { ExecutionErrorType } from '../errors.js'
+import * as Errors from '../errors.js'
 import * as Hardfork from '../Hardfork.js'
-import { withExecutionError } from '../internal/errors.js'
+import {
+  type Context,
+  formatAmount,
+  formatTime,
+  getFeeToken,
+  isTip20,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -155,7 +164,7 @@ export namespace authorize {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -285,7 +294,7 @@ export namespace authorizeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -344,7 +353,7 @@ export namespace burnWitness {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -481,7 +490,7 @@ export namespace burnWitnessSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -900,7 +909,7 @@ export namespace revoke {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1036,7 +1045,7 @@ export namespace revokeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1533,7 +1542,7 @@ export namespace updateLimit {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1681,7 +1690,7 @@ export namespace updateLimitSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2016,4 +2025,402 @@ function resolveAccessKeyAddress(
 ): Address {
   if (typeof accessKey === 'string') return accessKey
   return accessKey.accessKeyAddress
+}
+
+// Errors
+
+export type ExecutionErrorType =
+  | AccessKeyAlreadyExistsErrorType
+  | AccessKeyCallNotAllowedErrorType
+  | AccessKeyErrorType
+  | AccessKeyExpiredErrorType
+  | AccessKeyExpiryInPastErrorType
+  | AccessKeySignatureTypeMismatchErrorType
+  | AccessKeySpendingLimitExceededErrorType
+
+export type AccessKeyErrorType = AccessKeyError & { name: 'AccessKeyError' }
+
+/** Thrown when an access key fails an `AccountKeychain` check. */
+export class AccessKeyError<
+  decoded extends
+    Errors.TempoExecutionError.Decoded = Errors.TempoExecutionError.Decoded,
+> extends Errors.TempoExecutionError<decoded> {
+  /** Root account that owns the access key. */
+  account: Address
+  /** Access key address. */
+  accessKey: Address
+
+  constructor(
+    parameters: AccessKeyError.Parameters,
+    options: Errors.TempoExecutionError.Options = {},
+  ) {
+    const { account, accessKey } = parameters
+    super(parameters, {
+      shortMessage: `Access key "${accessKey}" failed: ${parameters.error.message}`,
+      ...options,
+      details: { account, 'access key': accessKey, ...options.details },
+      docsPath: '/tempo/guides/access-keys/manage',
+      name: options.name ?? 'AccessKeyError',
+    })
+    this.account = account
+    this.accessKey = accessKey
+  }
+}
+
+export declare namespace AccessKeyError {
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    account: Address
+    accessKey: Address
+  }
+}
+
+export type AccessKeySpendingLimitExceededErrorType =
+  AccessKeySpendingLimitExceededError & {
+    name: 'AccessKeySpendingLimitExceededError'
+  }
+
+/** Thrown when a transfer, approval, or fee payment exceeds an access key's spending limit. */
+export class AccessKeySpendingLimitExceededError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'SpendingLimitExceeded'>
+> {
+  /** Amount the call tried to spend, when known. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Whether the fee payment, rather than the call, exceeded the limit. */
+  fee: boolean
+  /** End of the current period (Unix seconds) for periodic limits, when known. */
+  periodEnd: bigint | undefined
+  /** Remaining limit for `token`, when known. */
+  remaining: bigint | undefined
+  /** Token the limit applies to, when known. */
+  token: Address | undefined
+
+  constructor(parameters: AccessKeySpendingLimitExceededError.Parameters) {
+    const { amount, decimals, fee, periodEnd, remaining, token } = parameters
+    super(parameters, {
+      details: {
+        token,
+        amount: formatAmount(amount, decimals),
+        remaining: formatAmount(remaining, decimals),
+        'exceeded by':
+          amount !== undefined && remaining !== undefined
+            ? formatAmount(amount - remaining, decimals)
+            : undefined,
+        'resets at': formatTime(periodEnd),
+      },
+      name: 'AccessKeySpendingLimitExceededError',
+      shortMessage: `Access key "${parameters.accessKey}" exceeded its spending limit${token ? ` for token "${token}"` : ''}${fee ? ' while paying fees' : ''}.`,
+    })
+    this.amount = amount
+    this.decimals = decimals
+    this.fee = fee
+    this.periodEnd = periodEnd
+    this.remaining = remaining
+    this.token = token
+  }
+}
+
+export declare namespace AccessKeySpendingLimitExceededError {
+  type Parameters = AccessKeyError.Parameters & {
+    amount?: bigint | undefined
+    decimals?: number | undefined
+    fee: boolean
+    periodEnd?: bigint | undefined
+    remaining?: bigint | undefined
+    token?: Address | undefined
+  }
+}
+
+export type AccessKeyExpiredErrorType = AccessKeyExpiredError & {
+  name: 'AccessKeyExpiredError'
+}
+
+/** Thrown when a transaction is signed with an expired access key. */
+export class AccessKeyExpiredError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'KeyExpired'>
+> {
+  /** Expiry (Unix seconds), when known. */
+  expiry: bigint | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & { expiry?: bigint | undefined },
+  ) {
+    super(parameters, {
+      details: { 'expired at': formatTime(parameters.expiry) },
+      name: 'AccessKeyExpiredError',
+      shortMessage: `Access key "${parameters.accessKey}" has expired.`,
+    })
+    this.expiry = parameters.expiry
+  }
+}
+
+export type AccessKeyCallNotAllowedErrorType = AccessKeyCallNotAllowedError & {
+  name: 'AccessKeyCallNotAllowedError'
+}
+
+/** Thrown when an access key's scopes do not allow a call. */
+export class AccessKeyCallNotAllowedError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'CallNotAllowed'>
+> {
+  /** Function selector of the rejected call, when known. */
+  selector: Hex | undefined
+  /** Target of the rejected call, when known. */
+  target: Address | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      selector?: Hex | undefined
+      target?: Address | undefined
+    },
+  ) {
+    const { selector, target } = parameters
+    super(parameters, {
+      details: { target, selector },
+      name: 'AccessKeyCallNotAllowedError',
+      shortMessage: `Access key "${parameters.accessKey}" is not allowed to make this call.`,
+    })
+    this.selector = selector
+    this.target = target
+  }
+}
+
+export type AccessKeyAlreadyExistsErrorType = AccessKeyAlreadyExistsError & {
+  name: 'AccessKeyAlreadyExistsError'
+}
+
+/** Thrown when authorizing an access key that is already authorized. */
+export class AccessKeyAlreadyExistsError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'KeyAlreadyExists'>
+> {
+  /** Expiry (Unix seconds) of the existing key, when known. */
+  expiry: bigint | undefined
+  /** Whether the existing key enforces spending limits, when known. */
+  limited: boolean | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      expiry?: bigint | undefined
+      limited?: boolean | undefined
+    },
+  ) {
+    const { expiry, limited } = parameters
+    super(parameters, {
+      details: {
+        expires: formatTime(expiry),
+        'spending limits':
+          limited === undefined ? undefined : limited ? 'enforced' : 'none',
+      },
+      name: 'AccessKeyAlreadyExistsError',
+      shortMessage: `Access key "${parameters.accessKey}" is already authorized on account "${parameters.account}".`,
+    })
+    this.expiry = expiry
+    this.limited = limited
+  }
+}
+
+export type AccessKeySignatureTypeMismatchErrorType =
+  AccessKeySignatureTypeMismatchError & {
+    name: 'AccessKeySignatureTypeMismatchError'
+  }
+
+/** Thrown when an access key signs with a different key type than it was authorized with. */
+export class AccessKeySignatureTypeMismatchError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'SignatureTypeMismatch'>
+> {
+  /** Key type the access key was authorized with. */
+  expected: KeyType | undefined
+  /** Key type of the signature. */
+  actual: KeyType | undefined
+
+  constructor(parameters: AccessKeyError.Parameters) {
+    const [expected, actual] = (parameters.error.args ?? []).map(
+      (type) => signatureTypes[Number(type) as keyof typeof signatureTypes],
+    )
+    super(parameters, {
+      details: { expected, actual },
+      name: 'AccessKeySignatureTypeMismatchError',
+      shortMessage: `Access key "${parameters.accessKey}" signed with a ${actual ?? 'different'} key, but was authorized as a ${expected ?? 'different'} key.`,
+    })
+    this.expected = expected
+    this.actual = actual
+  }
+}
+
+export type AccessKeyExpiryInPastErrorType = AccessKeyExpiryInPastError & {
+  name: 'AccessKeyExpiryInPastError'
+}
+
+/** Thrown when authorizing an access key with an expiry that has passed or is too soon. */
+export class AccessKeyExpiryInPastError extends AccessKeyError<
+  Errors.TempoExecutionError.Decoded<'ExpiryInPast'>
+> {
+  /** Requested expiry (Unix seconds), when known. */
+  expiry: bigint | undefined
+  /** Earliest allowed expiry (Unix seconds), when known. */
+  minimum: bigint | undefined
+
+  constructor(
+    parameters: AccessKeyError.Parameters & {
+      expiry?: bigint | undefined
+      minimum?: bigint | undefined
+    },
+  ) {
+    const { expiry, minimum } = parameters
+    super(parameters, {
+      details: { expiry: formatTime(expiry), minimum: formatTime(minimum) },
+      name: 'AccessKeyExpiryInPastError',
+      shortMessage: `Access key "${parameters.accessKey}" expiry must be later${minimum ? ` than ${formatTime(minimum)}` : ''}.`,
+    })
+    this.expiry = expiry
+    this.minimum = minimum
+  }
+}
+
+type KeyType = (typeof signatureTypes)[keyof typeof signatureTypes]
+
+const keychain = {
+  address: Addresses.accountKeychain,
+  abi: Abis.accountKeychain,
+} as const
+
+/** Signer and key for errors raised while signing with an access key. */
+function getSigner(context: Context) {
+  const { signer } = context
+  if (!signer?.accessKey) return undefined
+  return {
+    ...context.base,
+    account: signer.address,
+    accessKey: signer.accessKey,
+  }
+}
+
+/** Account and key for errors raised while authorizing a key. */
+function getAuthorization(context: Context) {
+  const { call, parameters, signer } = context
+  const accessKey =
+    (parameters.keyAuthorization?.address as Address | undefined) ??
+    call?.arg<Address>('keyId')
+  if (!signer || !accessKey) return undefined
+  return { ...context.base, account: signer.address, accessKey }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  ...Object.fromEntries(
+    Abis.accountKeychain.flatMap((item) =>
+      item.type === 'error'
+        ? [
+            [
+              formatAbiItem(item),
+              (context: Context) => {
+                const parameters = getSigner(context)
+                return parameters && new AccessKeyError(parameters)
+              },
+            ],
+          ]
+        : [],
+    ),
+  ),
+  'CallNotAllowed()': (context) => {
+    const parameters = getSigner(context)
+    if (!parameters) return undefined
+    return new AccessKeyCallNotAllowedError({
+      ...parameters,
+      selector: (context.parameters.data as Hex | undefined)?.slice(
+        0,
+        10,
+      ) as Hex,
+      target: context.call?.address ?? context.parameters.to,
+    })
+  },
+  'ExpiryInPast()': (context) => {
+    const parameters = getAuthorization(context)
+    if (!parameters) return undefined
+    const [, expiry, minimum] =
+      /expiry (\d+) <= min allowed (\d+)/.exec(context.details) ?? []
+    const requested =
+      context.parameters.keyAuthorization?.expiry ??
+      context.call?.arg<bigint>('expiry') ??
+      context.call?.arg<{ expiry: bigint }>('config')?.expiry
+    return new AccessKeyExpiryInPastError({
+      ...parameters,
+      expiry: expiry
+        ? BigInt(expiry)
+        : requested === undefined || requested === null
+          ? undefined
+          : BigInt(requested),
+      minimum: minimum ? BigInt(minimum) : undefined,
+    })
+  },
+  'KeyAlreadyExists()': async (context) => {
+    const parameters = getAuthorization(context)
+    if (!parameters) return undefined
+    const [key] = await context.read([
+      {
+        ...keychain,
+        functionName: 'getKey',
+        args: [parameters.account, parameters.accessKey],
+      },
+    ])
+    return new AccessKeyAlreadyExistsError({
+      ...parameters,
+      expiry: key?.result?.expiry,
+      limited: key?.result?.enforceLimits,
+    })
+  },
+  'KeyExpired()': async (context) => {
+    const parameters = getSigner(context)
+    if (!parameters) return undefined
+    const [key] = await context.read([
+      {
+        ...keychain,
+        functionName: 'getKey',
+        args: [parameters.account, parameters.accessKey],
+      },
+    ])
+    return new AccessKeyExpiredError({
+      ...parameters,
+      expiry: key?.result?.expiry,
+    })
+  },
+  'SignatureTypeMismatch(uint8,uint8)': (context) => {
+    const parameters = getSigner(context) ?? getAuthorization(context)
+    return parameters && new AccessKeySignatureTypeMismatchError(parameters)
+  },
+  'SpendingLimitExceeded()': async (context) => {
+    const parameters = getSigner(context)
+    if (!parameters) return undefined
+    // Without revert data, the fee payment exceeded the limit.
+    const fee = context.validation
+    const token = fee
+      ? getFeeToken(context)
+      : isTip20(context.call?.address)
+        ? context.call.address
+        : undefined
+    if (!token)
+      return new AccessKeySpendingLimitExceededError({
+        ...parameters,
+        fee,
+        hints: fee
+          ? [...parameters.hints, 'Pay fees with another token.']
+          : parameters.hints,
+      })
+    const args = [parameters.account, parameters.accessKey, token] as const
+    const [withPeriod, legacy, decimals] = await context.read([
+      // `getRemainingLimitWithPeriod` is T3+; `getRemainingLimit` covers earlier hardforks.
+      { ...keychain, functionName: 'getRemainingLimitWithPeriod', args },
+      { ...keychain, functionName: 'getRemainingLimit', args },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new AccessKeySpendingLimitExceededError({
+      ...parameters,
+      amount: fee ? undefined : context.call?.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      fee,
+      periodEnd: withPeriod?.result?.[1] || undefined,
+      remaining: withPeriod?.result?.[0] ?? legacy?.result,
+      token,
+    })
+  },
 }

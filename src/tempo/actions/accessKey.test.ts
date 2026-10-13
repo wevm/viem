@@ -7,10 +7,6 @@ import { generatePrivateKey } from 'viem/accounts'
 import { fillTransaction } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import {
-  AccessKeyCallNotAllowedError,
-  AccessKeyError,
-  AccessKeyExpiredError,
-  AccessKeySpendingLimitExceededError,
   Account,
   createClient,
   custom,
@@ -1098,7 +1094,9 @@ describe('errors', () => {
       })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeySpendingLimitExceededError)
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
     expect(error).toMatchObject({
       account: account.address,
       accessKey: accessKey.accessKeyAddress,
@@ -1128,7 +1126,9 @@ describe('errors', () => {
       .transfer(client, { account: accessKey, amount: 0n, token: feeToken, to })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeySpendingLimitExceededError)
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
     expect(error).toMatchObject({ amount: undefined, fee: true })
     expect(error.shortMessage).toContain('while paying fees.')
   })
@@ -1141,7 +1141,7 @@ describe('errors', () => {
       .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeyError)
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
     expect(error).toMatchObject({
       accessKey: accessKey.accessKeyAddress,
       errorName: 'KeyNotFound',
@@ -1157,7 +1157,7 @@ describe('errors', () => {
       .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeyError)
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
     expect(error.errorName).toBe('KeyAlreadyRevoked')
   })
 
@@ -1172,7 +1172,7 @@ describe('errors', () => {
       .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeyExpiredError)
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiredError)
     expect(error).toMatchObject({
       errorName: 'KeyExpired',
       expiry: BigInt(expiry),
@@ -1193,12 +1193,43 @@ describe('errors', () => {
       .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(AccessKeyCallNotAllowedError)
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyCallNotAllowedError)
     expect(error).toMatchObject({
       errorName: 'CallNotAllowed',
       selector: '0xa9059cbb',
       target: feeToken,
     })
+  })
+
+  test('behavior: expiry in the past', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor(Date.now() / 1000)
+    const error = await actions.accessKey
+      .authorize(client, { accessKey, expiry })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+    expect(error).toMatchObject({
+      accessKey: accessKey.accessKeyAddress,
+      expiry: BigInt(expiry),
+    })
+  })
+
+  test('behavior: expiry too soon', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const error = await actions.accessKey
+      .authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 2,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+    expect(error.minimum).toBeGreaterThanOrEqual(error.expiry)
   })
 
   test('behavior: action hints come first', async () => {
@@ -1210,7 +1241,14 @@ describe('errors', () => {
       })
       .catch((error) => error)
 
-    expect(error.errorName).toBe('KeyAlreadyExists')
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(error).toMatchObject({
+      account: account.address,
+      accessKey: accessKey.accessKeyAddress,
+      errorName: 'KeyAlreadyExists',
+      limited: false,
+    })
+    expect(error.expiry).toBeGreaterThan(0n)
     expect(error.hints).toMatchInlineSnapshot(`
       [
         "This access key is already authorized. Update its spending limits instead.",

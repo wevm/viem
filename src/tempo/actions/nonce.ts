@@ -12,6 +12,12 @@ import type { Log as viem_Log } from '../../types/log.js'
 import type { UnionOmit } from '../../types/utils.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import * as Errors from '../errors.js'
+import {
+  formatTime,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type { ReadParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
@@ -152,4 +158,76 @@ export declare namespace watchNonceIncremented {
     /** Callback to invoke when a nonce is incremented. */
     onNonceIncremented: (args: Args, log: Log) => void
   }
+}
+
+// Errors
+
+export type ExecutionErrorType =
+  | NonceInvalidExpiryErrorType
+  | NonceReplayErrorType
+
+export type NonceReplayErrorType = NonceReplayError & {
+  name: 'NonceReplayError'
+}
+
+/** Thrown when an expiring nonce transaction was already submitted. */
+export class NonceReplayError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'ExpiringNonceReplay'>
+> {
+  /** Transaction expiry (Unix seconds), when known. */
+  validBefore: number | bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      validBefore?: number | bigint | undefined
+    },
+  ) {
+    super(parameters, {
+      details: { 'valid before': formatTime(parameters.validBefore) },
+      name: 'NonceReplayError',
+    })
+    this.validBefore = parameters.validBefore
+  }
+}
+
+export type NonceInvalidExpiryErrorType = NonceInvalidExpiryError & {
+  name: 'NonceInvalidExpiryError'
+}
+
+/** Thrown when an expiring nonce transaction's `validBefore` is in the past or too far ahead. */
+export class NonceInvalidExpiryError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InvalidExpiringNonceExpiry'>
+> {
+  /** Current time (Unix seconds) when the error was handled. */
+  now: number
+  /** Transaction expiry (Unix seconds), when known. */
+  validBefore: number | bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      validBefore?: number | bigint | undefined
+    },
+  ) {
+    const now = Math.floor(Date.now() / 1000)
+    super(parameters, {
+      details: {
+        'valid before': formatTime(parameters.validBefore),
+        now: formatTime(now),
+      },
+      name: 'NonceInvalidExpiryError',
+    })
+    this.now = now
+    this.validBefore = parameters.validBefore
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'ExpiringNonceReplay()': ({ base, parameters }) =>
+    new NonceReplayError({ ...base, validBefore: parameters.validBefore }),
+  'InvalidExpiringNonceExpiry()': ({ base, parameters }) =>
+    new NonceInvalidExpiryError({
+      ...base,
+      validBefore: parameters.validBefore,
+    }),
 }

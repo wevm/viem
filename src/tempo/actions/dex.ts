@@ -24,10 +24,15 @@ import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log as viem_Log } from '../../types/log.js'
 import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ExecutionErrorType } from '../errors.js'
-import { withExecutionError } from '../internal/errors.js'
+import * as Errors from '../errors.js'
+import {
+  type Context,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -99,7 +104,7 @@ export namespace buy {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -113,16 +118,7 @@ export namespace buy {
   ): Promise<ReturnType<action>> {
     const { tokenIn, tokenOut, amountOut, maxAmountIn, ...rest } = parameters
     const call = buy.call({ tokenIn, tokenOut, amountOut, maxAmountIn })
-    return (await withExecutionError(action, {
-      hints: {
-        InsufficientLiquidity: [
-          'Buy a smaller amount, or check the quote first.',
-        ],
-        MaxInputExceeded: [
-          'Raise the maximum input amount, or check the quote first.',
-        ],
-      },
-    })(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -230,7 +226,7 @@ export namespace buySync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -282,7 +278,7 @@ export namespace cancel {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -427,7 +423,7 @@ export namespace cancelSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -482,7 +478,7 @@ export namespace cancelStale {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -630,7 +626,7 @@ export namespace cancelStaleSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -682,7 +678,7 @@ export namespace createPair {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -827,7 +823,7 @@ export namespace createPairSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1314,7 +1310,7 @@ export namespace place {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1458,7 +1454,7 @@ export namespace placeFlip {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1613,7 +1609,7 @@ export namespace placeFlipSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1685,7 +1681,7 @@ export namespace placeSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1746,7 +1742,7 @@ export namespace sell {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1760,16 +1756,7 @@ export namespace sell {
   ): Promise<ReturnType<action>> {
     const { tokenIn, tokenOut, amountIn, minAmountOut, ...rest } = parameters
     const call = sell.call({ tokenIn, tokenOut, amountIn, minAmountOut })
-    return (await withExecutionError(action, {
-      hints: {
-        InsufficientLiquidity: [
-          'Sell a smaller amount, or check the quote first.',
-        ],
-        InsufficientOutput: [
-          'Lower the minimum output amount, or check the quote first.',
-        ],
-      },
-    })(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -1877,7 +1864,7 @@ export namespace sellSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2256,7 +2243,7 @@ export namespace withdraw {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2374,9 +2361,529 @@ export namespace withdrawSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 function getPairKey(base: Address, quote: Address) {
   return Hash.keccak256(Hex.concat(base, quote))
+}
+
+// Errors
+
+export type ExecutionErrorType =
+  | DexBelowMinimumOrderSizeErrorType
+  | DexInsufficientBalanceErrorType
+  | DexInsufficientLiquidityErrorType
+  | DexInsufficientOutputErrorType
+  | DexInvalidFlipTickErrorType
+  | DexMaxInputExceededErrorType
+  | DexOrderNotFoundErrorType
+  | DexOrderNotStaleErrorType
+  | DexPairNotFoundErrorType
+  | DexTickOutOfBoundsErrorType
+
+export type DexInsufficientOutputErrorType = DexInsufficientOutputError & {
+  name: 'DexInsufficientOutputError'
+}
+
+/** Thrown when a sell would return less than `minAmountOut`. */
+export class DexInsufficientOutputError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientOutput'>
+> {
+  /** Amount of `tokenIn` to sell. */
+  amountIn: bigint | undefined
+  /** Minimum amount of `tokenOut` to receive. */
+  minAmountOut: bigint | undefined
+  /** Current quote for `amountIn`, when available. */
+  quote: bigint | undefined
+  /** Token to sell. */
+  tokenIn: Address | undefined
+  /** Token to buy. */
+  tokenOut: Address | undefined
+
+  constructor(parameters: DexInsufficientOutputError.Parameters) {
+    const { amountIn, minAmountOut, quote, tokenIn, tokenOut } = parameters
+    super(parameters, {
+      details: {
+        'token in': tokenIn,
+        'token out': tokenOut,
+        'amount in': amountIn,
+        'min amount out': minAmountOut,
+        quote,
+      },
+      name: 'DexInsufficientOutputError',
+    })
+    this.amountIn = amountIn
+    this.minAmountOut = minAmountOut
+    this.quote = quote
+    this.tokenIn = tokenIn
+    this.tokenOut = tokenOut
+  }
+}
+
+export declare namespace DexInsufficientOutputError {
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    amountIn?: bigint | undefined
+    minAmountOut?: bigint | undefined
+    quote?: bigint | undefined
+    tokenIn?: Address | undefined
+    tokenOut?: Address | undefined
+  }
+}
+
+export type DexMaxInputExceededErrorType = DexMaxInputExceededError & {
+  name: 'DexMaxInputExceededError'
+}
+
+/** Thrown when a buy would cost more than `maxAmountIn`. */
+export class DexMaxInputExceededError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'MaxInputExceeded'>
+> {
+  /** Amount of `tokenOut` to buy. */
+  amountOut: bigint | undefined
+  /** Maximum amount of `tokenIn` to spend. */
+  maxAmountIn: bigint | undefined
+  /** Current cost of `amountOut`, when available. */
+  quote: bigint | undefined
+  /** Token to spend. */
+  tokenIn: Address | undefined
+  /** Token to buy. */
+  tokenOut: Address | undefined
+
+  constructor(parameters: DexMaxInputExceededError.Parameters) {
+    const { amountOut, maxAmountIn, quote, tokenIn, tokenOut } = parameters
+    super(parameters, {
+      details: {
+        'token in': tokenIn,
+        'token out': tokenOut,
+        'amount out': amountOut,
+        'max amount in': maxAmountIn,
+        quote,
+      },
+      name: 'DexMaxInputExceededError',
+    })
+    this.amountOut = amountOut
+    this.maxAmountIn = maxAmountIn
+    this.quote = quote
+    this.tokenIn = tokenIn
+    this.tokenOut = tokenOut
+  }
+}
+
+export declare namespace DexMaxInputExceededError {
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    amountOut?: bigint | undefined
+    maxAmountIn?: bigint | undefined
+    quote?: bigint | undefined
+    tokenIn?: Address | undefined
+    tokenOut?: Address | undefined
+  }
+}
+
+export type DexInsufficientLiquidityErrorType =
+  DexInsufficientLiquidityError & { name: 'DexInsufficientLiquidityError' }
+
+/** Thrown when the order book cannot fill a swap. */
+export class DexInsufficientLiquidityError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientLiquidity'>
+> {
+  /** Amount of `tokenIn` to sell, for sells. */
+  amountIn: bigint | undefined
+  /** Amount of `tokenOut` to buy, for buys. */
+  amountOut: bigint | undefined
+  /** Token to spend. */
+  tokenIn: Address | undefined
+  /** Token to buy. */
+  tokenOut: Address | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amountIn?: bigint | undefined
+      amountOut?: bigint | undefined
+      tokenIn?: Address | undefined
+      tokenOut?: Address | undefined
+    },
+  ) {
+    const { amountIn, amountOut, tokenIn, tokenOut } = parameters
+    super(parameters, {
+      details: {
+        'token in': tokenIn,
+        'token out': tokenOut,
+        'amount in': amountIn,
+        'amount out': amountOut,
+      },
+      name: 'DexInsufficientLiquidityError',
+    })
+    this.amountIn = amountIn
+    this.amountOut = amountOut
+    this.tokenIn = tokenIn
+    this.tokenOut = tokenOut
+  }
+}
+
+export type DexBelowMinimumOrderSizeErrorType =
+  DexBelowMinimumOrderSizeError & { name: 'DexBelowMinimumOrderSizeError' }
+
+/** Thrown when an order is smaller than the minimum order size. */
+export class DexBelowMinimumOrderSizeError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'BelowMinimumOrderSize'>
+> {
+  /** Order amount. */
+  amount: bigint
+  /** Minimum order amount, when known. */
+  minimum: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      minimum?: bigint | undefined
+    },
+  ) {
+    const [amount] = parameters.error.args as readonly [bigint]
+    const { minimum } = parameters
+    super(parameters, {
+      details: { amount, minimum },
+      name: 'DexBelowMinimumOrderSizeError',
+      shortMessage: `Order amount ${amount} is below the minimum${minimum === undefined ? '' : ` of ${minimum}`}.`,
+    })
+    this.amount = amount
+    this.minimum = minimum
+  }
+}
+
+export type DexTickOutOfBoundsErrorType = DexTickOutOfBoundsError & {
+  name: 'DexTickOutOfBoundsError'
+}
+
+/** Thrown when an order's tick or flip tick is outside the allowed range. */
+export class DexTickOutOfBoundsError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'TickOutOfBounds'>
+> {
+  /** Highest allowed tick, when known. */
+  maxTick: number | undefined
+  /** Lowest allowed tick, when known. */
+  minTick: number | undefined
+  /** Tick that is out of range. */
+  tick: number
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      maxTick?: number | undefined
+      minTick?: number | undefined
+    },
+  ) {
+    const [tick] = parameters.error.args as readonly [number]
+    const { maxTick, minTick } = parameters
+    super(parameters, {
+      details: {
+        tick,
+        range:
+          minTick === undefined || maxTick === undefined
+            ? undefined
+            : `${minTick} to ${maxTick}`,
+      },
+      name: 'DexTickOutOfBoundsError',
+    })
+    this.maxTick = maxTick
+    this.minTick = minTick
+    this.tick = tick
+  }
+}
+
+export type DexInvalidFlipTickErrorType = DexInvalidFlipTickError & {
+  name: 'DexInvalidFlipTickError'
+}
+
+/** Thrown when a flip order's flip tick is on the wrong side of its tick or off the tick spacing. */
+export class DexInvalidFlipTickError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InvalidFlipTick'>
+> {
+  /** Flip tick. */
+  flipTick: number | undefined
+  /** Order side. */
+  side: 'buy' | 'sell' | undefined
+  /** Order tick. */
+  tick: number | undefined
+  /** Tick spacing, when known. */
+  tickSpacing: number | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      flipTick?: number | undefined
+      side?: 'buy' | 'sell' | undefined
+      tick?: number | undefined
+      tickSpacing?: number | undefined
+    },
+  ) {
+    const { flipTick, side, tick, tickSpacing } = parameters
+    super(parameters, {
+      details: {
+        side,
+        tick,
+        'flip tick': flipTick,
+        'tick spacing': tickSpacing,
+      },
+      name: 'DexInvalidFlipTickError',
+      shortMessage:
+        side === 'buy'
+          ? 'The flip tick of a buy order must be at or above its tick, and a multiple of the tick spacing.'
+          : side === 'sell'
+            ? 'The flip tick of a sell order must be at or below its tick, and a multiple of the tick spacing.'
+            : undefined,
+    })
+    this.flipTick = flipTick
+    this.side = side
+    this.tick = tick
+    this.tickSpacing = tickSpacing
+  }
+}
+
+export type DexOrderNotFoundErrorType = DexOrderNotFoundError & {
+  name: 'DexOrderNotFoundError'
+}
+
+/** Thrown when an order does not exist or is already filled. */
+export class DexOrderNotFoundError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'OrderDoesNotExist'>
+> {
+  /** Order ID. */
+  orderId: bigint
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & { orderId: bigint },
+  ) {
+    super(parameters, {
+      details: { order: parameters.orderId },
+      name: 'DexOrderNotFoundError',
+      shortMessage: `Order ${parameters.orderId} does not exist or is already filled.`,
+    })
+    this.orderId = parameters.orderId
+  }
+}
+
+export type DexOrderNotStaleErrorType = DexOrderNotStaleError & {
+  name: 'DexOrderNotStaleError'
+}
+
+/** Thrown when cancelling a stale order whose maker is still authorized by the token's policy. */
+export class DexOrderNotStaleError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'OrderNotStale'>
+> {
+  /** Order ID. */
+  orderId: bigint
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & { orderId: bigint },
+  ) {
+    super(parameters, {
+      details: { order: parameters.orderId },
+      name: 'DexOrderNotStaleError',
+      shortMessage: `Order ${parameters.orderId} is not stale: its maker is still authorized.`,
+    })
+    this.orderId = parameters.orderId
+  }
+}
+
+export type DexPairNotFoundErrorType = DexPairNotFoundError & {
+  name: 'DexPairNotFoundError'
+}
+
+/** Thrown when no trading pair exists for a token. */
+export class DexPairNotFoundError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'PairDoesNotExist'>
+> {
+  /** Tokens of the call. */
+  tokens: readonly Address[]
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      tokens: readonly Address[]
+    },
+  ) {
+    super(parameters, {
+      details: { tokens: parameters.tokens.join(', ') || undefined },
+      name: 'DexPairNotFoundError',
+    })
+    this.tokens = parameters.tokens
+  }
+}
+
+export type DexInsufficientBalanceErrorType = DexInsufficientBalanceError & {
+  name: 'DexInsufficientBalanceError'
+}
+
+/** Thrown when withdrawing more than the account's exchange balance. */
+export class DexInsufficientBalanceError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientBalance'>
+> {
+  /** Amount to withdraw. */
+  amount: bigint | undefined
+  /** Exchange balance, when known. */
+  balance: bigint | undefined
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amount?: bigint | undefined
+      balance?: bigint | undefined
+      token: Address
+    },
+  ) {
+    const { amount, balance, token } = parameters
+    super(parameters, {
+      details: { token, amount, balance },
+      name: 'DexInsufficientBalanceError',
+      shortMessage: `Insufficient exchange balance of token "${token}".`,
+    })
+    this.amount = amount
+    this.balance = balance
+    this.token = token
+  }
+}
+
+const exchange = {
+  address: Addresses.stablecoinDex,
+  abi: Abis.stablecoinDex,
+} as const
+
+/** The failed call, when it targets the exchange. */
+function getExchangeCall(context: Context) {
+  const { call } = context
+  return call && isAddressEqual(call.address, Addresses.stablecoinDex)
+    ? call
+    : undefined
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'BelowMinimumOrderSize(uint128)': async (context) => {
+    if (!getExchangeCall(context)) return undefined
+    const [minimum] = await context.read([
+      { ...exchange, functionName: 'MIN_ORDER_AMOUNT' },
+    ])
+    return new DexBelowMinimumOrderSizeError({
+      ...context.base,
+      minimum: minimum?.result,
+    })
+  },
+  'InsufficientBalance()': async (context) => {
+    const call = getExchangeCall(context)
+    const token = call?.arg<Address>('token')
+    if (call?.functionName !== 'withdraw' || !token || !context.signer)
+      return undefined
+    const [balance] = await context.read([
+      {
+        ...exchange,
+        functionName: 'balanceOf',
+        args: [context.signer.address, token],
+      },
+    ])
+    return new DexInsufficientBalanceError({
+      ...context.base,
+      amount: call.arg<bigint>('amount'),
+      balance: balance?.result,
+      token,
+    })
+  },
+  'InsufficientLiquidity()': (context) => {
+    const call = getExchangeCall(context)
+    if (!call) return undefined
+    return new DexInsufficientLiquidityError({
+      ...context.base,
+      amountIn: call.arg<bigint>('amountIn'),
+      amountOut: call.arg<bigint>('amountOut'),
+      tokenIn: call.arg<Address>('tokenIn'),
+      tokenOut: call.arg<Address>('tokenOut'),
+    })
+  },
+  'InsufficientOutput()': async (context) => {
+    const call = getExchangeCall(context)
+    if (!call) return undefined
+    const tokenIn = call.arg<Address>('tokenIn')!
+    const tokenOut = call.arg<Address>('tokenOut')!
+    const amountIn = call.arg<bigint>('amountIn')!
+    const [quote] = await context.read([
+      {
+        ...exchange,
+        functionName: 'quoteSwapExactAmountIn',
+        args: [tokenIn, tokenOut, amountIn],
+      },
+    ])
+    return new DexInsufficientOutputError({
+      ...context.base,
+      amountIn,
+      minAmountOut: call.arg<bigint>('minAmountOut'),
+      quote: quote?.result,
+      tokenIn,
+      tokenOut,
+    })
+  },
+  'InvalidFlipTick()': async (context) => {
+    const call = getExchangeCall(context)
+    if (!call) return undefined
+    const [tickSpacing] = await context.read([
+      { ...exchange, functionName: 'TICK_SPACING' },
+    ])
+    const isBid = call.arg<boolean>('isBid')
+    return new DexInvalidFlipTickError({
+      ...context.base,
+      flipTick: call.arg<number>('flipTick'),
+      side: isBid === undefined ? undefined : isBid ? 'buy' : 'sell',
+      tick: call.arg<number>('tick'),
+      tickSpacing: tickSpacing?.result,
+    })
+  },
+  'MaxInputExceeded()': async (context) => {
+    const call = getExchangeCall(context)
+    if (!call) return undefined
+    const tokenIn = call.arg<Address>('tokenIn')!
+    const tokenOut = call.arg<Address>('tokenOut')!
+    const amountOut = call.arg<bigint>('amountOut')!
+    const [quote] = await context.read([
+      {
+        ...exchange,
+        functionName: 'quoteSwapExactAmountOut',
+        args: [tokenIn, tokenOut, amountOut],
+      },
+    ])
+    return new DexMaxInputExceededError({
+      ...context.base,
+      amountOut,
+      maxAmountIn: call.arg<bigint>('maxAmountIn'),
+      quote: quote?.result,
+      tokenIn,
+      tokenOut,
+    })
+  },
+  'OrderDoesNotExist()': (context) => {
+    const orderId = getExchangeCall(context)?.arg<bigint>('orderId')
+    if (orderId === undefined) return undefined
+    return new DexOrderNotFoundError({ ...context.base, orderId })
+  },
+  'OrderNotStale()': (context) => {
+    const orderId = getExchangeCall(context)?.arg<bigint>('orderId')
+    if (orderId === undefined) return undefined
+    return new DexOrderNotStaleError({ ...context.base, orderId })
+  },
+  'PairDoesNotExist()': (context) => {
+    const call = getExchangeCall(context)
+    if (!call) return undefined
+    const tokens = ['token', 'tokenIn', 'tokenOut', 'base'].flatMap((name) => {
+      const token = call.arg<Address>(name)
+      return token ? [token] : []
+    })
+    return new DexPairNotFoundError({ ...context.base, tokens })
+  },
+  'TickOutOfBounds(int16)': async (context) => {
+    if (!getExchangeCall(context)) return undefined
+    const [minTick, maxTick] = await context.read([
+      { ...exchange, functionName: 'MIN_TICK' },
+      { ...exchange, functionName: 'MAX_TICK' },
+    ])
+    return new DexTickOutOfBoundsError({
+      ...context.base,
+      maxTick: maxTick?.result,
+      minTick: minTick?.result,
+    })
+  },
 }

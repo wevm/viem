@@ -9,13 +9,7 @@ import {
   parseUnits,
 } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
-import {
-  Abis,
-  Addresses,
-  Selectors,
-  TempoExecutionError,
-  TokenIds,
-} from 'viem/tempo'
+import { Abis, Addresses, Selectors, TokenIds } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import {
   accounts,
@@ -23,6 +17,7 @@ import {
   chain,
   feeToken,
   getClient,
+  setupToken,
 } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
@@ -740,11 +735,17 @@ describe('mint', () => {
       })
       .catch((error) => error)
 
-    expect(error).toBeInstanceOf(TempoExecutionError)
-    expect(error.errorName).toBe('Unauthorized')
+    expect(error).toBeInstanceOf(actions.token.TokenUnauthorizedError)
+    expect(error).toMatchObject({
+      account: account3.address,
+      errorName: 'Unauthorized',
+      role: 'issuer',
+      token: addresses.alphaUsd,
+    })
     expect(error.hints).toMatchInlineSnapshot(`
       [
         "Minting requires the issuer role. Grant it to this account first.",
+        "The account lacks the permission this call requires.",
       ]
     `)
   })
@@ -3322,5 +3323,114 @@ describe('watchUpdateQuoteToken', () => {
     } finally {
       if (unwatch) unwatch()
     }
+  })
+})
+
+describe('errors', () => {
+  test('behavior: insufficient balance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error).toMatchObject({
+      available: parseUnits('10000', 6),
+      decimals: 6,
+      required: parseUnits('20000', 6),
+    })
+    expect(error.token.toLowerCase()).toBe(token.toLowerCase())
+    expect(error.message).toContain('shortfall:  10000 (10000000000)')
+  })
+
+  test('behavior: insufficient allowance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(getClient({ account: account2 }), {
+        amount: parseUnits('1', 6),
+        from: account.address,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientAllowanceError)
+    expect(error).toMatchObject({
+      allowance: 0n,
+      amount: parseUnits('1', 6),
+      owner: account.address,
+      spender: account2.address,
+      token,
+    })
+  })
+
+  test('behavior: supply cap exceeded', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.setSupplyCapSync(client, {
+      supplyCap: parseUnits('10001', 6),
+      token,
+    })
+    const error = await actions.token
+      .mintSync(client, {
+        amount: parseUnits('5', 6),
+        to: account.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenSupplyCapExceededError)
+    expect(error).toMatchObject({
+      amount: parseUnits('5', 6),
+      supplyCap: parseUnits('10001', 6),
+      token,
+      totalSupply: parseUnits('10000', 6),
+    })
+    expect(error.message).toContain('mintable amount:  1 (1000000)')
+  })
+
+  test('behavior: paused', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.grantRolesSync(client, {
+      roles: ['pause'],
+      to: account.address,
+      token,
+    })
+    await actions.token.pauseSync(client, { token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPausedError)
+    expect(error.token).toBe(token)
+  })
+
+  test('behavior: transfer policy forbids recipient', async () => {
+    const { token } = await setupToken(client)
+    const { policyId } = await actions.policy.createSync(client, {
+      addresses: [account2.address],
+      admin: account.address,
+      type: 'blacklist',
+    })
+    await actions.token.changeTransferPolicySync(client, { policyId, token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPolicyForbidsError)
+    expect(error).toMatchObject({
+      from: account.address,
+      policyId,
+      recipientAuthorized: false,
+      senderAuthorized: true,
+      to: account2.address,
+      token,
+    })
+    expect(error.shortMessage).toContain(
+      `forbids recipient "${account2.address}"`,
+    )
   })
 })

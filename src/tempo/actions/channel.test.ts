@@ -323,8 +323,9 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
         channel,
       }),
     ).rejects.toMatchObject({
-      name: 'TempoExecutionError',
+      name: 'ChannelCloseNotReadyError',
       errorName: 'CloseNotReady',
+      readyAt: closeRequested.closeGraceEnd,
     })
 
     const { blocks } = await actions.simulate.simulateBlocks(payerClient, {

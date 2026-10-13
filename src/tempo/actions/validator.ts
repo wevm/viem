@@ -13,7 +13,7 @@ import type { Chain } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ExecutionErrorType } from '../errors.js'
+import type * as Errors from '../errors.js'
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -79,7 +79,7 @@ export namespace add {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -278,7 +278,7 @@ export namespace changeOwner {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -447,7 +447,7 @@ export namespace changeStatus {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1114,7 +1114,7 @@ export namespace setNextFullDkgCeremony {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1293,7 +1293,7 @@ export namespace update {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<

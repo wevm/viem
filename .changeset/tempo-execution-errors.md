@@ -2,15 +2,16 @@
 "viem": minor
 ---
 
-Added `TempoExecutionError` and access key error classes to Tempo actions, with decoded precompile errors, fetched limit and expiry details, and resolution hints.
+Added typed `TempoExecutionError` errors to Tempo actions, with per-module subclasses carrying decoded arguments, fetched onchain details, and resolution hints.
 
 ```ts
-import { AccessKeySpendingLimitExceededError } from 'viem/tempo'
+import { Actions } from 'viem/tempo'
 
 try {
-  await client.token.transfer({ account: accessKey, amount, to, token })
-} catch (error) {
-  if (error instanceof AccessKeySpendingLimitExceededError)
-    console.log(error.amount, error.remaining, error.periodEnd, error.hints)
+  await Actions.token.transferSync(client, { amount, to, token })
+} catch (e) {
+  const error = e as Actions.token.transferSync.ErrorType
+  if (error.name === 'AccessKeySpendingLimitExceededError')
+    console.log(error.remaining, error.periodEnd, error.hints)
 }
 ```

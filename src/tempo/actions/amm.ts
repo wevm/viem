@@ -20,10 +20,15 @@ import type { Hex } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ExecutionErrorType } from '../errors.js'
-import { withExecutionError } from '../internal/errors.js'
+import * as Errors from '../errors.js'
+import {
+  type Context,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
@@ -369,7 +374,7 @@ export namespace rebalanceSwap {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -607,7 +612,7 @@ export namespace mint {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -829,7 +834,7 @@ export namespace burn {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1141,4 +1146,98 @@ export declare namespace watchBurn {
     /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
+}
+
+// Errors
+
+export type ExecutionErrorType = AmmInsufficientLiquidityErrorType
+
+export type AmmInsufficientLiquidityErrorType =
+  AmmInsufficientLiquidityError & {
+    name: 'AmmInsufficientLiquidityError'
+  }
+
+/** Thrown when a fee AMM pool cannot cover a swap, deposit, or withdrawal. */
+export class AmmInsufficientLiquidityError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<
+    'InsufficientLiquidity' | 'InsufficientReserves'
+  >
+> {
+  /** Amount of the call (`amountOut`, `amountValidatorToken`, or `liquidity`). */
+  amount: bigint | undefined
+  /** Pool reserve of `userToken`, when known. */
+  reserveUserToken: bigint | undefined
+  /** Pool reserve of `validatorToken`, when known. */
+  reserveValidatorToken: bigint | undefined
+  /** User token of the pool. */
+  userToken: Address | undefined
+  /** Validator token of the pool. */
+  validatorToken: Address | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amount?: bigint | undefined
+      reserveUserToken?: bigint | undefined
+      reserveValidatorToken?: bigint | undefined
+      userToken?: Address | undefined
+      validatorToken?: Address | undefined
+    },
+  ) {
+    const {
+      amount,
+      reserveUserToken,
+      reserveValidatorToken,
+      userToken,
+      validatorToken,
+    } = parameters
+    super(parameters, {
+      details: {
+        'user token': userToken,
+        'validator token': validatorToken,
+        amount,
+        'user token reserve': reserveUserToken,
+        'validator token reserve': reserveValidatorToken,
+      },
+      name: 'AmmInsufficientLiquidityError',
+    })
+    this.amount = amount
+    this.reserveUserToken = reserveUserToken
+    this.reserveValidatorToken = reserveValidatorToken
+    this.userToken = userToken
+    this.validatorToken = validatorToken
+  }
+}
+
+async function resolvePool(context: Context) {
+  const { call } = context
+  if (!call || !isAddressEqual(call.address, Addresses.feeManager))
+    return undefined
+  const userToken = call.arg<Address>('userToken')
+  const validatorToken = call.arg<Address>('validatorToken')
+  if (!userToken || !validatorToken) return undefined
+  const [pool] = await context.read([
+    {
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
+      functionName: 'getPool',
+      args: [userToken, validatorToken],
+    },
+  ])
+  return new AmmInsufficientLiquidityError({
+    ...context.base,
+    amount:
+      call.arg<bigint>('amountOut') ??
+      call.arg<bigint>('amountValidatorToken') ??
+      call.arg<bigint>('liquidity'),
+    reserveUserToken: pool?.result?.reserveUserToken,
+    reserveValidatorToken: pool?.result?.reserveValidatorToken,
+    userToken,
+    validatorToken,
+  })
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'InsufficientLiquidity()': resolvePool,
+  'InsufficientReserves()': resolvePool,
 }

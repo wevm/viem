@@ -18,8 +18,8 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
-import type { ExecutionErrorType } from '../errors.js'
-import { withExecutionError } from '../internal/errors.js'
+import * as Errors from '../errors.js'
+import { type Resolvers, withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -89,7 +89,7 @@ export namespace create {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -263,7 +263,7 @@ export namespace createSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -318,7 +318,7 @@ export namespace setAdmin {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -468,7 +468,7 @@ export namespace setAdminSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -526,7 +526,7 @@ export namespace modifyWhitelist {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -683,7 +683,7 @@ export namespace modifyWhitelistSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -741,7 +741,7 @@ export namespace modifyBlacklist {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -898,7 +898,7 @@ export namespace modifyBlacklistSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = ExecutionErrorType | BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1336,4 +1336,47 @@ export declare namespace watchBlacklistUpdated {
     /** Callback to invoke when a blacklist is updated. */
     onBlacklistUpdated: (args: Args, log: Log) => void
   }
+}
+
+// Errors
+
+export type ExecutionErrorType = PolicyNotFoundErrorType
+
+export type PolicyNotFoundErrorType = PolicyNotFoundError & {
+  name: 'PolicyNotFoundError'
+}
+
+/** Thrown when a transfer policy does not exist. */
+export class PolicyNotFoundError extends Errors.TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'PolicyNotFound'>
+> {
+  /** Policy ID, when known. */
+  policyId: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      policyId?: bigint | undefined
+    },
+  ) {
+    const { policyId } = parameters
+    super(parameters, {
+      details: { policy: policyId },
+      name: 'PolicyNotFoundError',
+      shortMessage:
+        policyId === undefined
+          ? undefined
+          : `Transfer policy ${policyId} does not exist.`,
+    })
+    this.policyId = policyId
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'PolicyNotFound()': ({ base, call }) =>
+    new PolicyNotFoundError({
+      ...base,
+      policyId:
+        call?.arg<bigint>('policyId') ?? call?.arg<bigint>('newPolicyId'),
+    }),
 }
