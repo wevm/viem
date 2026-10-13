@@ -340,3 +340,74 @@ test('behavior: throwOnFailure = true with successful bundle', async () => {
     }
   `)
 })
+
+function getStatusClient(statusOf: (request: number) => number) {
+  let requests = 0
+  return Client.create({
+    pollingInterval: 50,
+    transport: custom(
+      Provider.from({
+        async request({ params }: any) {
+          return {
+            atomic: true,
+            chainId: '0x1',
+            id: params[0],
+            receipts: [],
+            status: statusOf(++requests),
+            version: '2.0.0',
+          }
+        },
+      }),
+    ),
+  })
+}
+
+test('behavior: concurrent waits resolve according to their own options', async () => {
+  const client = getStatusClient((request) => (request === 1 ? 100 : 200))
+  const [first, second] = await Promise.all([
+    waitForCallsStatus(client, { id: 'own-options-id', status: () => true }),
+    waitForCallsStatus(client, { id: 'own-options-id' }),
+  ])
+  expect(first.statusCode).toBe(100)
+  expect(second.statusCode).toBe(200)
+})
+
+test('behavior: concurrent waits with same-source status predicates resolve independently', async () => {
+  const client = getStatusClient((request) => (request <= 2 ? 100 : 200))
+  const atLeast =
+    (code: number) =>
+    ({ statusCode }: { statusCode: number }) =>
+      statusCode >= code
+  const [pending, confirmed] = await Promise.all([
+    waitForCallsStatus(client, { id: 'same-source-id', status: atLeast(100) }),
+    waitForCallsStatus(client, { id: 'same-source-id', status: atLeast(200) }),
+  ])
+  expect(pending.statusCode).toBe(100)
+  expect(confirmed.statusCode).toBe(200)
+})
+
+test.each([false, true])(
+  'behavior: numeric and callback retry delays remain independent (numeric first: %s)',
+  async (numericFirst) => {
+    const client = getStatusClient(() => 400)
+    const retryDelay = () => {
+      throw new Error('retry delay failed')
+    }
+    const delays = numericFirst ? [1, retryDelay] : [retryDelay, 1]
+    const errors = await Promise.all(
+      delays.map((retryDelay) =>
+        waitForCallsStatus(client, {
+          id: `retry-delay-id-${numericFirst}`,
+          pollingInterval: 1,
+          retryCount: 1,
+          retryDelay,
+          throwOnFailure: true,
+          timeout: 0,
+        }).catch((error) => error),
+      ),
+    )
+    const [callback, numeric] = numericFirst ? errors.reverse() : errors
+    expect(callback.message).toBe('retry delay failed')
+    expect(numeric).toBeInstanceOf(BundleFailedError)
+  },
+)

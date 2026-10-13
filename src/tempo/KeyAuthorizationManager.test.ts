@@ -1,30 +1,32 @@
-import type { KeyAuthorization } from 'ox/tempo'
+import { P256, Secp256k1 } from 'ox'
+import { KeyAuthorization } from 'ox/tempo'
+import { Account, KeyAuthorizationManager, Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
-import * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
-
+const root = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+const accessKey = Account.fromP256(P256.randomPrivateKey(), { access: root })
 const key = {
-  address: '0x0000000000000000000000000000000000000001',
-  accessKey: '0x0000000000000000000000000000000000000002',
+  address: root.address,
+  accessKey: accessKey.accessKeyAddress,
   chainId: 1337,
 } as const satisfies KeyAuthorizationManager.Key
+const storeKey = [
+  'keyAuthorization',
+  1337,
+  root.address.toLowerCase(),
+  accessKey.accessKeyAddress.toLowerCase(),
+].join(':')
 
-const keyAuthorization = {
-  account: '0x0000000000000000000000000000000000000001',
-  address: '0x0000000000000000000000000000000000000002',
+/** Serializes a key authorization, ignoring address casing normalized by storage. */
+const serialize = (
+  keyAuthorization: KeyAuthorization.KeyAuthorization | undefined,
+) =>
+  keyAuthorization && KeyAuthorization.serialize(keyAuthorization).toLowerCase()
+
+const keyAuthorization = await root.signKeyAuthorization(accessKey, {
   chainId: 1337n,
   expiry: 1_800_000_000,
-  isAdmin: false,
-  signature: {
-    signature: {
-      r: '0x0000000000000000000000000000000000000000000000000000000000000001',
-      s: '0x0000000000000000000000000000000000000000000000000000000000000002',
-      yParity: 0,
-    },
-    type: 'secp256k1',
-  },
-  type: 'secp256k1',
-} as const satisfies KeyAuthorization.Signed
+})
 
 describe('memory', () => {
   test('get returns undefined for missing keys', async () => {
@@ -35,7 +37,7 @@ describe('memory', () => {
   test('set + get + remove', async () => {
     const manager = KeyAuthorizationManager.memory()
     await manager.set(key, keyAuthorization)
-    expect(await manager.get(key)).toBe(keyAuthorization)
+    expect(serialize(await manager.get(key))).toBe(serialize(keyAuthorization))
 
     await manager.remove(key)
     expect(await manager.get(key)).toBeUndefined()
@@ -52,12 +54,14 @@ describe('memory', () => {
       keyAuthorization,
     )
     expect(
-      await manager.get({
-        ...key,
-        address: '0x000000000000000000000000000000000000000a',
-        accessKey: '0x000000000000000000000000000000000000000b',
-      }),
-    ).toBe(keyAuthorization)
+      serialize(
+        await manager.get({
+          ...key,
+          address: '0x000000000000000000000000000000000000000a',
+          accessKey: '0x000000000000000000000000000000000000000b',
+        }),
+      ),
+    ).toBe(serialize(keyAuthorization))
   })
 
   test('entries are isolated by chain id', async () => {
@@ -79,25 +83,27 @@ describe('memory', () => {
 })
 
 describe('from', () => {
-  test('delegates to the source', async () => {
-    const store = new Map<string, KeyAuthorization.Signed>()
-    const manager = KeyAuthorizationManager.from({
-      source: {
-        get(k) {
-          return store.get(k.address)
-        },
-        remove(k) {
-          store.delete(k.address)
-        },
-        set(k, value) {
-          store.set(k.address, value)
-        },
-      },
-    })
+  test('stores serialized authorizations under relay keys', async () => {
+    const store = Store.memory()
+    const manager = KeyAuthorizationManager.from({ store })
 
     await manager.set(key, keyAuthorization)
-    expect(await manager.get(key)).toBe(keyAuthorization)
+
+    expect(serialize(await manager.get(key))).toBe(serialize(keyAuthorization))
+    expect(await store.getItem(storeKey)).toBeTypeOf('string')
+
     await manager.remove(key)
+
+    expect(await manager.get(key)).toBeUndefined()
+    expect(await store.getItem(storeKey)).toBeNull()
+  })
+
+  test('behavior: ignores malformed stored values', async () => {
+    const store = Store.memory()
+    const manager = KeyAuthorizationManager.from({ store })
+
+    await store.setItem(storeKey, '0xdeadbeef')
+
     expect(await manager.get(key)).toBeUndefined()
   })
 })

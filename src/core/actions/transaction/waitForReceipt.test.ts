@@ -1,7 +1,7 @@
-import { Value } from 'ox'
+import { Address, Value } from 'ox'
 import { expect, test } from 'vitest'
 
-import { Actions, Chain, Client, http, testActions } from 'viem'
+import { Actions, Chain, Client, custom, http, testActions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -407,6 +407,71 @@ test('detects a repriced transaction', async () => {
   expect(receipt.status).toBe('success')
   expect(replacement!.reason).toBe('repriced')
   expect(replacement!.replacedTransaction.hash).toBe(hash)
+  expect(replacement!.transaction.hash).not.toBe(hash)
+})
+
+test('detects a repriced transaction when the node returns differently-cased addresses', async () => {
+  await setup()
+  const nonce = await Actions.address.getTransactionCount(client, {
+    address: source.address,
+  })
+
+  const hash = await Actions.transaction.send(client, {
+    account: source.address,
+    maxFeePerGas: Value.fromGwei('10'),
+    maxPriorityFeePerGas: Value.fromGwei('1'),
+    nonce,
+    to,
+    value: Value.fromEther('1'),
+  })
+
+  // Checksum pending transaction addresses; anvil returns mined ones lowercase.
+  const checksumClient = Client.create({
+    pollingInterval: 100,
+    transport: custom({
+      async request(options) {
+        if (options.method !== 'eth_getTransactionByHash')
+          return client.request(options)
+        const transaction = await client.request({
+          method: 'eth_getTransactionByHash',
+          params: options.params,
+        })
+        if (!transaction || transaction.blockNumber !== null) return transaction
+        return {
+          ...transaction,
+          from: Address.checksum(transaction.from),
+          to: Address.checksum(transaction.to!),
+        }
+      },
+    }),
+  })
+
+  let replacement: Actions.transaction.waitForReceipt.ReplacementReturnType
+  const watcher = Actions.transaction.waitForReceipt(checksumClient, {
+    hash,
+    timeout: 10_000,
+  })
+  watcher.onReplaced((response) => {
+    replacement = response
+  })
+  const [receipt] = await Promise.all([
+    watcher.receipt,
+    (async () => {
+      await whenPendingObserved(hash)
+      await Actions.transaction.send(client, {
+        account: source.address,
+        maxFeePerGas: Value.fromGwei('20'),
+        maxPriorityFeePerGas: Value.fromGwei('2'),
+        nonce,
+        to,
+        value: Value.fromEther('1'),
+      })
+      await mineSlowly(2)
+    })(),
+  ])
+
+  expect(receipt.status).toBe('success')
+  expect(replacement!.reason).toBe('repriced')
   expect(replacement!.transaction.hash).not.toBe(hash)
 })
 

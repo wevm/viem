@@ -6,6 +6,16 @@ Deposits tokens into a zone from the parent Tempo chain.
 
 Batches an approval and a ZonePortal deposit into a single transaction.
 
+:::warning
+This action uses the earlier unencrypted ZonePortal deposit signature. The current upstream ZonePortal
+accepts encrypted deposit payloads. Use [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit)
+for the current protocol.
+:::
+
+A transaction receipt does not confirm that the zone credited the deposit. See
+[Read Deposit Outcomes](/tempo/guides/zones/deposit#read-deposit-outcomes) to check the ZoneInbox
+processing result.
+
 ## Usage
 
 :::code-group

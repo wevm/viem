@@ -436,7 +436,34 @@ export default defineConfig({
     // Tempo Zones page moved into the Guides section.
     {
       source: '/tempo/guides/multisig-transactions',
-      destination: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+
+    // Tempo multisig pages moved to configurable accounts.
+    {
+      source: '/tempo/guides/multisig',
+      destination: '/tempo/guides/configurable-accounts',
+      status: 308,
+    },
+    {
+      source: '/tempo/guides/multisig/:path*',
+      destination: '/tempo/guides/configurable-accounts/:path*',
+      status: 308,
+    },
+    {
+      source: '/tempo/accounts/account.fromMultisig',
+      destination: '/tempo/accounts/account.fromConfig',
+      status: 308,
+    },
+    {
+      source: '/tempo/actions/multisig.:action',
+      destination: '/tempo/actions/accounts.:action',
+      status: 308,
+    },
+    {
+      source: '/tempo/relay/plugins/multisig',
+      destination: '/tempo/relay/plugins/accounts',
       status: 308,
     },
     {
@@ -2590,37 +2617,36 @@ export default defineConfig({
           },
           {
             badge: { text: 'EXP', variant: 'warning' },
-            text: 'Multisig',
+            text: 'Configurable Accounts',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/tempo/guides/multisig' },
+              {
+                text: 'Overview',
+                link: '/tempo/guides/configurable-accounts',
+              },
               {
                 text: 'Send Transactions',
-                link: '/tempo/guides/multisig/send',
+                link: '/tempo/guides/configurable-accounts/send',
               },
               {
                 text: 'Weighted Owners',
-                link: '/tempo/guides/multisig/weighted-owners',
+                link: '/tempo/guides/configurable-accounts/weighted-owners',
               },
               {
                 text: 'Passkeys & Other Keys',
-                link: '/tempo/guides/multisig/key-types',
-              },
-              {
-                text: 'Nested Accounts',
-                link: '/tempo/guides/multisig/nested-accounts',
+                link: '/tempo/guides/configurable-accounts/key-types',
               },
               {
                 text: 'Authorize Access Keys',
-                link: '/tempo/guides/multisig/access-keys',
+                link: '/tempo/guides/configurable-accounts/access-keys',
               },
               {
                 text: 'Sponsor Fees',
-                link: '/tempo/guides/multisig/sponsor-fees',
+                link: '/tempo/guides/configurable-accounts/sponsor-fees',
               },
               {
                 text: 'Rotate Owners',
-                link: '/tempo/guides/multisig/rotate-owners',
+                link: '/tempo/guides/configurable-accounts/rotate-owners',
               },
             ],
           },
@@ -2645,8 +2671,8 @@ export default defineConfig({
           },
           {
             badge: { text: 'EXP', variant: 'warning' },
-            text: 'Multisig',
-            link: '/tempo/accounts/account.fromMultisig',
+            text: 'Configurable',
+            link: '/tempo/accounts/account.fromConfig',
           },
         ],
       },
@@ -2715,6 +2741,11 @@ export default defineConfig({
               },
               {
                 badge: badge('wallet'),
+                text: 'Save Authorization',
+                link: '/tempo/actions/accessKey.saveAuthorization',
+              },
+              {
+                badge: badge('wallet'),
                 text: 'Sign Authorization',
                 link: '/tempo/actions/accessKey.signAuthorization',
               },
@@ -2722,6 +2753,32 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Update Limit',
                 link: '/tempo/actions/accessKey.updateLimit',
+              },
+            ],
+          },
+          {
+            text: 'Accounts',
+            collapsed: true,
+            items: [
+              {
+                badge: badge('public'),
+                text: 'Get Config',
+                link: '/tempo/actions/accounts.getConfig',
+              },
+              {
+                badge: badge('public'),
+                text: 'Get Operation',
+                link: '/tempo/actions/accounts.getOperation',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Config',
+                link: '/tempo/actions/accounts.updateConfig',
+              },
+              {
+                badge: badge('wallet'),
+                text: 'Update Config Sync',
+                link: '/tempo/actions/accounts.updateConfigSync',
               },
             ],
           },
@@ -3064,32 +3121,6 @@ export default defineConfig({
                 badge: badge('wallet'),
                 text: 'Set Validator Fee Token',
                 link: '/tempo/actions/fee.setValidatorToken',
-              },
-            ],
-          },
-          {
-            text: 'Multisig',
-            collapsed: true,
-            items: [
-              {
-                badge: badge('public'),
-                text: 'Get Config',
-                link: '/tempo/actions/multisig.getConfig',
-              },
-              {
-                badge: badge('public'),
-                text: 'Get Operation',
-                link: '/tempo/actions/multisig.getOperation',
-              },
-              {
-                badge: badge('wallet'),
-                text: 'Update Config',
-                link: '/tempo/actions/multisig.updateConfig',
-              },
-              {
-                badge: badge('wallet'),
-                text: 'Update Config Sync',
-                link: '/tempo/actions/multisig.updateConfigSync',
               },
             ],
           },
@@ -3583,8 +3614,12 @@ export default defineConfig({
           { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
           { text: 'Fee Payer', link: '/tempo/relay/plugins/fee-payer' },
           { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
+          {
+            text: 'Key Authorization',
+            link: '/tempo/relay/plugins/key-authorization',
+          },
           { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
-          { text: 'Multisig', link: '/tempo/relay/plugins/multisig' },
+          { text: 'Accounts', link: '/tempo/relay/plugins/accounts' },
         ],
       },
       {

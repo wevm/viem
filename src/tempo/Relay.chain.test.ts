@@ -1,24 +1,24 @@
 import {
+  AccountConfig,
+  AccountOperation,
   KeyAuthorization,
-  MultisigConfig,
-  MultisigOperation,
   SignatureEnvelope,
   TxEnvelopeTempo as Transaction,
 } from 'ox/tempo'
 import { Account, Relay, Store } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import { nativeMultisigFactory } from './Addresses.js'
-import * as Operation from './multisig/Operation.js'
-import { parseApproval } from './multisig/Signature.js'
+import * as Operation from './accounts/Operation.js'
+import { parseApproval } from './accounts/Signature.js'
 
 const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const config = MultisigConfig.from({
+const config = AccountConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = MultisigConfig.getAddress(config, {
+const account = AccountConfig.getAddress(config, {
   factory: nativeMultisigFactory,
 })
 const approval = SignatureEnvelope.from({
@@ -34,7 +34,7 @@ const serializedApproval = SignatureEnvelope.serialize(approval)
 test('behavior: resolves the chain from a Tempo transaction', async () => {
   const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { plugins: [Relay.multisig({ store: Store.memory() })] },
+    { plugins: [Relay.accounts({ store: Store.memory() })] },
   )
   const transaction = await Transaction.serialize({
     calls: [{ to: account }],
@@ -54,7 +54,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { plugins: [Relay.multisig({ store: Store.memory() })] },
+    { plugins: [Relay.accounts({ store: Store.memory() })] },
   )
   const keyAuthorization = KeyAuthorization.from(
     {
@@ -75,7 +75,7 @@ test('behavior: resolves the chain from a key authorization', async () => {
 
   await expect(
     handle({
-      method: 'multisig_approveKeyAuthorization',
+      method: 'account_approveKeyAuthorization',
       params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -89,7 +89,7 @@ test('behavior: resolves the chain from a stored transaction operation', async (
     calls: [{ to: account }],
     chainId: 4217,
   })
-  const hash = MultisigOperation.getHash({
+  const hash = AccountOperation.getHash({
     account,
     config,
     transaction,
@@ -99,7 +99,7 @@ test('behavior: resolves the chain from a stored transaction operation', async (
     SignatureEnvelope.from(await owner.sign({ hash })),
   )
   await Operation.update(store, hash, () =>
-    MultisigOperation.from({
+    AccountOperation.from({
       account,
       approvals: [validApproval],
       config,
@@ -117,7 +117,7 @@ test('behavior: resolves the chain from a stored transaction operation', async (
   )
   const handle = Relay.handleRequest(
     async (_request, options) => options?.chainId,
-    { plugins: [Relay.multisig({ store })] },
+    { plugins: [Relay.accounts({ store })] },
   )
 
   await expect(
@@ -136,14 +136,14 @@ test('behavior: resolves the chain from a stored key authorization operation', a
       type: 'secp256k1',
     }),
   )
-  const hash = MultisigOperation.getHash({
+  const hash = AccountOperation.getHash({
     account,
     config,
     keyAuthorization,
     type: 'keyAuthorization',
   })
   await Operation.update(store, hash, () =>
-    MultisigOperation.from({
+    AccountOperation.from({
       account,
       approvals: [],
       config,
@@ -162,12 +162,12 @@ test('behavior: resolves the chain from a stored key authorization operation', a
     async (request, options) => {
       throw new Error(`${request.method}:${options?.chainId}`)
     },
-    { plugins: [Relay.multisig({ store })] },
+    { plugins: [Relay.accounts({ store })] },
   )
 
   await expect(
     handle({
-      method: 'multisig_approveKeyAuthorization',
+      method: 'account_approveKeyAuthorization',
       params: [{ hash, signature: serializedApproval }],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -177,7 +177,7 @@ test('behavior: resolves the chain from a stored key authorization operation', a
 
 test('error: rejects conflicting chain ids', async () => {
   const handle = Relay.handleRequest(async () => null, {
-    plugins: [Relay.multisig({ store: Store.memory() })],
+    plugins: [Relay.accounts({ store: Store.memory() })],
   })
   const transaction = await Transaction.serialize({
     calls: [{ to: account }],

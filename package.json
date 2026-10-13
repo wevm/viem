@@ -158,7 +158,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./dist/chains/index.js",
-      "limit": "95 kB",
+      "limit": "96 kB",
       "import": "*"
     },
     {
@@ -188,13 +188,13 @@
     {
       "name": "import * from 'viem/op-stack'",
       "path": "./dist/op-stack/index.js",
-      "limit": "69 kB",
+      "limit": "70 kB",
       "import": "*"
     },
     {
       "name": "import * from 'viem/tempo'",
       "path": "./dist/tempo/index.js",
-      "limit": "169 kB",
+      "limit": "172 kB",
       "import": "*"
     },
     {
@@ -206,7 +206,7 @@
     {
       "name": "import * from 'viem/utils'",
       "path": "./dist/utils/index.js",
-      "limit": "169 kB",
+      "limit": "170 kB",
       "import": "*"
     },
     {
@@ -285,7 +285,7 @@
   },
   "dependencies": {
     "abitype": "1.3.0",
-    "ox": "1.8.3"
+    "ox": "1.8.8"
   },
   "exports": {
     ".": {

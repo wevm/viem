@@ -10,8 +10,8 @@ import { Card, Cards } from 'vocs'
 
 Funds enter a zone by depositing them from Tempo Mainnet into the zone's contract. The deposit is
 submitted on Mainnet against the L1 client, and the corresponding balance appears inside the zone once
-the zone imports its Tempo block. An encrypted deposit additionally hides the recipient from the public
-chain.
+the deposit is processed. The current ZonePortal protocol encrypts the recipient and memo before
+submitting the deposit.
 
 [See the Zone Bridging specification](https://docs.tempo.xyz/protocol/zones/bridging)
 
@@ -27,33 +27,9 @@ These recipes assume you have [set up a Tempo client](/tempo) for Mainnet and
 
 ### Deposit to a Zone
 
-Deposit a TIP-20 token from your Mainnet balance into a zone with
-[`zone.depositSync`](/tempo/actions/zone.deposit). The deposit runs on Mainnet, so it is sent with the
-L1 client and targets the zone by `zoneId`.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const { receipt } = await client.zone.depositSync({
-  amount: 100_000000n,
-  token: '0x20c0000000000000000000000000000000000001',
-  zoneId: 7,
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
-```
-
-:::
-
-### Make an Encrypted Deposit
-
-Hide the recipient of a deposit from the public chain with
-[`zone.encryptedDepositSync`](/tempo/actions/zone.encryptedDeposit). Only the amount and sender remain
-visible on Mainnet, while the recipient is decryptable only by the zone operator.
+Deposit a TIP-20 token from your Mainnet balance with
+[`zone.encryptedDepositSync`](/tempo/actions/zone.encryptedDeposit). The deposit runs on Mainnet, and
+the recipient and memo are decryptable only by the zone operator.
 
 :::code-group
 
@@ -98,18 +74,40 @@ console.log('Imported Tempo block:', info.tempoBlockNumber)
 
 :::
 
+### Read Deposit Outcomes
+
+After the zone imports a Tempo block, use [`contract.getLogs`](/docs/actions/public/contract/getLogs)
+with `Abis.zoneInbox` and `Addresses.zoneInbox` to read its deposit outcome events. Match a
+`DepositProcessed`, `DepositFailed`, or `DepositRejected` event to the deposit's hash. Importing a
+block alone does not establish that its deposits were credited.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Abis, Addresses } from 'viem/tempo'
+import { client } from './zones.config'
+
+const deposits = await client.contract.getLogs({
+  address: Addresses.zoneInbox,
+  abi: Abis.zoneInbox,
+  eventName: 'DepositProcessed',
+  fromBlock: 123n,
+})
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
 ## Best Practices
 
 ### Deposit on Mainnet, Read on the Zone
 
-Deposits are L1 actions sent with your Mainnet client, while imported-block and balance reads are zone
-actions sent with your zone client. Keep both clients configured so you can submit a deposit and then
-confirm it landed.
-
-### Prefer Encrypted Deposits for Privacy
-
-If hiding the recipient matters, use `zone.encryptedDeposit` so the destination is not exposed on the
-public chain. A plain deposit reveals the recipient on Mainnet.
+Deposits are L1 actions sent with your Mainnet client, while outcome events and balance reads come
+from the zone client. Keep both clients configured so you can submit a deposit and then check its
+processing result.
 
 ### Prepare Private Details Before Broadcasting
 
@@ -141,9 +139,9 @@ deposit receipt so you can wait for the zone to import it.
   />
   <Card
     icon="lucide:square-function"
-    title="zone.deposit"
+    title="zone.encryptedDeposit"
     description="Deposit a TIP-20 token from Mainnet into a zone."
-    to="/tempo/actions/zone.deposit"
+    to="/tempo/actions/zone.encryptedDeposit"
   />
   <Card
     icon="lucide:book-open"

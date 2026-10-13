@@ -8,7 +8,12 @@ import {
   Signature,
   WebCryptoP256,
 } from 'ox'
-import { MultisigConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
+import {
+  AccountConfig,
+  KeyAuthorization,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import { afterAll, describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo.js'
 
@@ -25,6 +30,12 @@ import {
 const privateKey =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
 const sender: Address.Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
+
+/** Serializes a key authorization, ignoring casing and number types normalized by storage. */
+const serializeKeyAuthorization = (
+  keyAuthorization: KeyAuthorization.KeyAuthorization | undefined,
+) =>
+  keyAuthorization && KeyAuthorization.serialize(keyAuthorization).toLowerCase()
 
 const { fromRpc, toRpc } = chainConfig.codecs.transactionRequest
 const { transaction } = chainConfig
@@ -157,11 +168,11 @@ describe('codecs.transactionRequest', () => {
       keyData: '0x0578',
       keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
       keyType: 'webAuthn',
-      multisigSimulation: {
+      accountSimulation: {
         approvals: [{ owner: sender, keyType: 'secp256k1' }],
-        config: MultisigConfig.from({
+        config: AccountConfig.from({
           version: 0n,
-          salt: MultisigConfig.zeroSalt,
+          salt: AccountConfig.zeroSalt,
           threshold: 2,
           owners: [
             { owner: sender, weight: 1 },
@@ -227,7 +238,7 @@ describe('codecs.transactionRequest', () => {
     expect(rpc.feeToken).toBe(baseRequest.feeToken)
   })
 
-  test('strips client-side multisig fields', () => {
+  test('strips client-side configurable account fields', () => {
     const rpc = toRpc({
       ...baseRequest,
       owner: Account.fromSecp256k1(privateKey),
@@ -339,11 +350,11 @@ describe('transaction.toEnvelope', () => {
   })
 
   test('threads structural metadata and strips wire hints', () => {
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
     })
-    const multisigSimulation = { account: sender, config, approvals: [] }
+    const accountSimulation = { account: sender, config, approvals: [] }
     const owner = Account.fromSecp256k1(privateKey)
     const envelope = toEnvelope({
       ...baseRequest,
@@ -351,12 +362,12 @@ describe('transaction.toEnvelope', () => {
       keyData: '0x0578',
       keyId: '0xcccccccccccccccccccccccccccccccccccccccc',
       keyType: 'webAuthn',
-      multisigSimulation,
+      accountSimulation,
       owner,
       signatures: ['0xdeadbeef'],
     } as never) as Envelope & Record<string, unknown>
     expect(envelope.feePayer).toBe(true)
-    expect(envelope.multisigSimulation).toEqual(multisigSimulation)
+    expect(envelope.accountSimulation).toEqual(accountSimulation)
     expect(envelope.owner).toBe(owner)
     expect(envelope.signatures).toEqual(['0xdeadbeef'])
     expect(envelope.keyData).toBeUndefined()
@@ -565,12 +576,12 @@ describe('transaction.serialize', () => {
     expect(serialized.startsWith('0x78')).toBe(true)
   })
 
-  test('multisig: combines owner approvals into the signature envelope', () => {
+  test('configurable: combines owner approvals into the signature envelope', () => {
     const ownerKeys = [
       privateKey,
       '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d',
     ] as const
-    const config = MultisigConfig.from({
+    const config = AccountConfig.from({
       threshold: 2,
       owners: ownerKeys.map((privateKey) => ({
         owner: Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey })),
@@ -580,11 +591,11 @@ describe('transaction.serialize', () => {
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: MultisigConfig.getAddress(config, {
+      from: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
-      multisigSimulation: {
-        account: MultisigConfig.getAddress(config, {
+      accountSimulation: {
+        account: AccountConfig.getAddress(config, {
           factory: nativeMultisigFactory,
         }),
         config,
@@ -594,9 +605,9 @@ describe('transaction.serialize', () => {
     } as never)
 
     const payload = getSignPayload(envelope)
-    const digest = MultisigConfig.getSignPayload({
+    const digest = AccountConfig.getSignPayload({
       payload,
-      account: MultisigConfig.getAddress(config, {
+      account: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
       config,
@@ -609,8 +620,8 @@ describe('transaction.serialize', () => {
     const deserialized = TxEnvelopeTempo.deserialize(
       serialized as `0x76${string}`,
     )
-    expect(deserialized.signature?.type).toBe('multisig')
-    if (deserialized.signature?.type !== 'multisig')
+    expect(deserialized.signature?.type).toBe('configurable')
+    if (deserialized.signature?.type !== 'configurable')
       throw new Error('unreachable')
     expect(deserialized.signature.config).toMatchObject({
       threshold: 2,
@@ -618,19 +629,19 @@ describe('transaction.serialize', () => {
     })
   })
 
-  test('multisig: carries the config with an explicit nonce key', () => {
-    const config = MultisigConfig.from({
+  test('configurable: carries the config with an explicit nonce key', () => {
+    const config = AccountConfig.from({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
     })
 
     const envelope = toEnvelope({
       ...baseRequest,
-      from: MultisigConfig.getAddress(config, {
+      from: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
-      multisigSimulation: {
-        account: MultisigConfig.getAddress(config, {
+      accountSimulation: {
+        account: AccountConfig.getAddress(config, {
           factory: nativeMultisigFactory,
         }),
         config,
@@ -641,9 +652,9 @@ describe('transaction.serialize', () => {
     } as never)
 
     const payload = getSignPayload(envelope)
-    const digest = MultisigConfig.getSignPayload({
+    const digest = AccountConfig.getSignPayload({
       payload,
-      account: MultisigConfig.getAddress(config, {
+      account: AccountConfig.getAddress(config, {
         factory: nativeMultisigFactory,
       }),
       config,
@@ -656,8 +667,8 @@ describe('transaction.serialize', () => {
     const deserialized = TxEnvelopeTempo.deserialize(
       serialized as `0x76${string}`,
     )
-    expect(deserialized.signature?.type).toBe('multisig')
-    if (deserialized.signature?.type !== 'multisig')
+    expect(deserialized.signature?.type).toBe('configurable')
+    if (deserialized.signature?.type !== 'configurable')
       throw new Error('unreachable')
     expect(deserialized.signature.config).toEqual(config)
   })
@@ -728,7 +739,7 @@ describe('transaction.prepare', () => {
   test('resolves the tempo type from the signing account', async () => {
     for (const account of [
       { address: sender, source: 'accessKey', keyType: 'secp256k1' },
-      Account.fromMultisig({ owners: [sender] }),
+      Account.fromConfig({ owners: [sender] }),
       { address: sender, keyType: 'p256' },
       { address: sender, keyType: 'webAuthn' },
     ]) {
@@ -782,8 +793,8 @@ describe('transaction.prepare', () => {
     expect(explicit.keyType).toBe('p256')
   })
 
-  test('multisig: derives the sender and weighted gas-model hints', async () => {
-    const account = Account.fromMultisig({
+  test('configurable: derives the sender and weighted gas-model hints', async () => {
+    const account = Account.fromConfig({
       threshold: 2,
       owners: [
         { owner: sender, weight: 2 },
@@ -796,20 +807,20 @@ describe('transaction.prepare', () => {
       { client, phase: 'beforeFillTransaction' },
     )
     expect(request.from).toBe(account.address)
-    expect(request.multisigSimulation).toMatchObject({
+    expect(request.accountSimulation).toMatchObject({
       config: { threshold: 2 },
     })
     expect(
-      (request as TransactionRequest).multisigSimulation?.approvals,
+      (request as TransactionRequest).accountSimulation?.approvals,
     ).toHaveLength(1)
     expect(
-      (request as TransactionRequest).multisigSimulation?.approvals[0],
+      (request as TransactionRequest).accountSimulation?.approvals[0],
     ).toMatchObject({ owner: sender })
     expect(request.account).toBe(account)
   })
 
-  test('multisig: inferred from a multisig account (which is kept)', async () => {
-    const account = Account.fromMultisig({
+  test('configurable: inferred from a configurable account (which is kept)', async () => {
+    const account = Account.fromConfig({
       threshold: 2,
       owners: [
         { owner: sender, weight: 1 },
@@ -822,7 +833,7 @@ describe('transaction.prepare', () => {
     )
     expect(request.from).toBe(account.address)
     expect(
-      (request as TransactionRequest).multisigSimulation?.approvals,
+      (request as TransactionRequest).accountSimulation?.approvals,
     ).toHaveLength(2)
     expect(request.account).toBe(account)
   })
@@ -898,21 +909,21 @@ describe('transaction.prepare', () => {
     expect(request.nonce).toBe(0)
   })
 
-  test('multisig: explicit simulation is preserved without a multisig account', async () => {
-    const config = MultisigConfig.from({
+  test('configurable: explicit simulation is preserved without a configurable account', async () => {
+    const config = AccountConfig.from({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
     })
-    const multisigSimulation = { account: sender, config, approvals: [] }
+    const accountSimulation = { account: sender, config, approvals: [] }
     const request = await prepare(
-      { multisigSimulation },
+      { accountSimulation },
       { client, phase: 'beforeFillTransaction' },
     )
-    expect(request.multisigSimulation).toBe(multisigSimulation)
+    expect(request.accountSimulation).toBe(accountSimulation)
   })
 
-  test('expiring nonce: never inferred for multisig senders', async () => {
-    const account = Account.fromMultisig({
+  test('expiring nonce: never inferred for configurable account senders', async () => {
+    const account = Account.fromConfig({
       threshold: 1,
       owners: [{ owner: sender, weight: 1 }],
     })
@@ -1023,8 +1034,14 @@ describe('transaction.prepare', () => {
         { account: accessKey, chainId: tempoLocalnet.id, to: sender },
         { client, phase: 'beforeFillTransaction' },
       )
-      expect(request.keyAuthorization).toEqual(keyAuthorization)
-      expect(await manager.get(key)).toEqual(keyAuthorization)
+      expect(
+        serializeKeyAuthorization(
+          request.keyAuthorization as KeyAuthorization.Signed,
+        ),
+      ).toBe(serializeKeyAuthorization(keyAuthorization))
+      expect(serializeKeyAuthorization(await manager.get(key))).toBe(
+        serializeKeyAuthorization(keyAuthorization),
+      )
     },
   )
 
@@ -1059,7 +1076,11 @@ describe('transaction.prepare', () => {
         { account: accessKey, chainId: tempoLocalnet.id, to: sender },
         { client, phase: 'beforeFillTransaction' },
       )
-      expect(request.keyAuthorization).toEqual(keyAuthorization)
+      expect(
+        serializeKeyAuthorization(
+          request.keyAuthorization as KeyAuthorization.Signed,
+        ),
+      ).toBe(serializeKeyAuthorization(keyAuthorization))
     },
   )
 
@@ -1109,13 +1130,14 @@ describe('transaction.prepare', () => {
     const accessKey: Address.Address =
       '0xcccccccccccccccccccccccccccccccccccccccc'
     const key = { address: sender, accessKey, chainId: 1337 }
-    await manager.set(key, {
-      address: accessKey,
-      chainId: 1337,
-      expiry: 1, // long expired
-      signature: { type: 'secp256k1', signature: { r: 1n, s: 2n, yParity: 0 } },
-      type: 'secp256k1',
-    } as never)
+    await manager.set(
+      key,
+      await Account.signKeyAuthorization(Account.fromSecp256k1(privateKey), {
+        chainId: 1337,
+        expiry: 1, // long expired
+        key: { address: accessKey, type: 'secp256k1' },
+      }),
+    )
 
     const request = await prepare(
       {

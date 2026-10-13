@@ -10,12 +10,18 @@
 | [`accessKey.isAdmin`](/tempo/actions/accessKey.isAdmin) | Checks whether an access key is an admin key for an account |
 | [`accessKey.isWitnessBurned`](/tempo/actions/accessKey.isWitnessBurned) | Checks whether a key-authorization witness has been burned for an account |
 | [`accessKey.revoke`](/tempo/actions/accessKey.revoke) | Revokes an authorized access key |
+| [`accessKey.saveAuthorization`](/tempo/actions/accessKey.saveAuthorization) | Saves a signed key authorization to a relay |
 | [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs or coordinates a key authorization for an access key |
 | [`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit) | Updates the spending limit for a specific token on an authorized access key |
 | [`accessKey.verifyHash`](/tempo/actions/accessKey.verifyHash) | Verifies that a keychain signature was produced by an active access key for the expected account |
 | [`accessKey.watchAdminAuthorized`](/tempo/actions/accessKey.watchAdminAuthorized) | Watches `AdminKeyAuthorized` events on the account keychain |
 | [`accessKey.watchWitness`](/tempo/actions/accessKey.watchWitness) | Watches `KeyAuthorizationWitness` events on the account keychain |
 | [`accessKey.watchWitnessBurned`](/tempo/actions/accessKey.watchWitnessBurned) | Watches `KeyAuthorizationWitnessBurned` events on the account keychain |
+| **Accounts Actions** | |
+| [`accounts.getConfig`](/tempo/actions/accounts.getConfig) | Gets the cached config selected by current chain state |
+| [`accounts.getOperation`](/tempo/actions/accounts.getOperation) | Gets a coordinated account operation by its hash |
+| [`accounts.updateConfig`](/tempo/actions/accounts.updateConfig) | Replaces a configurable account's current configuration |
+| [`accounts.updateConfigSync`](/tempo/actions/accounts.updateConfigSync) | Replaces a configurable account's current configuration and waits for confirmation |
 | **AMM Actions** | |
 | [`amm.burn`](/tempo/actions/amm.burn) | Removes liquidity from a pool |
 | [`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance) | Gets the LP token balance for an account in a specific pool |
@@ -83,11 +89,6 @@
 | [`fee.validateToken`](/tempo/actions/fee.validateToken) | Validates that a token can be used as a Tempo fee token |
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches `UserTokenSet` events on the fee manager |
 | [`fee.watchSetValidatorToken`](/tempo/actions/fee.watchSetValidatorToken) | Watches `ValidatorTokenSet` events on the fee manager |
-| **Multisig Actions** | |
-| [`multisig.getConfig`](/tempo/actions/multisig.getConfig) | Gets the cached config selected by current chain state |
-| [`multisig.getOperation`](/tempo/actions/multisig.getOperation) | Gets a coordinated multisig operation by its hash |
-| [`multisig.updateConfig`](/tempo/actions/multisig.updateConfig) | Replaces a multisig account's current configuration |
-| [`multisig.updateConfigSync`](/tempo/actions/multisig.updateConfigSync) | Replaces a multisig account's current configuration and waits for confirmation |
 | **Nonce Actions** | |
 | [`nonce.get`](/tempo/actions/nonce.get) | Gets the nonce for an account and nonce key |
 | [`nonce.watchIncremented`](/tempo/actions/nonce.watchIncremented) | Watches `NonceIncremented` events on the nonce manager |
@@ -165,7 +166,7 @@
 | [`wallet.swap`](/tempo/actions/wallet.swap) | Opens the connected Tempo wallet's swap flow, with optional pre-filled fields |
 | [`wallet.transfer`](/tempo/actions/wallet.transfer) | Transfers a TIP-20 token via the connected Tempo wallet |
 | **Zone Actions** | |
-| [`zone.deposit`](/tempo/actions/zone.deposit) | Deposits tokens into a zone from the parent Tempo chain |
+| [`zone.deposit`](/tempo/actions/zone.deposit) | Deposits tokens using the earlier unencrypted ZonePortal signature |
 | [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) | Deposits tokens into a zone from the parent Tempo chain, encrypting the recipient and memo for the zone sequencer |
 | [`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) | Returns the authenticated account address and token expiry from the current authorization token |
 | [`zone.getEncryptionKey`](/tempo/actions/zone.getEncryptionKey) | Returns the active sequencer encryption key for a zone |

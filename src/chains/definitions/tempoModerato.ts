@@ -13,10 +13,10 @@ export const tempoModerato = /*#__PURE__*/ Chain.from({
   contracts: {
     create2: Contracts.create2,
     earnFactory: {
-      address: '0xb5889A96114014d4C032ebD76772c10bF3b97137',
+      address: '0x1de6B233984583F4d936ae4265f3b60282b70cc6',
     },
     erc4626EngineFactory: {
-      address: '0xd43D00981222a8db444A528E69f19E3cE5A7D2Ff',
+      address: '0x0d57c10249eb3a92b7d81bBA6221F80F2865448A',
     },
   },
   name: 'Tempo Testnet (Moderato)',
