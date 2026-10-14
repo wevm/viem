@@ -50,7 +50,7 @@ gh repo clone wevm/viem -- --recurse-submodules
 
 ### Installing Node.js and pnpm
 
-Viem uses [pnpm workspaces](https://pnpm.io/workspaces) to manage multiple projects. You need to install **Node.js v22 or higher** and **pnpm v9.1.0 or higher**.
+Viem uses [pnpm workspaces](https://pnpm.io/workspaces) to manage multiple projects. You need to install **Node.js v24.5 or higher** and **pnpm v11 or higher**.
 
 You can run the following commands in your terminal to check your local Node.js and pnpm versions:
 
