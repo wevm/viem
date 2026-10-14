@@ -1,5 +1,11 @@
 # viem
 
+## 2.57.7
+
+### Patch Changes
+
+- [#5232](https://github.com/wevm/viem/pull/5232) [`d302ad053a31806644c39229423c58978dca8785`](https://github.com/wevm/viem/commit/d302ad053a31806644c39229423c58978dca8785) Thanks [@mattsse](https://github.com/mattsse)! - Fixed `prepareTransactionRequest` to preserve relay-filled `validBefore` and `validAfter` bounds so sponsored Tempo transactions retain a valid fee-payer signature.
+
 ## 2.57.6
 
 ### Patch Changes
