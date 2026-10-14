@@ -2333,6 +2333,20 @@ function getSigner(context: Context) {
   }
 }
 
+/** Fee payer and key for fee payment errors. External fee payers cannot be resolved. */
+function getFeePayer(context: Context) {
+  const { feePayer } = context.parameters
+  if (typeof feePayer !== 'object') return undefined
+  const account = parseAccount(feePayer)
+  if (account.source !== 'accessKey' || !('accessKeyAddress' in account))
+    return undefined
+  return {
+    ...context.base,
+    account: account.address,
+    accessKey: account.accessKeyAddress as Address,
+  }
+}
+
 /** Account and key for errors raised while authorizing a key. */
 function getAuthorization(context: Context) {
   const { call, parameters, signer } = context
@@ -2428,10 +2442,13 @@ export const errorResolvers: Resolvers = {
     return parameters && new AccessKeySignatureTypeMismatchError(parameters)
   },
   'SpendingLimitExceeded()': async (context) => {
-    const parameters = getSigner(context)
-    if (!parameters) return undefined
     // Without revert data, the fee payment exceeded the limit.
     const fee = context.validation
+    const parameters =
+      fee && context.parameters.feePayer
+        ? getFeePayer(context)
+        : getSigner(context)
+    if (!parameters) return undefined
     const token = fee
       ? getFeeToken(context)
       : isTip20(context.call?.address)
