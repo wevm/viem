@@ -488,6 +488,12 @@ export async function prepareTransactionRequest<
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
               ? { nonceKey: rest.nonceKey }
               : {}),
+            ...('validBefore' in rest && typeof rest.validBefore === 'number'
+              ? { validBefore: rest.validBefore }
+              : {}),
+            ...('validAfter' in rest && typeof rest.validAfter === 'number'
+              ? { validAfter: rest.validAfter }
+              : {}),
             ...('keyAuthorization' in rest &&
             typeof rest.keyAuthorization !== 'undefined' &&
             rest.keyAuthorization !== null &&

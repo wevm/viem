@@ -95,6 +95,12 @@ describe('withRelay', () => {
       }
     | undefined
   let sponsorFills = false
+  let sponsorValidity:
+    | {
+        validAfter?: number | undefined
+        validBefore?: number | undefined
+      }
+    | undefined
   let relayRequests: Array<{
     method: string
     params: readonly unknown[] | undefined
@@ -334,6 +340,7 @@ describe('withRelay', () => {
             })
             const transaction = {
               ...Transaction.deserialize(result.raw as `0x76${string}`),
+              ...sponsorValidity,
               feeToken,
             }
             sponsorFillFields = {
@@ -359,6 +366,20 @@ describe('withRelay', () => {
                   ...result,
                   tx: {
                     ...result.tx,
+                    ...(sponsorValidity?.validAfter
+                      ? {
+                          validAfter: Hex.fromNumber(
+                            sponsorValidity.validAfter,
+                          ),
+                        }
+                      : {}),
+                    ...(sponsorValidity?.validBefore
+                      ? {
+                          validBefore: Hex.fromNumber(
+                            sponsorValidity.validBefore,
+                          ),
+                        }
+                      : {}),
                     feePayerSignature: Signature.toRpc(feePayerSignature),
                     feeToken,
                   },
@@ -451,6 +472,7 @@ describe('withRelay', () => {
     overrideSponsorNonce = false
     sponsorFillFields = undefined
     sponsorFills = false
+    sponsorValidity = undefined
     relayRequests = []
   })
 
@@ -530,6 +552,30 @@ describe('withRelay', () => {
       })
       expect(sponsorFillFields).toBeDefined()
       expect(transaction).toMatchObject(sponsorFillFields!)
+      expect(relayRequests.map(({ method }) => method)).toEqual([
+        'eth_fillTransaction',
+      ])
+    })
+
+    test('behavior: preserves relay validity window covered by fee payer signature', async () => {
+      sponsorFills = true
+      const now = Math.floor(Date.now() / 1000)
+      sponsorValidity = { validAfter: now - 60, validBefore: now + 3600 }
+      const account = privateKeyToAccount(generatePrivateKey())
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        nonceKey: 0n,
+        to: '0x0000000000000000000000000000000000000000',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction).toMatchObject(sponsorValidity)
       expect(relayRequests.map(({ method }) => method)).toEqual([
         'eth_fillTransaction',
       ])
