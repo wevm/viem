@@ -1231,6 +1231,39 @@ describe('errors', () => {
     expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
   })
 
+  test('behavior: errors about another key stay off the admin signer', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+    const childKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    await actions.accessKey.authorizeSync(client, {
+      account: adminKey,
+      accessKey: childKey,
+      expiry,
+    })
+
+    const exists = await actions.accessKey
+      .authorize(client, { account: adminKey, accessKey: childKey, expiry })
+      .catch((error) => error)
+    const missing = await actions.accessKey
+      .revokeSync(client, {
+        account: adminKey,
+        accessKey: Account.fromP256(generatePrivateKey(), { access: account }),
+      })
+      .catch((error) => error)
+
+    expect(exists).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(exists.accessKey).toBe(childKey.accessKeyAddress)
+    expect(missing.name).toBe('TempoExecutionError')
+  })
+
   test('behavior: action hints come first', async () => {
     const accessKey = await setupAccessKey()
     const error = await actions.accessKey

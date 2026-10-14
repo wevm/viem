@@ -6,13 +6,10 @@ import type { Client } from '../../clients/createClient.js'
 import { BaseError } from '../../errors/base.js'
 import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
 import type { ContractFunctionParameters } from '../../types/contract.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { toFunctionSelector } from '../../utils/hash/toFunctionSelector.js'
-import * as Abis from '../Abis.js'
-import {
-  errorResolvers as accessKeyResolvers,
-  resolveKeychainError,
-} from '../actions/accessKey.js'
+import { errorResolvers as accessKeyResolvers } from '../actions/accessKey.js'
 import { errorResolvers as ammResolvers } from '../actions/amm.js'
 import { errorResolvers as channelResolvers } from '../actions/channel.js'
 import { errorResolvers as dexResolvers } from '../actions/dex.js'
@@ -97,12 +94,7 @@ export async function toExecutionError(
     const result = await resolvers[signature]?.(context)
     if (result) return result
   }
-  const keychain = Abis.accountKeychain.some(
-    (item) => item.type === 'error' && formatAbiItem(item) === signature,
-  )
-  return (
-    (keychain && resolveKeychainError(context)) || new TempoExecutionError(base)
-  )
+  return new TempoExecutionError(base)
 }
 
 /** Replays a call whose receipt reverted, to recover its revert data. */
@@ -115,12 +107,21 @@ async function replay(
     (error) => error instanceof TransactionReceiptRevertedError,
   ) as TransactionReceiptRevertedError | null
   const to = parameters.to ?? parameters.address
-  if (!reverted || !to || !parameters.data) return undefined
+  const data =
+    parameters.data ??
+    (parameters.abi && parameters.functionName
+      ? encodeFunctionData({
+          abi: parameters.abi,
+          args: parameters.args,
+          functionName: parameters.functionName,
+        })
+      : undefined)
+  if (!reverted || !to || !data) return undefined
   // ponytail: replays on the parent block, so earlier transactions in the same block are not applied.
   return call(client, {
     account: parameters.account ?? client.account,
     blockNumber: reverted.receipt.blockNumber - 1n,
-    data: parameters.data,
+    data,
     to,
     value: parameters.value,
   }).then(

@@ -30,6 +30,7 @@ import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
+import { formatAbiItem } from '../../utils/abi/formatAbiItem.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
@@ -2342,18 +2343,24 @@ function getAuthorization(context: Context) {
   return { ...context.base, account: signer.address, accessKey }
 }
 
-/**
- * Fallback for `AccountKeychain` errors without a specific resolver.
- *
- * @internal
- */
-export function resolveKeychainError(context: Context) {
-  const parameters = getSigner(context)
-  return parameters && new AccessKeyError(parameters)
-}
-
 /** @internal */
 export const errorResolvers: Resolvers = {
+  // Fallback for `AccountKeychain` errors without a specific resolver below.
+  ...Object.fromEntries(
+    Abis.accountKeychain.flatMap((item) =>
+      item.type === 'error'
+        ? [
+            [
+              formatAbiItem(item),
+              (context: Context) => {
+                const parameters = getSigner(context)
+                return parameters && new AccessKeyError(parameters)
+              },
+            ],
+          ]
+        : [],
+    ),
+  ),
   'CallNotAllowed()': (context) => {
     const parameters = getSigner(context)
     if (!parameters) return undefined

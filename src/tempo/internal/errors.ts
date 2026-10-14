@@ -15,7 +15,7 @@ export type Hints = {
 }
 
 /** Builds a specific error for a decoded Tempo error, or returns `undefined` when it does not apply. */
-export type Resolver = (
+type Resolver = (
   context: Context,
 ) => Promise<TempoExecutionError | undefined> | TempoExecutionError | undefined
 

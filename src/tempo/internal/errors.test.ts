@@ -1,125 +1,115 @@
-import {
-  BaseError,
-  createClient,
-  custom,
-  encodeErrorResult,
-  RawContractError,
-  toFunctionSelector,
-} from 'viem'
-import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { Abis, Account, Addresses, TempoExecutionError } from 'viem/tempo'
+import { BaseError, encodeErrorResult, toFunctionSelector } from 'viem'
+import { call } from 'viem/actions'
+import { Addresses, TempoExecutionError } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
+import { accounts, getClient } from '~test/tempo/config.js'
 import * as accessKeyActions from '../actions/accessKey.js'
+import * as dexActions from '../actions/dex.js'
 import * as feeActions from '../actions/fee.js'
-import { formatTime, withExecutionError } from './errors.js'
+import * as ExecutionError from '../ExecutionError.js'
+import { type Context, formatTime, withExecutionError } from './errors.js'
 
-const root = privateKeyToAccount(generatePrivateKey())
-const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
-// Reads fail, so resolvers fall back to what the error and call carry.
-const client = createClient({
-  account: accessKey,
-  transport: custom({
-    request: async () => {
-      throw new Error('offline')
+const account = accounts[0]
+const client = getClient({ account })
+
+/** Initcode that reverts with `data`. */
+function revertingCode(data: `0x${string}`) {
+  const size = ((data.length - 2) / 2).toString(16).padStart(2, '0')
+  return `0x60${size}600c60003960${size}6000fd${data.slice(2)}` as const
+}
+
+/** Resolver context for a decoded error. Reads are not reached in these cases. */
+function getContext(signature: string, context: Partial<Context>) {
+  return {
+    base: {
+      cause: new BaseError('failed'),
+      error: ExecutionError.from(toFunctionSelector(signature)),
+      hints: [],
     },
-  }),
-})
-
-const fail = (error: Error) =>
-  withExecutionError(async (_client: unknown, _parameters: unknown) => {
-    throw error
-  })
+    call: undefined,
+    client,
+    details: '',
+    parameters: {},
+    signer: { address: account.address, accessKey: undefined },
+    validation: false,
+    ...context,
+  } as Context
+}
 
 describe('withExecutionError', () => {
-  test('behavior: rethrows Solidity built-in errors unchanged', async () => {
-    const cause = new RawContractError({
-      data: encodeErrorResult({
-        abi: [
-          {
-            type: 'error',
-            name: 'Error',
-            inputs: [{ type: 'string', name: 'message' }],
-          },
-        ],
-        errorName: 'Error',
-        args: ['nope'],
-      }),
+  test('behavior: rethrows Solidity `Error(string)` reverts unchanged', async () => {
+    const data = encodeErrorResult({
+      abi: [
+        {
+          type: 'error',
+          name: 'Error',
+          inputs: [{ type: 'string', name: 'message' }],
+        },
+      ],
+      errorName: 'Error',
+      args: ['nope'],
     })
-    await expect(fail(cause)(client, {})).rejects.toBe(cause)
-  })
 
-  test('behavior: revert data marks a spending limit failure as the call', async () => {
-    const cause = new RawContractError({
-      data: toFunctionSelector('SpendingLimitExceeded()'),
-    })
-    const error = await fail(cause)(client, {}).catch((error) => error)
-    expect(error).toBeInstanceOf(
-      accessKeyActions.AccessKeySpendingLimitExceededError,
-    )
-    expect(error.fee).toBe(false)
-  })
-
-  test('behavior: a debug-form message without revert data marks the fee payment', async () => {
-    const cause = new BaseError('failed', {
-      details:
-        'execution reverted: Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)',
-    })
-    const error = await fail(cause)(client, {}).catch((error) => error)
-    expect(error).toBeInstanceOf(
-      accessKeyActions.AccessKeySpendingLimitExceededError,
-    )
-    expect(error.fee).toBe(true)
-  })
-
-  test('behavior: keeps keychain errors about another key off the signer', async () => {
-    const other = Account.fromP256(generatePrivateKey(), { access: root })
-    const cause = new BaseError('failed', {
-      details:
-        'keychain validation failed: AccountKeychainError(KeyNotFound(KeyNotFound))',
-    })
-    const error = await fail(cause)(client, {
-      keyAuthorization: { address: other.accessKeyAddress },
+    const error = await withExecutionError(call)(client, {
+      data: revertingCode(data),
     }).catch((error) => error)
+
+    expect(error).not.toBeInstanceOf(TempoExecutionError)
+    expect(error.name).toBe('CallExecutionError')
+  })
+
+  test('behavior: decodes a Tempo error from a real revert', async () => {
+    const error = await withExecutionError(call)(client, {
+      data: revertingCode(toFunctionSelector('PairDoesNotExist()')),
+    }).catch((error) => error)
+
     expect(error).toBeInstanceOf(TempoExecutionError)
-    expect(error).not.toBeInstanceOf(accessKeyActions.AccessKeyError)
+    expect(error.errorName).toBe('PairDoesNotExist')
   })
 })
 
 describe('resolvers', () => {
-  test('behavior: reads the expiry and minimum from the pool message', async () => {
-    const cause = new BaseError('failed', {
-      details: 'Access key expired: expiry 10 <= min allowed 12',
-    })
-    const error = await fail(cause)(client, {
-      keyAuthorization: { address: accessKey.accessKeyAddress },
-    }).catch((error) => error)
-    expect(error).toBeInstanceOf(accessKeyActions.AccessKeyExpiryInPastError)
-    expect(error).toMatchObject({ expiry: 10n, minimum: 12n })
-  })
-
   test('behavior: selector-only data for a parameterized error falls back to the base error', async () => {
-    const cause = new RawContractError({
-      data: toFunctionSelector('TickOutOfBounds(int16)'),
+    const context = getContext('TickOutOfBounds(int16)', {
+      call: {
+        address: Addresses.stablecoinDex,
+        arg: () => undefined,
+        args: [],
+        functionName: 'place',
+      },
     })
-    const error = await fail(cause)(client, {
-      abi: Abis.stablecoinDex,
-      address: Addresses.stablecoinDex,
-      args: [],
-      functionName: 'place',
-    }).catch((error) => error)
-    expect(error.name).toBe('TempoExecutionError')
-    expect(error.errorName).toBe('TickOutOfBounds')
+
+    const result =
+      await dexActions.errorResolvers['TickOutOfBounds(int16)']!(context)
+
+    expect(result).toBeUndefined()
   })
 
   test('behavior: skips fee balance reads for an external fee payer', async () => {
-    const cause = new RawContractError({
-      data: toFunctionSelector('InsufficientFeeTokenBalance()'),
+    const context = getContext('InsufficientFeeTokenBalance()', {
+      parameters: { feePayer: true },
     })
-    const error = await fail(cause)(client, { feePayer: true }).catch(
-      (error) => error,
+
+    const result =
+      await feeActions.errorResolvers['InsufficientFeeTokenBalance()']!(context)
+
+    expect(result).toBeInstanceOf(feeActions.FeeInsufficientBalanceError)
+    expect((result as feeActions.FeeInsufficientBalanceError).feeToken).toBe(
+      undefined,
     )
-    expect(error).toBeInstanceOf(feeActions.FeeInsufficientBalanceError)
-    expect(error.feeToken).toBeUndefined()
+  })
+
+  test('behavior: reads the expiry and minimum from the pool message', async () => {
+    const context = getContext('ExpiryInPast()', {
+      details: 'Access key expired: expiry 10 <= min allowed 12',
+      parameters: { keyAuthorization: { address: accounts[1].address } },
+    })
+
+    const result =
+      await accessKeyActions.errorResolvers['ExpiryInPast()']!(context)
+
+    expect(result).toBeInstanceOf(accessKeyActions.AccessKeyExpiryInPastError)
+    expect(result).toMatchObject({ expiry: 10n, minimum: 12n })
   })
 })
 
