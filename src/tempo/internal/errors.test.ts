@@ -99,38 +99,36 @@ describe('resolvers', () => {
     )
   })
 
-  test('behavior: does not attribute an external fee payer's limit to the sender key', async () => {
-  const context = getContext('SpendingLimitExceeded()', {
-    parameters: { feePayer: true },
-    signer: { address: account.address, accessKey: accounts[1].address },
-    validation: true,
+  test('behavior: does not attribute an external fee payer limit to the sender key', async () => {
+    const context = getContext('SpendingLimitExceeded()', {
+      parameters: { feePayer: true },
+      signer: { address: account.address, accessKey: accounts[1].address },
+      validation: true,
+    })
+
+    const result =
+      await accessKeyActions.errorResolvers['SpendingLimitExceeded()']!(context)
+
+    expect(result).toBeUndefined()
   })
 
-  const result =
-    await accessKeyActions.errorResolvers['SpendingLimitExceeded()']!(context)
+  test('behavior: reads the expiry and minimum from the pool message', async () => {
+    const context = getContext('ExpiryInPast()', {
+      details: 'Access key expired: expiry 10 <= min allowed 12',
+      parameters: { keyAuthorization: { address: accounts[1].address } },
+    })
 
-  expect(result).toBeUndefined()
-})
+    const result =
+      await accessKeyActions.errorResolvers['ExpiryInPast()']!(context)
 
-test('behavior: reads the expiry and minimum from the pool message', async () => {
-  const context = getContext('ExpiryInPast()', {
-    details: 'Access key expired: expiry 10 <= min allowed 12',
-    parameters: { keyAuthorization: { address: accounts[1].address } },
+    expect(result).toBeInstanceOf(accessKeyActions.AccessKeyExpiryInPastError)
+    expect(result).toMatchObject({ expiry: 10n, minimum: 12n })
   })
-
-  const result =
-    await accessKeyActions.errorResolvers['ExpiryInPast()']!(context)
-
-  expect(result).toBeInstanceOf(accessKeyActions.AccessKeyExpiryInPastError)
-  expect(result).toMatchObject({ expiry: 10n, minimum: 12n })
-})
 })
 
-describe('formatTime', () =>
-{
+describe('formatTime', () => {
   test('behavior: formats times beyond the `Date` range as seconds', () => {
     expect(formatTime(2n ** 64n - 1n)).toBe('18446744073709551615')
     expect(formatTime(1n)).toBe('1970-01-01T00:00:01.000Z')
   })
-}
-)
+})
