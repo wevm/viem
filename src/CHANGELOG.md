@@ -1,5 +1,13 @@
 # viem
 
+## 2.57.6
+
+### Patch Changes
+
+- [#5228](https://github.com/wevm/viem/pull/5228) [`b86b380b55928d6c5785cef1ddc9adf595fbe078`](https://github.com/wevm/viem/commit/b86b380b55928d6c5785cef1ddc9adf595fbe078) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added typed `TempoExecutionError` errors to Tempo actions, with per-module subclasses carrying decoded arguments, fetched onchain details, and resolution hints.
+
+- [#5226](https://github.com/wevm/viem/pull/5226) [`5a022d8b08d6b2d11e171fa11e4acea454c09a04`](https://github.com/wevm/viem/commit/5a022d8b08d6b2d11e171fa11e4acea454c09a04) Thanks [@jxom](https://github.com/jxom)! - Added the `ousd` token address to `Addresses` in `viem/tempo`.
+
 ## 2.57.5
 
 ### Patch Changes
