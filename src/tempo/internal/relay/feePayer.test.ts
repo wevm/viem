@@ -1,10 +1,12 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Secp256k1 } from 'ox'
+import { Hex, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { createClient, http } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
   fillTransaction,
+  getBlock,
+  getTransactionCount,
   prepareTransactionRequest,
   sendRawTransactionSync,
   sendTransaction,
@@ -45,6 +47,96 @@ beforeAll(async () => {
     token: Tempo.addresses.alphaUsd,
   })
 })
+
+test.each([undefined, 1])(
+  'preserves relay-filled validity bounds for sequential nonce sponsorship, validAfter: %s',
+  async (validAfter) => {
+    const block = await getBlock(caller)
+    const validBefore = Number(block.timestamp) + 600
+    const relay = Relay.create({
+      client: caller,
+      plugins: [
+        {
+          async handleRequest(context, next) {
+            const { request } = context
+            if (request.method === 'eth_fillTransaction') {
+              const transaction = request.params![0] as Record<string, unknown>
+              context.request = {
+                ...request,
+                params: [
+                  {
+                    ...transaction,
+                    validBefore: Hex.fromNumber(validBefore),
+                    ...(validAfter !== undefined
+                      ? { validAfter: Hex.fromNumber(validAfter) }
+                      : {}),
+                  },
+                ],
+              }
+            }
+            await next()
+            return context.result
+          },
+        },
+        Relay.feePayer({
+          account: feePayerAccount,
+          feeToken: Tempo.addresses.alphaUsd,
+        }),
+      ],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: http(server.url),
+    })
+    const nonce = await getTransactionCount(caller, {
+      address: userAccount.address,
+      blockTag: 'pending',
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account: userAccount,
+      calls: [
+        Actions.token.transfer.call(caller, {
+          token: Tempo.addresses.alphaUsd,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+      feePayer: true,
+      feeToken: Tempo.addresses.alphaUsd,
+      nonce,
+      nonceKey: 0n,
+    })
+    const serializedTransaction = await userAccount.signTransaction(
+      request as never,
+    )
+    const envelope = TxEnvelopeTempo.deserialize(
+      serializedTransaction as `0x76${string}`,
+    )
+
+    expect(envelope.validBefore).toBe(validBefore)
+    expect(envelope.validAfter).toBe(validAfter)
+    expect(
+      Secp256k1.recoverAddress({
+        payload: TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
+          sender: userAccount.address,
+        }),
+        signature: envelope.feePayerSignature!,
+      }),
+    ).toBe(feePayerAccount.address.toLowerCase())
+
+    const receipt = await sendRawTransactionSync(caller, {
+      serializedTransaction,
+    })
+
+    expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  },
+)
 
 test.each(
   ['requested', 'configured'].flatMap((selection) =>
