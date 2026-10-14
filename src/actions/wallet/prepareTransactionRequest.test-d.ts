@@ -1,6 +1,9 @@
+import { createClient, http } from 'viem'
+import { prepareTransactionRequest as prepare } from 'viem/actions'
 import { expectTypeOf, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { kzg } from '~test/kzg.js'
+import { tempo } from '../../chains/index.js'
 import type { BlobSidecar, Hex, TransactionRequest } from '../../index.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray } from '../../types/misc.js'
@@ -15,6 +18,17 @@ const clientWithAccount = anvilMainnet.getClient({
 })
 const clientWithoutChain = anvilMainnet.getClient({
   chain: false,
+})
+
+test('relay-filled Tempo validity bounds', async () => {
+  const client = createClient({ chain: tempo, transport: http() })
+  const request = await prepare(client, {
+    feePayer: true,
+    nonceKey: 0n,
+  })
+
+  expectTypeOf(request.validBefore).toEqualTypeOf<number | undefined>()
+  expectTypeOf(request.validAfter).toEqualTypeOf<number | undefined>()
 })
 
 test('default', async () => {

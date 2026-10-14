@@ -488,6 +488,17 @@ export async function prepareTransactionRequest<
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
               ? { nonceKey: rest.nonceKey }
               : {}),
+            // Validity bounds are part of the fee-payer signing payload.
+            ...('validBefore' in rest &&
+            rest.validBefore !== null &&
+            typeof rest.validBefore !== 'undefined'
+              ? { validBefore: rest.validBefore }
+              : {}),
+            ...('validAfter' in rest &&
+            rest.validAfter !== null &&
+            typeof rest.validAfter !== 'undefined'
+              ? { validAfter: rest.validAfter }
+              : {}),
             ...('keyAuthorization' in rest &&
             typeof rest.keyAuthorization !== 'undefined' &&
             rest.keyAuthorization !== null &&
