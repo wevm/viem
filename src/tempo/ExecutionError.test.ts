@@ -1,4 +1,4 @@
-import { encodeErrorResult, RawContractError } from 'viem'
+import { encodeErrorResult, RawContractError, toFunctionSelector } from 'viem'
 import { Abis, ExecutionError } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 
@@ -318,6 +318,26 @@ describe('from', () => {
       const result = ExecutionError.from(error)
       expect(result.errorName).toBe('unknown')
       expect(result.message).toBe('Unauthorized.')
+    },
+  )
+
+  test.each([
+    'Revm error: keychain validation failed: AccountKeychainError(KeyNotFound(KeyNotFound))',
+    'Account keychain error: SpendingLimitExceeded(SpendingLimitExceeded)',
+  ])(
+    'fallback: decodes a zero-argument error printed as Name(Name): %s',
+    (details) => {
+      const result = ExecutionError.from(
+        Object.assign(new Error('x'), { details }),
+      )
+      const name = details.includes('KeyNotFound')
+        ? 'KeyNotFound'
+        : 'SpendingLimitExceeded'
+      expect(result).toMatchObject({
+        args: undefined,
+        data: toFunctionSelector(`${name}()`),
+        errorName: name,
+      })
     },
   )
 

@@ -1077,3 +1077,215 @@ function getAccountsClient() {
     ),
   })
 }
+
+describe('errors', () => {
+  const to = '0x000000000000000000000000000000000000dEaD'
+
+  test('behavior: spending limit exceeded by the call', async () => {
+    const accessKey = await setupAccessKey({
+      limits: [{ token: feeToken, limit: 5_000_000n }],
+    })
+    const error = await actions.token
+      .transferSync(client, {
+        account: accessKey,
+        amount: 10_000_000n,
+        token: feeToken,
+        to,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
+    expect(error).toMatchObject({
+      account: account.address,
+      accessKey: accessKey.accessKeyAddress,
+      amount: 10_000_000n,
+      decimals: 6,
+      errorName: 'SpendingLimitExceeded',
+      fee: false,
+      remaining: 5_000_000n,
+      token: feeToken,
+    })
+    expect(error.shortMessage).toBe(
+      `Access key "${accessKey.accessKeyAddress}" exceeded its spending limit for token "${feeToken}".`,
+    )
+    expect(error.message).toContain('exceeded by:  5 (5000000)')
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "Raise the spending limit, or wait for a periodic limit to reset.",
+      ]
+    `)
+  })
+
+  test('behavior: spending limit exceeded by the fee payment', async () => {
+    const accessKey = await setupAccessKey({
+      limits: [{ token: feeToken, limit: 1n }],
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 0n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
+    expect(error).toMatchObject({ amount: undefined, fee: true })
+    expect(error.shortMessage).toContain('while paying fees.')
+  })
+
+  test('behavior: key not authorized', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
+    expect(error).toMatchObject({
+      accessKey: accessKey.accessKeyAddress,
+      errorName: 'KeyNotFound',
+      name: 'AccessKeyError',
+    })
+    expect(error.hints[0]).toContain('Authorize the access key')
+  })
+
+  test('behavior: key revoked', async () => {
+    const accessKey = await setupAccessKey()
+    await actions.accessKey.revokeSync(client, { accessKey })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
+    expect(error.errorName).toBe('KeyAlreadyRevoked')
+  })
+
+  test('behavior: key expired', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor(Date.now() / 1000) + 8
+    await actions.accessKey.authorizeSync(client, { accessKey, expiry })
+    await setTimeout(10_000)
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiredError)
+    expect(error).toMatchObject({
+      errorName: 'KeyExpired',
+      expiry: BigInt(expiry),
+    })
+  }, 30_000)
+
+  test('behavior: call not allowed by scopes', async () => {
+    const accessKey = await setupAccessKey({
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyCallNotAllowedError)
+    expect(error).toMatchObject({
+      errorName: 'CallNotAllowed',
+      selector: '0xa9059cbb',
+      target: feeToken,
+    })
+  })
+
+  test('behavior: expiry in the past', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor(Date.now() / 1000)
+    const error = await actions.accessKey
+      .authorize(client, { accessKey, expiry })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+    expect(error).toMatchObject({
+      accessKey: accessKey.accessKeyAddress,
+      expiry: BigInt(expiry),
+    })
+  })
+
+  test('behavior: expiry too soon', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const error = await actions.accessKey
+      .authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 2,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+  })
+
+  test('behavior: errors about another key stay off the admin signer', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+    const childKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    await actions.accessKey.authorizeSync(client, {
+      account: adminKey,
+      accessKey: childKey,
+      expiry,
+    })
+
+    const exists = await actions.accessKey
+      .authorize(client, { account: adminKey, accessKey: childKey, expiry })
+      .catch((error) => error)
+    const missing = await actions.accessKey
+      .revokeSync(client, {
+        account: adminKey,
+        accessKey: Account.fromP256(generatePrivateKey(), { access: account }),
+      })
+      .catch((error) => error)
+
+    expect(exists).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(exists.accessKey).toBe(childKey.accessKeyAddress)
+    expect(missing.name).toBe('TempoExecutionError')
+  })
+
+  test('behavior: action hints come first', async () => {
+    const accessKey = await setupAccessKey()
+    const error = await actions.accessKey
+      .authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 30,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(error).toMatchObject({
+      account: account.address,
+      accessKey: accessKey.accessKeyAddress,
+      errorName: 'KeyAlreadyExists',
+      limited: false,
+    })
+    expect(error.expiry).toBeGreaterThan(0n)
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "This access key is already authorized. Update its spending limits instead.",
+        "Use a new access key, or revoke the existing one.",
+      ]
+    `)
+  })
+})

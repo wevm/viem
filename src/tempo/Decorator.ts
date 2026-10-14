@@ -6077,9 +6077,11 @@ type DecorateNamespace<namespace, actions> = {
     ? namespace[key] & BoundActionHelpers<actions[key]>
     : namespace[key]
 } & {
-  [key in Exclude<keyof actions, keyof namespace> as actions[key] extends (
-    ...parameters: any
-  ) => any
+  // Error classes and resolvers are not actions; skipping them by name avoids evaluating their types.
+  [key in Exclude<
+    keyof actions,
+    keyof namespace | `${string}Error` | 'errorResolvers'
+  > as actions[key] extends (...parameters: any) => any
     ? key
     : never]: BoundAction<actions[key]>
 }

@@ -23,6 +23,8 @@ import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { pad } from '../../utils/data/pad.js'
 import * as Abis from '../Abis.js'
 import * as Expiry from '../Expiry.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall, pickWriteParameters } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -52,7 +54,10 @@ export async function baseToken<chain extends Chain | undefined>(
   parameters: baseToken.Parameters,
 ): Promise<baseToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...baseToken.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...baseToken.call({ pool }),
+  })
 }
 
 export namespace baseToken {
@@ -78,6 +83,8 @@ export namespace baseToken {
       functionName: 'baseToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -103,7 +110,10 @@ export async function quoteToken<chain extends Chain | undefined>(
   parameters: quoteToken.Parameters,
 ): Promise<quoteToken.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...quoteToken.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...quoteToken.call({ pool }),
+  })
 }
 
 export namespace quoteToken {
@@ -129,6 +139,8 @@ export namespace quoteToken {
       functionName: 'quoteToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -154,7 +166,10 @@ export async function paused<chain extends Chain | undefined>(
   parameters: paused.Parameters,
 ): Promise<paused.ReturnValue> {
   const { pool, ...rest } = parameters
-  return readContract(client, { ...rest, ...paused.call({ pool }) })
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...paused.call({ pool }),
+  })
 }
 
 export namespace paused {
@@ -180,6 +195,8 @@ export namespace paused {
       functionName: 'paused',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -205,7 +222,7 @@ export async function takerAllowed<chain extends Chain | undefined>(
   parameters: takerAllowed.Parameters,
 ): Promise<takerAllowed.ReturnValue> {
   const { pool, taker, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...takerAllowed.call({ pool, taker }),
   })
@@ -237,6 +254,8 @@ export namespace takerAllowed {
       functionName: 'takerAllowed',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -262,7 +281,7 @@ export async function recipientAllowed<chain extends Chain | undefined>(
   parameters: recipientAllowed.Parameters,
 ): Promise<recipientAllowed.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...recipientAllowed.call({ pool, recipient }),
   })
@@ -294,6 +313,8 @@ export namespace recipientAllowed {
       functionName: 'recipientAllowed',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -319,7 +340,7 @@ export async function resolveRecipient<chain extends Chain | undefined>(
   parameters: resolveRecipient.Parameters,
 ): Promise<resolveRecipient.ReturnValue> {
   const { pool, recipient, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...resolveRecipient.call({ pool, recipient }),
   })
@@ -351,6 +372,8 @@ export namespace resolveRecipient {
       functionName: 'resolveRecipient',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -396,7 +419,9 @@ export async function getSwapQuote(
   if (!recipient) throw new AccountNotFoundError()
   const baseToQuote = parameters.baseToQuote ?? true
   const customerId = parameters.customerId ?? pad(taker, { size: 32 })
-  const [amount, price, updatedAt, creditAfter] = await (readContract(client, {
+  const [amount, price, updatedAt, creditAfter] = await (withExecutionError(
+    readContract,
+  )(client, {
     ...parameters,
     ...getSwapQuote.call({
       ...parameters,
@@ -766,7 +791,7 @@ export namespace swap {
 
   export type ReturnValue = SendTransactionReturnType
 
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -778,7 +803,7 @@ export namespace swap {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: await getCalls(client, parameters),
     } as never)) as never
@@ -995,4 +1020,6 @@ export namespace swapSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = swap.ErrorType
 }

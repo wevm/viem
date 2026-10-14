@@ -50,10 +50,12 @@ import { withResolvers } from '../../utils/promise/withResolvers.js'
 import { stringify } from '../../utils/stringify.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
 import {
   WaitForTempoBlockTimeoutError,
   type WaitForTempoBlockTimeoutErrorType,
 } from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -178,7 +180,7 @@ export async function deposit<
     recipient,
     tempoRefundRecipient,
   }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...rest,
     account,
     calls: deposit.calls(args),
@@ -217,7 +219,7 @@ export namespace deposit {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and deposit tokens into a zone.
@@ -304,7 +306,7 @@ export async function depositSync<
     recipient,
     tempoRefundRecipient,
   }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...rest,
     account,
     throwOnReceiptRevert,
@@ -327,7 +329,7 @@ export namespace depositSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -617,7 +619,7 @@ export async function encryptedDeposit<
         'Prepared encrypted deposit chain ID does not match client chain.',
       )
     }
-    return sendTransaction(client, {
+    return withExecutionError(sendTransaction)(client, {
       ...pickWriteParameters(parameters as never),
       calls: encryptedDeposit.calls({
         ...parameters,
@@ -638,7 +640,7 @@ export async function encryptedDeposit<
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...rest,
     account,
     calls: encryptedDeposit.calls(prepared),
@@ -693,7 +695,7 @@ export namespace encryptedDeposit {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Prepares an encrypted deposit instruction without broadcasting it.
@@ -1014,7 +1016,7 @@ export async function encryptedDepositSync<
         'Prepared encrypted deposit chain ID does not match client chain.',
       )
     }
-    const receipt = await sendTransactionSync(client, {
+    const receipt = await withExecutionError(sendTransactionSync)(client, {
       ...pickWriteParameters(parameters as never),
       ...pickWriteSyncParameters(parameters as never),
       throwOnReceiptRevert,
@@ -1038,7 +1040,7 @@ export async function encryptedDepositSync<
     token: parameters.token,
     zoneId: parameters.zoneId,
   })
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...rest,
     account,
     throwOnReceiptRevert,
@@ -1062,7 +1064,7 @@ export namespace encryptedDepositSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1150,7 +1152,7 @@ export async function getWithdrawalFee<
   parameters: getWithdrawalFee.Parameters = {},
 ): Promise<getWithdrawalFee.ReturnType> {
   const { callbackGas = 0n, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     address: Addresses.zoneOutbox,
     abi: Abis.zoneOutbox,
@@ -1167,7 +1169,10 @@ export namespace getWithdrawalFee {
 
   export type ReturnType = bigint
 
-  export type ErrorType = RequestErrorType | BaseErrorType
+  export type ErrorType =
+    | Errors.ExecutionErrorType
+    | RequestErrorType
+    | BaseErrorType
 }
 
 /**
@@ -1403,7 +1408,7 @@ export async function requestWithdrawal<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
@@ -1440,7 +1445,7 @@ export namespace requestWithdrawal {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and request a withdrawal from a zone.
@@ -1700,7 +1705,7 @@ export async function requestWithdrawalSync<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestWithdrawal.calls(args),
@@ -1741,7 +1746,7 @@ export namespace requestWithdrawalSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1790,7 +1795,7 @@ export async function requestVerifiableWithdrawal<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  return sendTransaction(client, {
+  return withExecutionError(sendTransaction)(client, {
     ...pickWriteParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
@@ -1815,7 +1820,7 @@ export namespace requestVerifiableWithdrawal {
   export type ReturnValue = SendTransactionReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines the calls to approve and request a verifiable withdrawal from a zone.
@@ -1903,7 +1908,7 @@ export async function requestVerifiableWithdrawalSync<
   if (!to) throw new Error('`to` is required.')
 
   const args = { ...parameters, to }
-  const receipt = await sendTransactionSync(client, {
+  const receipt = await withExecutionError(sendTransactionSync)(client, {
     ...pickWriteParameters(parameters as never),
     ...pickWriteSyncParameters(parameters as never),
     calls: requestVerifiableWithdrawal.calls(args),
@@ -1928,7 +1933,7 @@ export namespace requestVerifiableWithdrawalSync {
   }>
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

@@ -13,6 +13,8 @@ import type { Chain } from '../../types/chain.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 
@@ -77,7 +79,7 @@ export namespace add {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -104,7 +106,7 @@ export namespace add {
       inboundAddress,
       outboundAddress,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -223,6 +225,8 @@ export namespace addSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = add.ErrorType
 }
 
 /**
@@ -274,7 +278,7 @@ export namespace changeOwner {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -288,7 +292,7 @@ export namespace changeOwner {
   ): Promise<ReturnType<action>> {
     const { newOwner, ...rest } = parameters
     const callData = changeOwner.call({ newOwner })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -387,6 +391,8 @@ export namespace changeOwnerSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = changeOwner.ErrorType
 }
 
 /**
@@ -441,7 +447,7 @@ export namespace changeStatus {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -455,7 +461,7 @@ export namespace changeStatus {
   ): Promise<ReturnType<action>> {
     const { validator, active, ...rest } = parameters
     const callData = changeStatus.call({ validator, active })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -556,6 +562,8 @@ export namespace changeStatusSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = changeStatus.ErrorType
 }
 
 /**
@@ -586,7 +594,7 @@ export async function getNextFullDkgCeremony<
   client: Client<Transport, chain, account>,
   parameters: getNextFullDkgCeremony.Parameters = {},
 ): Promise<getNextFullDkgCeremony.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getNextFullDkgCeremony.call(),
   })
@@ -635,6 +643,8 @@ export namespace getNextFullDkgCeremony {
       functionName: 'getNextFullDkgCeremony',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -665,7 +675,7 @@ export async function getOwner<
   client: Client<Transport, chain, account>,
   parameters: getOwner.Parameters = {},
 ): Promise<getOwner.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getOwner.call(),
   })
@@ -714,6 +724,8 @@ export namespace getOwner {
       functionName: 'owner',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -747,7 +759,7 @@ export async function get<
   parameters: get.Parameters,
 ): Promise<get.ReturnValue> {
   const { validator, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...get.call({ validator }),
   })
@@ -805,6 +817,8 @@ export namespace get {
       functionName: 'validators',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -838,7 +852,7 @@ export async function getByIndex<
   parameters: getByIndex.Parameters,
 ): Promise<getByIndex.ReturnValue> {
   const { index, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getByIndex.call({ index }),
   })
@@ -897,6 +911,8 @@ export namespace getByIndex {
       functionName: 'validatorsArray',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -927,7 +943,7 @@ export async function getCount<
   client: Client<Transport, chain, account>,
   parameters: getCount.Parameters = {},
 ): Promise<getCount.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getCount.call(),
   })
@@ -976,6 +992,8 @@ export namespace getCount {
       functionName: 'validatorCount',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1006,7 +1024,7 @@ export async function list<
   client: Client<Transport, chain, account>,
   parameters: list.Parameters = {},
 ): Promise<list.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...list.call(),
   })
@@ -1055,6 +1073,8 @@ export namespace list {
       functionName: 'getValidators',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1106,7 +1126,7 @@ export namespace setNextFullDkgCeremony {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1120,7 +1140,7 @@ export namespace setNextFullDkgCeremony {
   ): Promise<ReturnType<action>> {
     const { epoch, ...rest } = parameters
     const callData = setNextFullDkgCeremony.call({ epoch })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -1223,6 +1243,8 @@ export namespace setNextFullDkgCeremonySync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = setNextFullDkgCeremony.ErrorType
 }
 
 /**
@@ -1283,7 +1305,7 @@ export namespace update {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1308,7 +1330,7 @@ export namespace update {
       inboundAddress,
       outboundAddress,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...callData,
     } as never)) as never
@@ -1414,4 +1436,6 @@ export namespace updateSync {
   export type ReturnValue = {
     receipt: TransactionReceipt
   }
+
+  export type ErrorType = update.ErrorType
 }

@@ -33,6 +33,7 @@ import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { zeroAddress } from '../../constants/address.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
@@ -44,6 +45,14 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
+import {
+  formatAmount,
+  isTip20,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -111,7 +120,7 @@ export namespace approve {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -123,7 +132,7 @@ export namespace approve {
     client: Client<Transport, chain, account>,
     parameters: approve.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       ...approve.call(client, parameters as never),
     } as never)) as never
@@ -290,7 +299,7 @@ export namespace approveSync {
     }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -346,7 +355,7 @@ export namespace burnBlocked {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -360,7 +369,7 @@ export namespace burnBlocked {
   ): Promise<ReturnType<action>> {
     const { amount, from, token, ...rest } = parameters
     const call = burnBlocked.call(client, { amount, from, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -503,7 +512,7 @@ export namespace burnBlockedSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -569,7 +578,7 @@ export namespace burn {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -583,7 +592,7 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { amount, from, memo, token, ...rest } = parameters
     const call = burn.call(client, { amount, from, memo, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -741,7 +750,7 @@ export namespace burnSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -796,7 +805,7 @@ export namespace changeTransferPolicy {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -810,7 +819,7 @@ export namespace changeTransferPolicy {
   ): Promise<ReturnType<action>> {
     const { policyId, token, ...rest } = parameters
     const call = changeTransferPolicy.call(client, { policyId, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -947,7 +956,7 @@ export namespace changeTransferPolicySync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1018,7 +1027,7 @@ export namespace create {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1041,7 +1050,7 @@ export namespace create {
 
     const call = create.call(client, { ...rest, admin: admin.address })
 
-    return (await action(
+    return (await withExecutionError(action)(
       client as never,
       {
         ...parameters,
@@ -1220,7 +1229,7 @@ export namespace createSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1256,7 +1265,7 @@ export async function getAllowance<chain extends Chain | undefined>(
 ): Promise<getAllowance.ReturnValue> {
   const { account, decimals, spender, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getAllowance.call(client, { account, spender, token } as never),
     }),
@@ -1299,6 +1308,8 @@ export namespace getAllowance {
       args: [args.account, args.spender],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1343,7 +1354,7 @@ export async function getBalance<
   if (!account_) throw new AccountNotFoundError()
   const account = parseAccount(account_).address
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getBalance.call(client, { account, token } as never),
     }),
@@ -1393,6 +1404,8 @@ export namespace getBalance {
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1598,7 +1611,7 @@ async function readMetadataContracts<chain extends Chain | undefined>(
   const { contracts, ...rest } = parameters
   const results = await Promise.allSettled(
     contracts.map((contract) =>
-      readContract(client, {
+      withExecutionError(readContract)(client, {
         ...rest,
         ...contract,
       }),
@@ -1690,6 +1703,8 @@ export declare namespace getMetadata {
      */
     transferPolicyId?: bigint | undefined
   }>
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1721,7 +1736,7 @@ export async function getTotalSupply<chain extends Chain | undefined>(
 ): Promise<getTotalSupply.ReturnValue> {
   const { decimals, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
-    readContract(client, {
+    withExecutionError(readContract)(client, {
       ...rest,
       ...getTotalSupply.call(client, { token } as never),
     }),
@@ -1759,6 +1774,8 @@ export namespace getTotalSupply {
       functionName: 'totalSupply',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1789,7 +1806,7 @@ export async function getRoleAdmin<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getRoleAdmin.Parameters,
 ): Promise<getRoleAdmin.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getRoleAdmin.call(client, parameters),
   })
@@ -1829,6 +1846,8 @@ export namespace getRoleAdmin {
       args: [TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1866,7 +1885,7 @@ export async function hasRole<
   const { account = client.account } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...hasRole.call(client, { ...parameters, account: address }),
   })
@@ -1910,6 +1929,8 @@ export namespace hasRole {
       args: [account, TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1971,7 +1992,7 @@ export namespace grantRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1983,7 +2004,7 @@ export namespace grantRoles {
     client: Client<Transport, chain, account>,
     parameters: grantRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
         const call = grantRoles.call(client, { ...parameters, role })
@@ -2127,7 +2148,7 @@ export namespace grantRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2185,7 +2206,7 @@ export namespace mint {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2199,7 +2220,13 @@ export namespace mint {
   ): Promise<ReturnType<action>> {
     const { amount, memo, to, token, ...rest } = parameters
     const call = mint.call(client, { amount, memo, to, token } as never)
-    return (await action(client, {
+    return (await withExecutionError(action, {
+      hints: {
+        Unauthorized: [
+          'Minting requires the issuer role. Grant it to this account first.',
+        ],
+      },
+    })(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2350,7 +2377,7 @@ export namespace mintSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2402,7 +2429,7 @@ export namespace pause {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2416,7 +2443,7 @@ export namespace pause {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = pause.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2546,7 +2573,7 @@ export namespace pauseSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2605,7 +2632,7 @@ export namespace renounceRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2617,7 +2644,7 @@ export namespace renounceRoles {
     client: Client<Transport, chain, account>,
     parameters: renounceRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
         const call = renounceRoles.call(client, { ...parameters, role })
@@ -2759,7 +2786,7 @@ export namespace renounceRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2821,7 +2848,7 @@ export namespace revokeRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2834,7 +2861,7 @@ export namespace revokeRoles {
     parameters: revokeRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { from: _, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       calls: parameters.roles.map((role) => {
         const call = revokeRoles.call(client, { ...parameters, role })
@@ -2978,7 +3005,7 @@ export namespace revokeRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3033,7 +3060,7 @@ export namespace setSupplyCap {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3047,7 +3074,7 @@ export namespace setSupplyCap {
   ): Promise<ReturnType<action>> {
     const { supplyCap, token, ...rest } = parameters
     const call = setSupplyCap.call(client, { supplyCap, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3179,7 +3206,7 @@ export namespace setSupplyCapSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3237,7 +3264,7 @@ export namespace setRoleAdmin {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3251,7 +3278,7 @@ export namespace setRoleAdmin {
   ): Promise<ReturnType<action>> {
     const { adminRole, role, token, ...rest } = parameters
     const call = setRoleAdmin.call(client, { adminRole, role, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3387,7 +3414,7 @@ export namespace setRoleAdminSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3443,7 +3470,7 @@ export namespace transfer {
   > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3455,7 +3482,7 @@ export namespace transfer {
     client: Client<Transport, chain, account>,
     parameters: transfer.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       ...transfer.call(client, parameters as never),
     } as never)) as never
@@ -3646,7 +3673,7 @@ export namespace transferSync {
     }
   >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3698,7 +3725,7 @@ export namespace unpause {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3712,7 +3739,7 @@ export namespace unpause {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = unpause.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3842,7 +3869,7 @@ export namespace unpauseSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3897,7 +3924,7 @@ export namespace prepareUpdateQuoteToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3911,7 +3938,7 @@ export namespace prepareUpdateQuoteToken {
   ): Promise<ReturnType<action>> {
     const { quoteToken, token, ...rest } = parameters
     const call = prepareUpdateQuoteToken.call(client, { quoteToken, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -4048,7 +4075,7 @@ export namespace prepareUpdateQuoteTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -4100,7 +4127,7 @@ export namespace updateQuoteToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -4114,7 +4141,7 @@ export namespace updateQuoteToken {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = updateQuoteToken.call(client, { token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -4249,7 +4276,7 @@ export namespace updateQuoteTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -4857,4 +4884,442 @@ export declare namespace watchUpdateQuoteToken {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType =
+  | TokenInsufficientAllowanceErrorType
+  | TokenInsufficientBalanceErrorType
+  | TokenPausedErrorType
+  | TokenPolicyForbidsErrorType
+  | TokenSupplyCapExceededErrorType
+  | TokenUnauthorizedErrorType
+
+/** `TokenInsufficientBalanceError` with a literal `name`, for narrowing. */
+export type TokenInsufficientBalanceErrorType =
+  TokenInsufficientBalanceError & { name: 'TokenInsufficientBalanceError' }
+
+/** Thrown when an account's TIP-20 balance is lower than the amount a call needs. */
+export class TokenInsufficientBalanceError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientBalance'>
+> {
+  /** Balance available. */
+  available: bigint
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Amount required. */
+  required: bigint
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      decimals?: number | undefined
+    },
+  ) {
+    const { decimals } = parameters
+    const [available, required, token] = parameters.error.args as readonly [
+      bigint,
+      bigint,
+      Address,
+    ]
+    super(parameters, {
+      details: {
+        token,
+        available: formatAmount(available, decimals),
+        required: formatAmount(required, decimals),
+        shortfall: formatAmount(required - available, decimals),
+      },
+      name: 'TokenInsufficientBalanceError',
+      shortMessage: `Insufficient balance of token "${token}".`,
+    })
+    this.available = available
+    this.decimals = decimals
+    this.required = required
+    this.token = token
+  }
+}
+
+/** `TokenInsufficientAllowanceError` with a literal `name`, for narrowing. */
+export type TokenInsufficientAllowanceErrorType =
+  TokenInsufficientAllowanceError & { name: 'TokenInsufficientAllowanceError' }
+
+/** Thrown when a spender's TIP-20 allowance is lower than the amount it tries to transfer. */
+export class TokenInsufficientAllowanceError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientAllowance'>
+> {
+  /** Current allowance, when known. */
+  allowance: bigint | undefined
+  /** Amount the spender tried to transfer. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Token owner. */
+  owner: Address
+  /** Spender. */
+  spender: Address
+  /** Token address. */
+  token: Address
+
+  constructor(parameters: TokenInsufficientAllowanceError.Parameters) {
+    const { allowance, amount, decimals, owner, spender, token } = parameters
+    super(parameters, {
+      details: {
+        token,
+        owner,
+        spender,
+        allowance: formatAmount(allowance, decimals),
+        amount: formatAmount(amount, decimals),
+      },
+      name: 'TokenInsufficientAllowanceError',
+      shortMessage: `Spender "${spender}" has an insufficient allowance from "${owner}" for token "${token}".`,
+    })
+    this.allowance = allowance
+    this.amount = amount
+    this.decimals = decimals
+    this.owner = owner
+    this.spender = spender
+    this.token = token
+  }
+}
+
+export declare namespace TokenInsufficientAllowanceError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Current allowance, when known. */
+    allowance?: bigint | undefined
+    /** Amount the spender tried to transfer. */
+    amount?: bigint | undefined
+    /** Token decimals, when known. */
+    decimals?: number | undefined
+    /** Token owner. */
+    owner: Address
+    /** Spender. */
+    spender: Address
+    /** Token address. */
+    token: Address
+  }
+}
+
+/** `TokenSupplyCapExceededError` with a literal `name`, for narrowing. */
+export type TokenSupplyCapExceededErrorType = TokenSupplyCapExceededError & {
+  name: 'TokenSupplyCapExceededError'
+}
+
+/** Thrown when minting would exceed a TIP-20 token's supply cap. */
+export class TokenSupplyCapExceededError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'SupplyCapExceeded'>
+> {
+  /** Amount to mint. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Supply cap, when known. */
+  supplyCap: bigint | undefined
+  /** Token address. */
+  token: Address
+  /** Current total supply, when known. */
+  totalSupply: bigint | undefined
+
+  constructor(parameters: TokenSupplyCapExceededError.Parameters) {
+    const { amount, decimals, supplyCap, token, totalSupply } = parameters
+    super(parameters, {
+      details: {
+        token,
+        amount: formatAmount(amount, decimals),
+        'total supply': formatAmount(totalSupply, decimals),
+        'supply cap': formatAmount(supplyCap, decimals),
+        'mintable amount':
+          supplyCap !== undefined && totalSupply !== undefined
+            ? formatAmount(supplyCap - totalSupply, decimals)
+            : undefined,
+      },
+      name: 'TokenSupplyCapExceededError',
+      shortMessage: `Minting exceeds the supply cap of token "${token}".`,
+    })
+    this.amount = amount
+    this.decimals = decimals
+    this.supplyCap = supplyCap
+    this.token = token
+    this.totalSupply = totalSupply
+  }
+}
+
+export declare namespace TokenSupplyCapExceededError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Amount to mint. */
+    amount?: bigint | undefined
+    /** Token decimals, when known. */
+    decimals?: number | undefined
+    /** Supply cap, when known. */
+    supplyCap?: bigint | undefined
+    /** Token address. */
+    token: Address
+    /** Current total supply, when known. */
+    totalSupply?: bigint | undefined
+  }
+}
+
+/** `TokenPolicyForbidsError` with a literal `name`, for narrowing. */
+export type TokenPolicyForbidsErrorType = TokenPolicyForbidsError & {
+  name: 'TokenPolicyForbidsError'
+}
+
+/** Thrown when a TIP-20 token's transfer policy forbids the sender or recipient. */
+export class TokenPolicyForbidsError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'PolicyForbids'>
+> {
+  /** Sender, when known. */
+  from: Address | undefined
+  /** Transfer policy ID, when known. */
+  policyId: bigint | undefined
+  /** Whether the policy authorizes the recipient, when known. */
+  recipientAuthorized: boolean | undefined
+  /** Whether the policy authorizes the sender, when known. */
+  senderAuthorized: boolean | undefined
+  /** Recipient, when known. */
+  to: Address | undefined
+  /** Token address. */
+  token: Address
+
+  constructor(parameters: TokenPolicyForbidsError.Parameters) {
+    const { from, policyId, recipientAuthorized, senderAuthorized, to, token } =
+      parameters
+    const party =
+      senderAuthorized === false
+        ? `sender "${from}"`
+        : recipientAuthorized === false
+          ? `recipient "${to}"`
+          : 'this transfer'
+    super(parameters, {
+      details: {
+        token,
+        policy: policyId,
+        from,
+        to,
+        'sender authorized': senderAuthorized?.toString(),
+        'recipient authorized': recipientAuthorized?.toString(),
+      },
+      name: 'TokenPolicyForbidsError',
+      shortMessage: `The transfer policy of token "${token}" forbids ${party}.`,
+    })
+    this.from = from
+    this.policyId = policyId
+    this.recipientAuthorized = recipientAuthorized
+    this.senderAuthorized = senderAuthorized
+    this.to = to
+    this.token = token
+  }
+}
+
+export declare namespace TokenPolicyForbidsError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Sender, when known. */
+    from?: Address | undefined
+    /** Transfer policy ID, when known. */
+    policyId?: bigint | undefined
+    /** Whether the policy authorizes the recipient, when known. */
+    recipientAuthorized?: boolean | undefined
+    /** Whether the policy authorizes the sender, when known. */
+    senderAuthorized?: boolean | undefined
+    /** Recipient, when known. */
+    to?: Address | undefined
+    /** Token address. */
+    token: Address
+  }
+}
+
+/** `TokenPausedError` with a literal `name`, for narrowing. */
+export type TokenPausedErrorType = TokenPausedError & {
+  name: 'TokenPausedError'
+}
+
+/** Thrown when calling a paused TIP-20 token. */
+export class TokenPausedError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'ContractPaused'>
+> {
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & { token: Address },
+  ) {
+    super(parameters, {
+      name: 'TokenPausedError',
+      shortMessage: `Token "${parameters.token}" is paused.`,
+    })
+    this.token = parameters.token
+  }
+}
+
+/** `TokenUnauthorizedError` with a literal `name`, for narrowing. */
+export type TokenUnauthorizedErrorType = TokenUnauthorizedError & {
+  name: 'TokenUnauthorizedError'
+}
+
+/** Thrown when an account lacks the TIP-20 role a call requires. */
+export class TokenUnauthorizedError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'Unauthorized'>
+> {
+  /** Account that made the call. */
+  account: Address
+  /** Role the call requires. */
+  role: TokenRole.TokenRole
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      account: Address
+      role: TokenRole.TokenRole
+      token: Address
+    },
+  ) {
+    const { account, role, token } = parameters
+    super(parameters, {
+      details: { token, account, role },
+      name: 'TokenUnauthorizedError',
+      shortMessage: `Account "${account}" does not have the "${role}" role on token "${token}".`,
+    })
+    this.account = account
+    this.role = role
+    this.token = token
+  }
+}
+
+/** Roles required by TIP-20 functions. */
+const requiredRoles: Record<string, TokenRole.TokenRole> = {
+  burn: 'issuer',
+  burnAt: 'burnAt',
+  burnBlocked: 'burnBlocked',
+  burnWithMemo: 'issuer',
+  changeTransferPolicyId: 'defaultAdmin',
+  completeQuoteTokenUpdate: 'defaultAdmin',
+  mint: 'issuer',
+  mintWithMemo: 'issuer',
+  pause: 'pause',
+  setLogoURI: 'defaultAdmin',
+  setNextQuoteToken: 'defaultAdmin',
+  setSupplyCap: 'defaultAdmin',
+  unpause: 'unpause',
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'ContractPaused()': ({ base, call }) =>
+    isTip20(call?.address)
+      ? new TokenPausedError({ ...base, token: call.address })
+      : undefined,
+  'InsufficientAllowance()': async (context) => {
+    const { base, call, signer } = context
+    const owner = call?.arg<Address>('from')
+    if (!isTip20(call?.address) || !owner || !signer) return undefined
+    const token = call.address
+    const [allowance, decimals] = await context.read([
+      {
+        address: token,
+        abi: Abis.tip20,
+        functionName: 'allowance',
+        args: [owner, signer.address],
+      },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenInsufficientAllowanceError({
+      ...base,
+      allowance: allowance?.result,
+      amount: call.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      owner,
+      spender: signer.address,
+      token,
+    })
+  },
+  'InsufficientBalance(uint256,uint256,address)': async (context) => {
+    // Selector-only revert data carries no arguments.
+    const token = context.base.error.args?.[2] as Address | undefined
+    if (!token) return undefined
+    const [decimals] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenInsufficientBalanceError({
+      ...context.base,
+      decimals: decimals?.result,
+    })
+  },
+  'PolicyForbids()': async (context) => {
+    const { base, call, signer } = context
+    if (!isTip20(call?.address)) return undefined
+    const token = call.address
+    // Mints only check the recipient.
+    const mint = call.functionName.startsWith('mint')
+    const from = mint
+      ? undefined
+      : (call.arg<Address>('from') ?? signer?.address)
+    const to = call.arg<Address>('to')
+    const [policyId] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'transferPolicyId' },
+    ])
+    const registry = {
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
+    } as const
+    const [sender, recipient] =
+      policyId?.result === undefined
+        ? []
+        : await context.read([
+            {
+              ...registry,
+              functionName: 'isAuthorizedSender',
+              args: [policyId.result, from ?? zeroAddress],
+            },
+            {
+              ...registry,
+              functionName: mint
+                ? 'isAuthorizedMintRecipient'
+                : 'isAuthorizedRecipient',
+              args: [policyId.result, to ?? zeroAddress],
+            },
+          ])
+    return new TokenPolicyForbidsError({
+      ...base,
+      from,
+      policyId: policyId?.result,
+      recipientAuthorized: to ? recipient?.result : undefined,
+      senderAuthorized: from ? sender?.result : undefined,
+      to,
+      token,
+    })
+  },
+  'SupplyCapExceeded()': async (context) => {
+    const { base, call } = context
+    if (!isTip20(call?.address)) return undefined
+    const token = call.address
+    const [supplyCap, totalSupply, decimals] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'supplyCap' },
+      { address: token, abi: Abis.tip20, functionName: 'totalSupply' },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenSupplyCapExceededError({
+      ...base,
+      amount: call.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      supplyCap: supplyCap?.result,
+      token,
+      totalSupply: totalSupply?.result,
+    })
+  },
+  'Unauthorized()': ({ base, call, signer }) => {
+    const role = call && requiredRoles[call.functionName]
+    if (!isTip20(call?.address) || !role || !signer) return undefined
+    return new TokenUnauthorizedError({
+      ...base,
+      account: signer.address,
+      role,
+      token: call.address,
+    })
+  },
 }

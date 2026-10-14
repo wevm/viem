@@ -16,6 +16,8 @@ import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
@@ -50,7 +52,7 @@ export async function getMasterAddress<
   client: Client<Transport, chain, account>,
   parameters: getMasterAddress.Parameters,
 ): Promise<getMasterAddress.ReturnValue> {
-  const address = await readContract(client, {
+  const address = await withExecutionError(readContract)(client, {
     ...parameters,
     ...getMasterAddress.call({ masterId: parameters.masterId }),
   })
@@ -69,7 +71,7 @@ export namespace getMasterAddress {
   export type ReturnValue = Address | null
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the `getMaster` function.
@@ -191,7 +193,7 @@ export namespace registerMaster {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -205,7 +207,7 @@ export namespace registerMaster {
   ): Promise<ReturnType<action>> {
     const { salt, ...rest } = parameters
     const call = registerMaster.call({ salt })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -329,5 +331,5 @@ export namespace registerMasterSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }

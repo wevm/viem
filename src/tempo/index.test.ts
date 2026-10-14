@@ -58,6 +58,7 @@ test('exports tempo', () => {
       "FeeTokenNotTip20Error",
       "FeeTokenNotUsdError",
       "FeeTokenPausedError",
+      "TempoExecutionError",
     ]
   `)
 })

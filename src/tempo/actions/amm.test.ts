@@ -375,3 +375,25 @@ describe.skip('watchBurn', () => {
     unwatch()
   })
 })
+
+describe('errors', () => {
+  test('behavior: insufficient liquidity', async () => {
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+    const error = await Actions.amm
+      .burnSync(client, {
+        liquidity: parseUnits('1000000', 6),
+        to: account.address,
+        userToken: tokenAddress,
+        validatorToken: 1n,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Actions.amm.AmmInsufficientLiquidityError)
+    expect(error).toMatchObject({
+      amount: parseUnits('1000000', 6),
+      errorName: 'InsufficientLiquidity',
+      userToken: tokenAddress,
+    })
+    expect(error.reserveValidatorToken).toBeGreaterThan(0n)
+  })
+})

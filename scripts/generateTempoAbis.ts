@@ -1075,7 +1075,12 @@ const context: AdapterContext = {
   },
 }
 const source = process.argv[2]
-if (source && !adapters.some((adapter) => adapter.name === source))
+// `errors` only regenerates `coreErrors` from the current ABIs.
+if (
+  source &&
+  source !== 'errors' &&
+  !adapters.some((adapter) => adapter.name === source)
+)
   throw new Error(`Unknown ABI source: ${source}.`)
 for (const adapter of adapters.filter(
   (adapter) => !source || adapter.name === source,
@@ -1083,5 +1088,26 @@ for (const adapter of adapters.filter(
   const files = await adapter.generate(context)
   for (const file of files) generated.set(file.path, file.content)
   console.log(`✓ Generated ${adapter.name} artifacts`)
+}
+{
+  const path = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+  const abis = context
+    .read(path)
+    .replace(/\n+\/\*\* Deduplicated errors of `core`[\s\S]*$/, '\n')
+  const temporaryPath = Path.join(
+    Os.tmpdir(),
+    `viem-tempo-abis-${process.pid}.ts`,
+  )
+  Fs.writeFileSync(temporaryPath, abis)
+  const { core } = (await import(temporaryPath)) as typeof Abis
+  Fs.unlinkSync(temporaryPath)
+  const errors = new Map<string, AbiItem.AbiItem>()
+  for (const item of core)
+    if (item.type === 'error') errors.set(AbiItem.getSignature(item), item)
+  generated.set(
+    path,
+    `${abis}\n/** Deduplicated errors of \`core\`, for decoding reverts that bubble up across precompiles. */\nexport const coreErrors = ${JSON.stringify([...errors.values()])} as const\n`,
+  )
+  console.log(`✓ Generated ${errors.size} core errors`)
 }
 for (const [path, content] of generated) writeAtomic(path, content)

@@ -22,6 +22,8 @@ import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { isAddressEqual } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -138,7 +140,7 @@ export namespace burn {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -160,7 +162,7 @@ export namespace burn {
     if (!account) throw new Error('`account` is required')
 
     const call = burn.call({ receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -267,7 +269,7 @@ export namespace burnSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -322,7 +324,7 @@ export namespace claim {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -345,7 +347,7 @@ export namespace claim {
     if (!account) throw new Error('`account` is required')
 
     const call = claim.call({ to, receipt })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -453,7 +455,7 @@ export namespace claimSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -496,7 +498,7 @@ export async function get<
     tokenPolicyId,
     tokenPolicyType,
     recoveryAuthority,
-  ] = await readContract(client, {
+  ] = await withExecutionError(readContract)(client, {
     ...rest,
     account: null as never,
     ...get.call({ account: account.address }),
@@ -554,6 +556,8 @@ export namespace get {
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -584,7 +588,7 @@ export async function getBlockedBalance<chain extends Chain | undefined>(
   parameters: getBlockedBalance.Parameters,
 ): Promise<getBlockedBalance.ReturnValue> {
   const { receipt, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getBlockedBalance.call({ receipt }),
   })
@@ -619,6 +623,8 @@ export namespace getBlockedBalance {
       args: [receipt],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -690,7 +696,7 @@ export namespace set {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -721,7 +727,7 @@ export namespace set {
       tokenFilterId: resolvePolicyRef(tokenPolicyId),
       recoveryAuthority,
     })
-    return action(client, {
+    return withExecutionError(action)(client, {
       ...rest,
       account,
       chain,
@@ -849,7 +855,7 @@ export namespace setSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -886,10 +892,13 @@ export async function validate<chain extends Chain | undefined>(
   parameters: validate.Parameters,
 ): Promise<validate.ReturnValue> {
   const { token, sender, receiver, ...rest } = parameters
-  const [authorized, blockedReason] = await readContract(client, {
-    ...rest,
-    ...validate.call({ token, sender, receiver }),
-  })
+  const [authorized, blockedReason] = await withExecutionError(readContract)(
+    client,
+    {
+      ...rest,
+      ...validate.call({ token, sender, receiver }),
+    },
+  )
   return {
     authorized,
     blockedReason: blockedReasons[blockedReason] ?? 'none',
@@ -930,6 +939,8 @@ export namespace validate {
       args: [token, sender, receiver],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**

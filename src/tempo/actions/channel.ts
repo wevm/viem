@@ -17,8 +17,18 @@ import type { GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import { signVoucher as signVoucher_ } from '../Account.js'
+import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
+import {
+  type Context,
+  formatTime,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -76,7 +86,7 @@ export namespace close {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -90,7 +100,7 @@ export namespace close {
   ): Promise<ReturnType<action>> {
     const { captureAmount, cumulativeAmount, channel, signature, ...rest } =
       parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...close.call({
         captureAmount,
@@ -195,6 +205,8 @@ export namespace closeSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = close.ErrorType
 }
 
 /**
@@ -230,7 +242,7 @@ export async function getStates<
   const chainId = client.chain?.id
   const { channel, ...rest } = parameters
 
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getStates.call({ channel, chainId } as never),
   } as never) as never
@@ -269,7 +281,7 @@ export namespace getStates {
     channel extends readonly Channel[] ? readonly State[] : State
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /**
    * Defines a call to the `getChannelState` or `getChannelStatesBatch` function.
@@ -398,7 +410,7 @@ export namespace open {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -412,7 +424,7 @@ export namespace open {
   ): Promise<ReturnType<action>> {
     const { authorizedSigner, deposit, operator, payee, salt, token, ...rest } =
       parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...open.call({
         authorizedSigner,
@@ -537,6 +549,8 @@ export namespace openSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = open.ErrorType
 }
 
 /**
@@ -579,7 +593,7 @@ export namespace requestClose {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -592,7 +606,7 @@ export namespace requestClose {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...requestClose.call({ channel }),
     } as never)) as never
@@ -684,6 +698,8 @@ export namespace requestCloseSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = requestClose.ErrorType
 }
 
 /**
@@ -734,7 +750,7 @@ export namespace settle {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -747,7 +763,7 @@ export namespace settle {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { cumulativeAmount, channel, signature, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...settle.call({ cumulativeAmount, channel, signature }),
     } as never)) as never
@@ -841,6 +857,8 @@ export namespace settleSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = settle.ErrorType
 }
 
 /**
@@ -951,7 +969,7 @@ export namespace topUp {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -964,7 +982,7 @@ export namespace topUp {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { additionalDeposit, channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...topUp.call({ additionalDeposit, channel }),
     } as never)) as never
@@ -1058,6 +1076,8 @@ export namespace topUpSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = topUp.ErrorType
 }
 
 /**
@@ -1100,7 +1120,7 @@ export namespace withdraw {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1113,7 +1133,7 @@ export namespace withdraw {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { channel, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...withdraw.call({ channel }),
     } as never)) as never
@@ -1206,4 +1226,218 @@ export namespace withdrawSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = withdraw.ErrorType
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType =
+  | ChannelAmountExceedsDepositErrorType
+  | ChannelAmountNotIncreasingErrorType
+  | ChannelCloseNotReadyErrorType
+  | ChannelNotFoundErrorType
+
+/** `ChannelNotFoundError` with a literal `name`, for narrowing. */
+export type ChannelNotFoundErrorType = ChannelNotFoundError & {
+  name: 'ChannelNotFoundError'
+}
+
+/** Thrown when a payment channel does not exist. */
+export class ChannelNotFoundError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'ChannelNotFound'>
+> {
+  /** Channel descriptor, when known. */
+  descriptor: Record<string, unknown> | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      descriptor?: Record<string, unknown> | undefined
+    },
+  ) {
+    const { descriptor } = parameters
+    super(parameters, {
+      details: {
+        payer: descriptor?.payer,
+        payee: descriptor?.payee,
+        token: descriptor?.token,
+      },
+      name: 'ChannelNotFoundError',
+    })
+    this.descriptor = descriptor
+  }
+}
+
+/** `ChannelCloseNotReadyError` with a literal `name`, for narrowing. */
+export type ChannelCloseNotReadyErrorType = ChannelCloseNotReadyError & {
+  name: 'ChannelCloseNotReadyError'
+}
+
+/** Thrown when withdrawing from a channel before its close grace period ends. */
+export class ChannelCloseNotReadyError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'CloseNotReady'>
+> {
+  /** When the close was requested (Unix seconds), or `0` when it was not. */
+  closeRequestedAt: number | undefined
+  /** When the channel can be withdrawn from (Unix seconds), when known. */
+  readyAt: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      closeRequestedAt?: number | undefined
+      readyAt?: bigint | undefined
+    },
+  ) {
+    const { closeRequestedAt, readyAt } = parameters
+    super(parameters, {
+      details: {
+        'close requested at': formatTime(closeRequestedAt),
+        'ready at': formatTime(readyAt),
+      },
+      name: 'ChannelCloseNotReadyError',
+      shortMessage:
+        closeRequestedAt === 0
+          ? 'Channel close has not been requested.'
+          : readyAt
+            ? `Channel is not ready to close until ${formatTime(readyAt)}.`
+            : undefined,
+    })
+    this.closeRequestedAt = closeRequestedAt
+    this.readyAt = readyAt
+  }
+}
+
+/** `ChannelAmountExceedsDepositError` with a literal `name`, for narrowing. */
+export type ChannelAmountExceedsDepositErrorType =
+  ChannelAmountExceedsDepositError & {
+    name: 'ChannelAmountExceedsDepositError'
+  }
+
+/** Thrown when a voucher amount exceeds the channel deposit. */
+export class ChannelAmountExceedsDepositError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'AmountExceedsDeposit'>
+> {
+  /** Cumulative voucher amount. */
+  amount: bigint | undefined
+  /** Channel deposit, when known. */
+  deposit: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amount?: bigint | undefined
+      deposit?: bigint | undefined
+    },
+  ) {
+    const { amount, deposit } = parameters
+    super(parameters, {
+      details: { amount, deposit },
+      name: 'ChannelAmountExceedsDepositError',
+    })
+    this.amount = amount
+    this.deposit = deposit
+  }
+}
+
+/** `ChannelAmountNotIncreasingError` with a literal `name`, for narrowing. */
+export type ChannelAmountNotIncreasingErrorType =
+  ChannelAmountNotIncreasingError & {
+    name: 'ChannelAmountNotIncreasingError'
+  }
+
+/** Thrown when a voucher amount is not above the amount already settled. */
+export class ChannelAmountNotIncreasingError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'AmountNotIncreasing'>
+> {
+  /** Cumulative voucher amount. */
+  amount: bigint | undefined
+  /** Amount already settled, when known. */
+  settled: bigint | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amount?: bigint | undefined
+      settled?: bigint | undefined
+    },
+  ) {
+    const { amount, settled } = parameters
+    super(parameters, {
+      details: { amount, settled },
+      name: 'ChannelAmountNotIncreasingError',
+    })
+    this.amount = amount
+    this.settled = settled
+  }
+}
+
+const reserve = {
+  address: Addresses.tip20ChannelReserve,
+  abi: Abis.tip20ChannelReserve,
+} as const
+
+/** Reads the channel state of the failed call, when it targets the channel reserve. */
+async function readChannel(context: Context) {
+  const { call } = context
+  if (!call || !isAddressEqual(call.address, Addresses.tip20ChannelReserve))
+    return undefined
+  const descriptor = call.arg<ox_Channel.Resolved>('descriptor')
+  if (!descriptor) return { call, descriptor }
+  const [channel, gracePeriod] = await context.read([
+    {
+      ...reserve,
+      functionName: 'getChannel',
+      args: [descriptor as never],
+    },
+    { ...reserve, functionName: 'CLOSE_GRACE_PERIOD' },
+  ])
+  return {
+    call,
+    descriptor,
+    gracePeriod: gracePeriod?.result,
+    state: channel?.result?.state,
+  }
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'AmountExceedsDeposit()': async (context) => {
+    const channel = await readChannel(context)
+    if (!channel) return undefined
+    return new ChannelAmountExceedsDepositError({
+      ...context.base,
+      amount: channel.call.arg<bigint>('cumulativeAmount'),
+      deposit: channel.state?.deposit,
+    })
+  },
+  'AmountNotIncreasing()': async (context) => {
+    const channel = await readChannel(context)
+    if (!channel) return undefined
+    return new ChannelAmountNotIncreasingError({
+      ...context.base,
+      amount: channel.call.arg<bigint>('cumulativeAmount'),
+      settled: channel.state?.settled,
+    })
+  },
+  'ChannelNotFound()': (context) => {
+    const { call } = context
+    if (!call || !isAddressEqual(call.address, Addresses.tip20ChannelReserve))
+      return undefined
+    return new ChannelNotFoundError({
+      ...context.base,
+      descriptor: call.arg<Record<string, unknown>>('descriptor'),
+    })
+  },
+  'CloseNotReady()': async (context) => {
+    const channel = await readChannel(context)
+    if (!channel) return undefined
+    const closeRequestedAt = channel.state?.closeRequestedAt
+    return new ChannelCloseNotReadyError({
+      ...context.base,
+      closeRequestedAt,
+      readyAt:
+        closeRequestedAt && channel.gracePeriod !== undefined
+          ? BigInt(closeRequestedAt) + channel.gracePeriod
+          : undefined,
+    })
+  },
 }
