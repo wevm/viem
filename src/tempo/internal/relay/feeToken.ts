@@ -4,6 +4,7 @@ import type { Client } from '../../../clients/createClient.js'
 import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
+import { isTip20 } from '../utils.js'
 import * as Store from './cache.js'
 import * as Preflight from './preflight.js'
 import * as Utils from './utils.js'
@@ -139,8 +140,8 @@ function callTargetTokens(
   const seen = new Set<string>()
   for (const c of calls) {
     if (!c.to) continue
+    if (!isTip20(c.to)) continue
     const lower = c.to.toLowerCase()
-    if (!lower.startsWith('0x20c0')) continue
     if (seen.has(lower)) continue
     seen.add(lower)
     out.push(c.to)
@@ -160,7 +161,7 @@ export async function resolveTokenMetadata(
   const meta =
     tokenMetadata?.[token] ?? tokenMetadata?.[token.toLowerCase() as Address]
   // Tempo simulation metadata covers TIP-20 tokens, whose decimals are always six.
-  if (token.toLowerCase().startsWith('0x20c0') && meta)
+  if (isTip20(token) && meta)
     return { decimals: 6, symbol: meta.symbol, name: meta.name }
   // TIP-20 metadata (decimals/symbol/name) is immutable per token, so cache
   // long-term. Skips the multicall RPC on cache hits.

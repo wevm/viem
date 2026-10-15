@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { RpcResponse } from 'ox'
+import { Hex, RpcResponse } from 'ox'
 import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
@@ -151,20 +151,33 @@ export function compose(
             | Record<string, unknown>
             | undefined
           // The node must estimate unsigned sponsorship independently of the sender's fee-token balance.
-          const request =
+          const sponsored =
             state.request.method === 'eth_fillTransaction' &&
             parameters?.feePayer === true &&
             !parameters.feePayerSignature
-              ? {
-                  ...state.request,
-                  params: [{ ...parameters, feeToken: undefined }],
-                }
-              : state.request
+              ? parameters
+              : undefined
+          const fees = sponsored ? parseFees(sponsored) : undefined
+          const request = (() => {
+            if (!sponsored) return state.request
+            const {
+              maxFeePerGas: _,
+              maxPriorityFeePerGas: __,
+              ...unpriced
+            } = sponsored
+            return {
+              ...state.request,
+              params: [
+                { ...(fees ? unpriced : sponsored), feeToken: undefined },
+              ],
+            }
+          })()
           requestOptions.signal?.throwIfAborted()
-          state.result = await downstream(request, {
+          const result = await downstream(request, {
             ...state.options,
             ...(isFill ? { signal: requestOptions.signal } : {}),
           })
+          state.result = fees ? restoreFees(result, fees) : result
           return
         }
         const plugin = plugins[index]!
@@ -388,4 +401,58 @@ export async function fill(
   }
 
   return { ...result, tx: Utils.mergeCallsFromRequest(result.tx, transaction) }
+}
+
+/** Caller fee caps restored after an unpriced sponsored fill. */
+type Fees = {
+  maxFeePerGas: bigint
+  maxPriorityFeePerGas: bigint | undefined
+}
+
+/**
+ * Parses caller fee caps for a sponsored fill without gas. Tempo estimates gas before it knows the
+ * sponsor, so a priced request caps gas by the sender's fee balance.
+ */
+function parseFees(parameters: Record<string, unknown>): Fees | undefined {
+  if (parameters.gas != null) return undefined
+  const maxFeePerGas = parseFee(parameters.maxFeePerGas)
+  const maxPriorityFeePerGas = parseFee(parameters.maxPriorityFeePerGas)
+  // Invalid values reach the node unchanged so it rejects them itself.
+  if (maxFeePerGas == null || maxPriorityFeePerGas === null) return undefined
+  return { maxFeePerGas, maxPriorityFeePerGas }
+}
+
+/** Restores caller fee caps on a filled transaction. */
+function restoreFees(result: unknown, fees: Fees): unknown {
+  const { tx } = (result ?? {}) as Partial<Result>
+  // A downstream sponsor signature binds its own fees; changing them would invalidate it.
+  if (!tx || typeof tx !== 'object' || tx.feePayerSignature) return result
+  const tip = parseFee(tx.maxPriorityFeePerGas)
+  // A node-chosen tip above the caller's fee cap would make the transaction invalid.
+  const maxPriorityFeePerGas =
+    fees.maxPriorityFeePerGas ??
+    (tip != null && tip < fees.maxFeePerGas ? tip : fees.maxFeePerGas)
+  return {
+    ...(result as Result),
+    tx: {
+      ...tx,
+      maxFeePerGas: Hex.fromNumber(fees.maxFeePerGas),
+      maxPriorityFeePerGas: Hex.fromNumber(maxPriorityFeePerGas),
+    },
+  }
+}
+
+/** Parses a fee quantity, returning `null` for values the node should reject itself. */
+function parseFee(value: unknown) {
+  if (value == null) return undefined
+  if (typeof value === 'bigint') return value >= 0n ? value : null
+  if (typeof value === 'number')
+    return Number.isSafeInteger(value) && value >= 0 ? BigInt(value) : null
+  if (
+    typeof value === 'string' &&
+    value !== '0x' &&
+    Hex.validate(value, { strict: true })
+  )
+    return Hex.toBigInt(value)
+  return null
 }

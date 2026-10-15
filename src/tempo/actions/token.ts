@@ -49,7 +49,6 @@ import type * as Errors from '../errors.js'
 import { TempoExecutionError } from '../errors.js'
 import {
   formatAmount,
-  isTip20,
   type Resolvers,
   withExecutionError,
 } from '../internal/errors.js'
@@ -64,6 +63,7 @@ import {
   type CallParameters,
   defineCall,
   findDeclaredToken,
+  isTip20,
   pickWriteParameters,
   resolveCallParameters,
   resolveToken,

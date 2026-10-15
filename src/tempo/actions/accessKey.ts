@@ -55,7 +55,6 @@ import {
   formatAmount,
   formatTime,
   getFeeToken,
-  isTip20,
   type Resolvers,
   withExecutionError,
 } from '../internal/errors.js'
@@ -64,7 +63,7 @@ import type {
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, isTip20 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import { getConfig } from './accounts.js'
 

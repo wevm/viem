@@ -307,3 +307,11 @@ export function normalizeValue<type>(value: type): type {
   for (const [k, v] of Object.entries(value)) normalized[k] = normalizeValue(v)
   return normalized as never
 }
+
+/** 12-byte prefix shared by TIP-20 token addresses; shorter prefixes are cheap to grind with CREATE2. */
+const tip20Prefix = '0x20c000000000000000000000'
+
+/** Whether `address` carries the TIP-20 token address prefix. */
+export function isTip20(address: string | undefined): address is Address {
+  return !!address?.toLowerCase().startsWith(tip20Prefix)
+}

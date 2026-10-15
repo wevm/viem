@@ -3,10 +3,20 @@ import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Secp256k1, Signature } from 'ox'
 import { Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
 import { createClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
+import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
+import { fillTransaction, sendRawTransactionSync } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
-import { Addresses, Relay, Store, VirtualAddress, withRelay } from 'viem/tempo'
+import {
+  Account,
+  Actions,
+  Addresses,
+  Relay,
+  Store,
+  VirtualAddress,
+  withRelay,
+} from 'viem/tempo'
 import { expect, onTestFinished, test } from 'vitest'
+import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 
 test.each([1, false, {}, [], 'recipient', '0x1234'])(
@@ -384,6 +394,192 @@ test('post-fill hooks receive only the selected fill, not intermediate downstrea
     { chainId: tempoLocalnet.id },
   )) as Relay.Plugin.FillResult
   expect(result.capabilities?.selectedNonce).toMatchInlineSnapshot('"0x2"')
+})
+
+test('estimates sponsored fills without caller fee caps and restores them', async () => {
+  const fill = (
+    parameters: Record<string, unknown>,
+    tx: Record<string, unknown> = {},
+  ) =>
+    Relay.handleRequest(
+      async (request) => {
+        const { feeToken, maxFeePerGas, maxPriorityFeePerGas } =
+          request.params![0] as Record<string, unknown>
+        return {
+          tx: {
+            gas: '0x5208',
+            maxFeePerGas: '0x64',
+            maxPriorityFeePerGas: '0x2',
+            ...tx,
+          },
+          capabilities: {
+            forwarded: { feeToken, maxFeePerGas, maxPriorityFeePerGas },
+          },
+        }
+      },
+      { plugins: [{}] },
+    )({
+      method: 'eth_fillTransaction',
+      params: [{ feePayer: true, feeToken: Addresses.pathUsd, ...parameters }],
+    }) as Promise<Relay.Plugin.FillResult>
+  const results = await Promise.all([
+    fill({ maxFeePerGas: '0x32', maxPriorityFeePerGas: '0x1' }),
+    fill({ maxFeePerGas: 50n }),
+    fill({ maxFeePerGas: 50 }, { maxPriorityFeePerGas: '0x64' }),
+    fill({ maxFeePerGas: '0x32' }, { maxPriorityFeePerGas: undefined }),
+    fill({ gas: '0x1', maxFeePerGas: '0x32' }),
+    fill({ maxFeePerGas: '0xzz' }),
+    fill({ maxFeePerGas: '0x32', maxPriorityFeePerGas: -1 }),
+    fill({ maxFeePerGas: '0x32', feePayer: false }),
+    fill(
+      { maxFeePerGas: '0x32' },
+      {
+        feePayerSignature: { r: '0x1', s: '0x2', yParity: '0x0' },
+      },
+    ),
+  ])
+
+  expect(
+    results.map(({ capabilities, tx }) => ({
+      forwarded: capabilities?.forwarded,
+      maxFeePerGas: tx.maxFeePerGas,
+      maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
+    })),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x32",
+        "maxPriorityFeePerGas": "0x1",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x32",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x32",
+        "maxPriorityFeePerGas": "0x32",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x32",
+        "maxPriorityFeePerGas": "0x32",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": "0x32",
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": "0xzz",
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": "0x32",
+          "maxPriorityFeePerGas": -1,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": "0x20c0000000000000000000000000000000000000",
+          "maxFeePerGas": "0x32",
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+    ]
+  `)
+})
+
+test('sponsors an unfunded sender that sets fee fields without gas', async () => {
+  const feePayer = Tempo.accounts[0]!
+  const recipient = Tempo.accounts[7]!
+  const sender = Account.fromSecp256k1(generatePrivateKey())
+  await Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
+    account: feePayer,
+    timeout: 60_000,
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.feePayer({ account: feePayer })],
+    }),
+  })
+
+  const { transaction } = await fillTransaction(client, {
+    account: sender.address,
+    calls: [
+      Actions.token.approve.call(client, {
+        amount: 1n,
+        spender: recipient.address,
+        token: Tempo.addresses.alphaUsd,
+      }),
+    ],
+    maxFeePerGas: 50_000_000_000n,
+    maxPriorityFeePerGas: 1n,
+  })
+  const { gas, maxFeePerGas, maxPriorityFeePerGas } = transaction
+  const receipt = await sendRawTransactionSync(client, {
+    serializedTransaction: await sender.signTransaction(transaction as never),
+  })
+
+  expect({ maxFeePerGas, maxPriorityFeePerGas }).toMatchInlineSnapshot(`
+    {
+      "maxFeePerGas": 50000000000n,
+      "maxPriorityFeePerGas": 1n,
+    }
+  `)
+  expect(gas).toBeGreaterThan(0n)
+  expect({
+    feePayer: receipt.feePayer,
+    status: receipt.status,
+  }).toMatchInlineSnapshot(`
+    {
+      "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "status": "success",
+    }
+  `)
 })
 
 test('simulation middleware rejects malformed fill quantities before forwarding', async () => {

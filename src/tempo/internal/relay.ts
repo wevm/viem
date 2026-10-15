@@ -3,6 +3,9 @@ import { BaseError } from '../../errors/base.js'
 import { RpcRequestError } from '../../errors/request.js'
 import type * as Relay from '../Relay.js'
 
+/** Largest request body, in bytes, read before JSON parsing; above reth's 15 MB default. */
+const maxBodySize = 16 * 1_024 * 1_024
+
 /** Adapts an RPC handler to the Fetch API without changing its method results. */
 export async function fetch(
   request: Request,
@@ -21,7 +24,20 @@ export async function fetch(
 
   const body = await (async () => {
     try {
-      return { value: (await request.json()) as unknown }
+      const chunks = await readBody(request)
+      if (!chunks)
+        return {
+          status: 413,
+          error: {
+            jsonrpc: '2.0',
+            id: null,
+            error: {
+              code: -32600,
+              message: `Request body exceeds ${maxBodySize / 1_024 / 1_024} MiB`,
+            },
+          },
+        }
+      return { value: (await new Response(new Blob(chunks)).json()) as unknown }
     } catch {
       return {
         error: {
@@ -32,7 +48,8 @@ export async function fetch(
       }
     }
   })()
-  if (body.error) return Response.json(body.error)
+  if (body.error)
+    return Response.json(body.error, body.status ? { status: body.status } : {})
 
   const requestOptions = {
     ...options,
@@ -155,4 +172,26 @@ export async function fetch(
   return response === undefined
     ? new Response(null, { status: 204 })
     : Response.json(response)
+}
+
+/** Reads a request body, returning `undefined` once its declared or streamed size exceeds {@link maxBodySize}. */
+async function readBody(request: Request) {
+  if (Number(request.headers.get('content-length')) > maxBodySize) {
+    await request.body?.cancel()
+    return undefined
+  }
+  const chunks: Uint8Array<ArrayBuffer>[] = []
+  if (!request.body) return chunks
+  const reader = request.body.getReader()
+  let size = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) return chunks
+    size += value.byteLength
+    if (size > maxBodySize) {
+      await reader.cancel()
+      return undefined
+    }
+    chunks.push(value)
+  }
 }

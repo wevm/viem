@@ -374,18 +374,25 @@ export declare namespace feePayer {
     account?: LocalAccount | undefined
     /** Trusted external fee-payer URLs. Matches the normalized full URL, including path and query. Defaults to none. */
     allowedFeePayers?: readonly string[] | undefined
-    /** Sponsor's preferred fee token. Overrides the request token on sponsored fills. */
-    feeToken?: Address | undefined
+    /** Sponsor's preferred fee token, or a resolver keyed by the request chain. Overrides the request and raw envelope token on local sponsorship. */
+    feeToken?:
+      | Address
+      | ((options: { chainId: number }) => Address | undefined)
+      | undefined
     /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
     internal_allowUnsafeUrls?: boolean | undefined
     /** Display name returned in sponsor capabilities. */
     name?: string | undefined
+    /** Called when the node rejects a sponsored raw broadcast whose fee cap is below the protocol base-fee floor. Awaited before the node error is rethrown. */
+    onRejected?: ((event: SponsoredEvent) => void | Promise<void>) | undefined
     /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
     onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined
     /** Sponsor display URL. */
     url?: string | undefined
     /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
     validate?: Sponsorship.Validate | undefined
+    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. @default 3600 */
+    validity?: number | undefined
   }
   /** Result of a sponsorship policy check. */
   export type Validation = Sponsorship.Validation
