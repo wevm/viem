@@ -414,6 +414,21 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ internal_allowUnsafeUrls: true }) // [!code focus]
 ```
 
+#### options.minimumBaseFee
+
+- **Type:** `bigint`
+- **Default:** `600_000_000n`
+
+Lowest base fee, in attodollars per gas, that the target chains can ever charge.
+`onRejected` fires only for fee caps below it. Lower it for chains whose base fee
+can fall below the default, so a temporarily underpriced envelope keeps its commitment.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ minimumBaseFee: 100_000_000n }) // [!code focus]
+```
+
 #### options.name
 
 - **Type:** `string`
@@ -431,7 +446,7 @@ Relay.feePayer({ name: 'Example Sponsor' }) // [!code focus]
 - **Type:** `(event: Relay.feePayer.SponsoredEvent) => void | Promise<void>`
 
 Called when a node rejects a sponsored raw broadcast with `gas price is less than basefee`
-and the fee cap is below the protocol's base-fee floor, so the envelope can never
+and the fee cap is below `minimumBaseFee`, so the envelope can never
 be included. Use it to release a commitment recorded by `onSponsored`. Transport
 failures, timeouts, and other rejections do not call it, because the envelope may still land.
 

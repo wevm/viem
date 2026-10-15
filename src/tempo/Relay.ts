@@ -381,9 +381,11 @@ export declare namespace feePayer {
       | undefined
     /** Allow HTTP and private external relay hosts in trusted development environments. @default false */
     internal_allowUnsafeUrls?: boolean | undefined
+    /** Lowest base fee, in attodollars per gas, the target chains can ever charge. `onRejected` fires only for fee caps below it. @default 600_000_000n */
+    minimumBaseFee?: bigint | undefined
     /** Display name returned in sponsor capabilities. */
     name?: string | undefined
-    /** Called when the node rejects a sponsored raw broadcast whose fee cap is below the protocol base-fee floor. Awaited before the node error is rethrown. */
+    /** Called when the node rejects a sponsored raw broadcast whose fee cap is below `minimumBaseFee`. Awaited before the node error is rethrown. */
     onRejected?: ((event: SponsoredEvent) => void | Promise<void>) | undefined
     /** Called after signing and before returning or broadcasting. A thrown error aborts sponsorship. */
     onSponsored?: Sponsorship.sign.Options['onSponsored'] | undefined

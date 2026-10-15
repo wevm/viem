@@ -1,5 +1,5 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { Hex, P256, Rlp, Secp256k1, Signature } from 'ox'
+import { Hex, P256, Rlp, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { createClient, http } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
@@ -1386,55 +1386,6 @@ describe('raw canonical encoding', () => {
       `[RpcResponse.InvalidParamsError: Transaction encoding is not canonical. Re-encode it with in-range field values.]`,
     )
   })
-
-  test('sponsors a configurable fee-payer handoff without an encoded sender', async () => {
-    const account = `0x${'ab'.repeat(20)}` as const
-    const envelope = TxEnvelopeTempo.from({
-      calls: [transfer],
-      chainId: Tempo.chain.id,
-      feePayerSignature: null,
-      gas: 100_000n,
-      maxFeePerGas: 20_000_000_000n,
-      maxPriorityFeePerGas: 1n,
-      nonce: 0n,
-      nonceKey: 0n,
-      validBefore: Math.floor(Date.now() / 1000) + 600,
-    })
-    const signature = SignatureEnvelope.from({
-      account,
-      config: {
-        owners: [{ owner: userAccount.address, weight: 1 }],
-        salt: `0x${'00'.repeat(32)}`,
-        threshold: 1,
-        version: 0n,
-      },
-      signatures: [
-        {
-          signature: Signature.from(
-            await userAccount.sign({
-              hash: TxEnvelopeTempo.getSignPayload(envelope),
-            }),
-          ),
-          type: 'secp256k1',
-        },
-      ],
-      type: 'configurable',
-    })
-    // Fee-payer serialization writes the `0x00` marker instead of a sender for configurable signatures.
-    const serialized = TxEnvelopeTempo.serialize(envelope, {
-      format: 'feePayer',
-      signature,
-    })
-    expect(
-      (Rlp.toHex(Hex.slice(serialized, 1)) as readonly Hex.Hex[])[11],
-    ).toMatchInlineSnapshot(`"0x00"`)
-
-    const result = (await relay.request({
-      method: 'eth_signRawTransaction',
-      params: [serialized],
-    })) as `0x76${string}`
-    expect(Transaction.deserialize(result).from).toBe(account)
-  })
 })
 
 test('raw sponsorship overrides an envelope fee token with the sponsor token', async () => {
@@ -1826,9 +1777,14 @@ describe('rejected broadcasts', () => {
       response: { code: -32000, message: 'gas price is less than basefee' },
       maxFeePerGas: 600_000_000n,
     },
+    {
+      response: { code: -32000, message: 'gas price is less than basefee' },
+      maxFeePerGas: 1n,
+      minimumBaseFee: 1n,
+    },
   ])(
     'ambiguous broadcast failures stay unreported: $response.message',
-    async ({ response, maxFeePerGas }) => {
+    async ({ response, maxFeePerGas, minimumBaseFee }) => {
       const server = await createHttpServer((request, res) => {
         request.resume()
         if (!response) {
@@ -1851,6 +1807,7 @@ describe('rejected broadcasts', () => {
         plugins: [
           Relay.feePayer({
             account: feePayerAccount,
+            minimumBaseFee,
             onRejected: (event) => {
               rejected.push(event)
             },

@@ -8,18 +8,21 @@ import {
   Signature,
 } from 'ox'
 import {
+  AccountConfig,
   type Transaction as core_Transaction,
   KeyAuthorization,
   SignatureEnvelope,
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import type { LocalAccount } from '../../../accounts/types.js'
+import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
 import { readContract } from '../../../actions/public/readContract.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
 import * as AccessKey from '../../actions/accessKey.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import * as Accounts from './accounts.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -93,6 +96,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             | 'eth_signRawTransaction'
             | 'eth_sendRawTransaction'
             | 'eth_sendRawTransactionSync',
+          minimumBaseFee: options.minimumBaseFee ?? defaultMinimumBaseFee,
           onRejected: options.onRejected,
           onSponsored: options.onSponsored,
           request,
@@ -553,7 +557,7 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
             // Transport failures, timeouts, and node-local floors stay unreported: the envelope may still land.
             if (
               isBaseFeeRejection(error) &&
-              (transaction.maxFeePerGas ?? 0n) < minimumBaseFee
+              (transaction.maxFeePerGas ?? 0n) < options.minimumBaseFee
             )
               await options.onRejected?.(event)
             throw error
@@ -576,6 +580,8 @@ declare namespace handleRawTransaction {
       | 'eth_signRawTransaction'
       | 'eth_sendRawTransaction'
       | 'eth_sendRawTransactionSync'
+    /** Lowest base fee the target chain can ever charge; rejected fee caps below it can never be included. */
+    minimumBaseFee: bigint
     /** Called when the node definitively rejects the sponsored broadcast. Awaited: a throw replaces the node error. */
     onRejected?: ((event: SponsoredEvent) => void | Promise<void>) | undefined
     /** Called once the fee payer has signed, before any broadcast. Awaited: a throw aborts the request. */
@@ -637,8 +643,8 @@ async function recoverSender(
   const payload = TxEnvelopeTempo.getSignPayload(envelope)
 
   const sender = await (async () => {
-    // The node checks configurable owner quorum against the account's stored configuration.
-    if (signature.type === 'configurable') return signature.account
+    if (signature.type === 'configurable')
+      return verifyConfigurable(client, { payload, signature })
     if (signature.type !== 'keychain') return recoverSigner(payload, signature)
     // Tempo rejects legacy access-key signatures, which do not bind the key to its account.
     if (signature.version !== 'v2')
@@ -657,7 +663,7 @@ async function recoverSender(
 
     // A same-transaction authorization signed by the account provisions the key; the node
     // requires its chain, key type, and any named account to match exactly.
-    const authorization = (() => {
+    const authorization = await (async () => {
       if (
         !keyAuthorization ||
         !core_Address.isEqual(keyAuthorization.address, keyId) ||
@@ -668,13 +674,15 @@ async function recoverSender(
       )
         return undefined
       const { signature: signature_authorization } = keyAuthorization
+      const payload_authorization =
+        KeyAuthorization.getSignPayload(keyAuthorization)
       const authorizer =
         signature_authorization.type === 'configurable'
-          ? signature_authorization.account
-          : recoverSigner(
-              KeyAuthorization.getSignPayload(keyAuthorization),
-              signature_authorization,
-            )
+          ? await verifyConfigurable(client, {
+              payload: payload_authorization,
+              signature: signature_authorization,
+            })
+          : recoverSigner(payload_authorization, signature_authorization)
       if (authorizer && core_Address.isEqual(authorizer, userAddress))
         return keyAuthorization
       return undefined
@@ -729,6 +737,52 @@ async function recoverSender(
   return sender
 }
 
+/**
+ * Returns a configurable signature's account once its config matches the on-chain commitment and
+ * its owner approvals of `payload` reach quorum. Raw signing returns before any node checks them.
+ */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function verifyConfigurable(
+  client: Client,
+  options: verifyConfigurable.Options,
+) {
+  const { payload, signature } = options
+  const { account } = signature
+  const config = AccountConfig.from(signature.config)
+  const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+  await Accounts.validateConfig({
+    account,
+    blockNumber,
+    client: client as never,
+    config,
+  })
+  const { threshold, weight } = await Accounts.selectApprovals({
+    account,
+    approvals: signature.signatures.map((approval) =>
+      SignatureEnvelope.serialize(approval),
+    ),
+    config,
+    hash: AccountConfig.getSignPayload({ account, config, payload }),
+  })
+  if (weight < threshold)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Configurable account approvals do not reach quorum.',
+    })
+  return account
+}
+
+declare namespace verifyConfigurable {
+  type Options = {
+    /** Sign payload the account's owners approve. */
+    payload: Hex.Hex
+    /** Configurable signature carrying the account config and owner approvals. */
+    signature: Extract<
+      SignatureEnvelope.SignatureEnvelope,
+      { type: 'configurable' }
+    >
+  }
+}
+
 /** Returns the signer of a primitive signature, or `undefined` when it does not verify against `payload`. */
 function recoverSigner(
   payload: Hex.Hex,
@@ -751,8 +805,8 @@ function recoverSigner(
 /** AccountKeychain signature type ids keyed by primitive signature type. */
 const keyTypes = { p256: 1, secp256k1: 0, webAuthn: 2 } as const
 
-/** Lowest base fee Tempo consensus admits (the T7 floor), in attodollars per gas; lower fee caps can never be included. */
-const minimumBaseFee = 600_000_000n
+/** Default lowest base fee Tempo consensus admits (the T7 floor), in attodollars per gas. */
+const defaultMinimumBaseFee = 600_000_000n
 
 /** Returns whether a broadcast error carries the node's base-fee floor rejection. */
 function isBaseFeeRejection(error: unknown) {
