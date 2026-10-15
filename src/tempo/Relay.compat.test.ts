@@ -1245,9 +1245,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ],
         feePayer: true as never,
       })
+      // The node's fill carries a placeholder sender signature and no validity bound.
       const partial = await userAccount.signTransaction({
         ...transaction,
         feePayer: true,
+        signature: undefined,
+        validBefore: Math.floor(Date.now() / 1000) + 600,
       } as never)
       expect([null, undefined]).toContain(
         Transaction.deserialize(partial as `0x76${string}`).feeToken,
@@ -1307,9 +1310,12 @@ describe.skipIf(nodeEnv !== 'localnet')(
         ],
         feePayer: true as never,
       })
+      // The node's fill carries a placeholder sender signature and no validity bound.
       const partial = await userAccount.signTransaction({
         ...transaction,
         feePayer: true,
+        signature: undefined,
+        validBefore: Math.floor(Date.now() / 1000) + 600,
       } as never)
 
       try {

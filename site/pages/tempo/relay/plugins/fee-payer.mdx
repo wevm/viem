@@ -387,15 +387,18 @@ Relay.feePayer({ allowedFeePayers: ['https://relay.example/rpc'] }) // [!code fo
 
 #### options.feeToken
 
-- **Type:** `Address`
+- **Type:** `Address | ((options: { chainId: number }) => Address | undefined)`
 
-Preferred sponsor token. Overrides the fill request's fee token. A raw envelope's
-explicit token takes precedence, because its sender has already signed it.
+Preferred sponsor token, or a resolver called with the request's chain ID. It
+overrides the fill request's token and a raw envelope's token, because senders
+do not commit to the fee token of a sponsored envelope. External fee payers
+choose their own token.
 
 ```ts twoslash
 import { Addresses, Relay } from 'viem/tempo'
 // ---cut---
 Relay.feePayer({ feeToken: Addresses.pathUsd }) // [!code focus]
+Relay.feePayer({ feeToken: ({ chainId }) => chainId === 4217 ? Addresses.pathUsd : undefined }) // [!code focus]
 ```
 
 #### options.internal_allowUnsafeUrls
@@ -411,6 +414,21 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ internal_allowUnsafeUrls: true }) // [!code focus]
 ```
 
+#### options.minimumBaseFee
+
+- **Type:** `bigint`
+- **Default:** `600_000_000n`
+
+Lowest base fee, in attodollars per gas, that the target chains can ever charge.
+`onRejected` fires only for fee caps below it. Lower it for chains whose base fee
+can fall below the default, so a temporarily underpriced envelope keeps its commitment.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ minimumBaseFee: 100_000_000n }) // [!code focus]
+```
+
 #### options.name
 
 - **Type:** `string`
@@ -423,12 +441,28 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ name: 'Example Sponsor' }) // [!code focus]
 ```
 
+#### options.onRejected
+
+- **Type:** `(event: Relay.feePayer.SponsoredEvent) => void | Promise<void>`
+
+Called when a node rejects a sponsored raw broadcast with `gas price is less than basefee`
+and the fee cap is below `minimumBaseFee`, so the envelope can never
+be included. Use it to release a commitment recorded by `onSponsored`. Transport
+failures, timeouts, and other rejections do not call it, because the envelope may still land.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ onRejected: (event) => console.log(event.signPayload) }) // [!code focus]
+```
+
 #### options.onSponsored
 
 - **Type:** `(event: Relay.feePayer.SponsoredEvent) => void | { subsidized: boolean } | Promise<void | { subsidized: boolean }>`
 
 Records a signing commitment. Requests can repeat, so use `event.signPayload` as
-an idempotency key when recording commitments.
+an idempotency key when recording commitments. `event.feePayer` is the signing
+fee-payer address, and raw submissions report the sender recovered from its signature.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'
@@ -462,6 +496,21 @@ import { Relay } from 'viem/tempo'
 Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
 ```
 
+#### options.validity
+
+- **Type:** `number`
+- **Default:** `3600`
+
+Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills
+without `validBefore` receive one, rounded to five-minute steps so identical retries
+sign the same payload. `eth_signRawTransaction` requires a `validBefore` within this window.
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+// ---cut---
+Relay.feePayer({ validity: 600 }) // [!code focus]
+```
+
 ### Return Value
 
 `Relay.Plugin`
@@ -472,6 +521,6 @@ A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
 
 | Error | Description |
 | --- | --- |
-| `RpcResponse.InvalidParamsError` | Sponsorship is rejected, a URL is invalid, chain IDs conflict, or a raw transaction lacks a sender signature. |
+| `RpcResponse.InvalidParamsError` | Sponsorship is rejected, a URL is invalid, chain IDs conflict, a raw transaction is not canonically encoded, its signature does not verify for its sender, or its `validBefore` is outside `validity`. |
 | `RpcResponse.MethodNotFoundError` | A raw signing request has no configured sponsor account. |
 | `Error` | The account cannot sign, or a policy or recording callback throws. |

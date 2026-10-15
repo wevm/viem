@@ -85,11 +85,6 @@ export function getFeeToken(context: Context) {
     : TokenId.toAddress(feeToken)
 }
 
-/** Whether `address` is a TIP-20 token. */
-export function isTip20(address: Address | undefined): address is Address {
-  return !!address?.toLowerCase().startsWith('0x20c0')
-}
-
 /** Formats an amount as `formatted (raw)` when decimals are known. */
 export function formatAmount(
   value: bigint | undefined,

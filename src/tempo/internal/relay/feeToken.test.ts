@@ -366,6 +366,35 @@ test('uses a funded call target outside the configured candidates', async () => 
   expect(transaction.feeToken?.toLowerCase()).toBe(localnetTokens[2])
 })
 
+test('ignores call targets without the full TIP-20 prefix as fee-token candidates', async () => {
+  const account = Account.fromSecp256k1(generatePrivateKey())
+  await Actions.token.transferSync(caller, {
+    account: feePayerAccount,
+    token: Tempo.addresses.alphaUsd,
+    to: account.address,
+    amount: 100_000_000n,
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      plugins: [Relay.feeToken()],
+    }),
+  })
+  // More than 100 TIP-20 call targets exceed the candidate limit, so these must not count.
+  const calls = Array.from({ length: 101 }, (_, index) => ({
+    to: `0x20c0${'ab'.repeat(17)}${index.toString(16).padStart(2, '0')}` as const,
+  }))
+
+  const { transaction } = await fillTransaction(client, {
+    account: account.address,
+    calls,
+  })
+
+  expect(transaction.feeToken?.toLowerCase()).toBe(Tempo.addresses.alphaUsd)
+  expect(transaction.calls).toHaveLength(101)
+})
+
 test.skipIf(Tempo.nodeEnv !== 'localnet')(
   'plain HTTP transport: selects a funded token and broadcasts the transaction',
   async () => {

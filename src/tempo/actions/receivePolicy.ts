@@ -29,7 +29,7 @@ import type {
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, isTip20 } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /** TIP-403 policy type. */
@@ -58,9 +58,6 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 
 /** @internal */
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
-
-/** @internal 12-byte prefix shared by TIP-20 token addresses. */
-const tip20Prefix = '0x20c000000000000000000000'
 
 /** @internal */
 const systemPrecompiles = [
@@ -1300,7 +1297,7 @@ function assertValidRecoveryAuthority(recoveryAuthority: Address) {
   if (isAddressEqual(recoveryAuthority, zeroAddress)) return
   if (VirtualAddress.isVirtual(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
-  if (recoveryAuthority.toLowerCase().startsWith(tip20Prefix))
+  if (isTip20(recoveryAuthority))
     throw new Error('Recovery authority cannot be a TIP-20 token address.')
   if (
     systemPrecompiles.some((address) =>

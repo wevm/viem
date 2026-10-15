@@ -1,11 +1,28 @@
 import type { Address } from 'abitype'
-import { Hash, type Hex, RpcResponse, Signature } from 'ox'
-import { type Transaction as core_Transaction, TxEnvelopeTempo } from 'ox/tempo'
+import {
+  Address as core_Address,
+  Hash,
+  Hex,
+  Rlp,
+  RpcResponse,
+  Signature,
+} from 'ox'
+import {
+  AccountConfig,
+  type Transaction as core_Transaction,
+  KeyAuthorization,
+  SignatureEnvelope,
+  TxEnvelopeTempo,
+} from 'ox/tempo'
 import type { LocalAccount } from '../../../accounts/types.js'
+import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
+import { readContract } from '../../../actions/public/readContract.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
+import * as AccessKey from '../../actions/accessKey.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import * as Accounts from './accounts.js'
 import * as Request from './request.js'
 import * as Utils from './utils.js'
 
@@ -19,6 +36,18 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       }),
     ),
   )
+  const validity = options.validity ?? defaultValidity
+  // A non-integer window would let `Validity.assert` admit unbounded `validBefore` values.
+  if (!Number.isSafeInteger(validity) || validity <= 0)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Expected `validity` to be a positive integer number of seconds.',
+    })
+  const resolveFeeToken = (chainId: number | undefined) => {
+    if (typeof options.feeToken !== 'function') return options.feeToken
+    if (chainId === undefined) return undefined
+    return options.feeToken({ chainId })
+  }
   return {
     async handleRequest(context, next) {
       const { request } = context
@@ -60,7 +89,6 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           return next()
 
         const result = await handleRawTransaction({
-          ...options,
           account: options.account,
           getClient,
           getFeeToken: async (id) => (await getTokens(id))[0],
@@ -68,7 +96,13 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
             | 'eth_signRawTransaction'
             | 'eth_sendRawTransaction'
             | 'eth_sendRawTransactionSync',
+          minimumBaseFee: options.minimumBaseFee ?? defaultMinimumBaseFee,
+          onRejected: options.onRejected,
+          onSponsored: options.onSponsored,
           request,
+          resolveFeeToken,
+          validate: options.validate,
+          validity,
         })
 
         record(result.sponsorshipDetails)
@@ -96,12 +130,13 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       const base = { ...normalized, chainId }
       if (!wantsSponsorship) return Request.fill(client, base)
 
-      const token =
-        options.feeToken ??
-        (parameters.feeToken as Address | undefined) ??
-        (!options.validate || external
-          ? (await getTokens(chainId!))[0]
-          : undefined)
+      // An external fee payer picks its own token, so the local sponsor's preference stays out of its request.
+      const token = external
+        ? ((parameters.feeToken as Address | undefined) ??
+          (await getTokens(chainId!))[0])
+        : (resolveFeeToken(chainId) ??
+          (parameters.feeToken as Address | undefined) ??
+          (!options.validate ? (await getTokens(chainId!))[0] : undefined))
       const transaction = {
         ...base,
         feePayer: true,
@@ -138,6 +173,15 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       if (token && (!external || filled.feeToken == null))
         Object.assign(filled, { feeToken: token })
 
+      const defer =
+        typeof normalized.multisigSimulation === 'object' &&
+        normalized.multisigSimulation !== null
+
+      // Bound before validation so the validated envelope is the one signed, and returned signatures expire.
+      const signs = !!options.account && !external && !defer
+      if (signs && filled.validBefore == null)
+        filled.validBefore = Validity.generate({ validity })
+
       const sponsored =
         external ||
         !options.validate ||
@@ -147,10 +191,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
           validate: options.validate,
         }))
       if (!sponsored) return Request.fill(client, { ...base, feePayer: false })
-
-      const defer =
-        typeof normalized.multisigSimulation === 'object' &&
-        normalized.multisigSimulation !== null
+      if (signs) Validity.assert(filled, { validity })
 
       const sponsor = sponsored
         ? external
@@ -215,6 +256,7 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
         sender: parameters.from as Address | undefined,
         transaction,
         signal: context.options.signal,
+        validity,
       })
       if (signed.sponsorshipDetails && context.options.response)
         context.options.response.sponsorship_details = signed.sponsorshipDetails
@@ -336,7 +378,7 @@ function isPreparedTransaction(value: Record<string, unknown>) {
 
 /** Signs a filled transaction as the fee payer. */
 export async function sign(options: sign.Options) {
-  const { account, transaction, sender } = options
+  const { account, transaction, sender, validity = defaultValidity } = options
   const from = (transaction.from as Address | undefined) ?? sender
   const { signature: _, ...withoutSenderSig } = transaction
   const prepared = { ...withoutSenderSig, from }
@@ -355,6 +397,8 @@ export async function sign(options: sign.Options) {
     })
 
   const envelope = TxEnvelopeTempo.from(prepared as never)
+  // Checked on the envelope itself: serialization drops non-numeric bounds, which would sign an unbounded payload.
+  Validity.assert(envelope, { validity })
   const signPayload = TxEnvelopeTempo.getFeePayerSignPayload(envelope, {
     sender: prepared.from,
   })
@@ -368,6 +412,7 @@ export async function sign(options: sign.Options) {
   const feeToken = transaction.feeToken as Address | null | undefined
   const sponsorshipDetails = await options.onSponsored?.({
     chainId,
+    feePayer: account.address,
     ...(feeToken ? { feeToken } : {}),
     method: 'eth_fillTransaction',
     sender: prepared.from,
@@ -397,6 +442,8 @@ export declare namespace sign {
     transaction: Record<string, unknown>
     /** Sender address from the original request. */
     sender?: Address | undefined
+    /** Longest accepted validity window, in seconds, of the signed transaction. @default 3600 */
+    validity?: number | undefined
   }
 }
 
@@ -405,11 +452,11 @@ export declare namespace sign {
 async function handleRawTransaction(options: handleRawTransaction.Options) {
   const {
     account,
-    feeToken: sponsorFeeToken,
     getClient,
     method,
     request,
     validate,
+    validity = defaultValidity,
   } = options
   const serialized = request.params?.[0] as `0x76${string}` | undefined
 
@@ -417,32 +464,44 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
     throw new RpcResponse.InvalidParamsError({
       message: 'Only Tempo (0x76/0x78) transactions are supported.',
     })
+  // Refused before validation, recording, or signing, so every decision reads the exact signed bytes.
+  if (!isCanonical(serialized))
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Transaction encoding is not canonical. Re-encode it with in-range field values.',
+    })
 
   const transaction = Transaction.deserialize(serialized)
-  // Prefer sender recovered from raw envelope; configurable account finalize path supplies fallback sender.
-  const sender = transaction.from ?? options.sender
 
   // Sponsorship only applies after sender has signed original transaction.
-  if (!transaction.signature || !sender)
+  if (!transaction.signature)
     throw new RpcResponse.InvalidParamsError({
       message:
         'Transaction must be signed by the sender before fee payer signing.',
     })
   if (!account.sign)
     throw new Error('Fee payer account cannot sign transactions.')
+  // Raw signing returns the co-signed bytes, and sender-signed bytes cannot gain a bound afterwards.
+  if (method === 'eth_signRawTransaction')
+    Validity.assert(transaction, { validity })
 
   const client = getClient(transaction.chainId)
+  // Verified before validation or signing so unauthorized envelopes never reach sponsorship policy.
+  const sender = await recoverSender(client, serialized)
   const feeToken_chain = (
     client.chain as { feeToken?: Address | undefined } | undefined
   )?.feeToken
+  // Senders do not commit to `feeToken` on sponsored envelopes, so the sponsor's preference overrides the envelope's.
   const feeToken =
+    options.resolveFeeToken?.(transaction.chainId) ??
     (transaction.feeToken as Address | null | undefined) ??
-    sponsorFeeToken ??
     (await options.getFeeToken?.(transaction.chainId)) ??
     feeToken_chain
-  const transaction_sponsored = feeToken
-    ? { ...transaction, feeToken }
-    : transaction
+  const transaction_sponsored = {
+    ...transaction,
+    from: sender,
+    ...(feeToken ? { feeToken } : {}),
+  }
 
   if (validate) {
     const verdict = await validate(
@@ -468,29 +527,41 @@ async function handleRawTransaction(options: handleRawTransaction.Options) {
     signature: transaction.signature,
   })
 
-  // Awaited before any broadcast so a recording failure refuses sponsorship;
-  // no sponsored transaction ever reaches the chain unrecorded.
-  const sponsorshipDetails = await options.onSponsored?.({
+  const event = {
     chainId: transaction.chainId,
+    feePayer: account.address,
     ...(feeToken ? { feeToken } : {}),
     method,
     sender,
     signPayload,
     transaction: serializedTransaction,
     transactionHash: Hash.keccak256(serializedTransaction),
-  })
+  } satisfies SponsoredEvent
+  // Awaited before any broadcast so a recording failure refuses sponsorship;
+  // no sponsored transaction ever reaches the chain unrecorded.
+  const sponsorshipDetails = await options.onSponsored?.(event)
 
   // Raw-sign requests stop after fee-payer signature is added; send methods broadcast it.
   const result =
     method === 'eth_signRawTransaction'
       ? serializedTransaction
-      : await client.request({
-          method: method as never,
-          params: [
-            serializedTransaction,
-            ...(request.params?.slice(1) ?? []),
-          ] as never,
-        })
+      : await client
+          .request({
+            method: method as never,
+            params: [
+              serializedTransaction,
+              ...(request.params?.slice(1) ?? []),
+            ] as never,
+          })
+          .catch(async (error: unknown) => {
+            // Transport failures, timeouts, and node-local floors stay unreported: the envelope may still land.
+            if (
+              isBaseFeeRejection(error) &&
+              (transaction.maxFeePerGas ?? 0n) < options.minimumBaseFee
+            )
+              await options.onRejected?.(event)
+            throw error
+          })
   return { result, ...(sponsorshipDetails ? { sponsorshipDetails } : {}) }
 }
 
@@ -498,9 +569,7 @@ declare namespace handleRawTransaction {
   type Options = {
     /** Account used as the fee payer. */
     account: LocalAccount
-    /** Optional token the fee payer prefers for sponsored raw transactions. */
-    feeToken?: Address | undefined
-    /** Optional fee-token resolver used when the raw envelope omits `feeToken`. */
+    /** Optional fee-token resolver used when neither the sponsor nor the raw envelope names a `feeToken`. */
     getFeeToken?:
       | ((chainId: number) => Promise<Address | undefined>)
       | undefined
@@ -511,6 +580,10 @@ declare namespace handleRawTransaction {
       | 'eth_signRawTransaction'
       | 'eth_sendRawTransaction'
       | 'eth_sendRawTransactionSync'
+    /** Lowest base fee the target chain can ever charge; rejected fee caps below it can never be included. */
+    minimumBaseFee: bigint
+    /** Called when the node definitively rejects the sponsored broadcast. Awaited: a throw replaces the node error. */
+    onRejected?: ((event: SponsoredEvent) => void | Promise<void>) | undefined
     /** Called once the fee payer has signed, before any broadcast. Awaited: a throw aborts the request. */
     onSponsored?:
       | ((
@@ -519,10 +592,294 @@ declare namespace handleRawTransaction {
       | undefined
     /** Incoming JSON-RPC request. */
     request: { params?: readonly unknown[] | undefined }
-    /** Sender address to use if it cannot be recovered from the raw envelope. */
-    sender?: Address | undefined
+    /** Resolves the sponsor's preferred token by transaction chain; it overrides the envelope's `feeToken`. */
+    resolveFeeToken?: ((chainId: number) => Address | undefined) | undefined
     /** Optional sponsorship approval callback. */
     validate?: Validate | undefined
+    /** Longest accepted `validBefore` distance, in seconds, for `eth_signRawTransaction`. @default 3600 */
+    validity?: number | undefined
+  }
+}
+
+/** Returns whether a raw envelope re-serializes to its exact bytes; lossy parses (such as `u64` values past `Number.MAX_SAFE_INTEGER`) and non-canonical RLP fail. */
+function isCanonical(serialized: `0x76${string}` | `0x78${string}`) {
+  try {
+    const envelope = TxEnvelopeTempo.deserialize(
+      serialized as TxEnvelopeTempo.Serialized,
+    )
+    // Fee-payer handoffs encode a sender address or, for configurable senders, the `0x00` marker.
+    const slot = (Rlp.toHex(Hex.slice(serialized, 1)) as readonly Hex.Hex[])[11]
+    const serialized_parsed = serialized.startsWith(
+      TxEnvelopeTempo.feePayerMagic,
+    )
+      ? TxEnvelopeTempo.serialize(envelope, {
+          format: 'feePayer',
+          ...(typeof slot === 'string' && core_Address.validate(slot)
+            ? { sender: slot }
+            : {}),
+        })
+      : TxEnvelopeTempo.serialize(envelope)
+    return serialized_parsed === serialized.toLowerCase()
+  } catch {
+    // Serialization refuses parsed values outside the safe integer range.
+    return false
+  }
+}
+
+/** Recovers a raw envelope's sender from its signature, rejecting placeholders and access keys the sender has not authorized. */
+async function recoverSender(
+  client: Client,
+  serialized: `0x76${string}` | `0x78${string}`,
+) {
+  const envelope = TxEnvelopeTempo.deserialize(
+    serialized as TxEnvelopeTempo.Serialized,
+  )
+  const { keyAuthorization, signature } = envelope
+  if (!signature)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Transaction must be signed by the sender before fee payer signing.',
+    })
+  const payload = TxEnvelopeTempo.getSignPayload(envelope)
+
+  const sender = await (async () => {
+    if (signature.type === 'configurable')
+      return verifyConfigurable(client, { payload, signature })
+    if (signature.type !== 'keychain') return recoverSigner(payload, signature)
+    // Tempo rejects legacy access-key signatures, which do not bind the key to its account.
+    if (signature.version !== 'v2')
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Legacy access key signatures are not supported.',
+      })
+
+    const { inner, userAddress } = signature
+    const keyId = recoverSigner(
+      TxEnvelopeTempo.getSignPayload(envelope, { from: userAddress }),
+      inner,
+    )
+    // Only primitive inner signatures recover a key, so the type indexes `keyTypes`.
+    if (!keyId) return undefined
+    const keyType = keyTypes[inner.type as keyof typeof keyTypes]
+
+    // A same-transaction authorization signed by the account provisions the key; the node
+    // requires its chain, key type, and any named account to match exactly.
+    const authorization = await (async () => {
+      if (
+        !keyAuthorization ||
+        !core_Address.isEqual(keyAuthorization.address, keyId) ||
+        keyAuthorization.chainId !== BigInt(envelope.chainId) ||
+        keyAuthorization.type !== inner.type ||
+        (keyAuthorization.account &&
+          !core_Address.isEqual(keyAuthorization.account, userAddress))
+      )
+        return undefined
+      const { signature: signature_authorization } = keyAuthorization
+      const payload_authorization =
+        KeyAuthorization.getSignPayload(keyAuthorization)
+      const authorizer =
+        signature_authorization.type === 'configurable'
+          ? await verifyConfigurable(client, {
+              payload: payload_authorization,
+              signature: signature_authorization,
+            })
+          : recoverSigner(payload_authorization, signature_authorization)
+      if (authorizer && core_Address.isEqual(authorizer, userAddress))
+        return keyAuthorization
+      return undefined
+    })()
+
+    // Zones lack the signature-verifier precompile, so read the keychain directly; an unknown
+    // key has zero expiry. Caller-scoped Zone endpoints authorize reads by the account.
+    const [key, isWitnessBurned] = await Promise.all([
+      readContract(client, {
+        ...AccessKey.getMetadata.call({
+          account: userAddress,
+          accessKey: keyId,
+        }),
+        account: userAddress,
+      }),
+      authorization?.witness
+        ? readContract(client, {
+            ...AccessKey.isWitnessBurned.call({
+              account: userAddress,
+              witness: authorization.witness,
+            }),
+            account: userAddress,
+          })
+        : false,
+    ])
+    const now = BigInt(Math.floor(Date.now() / 1000))
+    const authorized = (() => {
+      if (key.isRevoked) return false
+      // Without a usable authorization, the key must already be active on chain.
+      if (!authorization)
+        return key.signatureType === keyType && now < key.expiry
+      // Provisioning fails for an existing key, an expired grant, or a burned witness, so replays never pass.
+      if (key.expiry !== 0n || isWitnessBurned) return false
+      return authorization.expiry == null || now < BigInt(authorization.expiry)
+    })()
+    if (!authorized)
+      throw new RpcResponse.InvalidParamsError({
+        message: 'Transaction access key is not authorized for its sender.',
+      })
+    return userAddress
+  })()
+
+  if (!sender)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Transaction signature is invalid.',
+    })
+  // An address-valued fee-payer marker is caller-supplied and stands only when the signature agrees.
+  if (envelope.from && !core_Address.isEqual(envelope.from, sender))
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Transaction sender does not match its signature.',
+    })
+  return sender
+}
+
+/**
+ * Returns a configurable signature's account once its config matches the on-chain commitment and
+ * its owner approvals of `payload` reach quorum. Raw signing returns before any node checks them.
+ */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function verifyConfigurable(
+  client: Client,
+  options: verifyConfigurable.Options,
+) {
+  const { payload, signature } = options
+  const { account } = signature
+  const config = AccountConfig.from(signature.config)
+  const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+  await Accounts.validateConfig({
+    account,
+    blockNumber,
+    client: client as never,
+    config,
+  })
+  const { threshold, weight } = await Accounts.selectApprovals({
+    account,
+    approvals: signature.signatures.map((approval) =>
+      SignatureEnvelope.serialize(approval),
+    ),
+    config,
+    hash: AccountConfig.getSignPayload({ account, config, payload }),
+  })
+  if (weight < threshold)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Configurable account approvals do not reach quorum.',
+    })
+  return account
+}
+
+declare namespace verifyConfigurable {
+  type Options = {
+    /** Sign payload the account's owners approve. */
+    payload: Hex.Hex
+    /** Configurable signature carrying the account config and owner approvals. */
+    signature: Extract<
+      SignatureEnvelope.SignatureEnvelope,
+      { type: 'configurable' }
+    >
+  }
+}
+
+/** Returns the signer of a primitive signature, or `undefined` when it does not verify against `payload`. */
+function recoverSigner(
+  payload: Hex.Hex,
+  signature: SignatureEnvelope.SignatureEnvelope,
+) {
+  try {
+    if (signature.type === 'secp256k1')
+      return SignatureEnvelope.extractAddress({ payload, signature })
+    if (signature.type !== 'p256' && signature.type !== 'webAuthn')
+      return undefined
+    const { publicKey } = signature
+    if (!SignatureEnvelope.verify(signature, { payload, publicKey }))
+      return undefined
+    return core_Address.fromPublicKey(publicKey)
+  } catch {
+    return undefined
+  }
+}
+
+/** AccountKeychain signature type ids keyed by primitive signature type. */
+const keyTypes = { p256: 1, secp256k1: 0, webAuthn: 2 } as const
+
+/** Default lowest base fee Tempo consensus admits (the T7 floor), in attodollars per gas. */
+const defaultMinimumBaseFee = 600_000_000n
+
+/** Returns whether a broadcast error carries the node's base-fee floor rejection. */
+function isBaseFeeRejection(error: unknown) {
+  let current: unknown = error
+  const seen = new Set<unknown>()
+  while (current && typeof current === 'object' && !seen.has(current)) {
+    seen.add(current)
+    const { cause, code, message } = current as Record<string, unknown>
+    // Reth reports pool admission failures as invalid input (-32000). `transaction underpriced`
+    // reflects a node-configurable floor, so another node could still admit the envelope.
+    if (code === -32000 && message === 'gas price is less than basefee')
+      return true
+    current = cause
+  }
+  return false
+}
+
+/** Default longest validity, in seconds, of a returned fee-payer signature. */
+const defaultValidity = 3_600
+
+/** Granularity, in seconds, of a generated `validBefore`, so identical fill retries share one sign payload. */
+const validityStep = 300
+
+/** Bounds on how long a returned fee-payer signature stays valid on chain. */
+namespace Validity {
+  /** Returns a `validBefore` rounded down to the generation step, then extended by `validity`. */
+  export function generate(options: generate.Options) {
+    const { validity } = options
+    const step = Math.min(validityStep, validity)
+    const time = Math.floor(Date.now() / 1_000)
+    return time - (time % step) + validity
+  }
+
+  export declare namespace generate {
+    type Options = {
+      /** Longest validity window, in seconds. */
+      validity: number
+    }
+  }
+
+  /** Throws unless `validBefore` is a future time within `validity` seconds that opens after `validAfter`. */
+  export function assert(window: assert.Window, options: assert.Options) {
+    const { validAfter, validBefore } = window
+    const { validity } = options
+    const time = Math.floor(Date.now() / 1_000)
+    if (
+      validBefore === undefined ||
+      validBefore === null ||
+      !Number.isSafeInteger(validBefore) ||
+      validBefore <= time ||
+      validBefore > time + validity ||
+      (validAfter !== undefined &&
+        validAfter !== null &&
+        validAfter >= validBefore)
+    )
+      throw new RpcResponse.InvalidParamsError({
+        message: `Sponsored transactions require a \`validBefore\` within ${validity} seconds.`,
+      })
+  }
+
+  export declare namespace assert {
+    /** Validity window of the transaction being co-signed, in unix seconds. */
+    type Window = {
+      /** Earliest inclusion time. */
+      validAfter?: number | null | undefined
+      /** Latest inclusion time. */
+      validBefore?: number | null | undefined
+    }
+
+    type Options = {
+      /** Longest validity window, in seconds. */
+      validity: number
+    }
   }
 }
 
@@ -530,6 +887,8 @@ declare namespace handleRawTransaction {
 export type SponsoredEvent = {
   /** Chain the sponsored transaction targets. */
   chainId: number
+  /** Fee-payer address that signed the envelope. */
+  feePayer: Address
   /** Fee token the sponsorship resolved, when known. */
   feeToken?: Address | undefined
   /** Method that triggered sponsorship: a fill (intent) or a raw submission. */
@@ -538,7 +897,7 @@ export type SponsoredEvent = {
     | 'eth_signRawTransaction'
     | 'eth_sendRawTransaction'
     | 'eth_sendRawTransactionSync'
-  /** Transaction sender. */
+  /** Transaction sender, recovered from its signature for raw submissions. */
   sender: Address
   /** Fee-payer sign payload: a stable identity for the sponsored envelope. */
   signPayload: Hex.Hex

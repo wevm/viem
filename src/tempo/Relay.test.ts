@@ -332,6 +332,62 @@ describe('create', () => {
     ).toBe(415)
   })
 
+  test('fetch rejects a declared body length over 16 MiB before reading it', async () => {
+    const relay = Relay.create({ client })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': String(16 * 1_024 * 1_024 + 1),
+        },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'eth_chainId' }),
+      }),
+    )
+
+    expect(response.status).toBe(413)
+    expect(await response.json()).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "Request body exceeds 16 MiB",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
+  })
+
+  test('fetch stops reading a streamed body once it exceeds 16 MiB', async () => {
+    const relay = Relay.create({ client })
+    // An endless body only completes if the relay cancels it at the limit.
+    const body = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        controller.enqueue(new Uint8Array(1_024 * 1_024).fill(0x20))
+      },
+    })
+    const response = await relay.fetch(
+      new Request('https://relay.example', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        duplex: 'half',
+      } as RequestInit),
+    )
+
+    expect(response.status).toBe(413)
+    expect(await response.json()).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "Request body exceeds 16 MiB",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
+  })
+
   test('fetch preserves RPC errors and hides internal exceptions', async () => {
     const relay = Relay.create({
       client,

@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { RpcResponse } from 'ox'
+import { Hex, RpcResponse } from 'ox'
 import type { Transaction as core_Transaction } from 'ox/tempo'
 import { tempo } from '../../../chains/index.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
@@ -151,20 +151,33 @@ export function compose(
             | Record<string, unknown>
             | undefined
           // The node must estimate unsigned sponsorship independently of the sender's fee-token balance.
-          const request =
+          const sponsored =
             state.request.method === 'eth_fillTransaction' &&
             parameters?.feePayer === true &&
             !parameters.feePayerSignature
-              ? {
-                  ...state.request,
-                  params: [{ ...parameters, feeToken: undefined }],
-                }
-              : state.request
+              ? parameters
+              : undefined
+          const fees = sponsored ? parseFees(sponsored) : undefined
+          const request = (() => {
+            if (!sponsored) return state.request
+            const {
+              maxFeePerGas: _,
+              maxPriorityFeePerGas: __,
+              ...unpriced
+            } = sponsored
+            return {
+              ...state.request,
+              params: [
+                { ...(fees ? unpriced : sponsored), feeToken: undefined },
+              ],
+            }
+          })()
           requestOptions.signal?.throwIfAborted()
-          state.result = await downstream(request, {
+          const result = await downstream(request, {
             ...state.options,
             ...(isFill ? { signal: requestOptions.signal } : {}),
           })
+          state.result = fees ? restoreFees(result, fees) : result
           return
         }
         const plugin = plugins[index]!
@@ -389,3 +402,89 @@ export async function fill(
 
   return { ...result, tx: Utils.mergeCallsFromRequest(result.tx, transaction) }
 }
+
+/** Caller fee caps restored after an unpriced sponsored fill. */
+type Fees = {
+  maxFeePerGas: bigint | undefined
+  maxPriorityFeePerGas: bigint | undefined
+}
+
+/**
+ * Parses caller fee caps for a sponsored fill without gas. Tempo estimates gas before it knows the
+ * sponsor, so a priced request caps gas by the sender's fee balance.
+ */
+function parseFees(parameters: Record<string, unknown>): Fees | undefined {
+  if (parameters.gas != null) return undefined
+  const maxFeePerGas = parseFee(parameters.maxFeePerGas)
+  const maxPriorityFeePerGas = parseFee(parameters.maxPriorityFeePerGas)
+  // Invalid values reach the node unchanged so it rejects them itself.
+  if (maxFeePerGas === null || maxPriorityFeePerGas === null) return undefined
+  if (maxFeePerGas === undefined && maxPriorityFeePerGas === undefined)
+    return undefined
+  // Incompatible caps reach the node unchanged so it rejects the combination itself.
+  if (
+    maxFeePerGas !== undefined &&
+    maxPriorityFeePerGas !== undefined &&
+    maxPriorityFeePerGas > maxFeePerGas
+  )
+    return undefined
+  return { maxFeePerGas, maxPriorityFeePerGas }
+}
+
+/** Restores caller fee caps on a filled transaction. */
+function restoreFees(result: unknown, fees: Fees): unknown {
+  const { tx } = (result ?? {}) as Partial<Result>
+  // A downstream sponsor signature binds its own fees; changing them would invalidate it.
+  if (!tx || typeof tx !== 'object' || tx.feePayerSignature) return result
+  const filled = parseFee(tx.maxFeePerGas)
+  const tip = parseFee(tx.maxPriorityFeePerGas)
+  // A caller tip above the node-chosen fee cap raises the cap so the transaction stays valid.
+  const maxFeePerGas =
+    fees.maxFeePerGas ??
+    (filled != null &&
+    fees.maxPriorityFeePerGas !== undefined &&
+    fees.maxPriorityFeePerGas > filled
+      ? fees.maxPriorityFeePerGas
+      : filled)
+  if (maxFeePerGas == null)
+    return fees.maxPriorityFeePerGas === undefined
+      ? result
+      : {
+          ...(result as Result),
+          tx: {
+            ...tx,
+            maxPriorityFeePerGas: Hex.fromNumber(fees.maxPriorityFeePerGas),
+          },
+        }
+  // A node-chosen tip above the caller's fee cap would make the transaction invalid.
+  const maxPriorityFeePerGas =
+    fees.maxPriorityFeePerGas ??
+    (tip != null && tip < maxFeePerGas ? tip : maxFeePerGas)
+  return {
+    ...(result as Result),
+    tx: {
+      ...tx,
+      maxFeePerGas: Hex.fromNumber(maxFeePerGas),
+      maxPriorityFeePerGas: Hex.fromNumber(maxPriorityFeePerGas),
+    },
+  }
+}
+
+/** Parses a fee quantity, returning `null` for values the node should reject itself. */
+function parseFee(value: unknown) {
+  if (value == null) return undefined
+  if (typeof value === 'bigint')
+    return value >= 0n && value <= maxQuantity ? value : null
+  if (typeof value === 'number')
+    return Number.isSafeInteger(value) && value >= 0 ? BigInt(value) : null
+  // Only canonical RPC quantities are rewritten; leading zeros and over-width values reach the node.
+  if (typeof value === 'string' && quantityPattern.test(value))
+    return Hex.toBigInt(value as Hex.Hex)
+  return null
+}
+
+/** Largest 256-bit RPC quantity. */
+const maxQuantity = 2n ** 256n - 1n
+
+/** Canonical RPC quantity: `0x0` or a hex value without leading zeros, at most 256 bits. */
+const quantityPattern = /^0x(?:0|[1-9a-fA-F][0-9a-fA-F]{0,63})$/

@@ -128,8 +128,16 @@ test('transaction plugins expose typed policies and caches', () => {
         >()
         return 'spend_limit_exceeded'
       },
+      feeToken({ chainId }) {
+        expectTypeOf(chainId).toEqualTypeOf<number>()
+        return undefined
+      },
+      onRejected(event) {
+        expectTypeOf(event).toEqualTypeOf<Relay.feePayer.SponsoredEvent>()
+      },
       onSponsored(event) {
         expectTypeOf(event).toEqualTypeOf<Relay.feePayer.SponsoredEvent>()
+        expectTypeOf(event.feePayer).toEqualTypeOf<`0x${string}`>()
         return { subsidized: false }
       },
     }),
@@ -143,6 +151,8 @@ test('transaction plugins expose typed policies and caches', () => {
   })
   // @ts-expect-error A policy must return a supported verdict.
   Relay.feePayer({ validate: () => 'allow' })
+  // @ts-expect-error A fee-token resolver must return an address.
+  Relay.feePayer({ feeToken: () => 'pathUSD' })
   // @ts-expect-error Tokens must be addresses.
   Relay.handleRequest(async () => null, { resolveTokens: () => ['pathUSD'] })
 })
