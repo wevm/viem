@@ -34,6 +34,12 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
     ),
   )
   const validity = options.validity ?? defaultValidity
+  // A non-integer window would let `Validity.assert` admit unbounded `validBefore` values.
+  if (!Number.isSafeInteger(validity) || validity <= 0)
+    throw new RpcResponse.InvalidParamsError({
+      message:
+        'Expected `validity` to be a positive integer number of seconds.',
+    })
   const resolveFeeToken = (chainId: number | undefined) => {
     if (typeof options.feeToken !== 'function') return options.feeToken
     if (chainId === undefined) return undefined

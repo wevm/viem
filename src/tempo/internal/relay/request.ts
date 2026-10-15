@@ -421,6 +421,13 @@ function parseFees(parameters: Record<string, unknown>): Fees | undefined {
   if (maxFeePerGas === null || maxPriorityFeePerGas === null) return undefined
   if (maxFeePerGas === undefined && maxPriorityFeePerGas === undefined)
     return undefined
+  // Incompatible caps reach the node unchanged so it rejects the combination itself.
+  if (
+    maxFeePerGas !== undefined &&
+    maxPriorityFeePerGas !== undefined &&
+    maxPriorityFeePerGas > maxFeePerGas
+  )
+    return undefined
   return { maxFeePerGas, maxPriorityFeePerGas }
 }
 

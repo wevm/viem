@@ -1653,6 +1653,17 @@ describe('fee-payer signature validity', () => {
     },
   )
 
+  test.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'refuses validity: %s',
+    (validity) => {
+      expect(() =>
+        Relay.feePayer({ account: feePayerAccount, validity }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[RpcResponse.InvalidParamsError: Expected \`validity\` to be a positive integer number of seconds.]`,
+      )
+    },
+  )
+
   test('bounds fills by the configured validity', async () => {
     const relay = Relay.create({
       client: caller,
