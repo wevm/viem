@@ -441,6 +441,8 @@ test('estimates sponsored fills without caller fee caps and restores them', asyn
     fill({ maxPriorityFeePerGas: '0xc8' }),
     fill({ maxPriorityFeePerGas: '0x5' }, { maxFeePerGas: undefined }),
     fill({ maxFeePerGas: '0x5', maxPriorityFeePerGas: '0x6' }),
+    fill({ maxFeePerGas: '0x032' }),
+    fill({ maxFeePerGas: `0x1${'0'.repeat(64)}` }),
   ])
 
   expect(
@@ -564,6 +566,24 @@ test('estimates sponsored fills without caller fee caps and restores them', asyn
           "feeToken": undefined,
           "maxFeePerGas": "0x5",
           "maxPriorityFeePerGas": "0x6",
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": "0x032",
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x2",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": "0x10000000000000000000000000000000000000000000000000000000000000000",
+          "maxPriorityFeePerGas": undefined,
         },
         "maxFeePerGas": "0x64",
         "maxPriorityFeePerGas": "0x2",

@@ -473,14 +473,18 @@ function restoreFees(result: unknown, fees: Fees): unknown {
 /** Parses a fee quantity, returning `null` for values the node should reject itself. */
 function parseFee(value: unknown) {
   if (value == null) return undefined
-  if (typeof value === 'bigint') return value >= 0n ? value : null
+  if (typeof value === 'bigint')
+    return value >= 0n && value <= maxQuantity ? value : null
   if (typeof value === 'number')
     return Number.isSafeInteger(value) && value >= 0 ? BigInt(value) : null
-  if (
-    typeof value === 'string' &&
-    value !== '0x' &&
-    Hex.validate(value, { strict: true })
-  )
-    return Hex.toBigInt(value)
+  // Only canonical RPC quantities are rewritten; leading zeros and over-width values reach the node.
+  if (typeof value === 'string' && quantityPattern.test(value))
+    return Hex.toBigInt(value as Hex.Hex)
   return null
 }
+
+/** Largest 256-bit RPC quantity. */
+const maxQuantity = 2n ** 256n - 1n
+
+/** Canonical RPC quantity: `0x0` or a hex value without leading zeros, at most 256 bits. */
+const quantityPattern = /^0x(?:0|[1-9a-fA-F][0-9a-fA-F]{0,63})$/
