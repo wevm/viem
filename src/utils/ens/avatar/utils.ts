@@ -19,6 +19,7 @@ import {
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
+import { type NumberToHexErrorType, numberToHex } from '../../encoding/toHex.js'
 
 type UriItem = {
   uri: string
@@ -294,4 +295,28 @@ export async function getNftTokenUri<chain extends Chain | undefined>(
     })
   }
   throw new EnsAvatarUnsupportedNamespaceError({ namespace: nft.namespace })
+}
+
+export type GetNftMetadataUriErrorType = NumberToHexErrorType | ErrorType
+
+/**
+ * Substitutes the `{id}` placeholder of an NFT metadata URI with the token ID.
+ *
+ * ERC-1155 requires the ID to be substituted as lowercase hex, without a `0x`
+ * prefix and zero-padded to 64 characters.
+ *
+ * @see https://eips.ethereum.org/EIPS/eip-1155#metadata
+ */
+export function getNftMetadataUri({
+  nft,
+  uri,
+}: {
+  nft: ParsedNft
+  uri: string
+}) {
+  const tokenId =
+    nft.namespace === 'erc1155'
+      ? numberToHex(BigInt(nft.tokenID), { size: 32 }).slice(2)
+      : nft.tokenID
+  return uri.replace(/(?:0x)?{id}/, tokenId)
 }
