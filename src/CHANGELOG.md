@@ -1,5 +1,11 @@
 # viem
 
+## 2.57.8
+
+### Patch Changes
+
+- [#5236](https://github.com/wevm/viem/pull/5236) [`72950dd9442df72fbcb78a3949a778c9bfc78f8d`](https://github.com/wevm/viem/commit/72950dd9442df72fbcb78a3949a778c9bfc78f8d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Hardened `Relay` sponsorship.
+
 ## 2.57.7
 
 ### Patch Changes
