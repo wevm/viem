@@ -147,6 +147,8 @@ export const eip8130ChainConfig = {
           senderActorId: req.senderActorId ?? account.actorId,
           senderAuthAuthenticator: req.senderAuthAuthenticator,
           dataSuffix,
+          maxFeePerGas: body.maxFeePerGas,
+          maxPriorityFeePerGas: body.maxPriorityFeePerGas,
         }))
 
       return {

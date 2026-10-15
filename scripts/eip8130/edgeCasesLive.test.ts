@@ -334,11 +334,12 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
     test('integer fields accept quantities and JSON numbers', async () => {
       const sender = freshEoa()
       const calls = [[{ to: sender.address, data: '0x' }]]
+      const validBefore = Number((await latestBlock()).timestamp) + 3600
       const hex = await rpc('eth_estimateGas', [
         {
           type: '0x79',
           sender: sender.address,
-          validBefore: '0x10',
+          validBefore: `0x${validBefore.toString(16)}`,
           nonceKey: '0x1',
           calls,
         },
@@ -348,7 +349,7 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
         {
           type: '0x79',
           sender: sender.address,
-          validBefore: 16,
+          validBefore,
           nonceKey: 1,
           calls,
         },
@@ -360,6 +361,23 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
         num.result ?? errorOf(num),
       )
       expect(hex.error).toBeUndefined()
+      expect(num.result).toBe(hex.result)
+    })
+
+    test('an elapsed validity window is rejected', async () => {
+      const sender = freshEoa()
+      const r = await rpc('eth_estimateGas', [
+        {
+          type: '0x79',
+          sender: sender.address,
+          validBefore: '0x10',
+          nonceKey: '0x1',
+          calls: [[{ to: sender.address, data: '0x' }]],
+        },
+        'pending',
+      ])
+      expect(r.error?.code).toBe(-32602)
+      expect(r.error?.message).toContain('validity window has already elapsed')
     })
 
     test('nonce-free: core client.sendTransaction lands with auto gas', async () => {
@@ -618,7 +636,7 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
       expect(unfunded.error).toBeDefined()
     }, 120_000)
 
-    test('admission requires the sender to cover every call value up front', async () => {
+    test('call value the sender cannot cover reverts that phase at execution', async () => {
       const sender = freshEoa()
       const sponsor = privateKeyToAccount(generatePrivateKey())
       await fund(sender.address, 1_000n)
@@ -630,6 +648,9 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
         gas: 300_000n,
       })
       tx.payer = sponsor.address
+      const sponsorBefore = await getBalance(client, {
+        address: sponsor.address,
+      })
       const r = await sendRaw(
         await signTransaction({
           transaction: tx,
@@ -637,11 +658,24 @@ describe.runIf(RPC && FAUCET_PK)('live: AA transaction edge cases', () => {
           payer: { account: sponsor },
         }),
       )
-      // The sponsor pays gas, but the sender's balance must cover the sum of
-      // all call values (across phases) at admission.
-      console.log('sum of values over balance:', errorOf(r))
-      expect(r.error?.message).toContain('insufficient funds')
-      expect(await getBalance(client, { address: a })).toBe(0n)
+      // Admission checks only the payer's fees; the second phase overdraws
+      // the sender and reverts, while the sponsor still pays for gas.
+      expect(r.error).toBeUndefined()
+      const receipt = await waitForTransactionReceipt(client, {
+        hash: r.result,
+      })
+      console.log(
+        'sum of values over balance:',
+        receipt.status,
+        receipt.eip8130.phaseStatuses,
+      )
+      expect(receipt.status).toBe('0x0')
+      expect(receipt.eip8130.phaseStatuses).toEqual(['0x1', '0x0'])
+      expect(await getBalance(client, { address: a })).toBe(600n)
+      expect(await getBalance(client, { address: b })).toBe(0n)
+      expect(
+        await getBalance(client, { address: sponsor.address }),
+      ).toBeLessThan(sponsorBefore)
     }, 120_000)
 
     test('sender naming itself as payer', async () => {

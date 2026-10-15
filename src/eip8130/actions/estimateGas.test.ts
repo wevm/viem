@@ -78,6 +78,8 @@ test('simplified mode: to/data/value are sent as a single call', async () => {
           },
         ],
       ],
+      "maxFeePerGas": "0xffffffffffffffff",
+      "maxPriorityFeePerGas": "0xffffffffffffffff",
       "nonceKey": "0x0",
       "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "type": "0x79",
@@ -100,4 +102,19 @@ test('nonceKey and validity bounds are hex quantities', async () => {
   expect(requests[0]).not.toHaveProperty('validAfter')
   expect(requests[0]).not.toHaveProperty('gasLimit')
   expect(requests[0]).not.toHaveProperty('nonceSequence')
+})
+
+test('fee fields: forwarded when known, otherwise priced at their 8-byte maximum', async () => {
+  const { client, requests } = makeClient()
+  await estimateGas(client, {
+    sender,
+    calls: [{ to: sponsor }],
+    maxFeePerGas: 2_001_000_000n,
+    maxPriorityFeePerGas: 1_000_000n,
+  })
+  await estimateGas(client, { sender, calls: [{ to: sponsor }] })
+  expect(requests[0].maxFeePerGas).toBe('0x7744d640')
+  expect(requests[0].maxPriorityFeePerGas).toBe('0xf4240')
+  expect(requests[1].maxFeePerGas).toBe('0xffffffffffffffff')
+  expect(requests[1].maxPriorityFeePerGas).toBe('0xffffffffffffffff')
 })

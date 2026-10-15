@@ -73,6 +73,7 @@ export {
   nonceKeyMax,
   nonceManagerAddress,
   openPayer,
+  protocolNonceCost,
   replayBufferCapacity,
   replayIdType,
   timestampMsThreshold,

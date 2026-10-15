@@ -109,7 +109,8 @@ export type EstimateGasParameters = {
   /**
    * Sender auth-payload byte length. Combined with `senderAuthAuthenticator`, it
    * overrides the authenticator's default length. Alone (no authenticator), it prices a
-   * bare (unprefixed, default-EOA-path) filler blob of this length.
+   * bare (unprefixed, default-EOA-path) filler blob of this length, which the
+   * node only accepts at 65 bytes.
    */
   senderAuthSize?: number | undefined
   /**
@@ -143,6 +144,15 @@ export type EstimateGasParameters = {
    * `client.dataSuffix`.
    */
   dataSuffix?: Hex | undefined
+  /**
+   * Fee fields of the transaction being priced. The node does not validate
+   * them, but their encoded length is part of the priced transaction bytes,
+   * so pass the fees you will sign with. Defaults to the largest 8-byte value
+   * so the estimate never undercounts the real fee fields.
+   */
+  maxFeePerGas?: bigint | undefined
+  /** See `maxFeePerGas`. */
+  maxPriorityFeePerGas?: bigint | undefined
   /** Block number to estimate against. */
   blockNumber?: bigint | undefined
   /** Block tag to estimate against. Defaults to `'pending'`. */
@@ -153,6 +163,9 @@ export type EstimateGasReturnType = bigint
 
 /** Generous cap matching the node's `MAX_AUTH_SIZE`; rejects OOM-sized inputs. */
 const maxAuthSize = 8_192
+
+/** Placeholder fee when the caller has not resolved fees yet (`2^64 - 1`). */
+const placeholderFee = 0xffff_ffff_ffff_ffffn
 
 /**
  * Estimates gas for an AA (`AA_TX_TYPE`) call via `eth_estimateGas`.
@@ -210,6 +223,8 @@ export async function estimateGas<
     payerAuthAuthenticator,
     payerAuthSize,
     dataSuffix: dataSuffixParam,
+    maxFeePerGas = placeholderFee,
+    maxPriorityFeePerGas = placeholderFee,
     blockNumber,
     blockTag = 'pending',
   } = parameters
@@ -280,10 +295,9 @@ export async function estimateGas<
     // through the real executor simulation (required for create estimation).
     request.accountChanges = (accountChanges ?? []).map(toRpcAccountChange)
     request.metadata = dataSuffix ?? '0x'
-    // Reasonable fee defaults: the estimate skips fee validation.
-    request.maxFeePerGas = numberToHex(1_000_000_000n)
-    request.maxPriorityFeePerGas = numberToHex(1_000_000n)
   } else if (dataSuffix !== undefined) request.metadata = dataSuffix
+  request.maxFeePerGas = numberToHex(maxFeePerGas)
+  request.maxPriorityFeePerGas = numberToHex(maxPriorityFeePerGas)
 
   if (payer !== undefined) request.payer = toRpcPayer(payer)
   if (senderAuth !== undefined) request.senderAuth = senderAuth
@@ -304,8 +318,8 @@ export async function estimateGas<
 
 /**
  * A valid secp256k1 signature (key `1` over the zero hash). An open payer is
- * recovered from `payer_auth`, so the node cannot stub it and rejects a filler
- * blob that does not recover; any recoverable signature prices the same.
+ * recovered from a supplied `payer_auth`, so a filler blob that does not
+ * recover is rejected; any recoverable signature prices the same.
  */
 const openPayerAuthStub =
   '0xa0b37f8fba683cc68f6574cd43b39f0343a50008bf6ccea9d13231d9e7e2e1e411edc8d307254296264aebfc3dc76cd8b668373a072fd64665b50000e9fcce521c' as const
@@ -323,7 +337,8 @@ function toRpcPayer(payer: AaPayer | undefined): Address | undefined {
  *    `size` bytes if given, else 65 bytes for `K1_AUTHENTICATOR`. Throws for
  *    any other authenticator without a size.
  * 3. `size` alone (no authenticator) — a bare (unprefixed) filler blob of `size`
- *    bytes, pricing the default-EOA path at a specific length.
+ *    bytes for the default-EOA path. The node only accepts a 65-byte bare
+ *    signature, so any other size is rejected.
  * 4. All unset — `undefined` (no auth blob on the request; the node applies
  *    its own default).
  *

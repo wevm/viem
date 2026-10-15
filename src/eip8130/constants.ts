@@ -42,6 +42,12 @@ export const nonceKeyFirstUseCost = 22100n
 export const nonceKeyExistingCost = 5000n
 
 /**
+ * `nonce_key_cost` for the protocol nonce (`nonce_key == 0`): the account
+ * nonce, bumped without touching the nonce manager, so `aaBaseCost` covers it.
+ */
+export const protocolNonceCost = 0n
+
+/**
  * Domain-separation prefix for the nonce-free `replay_id` preimage
  * (`REPLAY_ID_TYPE`): `keccak256(REPLAY_ID_TYPE || rlp([chain_id,
  * resolved_sender, valid_after, valid_before, account_changes, calls, metadata,
