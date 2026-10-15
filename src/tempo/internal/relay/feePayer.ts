@@ -348,18 +348,9 @@ declare namespace shouldSponsor {
 /** Returns whether a raw Tempo transaction is explicitly requesting sponsorship. */
 function requestsRawSponsorship(serialized: `0x${string}`) {
   if (!Utils.isSerializedTempoTransaction(serialized)) return false
-  // Malformed envelopes forward unchanged, so the node reports the decoding error.
-  const transaction = (() => {
-    try {
-      return Transaction.deserialize(serialized)
-    } catch {
-      return undefined
-    }
-  })()
+  const transaction = Transaction.deserialize(serialized)
   return (
-    !!transaction &&
-    'feePayerSignature' in transaction &&
-    transaction.feePayerSignature === null
+    'feePayerSignature' in transaction && transaction.feePayerSignature === null
   )
 }
 

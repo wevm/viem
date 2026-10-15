@@ -405,7 +405,7 @@ export async function fill(
 
 /** Caller fee caps restored after an unpriced sponsored fill. */
 type Fees = {
-  maxFeePerGas: bigint
+  maxFeePerGas: bigint | undefined
   maxPriorityFeePerGas: bigint | undefined
 }
 
@@ -418,7 +418,9 @@ function parseFees(parameters: Record<string, unknown>): Fees | undefined {
   const maxFeePerGas = parseFee(parameters.maxFeePerGas)
   const maxPriorityFeePerGas = parseFee(parameters.maxPriorityFeePerGas)
   // Invalid values reach the node unchanged so it rejects them itself.
-  if (maxFeePerGas == null || maxPriorityFeePerGas === null) return undefined
+  if (maxFeePerGas === null || maxPriorityFeePerGas === null) return undefined
+  if (maxFeePerGas === undefined && maxPriorityFeePerGas === undefined)
+    return undefined
   return { maxFeePerGas, maxPriorityFeePerGas }
 }
 
@@ -427,16 +429,35 @@ function restoreFees(result: unknown, fees: Fees): unknown {
   const { tx } = (result ?? {}) as Partial<Result>
   // A downstream sponsor signature binds its own fees; changing them would invalidate it.
   if (!tx || typeof tx !== 'object' || tx.feePayerSignature) return result
+  const filled = parseFee(tx.maxFeePerGas)
   const tip = parseFee(tx.maxPriorityFeePerGas)
+  // A caller tip above the node-chosen fee cap raises the cap so the transaction stays valid.
+  const maxFeePerGas =
+    fees.maxFeePerGas ??
+    (filled != null &&
+    fees.maxPriorityFeePerGas !== undefined &&
+    fees.maxPriorityFeePerGas > filled
+      ? fees.maxPriorityFeePerGas
+      : filled)
+  if (maxFeePerGas == null)
+    return fees.maxPriorityFeePerGas === undefined
+      ? result
+      : {
+          ...(result as Result),
+          tx: {
+            ...tx,
+            maxPriorityFeePerGas: Hex.fromNumber(fees.maxPriorityFeePerGas),
+          },
+        }
   // A node-chosen tip above the caller's fee cap would make the transaction invalid.
   const maxPriorityFeePerGas =
     fees.maxPriorityFeePerGas ??
-    (tip != null && tip < fees.maxFeePerGas ? tip : fees.maxFeePerGas)
+    (tip != null && tip < maxFeePerGas ? tip : maxFeePerGas)
   return {
     ...(result as Result),
     tx: {
       ...tx,
-      maxFeePerGas: Hex.fromNumber(fees.maxFeePerGas),
+      maxFeePerGas: Hex.fromNumber(maxFeePerGas),
       maxPriorityFeePerGas: Hex.fromNumber(maxPriorityFeePerGas),
     },
   }

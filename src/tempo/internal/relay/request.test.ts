@@ -437,6 +437,9 @@ test('estimates sponsored fills without caller fee caps and restores them', asyn
         feePayerSignature: { r: '0x1', s: '0x2', yParity: '0x0' },
       },
     ),
+    fill({ maxPriorityFeePerGas: '0x5' }),
+    fill({ maxPriorityFeePerGas: '0xc8' }),
+    fill({ maxPriorityFeePerGas: '0x5' }, { maxFeePerGas: undefined }),
   ])
 
   expect(
@@ -528,6 +531,33 @@ test('estimates sponsored fills without caller fee caps and restores them', asyn
         "maxFeePerGas": "0x64",
         "maxPriorityFeePerGas": "0x2",
       },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0x64",
+        "maxPriorityFeePerGas": "0x5",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": "0xc8",
+        "maxPriorityFeePerGas": "0xc8",
+      },
+      {
+        "forwarded": {
+          "feeToken": undefined,
+          "maxFeePerGas": undefined,
+          "maxPriorityFeePerGas": undefined,
+        },
+        "maxFeePerGas": undefined,
+        "maxPriorityFeePerGas": "0x5",
+      },
     ]
   `)
 })
@@ -570,6 +600,51 @@ test('sponsors an unfunded sender that sets fee fields without gas', async () =>
       "maxPriorityFeePerGas": 1n,
     }
   `)
+  expect(gas).toBeGreaterThan(0n)
+  expect({
+    feePayer: receipt.feePayer,
+    status: receipt.status,
+  }).toMatchInlineSnapshot(`
+    {
+      "feePayer": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "status": "success",
+    }
+  `)
+})
+
+test('sponsors an unfunded sender that sets only a priority fee without gas', async () => {
+  const feePayer = Tempo.accounts[0]!
+  const recipient = Tempo.accounts[7]!
+  const sender = Account.fromSecp256k1(generatePrivateKey())
+  await Actions.faucet.fundSync(Tempo.getClient({ chain: Tempo.chain }), {
+    account: feePayer,
+    timeout: 60_000,
+  })
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), {
+      plugins: [Relay.feePayer({ account: feePayer })],
+    }),
+  })
+
+  const { transaction } = await fillTransaction(client, {
+    account: sender.address,
+    calls: [
+      Actions.token.approve.call(client, {
+        amount: 1n,
+        spender: recipient.address,
+        token: Tempo.addresses.alphaUsd,
+      }),
+    ],
+    maxPriorityFeePerGas: 1_000_000_000n,
+  })
+  const { gas, maxFeePerGas, maxPriorityFeePerGas } = transaction
+  const receipt = await sendRawTransactionSync(client, {
+    serializedTransaction: await sender.signTransaction(transaction as never),
+  })
+
+  expect(maxPriorityFeePerGas).toMatchInlineSnapshot(`1000000000n`)
+  expect(maxFeePerGas).toBeGreaterThanOrEqual(maxPriorityFeePerGas!)
   expect(gas).toBeGreaterThan(0n)
   expect({
     feePayer: receipt.feePayer,
