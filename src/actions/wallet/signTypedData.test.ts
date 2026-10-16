@@ -353,6 +353,34 @@ describe('args: domain: name', () => {
   })
 })
 
+describe('args: domain: version', () => {
+  test('empty version', async () => {
+    const signature = await signTypedData(client, {
+      ...typedData.complex,
+      domain: {
+        name: 'Ether Mail',
+        version: '',
+      },
+      account: jsonRpcAccount,
+      primaryType: 'Mail',
+    })
+    expect(signature).toEqual(
+      '0x685643ce616134fef41767cb2b5330724758ef77c2e1efac46063c7834d9952809f39eaef967d3c030f32c16c2ad158d80cde2228a60dfa0657f303205b738d31b',
+    )
+    expect(
+      await recoverTypedDataAddress({
+        ...typedData.complex,
+        domain: {
+          name: 'Ether Mail',
+          version: '',
+        },
+        primaryType: 'Mail',
+        signature,
+      }),
+    ).toEqual(getAddress(jsonRpcAccount))
+  })
+})
+
 describe('args: domain: verifyingContract', () => {
   test('json-rpc account', async () => {
     const signature = await signTypedData(client, {
