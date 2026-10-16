@@ -6,6 +6,7 @@ import {
   getGateway,
   getJsonImage,
   getMetadataAvatarUri,
+  getNftMetadataUri,
   getNftTokenUri,
   isImageUri,
   parseAvatarUri,
@@ -571,5 +572,67 @@ describe('getNftTokenUri', () => {
       Version: viem@x.y.z]
     `,
     )
+  })
+})
+
+describe('getNftMetadataUri', () => {
+  test('erc721', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb7F7F6C52F2e2fdb1963Eab30438024864c313F6',
+          tokenID: '314592',
+          namespace: 'erc721',
+        },
+        uri: 'https://token-cdn-domain/0x{id}',
+      }),
+    ).toMatchInlineSnapshot(`"https://token-cdn-domain/314592"`)
+  })
+
+  test('erc1155: decimal token id', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '314592',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/{id}.json',
+      }),
+    ).toMatchInlineSnapshot(
+      `"https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0.json"`,
+    )
+  })
+
+  test('erc1155: hex token id', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '0x4CCE0',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/0x{id}',
+      }),
+    ).toMatchInlineSnapshot(
+      `"https://token-cdn-domain/000000000000000000000000000000000000000000000000000000000004cce0"`,
+    )
+  })
+
+  test('erc1155: no placeholder', () => {
+    expect(
+      getNftMetadataUri({
+        nft: {
+          chainID: 1,
+          contractAddress: '0xb32979486938aa9694bfc898f35dbed459f44424',
+          tokenID: '10063',
+          namespace: 'erc1155',
+        },
+        uri: 'https://token-cdn-domain/10063.json',
+      }),
+    ).toMatchInlineSnapshot(`"https://token-cdn-domain/10063.json"`)
   })
 })
