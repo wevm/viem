@@ -26,6 +26,7 @@ import { getConfig } from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -313,6 +314,7 @@ export const chainConfig = {
       } as never)
     },
   },
+  transactionReplacement,
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 

@@ -154,6 +154,10 @@ export async function waitForTransactionReceipt<
     timeout = 180_000,
   } = parameters
 
+  const getReplacementKey = (transaction: Transaction) =>
+    client.chain?.transactionReplacement?.getKey?.(transaction) ??
+    String(transaction.nonce)
+
   const pollingInterval = (() => {
     if (parameters.pollingInterval) return parameters.pollingInterval
     if (client.chain?.experimental_preconfirmationTime)
@@ -300,6 +304,15 @@ export async function waitForTransactionReceipt<
                 return
               }
 
+              // The transaction was seen mined, so it consumed its nonce slot
+              // and was not replaced: its receipt is not indexed yet. The
+              // transaction is fetched once, so one first seen pending is
+              // matched by replacement key instead.
+              if (transaction.blockNumber) {
+                retrying = false
+                return
+              }
+
               try {
                 replacedTransaction = transaction
 
@@ -326,13 +339,16 @@ export async function waitForTransactionReceipt<
                 )
                 retrying = false
 
+                const replacedKey = getReplacementKey(
+                  replacedTransaction as Transaction,
+                )
                 const replacementTransaction = (
                   block.transactions as {} as Transaction[]
                 ).find(
-                  ({ from, hash, nonce }) =>
-                    isAddressEqual(from, replacedTransaction!.from) &&
-                    hash !== replacedTransaction!.hash &&
-                    nonce === replacedTransaction!.nonce,
+                  (candidate) =>
+                    isAddressEqual(candidate.from, replacedTransaction!.from) &&
+                    candidate.hash !== replacedTransaction!.hash &&
+                    getReplacementKey(candidate) === replacedKey,
                 )
 
                 // If we couldn't find a replacement transaction, continue polling.
@@ -355,24 +371,15 @@ export async function waitForTransactionReceipt<
                 )
                   return
 
-                let reason: ReplacementReason = 'replaced'
-                if (
-                  (replacementTransaction.to && replacedTransaction.to
-                    ? isAddressEqual(
-                        replacementTransaction.to,
-                        replacedTransaction.to,
-                      )
-                    : replacementTransaction.to === replacedTransaction.to) &&
-                  replacementTransaction.value === replacedTransaction.value &&
-                  replacementTransaction.input === replacedTransaction.input
-                ) {
-                  reason = 'repriced'
-                } else if (
-                  replacementTransaction.from === replacementTransaction.to &&
-                  replacementTransaction.value === 0n
-                ) {
-                  reason = 'cancelled'
-                }
+                const reason =
+                  client.chain?.transactionReplacement?.getReason?.({
+                    replaced: replacedTransaction,
+                    replacement: replacementTransaction,
+                  }) ??
+                  getReplacementReason(
+                    replacedTransaction as Transaction,
+                    replacementTransaction,
+                  )
 
                 done(() => {
                   emit.onReplaced?.({
@@ -396,4 +403,21 @@ export async function waitForTransactionReceipt<
   )
 
   return promise
+}
+
+function getReplacementReason(
+  replaced: Transaction,
+  replacement: Transaction,
+): ReplacementReason {
+  if (
+    (replacement.to && replaced.to
+      ? isAddressEqual(replacement.to, replaced.to)
+      : replacement.to === replaced.to) &&
+    replacement.value === replaced.value &&
+    replacement.input === replaced.input
+  )
+    return 'repriced'
+  if (replacement.from === replacement.to && replacement.value === 0n)
+    return 'cancelled'
+  return 'replaced'
 }

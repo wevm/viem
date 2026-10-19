@@ -13,6 +13,7 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
+import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -854,5 +855,177 @@ describe('concurrent waits with different options', () => {
     // first call's resolution instead of inheriting its confirmations.
     await second
     expect(block).toBeGreaterThanOrEqual(105n)
+  })
+})
+
+describe('chain: transactionReplacement', () => {
+  test('ignores a same-nonce transaction in a different slot', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+    const slotClient = createPublicClient({
+      chain: {
+        ...anvilMainnet.chain,
+        transactionReplacement: {
+          getKey: (transaction) =>
+            transaction.hash === hash ? 'awaited' : 'other',
+        },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receiptPromise = waitForTransactionReceipt(slotClient, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 3000,
+    })
+    await wait(500)
+    await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('20'),
+      nonce,
+    })
+
+    await expect(receiptPromise).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+    expect(replacements).toMatchInlineSnapshot('[]')
+  })
+
+  test('uses the chain replacement reason', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+    const reasonClient = createPublicClient({
+      chain: {
+        ...anvilMainnet.chain,
+        transactionReplacement: {
+          getKey: () => 'slot',
+          getReason: () => 'cancelled',
+        },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const [receipt, replacementHash] = await Promise.all([
+      waitForTransactionReceipt(reasonClient, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+      }),
+      (async () => {
+        await wait(500)
+        return sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          maxFeePerGas: parseGwei('20'),
+          nonce,
+        })
+      })(),
+    ])
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('does not search for a replacement of a mined transaction', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const laggingNode = await pool.start(2)
+    const minedClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    const hash = await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    // A sibling in the same block shares the awaited transaction's slot.
+    await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('2'),
+    })
+    await mine(minedClient, { blocks: 1 })
+    const receipt = await getTransactionReceipt(minedClient, { hash })
+    await setIntervalMining(minedClient, { interval: 1 })
+
+    // Route receipt reads to a lagging node while transaction and block reads are current.
+    let missingReceipts = 3
+    const client = createPublicClient({
+      chain: {
+        ...mainnet,
+        transactionReplacement: { getKey: () => 'slot' },
+      },
+      pollingInterval: 50,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            missingReceipts-- > 0
+          )
+            return laggingClient.request(options)
+          return minedClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const result = await client.waitForTransactionReceipt({
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 10_000,
+    })
+
+    expect(result).toEqual(receipt)
+    expect(replacements).toMatchInlineSnapshot('[]')
   })
 })
