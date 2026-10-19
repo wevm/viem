@@ -33,6 +33,8 @@ export const transactionReplacement = {
  * Returns the expiring nonce hash of a Tempo transaction:
  * `keccak256(encodeForSigning(tx) || sender)`. It excludes the fee payer
  * signature and fee token, so it is invariant to sponsorship.
+ *
+ * @internal
  */
 export function getExpiringNonceHash(transaction: Transaction) {
   const tx = transaction as Extract<Transaction, { type: 'tempo' }>
