@@ -9,9 +9,16 @@ import {
   sendTransactionSync,
   signTransaction,
   verifyHash,
+  waitForTransactionReceipt,
 } from '../actions/index.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
-import { createClient, http } from '../index.js'
+import {
+  type Address,
+  createClient,
+  custom,
+  type Hash,
+  http,
+} from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
@@ -584,6 +591,51 @@ describe('supportsTransactionReplacementDetection', () => {
     expect(detects(undefined)).toBe(true)
     expect(detects(0n)).toBe(true)
     expect(detects(1n)).toBe(true)
+  })
+
+  test('waits for the awaited expiring-nonce transaction when a sibling shares its block', async () => {
+    // Two expiring-nonce sends from one sender share nonce 0 under the same
+    // key. Retry until both land in one block, where the replacement search
+    // looks.
+    const send = (to: Address) =>
+      sendTransactionSync(client, { feeToken, nonceKey: 'expiring', to })
+    const sendPair = () =>
+      Promise.all([
+        send('0x0000000000000000000000000000000000000000'),
+        send('0x0000000000000000000000000000000000000001'),
+      ])
+    let [first, second] = await sendPair()
+    for (
+      let attempt = 1;
+      attempt < 5 && first.blockNumber !== second.blockNumber;
+      attempt++
+    )
+      [first, second] = await sendPair()
+    expect(second.blockNumber).toBe(first.blockNumber)
+
+    // An RPC whose receipt index lags sends the wait into the replacement path.
+    let laggingLookups = 2
+    const laggingClient = getClient({
+      transport: custom({
+        request: (args) => {
+          if (
+            args.method === 'eth_getTransactionReceipt' &&
+            (args.params as [Hash])[0] === second.transactionHash &&
+            laggingLookups-- > 0
+          )
+            return Promise.resolve(null)
+          return client.request(args as never)
+        },
+      }),
+    })
+    const replacements: unknown[] = []
+    const receipt = await waitForTransactionReceipt(laggingClient, {
+      hash: second.transactionHash,
+      onReplaced: (replacement) => replacements.push(replacement),
+    })
+
+    expect(receipt.transactionHash).toBe(second.transactionHash)
+    expect(replacements).toEqual([])
   })
 })
 

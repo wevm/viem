@@ -412,5 +412,9 @@ export async function waitForTransactionReceipt<
 }
 
 function nonceKey(transaction: object) {
-  return (transaction as { nonceKey?: bigint | undefined }).nonceKey ?? 0n
+  // Unformatted transactions (no chain formatter) carry the key as hex.
+  const { nonceKey } = transaction as {
+    nonceKey?: bigint | string | undefined
+  }
+  return BigInt(nonceKey ?? 0)
 }
