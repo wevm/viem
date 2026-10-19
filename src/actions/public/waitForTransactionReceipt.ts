@@ -304,8 +304,10 @@ export async function waitForTransactionReceipt<
                 return
               }
 
-              // A mined transaction consumed its nonce slot, so it was not
-              // replaced: its receipt is not indexed yet.
+              // The transaction was seen mined, so it consumed its nonce slot
+              // and was not replaced: its receipt is not indexed yet. The
+              // transaction is fetched once, so one first seen pending is
+              // matched by replacement key instead.
               if (transaction.blockNumber) {
                 retrying = false
                 return

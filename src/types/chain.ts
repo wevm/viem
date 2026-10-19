@@ -146,6 +146,10 @@ type ReplacementTransaction = {
   nonce: number
 }
 
+/**
+ * Chain-specific transaction replacement semantics. `waitForTransactionReceipt`
+ * uses it to find which mined transaction replaced a pending one, and why.
+ */
 export type ChainTransactionReplacement = {
   /**
    * Returns the key of the sender's nonce slot that a transaction consumes. A
