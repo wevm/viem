@@ -563,6 +563,26 @@ describe('args: args', () => {
     `)
   })
 
+  test('named: string type (hex-like value)', () => {
+    const log = {
+      ...logs[4]!,
+      topics: [
+        '0x9f0b7f1630bdb7d474466e2dfef0fb9dff65f7a50eec83935b68f77d0808f08a',
+        '0x1e1424ab9612aff0e8fd41ee0d78f525ad6963610bd017d18f96d2a37cdf402a',
+      ],
+    } as const satisfies Log
+
+    const parsedLogs = parseEventLogs({
+      abi,
+      logs: [log],
+      args: {
+        message: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      },
+    })
+
+    expect(parsedLogs).toHaveLength(1)
+  })
+
   test('unnamed: single arg', async () => {
     const parsedLogs = parseEventLogs({
       abi: abi_unnamed,
