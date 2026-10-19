@@ -61,6 +61,18 @@ test('domain: empty name', () => {
   )
 })
 
+test('domain: empty version', () => {
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { name: 'Ether Mail', version: '' },
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0xa437e12ee2fd4391429d9714be617951b7e69fb61dc520ad6fb8230d03b7508c"',
+  )
+})
+
 test('domain: bigint value for chainId', () => {
   expect(
     hashTypedData({
