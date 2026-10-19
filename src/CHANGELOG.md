@@ -1,5 +1,21 @@
 # viem
 
+## 2.57.8
+
+### Patch Changes
+
+- [#5239](https://github.com/wevm/viem/pull/5239) [`a97d64c1d401f2bdfb8c549cff6c4a4732d465be`](https://github.com/wevm/viem/commit/a97d64c1d401f2bdfb8c549cff6c4a4732d465be) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `getEnsAvatar` substituting the `{id}` placeholder of ERC-1155 metadata URIs with the raw token ID instead of its lowercase, zero-padded hexadecimal form.
+
+- [#5238](https://github.com/wevm/viem/pull/5238) [`8b685f84ca257c1558bf3735dbd3c9e7acf19f5b`](https://github.com/wevm/viem/commit/8b685f84ca257c1558bf3735dbd3c9e7acf19f5b) Thanks [@Iamsohungrynow](https://github.com/Iamsohungrynow)! - Fixed `encodeEventTopics` and `parseEventLogs` hashing an indexed `string` arg as raw bytes instead of UTF-8 when the string looked like hex (e.g. `0x1234`).
+
+- [#5240](https://github.com/wevm/viem/pull/5240) [`323c9fda96b89e941c046fd51f5d9b4e98aab5cb`](https://github.com/wevm/viem/commit/323c9fda96b89e941c046fd51f5d9b4e98aab5cb) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed an issue where an empty `version` on `EIP712Domain` would generate the wrong signature.
+
+- [#5241](https://github.com/wevm/viem/pull/5241) [`da50caabd9df56fb0a4a6d8e71d28325a806cb36`](https://github.com/wevm/viem/commit/da50caabd9df56fb0a4a6d8e71d28325a806cb36) Thanks [@ksrr9351](https://github.com/ksrr9351)! - Added RWA Chain and RWA Chain Sepolia chains.
+
+- [#5236](https://github.com/wevm/viem/pull/5236) [`72950dd9442df72fbcb78a3949a778c9bfc78f8d`](https://github.com/wevm/viem/commit/72950dd9442df72fbcb78a3949a778c9bfc78f8d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Hardened `Relay` sponsorship.
+
+- [#5243](https://github.com/wevm/viem/pull/5243) [`2be950705bead4672b1b65852120fd0bfed2f9de`](https://github.com/wevm/viem/commit/2be950705bead4672b1b65852120fd0bfed2f9de) Thanks [@Slokh](https://github.com/Slokh)! - Added a `transactionReplacement` chain config hook to `waitForTransactionReceipt`. Fixed `viem/tempo` replacement detection to respect nonce slots, so expiring-nonce waits no longer resolve to an earlier transaction's receipt.
+
 ## 2.57.7
 
 ### Patch Changes
