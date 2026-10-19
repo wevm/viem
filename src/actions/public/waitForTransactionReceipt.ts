@@ -56,7 +56,7 @@ export type WaitForTransactionReceiptParameters<
 > = {
   /**
    * Whether to check for transaction replacements.
-   * @default `client.chain?.supportsTransactionReplacementDetection !== false`
+   * @default `client.chain?.supportsTransactionReplacementDetection ?? true`
    */
   checkReplacement?: boolean | undefined
   /**
@@ -143,10 +143,9 @@ export async function waitForTransactionReceipt<
   client: Client<Transport, chain>,
   parameters: WaitForTransactionReceiptParameters<chain>,
 ): Promise<WaitForTransactionReceiptReturnType<chain>> {
-  const supportsReplacement =
-    client.chain?.supportsTransactionReplacementDetection
   const {
-    checkReplacement = supportsReplacement !== false,
+    checkReplacement = client.chain?.supportsTransactionReplacementDetection ??
+      true,
     confirmations = 1,
     hash,
     onReplaced,
@@ -154,6 +153,10 @@ export async function waitForTransactionReceipt<
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 180_000,
   } = parameters
+
+  const getReplacementKey = (transaction: Transaction) =>
+    client.chain?.transactionReplacement?.getKey?.(transaction) ??
+    String(transaction.nonce)
 
   const pollingInterval = (() => {
     if (parameters.pollingInterval) return parameters.pollingInterval
@@ -301,11 +304,9 @@ export async function waitForTransactionReceipt<
                 return
               }
 
-              // The chain may rule out replacement for this transaction.
-              if (
-                typeof supportsReplacement === 'function' &&
-                !supportsReplacement(transaction as Transaction)
-              ) {
+              // A mined transaction consumed its nonce slot, so it was not
+              // replaced: its receipt is not indexed yet.
+              if (transaction.blockNumber) {
                 retrying = false
                 return
               }
@@ -336,16 +337,16 @@ export async function waitForTransactionReceipt<
                 )
                 retrying = false
 
+                const replacedKey = getReplacementKey(
+                  replacedTransaction as Transaction,
+                )
                 const replacementTransaction = (
                   block.transactions as {} as Transaction[]
                 ).find(
                   (candidate) =>
                     isAddressEqual(candidate.from, replacedTransaction!.from) &&
                     candidate.hash !== replacedTransaction!.hash &&
-                    candidate.nonce === replacedTransaction!.nonce &&
-                    // Chains with independent nonce sequences per key (e.g. Tempo)
-                    // only replace within the same key.
-                    nonceKey(candidate) === nonceKey(replacedTransaction!),
+                    getReplacementKey(candidate) === replacedKey,
                 )
 
                 // If we couldn't find a replacement transaction, continue polling.
@@ -368,24 +369,15 @@ export async function waitForTransactionReceipt<
                 )
                   return
 
-                let reason: ReplacementReason = 'replaced'
-                if (
-                  (replacementTransaction.to && replacedTransaction.to
-                    ? isAddressEqual(
-                        replacementTransaction.to,
-                        replacedTransaction.to,
-                      )
-                    : replacementTransaction.to === replacedTransaction.to) &&
-                  replacementTransaction.value === replacedTransaction.value &&
-                  replacementTransaction.input === replacedTransaction.input
-                ) {
-                  reason = 'repriced'
-                } else if (
-                  replacementTransaction.from === replacementTransaction.to &&
-                  replacementTransaction.value === 0n
-                ) {
-                  reason = 'cancelled'
-                }
+                const reason =
+                  client.chain?.transactionReplacement?.getReason?.({
+                    replaced: replacedTransaction,
+                    replacement: replacementTransaction,
+                  }) ??
+                  getReplacementReason(
+                    replacedTransaction as Transaction,
+                    replacementTransaction,
+                  )
 
                 done(() => {
                   emit.onReplaced?.({
@@ -411,10 +403,19 @@ export async function waitForTransactionReceipt<
   return promise
 }
 
-function nonceKey(transaction: object) {
-  // Unformatted transactions (no chain formatter) carry the key as hex.
-  const { nonceKey } = transaction as {
-    nonceKey?: bigint | string | undefined
-  }
-  return BigInt(nonceKey ?? 0)
+function getReplacementReason(
+  replaced: Transaction,
+  replacement: Transaction,
+): ReplacementReason {
+  if (
+    (replacement.to && replaced.to
+      ? isAddressEqual(replacement.to, replaced.to)
+      : replacement.to === replaced.to) &&
+    replacement.value === replaced.value &&
+    replacement.input === replaced.input
+  )
+    return 'repriced'
+  if (replacement.from === replacement.to && replacement.value === 0n)
+    return 'cancelled'
+  return 'replaced'
 }

@@ -5,6 +5,7 @@ import type {
   VerifyHashParameters,
   VerifyHashReturnType,
 } from '../actions/public/verifyHash.js'
+import type { ReplacementReason } from '../actions/public/waitForTransactionReceipt.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -67,18 +68,8 @@ export type Chain<
   }
   /** Source Chain ID (ie. the L1 chain) */
   sourceId?: number | undefined
-  /**
-   * Whether transaction replacement detection is supported, either for every
-   * transaction or per pending transaction. @default true
-   */
-  supportsTransactionReplacementDetection?:
-    | boolean
-    | ((transaction: {
-        from: Address
-        hash: `0x${string}`
-        nonce: number
-      }) => boolean)
-    | undefined
+  /** Whether transaction replacement detection is supported. @default true */
+  supportsTransactionReplacementDetection?: boolean | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
 } & ChainConfig<formatters, extendSchema>
@@ -135,8 +126,46 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
+  /**
+   * Chain-specific transaction replacement semantics, used by
+   * `waitForTransactionReceipt`.
+   */
+  transactionReplacement?: ChainTransactionReplacement | undefined
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
+}
+
+/////////////////////////////////////////////////////////////////////
+// Transaction replacement
+/////////////////////////////////////////////////////////////////////
+
+/** A formatted transaction, as seen by transaction replacement hooks. */
+type ReplacementTransaction = {
+  from: Address
+  hash: `0x${string}`
+  nonce: number
+}
+
+export type ChainTransactionReplacement = {
+  /**
+   * Returns the key of the sender's nonce slot that a transaction consumes. A
+   * mined transaction from the same sender with the same key replaces a
+   * pending one.
+   *
+   * @default `String(transaction.nonce)`
+   */
+  getKey?: ((transaction: ReplacementTransaction) => string) | undefined
+  /**
+   * Classifies a replacement.
+   *
+   * @default Compares `to`, `value`, and `input`.
+   */
+  getReason?:
+    | ((parameters: {
+        replaced: ReplacementTransaction
+        replacement: ReplacementTransaction
+      }) => ReplacementReason)
+    | undefined
 }
 
 /////////////////////////////////////////////////////////////////////

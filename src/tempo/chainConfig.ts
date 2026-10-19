@@ -26,6 +26,7 @@ import { getConfig } from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -313,13 +314,7 @@ export const chainConfig = {
       } as never)
     },
   },
-  // Expiring-nonce transactions cannot be replaced, and all share nonce 0 under
-  // the same key, so a sender-and-nonce match would be an earlier transaction.
-  supportsTransactionReplacementDetection(transaction) {
-    return (
-      (transaction as { nonceKey?: bigint | undefined }).nonceKey !== maxUint256
-    )
-  },
+  transactionReplacement,
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 
@@ -405,12 +400,7 @@ export const chainConfig = {
       'verifyHash',
     )({ ...parameters, chain: null })
   },
-} as const satisfies viem_ChainConfig & {
-  blockTime: number
-  supportsTransactionReplacementDetection: NonNullable<
-    Exclude<Chain['supportsTransactionReplacementDetection'], boolean>
-  >
-}
+} as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
 
