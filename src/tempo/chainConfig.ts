@@ -313,6 +313,10 @@ export const chainConfig = {
       } as never)
     },
   },
+  // Expiring-nonce transactions (sponsored, access-key, and concurrent sends)
+  // all use nonce 0, so matching a pending hash by sender and nonce can resolve
+  // to an earlier transaction's receipt.
+  supportsTransactionReplacementDetection: false,
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 
@@ -398,7 +402,10 @@ export const chainConfig = {
       'verifyHash',
     )({ ...parameters, chain: null })
   },
-} as const satisfies viem_ChainConfig & { blockTime: number }
+} as const satisfies viem_ChainConfig & {
+  blockTime: number
+  supportsTransactionReplacementDetection: boolean
+}
 
 export type ChainConfig = typeof chainConfig
 

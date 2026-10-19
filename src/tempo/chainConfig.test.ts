@@ -572,6 +572,13 @@ describe('prepareTransactionRequest', () => {
   })
 })
 
+describe('supportsTransactionReplacementDetection', () => {
+  test('disabled on Tempo chains', () => {
+    expect(chainConfig.supportsTransactionReplacementDetection).toBe(false)
+    expect(tempoLocalnet.supportsTransactionReplacementDetection).toBe(false)
+  })
+})
+
 describe('formatters', () => {
   test('transaction formatter (getTransaction)', async () => {
     const receipt = await sendTransactionSync(client, {
