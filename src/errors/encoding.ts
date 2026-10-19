@@ -66,6 +66,43 @@ export class InvalidHexValueError extends BaseError {
   }
 }
 
+export type RlpDepthLimitExceededErrorType = RlpDepthLimitExceededError & {
+  name: 'RlpDepthLimitExceededError'
+}
+export class RlpDepthLimitExceededError extends BaseError {
+  constructor({ limit }: { limit: number }) {
+    super(`RLP depth limit of \`${limit}\` exceeded.`, {
+      name: 'RlpDepthLimitExceededError',
+    })
+  }
+}
+
+export type RlpListBoundaryExceededErrorType = RlpListBoundaryExceededError & {
+  name: 'RlpListBoundaryExceededError'
+}
+export class RlpListBoundaryExceededError extends BaseError {
+  constructor({ consumed, declared }: { consumed: number; declared: number }) {
+    super(
+      `RLP list items consumed \`${consumed}\` bytes but the list declared a length of \`${declared}\`.`,
+      { name: 'RlpListBoundaryExceededError' },
+    )
+  }
+}
+
+export type RlpTrailingBytesErrorType = RlpTrailingBytesError & {
+  name: 'RlpTrailingBytesError'
+}
+export class RlpTrailingBytesError extends BaseError {
+  constructor({ count }: { count: number }) {
+    super(
+      `RLP payload encodes a single item, but \`${count}\` trailing ${
+        count === 1 ? 'byte remains' : 'bytes remain'
+      }.`,
+      { name: 'RlpTrailingBytesError' },
+    )
+  }
+}
+
 export type SizeOverflowErrorType = SizeOverflowError & {
   name: 'SizeOverflowError'
 }

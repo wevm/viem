@@ -457,6 +457,35 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      maxResponseBodySize: body.length - 1,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('behavior: methods.exclude', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
@@ -594,6 +623,66 @@ describe('request', () => {
       Details: The request timed out.
       Version: viem@x.y.z]
     `)
+  })
+
+  test('behavior: timeout (response body stalls)', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.write('{"jsonrpc":"2.0","id":0,')
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 0,
+      timeout: 100,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
+  test('behavior: timeout with request signal', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 0,
+      timeout: 100,
+    })({ chain: localhost })
+    const controller = new AbortController()
+
+    await expect(() =>
+      transport.request(
+        { method: 'eth_blockNumber' },
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"method":"eth_blockNumber"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
   })
 
   test('behavior: request signal aborts request', async () => {

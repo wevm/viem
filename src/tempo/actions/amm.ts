@@ -12,6 +12,7 @@ import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
@@ -19,10 +20,19 @@ import type { Hex } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
+import {
+  type Context,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import type { TransactionReceipt as TempoTransactionReceipt } from '../Transaction.js'
 
 /**
  * Gets the reserves for a liquidity pool.
@@ -148,7 +158,7 @@ export async function getLiquidityBalance<chain extends Chain | undefined>(
   parameters: getLiquidityBalance.Parameters,
 ): Promise<getLiquidityBalance.ReturnValue> {
   const { address, poolId, userToken, validatorToken, ...rest } = parameters
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...rest,
     ...getLiquidityBalance.call({
       address,
@@ -210,6 +220,8 @@ export namespace getLiquidityBalance {
       functionName: 'liquidityBalances',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -286,7 +298,7 @@ export namespace rebalanceSwap {
       amountOut,
       to,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -363,6 +375,9 @@ export namespace rebalanceSwap {
     if (!log) throw new Error('`RebalanceSwap` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -405,6 +420,8 @@ export async function rebalanceSwapSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = rebalanceSwap.extractEvent(receipt.logs)
   return {
     ...args,
@@ -430,6 +447,8 @@ export namespace rebalanceSwapSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = rebalanceSwap.ErrorType
 }
 
 /**
@@ -512,7 +531,7 @@ export namespace mint {
       validatorTokenAddress,
       validatorTokenAmount,
     })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -594,6 +613,9 @@ export namespace mint {
     if (!log) throw new Error('`Mint` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -636,6 +658,8 @@ export async function mintSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -661,6 +685,8 @@ export namespace mintSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = mint.ErrorType
 }
 
 /**
@@ -732,7 +758,7 @@ export namespace burn {
   ): Promise<ReturnType<action>> {
     const { liquidity, to, userToken, validatorToken, ...rest } = parameters
     const call = burn.call({ liquidity, to, userToken, validatorToken })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -809,6 +835,9 @@ export namespace burn {
     if (!log) throw new Error('`Burn` event not found.')
     return log
   }
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -851,6 +880,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TempoTransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -876,6 +907,8 @@ export namespace burnSync {
       receipt: TransactionReceipt
     }
   >
+
+  export type ErrorType = burn.ErrorType
 }
 
 /**
@@ -1116,4 +1149,100 @@ export declare namespace watchBurn {
     /** Address or ID of the validator token to filter events. */
     validatorToken?: TokenId.TokenIdOrAddress | undefined
   }
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType = AmmInsufficientLiquidityErrorType
+
+/** `AmmInsufficientLiquidityError` with a literal `name`, for narrowing. */
+export type AmmInsufficientLiquidityErrorType =
+  AmmInsufficientLiquidityError & {
+    name: 'AmmInsufficientLiquidityError'
+  }
+
+/** Thrown when a fee AMM pool cannot cover a swap, deposit, or withdrawal. */
+export class AmmInsufficientLiquidityError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<
+    'InsufficientLiquidity' | 'InsufficientReserves'
+  >
+> {
+  /** Amount of the call (`amountOut`, `amountValidatorToken`, or `liquidity`). */
+  amount: bigint | undefined
+  /** Pool reserve of `userToken`, when known. */
+  reserveUserToken: bigint | undefined
+  /** Pool reserve of `validatorToken`, when known. */
+  reserveValidatorToken: bigint | undefined
+  /** User token of the pool. */
+  userToken: Address | undefined
+  /** Validator token of the pool. */
+  validatorToken: Address | undefined
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      amount?: bigint | undefined
+      reserveUserToken?: bigint | undefined
+      reserveValidatorToken?: bigint | undefined
+      userToken?: Address | undefined
+      validatorToken?: Address | undefined
+    },
+  ) {
+    const {
+      amount,
+      reserveUserToken,
+      reserveValidatorToken,
+      userToken,
+      validatorToken,
+    } = parameters
+    super(parameters, {
+      details: {
+        'user token': userToken,
+        'validator token': validatorToken,
+        amount,
+        'user token reserve': reserveUserToken,
+        'validator token reserve': reserveValidatorToken,
+      },
+      name: 'AmmInsufficientLiquidityError',
+    })
+    this.amount = amount
+    this.reserveUserToken = reserveUserToken
+    this.reserveValidatorToken = reserveValidatorToken
+    this.userToken = userToken
+    this.validatorToken = validatorToken
+  }
+}
+
+async function resolvePool(context: Context) {
+  const { call } = context
+  if (!call || !isAddressEqual(call.address, Addresses.feeManager))
+    return undefined
+  const userToken = call.arg<Address>('userToken')
+  const validatorToken = call.arg<Address>('validatorToken')
+  if (!userToken || !validatorToken) return undefined
+  const [pool] = await context.read([
+    {
+      address: Addresses.feeManager,
+      abi: Abis.feeAmm,
+      functionName: 'getPool',
+      args: [userToken, validatorToken],
+    },
+  ])
+  return new AmmInsufficientLiquidityError({
+    ...context.base,
+    amount:
+      call.arg<bigint>('amountOut') ??
+      call.arg<bigint>('amountValidatorToken') ??
+      call.arg<bigint>('liquidity'),
+    reserveUserToken: pool?.result?.reserveUserToken,
+    reserveValidatorToken: pool?.result?.reserveValidatorToken,
+    userToken,
+    validatorToken,
+  })
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'InsufficientLiquidity()': resolvePool,
+  'InsufficientReserves()': resolvePool,
 }

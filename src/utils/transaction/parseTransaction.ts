@@ -7,6 +7,8 @@ import {
   type InvalidLegacyVErrorType,
   InvalidSerializedTransactionError,
   type InvalidSerializedTransactionErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
@@ -593,6 +595,7 @@ function parseAuthorizationList(
 
 type ParseEIP155SignatureErrorType =
   | HexToBigIntErrorType
+  | InvalidYParityErrorType
   | PadHexErrorType
   | ErrorType
 
@@ -600,8 +603,10 @@ function parseEIP155Signature(
   transactionArray: RecursiveArray<Hex>,
 ): Signature & { yParity: number } {
   const signature = transactionArray.slice(-3)
-  const v =
-    signature[0] === '0x' || hexToBigInt(signature[0] as Hex) === 0n ? 27n : 28n
+  const yParity = signature[0] === '0x' ? 0n : hexToBigInt(signature[0] as Hex)
+  if (yParity !== 0n && yParity !== 1n)
+    throw new InvalidYParityError({ yParity })
+  const v = yParity === 0n ? 27n : 28n
   return {
     r: padHex(signature[1] as Hex, { size: 32 }),
     s: padHex(signature[2] as Hex, { size: 32 }),

@@ -1,5 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { afterAll, beforeAll } from 'vitest'
+import { setErrorConfig } from '../../../src/errors/base.js'
 import { faucet } from '../../../src/tempo/actions/index.js'
 import { Actions } from '../../../src/tempo/index.js'
 import { accounts, addresses, getClient, nodeEnv } from './config.js'
@@ -8,6 +9,8 @@ import * as Prool from './prool.js'
 const client = getClient()
 
 beforeAll(async () => {
+  setErrorConfig({ version: 'viem@x.y.z' })
+
   if (nodeEnv === 'localnet') {
     await Prool.setup(client)
     return
@@ -30,5 +33,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (nodeEnv !== 'localnet') return
+  await Prool.zone1.stop()
   await fetch(`${Prool.rpcUrl}/stop`)
 })

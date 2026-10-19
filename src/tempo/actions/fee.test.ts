@@ -40,7 +40,8 @@ describe('validateToken', () => {
         "metadata": {
           "currency": "USD",
           "decimals": 6,
-          "name": "pathUSD",
+          "logoURI": "",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         },

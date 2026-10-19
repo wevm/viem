@@ -3,14 +3,26 @@ import * as Hex from 'ox/Hex'
 import { TokenId, TokenRole } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import { multicall } from '../../actions/public/multicall.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
-import { readContract } from '../../actions/public/readContract.js'
+import { estimateContractGas } from '../../actions/public/estimateContractGas.js'
+import {
+  type MulticallParameters,
+  type MulticallReturnType,
+  multicall,
+} from '../../actions/public/multicall.js'
+import {
+  type ReadContractReturnType,
+  readContract,
+} from '../../actions/public/readContract.js'
+import {
+  type SimulateContractReturnType,
+  simulateContract,
+} from '../../actions/public/simulateContract.js'
 import type {
   WatchContractEventParameters,
   WatchContractEventReturnType,
 } from '../../actions/public/watchContractEvent.js'
 import { watchContractEvent } from '../../actions/public/watchContractEvent.js'
+import * as internal_Token from '../../actions/token/internal.js'
 import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import {
   type SendTransactionSyncParameters,
@@ -21,6 +33,8 @@ import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { zeroAddress } from '../../constants/address.js'
+import { AccountNotFoundError } from '../../errors/account.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
@@ -28,14 +42,33 @@ import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
+import { formatUnits } from '../../utils/unit/formatUnits.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import type * as Errors from '../errors.js'
+import { TempoExecutionError } from '../errors.js'
+import {
+  formatAmount,
+  type Resolvers,
+  withExecutionError,
+} from '../internal/errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
+  TokenParameter,
+  TokenParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import {
+  type CallParameters,
+  defineCall,
+  findDeclaredToken,
+  isTip20,
+  pickWriteParameters,
+  resolveCallParameters,
+  resolveToken,
+  resolveTokenWithDecimals,
+} from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /**
@@ -71,29 +104,23 @@ export async function approve<
   client: Client<Transport, chain, account>,
   parameters: approve.Parameters<chain, account>,
 ): Promise<approve.ReturnValue> {
-  const { token, ...rest } = parameters
-  return approve.inner(writeContract, client, parameters, { ...rest, token })
+  return approve.inner(writeContract, client, parameters)
 }
 
 export namespace approve {
+  export type Args = {
+    /** Amount of tokens to approve, in base units or formatted decimal form. */
+    amount: internal_Token.AmountInput
+    /** Address of the spender. */
+    spender: Address
+  } & TokenParameter
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
-
-  export type Args = {
-    /** Amount of tokens to approve. */
-    amount: bigint
-    /** Address of the spender. */
-    spender: Address
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
   export type ReturnValue = WriteContractReturnType
-
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -104,58 +131,87 @@ export namespace approve {
     action: action,
     client: Client<Transport, chain, account>,
     parameters: approve.Parameters<chain, account>,
-    args: Args,
   ): Promise<ReturnType<action>> {
-    const call = approve.call(args)
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
-      ...call,
+      ...approve.call(client, parameters as never),
     } as never)) as never
   }
 
   /**
    * Defines a call to the `approve` function.
    *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   * Can be passed as a parameter to `estimateContractGas`, `simulateContract`,
+   * `sendCalls`, `sendTransaction` (`calls`), or `multicall`. The token is
+   * selected by `token`, which is either a TIP20 token id or a contract
+   * `address`; `amount.decimals` is inferred from the client's declared
+   * `tokens` when omitted.
    *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'viem/chains'
-   * import { Actions } from 'viem/tempo'
-   *
-   * const client = createClient({
-   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const { result } = await client.sendCalls({
-   *   calls: [
-   *     actions.token.approve.call({
-   *       spender: '0x20c0...beef',
-   *       amount: 100n,
-   *       token: '0x20c0...babe',
-   *     }),
-   *   ]
-   * })
-   * ```
-   *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { spender, amount, token } = args
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    const { amount, spender, token } = args
+    const { address, decimals } = resolveToken(client, { token })
     return defineCall({
-      address: TokenId.toAddress(token),
+      address,
       abi: Abis.tip20,
       functionName: 'approve',
-      args: [spender, amount],
+      args: [spender, internal_Token.toBaseUnits(amount, decimals)],
     })
   }
 
+  /**
+   * Estimates the gas required to approve a spender. `amount.decimals` is
+   * inferred from the client's declared `tokens` when omitted.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns The gas estimate.
+   */
+  export async function estimateGas<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: approve.Parameters<chain, account>,
+  ): Promise<bigint> {
+    return estimateContractGas(client, {
+      ...pickWriteParameters(parameters as never),
+      ...approve.call(client, parameters as never),
+    } as never)
+  }
+
+  /**
+   * Simulates an approval of a spender. `amount.decimals` is inferred from
+   * the client's declared `tokens` when omitted.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns The simulation result and write request.
+   */
+  export async function simulate<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: approve.Parameters<chain, account>,
+  ): Promise<SimulateContractReturnType<typeof Abis.tip20, 'approve'>> {
+    return simulateContract(client, {
+      ...pickWriteParameters(parameters as never),
+      ...approve.call(client, parameters as never),
+    } as never) as never
+  }
+
+  /**
+   * Extracts the `Approval` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `Approval` event.
+   */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
@@ -200,28 +256,31 @@ export async function approveSync<
   client: Client<Transport, chain, account>,
   parameters: approveSync.Parameters<chain, account>,
 ): Promise<approveSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await approve.inner(
-    writeContractSync,
-    client,
-    { ...parameters, throwOnReceiptRevert } as never,
-    rest,
-  )
+  const { amount, token, throwOnReceiptRevert = true } = parameters
+  const { decimals } = resolveToken(client, { token })
+  const resolved = internal_Token.resolveAmountDecimals(amount, decimals)
+  const receipt = await approve.inner(writeContractSync, client, {
+    ...parameters,
+    throwOnReceiptRevert,
+  } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = approve.extractEvent(receipt.logs)
   return {
     ...args,
+    ...(resolved === undefined
+      ? {}
+      : { decimals: resolved, formatted: formatUnits(args.amount, resolved) }),
     receipt,
   } as never
 }
 
 export namespace approveSync {
+  export type Args = approve.Args
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = approve.Parameters<chain, account>
-
-  export type Args = approve.Args
-
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.tip20,
@@ -231,13 +290,16 @@ export namespace approveSync {
         Required: true
       }
     > & {
+      /** Token decimals used to derive `formatted`, if known. */
+      decimals?: number | undefined
+      /** Approved amount formatted with the token's `decimals`, if known. */
+      formatted?: string | undefined
       /** Transaction receipt. */
       receipt: TransactionReceipt
     }
   >
-
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -278,24 +340,22 @@ export async function burnBlocked<
 }
 
 export namespace burnBlocked {
+  export type Args = {
+    /** Amount of tokens to burn, in base units or formatted decimal form. */
+    amount: internal_Token.AmountInput
+    /** Address to burn tokens from. */
+    from: Address
+  } & TokenParameter
+
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
-  export type Args = {
-    /** Amount of tokens to burn. */
-    amount: bigint
-    /** Address to burn tokens from. */
-    from: Address
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -308,8 +368,8 @@ export namespace burnBlocked {
     parameters: burnBlocked.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { amount, from, token, ...rest } = parameters
-    const call = burnBlocked.call({ amount, from, token })
-    return (await action(client, {
+    const call = burnBlocked.call(client, { amount, from, token } as never)
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -336,7 +396,7 @@ export namespace burnBlocked {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.burnBlocked.call({
+   *     actions.token.burnBlocked.call(client, {
    *       from: '0x20c0...beef',
    *       amount: 100n,
    *       token: '0x20c0...babe',
@@ -345,16 +405,22 @@ export namespace burnBlocked {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { from, amount, token } = args
+    const { address, decimals } = resolveToken(client, { token })
     return defineCall({
-      address: TokenId.toAddress(token),
+      address,
       abi: Abis.tip20,
       functionName: 'burnBlocked',
-      args: [from, amount],
+      args: [from, internal_Token.toBaseUnits(amount, decimals)],
     })
   }
 
@@ -414,6 +480,8 @@ export async function burnBlockedSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burnBlocked.extractEvent(receipt.logs)
   return {
     ...args,
@@ -444,7 +512,7 @@ export namespace burnBlockedSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -484,24 +552,33 @@ export async function burn<
 }
 
 export namespace burn {
+  export type Args = {
+    /** Amount of tokens to burn, in base units or formatted decimal form. */
+    amount: internal_Token.AmountInput
+  } & TokenParameter &
+    OneOf<
+      | {
+          /** Memo to include in the transfer. */
+          memo?: Hex.Hex | undefined
+        }
+      | {
+          /**
+           * Address to burn tokens from. Requires `BURN_AT_ROLE` (T12+).
+           * Omit to burn from the caller's balance.
+           */
+          from: Address
+        }
+    >
+
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
-  export type Args = {
-    /** Amount of tokens to burn. */
-    amount: bigint
-    /** Memo to include in the transfer. */
-    memo?: Hex.Hex | undefined
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -513,16 +590,16 @@ export namespace burn {
     client: Client<Transport, chain, account>,
     parameters: burn.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { amount, memo, token, ...rest } = parameters
-    const call = burn.call({ amount, memo, token })
-    return (await action(client, {
+    const { amount, from, memo, token, ...rest } = parameters
+    const call = burn.call(client, { amount, from, memo, token } as never)
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
   }
 
   /**
-   * Defines a call to the `burn` or `burnWithMemo` function.
+   * Defines a call to the `burn`, `burnWithMemo`, or `burnAt` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -542,7 +619,7 @@ export namespace burn {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.burn.call({
+   *     actions.token.burn.call(client, {
    *       amount: 100n,
    *       token: '0x20c0...babe',
    *     }),
@@ -550,22 +627,36 @@ export namespace burn {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { amount, memo, token } = args
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    const { amount, from, memo, token } = args
+    const { address, decimals } = resolveToken(client, { token })
+    const value = internal_Token.toBaseUnits(amount, decimals)
+    if (from)
+      return defineCall({
+        address,
+        abi: Abis.tip20,
+        functionName: 'burnAt',
+        args: [from, value],
+      })
     const callArgs = memo
       ? ({
           functionName: 'burnWithMemo',
-          args: [amount, Hex.padLeft(memo, 32)],
+          args: [value, Hex.padLeft(memo, 32)],
         } as const)
       : ({
           functionName: 'burn',
-          args: [amount],
+          args: [value],
         } as const)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address,
       abi: Abis.tip20,
       ...callArgs,
     })
@@ -581,9 +672,9 @@ export namespace burn {
     const [log] = parseEventLogs({
       abi: Abis.tip20,
       logs,
-      eventName: 'Burn',
+      eventName: ['Burn', 'BurnAt'],
     })
-    if (!log) throw new Error('`Burn` event not found.')
+    if (!log) throw new Error('`Burn` or `BurnAt` event not found.')
     return log
   }
 }
@@ -626,6 +717,8 @@ export async function burnSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
@@ -650,12 +743,14 @@ export namespace burnSync {
         Required: true
       }
     > & {
+      /** `BURN_AT_ROLE` holder that performed the burn. Set when `from` is provided. */
+      burner?: Address | undefined
       receipt: TransactionReceipt
     }
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -710,7 +805,7 @@ export namespace changeTransferPolicy {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -723,8 +818,8 @@ export namespace changeTransferPolicy {
     parameters: changeTransferPolicy.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { policyId, token, ...rest } = parameters
-    const call = changeTransferPolicy.call({ policyId, token })
-    return (await action(client, {
+    const call = changeTransferPolicy.call(client, { policyId, token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -751,7 +846,7 @@ export namespace changeTransferPolicy {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.changeTransferPolicy.call({
+   *     actions.token.changeTransferPolicy.call(client, {
    *       token: '0x20c0...babe',
    *       policyId: 1n,
    *     }),
@@ -759,13 +854,16 @@ export namespace changeTransferPolicy {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, policyId } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'changeTransferPolicyId',
       args: [policyId],
@@ -827,6 +925,8 @@ export async function changeTransferPolicySync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = changeTransferPolicy.extractEvent(receipt.logs)
   return {
     ...args,
@@ -856,7 +956,7 @@ export namespace changeTransferPolicySync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -879,6 +979,7 @@ export namespace changeTransferPolicySync {
  *   name: 'My Token',
  *   symbol: 'MTK',
  *   currency: 'USD',
+ *   logoURI: 'https://example.com/token.svg',
  * })
  * ```
  *
@@ -913,6 +1014,8 @@ export namespace create {
     currency: string
     /** Token name. */
     name: string
+    /** Logo URI. Requires a T5-enabled Tempo chain. */
+    logoURI?: string | undefined
     /** Quote token. */
     quoteToken?: TokenId.TokenIdOrAddress | undefined
     /** Unique salt. @default Hex.random(32) */
@@ -924,7 +1027,7 @@ export namespace create {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -945,9 +1048,9 @@ export namespace create {
     const admin = admin_ ? parseAccount(admin_) : undefined
     if (!admin) throw new Error('admin is required.')
 
-    const call = create.call({ ...rest, admin: admin.address })
+    const call = create.call(client, { ...rest, admin: admin.address })
 
-    return (await action(
+    return (await withExecutionError(action)(
       client as never,
       {
         ...parameters,
@@ -979,24 +1082,29 @@ export namespace create {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.create.call({
+   *     actions.token.create.call(client, {
    *       name: 'My Token',
    *       symbol: 'MTK',
    *       currency: 'USD',
+   *       logoURI: 'https://example.com/token.svg',
    *       admin: '0xfeed...fede',
    *     }),
    *   ]
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const {
       name,
       symbol,
       currency,
+      logoURI,
       quoteToken = Addresses.pathUsd,
       admin,
       salt = Hex.random(32),
@@ -1004,14 +1112,25 @@ export namespace create {
     return defineCall({
       address: Addresses.tip20Factory,
       abi: Abis.tip20Factory,
-      args: [
-        name,
-        symbol,
-        currency,
-        TokenId.toAddress(quoteToken),
-        admin,
-        salt,
-      ],
+      args:
+        typeof logoURI === 'string'
+          ? [
+              name,
+              symbol,
+              currency,
+              resolveToken(client, { token: quoteToken }).address,
+              admin,
+              salt,
+              logoURI,
+            ]
+          : [
+              name,
+              symbol,
+              currency,
+              resolveToken(client, { token: quoteToken }).address,
+              admin,
+              salt,
+            ],
       functionName: 'createToken',
     })
   }
@@ -1054,6 +1173,7 @@ export namespace create {
  *   name: 'My Token',
  *   symbol: 'MTK',
  *   currency: 'USD',
+ *   logoURI: 'https://example.com/token.svg',
  * })
  * ```
  *
@@ -1073,6 +1193,9 @@ export async function createSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
 
   const { args } = create.extractEvent(receipt.logs)
   const tokenId = TokenId.fromAddress(args.token)
@@ -1106,7 +1229,7 @@ export namespace createSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1126,65 +1249,67 @@ export namespace createSync {
  * })
  *
  * const allowance = await Actions.token.getAllowance(client, {
+ *   account: '0x...',
  *   spender: '0x...',
+ *   token: '0x...',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The token allowance.
+ * @returns The token allowance, in base units and human-readable form.
  */
-export async function getAllowance<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: getAllowance.Parameters<account>,
+export async function getAllowance<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getAllowance.Parameters,
 ): Promise<getAllowance.ReturnValue> {
-  const { account = client.account } = parameters
-  const address = account ? parseAccount(account).address : undefined
-  if (!address) throw new Error('account is required.')
-  return readContract(client, {
-    ...parameters,
-    ...getAllowance.call({ ...parameters, account: address }),
-  })
+  const { account, decimals, spender, token, ...rest } = parameters
+  const [amount, { decimals: resolved }] = await Promise.all([
+    withExecutionError(readContract)(client, {
+      ...rest,
+      ...getAllowance.call(client, { account, spender, token } as never),
+    }),
+    resolveTokenWithDecimals(client, {
+      decimals,
+      token,
+    }),
+  ])
+  return internal_Token.toAmount(amount, resolved)
 }
 
 export namespace getAllowance {
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = ReadParameters & GetAccountParameter<account> & Omit<Args, 'account'> & {}
-
   export type Args = {
-    /** Account address. */
+    /** Account that owns the tokens. */
     account: Address
-    /** Address of the spender. */
+    /** Spender of the tokens. */
     spender: Address
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.tip20,
-    'allowance',
-    never
-  >
+  } & TokenParameters
+  export type Parameters = ReadParameters & Args
+  export type ReturnValue = internal_Token.Amount
 
   /**
    * Defines a call to the `allowance` function.
    *
-   * @param args - Arguments.
+   * Can be passed as a parameter to `multicall`, `simulateContract`, or any
+   * other action that accepts a contract call. The token is selected by `token`,
+   * which is either a TIP20 token id or a contract address.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { account, spender, token } = args
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, args).address,
       abi: Abis.tip20,
       functionName: 'allowance',
-      args: [account, spender],
+      args: [args.account, args.spender],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1204,13 +1329,14 @@ export namespace getAllowance {
  * })
  *
  * const balance = await Actions.token.getBalance(client, {
+ *   account: '0x...',
  *   token: '0x...',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The token balance.
+ * @returns The token balance, in base units and human-readable form.
  */
 export async function getBalance<
   chain extends Chain | undefined,
@@ -1219,52 +1345,71 @@ export async function getBalance<
   client: Client<Transport, chain, account>,
   parameters: getBalance.Parameters<account>,
 ): Promise<getBalance.ReturnValue> {
-  const { account = client.account, ...rest } = parameters
-  const address = account ? parseAccount(account).address : undefined
-  if (!address) throw new Error('account is required.')
-  return readContract(client, {
-    ...rest,
-    ...getBalance.call({ account: address, ...rest }),
-  })
+  const {
+    account: account_ = client.account,
+    decimals,
+    token,
+    ...rest
+  } = parameters
+  if (!account_) throw new AccountNotFoundError()
+  const account = parseAccount(account_).address
+  const [amount, { decimals: resolved }] = await Promise.all([
+    withExecutionError(readContract)(client, {
+      ...rest,
+      ...getBalance.call(client, { account, token } as never),
+    }),
+    resolveTokenWithDecimals(client, {
+      decimals,
+      token,
+    }),
+  ])
+  return internal_Token.toAmount(amount, resolved)
 }
 
 export namespace getBalance {
+  export type Args<account extends Account | undefined = Account | undefined> =
+    GetAccountParameter<account, Account | Address> & TokenParameters
   export type Parameters<
     account extends Account | undefined = Account | undefined,
-  > = ReadParameters & GetAccountParameter<account> & Omit<Args, 'account'>
-
-  export type Args = {
-    /** Account address. */
-    account: Address
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.tip20,
-    'balanceOf',
-    never
-  >
+  > = Omit<ReadParameters, 'account'> & Args<account>
+  export type ReturnValue = internal_Token.Amount
 
   /**
    * Defines a call to the `balanceOf` function.
    *
-   * @param args - Arguments.
+   * Can be passed as a parameter to `multicall`, `simulateContract`, or any
+   * other action that accepts a contract call. The token is selected by `token`,
+   * which is either a TIP20 token id or a contract address.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { account, token } = args
+  export function call<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    ...parameters: CallParameters<
+      Args<account>,
+      Client<Transport, chain, account>
+    >
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    const account_ = args.account ?? client?.account
+    if (!account_) throw new AccountNotFoundError()
+    const account = parseAccount(account_).address
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, args).address,
       abi: Abis.tip20,
       functionName: 'balanceOf',
       args: [account],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
- * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
+ * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
  *
  * @example
  * ```ts
@@ -1293,11 +1438,18 @@ export async function getMetadata<chain extends Chain | undefined>(
   parameters: getMetadata.Parameters,
 ): Promise<getMetadata.ReturnValue> {
   const { token, ...rest } = parameters
-  const address = TokenId.toAddress(token)
+  const { address } = resolveToken(client, { token })
   const abi = Abis.tip20
 
-  if (TokenId.from(token) === TokenId.fromAddress(Addresses.pathUsd))
-    return multicall(client, {
+  const declared = findDeclaredToken(client, token)
+  const overrides = {
+    ...(declared?.decimals != null ? { decimals: declared.decimals } : {}),
+    ...(declared?.name != null ? { name: declared.name } : {}),
+    ...(declared?.symbol != null ? { symbol: declared.symbol } : {}),
+  }
+
+  if (TokenId.fromAddress(address) === TokenId.fromAddress(Addresses.pathUsd))
+    return readMetadataContracts(client, {
       ...rest,
       contracts: [
         {
@@ -1309,6 +1461,11 @@ export async function getMetadata<chain extends Chain | undefined>(
           address,
           abi,
           functionName: 'decimals',
+        },
+        {
+          address,
+          abi,
+          functionName: 'logoURI',
         },
         {
           address,
@@ -1326,17 +1483,17 @@ export async function getMetadata<chain extends Chain | undefined>(
           functionName: 'totalSupply',
         },
       ] as const,
-      allowFailure: false,
-      deployless: true,
-    }).then(([currency, decimals, name, symbol, totalSupply]) => ({
-      name,
-      symbol,
-      currency,
-      decimals,
-      totalSupply,
+    }).then(([currency, decimals, logoURI, name, symbol, totalSupply]) => ({
+      name: unwrapMulticallResult(name),
+      symbol: unwrapMulticallResult(symbol),
+      currency: unwrapMulticallResult(currency),
+      decimals: unwrapMulticallResult(decimals),
+      logoURI: unwrapMulticallResult(logoURI, ''),
+      totalSupply: unwrapMulticallResult(totalSupply),
+      ...overrides,
     }))
 
-  return multicall(client, {
+  return readMetadataContracts(client, {
     ...rest,
     contracts: [
       {
@@ -1348,6 +1505,11 @@ export async function getMetadata<chain extends Chain | undefined>(
         address,
         abi,
         functionName: 'decimals',
+      },
+      {
+        address,
+        abi,
+        functionName: 'logoURI',
       },
       {
         address,
@@ -1385,12 +1547,11 @@ export async function getMetadata<chain extends Chain | undefined>(
         functionName: 'transferPolicyId',
       },
     ] as const,
-    allowFailure: false,
-    deployless: true,
   }).then(
     ([
       currency,
       decimals,
+      logoURI,
       quoteToken,
       name,
       paused,
@@ -1399,24 +1560,96 @@ export async function getMetadata<chain extends Chain | undefined>(
       totalSupply,
       transferPolicyId,
     ]) => ({
-      name,
-      symbol,
-      currency,
-      decimals,
-      quoteToken,
-      totalSupply,
-      paused,
-      supplyCap,
-      transferPolicyId,
+      name: unwrapMulticallResult(name),
+      symbol: unwrapMulticallResult(symbol),
+      currency: unwrapMulticallResult(currency),
+      decimals: unwrapMulticallResult(decimals),
+      logoURI: unwrapMulticallResult(logoURI, ''),
+      quoteToken: unwrapMulticallResult(quoteToken),
+      totalSupply: unwrapMulticallResult(totalSupply),
+      paused: unwrapMulticallResult(paused),
+      supplyCap: unwrapMulticallResult(supplyCap),
+      transferPolicyId: unwrapMulticallResult(transferPolicyId),
+      ...overrides,
     }),
   )
 }
 
-export declare namespace getMetadata {
-  export type Parameters = {
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
+async function readMetadataContracts<
+  chain extends Chain | undefined,
+  const contracts extends readonly unknown[],
+>(
+  client: Client<Transport, chain>,
+  parameters: Pick<
+    MulticallParameters<contracts>,
+    | 'blockNumber'
+    | 'blockOverrides'
+    | 'blockTag'
+    | 'contracts'
+    | 'stateOverride'
+  >,
+): Promise<MulticallReturnType<contracts>>
+async function readMetadataContracts<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: Pick<
+    MulticallParameters,
+    | 'blockNumber'
+    | 'blockOverrides'
+    | 'blockTag'
+    | 'contracts'
+    | 'stateOverride'
+  >,
+): Promise<MulticallReturnType> {
+  // Preserve the action's deployless default unless the client overrides it.
+  if (client.batch?.multicall === undefined)
+    return multicall(client, {
+      ...parameters,
+      allowFailure: true,
+      deployless: true,
+    })
+
+  const { contracts, ...rest } = parameters
+  const results = await Promise.allSettled(
+    contracts.map((contract) =>
+      withExecutionError(readContract)(client, {
+        ...rest,
+        ...contract,
+      }),
+    ),
+  )
+  return results.map((result) =>
+    result.status === 'fulfilled'
+      ? { result: result.value, status: 'success' }
+      : { error: result.reason, status: 'failure' },
+  )
+}
+
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+): result
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+  fallback: result,
+): result
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+  ...fallback: [] | [result]
+) {
+  if (response.status === 'failure') {
+    if (fallback.length > 0) return fallback[0]
+    throw response.error
   }
+  return response.result
+}
+
+export declare namespace getMetadata {
+  export type Parameters = Omit<ReadParameters, 'account'> & TokenParameter
 
   export type ReturnValue = Compute<{
     /**
@@ -1427,6 +1660,11 @@ export declare namespace getMetadata {
      * Decimals of the token.
      */
     decimals: number
+    /**
+     * Logo URI of the token. Returns an empty string if unset or unsupported
+     * by the active Tempo hardfork.
+     */
+    logoURI: string
     /**
      * Quote token.
      *
@@ -1465,6 +1703,79 @@ export declare namespace getMetadata {
      */
     transferPolicyId?: bigint | undefined
   }>
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+}
+
+/**
+ * Gets the total supply of a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const totalSupply = await Actions.token.getTotalSupply(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The token total supply, in base units and human-readable form.
+ */
+export async function getTotalSupply<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getTotalSupply.Parameters,
+): Promise<getTotalSupply.ReturnValue> {
+  const { decimals, token, ...rest } = parameters
+  const [amount, { decimals: resolved }] = await Promise.all([
+    withExecutionError(readContract)(client, {
+      ...rest,
+      ...getTotalSupply.call(client, { token } as never),
+    }),
+    resolveTokenWithDecimals(client, {
+      decimals,
+      token,
+    }),
+  ])
+  return internal_Token.toAmount(amount, resolved)
+}
+
+export namespace getTotalSupply {
+  export type Args = TokenParameters
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
+  export type ReturnValue = internal_Token.Amount
+
+  /**
+   * Defines a call to the `totalSupply` function.
+   *
+   * Can be passed as a parameter to `multicall`, `simulateContract`, or any
+   * other action that accepts a contract call. The token is selected by `token`,
+   * which is either a TIP20 token id or a contract address.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
+   * @returns The call.
+   */
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    return defineCall({
+      address: resolveToken(client, args).address,
+      abi: Abis.tip20,
+      args: [],
+      functionName: 'totalSupply',
+    })
+  }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1495,9 +1806,9 @@ export async function getRoleAdmin<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getRoleAdmin.Parameters,
 ): Promise<getRoleAdmin.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
-    ...getRoleAdmin.call(parameters),
+    ...getRoleAdmin.call(client, parameters),
   })
 }
 
@@ -1520,18 +1831,23 @@ export namespace getRoleAdmin {
   /**
    * Defines a call to the `getRoleAdmin` function.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { role, token } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'getRoleAdmin',
       args: [TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1569,9 +1885,9 @@ export async function hasRole<
   const { account = client.account } = parameters
   const address = account ? parseAccount(account).address : undefined
   if (!address) throw new Error('account is required.')
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
-    ...hasRole.call({ ...parameters, account: address }),
+    ...hasRole.call(client, { ...parameters, account: address }),
   })
 }
 
@@ -1598,18 +1914,23 @@ export namespace hasRole {
   /**
    * Defines a call to the `hasRole` function.
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { account, role, token } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'hasRole',
       args: [account, TokenRole.serialize(role)],
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1671,7 +1992,7 @@ export namespace grantRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1683,10 +2004,10 @@ export namespace grantRoles {
     client: Client<Transport, chain, account>,
     parameters: grantRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
-        const call = grantRoles.call({ ...parameters, role })
+        const call = grantRoles.call(client, { ...parameters, role })
         return {
           ...call,
           data: encodeFunctionData(call),
@@ -1716,7 +2037,7 @@ export namespace grantRoles {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.grantRoles.call({
+   *     actions.token.grantRoles.call(client, {
    *       token: '0x20c0...babe',
    *       to: '0x20c0...beef',
    *       role: 'issuer',
@@ -1725,14 +2046,17 @@ export namespace grantRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, to, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'grantRole',
       args: [roleHash, to],
@@ -1796,6 +2120,8 @@ export async function grantRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = grantRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -1822,7 +2148,7 @@ export namespace grantRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -1863,26 +2189,24 @@ export async function mint<
 }
 
 export namespace mint {
+  export type Args = {
+    /** Amount of tokens to mint, in base units or formatted decimal form. */
+    amount: internal_Token.AmountInput
+    /** Memo to include in the mint. */
+    memo?: Hex.Hex | undefined
+    /** Address to mint tokens to. */
+    to: Address
+  } & TokenParameter
+
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
-  export type Args = {
-    /** Amount of tokens to mint. */
-    amount: bigint
-    /** Memo to include in the mint. */
-    memo?: Hex.Hex | undefined
-    /** Address to mint tokens to. */
-    to: Address
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-  }
-
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -1892,11 +2216,18 @@ export namespace mint {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: any,
+    parameters: mint.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const call = mint.call(parameters)
-    return (await action(client, {
-      ...parameters,
+    const { amount, memo, to, token, ...rest } = parameters
+    const call = mint.call(client, { amount, memo, to, token } as never)
+    return (await withExecutionError(action, {
+      hints: {
+        Unauthorized: [
+          'Minting requires the issuer role. Grant it to this account first.',
+        ],
+      },
+    })(client, {
+      ...rest,
       ...call,
     } as never)) as never
   }
@@ -1922,7 +2253,7 @@ export namespace mint {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.mint.call({
+   *     actions.token.mint.call(client, {
    *       to: '0x20c0...beef',
    *       amount: 100n,
    *       token: '0x20c0...babe',
@@ -1931,22 +2262,29 @@ export namespace mint {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
+   *
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { to, amount, memo, token } = args
+    const { address, decimals } = resolveToken(client, { token })
+    const value = internal_Token.toBaseUnits(amount, decimals)
     const callArgs = memo
       ? ({
           functionName: 'mintWithMemo',
-          args: [to, amount, Hex.padLeft(memo, 32)],
+          args: [to, value, Hex.padLeft(memo, 32)],
         } as const)
       : ({
           functionName: 'mint',
-          args: [to, amount],
+          args: [to, value],
         } as const)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address,
       abi: Abis.tip20,
       ...callArgs,
     })
@@ -2008,6 +2346,8 @@ export async function mintSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = mint.extractEvent(receipt.logs)
   return {
     ...args,
@@ -2037,7 +2377,7 @@ export namespace mintSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2089,7 +2429,7 @@ export namespace pause {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2102,8 +2442,8 @@ export namespace pause {
     parameters: pause.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
-    const call = pause.call({ token })
-    return (await action(client, {
+    const call = pause.call(client, { token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2130,20 +2470,23 @@ export namespace pause {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.pause.call({
+   *     actions.token.pause.call(client, {
    *       token: '0x20c0...babe',
    *     }),
    *   ]
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'pause',
       args: [],
@@ -2204,6 +2547,8 @@ export async function pauseSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = pause.extractEvent(receipt.logs)
   return {
     ...args,
@@ -2228,7 +2573,7 @@ export namespace pauseSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2287,7 +2632,7 @@ export namespace renounceRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2299,10 +2644,10 @@ export namespace renounceRoles {
     client: Client<Transport, chain, account>,
     parameters: renounceRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...parameters,
       calls: parameters.roles.map((role) => {
-        const call = renounceRoles.call({ ...parameters, role })
+        const call = renounceRoles.call(client, { ...parameters, role })
         return {
           ...call,
           data: encodeFunctionData(call),
@@ -2332,7 +2677,7 @@ export namespace renounceRoles {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.renounceRoles.call({
+   *     actions.token.renounceRoles.call(client, {
    *       token: '0x20c0...babe',
    *       role: 'issuer',
    *     }),
@@ -2340,14 +2685,17 @@ export namespace renounceRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'renounceRole',
       args: [roleHash],
@@ -2410,6 +2758,8 @@ export async function renounceRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = renounceRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -2436,7 +2786,7 @@ export namespace renounceRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2498,7 +2848,7 @@ export namespace revokeRoles {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2511,10 +2861,10 @@ export namespace revokeRoles {
     parameters: revokeRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { from: _, ...rest } = parameters
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       calls: parameters.roles.map((role) => {
-        const call = revokeRoles.call({ ...parameters, role })
+        const call = revokeRoles.call(client, { ...parameters, role })
         return {
           ...call,
           data: encodeFunctionData(call),
@@ -2544,7 +2894,7 @@ export namespace revokeRoles {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.revokeRoles.call({
+   *     actions.token.revokeRoles.call(client, {
    *       token: '0x20c0...babe',
    *       from: '0x20c0...beef',
    *       role: 'issuer',
@@ -2553,14 +2903,17 @@ export namespace revokeRoles {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, from, role } = args
     const roleHash = TokenRole.serialize(role)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'revokeRole',
       args: [roleHash, from],
@@ -2624,6 +2977,8 @@ export async function revokeRolesSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const events = revokeRoles.extractEvents(receipt.logs)
   const value = events.map((event) => event.args)
   return {
@@ -2650,7 +3005,7 @@ export namespace revokeRolesSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2705,7 +3060,7 @@ export namespace setSupplyCap {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2718,8 +3073,8 @@ export namespace setSupplyCap {
     parameters: setSupplyCap.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { supplyCap, token, ...rest } = parameters
-    const call = setSupplyCap.call({ supplyCap, token })
-    return (await action(client, {
+    const call = setSupplyCap.call(client, { supplyCap, token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2746,7 +3101,7 @@ export namespace setSupplyCap {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.setSupplyCap.call({
+   *     actions.token.setSupplyCap.call(client, {
    *       token: '0x20c0...babe',
    *       supplyCap: 1000000n,
    *     }),
@@ -2754,13 +3109,16 @@ export namespace setSupplyCap {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, supplyCap } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'setSupplyCap',
       args: [supplyCap],
@@ -2822,6 +3180,8 @@ export async function setSupplyCapSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setSupplyCap.extractEvent(receipt.logs)
   return {
     ...args,
@@ -2846,7 +3206,7 @@ export namespace setSupplyCapSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -2904,7 +3264,7 @@ export namespace setRoleAdmin {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -2917,8 +3277,8 @@ export namespace setRoleAdmin {
     parameters: setRoleAdmin.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { adminRole, role, token, ...rest } = parameters
-    const call = setRoleAdmin.call({ adminRole, role, token })
-    return (await action(client, {
+    const call = setRoleAdmin.call(client, { adminRole, role, token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -2945,7 +3305,7 @@ export namespace setRoleAdmin {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.setRoleAdmin.call({
+   *     actions.token.setRoleAdmin.call(client, {
    *       token: '0x20c0...babe',
    *       role: 'issuer',
    *       adminRole: 'admin',
@@ -2954,15 +3314,18 @@ export namespace setRoleAdmin {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, role, adminRole } = args
     const roleHash = TokenRole.serialize(role)
     const adminRoleHash = TokenRole.serialize(adminRole)
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'setRoleAdmin',
       args: [roleHash, adminRoleHash],
@@ -3025,6 +3388,8 @@ export async function setRoleAdminSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setRoleAdmin.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3049,7 +3414,7 @@ export namespace setRoleAdminSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3089,28 +3454,23 @@ export async function transfer<
 }
 
 export namespace transfer {
+  export type Args = {
+    /** Amount of tokens to transfer, in base units or formatted decimal form. */
+    amount: internal_Token.AmountInput
+    /** Address to transfer tokens from (uses an allowance via `transferFrom`). */
+    from?: Address | undefined
+    /** Memo to include in the transfer. */
+    memo?: Hex.Hex | undefined
+    /** Address to transfer tokens to. */
+    to: Address
+  } & TokenParameter
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
-
-  export type Args = {
-    /** Amount of tokens to transfer. */
-    amount: bigint
-    /** Address to transfer tokens from. */
-    from?: Address | undefined
-    /** Memo to include in the transfer. */
-    memo?: Hex.Hex | undefined
-    /** Address or ID of the TIP20 token. */
-    token: TokenId.TokenIdOrAddress
-    /** Address to transfer tokens to. */
-    to: Address
-  }
-
   export type ReturnValue = WriteContractReturnType
-
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3122,82 +3482,112 @@ export namespace transfer {
     client: Client<Transport, chain, account>,
     parameters: transfer.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { amount, from, memo, token, to, ...rest } = parameters
-    const call = transfer.call({ amount, from, memo, token, to })
-    return (await action(client, {
-      ...rest,
-      ...call,
+    return (await withExecutionError(action)(client, {
+      ...parameters,
+      ...transfer.call(client, parameters as never),
     } as never)) as never
   }
 
   /**
-   * Defines a call to the `transfer`, `transferFrom`, `transferWithMemo`, or `transferFromWithMemo` function.
+   * Defines a call to the `transfer`, `transferFrom`, `transferWithMemo`, or
+   * `transferFromWithMemo` function.
    *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   * Can be passed as a parameter to `estimateContractGas`, `simulateContract`,
+   * `sendCalls`, `sendTransaction` (`calls`), or `multicall`. The token is
+   * selected by `token`, which is either a TIP20 token id or a contract
+   * `address`; `amount.decimals` is inferred from the client's declared
+   * `tokens` when omitted.
    *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'viem/chains'
-   * import { Actions } from 'viem/tempo'
-   *
-   * const client = createClient({
-   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const { result } = await client.sendCalls({
-   *   calls: [
-   *     actions.token.transfer.call({
-   *       to: '0x20c0...beef',
-   *       amount: 100n,
-   *       token: '0x20c0...babe',
-   *     }),
-   *   ]
-   * })
-   * ```
-   *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { amount, from, memo, token, to } = args
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
+    const { from, memo, to, token } = args
+    const { address, decimals } = resolveToken(client, { token })
+    const value = internal_Token.toBaseUnits(args.amount, decimals)
     const callArgs = (() => {
       if (memo && from)
         return {
           functionName: 'transferFromWithMemo',
-          args: [from, to, amount, Hex.padLeft(memo, 32)],
+          args: [from, to, value, Hex.padLeft(memo, 32)],
         } as const
       if (memo)
         return {
           functionName: 'transferWithMemo',
-          args: [to, amount, Hex.padLeft(memo, 32)],
+          args: [to, value, Hex.padLeft(memo, 32)],
         } as const
       if (from)
         return {
           functionName: 'transferFrom',
-          args: [from, to, amount],
+          args: [from, to, value],
         } as const
       return {
         functionName: 'transfer',
-        args: [to, amount],
+        args: [to, value],
       } as const
     })()
     return defineCall({
-      address: TokenId.toAddress(token),
+      address,
       abi: Abis.tip20,
       ...callArgs,
     })
   }
 
   /**
-   * Extracts the event from the logs.
+   * Estimates the gas required to transfer TIP20 tokens. `amount.decimals` is
+   * inferred from the client's declared `tokens` when omitted.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns The gas estimate.
+   */
+  export async function estimateGas<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: transfer.Parameters<chain, account>,
+  ): Promise<bigint> {
+    return estimateContractGas(client, {
+      ...pickWriteParameters(parameters as never),
+      ...transfer.call(client, parameters as never),
+    } as never)
+  }
+
+  /**
+   * Simulates a transfer of TIP20 tokens. `amount.decimals` is inferred from
+   * the client's declared `tokens` when omitted.
+   *
+   * @param client - Client.
+   * @param parameters - Parameters.
+   * @returns The simulation result and write request.
+   */
+  export async function simulate<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: transfer.Parameters<chain, account>,
+  ): Promise<
+    SimulateContractReturnType<
+      typeof Abis.tip20,
+      'transfer' | 'transferFrom' | 'transferWithMemo' | 'transferFromWithMemo'
+    >
+  > {
+    return simulateContract(client, {
+      ...pickWriteParameters(parameters as never),
+      ...transfer.call(client, parameters as never),
+    } as never) as never
+  }
+
+  /**
+   * Extracts the `Transfer` event from logs.
    *
    * @param logs - Logs.
-   * @returns The event.
+   * @returns The `Transfer` event.
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
@@ -3243,36 +3633,47 @@ export async function transferSync<
   client: Client<Transport, chain, account>,
   parameters: transferSync.Parameters<chain, account>,
 ): Promise<transferSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const { amount, token, throwOnReceiptRevert = true } = parameters
+  const { decimals } = resolveToken(client, { token })
+  const resolved = internal_Token.resolveAmountDecimals(amount, decimals)
   const receipt = await transfer.inner(writeContractSync, client, {
-    ...rest,
+    ...parameters,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = transfer.extractEvent(receipt.logs)
   return {
     ...args,
+    ...(resolved === undefined
+      ? {}
+      : { decimals: resolved, formatted: formatUnits(args.amount, resolved) }),
     receipt,
   } as never
 }
 
 export namespace transferSync {
+  export type Args = transfer.Args
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = transfer.Parameters<chain, account>
-
-  export type Args = transfer.Args
-
-  export type ReturnValue = GetEventArgs<
-    typeof Abis.tip20,
-    'Transfer',
-    { IndexedOnly: false; Required: true }
-  > & {
-    receipt: TransactionReceipt
-  }
-
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20,
+      'Transfer',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Token decimals used to derive `formatted`, if known. */
+      decimals?: number | undefined
+      /** Transferred amount formatted with the token's `decimals`, if known. */
+      formatted?: string | undefined
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3324,7 +3725,7 @@ export namespace unpause {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3337,8 +3738,8 @@ export namespace unpause {
     parameters: unpause.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
-    const call = unpause.call({ token })
-    return (await action(client, {
+    const call = unpause.call(client, { token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3365,20 +3766,23 @@ export namespace unpause {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.unpause.call({
+   *     actions.token.unpause.call(client, {
    *       token: '0x20c0...babe',
    *     }),
    *   ]
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'unpause',
       args: [],
@@ -3439,6 +3843,8 @@ export async function unpauseSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = unpause.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3463,7 +3869,7 @@ export namespace unpauseSync {
   }
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3518,7 +3924,7 @@ export namespace prepareUpdateQuoteToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3531,8 +3937,8 @@ export namespace prepareUpdateQuoteToken {
     parameters: prepareUpdateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { quoteToken, token, ...rest } = parameters
-    const call = prepareUpdateQuoteToken.call({ quoteToken, token })
-    return (await action(client, {
+    const call = prepareUpdateQuoteToken.call(client, { quoteToken, token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3559,7 +3965,7 @@ export namespace prepareUpdateQuoteToken {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.prepareUpdateQuoteToken.call({
+   *     actions.token.prepareUpdateQuoteToken.call(client, {
    *       token: '0x20c0...babe',
    *       quoteToken: '0x20c0...cafe',
    *     }),
@@ -3567,16 +3973,19 @@ export namespace prepareUpdateQuoteToken {
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token, quoteToken } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'setNextQuoteToken',
-      args: [TokenId.toAddress(quoteToken)],
+      args: [resolveToken(client, { token: quoteToken }).address],
     })
   }
 
@@ -3635,6 +4044,8 @@ export async function prepareUpdateQuoteTokenSync<
     client,
     parameters,
   )
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = prepareUpdateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3664,7 +4075,7 @@ export namespace prepareUpdateQuoteTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3716,7 +4127,7 @@ export namespace updateQuoteToken {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -3729,8 +4140,8 @@ export namespace updateQuoteToken {
     parameters: updateQuoteToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
-    const call = updateQuoteToken.call({ token })
-    return (await action(client, {
+    const call = updateQuoteToken.call(client, { token })
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -3757,20 +4168,23 @@ export namespace updateQuoteToken {
    *
    * const { result } = await client.sendCalls({
    *   calls: [
-   *     actions.token.updateQuoteToken.call({
+   *     actions.token.updateQuoteToken.call(client, {
    *       token: '0x20c0...babe',
    *     }),
    *   ]
    * })
    * ```
    *
-   * @param args - Arguments.
+   * @param parameters - Client (optional), followed by the call arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
+  export function call<chain extends Chain | undefined>(
+    ...parameters: CallParameters<Args, Client<Transport, chain>>
+  ) {
+    const [client, args] = resolveCallParameters(parameters)
     const { token } = args
     return defineCall({
-      address: TokenId.toAddress(token),
+      address: resolveToken(client, { token }).address,
       abi: Abis.tip20,
       functionName: 'completeQuoteTokenUpdate',
       args: [],
@@ -3831,6 +4245,8 @@ export async function updateQuoteTokenSync<
     client,
     parameters,
   )
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = updateQuoteToken.extractEvent(receipt.logs)
   return {
     ...args,
@@ -3860,7 +4276,7 @@ export namespace updateQuoteTokenSync {
   >
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -3898,7 +4314,7 @@ export function watchApprove<
   const { onApproval, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'Approval',
     onLogs: (logs) => {
@@ -3966,7 +4382,7 @@ export function watchBurn<
   const { onBurn, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'Burn',
     onLogs: (logs) => {
@@ -4107,7 +4523,7 @@ export function watchMint<
   const { onMint, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'Mint',
     onLogs: (logs) => {
@@ -4180,7 +4596,7 @@ export function watchAdminRole<
   const { onRoleAdminUpdated, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'RoleAdminUpdated',
     onLogs: (logs) => {
@@ -4248,7 +4664,7 @@ export function watchRole<
   const { onRoleUpdated, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'RoleMembershipUpdated',
     onLogs: (logs) => {
@@ -4330,7 +4746,7 @@ export function watchTransfer<
   const { onTransfer, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: TokenId.toAddress(token),
+    address: resolveToken(client, { token }).address,
     abi: Abis.tip20,
     eventName: 'Transfer',
     onLogs: (logs) => {
@@ -4402,7 +4818,7 @@ export function watchUpdateQuoteToken<
   parameters: watchUpdateQuoteToken.Parameters,
 ) {
   const { onUpdateQuoteToken, token, ...rest } = parameters
-  const address = TokenId.toAddress(token)
+  const address = resolveToken(client, { token }).address
 
   return watchContractEvent(client, {
     ...rest,
@@ -4468,4 +4884,442 @@ export declare namespace watchUpdateQuoteToken {
     /** Address or ID of the TIP20 token. */
     token: TokenId.TokenIdOrAddress
   }
+}
+
+// Errors
+
+/** Errors this module throws for decoded Tempo errors. Narrow with `error.name`. */
+export type ExecutionErrorType =
+  | TokenInsufficientAllowanceErrorType
+  | TokenInsufficientBalanceErrorType
+  | TokenPausedErrorType
+  | TokenPolicyForbidsErrorType
+  | TokenSupplyCapExceededErrorType
+  | TokenUnauthorizedErrorType
+
+/** `TokenInsufficientBalanceError` with a literal `name`, for narrowing. */
+export type TokenInsufficientBalanceErrorType =
+  TokenInsufficientBalanceError & { name: 'TokenInsufficientBalanceError' }
+
+/** Thrown when an account's TIP-20 balance is lower than the amount a call needs. */
+export class TokenInsufficientBalanceError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientBalance'>
+> {
+  /** Balance available. */
+  available: bigint
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Amount required. */
+  required: bigint
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      decimals?: number | undefined
+    },
+  ) {
+    const { decimals } = parameters
+    const [available, required, token] = parameters.error.args as readonly [
+      bigint,
+      bigint,
+      Address,
+    ]
+    super(parameters, {
+      details: {
+        token,
+        available: formatAmount(available, decimals),
+        required: formatAmount(required, decimals),
+        shortfall: formatAmount(required - available, decimals),
+      },
+      name: 'TokenInsufficientBalanceError',
+      shortMessage: `Insufficient balance of token "${token}".`,
+    })
+    this.available = available
+    this.decimals = decimals
+    this.required = required
+    this.token = token
+  }
+}
+
+/** `TokenInsufficientAllowanceError` with a literal `name`, for narrowing. */
+export type TokenInsufficientAllowanceErrorType =
+  TokenInsufficientAllowanceError & { name: 'TokenInsufficientAllowanceError' }
+
+/** Thrown when a spender's TIP-20 allowance is lower than the amount it tries to transfer. */
+export class TokenInsufficientAllowanceError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'InsufficientAllowance'>
+> {
+  /** Current allowance, when known. */
+  allowance: bigint | undefined
+  /** Amount the spender tried to transfer. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Token owner. */
+  owner: Address
+  /** Spender. */
+  spender: Address
+  /** Token address. */
+  token: Address
+
+  constructor(parameters: TokenInsufficientAllowanceError.Parameters) {
+    const { allowance, amount, decimals, owner, spender, token } = parameters
+    super(parameters, {
+      details: {
+        token,
+        owner,
+        spender,
+        allowance: formatAmount(allowance, decimals),
+        amount: formatAmount(amount, decimals),
+      },
+      name: 'TokenInsufficientAllowanceError',
+      shortMessage: `Spender "${spender}" has an insufficient allowance from "${owner}" for token "${token}".`,
+    })
+    this.allowance = allowance
+    this.amount = amount
+    this.decimals = decimals
+    this.owner = owner
+    this.spender = spender
+    this.token = token
+  }
+}
+
+export declare namespace TokenInsufficientAllowanceError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Current allowance, when known. */
+    allowance?: bigint | undefined
+    /** Amount the spender tried to transfer. */
+    amount?: bigint | undefined
+    /** Token decimals, when known. */
+    decimals?: number | undefined
+    /** Token owner. */
+    owner: Address
+    /** Spender. */
+    spender: Address
+    /** Token address. */
+    token: Address
+  }
+}
+
+/** `TokenSupplyCapExceededError` with a literal `name`, for narrowing. */
+export type TokenSupplyCapExceededErrorType = TokenSupplyCapExceededError & {
+  name: 'TokenSupplyCapExceededError'
+}
+
+/** Thrown when minting would exceed a TIP-20 token's supply cap. */
+export class TokenSupplyCapExceededError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'SupplyCapExceeded'>
+> {
+  /** Amount to mint. */
+  amount: bigint | undefined
+  /** Token decimals, when known. */
+  decimals: number | undefined
+  /** Supply cap, when known. */
+  supplyCap: bigint | undefined
+  /** Token address. */
+  token: Address
+  /** Current total supply, when known. */
+  totalSupply: bigint | undefined
+
+  constructor(parameters: TokenSupplyCapExceededError.Parameters) {
+    const { amount, decimals, supplyCap, token, totalSupply } = parameters
+    super(parameters, {
+      details: {
+        token,
+        amount: formatAmount(amount, decimals),
+        'total supply': formatAmount(totalSupply, decimals),
+        'supply cap': formatAmount(supplyCap, decimals),
+        'mintable amount':
+          supplyCap !== undefined && totalSupply !== undefined
+            ? formatAmount(supplyCap - totalSupply, decimals)
+            : undefined,
+      },
+      name: 'TokenSupplyCapExceededError',
+      shortMessage: `Minting exceeds the supply cap of token "${token}".`,
+    })
+    this.amount = amount
+    this.decimals = decimals
+    this.supplyCap = supplyCap
+    this.token = token
+    this.totalSupply = totalSupply
+  }
+}
+
+export declare namespace TokenSupplyCapExceededError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Amount to mint. */
+    amount?: bigint | undefined
+    /** Token decimals, when known. */
+    decimals?: number | undefined
+    /** Supply cap, when known. */
+    supplyCap?: bigint | undefined
+    /** Token address. */
+    token: Address
+    /** Current total supply, when known. */
+    totalSupply?: bigint | undefined
+  }
+}
+
+/** `TokenPolicyForbidsError` with a literal `name`, for narrowing. */
+export type TokenPolicyForbidsErrorType = TokenPolicyForbidsError & {
+  name: 'TokenPolicyForbidsError'
+}
+
+/** Thrown when a TIP-20 token's transfer policy forbids the sender or recipient. */
+export class TokenPolicyForbidsError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'PolicyForbids'>
+> {
+  /** Sender, when known. */
+  from: Address | undefined
+  /** Transfer policy ID, when known. */
+  policyId: bigint | undefined
+  /** Whether the policy authorizes the recipient, when known. */
+  recipientAuthorized: boolean | undefined
+  /** Whether the policy authorizes the sender, when known. */
+  senderAuthorized: boolean | undefined
+  /** Recipient, when known. */
+  to: Address | undefined
+  /** Token address. */
+  token: Address
+
+  constructor(parameters: TokenPolicyForbidsError.Parameters) {
+    const { from, policyId, recipientAuthorized, senderAuthorized, to, token } =
+      parameters
+    const party =
+      senderAuthorized === false
+        ? `sender "${from}"`
+        : recipientAuthorized === false
+          ? `recipient "${to}"`
+          : 'this transfer'
+    super(parameters, {
+      details: {
+        token,
+        policy: policyId,
+        from,
+        to,
+        'sender authorized': senderAuthorized?.toString(),
+        'recipient authorized': recipientAuthorized?.toString(),
+      },
+      name: 'TokenPolicyForbidsError',
+      shortMessage: `The transfer policy of token "${token}" forbids ${party}.`,
+    })
+    this.from = from
+    this.policyId = policyId
+    this.recipientAuthorized = recipientAuthorized
+    this.senderAuthorized = senderAuthorized
+    this.to = to
+    this.token = token
+  }
+}
+
+export declare namespace TokenPolicyForbidsError {
+  /** Constructor parameters. */
+  type Parameters = Errors.TempoExecutionError.Parameters & {
+    /** Sender, when known. */
+    from?: Address | undefined
+    /** Transfer policy ID, when known. */
+    policyId?: bigint | undefined
+    /** Whether the policy authorizes the recipient, when known. */
+    recipientAuthorized?: boolean | undefined
+    /** Whether the policy authorizes the sender, when known. */
+    senderAuthorized?: boolean | undefined
+    /** Recipient, when known. */
+    to?: Address | undefined
+    /** Token address. */
+    token: Address
+  }
+}
+
+/** `TokenPausedError` with a literal `name`, for narrowing. */
+export type TokenPausedErrorType = TokenPausedError & {
+  name: 'TokenPausedError'
+}
+
+/** Thrown when calling a paused TIP-20 token. */
+export class TokenPausedError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'ContractPaused'>
+> {
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & { token: Address },
+  ) {
+    super(parameters, {
+      name: 'TokenPausedError',
+      shortMessage: `Token "${parameters.token}" is paused.`,
+    })
+    this.token = parameters.token
+  }
+}
+
+/** `TokenUnauthorizedError` with a literal `name`, for narrowing. */
+export type TokenUnauthorizedErrorType = TokenUnauthorizedError & {
+  name: 'TokenUnauthorizedError'
+}
+
+/** Thrown when an account lacks the TIP-20 role a call requires. */
+export class TokenUnauthorizedError extends TempoExecutionError<
+  Errors.TempoExecutionError.Decoded<'Unauthorized'>
+> {
+  /** Account that made the call. */
+  account: Address
+  /** Role the call requires. */
+  role: TokenRole.TokenRole
+  /** Token address. */
+  token: Address
+
+  constructor(
+    parameters: Errors.TempoExecutionError.Parameters & {
+      account: Address
+      role: TokenRole.TokenRole
+      token: Address
+    },
+  ) {
+    const { account, role, token } = parameters
+    super(parameters, {
+      details: { token, account, role },
+      name: 'TokenUnauthorizedError',
+      shortMessage: `Account "${account}" does not have the "${role}" role on token "${token}".`,
+    })
+    this.account = account
+    this.role = role
+    this.token = token
+  }
+}
+
+/** Roles required by TIP-20 functions. */
+const requiredRoles: Record<string, TokenRole.TokenRole> = {
+  burn: 'issuer',
+  burnAt: 'burnAt',
+  burnBlocked: 'burnBlocked',
+  burnWithMemo: 'issuer',
+  changeTransferPolicyId: 'defaultAdmin',
+  completeQuoteTokenUpdate: 'defaultAdmin',
+  mint: 'issuer',
+  mintWithMemo: 'issuer',
+  pause: 'pause',
+  setLogoURI: 'defaultAdmin',
+  setNextQuoteToken: 'defaultAdmin',
+  setSupplyCap: 'defaultAdmin',
+  unpause: 'unpause',
+}
+
+/** @internal */
+export const errorResolvers: Resolvers = {
+  'ContractPaused()': ({ base, call }) =>
+    isTip20(call?.address)
+      ? new TokenPausedError({ ...base, token: call.address })
+      : undefined,
+  'InsufficientAllowance()': async (context) => {
+    const { base, call, signer } = context
+    const owner = call?.arg<Address>('from')
+    if (!isTip20(call?.address) || !owner || !signer) return undefined
+    const token = call.address
+    const [allowance, decimals] = await context.read([
+      {
+        address: token,
+        abi: Abis.tip20,
+        functionName: 'allowance',
+        args: [owner, signer.address],
+      },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenInsufficientAllowanceError({
+      ...base,
+      allowance: allowance?.result,
+      amount: call.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      owner,
+      spender: signer.address,
+      token,
+    })
+  },
+  'InsufficientBalance(uint256,uint256,address)': async (context) => {
+    // Selector-only revert data carries no arguments.
+    const token = context.base.error.args?.[2] as Address | undefined
+    if (!token) return undefined
+    const [decimals] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenInsufficientBalanceError({
+      ...context.base,
+      decimals: decimals?.result,
+    })
+  },
+  'PolicyForbids()': async (context) => {
+    const { base, call, signer } = context
+    if (!isTip20(call?.address)) return undefined
+    const token = call.address
+    // Mints only check the recipient.
+    const mint = call.functionName.startsWith('mint')
+    const from = mint
+      ? undefined
+      : (call.arg<Address>('from') ?? signer?.address)
+    const to = call.arg<Address>('to')
+    const [policyId] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'transferPolicyId' },
+    ])
+    const registry = {
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
+    } as const
+    const [sender, recipient] =
+      policyId?.result === undefined
+        ? []
+        : await context.read([
+            {
+              ...registry,
+              functionName: 'isAuthorizedSender',
+              args: [policyId.result, from ?? zeroAddress],
+            },
+            {
+              ...registry,
+              functionName: mint
+                ? 'isAuthorizedMintRecipient'
+                : 'isAuthorizedRecipient',
+              args: [policyId.result, to ?? zeroAddress],
+            },
+          ])
+    return new TokenPolicyForbidsError({
+      ...base,
+      from,
+      policyId: policyId?.result,
+      recipientAuthorized: to ? recipient?.result : undefined,
+      senderAuthorized: from ? sender?.result : undefined,
+      to,
+      token,
+    })
+  },
+  'SupplyCapExceeded()': async (context) => {
+    const { base, call } = context
+    if (!isTip20(call?.address)) return undefined
+    const token = call.address
+    const [supplyCap, totalSupply, decimals] = await context.read([
+      { address: token, abi: Abis.tip20, functionName: 'supplyCap' },
+      { address: token, abi: Abis.tip20, functionName: 'totalSupply' },
+      { address: token, abi: Abis.tip20, functionName: 'decimals' },
+    ])
+    return new TokenSupplyCapExceededError({
+      ...base,
+      amount: call.arg<bigint>('amount'),
+      decimals: decimals?.result,
+      supplyCap: supplyCap?.result,
+      token,
+      totalSupply: totalSupply?.result,
+    })
+  },
+  'Unauthorized()': ({ base, call, signer }) => {
+    const role = call && requiredRoles[call.functionName]
+    if (!isTip20(call?.address) || !role || !signer) return undefined
+    return new TokenUnauthorizedError({
+      ...base,
+      account: signer.address,
+      role,
+      token: call.address,
+    })
+  },
 }

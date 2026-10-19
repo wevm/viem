@@ -112,10 +112,16 @@ export async function deployErrorExample() {
   })
 }
 
-export async function deployEnsAvatarTokenUri() {
+export async function deployEnsAvatarTokenUri({
+  metadataUri,
+}: {
+  /** Base URI of the token metadata. The token ID is appended as `0x{id}`. */
+  metadataUri: string
+}) {
   return deploy(client, {
     abi: EnsAvatarTokenUri.abi,
     bytecode: EnsAvatarTokenUri.bytecode.object,
+    args: [metadataUri],
   })
 }
 

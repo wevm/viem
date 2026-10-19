@@ -1,0 +1,113 @@
+# `earn.deployErc4626StackSync`
+
+Deploys, verifies, and binds a complete ERC-4626 Earn stack through sequential transactions. This
+API is experimental.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.earn.deployErc4626StackSync({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  venue: '0x0000000000000000000000000000000000000003',
+})
+// @log: { engine: '0x...', vault: '0x...', earnShare: '0x...', fees: '0x...', receipts: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The recipe simulates each missing write, verifies existing deployments, and skips completed stages.
+Persist the returned addresses after every run. If a transaction fails, `DeployErc4626StackError`
+includes `stage`, `state`, and any receipts produced by the run. Pass `state` back through `resume`.
+
+The recipe infers canonical Tempo factory addresses from the chain's `contracts` metadata. Pass
+`factories` explicitly to use a custom chain or a different reviewed Earn release.
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  deploymentId: Hex
+  earnShare: Address
+  engine: Address
+  fees: Address
+  receipts: {
+    binding?: TransactionReceipt
+    engine?: TransactionReceipt
+    stack?: TransactionReceipt
+  }
+  vault: Address
+}
+```
+
+Receipts are present only for transactions submitted by the current run.
+
+## Parameters
+
+### deploymentId
+
+- **Type:** `Hex`
+
+A required, nonzero 32-byte identifier. The recipe does not generate random identifiers.
+
+### factories (optional)
+
+- **Type:** `EarnFactoryAddresses`
+- **Default:** `client.chain.contracts`
+
+Engine and Earn factory addresses from one release. Use this to override the canonical addresses
+configured on the client chain.
+
+### venue
+
+- **Type:** `Address`
+
+ERC-4626 venue address.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `account.address`
+
+Final owner of the engine and stack.
+
+### bindingAccount (optional)
+
+- **Type:** `Account | Address`
+
+Signer used only for final binding. It is required when `owner` differs from the deployment account
+and the engine is not already bound. It must match the owner address.
+
+### resume (optional)
+
+- **Type:** `deployErc4626StackSync.State`
+
+Previously persisted deployment state. Predicted and onchain values are verified before continuing.
+A state that includes the EarnVault address avoids a historical factory log query.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+First block used to recover a prior `EarnStackDeployed` event. Set this to the factory deployment
+block or the first attempted stack deployment block when `resume` does not include the EarnVault
+address.
+
+The recipe also accepts the `controls`, `fees`, `distributor`, and `transferPolicyId` parameters
+documented by [`earn.createStack`](/tempo/actions/earn.createStack), plus the `name` and `symbol`
+parameters documented by
+[`earn.createErc4626Engine`](/tempo/actions/earn.createErc4626Engine).
+
+Shared transaction settings such as `feeToken`, `feePayer`, `nonceKey`, fee limits, validity bounds,
+`timeout`, and `pollingInterval` apply to every submitted transaction. Explicit `gas` and `nonce`
+values are not accepted because each stage is a separate transaction. A `keyAuthorization` is also
+not accepted because it cannot be reused across stages or accounts. Use the primitive actions when
+per-transaction overrides are required. The recipe always throws on a reverted receipt.

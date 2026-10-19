@@ -100,3 +100,10 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
   expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })
+
+test('rounds long fractional tails exactly (https://github.com/wevm/viem/issues/4855)', () => {
+  // `Math.round(Number(...))` used to mis-round these because IEEE-754 is not
+  // exact for long fractional tails. Rounding must be exact in decimal space.
+  expect(parseUnits('1.4499999999999999999', 1)).toMatchInlineSnapshot('14n')
+  expect(parseUnits('1.14999999999999999', 1)).toMatchInlineSnapshot('11n')
+})

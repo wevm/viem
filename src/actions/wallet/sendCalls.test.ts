@@ -1,7 +1,12 @@
-import { describe, expect, test } from 'vitest'
+import { json } from 'node:stream/consumers'
+import { http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { getBalance, mine, sendCalls } from 'viem/actions'
+import { describe, expect, onTestFinished, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createHttpServer } from '~test/utils.js'
 import { type Chain, mainnet } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -13,13 +18,33 @@ import type {
   WalletGetCallsStatusReturnType,
 } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
-import { getHttpRpcClient, parseEther } from '../../utils/index.js'
+import type { RpcRequest } from '../../types/rpc.js'
+import { getHttpRpcClient, numberToHex, parseEther } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { sendCalls } from './sendCalls.js'
+import {
+  fallbackMagicIdentifier,
+  fallbackTransactionErrorMagicIdentifier,
+} from './sendCalls.js'
 
 type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
+
+function expectFallbackId(id: string, callCount: number) {
+  expect(id).toMatch(/^0x(?:[0-9a-f]{64})+$/)
+
+  const chunks =
+    id
+      .slice(2)
+      .match(/.{64}/g)
+      ?.map((chunk) => `0x${chunk}` as Hex) ?? []
+
+  expect(chunks).toHaveLength(callCount + 2)
+  expect(chunks.at(-2)).toBe(numberToHex(mainnet.id, { size: 32 }))
+  expect(chunks.at(-1)).toBe(fallbackMagicIdentifier)
+
+  return chunks.slice(0, callCount)
+}
 
 const getClient = <chain extends Chain | undefined = undefined>({
   chain,
@@ -426,6 +451,109 @@ test('behavior: capability: paymasterService', async () => {
 describe('behavior: eth_sendTransaction fallback', () => {
   const client = anvilMainnet.getClient()
 
+  async function createRpcServer(error: { code: number; message: string }) {
+    const server = await createHttpServer(async (req, res) => {
+      const body = (await json(req)) as RpcRequest
+      res.setHeader('Content-Type', 'application/json')
+
+      if (body.method === 'wallet_sendCalls') {
+        res.end(JSON.stringify({ jsonrpc: '2.0', id: body.id, error }))
+        return
+      }
+
+      const response = await fetch(anvilMainnet.rpcUrl.http, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      res.end(await response.text())
+    })
+    onTestFinished(async () => {
+      await server.close()
+    })
+    return server
+  }
+
+  test.each([
+    ['json-rpc', accounts[0].address],
+    ['local', privateKeyToAccount(accounts[0].privateKey)],
+  ] as const)('behavior: Base RPC with %s account', async (_, account) => {
+    const server = await createRpcServer({
+      code: -32604,
+      message: 'this request method is not supported',
+    })
+    const wallet = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: http(server.url),
+    })
+    await mine(client, { blocks: 1 })
+    const balance = await getBalance(client, { address: accounts[1].address })
+
+    const response = await sendCalls(wallet, {
+      calls: [{ to: accounts[1].address, value: 1n }],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+    await mine(client, { blocks: 1 })
+
+    expectFallbackId(response.id, 1)
+    expect(
+      (await getBalance(client, { address: accounts[1].address })) - balance,
+    ).toMatchInlineSnapshot('1n')
+  })
+
+  test.each([undefined, false])(
+    'behavior: Base RPC with experimental_fallback=%s',
+    async (experimental_fallback) => {
+      const server = await createRpcServer({
+        code: -32604,
+        message: 'this request method is not supported',
+      })
+      const wallet = createWalletClient({
+        account: accounts[0].address,
+        chain: mainnet,
+        transport: http(server.url),
+      })
+
+      await expect(
+        sendCalls(wallet, {
+          calls: [{ to: accounts[1].address, value: 1n }],
+          experimental_fallback,
+        }),
+      ).rejects.toMatchObject({
+        name: 'TransactionExecutionError',
+        details: 'this request method is not supported',
+        cause: { name: 'RpcRequestError', code: -32604 },
+      })
+    },
+  )
+
+  test.each([
+    { code: -32604, message: 'request rate limit exceeded' },
+    { code: -32603, message: 'internal server error' },
+    { code: 4001, message: 'user rejected the request' },
+  ])('error: $message', async (error) => {
+    const server = await createRpcServer(error)
+    const wallet = createWalletClient({
+      account: accounts[0].address,
+      chain: mainnet,
+      transport: http(server.url),
+    })
+
+    await expect(
+      sendCalls(wallet, {
+        calls: [{ to: accounts[1].address, value: 1n }],
+        experimental_fallback: true,
+        experimental_fallbackDelay: 0,
+      }),
+    ).rejects.toMatchObject({
+      name: 'TransactionExecutionError',
+      details: error.message,
+      cause: { code: error.code },
+    })
+  })
+
   test('default', async () => {
     const response = await sendCalls(client, {
       account: accounts[0].address,
@@ -452,9 +580,8 @@ describe('behavior: eth_sendTransaction fallback', () => {
       experimental_fallback: true,
     })
 
-    expect(response.id).toMatchInlineSnapshot(
-      `"0x0ecd932d89331e9b1101cca365408421aaaf204daae51c4d93176e96f9ba0479b64a97cbd685161d272cac3fad7e41a8f5100915ed518c4457e7e21aa7b5bf5654f0eb59d2b37daaa68d51c0d6c2f53a8dbf38cfe98a4d3cc0dabcc76184b5f34b6c692f3e621553067273926863cb1daadfef7bc70e9788dd9312500b2b946200000000000000000000000000000000000000000000000000000000000000015792579257925792579257925792579257925792579257925792579257925792"`,
-    )
+    const hashes = expectFallbackId(response.id, 4)
+    expect(hashes).not.toContain(fallbackTransactionErrorMagicIdentifier)
   })
 
   test('behavior: optional capabilities', async () => {
@@ -634,7 +761,8 @@ describe('behavior: eth_sendTransaction fallback', () => {
       experimental_fallback: true,
       experimental_fallbackDelay: 0,
     })
-    expect(response.id).toBeDefined()
+    const hashes = expectFallbackId(response.id, 3)
+    expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
   })
 })
 

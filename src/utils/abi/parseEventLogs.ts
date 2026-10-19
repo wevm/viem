@@ -6,7 +6,7 @@ import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
-import { toBytes } from '../encoding/toBytes.js'
+import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { formatLog } from '../formatters/log.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
@@ -213,7 +213,9 @@ function includesArgs(parameters: {
     try {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
-      if (input.type === 'string' || input.type === 'bytes')
+      if (input.type === 'string')
+        return keccak256(stringToBytes(value as string)) === arg
+      if (input.type === 'bytes')
         return keccak256(toBytes(value as string)) === arg
       return value === arg
     } catch {

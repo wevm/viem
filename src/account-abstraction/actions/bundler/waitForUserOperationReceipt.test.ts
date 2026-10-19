@@ -61,6 +61,52 @@ describe('entryPointVersion: 0.8', async () => {
     expect(receipt.success).toBeTruthy()
   })
 
+  test('behavior: resolves a later wait after concurrent waits', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    const [receipt] = await Promise.all([
+      waitForUserOperationReceipt(bundlerClient, {
+        hash,
+      }),
+      waitForUserOperationReceipt(bundlerClient, {
+        hash,
+      }),
+      (async () => {
+        // Simulate some delay to send the bundle + mine block.
+        await wait(500)
+        await bundlerClient.request({
+          method: 'debug_bundler_sendBundleNow',
+        })
+        await mine(client, {
+          blocks: 1,
+        })
+      })(),
+    ])
+
+    expect(receipt.success).toBeTruthy()
+
+    // A later wait for the same hash must poll again and resolve.
+    // Before the fix, it never polled and only failed on timeout.
+    const laterReceipt = await waitForUserOperationReceipt(bundlerClient, {
+      hash,
+      timeout: 10_000,
+    })
+
+    expect(laterReceipt.userOpHash).toBe(hash)
+    expect(laterReceipt.success).toBeTruthy()
+  })
+
   test('args: pollingInterval', async () => {
     const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {

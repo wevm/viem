@@ -41,6 +41,37 @@ Issued At: 2023-02-01T00:00:00.000Z`
   expect(parsed.scheme).toMatchInlineSnapshot(`"https"`)
 })
 
+test('behavior: scheme with a comma is not a scheme', () => {
+  // `[a-zA-Z0-9+-.]` reads `+-.` as a range, which also matches `,`. RFC 3986 §3.1
+  // allows only `+`, `-` and `.` after the leading letter, so this is not a scheme
+  // and the prefix does not parse.
+  const message = `ht,tps://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.scheme).toBeUndefined()
+  expect(parsed.domain).toBeUndefined()
+})
+
+test('behavior: schemes using the punctuation RFC 3986 does allow', () => {
+  for (const scheme of ['https', 'a+b', 'a-b', 'a.b']) {
+    const message = `${scheme}://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+    expect(parseSiweMessage(message).scheme).toBe(scheme)
+  }
+})
+
 test('behavior: domain with port', () => {
   const message = `example.com:8080 wants you to sign in with your Ethereum account:
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
@@ -101,6 +132,20 @@ Not Before: 2022-02-04T00:00:00.000Z`
   expect(parsed.notBefore).toMatchInlineSnapshot('2022-02-04T00:00:00.000Z')
 })
 
+test('behavior: non-RFC3339 expirationTime yields Invalid Date', () => {
+  const message = `https://example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Expiration Time: never`
+  const parsed = parseSiweMessage(message)
+  expect(Number.isNaN(parsed.expirationTime?.getTime())).toBeTruthy()
+})
+
 test('behavior: with requestId', () => {
   const message = `https://example.com wants you to sign in with your Ethereum account:
 0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
@@ -136,6 +181,138 @@ Resources:
       "https://example.com/foo",
       "https://example.com/bar",
       "https://example.com/baz",
+    ]
+  `)
+})
+
+test('behavior: "Resources:" in statement', () => {
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+See the Resources: list below.
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Resources:
+- https://example.com/foo
+- https://example.com/bar`
+  const parsed = parseSiweMessage(message)
+  expect(parsed).toMatchInlineSnapshot(`
+    {
+      "address": "0xA0Cf798816D4b9b9866b5330EEa46a18382f251e",
+      "chainId": 1,
+      "domain": "example.com",
+      "issuedAt": 2023-02-01T00:00:00.000Z,
+      "nonce": "foobarbaz",
+      "resources": [
+        "https://example.com/foo",
+        "https://example.com/bar",
+      ],
+      "statement": "See the Resources: list below.",
+      "uri": "https://example.com/path",
+      "version": "1",
+    }
+  `)
+})
+
+test('behavior: "Resources:" in statement without resources', () => {
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+See the Resources: page.
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.resources).toBeUndefined()
+})
+
+test('behavior: "Resources:" in uri', () => {
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/Resources:path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Resources:
+- https://example.com/foo`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.resources).toMatchInlineSnapshot(`
+    [
+      "https://example.com/foo",
+    ]
+  `)
+})
+
+test('behavior: "Resources:" in requestId', () => {
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Request ID: Resources:123
+Resources:
+- https://example.com/foo`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.resources).toMatchInlineSnapshot(`
+    [
+      "https://example.com/foo",
+    ]
+  `)
+})
+
+test('behavior: "Resources:" in a resource', () => {
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Resources:
+- https://example.com/Resources:foo
+- https://example.com/bar`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.resources).toMatchInlineSnapshot(`
+    [
+      "https://example.com/Resources:foo",
+      "https://example.com/bar",
+    ]
+  `)
+})
+
+test('behavior: empty requestId with resources', () => {
+  // EIP-4361 allows an empty Request ID (`request-id = *pchar`).
+  const message = `example.com wants you to sign in with your Ethereum account:
+0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+URI: https://example.com/path
+Version: 1
+Chain ID: 1
+Nonce: foobarbaz
+Issued At: 2023-02-01T00:00:00.000Z
+Request ID: \nResources:
+- https://example.com/foo`
+  const parsed = parseSiweMessage(message)
+  expect(parsed.resources).toMatchInlineSnapshot(`
+    [
+      "https://example.com/foo",
     ]
   `)
 })

@@ -173,6 +173,8 @@ export async function sendCalls<
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
         error.name === 'UnknownRpcError' ||
+        error.details.toLowerCase() ===
+          'this request method is not supported' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
@@ -220,16 +222,20 @@ export async function sendCalls<
         )
       }
 
-      const promises: Promise<Hex>[] = []
+      const results: PromiseSettledResult<Hex>[] = []
       for (const call of calls) {
-        const promise = sendTransaction(client, {
-          account,
-          chain,
-          data: call.data,
-          to: call.to,
-          value: call.value ? hexToBigInt(call.value) : undefined,
-        })
-        promises.push(promise)
+        try {
+          const value = await sendTransaction(client, {
+            account,
+            chain,
+            data: call.data,
+            to: call.to,
+            value: call.value ? hexToBigInt(call.value) : undefined,
+          })
+          results.push({ status: 'fulfilled', value })
+        } catch (reason) {
+          results.push({ reason, status: 'rejected' })
+        }
 
         // Note: some browser wallets require a small delay between transactions
         // to prevent duplicate JSON-RPC requests.
@@ -239,7 +245,6 @@ export async function sendCalls<
           )
       }
 
-      const results = await Promise.allSettled(promises)
       if (results.every((r) => r.status === 'rejected')) throw results[0].reason
 
       const hashes = results.map((result) => {

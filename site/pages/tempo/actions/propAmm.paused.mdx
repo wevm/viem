@@ -1,0 +1,42 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.paused`
+
+Reads whether swaps in a propAMM pool are paused.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const paused = await client.propAmm.paused({
+  pool: '0x0000000000000000000000000000000000000002',
+})
+// @log: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+Whether the pool currently rejects swaps.
+
+## Parameters
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+<ReadParameters />

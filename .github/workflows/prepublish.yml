@@ -1,9 +1,18 @@
 name: Prepublish
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: ${{ github.event_name == 'push' || !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -19,6 +28,6 @@ jobs:
 
       - name: Prepublish
         run: |
-          cd src && pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) && cd ..
+          cd src && pnpm version prerelease --preid "$(git rev-parse --short=7 HEAD)" --no-git-tag-version && cd ..
           pnpm changeset:prepublish
           pnpx pkg-pr-new publish --pnpm --compact './src'

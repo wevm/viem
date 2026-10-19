@@ -706,6 +706,7 @@ export type PublicRpcSchema = [
         ]
     ReturnType: {
       accessList: AccessList
+      error?: string | undefined
       gasUsed: Quantity
     }
   },
@@ -868,6 +869,18 @@ export type PublicRpcSchema = [
     ReturnType: Block | null
   },
   /**
+   * @description Returns the receipts of a block specified by block number, block tag, or block hash
+   * @link https://ethereum.github.io/execution-apis/api/methods/eth_getBlockReceipts/
+   * @example
+   * provider.request({ method: 'eth_getBlockReceipts', params: ['latest'] })
+   * // => [{ ... }, { ... }]
+   */
+  {
+    Method: 'eth_getBlockReceipts'
+    Parameters: [block: BlockNumber | BlockTag | Hash]
+    ReturnType: TransactionReceipt[] | null
+  },
+  /**
    * @description Returns the number of transactions in a block specified by block hash
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example
@@ -979,6 +992,17 @@ export type PublicRpcSchema = [
     ReturnType: Proof
   },
   /**
+   * @description Returns the raw, serialized transaction specified by hash
+   * @example
+   * provider.request({ method: 'eth_getRawTransactionByHash', params: ['0x...'] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_getRawTransactionByHash'
+    Parameters: [hash: Hash]
+    ReturnType: Hex | null
+  },
+  /**
    * @description Returns the value from a storage position at an address
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example
@@ -993,6 +1017,21 @@ export type PublicRpcSchema = [
       block: BlockNumber | BlockTag | BlockIdentifier,
     ]
     ReturnType: Hex
+  },
+  /**
+   * @description Returns values from multiple storage positions for multiple addresses
+   * @link https://github.com/ethereum/execution-apis/issues/752
+   * @example
+   * provider.request({ method: 'eth_getStorageValues', params: [{ '0x...': ['0x...'] }, 'latest'] })
+   * // => { '0x...': ['0x...'] }
+   */
+  {
+    Method: 'eth_getStorageValues'
+    Parameters: [
+      requests: Record<Address, readonly Hex[]>,
+      block: BlockNumber | BlockTag | BlockIdentifier,
+    ]
+    ReturnType: Record<Address, readonly Hex[]>
   },
   /**
    * @description Returns information about a transaction specified by block hash and transaction index
@@ -1242,6 +1281,11 @@ export type PublicRpcSchema = [
           | undefined
         logs?: readonly Log[] | undefined
         gasUsed: Hex
+        /**
+         * Gas used by the call as measured by the node before gas refunds are
+         * applied. Only reported by nodes that support it.
+         */
+        maxUsedGas?: Hex | undefined
         returnData: Hex
         status: Hex
       }[]

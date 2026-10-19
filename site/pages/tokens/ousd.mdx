@@ -1,0 +1,103 @@
+---
+description: Use Open USD (OUSD) with Viem.
+---
+
+# Open USD (OUSD)
+
+## Overview
+
+[Open USD (OUSD)](https://joinopenstandard.com) is a USD stablecoin available through
+`viem/tokens`.
+
+Add `ousd` to a Client to use it with [Token Actions](/tokens/actions).
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
+  tokens: [ousd],
+  transport: http(),
+})
+```
+
+## Read Open USD Balances
+
+Use [`getBalance`](/tokens/actions/getBalance) to read an account's balance.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { token } from 'viem/actions'
+import { client } from './viem.config'
+
+const balance = await token.getBalance(client, {
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'ousd', // [!code focus]
+})
+// @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
+  tokens: [ousd],
+  transport: http(),
+})
+```
+
+:::
+
+## Send Open USD
+
+Use [`transfer`](/tokens/actions/transfer) to send Open USD to another account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { token } from 'viem/actions'
+import { client } from './viem.config'
+
+const hash = await token.transfer(client, {
+  amount: { formatted: '10.5' }, // [!code focus]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'ousd', // [!code focus]
+})
+// @log: '0x…'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempo } from 'viem/chains'
+import { ousd } from 'viem/tokens'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempo,
+  tokens: [ousd],
+  transport: http(),
+})
+```
+
+:::
+
+## See More
+
+Learn more about Open USD and how to use it with Viem.
+
+- [Open USD Website](https://joinopenstandard.com)
+- [OUSD Reserves Dashboard](https://ousd.fyi)
+- [Getting Started with Tokens](/tokens)
+- [Token Lookup and Selection](/tokens/list)
+- [Transfer Tokens](/tokens/guides/transfer-tokens)

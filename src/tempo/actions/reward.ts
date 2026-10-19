@@ -19,8 +19,11 @@ import type { Log, Log as viem_Log } from '../../types/log.js'
 import type { UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
+import type * as Errors from '../errors.js'
+import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import type { TransactionReceipt } from '../Transaction.js'
 
 /**
  * Claims accumulated rewards for a recipient.
@@ -85,7 +88,7 @@ export namespace claim {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -99,7 +102,7 @@ export namespace claim {
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
     const call = claim.call({ token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -305,6 +308,8 @@ export async function distributeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = distribute.extractEvent(receipt.logs)
   return {
     ...args,
@@ -328,7 +333,7 @@ export namespace distribute {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -342,7 +347,7 @@ export namespace distribute {
   ): Promise<ReturnType<action>> {
     const { amount, token, ...rest } = parameters
     const call = distribute.call({ amount, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never
@@ -454,7 +459,7 @@ export async function getGlobalRewardPerToken<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getGlobalRewardPerToken.Parameters,
 ): Promise<getGlobalRewardPerToken.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getGlobalRewardPerToken.call(parameters),
   })
@@ -489,6 +494,8 @@ export namespace getGlobalRewardPerToken {
       functionName: 'globalRewardPerToken',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -521,7 +528,7 @@ export async function getPendingRewards<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getPendingRewards.Parameters,
 ): Promise<getPendingRewards.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getPendingRewards.call(parameters),
   })
@@ -558,6 +565,8 @@ export namespace getPendingRewards {
       functionName: 'getPendingRewards',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -594,7 +603,7 @@ export async function getUserRewardInfo<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: getUserRewardInfo.Parameters,
 ): Promise<getUserRewardInfo.ReturnValue> {
-  return readContract(client, {
+  return withExecutionError(readContract)(client, {
     ...parameters,
     ...getUserRewardInfo.call(parameters),
   })
@@ -631,6 +640,8 @@ export namespace getUserRewardInfo {
       functionName: 'userRewardInfo',
     })
   }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }
 
 /**
@@ -725,6 +736,8 @@ export async function setRecipientSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
+  if ((receipt as TransactionReceipt).status === 'pending')
+    return { receipt } as never
   const { args } = setRecipient.extractEvent(receipt.logs)
   return {
     ...args,
@@ -748,7 +761,7 @@ export namespace setRecipient {
   export type ReturnValue = WriteContractReturnType
 
   // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 
   /** @internal */
   export async function inner<
@@ -762,7 +775,7 @@ export namespace setRecipient {
   ): Promise<ReturnType<action>> {
     const { recipient, token, ...rest } = parameters
     const call = setRecipient.call({ recipient, token })
-    return (await action(client, {
+    return (await withExecutionError(action)(client, {
       ...rest,
       ...call,
     } as never)) as never

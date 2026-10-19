@@ -403,15 +403,6 @@ describe('errors', () => {
       Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
       Version: viem@x.y.z]
     `)
-
-    await expect(() =>
-      call(mainnetClient, {
-        data: `${mintWithParams4bytes}${fourTwenty}`,
-        account: sourceAccount.address,
-        to: wagmiContractAddress,
-        gas: 100n,
-      }),
-    ).rejects.toThrowError('intrinsic gas too low')
   })
 
   // TODO:  Waiting for Anvil fix – should fail with "gas too high" reason

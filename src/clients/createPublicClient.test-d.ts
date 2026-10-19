@@ -33,6 +33,9 @@ test('widened', async () => {
   const block = await client.getBlock()
   expectTypeOf(block).toEqualTypeOf<GetBlockReturnType>()
 
+  const receipts = await client.getBlockReceipts()
+  expectTypeOf(receipts).toEqualTypeOf<TransactionReceipt[]>()
+
   const receipt = await client.getTransactionReceipt({ hash: '0x' })
   expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt>()
 
@@ -46,6 +49,9 @@ test('widened (w/ Chain)', async () => {
 
   const block = await client.getBlock()
   expectTypeOf(block).toEqualTypeOf<GetBlockReturnType>()
+
+  const receipts = await client.getBlockReceipts()
+  expectTypeOf(receipts).toEqualTypeOf<TransactionReceipt[]>()
 
   const receipt = await client.getTransactionReceipt({ hash: '0x' })
   expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt>()

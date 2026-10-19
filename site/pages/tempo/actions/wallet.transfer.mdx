@@ -23,19 +23,13 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Provider } from 'accounts'
-import { createClient, custom, publicActions, walletActions } from 'viem'
-import { tempo } from 'viem/chains'
-import { tempoActions } from 'viem/tempo'
+import { createClient, custom } from 'viem/tempo'
 
 const provider = Provider.create()
 
 export const client = createClient({
-  chain: tempo,
   transport: custom(provider),
 })
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
 ```
 
 :::
@@ -95,7 +89,7 @@ Recipient address.
 - **Type:** `Address | string`
 - **Required when** `editable` is omitted or `false`.
 
-Token to transfer, accepted as either a contract address or a curated tokenlist symbol (case-insensitive, for example `"pathUsd"`). Symbols are resolved against the curated tokenlist on the active chain. Omit (in editable mode) to let the user choose.
+Token to transfer, accepted as either a token address or a curated tokenlist symbol (case-insensitive, for example `"pathusd"`). Symbols are resolved against the curated tokenlist on the active chain. Omit (in editable mode) to let the user choose.
 
 ### from (optional)
 

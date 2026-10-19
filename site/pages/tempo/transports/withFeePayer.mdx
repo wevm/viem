@@ -12,14 +12,12 @@ Creates a transport that routes transactions to a relay service when a `feePayer
 :::code-group
 
 ```ts twoslash [example.ts]
-import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
-import { withFeePayer } from 'viem/tempo'
+import { createClient, http, withFeePayer } from 'viem/tempo'
 
-const client = createWalletClient({
+const client = createClient({
   account: privateKeyToAccount('0x...'),
-  chain: tempoModerato,
+  testnet: true,
   transport: withFeePayer(
     http(),                               // ← Default Transport
     http('https://sponsor.example.com'),  // ← Fee Payer Transport // [!code hl]
@@ -54,14 +52,12 @@ See `server.ts` for the server-side implementation. It uses [`Handler.relay` pro
 :::code-group
 
 ```ts twoslash [client.ts]
-import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
-import { withFeePayer } from 'viem/tempo'
+import { createClient, http, withFeePayer } from 'viem/tempo'
 
-const client = createWalletClient({
+const client = createClient({
   account: privateKeyToAccount('0x...'),
-  chain: tempoModerato,
+  testnet: true,
   transport: withFeePayer(
     http(),
     http('http://localhost:3000'),
@@ -77,17 +73,14 @@ const hash = await client.sendTransactionSync({
 ```ts twoslash [server.ts]
 // @noErrors
 import { createServer } from 'node:http'
-import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
+import { createClient } from 'viem/tempo'
 import { Handler } from 'tempo.ts/server'
 
 const client = createClient({
-  chain: tempoModerato.extend({
-    // Note: the fee payer can specify their own fee token.
-    feeToken: '0x20c0000000000000000000000000000000000001'
-  }),
-  transport: http(),
+  // Note: the fee payer can specify their own fee token.
+  feeToken: '0x20c0000000000000000000000000000000000001',
+  testnet: true,
 })
 
 const handler = Handler.relay({ // [!code hl]

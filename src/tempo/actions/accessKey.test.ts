@@ -1,13 +1,26 @@
+import { setTimeout } from 'node:timers/promises'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
+import { toHex } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
+import { fillTransaction } from 'viem/actions'
+import { tempoLocalnet } from 'viem/chains'
+import {
+  Account,
+  createClient,
+  custom,
+  Relay,
+  Scopes,
+  Store,
+  withRelay,
+} from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient, http } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
+const account2 = accounts[1]
 
 const client = getClient({
   account,
@@ -137,7 +150,68 @@ describe('authorize', () => {
   })
 })
 
+describe('saveAuthorization', () => {
+  test('default', async () => {
+    const relayClient = getClient({
+      transport: withRelay(http(), { plugins: [Relay.keyAuthorization()] }),
+    })
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 3_600,
+    })
+
+    await actions.accessKey.saveAuthorization(relayClient, { keyAuthorization })
+    const { transaction } = await fillTransaction(relayClient, {
+      account: accessKey,
+      feeToken,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(transaction.keyAuthorization).toEqual(keyAuthorization)
+  })
+
+  test('error: relay without key authorization storage', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      expiry: Math.floor(Date.now() / 1000) + 3_600,
+    })
+
+    await expect(
+      actions.accessKey.saveAuthorization(client, { keyAuthorization }),
+    ).rejects.toMatchObject({ name: 'MethodNotFoundRpcError' })
+  })
+})
+
 describe('signAuthorization', () => {
+  test('behavior: prepared authorization invokes signer synchronously', async () => {
+    let invoked = false
+    const sensitiveAccount = {
+      ...account,
+      sign(parameters: Parameters<typeof account.sign>[0]) {
+        invoked = true
+        return account.sign(parameters)
+      },
+    }
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: sensitiveAccount,
+    })
+    const authorization = await actions.accessKey.prepareAuthorization(client, {
+      account: sensitiveAccount,
+      accessKey,
+    })
+
+    const promise = actions.accessKey.signAuthorization(client, authorization)
+
+    expect(invoked).toBe(true)
+    await expect(promise).resolves.toBeDefined()
+  })
+
   test('default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
@@ -213,6 +287,180 @@ describe('signAuthorization', () => {
     expect(keyAuthorization.limits).toHaveLength(1)
   })
 
+  test('behavior: coordinates owner approvals', async () => {
+    const owner_1 = accounts[18]
+    const owner_2 = accounts[19]
+    const configurable = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x10612c, { size: 32 }),
+      threshold: 2,
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: configurable,
+    })
+    const client = getAccountsClient()
+
+    const pending = await actions.accessKey.signAuthorization(client, {
+      accessKey,
+      account: configurable,
+      owner: owner_1,
+    })
+    expect(pending).toMatchInlineSnapshot(
+      {
+        account: expect.any(String),
+        address: expect.any(String),
+        hash: expect.any(String),
+        operation: {
+          account: expect.any(String),
+          approvals: [expect.any(String)],
+          config: {
+            owners: [
+              { owner: expect.any(String) },
+              { owner: expect.any(String) },
+            ],
+          },
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": Any<String>,
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "operation": {
+          "account": Any<String>,
+          "approvals": [
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": Any<String>,
+                "weight": 1,
+              },
+              {
+                "owner": Any<String>,
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 1,
+          "status": "pending",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 1,
+        },
+        "signature": Anything,
+        "status": "pending",
+        "type": "secp256k1",
+      }
+    `,
+    )
+
+    const success = await client.accessKey.signAuthorization({
+      hash: pending.hash,
+      owner: owner_2,
+    })
+    expect(success).toMatchInlineSnapshot(
+      {
+        account: expect.any(String),
+        address: expect.any(String),
+        hash: expect.any(String),
+        operation: {
+          account: expect.any(String),
+          approvals: [expect.any(String), expect.any(String)],
+          config: {
+            owners: [
+              { owner: expect.any(String) },
+              { owner: expect.any(String) },
+            ],
+          },
+          createdAt: expect.any(Number),
+          hash: expect.any(String),
+          keyAuthorization: expect.any(String),
+          updatedAt: expect.any(Number),
+        },
+        signature: expect.anything(),
+      },
+      `
+      {
+        "account": Any<String>,
+        "address": Any<String>,
+        "chainId": 1337n,
+        "hash": Any<String>,
+        "operation": {
+          "account": Any<String>,
+          "approvals": [
+            Any<String>,
+            Any<String>,
+          ],
+          "config": {
+            "owners": [
+              {
+                "owner": Any<String>,
+                "weight": 1,
+              },
+              {
+                "owner": Any<String>,
+                "weight": 1,
+              },
+            ],
+            "salt": "0x000000000000000000000000000000000000000000000000000000000010612c",
+            "threshold": 2,
+            "version": 0n,
+          },
+          "createdAt": Any<Number>,
+          "hash": Any<String>,
+          "keyAuthorization": Any<String>,
+          "signatureCount": 2,
+          "status": "success",
+          "threshold": 2,
+          "type": "keyAuthorization",
+          "updatedAt": Any<Number>,
+          "weight": 2,
+        },
+        "signature": Anything,
+        "status": "success",
+        "type": "secp256k1",
+      }
+    `,
+    )
+  })
+
+  test('behavior: requires a local owner for owner approval', async () => {
+    const owner = accounts[18]
+    const configurable = Account.fromConfig({
+      address: 'infer',
+      owners: [owner.address],
+    })
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: configurable,
+    })
+
+    await expect(
+      actions.accessKey.signAuthorization(getAccountsClient(), {
+        accessKey,
+        account: configurable,
+        owner: owner.address,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: A local owner account is required to approve a configurable account key authorization.]`,
+    )
+  })
+
   test('behavior: with periodic limits', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
@@ -240,7 +488,7 @@ describe('signAuthorization', () => {
       account,
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
-      scopes: [{ address: feeToken, selector: '0xa9059cbb' }],
+      scopes: [Scopes.tip20(feeToken).transfer()],
     })
 
     expect(keyAuthorization).toBeDefined()
@@ -393,5 +641,651 @@ describe('getRemainingLimit', () => {
     })
 
     expect(remaining).toBe(0n)
+  })
+})
+
+/** Returns a random 32-byte witness. */
+function randomWitness(): `0x${string}` {
+  const bytes = crypto.getRandomValues(new Uint8Array(32))
+  return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`
+}
+
+describe('authorize (witness)', () => {
+  test('behavior: with witness', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    expect(receipt.status).toBe('success')
+
+    // Witness should not be burned after a successful authorization.
+    const isBurned = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurned).toBe(false)
+  })
+
+  test('behavior: reverts when witness already burned', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await expect(
+      actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+        witness,
+      }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('signAuthorization (witness)', () => {
+  test('behavior: with witness', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    expect(keyAuthorization.witness).toBe(witness)
+  })
+})
+
+describe('burnWitness', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    const isBurnedBefore = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurnedBefore).toBe(false)
+
+    const { receipt, ...result } = await actions.accessKey.burnWitnessSync(
+      client,
+      { witness },
+    )
+
+    expect(receipt.status).toBe('success')
+    expect(result.witness).toBe(witness)
+    expect(result.account.toLowerCase()).toBe(account.address.toLowerCase())
+
+    const isBurnedAfter = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurnedAfter).toBe(true)
+  })
+
+  test('behavior: reverts when already burned', async () => {
+    const witness = randomWitness()
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await expect(
+      actions.accessKey.burnWitnessSync(client, { witness }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('isWitnessBurned', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    expect(
+      await actions.accessKey.isWitnessBurned(client, {
+        account: account.address,
+        witness,
+      }),
+    ).toBe(false)
+  })
+})
+
+describe('watchWitness', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchWitness(client, {
+      onWitness: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some((l) => l.args.witness.toLowerCase() === witness.toLowerCase()),
+    ).toBe(true)
+  })
+})
+
+describe('watchWitnessBurned', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchWitnessBurned(client, {
+      onBurned: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some((l) => l.args.witness.toLowerCase() === witness.toLowerCase()),
+    ).toBe(true)
+  })
+})
+
+describe('authorize (admin)', () => {
+  test('behavior: admin', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      admin: true,
+    })
+
+    expect(receipt.status).toBe('success')
+
+    const isAdmin = await actions.accessKey.isAdmin(client, {
+      account: account.address,
+      accessKey,
+    })
+    expect(isAdmin).toBe(true)
+  })
+})
+
+describe('authorize (admin manages keys)', () => {
+  test('behavior: admin key authorizes another key', async () => {
+    // 1. Root authorizes an admin key.
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    // 2. The admin key authorizes a new (regular) key on behalf of the account.
+    const childKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      account: adminKey,
+      accessKey: childKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(receipt.status).toBe('success')
+
+    // 3. Verify the child key is registered on the account.
+    const key = await actions.accessKey.getMetadata(client, {
+      account: account.address,
+      accessKey: childKey,
+    })
+    expect(key.isRevoked).toBe(false)
+    expect(key.address.toLowerCase()).toBe(
+      childKey.accessKeyAddress.toLowerCase(),
+    )
+  })
+})
+
+describe('signAuthorization (admin)', () => {
+  test('behavior: admin', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      admin: true,
+    })
+
+    expect(keyAuthorization.isAdmin).toBe(true)
+    // Admin authorizations are unrestricted.
+    expect(keyAuthorization.expiry ?? undefined).toBeUndefined()
+    expect(keyAuthorization.limits ?? undefined).toBeUndefined()
+    expect(keyAuthorization.scopes ?? undefined).toBeUndefined()
+  })
+})
+
+describe('isAdmin', () => {
+  test('default', async () => {
+    const accessKey = await setupAccessKey()
+
+    expect(
+      await actions.accessKey.isAdmin(client, {
+        account: account.address,
+        accessKey,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: non-existent key', async () => {
+    expect(
+      await actions.accessKey.isAdmin(client, {
+        account: account.address,
+        accessKey: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toBe(false)
+  })
+})
+
+describe('watchAdminAuthorized', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchAdminAuthorized(client, {
+      onAuthorized: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      admin: true,
+    })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some(
+        (l) =>
+          l.args.publicKey.toLowerCase() ===
+          accessKey.accessKeyAddress.toLowerCase(),
+      ),
+    ).toBe(true)
+  })
+})
+
+describe('verifyHash', () => {
+  const hash =
+    '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
+
+  test('default', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    const signature = await adminKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(true)
+  })
+
+  test('behavior: non-admin key returns false by default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: admin: false accepts any active access key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(true)
+  })
+
+  test('behavior: account mismatch', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    const signature = await adminKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account2.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: unauthorized key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: revoked key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+    await actions.accessKey.revokeSync(client, { accessKey })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+})
+
+function getAccountsClient() {
+  return createClient({
+    chain: tempoLocalnet,
+    transport: withRelay(
+      custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return '0x1'
+          if (method === 'eth_call')
+            return '0x0000000000000000000000000000000000000000000000000000000000000000'
+          throw new Error(`Unexpected request: ${method}`)
+        },
+      }),
+      { plugins: [Relay.accounts({ store: Store.memory() })] },
+    ),
+  })
+}
+
+describe('errors', () => {
+  const to = '0x000000000000000000000000000000000000dEaD'
+
+  test('behavior: spending limit exceeded by the call', async () => {
+    const accessKey = await setupAccessKey({
+      limits: [{ token: feeToken, limit: 5_000_000n }],
+    })
+    const error = await actions.token
+      .transferSync(client, {
+        account: accessKey,
+        amount: 10_000_000n,
+        token: feeToken,
+        to,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
+    expect(error).toMatchObject({
+      account: account.address,
+      accessKey: accessKey.accessKeyAddress,
+      amount: 10_000_000n,
+      decimals: 6,
+      errorName: 'SpendingLimitExceeded',
+      fee: false,
+      remaining: 5_000_000n,
+      token: feeToken,
+    })
+    expect(error.shortMessage).toBe(
+      `Access key "${accessKey.accessKeyAddress}" exceeded its spending limit for token "${feeToken}".`,
+    )
+    expect(error.message).toContain('exceeded by:  5 (5000000)')
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "Raise the spending limit, or wait for a periodic limit to reset.",
+      ]
+    `)
+  })
+
+  test('behavior: spending limit exceeded by the fee payment', async () => {
+    const accessKey = await setupAccessKey({
+      limits: [{ token: feeToken, limit: 1n }],
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 0n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(
+      actions.accessKey.AccessKeySpendingLimitExceededError,
+    )
+    expect(error).toMatchObject({ amount: undefined, fee: true })
+    expect(error.shortMessage).toContain('while paying fees.')
+  })
+
+  test('behavior: key not authorized', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
+    expect(error).toMatchObject({
+      accessKey: accessKey.accessKeyAddress,
+      errorName: 'KeyNotFound',
+      name: 'AccessKeyError',
+    })
+    expect(error.hints[0]).toContain('Authorize the access key')
+  })
+
+  test('behavior: key revoked', async () => {
+    const accessKey = await setupAccessKey()
+    await actions.accessKey.revokeSync(client, { accessKey })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyError)
+    expect(error.errorName).toBe('KeyAlreadyRevoked')
+  })
+
+  test('behavior: key expired', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor(Date.now() / 1000) + 8
+    await actions.accessKey.authorizeSync(client, { accessKey, expiry })
+    await setTimeout(10_000)
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiredError)
+    expect(error).toMatchObject({
+      errorName: 'KeyExpired',
+      expiry: BigInt(expiry),
+    })
+  }, 30_000)
+
+  test('behavior: call not allowed by scopes', async () => {
+    const accessKey = await setupAccessKey({
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const error = await actions.token
+      .transfer(client, { account: accessKey, amount: 1n, token: feeToken, to })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyCallNotAllowedError)
+    expect(error).toMatchObject({
+      errorName: 'CallNotAllowed',
+      selector: '0xa9059cbb',
+      target: feeToken,
+    })
+  })
+
+  test('behavior: expiry in the past', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor(Date.now() / 1000)
+    const error = await actions.accessKey
+      .authorize(client, { accessKey, expiry })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+    expect(error).toMatchObject({
+      accessKey: accessKey.accessKeyAddress,
+      expiry: BigInt(expiry),
+    })
+  })
+
+  test('behavior: expiry too soon', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const error = await actions.accessKey
+      .authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 2,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyExpiryInPastError)
+  })
+
+  test('behavior: errors about another key stay off the admin signer', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+    const childKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    await actions.accessKey.authorizeSync(client, {
+      account: adminKey,
+      accessKey: childKey,
+      expiry,
+    })
+
+    const exists = await actions.accessKey
+      .authorize(client, { account: adminKey, accessKey: childKey, expiry })
+      .catch((error) => error)
+    const missing = await actions.accessKey
+      .revokeSync(client, {
+        account: adminKey,
+        accessKey: Account.fromP256(generatePrivateKey(), { access: account }),
+      })
+      .catch((error) => error)
+
+    expect(exists).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(exists.accessKey).toBe(childKey.accessKeyAddress)
+    expect(missing.name).toBe('TempoExecutionError')
+  })
+
+  test('behavior: action hints come first', async () => {
+    const accessKey = await setupAccessKey()
+    const error = await actions.accessKey
+      .authorize(client, {
+        accessKey,
+        expiry: Math.floor(Date.now() / 1000) + 30,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.accessKey.AccessKeyAlreadyExistsError)
+    expect(error).toMatchObject({
+      account: account.address,
+      accessKey: accessKey.accessKeyAddress,
+      errorName: 'KeyAlreadyExists',
+      limited: false,
+    })
+    expect(error.expiry).toBeGreaterThan(0n)
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "This access key is already authorized. Update its spending limits instead.",
+        "Use a new access key, or revoke the existing one.",
+      ]
+    `)
   })
 })

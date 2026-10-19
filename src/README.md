@@ -97,7 +97,6 @@ Check out the following places for more viem-related content:
 ## Support
 
 - [GitHub Sponsors](https://github.com/sponsors/wevm?metadata_campaign=docs_support)
-- [Gitcoin Grant](https://wagmi.sh/gitcoin)
 - [wevm.eth](https://etherscan.io/name-lookup-search?id=wevm.eth)
 
 ## Sponsors

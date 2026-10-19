@@ -1,7 +1,21 @@
 name: Verify
 on:
   workflow_call:
+    inputs:
+      full:
+        description: Run the full verification suite
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the full verification suite
+        type: boolean
+        default: true
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -32,6 +46,7 @@ jobs:
   build:
     name: Build
     needs: check
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -61,13 +76,14 @@ jobs:
   types:
     name: Types
     needs: check
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
     timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.8.2', '5.9.3', 'latest']
+        version: ['5.9.3', '6.0.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -88,10 +104,13 @@ jobs:
         run: pnpm check:types
 
       - name: Bench types
+        # TODO: Re-enable for latest TypeScript when @ark/attest supports its compiler API.
+        if: matrix.version != 'latest'
         run: pnpm bench:types
 
   test:
     name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -121,33 +140,59 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test --bail=1 --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
           VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
-          VITE_ANVIL_FORK_URL_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_SEPOLIA }}
           VITE_ANVIL_FORK_URL_ZKSYNC: ${{ secrets.VITE_ANVIL_FORK_URL_ZKSYNC }}
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
-          VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+  test-tempo-fuzz:
+    name: Test Tempo Fuzz
+    if: ${{ inputs.full }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Fuzz Tempo models
+        run: pnpm test:fuzz:tempo
+        env:
+          CI: true
+          FUZZ_RUNS: 500
+
+      - name: Fuzz Tempo against local node
+        run: pnpm test:fuzz:tempo:node:docker
+        env:
+          CI: true
+          TEMPO_FUZZ_NODE_RUNS: 10
+
   test-tempo-deployed:
     name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       matrix:
         node-env: 
-          - devnet
           - testnet
           # - mainnet
     steps:
@@ -170,8 +215,82 @@ jobs:
           VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
+  test-tempo-multisig:
+    name: Test Local Tempo Multisig
+    if: ${{ inputs.full }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        run: pnpm contracts:build
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --run --bail=1 --project tempo-accounts
+        env:
+          CI: true
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_ACCOUNTS: 'true'
+          VITE_TEMPO_TAG: sha-83f3ccd
+
+  test-tempo:
+    name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})
+    if: ${{ inputs.full }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        hardfork: [T13, Tnext]
+        shard: [1, 2, 3]
+        total-shards: [3]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        run: pnpm contracts:build
+
+      - name: Test Local Tempo
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --run --bail=1 --project tempo --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+        env:
+          CI: true
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_HARDFORK: ${{ matrix.hardfork }}
+          VITE_TEMPO_TAG: latest
+          VITE_TEMPO_ZONES: 'true'
+          VITE_TEMPO_ZONE_TAG: sha256:2da5ca1eba6600a687987e9c991a9c30565ddf6a97360ce7f48bb6bc07a7e9e6
+
   test-envs:
     name: Test Environments
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -204,7 +323,7 @@ jobs:
       - name: Set up foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: v1.7.1
 
       - name: Set up pnpm
         uses: wevm/actions/.github/actions/pnpm@main
@@ -217,7 +336,7 @@ jobs:
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -236,6 +355,7 @@ jobs:
 
   vectors:
     name: Vectors
+    if: ${{ inputs.full }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -255,15 +375,16 @@ jobs:
 
   wagmi:
     name: Wagmi
-    # TODO: temporarily disabled
-    if: false
+    continue-on-error: true
+    # TODO: Re-enable Wagmi verification.
+    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.7.2', '5.8.3', '5.9.3']
+        typescript-version: ['5.7.3', '5.8.3', '5.9.3']
 
     steps:
       - name: Clone repository

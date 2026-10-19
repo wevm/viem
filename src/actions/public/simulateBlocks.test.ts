@@ -1,10 +1,11 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { maxUint256 } from '../../constants/number.js'
+import type { Hex } from '../../types/misc.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { simulateBlocks } from './simulateBlocks.js'
 
@@ -463,4 +464,176 @@ test('behavior: dataSuffix', async () => {
 
   // confirm that the result is still as expected
   expect(result[0].calls[0].result).toEqual('wagmi')
+})
+
+describe('maxUsedGas', () => {
+  type MockCallResult = {
+    error?: { code: number; data?: Hex | undefined; message: string }
+    gasUsed: Hex
+    logs?: readonly unknown[] | undefined
+    maxUsedGas?: Hex | undefined
+    returnData: Hex
+    status: Hex
+  }
+
+  function getMockClient(calls: readonly MockCallResult[]) {
+    return createPublicClient({
+      transport: custom({
+        async request({ method }) {
+          if (method !== 'eth_simulateV1')
+            throw new Error(`unexpected method: ${method}`)
+          return [{ number: '0x1', calls }]
+        },
+      }),
+    })
+  }
+
+  const call = {
+    account: accounts[0].address,
+    to: accounts[1].address,
+    value: parseEther('1'),
+  } as const
+
+  test('default', async () => {
+    const client = getMockClient([
+      {
+        gasUsed: '0x5208',
+        logs: [],
+        maxUsedGas: '0x7530',
+        returnData: '0x',
+        status: '0x1',
+      },
+    ])
+
+    const result = await simulateBlocks(client, {
+      blocks: [{ calls: [call] }],
+    })
+
+    expect(result[0].calls[0].maxUsedGas).toBe(30000n)
+    expect(result[0].calls[0]).toMatchInlineSnapshot(`
+      {
+        "data": "0x",
+        "gasUsed": 21000n,
+        "logs": [],
+        "maxUsedGas": 30000n,
+        "result": null,
+        "status": "success",
+      }
+    `)
+  })
+
+  test('behavior: not reported by node', async () => {
+    const client = getMockClient([
+      {
+        gasUsed: '0x5208',
+        logs: [],
+        returnData: '0x',
+        status: '0x1',
+      },
+    ])
+
+    const result = await simulateBlocks(client, {
+      blocks: [{ calls: [call] }],
+    })
+
+    expect(result[0].calls[0].maxUsedGas).toBeUndefined()
+    expect(result[0].calls[0].gasUsed).toBe(21000n)
+  })
+
+  test('behavior: zero', async () => {
+    const client = getMockClient([
+      {
+        gasUsed: '0x0',
+        logs: [],
+        maxUsedGas: '0x0',
+        returnData: '0x',
+        status: '0x1',
+      },
+    ])
+
+    const result = await simulateBlocks(client, {
+      blocks: [{ calls: [call] }],
+    })
+
+    expect(result[0].calls[0].maxUsedGas).toBe(0n)
+  })
+
+  test('behavior: multiple calls', async () => {
+    const client = getMockClient([
+      {
+        gasUsed: '0x5208',
+        logs: [],
+        maxUsedGas: '0x7530',
+        returnData: '0x',
+        status: '0x1',
+      },
+      {
+        gasUsed: '0x5209',
+        logs: [],
+        maxUsedGas: '0xea60',
+        returnData: '0x',
+        status: '0x1',
+      },
+      {
+        gasUsed: '0x520a',
+        logs: [],
+        returnData: '0x',
+        status: '0x1',
+      },
+    ])
+
+    const result = await simulateBlocks(client, {
+      blocks: [{ calls: [call, call, call] }],
+    })
+
+    expect(result[0].calls.map((call) => call.maxUsedGas)).toEqual([
+      30000n,
+      60000n,
+      undefined,
+    ])
+    expect(result[0].calls.map((call) => call.gasUsed)).toEqual([
+      21000n,
+      21001n,
+      21002n,
+    ])
+  })
+
+  test('behavior: failure', async () => {
+    const client = getMockClient([
+      {
+        gasUsed: '0x5208',
+        logs: [],
+        maxUsedGas: '0x7530',
+        returnData: '0x',
+        status: '0x1',
+      },
+      {
+        error: {
+          code: 3,
+          data: '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000116578656375746564207265766572746564000000000000000000000000000000',
+          message: 'execution reverted',
+        },
+        gasUsed: '0x5d0d',
+        logs: [],
+        maxUsedGas: '0x8ca0',
+        returnData: '0x',
+        status: '0x0',
+      },
+    ])
+
+    const result = await simulateBlocks(client, {
+      blocks: [{ calls: [call, call] }],
+    })
+
+    expect(result[0].calls[0].status).toBe('success')
+    expect(result[0].calls[0].maxUsedGas).toBe(30000n)
+
+    expect(result[0].calls[1].status).toBe('failure')
+    expect(result[0].calls[1].maxUsedGas).toBe(36000n)
+    expect(result[0].calls[1].gasUsed).toBe(23821n)
+    expect(result[0].calls[1].error).toBeInstanceOf(Error)
+    expect(result[0].calls[1].data).toBe(
+      '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000116578656375746564207265766572746564000000000000000000000000000000',
+    )
+  })
 })

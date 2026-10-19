@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ESNext"],
+    "moduleResolution": "Node",
+    "strict": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "baseUrl": ".",
+    "paths": {
+      "viem": ["../../src/index.ts"],
+      "viem/accounts": ["../../src/accounts/index.ts"],
+      "viem/op-stack": ["../../src/op-stack/index.ts"]
+    },
+    "skipLibCheck": true
+  },
+  "include": ["index.ts"]
+}

@@ -9,6 +9,32 @@ const defaultTimeout = 10_000
 
 const chains = Object.values(allChains) as readonly allChains.Chain[]
 
+test('Tempo factory addresses', () => {
+  expect({
+    tempo: allChains.tempo.contracts,
+    tempoModerato: allChains.tempoModerato.contracts,
+  }).toMatchInlineSnapshot(`
+    {
+      "tempo": {
+        "earnFactory": {
+          "address": "0x3085A8003f340CD51C72D9e1a1298CDafB171B02",
+        },
+        "erc4626EngineFactory": {
+          "address": "0xd43D00981222a8db444A528E69f19E3cE5A7D2Ff",
+        },
+      },
+      "tempoModerato": {
+        "earnFactory": {
+          "address": "0x1de6B233984583F4d936ae4265f3b60282b70cc6",
+        },
+        "erc4626EngineFactory": {
+          "address": "0x0d57c10249eb3a92b7d81bBA6221F80F2865448A",
+        },
+      },
+    }
+  `)
+})
+
 describe.each(chains)('$name', ({ name, ...chain }) => {
   const rpcUrls = chain.rpcUrls
   const blockExplorer = chain.blockExplorers?.default

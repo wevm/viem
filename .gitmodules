@@ -19,6 +19,3 @@
 [submodule "contracts/lib/account-abstraction-v07"]
 	path = contracts/lib/account-abstraction-v07
 	url = git@github.com:eth-infinitism/account-abstraction.git
-[submodule "test/tempo"]
-	path = test/tempo
-	url = git@github.com:tempoxyz/tempo.git

@@ -118,6 +118,21 @@ test('args: chain `baseFeeMultiplier` override (value)', async () => {
     (block.baseFeePerGas! * 201n) / 100n + feesPerGas_3.maxPriorityFeePerGas,
   )
   expect(feesPerGas_3.maxPriorityFeePerGas).toBeDefined()
+
+  // `1.09 * 100` is `109.00000000000001` in floating point, so the multiplier
+  // must be rounded (not ceiled) to recover the intended integer numerator.
+  const feesPerGas_4 = await estimateFeesPerGas(client, {
+    chain: {
+      ...anvilMainnet.chain,
+      fees: {
+        baseFeeMultiplier: 1.09,
+      },
+    },
+  })
+  expect(feesPerGas_4.maxFeePerGas).toBe(
+    (block.baseFeePerGas! * 109n) / 100n + feesPerGas_4.maxPriorityFeePerGas,
+  )
+  expect(feesPerGas_4.maxPriorityFeePerGas).toBeDefined()
 })
 
 test('args: chain `baseFeeMultiplier` override (sync fn)', async () => {

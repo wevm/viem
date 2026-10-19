@@ -123,7 +123,7 @@ describe.skip('burn', () => {
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
     await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
-      amount: 600n,
+      amount: { formatted: '600' },
       token: tokenAddress,
       feeToken: tokenAddress,
     })
@@ -185,7 +185,7 @@ describe.skip('rebalanceSwap', () => {
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
     await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
-      amount: 600n,
+      amount: { formatted: '600' },
       token: tokenAddress,
       feeToken: tokenAddress,
     })
@@ -225,7 +225,7 @@ describe.skip('rebalanceSwap', () => {
       token: tokenAddress,
       account: account2.address,
     })
-    expect(balanceAfter).toBe(balanceBefore + 100n)
+    expect(balanceAfter.amount).toBe(balanceBefore.amount + 100n)
   })
 })
 
@@ -236,7 +236,7 @@ describe.skip('watchRebalanceSwap', () => {
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
     await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
-      amount: 600n,
+      amount: { formatted: '600' },
       token: tokenAddress,
       feeToken: tokenAddress,
     })
@@ -343,7 +343,7 @@ describe.skip('watchBurn', () => {
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
     await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
-      amount: 600n,
+      amount: { formatted: '600' },
       token: tokenAddress,
       feeToken: tokenAddress,
     })
@@ -373,5 +373,27 @@ describe.skip('watchBurn', () => {
     expect(eventArgs.liquidity).toBe(lpBalance / 2n)
 
     unwatch()
+  })
+})
+
+describe('errors', () => {
+  test('behavior: insufficient liquidity', async () => {
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
+    const error = await Actions.amm
+      .burnSync(client, {
+        liquidity: parseUnits('1000000', 6),
+        to: account.address,
+        userToken: tokenAddress,
+        validatorToken: 1n,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(Actions.amm.AmmInsufficientLiquidityError)
+    expect(error).toMatchObject({
+      amount: parseUnits('1000000', 6),
+      errorName: 'InsufficientLiquidity',
+      userToken: tokenAddress,
+    })
+    expect(error.reserveValidatorToken).toBeGreaterThan(0n)
   })
 })

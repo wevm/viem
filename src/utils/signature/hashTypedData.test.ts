@@ -61,6 +61,18 @@ test('domain: empty name', () => {
   )
 })
 
+test('domain: empty version', () => {
+  expect(
+    hashTypedData({
+      ...typedData.complex,
+      domain: { name: 'Ether Mail', version: '' },
+      primaryType: 'Mail',
+    }),
+  ).toMatchInlineSnapshot(
+    '"0xa437e12ee2fd4391429d9714be617951b7e69fb61dc520ad6fb8230d03b7508c"',
+  )
+})
+
 test('domain: bigint value for chainId', () => {
   expect(
     hashTypedData({
@@ -233,6 +245,24 @@ test('wrong domain value', () => {
     [BaseError: Invalid domain ""wrong"".
 
     Must be a valid EIP-712 domain.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid integer alias', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'amount', type: 'uint' }],
+      },
+      primaryType: 'Message',
+      message: { amount: 1n },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint" is not a valid EIP-712 type.
+
+    Use "uint256" instead.
 
     Version: viem@x.y.z]
   `)

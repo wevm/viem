@@ -42,6 +42,8 @@ export type HttpTransportConfig<
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
    */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+  maxResponseBodySize?: HttpRpcClientOptions['maxResponseBodySize'] | undefined
   /** A callback to handle the response from `fetch`. */
   onFetchRequest?: HttpRpcClientOptions['onRequest'] | undefined
   /** A callback to handle the response from `fetch`. */
@@ -108,6 +110,7 @@ export function http<
     fetchFn,
     fetchOptions,
     key = 'http',
+    maxResponseBodySize,
     methods,
     name = 'HTTP JSON-RPC',
     onFetchRequest,
@@ -126,6 +129,7 @@ export function http<
     const rpcClient = getHttpRpcClient(url_, {
       fetchFn,
       fetchOptions,
+      maxResponseBodySize,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,

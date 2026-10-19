@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import { Mnemonic } from 'ox'
 import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
@@ -25,6 +26,7 @@ import {
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
+import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
@@ -35,13 +37,13 @@ const accountsMnemonic = (() => {
   return generateMnemonic(english)
 })()
 
-export const accounts = Array.from({ length: 20 }, (_, i) => {
+export const accounts = Array.from({ length: 21 }, (_, i) => {
   const privateKey = Mnemonic.toPrivateKey(accountsMnemonic, {
     as: 'Hex',
     path: Mnemonic.path({ account: i }),
   })
   return Account.fromSecp256k1(privateKey)
-}) as unknown as FixedArray<Account.RootAccount, 20>
+}) as unknown as FixedArray<Account.RootAccount, 21>
 
 export const addresses = {
   pathUsd: '0x20c0000000000000000000000000000000000000',
@@ -64,6 +66,23 @@ export const chain = (() => {
       })
   }
 })()
+
+export const tokens = [
+  defineToken({
+    addresses: { [chain.id]: addresses.pathUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'PathUSD',
+    symbol: 'pathUSD',
+  }),
+  defineToken({
+    addresses: { [chain.id]: addresses.alphaUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'AlphaUSD',
+    symbol: 'alphaUSD',
+  }),
+]
 
 export function debugOptions({
   rpcUrl,
@@ -90,11 +109,22 @@ export const feeToken = (() => {
   return addresses.pathUsd
 })()
 
-export const http = (url = rpcUrl) =>
-  viem_http(url, {
-    ...debugOptions({
-      rpcUrl: url,
-    }),
+let nextRequestAt = 0
+
+export const http = (url = rpcUrl) => {
+  const debug = debugOptions({ rpcUrl: url })
+  return viem_http(url, {
+    ...debug,
+    async onFetchRequest(request, init) {
+      // Deployed RPCs rate-limit bursts, including non-retried transaction submissions.
+      if (nodeEnv !== 'localnet' && url === rpcUrl) {
+        const now = Date.now()
+        const delay = Math.max(0, nextRequestAt - now)
+        nextRequestAt = now + delay + 250
+        await setTimeout(delay)
+      }
+      return debug?.onFetchRequest?.(request, init)
+    },
     ...(import.meta.env.VITE_TEMPO_CREDENTIALS
       ? {
           fetchOptions: {
@@ -105,27 +135,29 @@ export const http = (url = rpcUrl) =>
         }
       : {}),
   })
+}
 
 export function getClient<
-  chain extends Chain | undefined = typeof tempoLocalnet,
+  chain_ extends Chain | undefined = typeof tempoLocalnet,
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, chain, accountOrAddress>,
-      'account' | 'chain' | 'transport'
+      ClientConfig<Transport, chain_, accountOrAddress>,
+      'account' | 'batch' | 'chain' | 'tokens' | 'transport'
     >
   > = {},
 ): Client<
   Transport,
-  chain,
+  chain_,
   accountOrAddress extends Address
     ? JsonRpcAccount<accountOrAddress>
     : accountOrAddress
 > {
   return createClient({
-    pollingInterval: 100,
+    pollingInterval: nodeEnv === 'localnet' ? 100 : 1_000,
     chain,
+    tokens,
     transport: http(rpcUrl),
     ...parameters,
   }) as never
@@ -195,7 +227,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -214,35 +246,35 @@ export async function setupTokenPair(
 
   await sendTransactionSync(client, {
     calls: [
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: baseToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: quoteToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: baseToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: quoteToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: baseToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: quoteToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
     ],
   })
@@ -254,7 +286,7 @@ export async function setupTokenPair(
 }
 
 export async function setupOrders(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
@@ -296,7 +328,7 @@ export async function setupFeeToken(
   if (!isAddressEqual(account.address, targetAccount.address)) {
     await Actions.token.transferSync(client, {
       account,
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: targetAccount.address,
       token: feeToken,
     })

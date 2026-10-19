@@ -22,7 +22,6 @@ import {
 } from '../cursor.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceBytesErrorType, sliceBytes } from '../data/slice.js'
-import { type TrimErrorType, trim } from '../data/trim.js'
 import {
   type BytesToBigIntErrorType,
   type BytesToBoolErrorType,
@@ -75,7 +74,9 @@ export function decodeAbiParameters<
   const values = []
   for (let i = 0; i < params.length; ++i) {
     const param = params[i]
-    cursor.setPosition(consumed)
+    // Zero-width types (e.g. `uint256[0]`, empty tuples) at the end of the
+    // data consume no bytes, so the cursor may already be exhausted.
+    if (consumed < bytes.length) cursor.setPosition(consumed)
     const [data, consumed_] = decodeParameter(cursor, param, {
       staticPosition: 0,
     })
@@ -146,7 +147,8 @@ function decodeArray(
 ) {
   // If the length of the array is not known in advance (dynamic array),
   // this means we will need to wonder off to the pointer and decode.
-  if (!length) {
+  // Note: zero-length fixed arrays (`T[0]`) are not dynamic.
+  if (length === null) {
     // Dealing with a dynamic type, so get the offset of the array data.
     const offset = bytesToNumber(cursor.readBytes(sizeOfOffset))
 
@@ -172,6 +174,12 @@ function decodeArray(
       })
       consumed += consumed_
       value.push(data)
+      // Charge zero-width elements against the read limit to bound work
+      // on huge lengths of zero-width types (e.g. `uint256[0][]`).
+      if (consumed_ === 0) {
+        cursor.assertReadLimit()
+        cursor._touch()
+      }
     }
 
     // As we have gone wondering, restore to the original position + next slot.
@@ -214,6 +222,12 @@ function decodeArray(
     })
     consumed += consumed_
     value.push(data)
+    // Charge zero-width elements against the read limit to bound work
+    // on huge lengths of zero-width types (e.g. `uint256[0][4294967295]`).
+    if (consumed_ === 0) {
+      cursor.assertReadLimit()
+      cursor._touch()
+    }
   }
   return [value, consumed]
 }
@@ -340,7 +354,6 @@ function decodeTuple(
 type DecodeStringErrorType =
   | BytesToNumberErrorType
   | BytesToStringErrorType
-  | TrimErrorType
   | ErrorType
 
 function decodeString(
@@ -363,7 +376,7 @@ function decodeString(
   }
 
   const data = cursor.readBytes(length, 32)
-  const value = bytesToString(trim(data))
+  const value = bytesToString(data)
 
   // As we have gone wondering, restore to the original position + next slot.
   cursor.setPosition(staticPosition + 32)

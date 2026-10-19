@@ -1,16 +1,23 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
 import { TokenId, TokenRole } from 'ox/tempo'
-import { parseUnits } from 'viem'
+import {
+  type EIP1193Parameters,
+  type EIP1193RequestOptions,
+  formatUnits,
+  type PublicRpcSchema,
+  parseUnits,
+} from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
-import { Abis, Addresses, TokenIds } from 'viem/tempo'
-import { describe, expect, test } from 'vitest'
+import { Abis, Addresses, Selectors, TokenIds } from 'viem/tempo'
+import { describe, expect, test, vi } from 'vitest'
 import {
   accounts,
   addresses,
   chain,
   feeToken,
   getClient,
+  setupToken,
 } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
@@ -18,24 +25,123 @@ const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
 
-const client = getClient({
+const chainWithFeeToken = chain.extend({ feeToken })
+const client = getClient<typeof chainWithFeeToken, typeof account>({
+  account,
+  chain: chainWithFeeToken,
+})
+const tokenlessClient = getClient({
   account,
   chain: chain.extend({ feeToken }),
+  tokens: undefined,
+})
+
+type EthCallSchema = [Extract<PublicRpcSchema[number], { Method: 'eth_call' }>]
+type EthCallRequest = EIP1193Parameters<EthCallSchema>
+type RequestCall = [EthCallRequest, EIP1193RequestOptions?]
+
+function getEthCallRequest(
+  request: EIP1193Parameters<PublicRpcSchema>,
+): EthCallRequest {
+  if (request.method !== 'eth_call')
+    throw new Error(`Expected eth_call, received ${request.method}.`)
+  return request
+}
+
+describe('call (without client)', () => {
+  test('default: builds the same call as the client form', () => {
+    const args = {
+      amount: parseUnits('1.25', 6),
+      to: account2.address,
+      token: addresses.alphaUsd,
+    } as const
+    expect(actions.token.transfer.call(args)).toEqual(
+      actions.token.transfer.call(client, args),
+    )
+
+    expect(
+      actions.token.approve.call({
+        amount: 100n,
+        spender: account2.address,
+        token: TokenId.fromAddress(addresses.alphaUsd),
+      }).to,
+    ).toBe(addresses.alphaUsd)
+
+    expect(
+      actions.token.getBalance.call({
+        account: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address])
+  })
+
+  test('amount: formatted amounts require explicit decimals', () => {
+    expect(
+      actions.token.mint.call({
+        amount: { decimals: 6, formatted: '1.25' },
+        to: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address, parseUnits('1.25', 6)])
+
+    expect(() =>
+      actions.token.mint.call({
+        amount: { formatted: '1.25' },
+        to: account2.address,
+        token: addresses.alphaUsd,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+  })
 })
 
 describe('approve', () => {
+  test('decimals: requires decimals for an undeclared formatted amount', async () => {
+    await expect(
+      actions.token.approve(client, {
+        amount: { formatted: '1' },
+        spender: account2.address,
+        token: addresses.DONOTUSE,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+  })
+
+  test('decimals: omits formatting for an undeclared base-unit amount', async () => {
+    const { receipt, ...result } = await actions.token.approveSync(
+      tokenlessClient,
+      {
+        amount: 1n,
+        spender: account2.address,
+        token: addresses.alphaUsd,
+      },
+    )
+    expect(receipt.status).toBe('success')
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": 1n,
+        "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+      }
+    `)
+  })
+
   test('default', async () => {
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
         spender: account2.address,
-        amount: parseUnits('100', 6),
+        amount: 100000000n,
         token: addresses.alphaUsd,
       })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
           "amount": 100000000n,
+          "decimals": 6,
+          "formatted": "100",
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -45,10 +151,11 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         spender: account2.address,
         token: addresses.alphaUsd,
       })
-      expect(allowance).toBe(parseUnits('100', 6))
+      expect(allowance.amount).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -61,7 +168,7 @@ describe('approve', () => {
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseUnits('50', 6),
+      amount: { decimals: 6, formatted: '50' },
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -71,10 +178,11 @@ describe('approve', () => {
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         spender: account2.address,
         token: addresses.alphaUsd,
       })
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
 
     // verify balance
@@ -82,7 +190,7 @@ describe('approve', () => {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
-    expect(balance).toBe(parseUnits('50', 6))
+    expect(balance.amount).toBe(parseUnits('50', 6))
   })
 
   test('behavior: token address', async () => {
@@ -94,7 +202,7 @@ describe('approve', () => {
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -102,6 +210,8 @@ describe('approve', () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "amount": 100000000n,
+          "decimals": 6,
+          "formatted": "100",
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -111,10 +221,11 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         token: addresses.alphaUsd,
         spender: account2.address,
       })
-      expect(allowance).toBe(parseUnits('100', 6))
+      expect(allowance.amount).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -127,7 +238,7 @@ describe('approve', () => {
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseUnits('50', 6),
+      amount: { decimals: 6, formatted: '50' },
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -137,10 +248,11 @@ describe('approve', () => {
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         spender: account2.address,
         token: addresses.alphaUsd,
       })
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
 
     // verify balance
@@ -148,7 +260,7 @@ describe('approve', () => {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
-    expect(balance).toBe(balanceBefore + parseUnits('50', 6))
+    expect(balance.amount).toBe(balanceBefore.amount + parseUnits('50', 6))
   })
 
   test('behavior: token address', async () => {
@@ -160,7 +272,7 @@ describe('approve', () => {
     {
       // approve
       const { receipt, ...result } = await actions.token.approveSync(client, {
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -168,6 +280,8 @@ describe('approve', () => {
       expect(result).toMatchInlineSnapshot(`
         {
           "amount": 100000000n,
+          "decimals": 6,
+          "formatted": "100",
           "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
         }
@@ -177,10 +291,11 @@ describe('approve', () => {
     {
       // check allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         token: addresses.alphaUsd,
         spender: account2.address,
       })
-      expect(allowance).toBe(parseUnits('100', 6))
+      expect(allowance.amount).toBe(parseUnits('100', 6))
     }
 
     // transfer tokens for gas
@@ -193,7 +308,7 @@ describe('approve', () => {
 
     // transfer tokens from approved account
     await actions.token.transferSync(client, {
-      amount: parseUnits('50', 6),
+      amount: { decimals: 6, formatted: '50' },
       account: account2,
       from: account.address,
       to: '0x0000000000000000000000000000000000000001',
@@ -203,10 +318,11 @@ describe('approve', () => {
     {
       // verify updated allowance
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         spender: account2.address,
         token: addresses.alphaUsd,
       })
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
 
     // verify balance
@@ -214,7 +330,7 @@ describe('approve', () => {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
-    expect(balance).toBe(balanceBefore + parseUnits('50', 6))
+    expect(balance.amount).toBe(balanceBefore.amount + parseUnits('50', 6))
   })
 })
 
@@ -261,30 +377,33 @@ describe('getAllowance', () => {
     {
       // Test with default token
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         spender: account2.address,
         token: addresses.alphaUsd,
       })
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
 
     {
       // Test with token address
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         token: addresses.alphaUsd,
         spender: account2.address,
       })
 
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
 
     {
       // Test with token ID
       const allowance = await actions.token.getAllowance(client, {
+        account: account.address,
         token: addresses.alphaUsd,
         spender: account2.address,
       })
 
-      expect(allowance).toBe(parseUnits('50', 6))
+      expect(allowance.amount).toBe(parseUnits('50', 6))
     }
   })
 })
@@ -294,10 +413,15 @@ describe('getBalance', () => {
     {
       // Test with token address
       const balance = await actions.token.getBalance(client, {
+        account: account.address,
+        token: addresses.alphaUsd,
+      })
+      const defaultedBalance = await actions.token.getBalance(client, {
         token: addresses.alphaUsd,
       })
 
-      expect(balance).toBeGreaterThan(0n)
+      expect(balance.amount).toBeGreaterThan(0n)
+      expect(defaultedBalance).toEqual(balance)
     }
 
     {
@@ -307,13 +431,54 @@ describe('getBalance', () => {
         account: Hex.random(20),
       })
 
-      expect(balance).toBe(0n)
+      expect(balance.amount).toBe(0n)
     }
+  })
+})
+
+describe('getTotalSupply', () => {
+  test('default', async () => {
+    const totalSupply = await actions.token.getTotalSupply(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(totalSupply.amount).toBeGreaterThan(0n)
+    expect(totalSupply.decimals).toBe(6)
+    expect(totalSupply.formatted).toBe(formatUnits(totalSupply.amount, 6))
+  })
+
+  test('behavior: custom token', async () => {
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Supply Token',
+      symbol: 'SUPPLY',
+    })
+
+    await actions.token.grantRolesSync(client, {
+      token,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+
+    await actions.token.mintSync(client, {
+      token,
+      to: client.account.address,
+      amount: parseUnits('1000', 6),
+    })
+
+    const totalSupply = await actions.token.getTotalSupply(client, {
+      decimals: 6,
+      token,
+    })
+
+    expect(totalSupply.amount).toBe(parseUnits('1000', 6))
+    expect(totalSupply.formatted).toBe('1000')
   })
 })
 
 describe('getMetadata', () => {
   test('default', async () => {
+    const request = vi.spyOn(client, 'request')
     const metadata = await actions.token.getMetadata(client, {
       token: addresses.alphaUsd,
     })
@@ -322,15 +487,112 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "AlphaUSD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
         "supplyCap": 340282366920938463463374607431768211455n,
-        "symbol": "AlphaUSD",
+        "symbol": "alphaUSD",
         "totalSupply": 202914184810805067765n,
         "transferPolicyId": 1n,
       }
     `)
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(request.mock.calls[0]?.[0]).toMatchObject({
+      method: 'eth_call',
+      params: [{ data: expect.any(String) }, 'latest'],
+    })
+    const calls: RequestCall[] = request.mock.calls
+    expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
+    request.mockRestore()
+  })
+
+  test('behavior: respects disabled client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(request).toHaveBeenCalledTimes(10)
+    const calls: RequestCall[] = request.mock.calls
+    for (const [{ method, params }] of calls) {
+      expect(method).toBe('eth_call')
+      expect(params?.[0]).toMatchObject({ to: addresses.alphaUsd })
+    }
+    request.mockRestore()
+  })
+
+  test('behavior: respects explicit deployless client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: { deployless: true } },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.name).toBe('AlphaUSD')
+    expect(request).toHaveBeenCalledTimes(1)
+    const calls: RequestCall[] = request.mock.calls
+    expect(calls[0]?.[0].params?.[0]).not.toHaveProperty('to')
+    request.mockRestore()
+  })
+
+  test('behavior: falls back when logo URI fails', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request_ = client.request
+    const request = vi
+      .spyOn(client, 'request')
+      .mockImplementation(async (parameters, options) => {
+        const [{ data }] = getEthCallRequest(parameters).params
+        if (data === Selectors.tip20.logoURI) throw new Error('logo URI failed')
+        return request_(parameters, options)
+      })
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(metadata.logoURI).toBe('')
+    request.mockRestore()
+  })
+
+  test('behavior: throws required field failures in return order', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request_ = client.request
+    const request = vi
+      .spyOn(client, 'request')
+      .mockImplementation(async (parameters, options) => {
+        const [{ data }] = getEthCallRequest(parameters).params
+        if (data === Selectors.tip20.name) throw new Error('name failed')
+        if (data === Selectors.tip20.symbol) throw new Error('symbol failed')
+        return request_(parameters, options)
+      })
+
+    await expect(
+      actions.token.getMetadata(client, {
+        token: addresses.alphaUsd,
+      }),
+    ).rejects.toThrow('name failed')
+    request.mockRestore()
   })
 
   test('behavior: custom token (address)', async () => {
@@ -348,6 +610,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
@@ -369,7 +632,8 @@ describe('getMetadata', () => {
         {
           "currency": "USD",
           "decimals": 6,
-          "name": "pathUSD",
+          "logoURI": "",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         }
@@ -385,12 +649,36 @@ describe('getMetadata', () => {
         {
           "currency": "USD",
           "decimals": 6,
-          "name": "pathUSD",
+          "logoURI": "",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         }
       `)
     }
+  })
+
+  test('behavior: quote token with disabled client multicall', async () => {
+    const client = getClient({
+      batch: { multicall: false },
+      chain: chainWithFeeToken,
+      tokens: undefined,
+    })
+    const request = vi.spyOn(client, 'request')
+
+    const metadata = await actions.token.getMetadata(client, {
+      token: Addresses.pathUsd,
+    })
+
+    expect(metadata).toMatchObject({
+      currency: 'USD',
+      decimals: 6,
+      logoURI: '',
+      name: 'pathUSD',
+      symbol: 'pathUSD',
+    })
+    expect(request).toHaveBeenCalledTimes(6)
+    request.mockRestore()
   })
 
   test('behavior: custom token (id)', async () => {
@@ -408,6 +696,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
@@ -418,9 +707,118 @@ describe('getMetadata', () => {
       }
     `)
   })
+
+  test('behavior: custom token with logo URI', async () => {
+    const logoURI = 'https://example.com/test-usd.svg'
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      logoURI,
+      name: 'Logo USD',
+      symbol: 'LUSD',
+    })
+
+    const metadata = await actions.token.getMetadata(client, {
+      token,
+    })
+
+    expect(metadata.logoURI).toBe(logoURI)
+  })
 })
 
 describe('mint', () => {
+  test('behavior: unauthorized minter', async () => {
+    const error = await actions.token
+      .mint(getClient({ account: account3 }), {
+        amount: 1n,
+        to: account3.address,
+        token: addresses.alphaUsd,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenUnauthorizedError)
+    expect(error).toMatchObject({
+      account: account3.address,
+      errorName: 'Unauthorized',
+      role: 'issuer',
+      token: addresses.alphaUsd,
+    })
+    expect(error.hints).toMatchInlineSnapshot(`
+      [
+        "Minting requires the issuer role. Grant it to this account first.",
+        "The account lacks the permission this call requires.",
+      ]
+    `)
+  })
+
+  test('amount: supports formatted amounts', () => {
+    const amount = parseUnits('1.25', 6)
+
+    expect(
+      actions.token.mint.call(client, {
+        amount: { formatted: '1.25' },
+        to: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address, amount])
+
+    expect(
+      actions.token.burn.call(client, {
+        amount: { formatted: '1.25' },
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([amount])
+
+    expect(
+      actions.token.burn.call(client, {
+        amount: { formatted: '1.25' },
+        from: account2.address,
+        token: addresses.alphaUsd,
+      }),
+    ).toMatchObject({
+      args: [account2.address, amount],
+      functionName: 'burnAt',
+    })
+
+    expect(
+      actions.token.burnBlocked.call(client, {
+        amount: { formatted: '1.25' },
+        from: account2.address,
+        token: addresses.alphaUsd,
+      }).args,
+    ).toEqual([account2.address, amount])
+  })
+
+  test('decimals: requires decimals for undeclared formatted amounts', () => {
+    expect(() =>
+      actions.token.mint.call(client, {
+        amount: { formatted: '1' },
+        to: account2.address,
+        token: addresses.DONOTUSE,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+
+    expect(() =>
+      actions.token.burn.call(client, {
+        amount: { formatted: '1' },
+        token: addresses.DONOTUSE,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+
+    expect(() =>
+      actions.token.burnBlocked.call(client, {
+        amount: { formatted: '1' },
+        from: account2.address,
+        token: addresses.DONOTUSE,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+  })
+
   test('default', async () => {
     // Create a new token where we're the admin
     const { token } = await actions.token.createSync(client, {
@@ -441,7 +839,7 @@ describe('mint', () => {
       token,
       account: account2.address,
     })
-    expect(balanceBefore).toBe(0n)
+    expect(balanceBefore.amount).toBe(0n)
 
     // Mint tokens
     const { receipt: mintReceipt, ...mintResult } =
@@ -463,7 +861,7 @@ describe('mint', () => {
       token,
       account: account2.address,
     })
-    expect(balanceAfter).toBe(parseUnits('1000', 6))
+    expect(balanceAfter.amount).toBe(parseUnits('1000', 6))
 
     // Check total supply
     const metadata = await actions.token.getMetadata(client, {
@@ -510,15 +908,45 @@ describe('mint', () => {
       token,
       account: account2.address,
     })
-    expect(balance).toBe(parseUnits('500', 6))
+    expect(balance.amount).toBe(parseUnits('500', 6))
   })
 })
 
 describe('transfer', () => {
+  test('decimals: requires decimals for an undeclared formatted amount', async () => {
+    await expect(
+      actions.token.transfer(client, {
+        amount: { formatted: '1' },
+        to: account2.address,
+        token: addresses.DONOTUSE,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
+    )
+  })
+
+  test('amount: uses a base-unit amount for an undeclared token', async () => {
+    const { receipt, ...result } = await actions.token.transferSync(
+      tokenlessClient,
+      {
+        amount: 1000000n,
+        to: account2.address,
+        token: addresses.alphaUsd,
+      },
+    )
+    expect(receipt.status).toBe('success')
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": 1000000n,
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+      }
+    `)
+  })
+
   test('default', async () => {
     // Get initial balances
     const senderBalanceBefore = await actions.token.getBalance(client, {
-      account: account.address,
       token: addresses.alphaUsd,
     })
     const receiverBalanceBefore = await actions.token.getBalance(client, {
@@ -530,13 +958,15 @@ describe('transfer', () => {
     const { receipt: transferReceipt, ...transferResult } =
       await actions.token.transferSync(client, {
         to: account2.address,
-        amount: parseUnits('10', 6),
+        amount: 10000000n,
         token: addresses.alphaUsd,
       })
     expect(transferReceipt).toBeDefined()
     expect(transferResult).toMatchInlineSnapshot(`
       {
         "amount": 10000000n,
+        "decimals": 6,
+        "formatted": "10",
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -544,7 +974,6 @@ describe('transfer', () => {
 
     // Verify balances
     const senderBalanceAfter = await actions.token.getBalance(client, {
-      account: account.address,
       token: addresses.alphaUsd,
     })
     const receiverBalanceAfter = await actions.token.getBalance(client, {
@@ -552,10 +981,10 @@ describe('transfer', () => {
       token: addresses.alphaUsd,
     })
 
-    expect(senderBalanceAfter - senderBalanceBefore).toBeLessThan(
+    expect(senderBalanceAfter.amount - senderBalanceBefore.amount).toBeLessThan(
       parseUnits('10', 6),
     )
-    expect(receiverBalanceAfter - receiverBalanceBefore).toBe(
+    expect(receiverBalanceAfter.amount - receiverBalanceBefore.amount).toBe(
       parseUnits('10', 6),
     )
   })
@@ -585,7 +1014,7 @@ describe('transfer', () => {
     await actions.token.transferSync(client, {
       token,
       to: account2.address,
-      amount: parseUnits('100', 6),
+      amount: { decimals: 6, formatted: '100' },
     })
 
     // Verify balance
@@ -593,7 +1022,44 @@ describe('transfer', () => {
       token,
       account: account2.address,
     })
-    expect(balance).toBe(parseUnits('100', 6))
+    expect(balance.amount).toBe(parseUnits('100', 6))
+  })
+
+  test.each([
+    ['symbol', 'pathusd'],
+    ['mixed-case symbol', 'pathUsd'],
+    ['token id', TokenIds.pathUsd],
+    ['address', Addresses.pathUsd],
+  ])('behavior: pathUSD with formatted amount (%s)', async (_, token) => {
+    const token_ = token as Parameters<
+      typeof actions.token.getBalance
+    >[1]['token']
+    const amount = parseUnits('1.25', 6)
+    const balanceBefore = await actions.token.getBalance(client, {
+      account: account2.address,
+      token: token_,
+    })
+
+    const { receipt, ...result } = await actions.token.transferSync(client, {
+      amount: { formatted: '1.25' },
+      to: account2.address,
+      token: token_,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(result).toMatchObject({
+      amount,
+      decimals: 6,
+      formatted: '1.25',
+      from: account.address,
+      to: account2.address,
+    })
+
+    const balanceAfter = await actions.token.getBalance(client, {
+      account: account2.address,
+      token: token_,
+    })
+    expect(balanceAfter.amount - balanceBefore.amount).toBe(amount)
   })
 
   test('behavior: with memo', async () => {
@@ -602,7 +1068,7 @@ describe('transfer', () => {
     const { receipt: transferMemoReceipt, ...transferMemoResult } =
       await actions.token.transferSync(client, {
         to: account2.address,
-        amount: parseUnits('5', 6),
+        amount: { decimals: 6, formatted: '5' },
         memo,
         token: addresses.alphaUsd,
       })
@@ -611,6 +1077,8 @@ describe('transfer', () => {
     expect(transferMemoResult).toMatchInlineSnapshot(`
       {
         "amount": 5000000n,
+        "decimals": 6,
+        "formatted": "5",
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
       }
@@ -621,7 +1089,7 @@ describe('transfer', () => {
     // First approve account2 to spend tokens
     await actions.token.approveSync(client, {
       spender: account2.address,
-      amount: parseUnits('50', 6),
+      amount: { decimals: 6, formatted: '50' },
       token: addresses.alphaUsd,
     })
 
@@ -644,7 +1112,7 @@ describe('transfer', () => {
       account: account2,
       from: account.address,
       to: account3.address,
-      amount: parseUnits('25', 6),
+      amount: { decimals: 6, formatted: '25' },
       token: addresses.alphaUsd,
     })
 
@@ -653,14 +1121,15 @@ describe('transfer', () => {
       account: account3.address,
       token: addresses.alphaUsd,
     })
-    expect(balanceAfter - balanceBefore).toBe(parseUnits('25', 6))
+    expect(balanceAfter.amount - balanceBefore.amount).toBe(parseUnits('25', 6))
 
     // Verify allowance was reduced
     const allowance = await actions.token.getAllowance(client, {
+      account: account.address,
       spender: account2.address,
       token: addresses.alphaUsd,
     })
-    expect(allowance).toBe(parseUnits('25', 6))
+    expect(allowance.amount).toBe(parseUnits('25', 6))
   })
 })
 
@@ -691,7 +1160,7 @@ describe('burn', () => {
     const balanceBefore = await actions.token.getBalance(client, {
       token,
     })
-    expect(balanceBefore).toBe(parseUnits('1000', 6))
+    expect(balanceBefore.amount).toBe(parseUnits('1000', 6))
 
     // Check total supply before
     const metadataBefore = await actions.token.getMetadata(client, {
@@ -716,7 +1185,7 @@ describe('burn', () => {
     const balanceAfter = await actions.token.getBalance(client, {
       token,
     })
-    expect(balanceAfter).toBe(parseUnits('900', 6))
+    expect(balanceAfter.amount).toBe(parseUnits('900', 6))
 
     // Check total supply after
     const metadataAfter = await actions.token.getMetadata(client, {
@@ -817,7 +1286,7 @@ describe('pause', () => {
       account: account2,
       token,
       to: account3.address,
-      amount: parseUnits('100', 6),
+      amount: { decimals: 6, formatted: '100' },
     })
 
     // Pause the token
@@ -845,7 +1314,7 @@ describe('pause', () => {
         account: account2,
         token,
         to: account3.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       }),
     ).rejects.toThrow()
   })
@@ -988,7 +1457,7 @@ describe('unpause', () => {
         account: account2,
         token: address,
         to: account3.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       }),
     ).rejects.toThrow()
 
@@ -1016,14 +1485,14 @@ describe('unpause', () => {
       account: account2,
       token: address,
       to: account3.address,
-      amount: parseUnits('100', 6),
+      amount: { decimals: 6, formatted: '100' },
     })
 
     const balance = await actions.token.getBalance(client, {
       token: address,
       account: account3.address,
     })
-    expect(balance).toBe(parseUnits('100', 6))
+    expect(balance.amount).toBe(parseUnits('100', 6))
   })
 
   test('behavior: requires unpause role', async () => {
@@ -2080,14 +2549,14 @@ describe('watchApprove', () => {
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       })
 
       // Approve account3
       await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
-        amount: parseUnits('50', 6),
+        amount: { decimals: 6, formatted: '50' },
       })
 
       await setTimeout(500)
@@ -2142,21 +2611,21 @@ describe('watchApprove', () => {
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       })
 
       // Approve account3 (should NOT be captured)
       await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
-        amount: parseUnits('50', 6),
+        amount: { decimals: 6, formatted: '50' },
       })
 
       // Approve account2 again (should be captured)
       await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
-        amount: parseUnits('75', 6),
+        amount: { decimals: 6, formatted: '75' },
       })
 
       await setTimeout(500)
@@ -2457,13 +2926,13 @@ describe('watchAdminRole', () => {
 describe('watchRole', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(client, {
+    const { receipt, token: address } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Role Watch Token',
       symbol: 'ROLE',
     })
-
-    await setTimeout(100)
+    if (receipt.status === 'pending')
+      throw new Error('Expected submitted token receipt.')
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -2474,6 +2943,7 @@ describe('watchRole', () => {
     const unwatch = actions.token.watchRole(client, {
       token: address,
       onRoleUpdated: (args, log) => {
+        if (log.blockNumber <= receipt.blockNumber) return
         receivedRoleUpdates.push({ args, log })
       },
     })
@@ -2635,14 +3105,14 @@ describe('watchTransfer', () => {
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       })
 
       // Transfer to account3
       await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
-        amount: parseUnits('50', 6),
+        amount: { decimals: 6, formatted: '50' },
       })
 
       await setTimeout(200)
@@ -2696,21 +3166,21 @@ describe('watchTransfer', () => {
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseUnits('100', 6),
+        amount: { decimals: 6, formatted: '100' },
       })
 
       // Transfer to account3 (should NOT be captured)
       await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
-        amount: parseUnits('50', 6),
+        amount: { decimals: 6, formatted: '50' },
       })
 
       // Transfer to account2 again (should be captured)
       await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
-        amount: parseUnits('75', 6),
+        amount: { decimals: 6, formatted: '75' },
       })
 
       await setTimeout(500)
@@ -2853,5 +3323,134 @@ describe('watchUpdateQuoteToken', () => {
     } finally {
       if (unwatch) unwatch()
     }
+  })
+})
+
+describe('errors', () => {
+  test('behavior: insufficient balance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error).toMatchObject({
+      available: parseUnits('10000', 6),
+      decimals: 6,
+      required: parseUnits('20000', 6),
+    })
+    expect(error.token.toLowerCase()).toBe(token.toLowerCase())
+    expect(error.message).toContain('shortfall:  10000 (10000000000)')
+  })
+
+  test('behavior: decodes a reverted receipt by replaying the call', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(client, {
+        amount: parseUnits('20000', 6),
+        gas: 200_000n,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientBalanceError)
+    expect(error.required).toBe(parseUnits('20000', 6))
+    expect(
+      error.walk(
+        (error: Error) => error.name === 'TransactionReceiptRevertedError',
+      ),
+    ).toBeTruthy()
+  })
+
+  test('behavior: insufficient allowance', async () => {
+    const { token } = await setupToken(client)
+    const error = await actions.token
+      .transferSync(getClient({ account: account2 }), {
+        amount: parseUnits('1', 6),
+        from: account.address,
+        to: account2.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenInsufficientAllowanceError)
+    expect(error).toMatchObject({
+      allowance: 0n,
+      amount: parseUnits('1', 6),
+      owner: account.address,
+      spender: account2.address,
+      token,
+    })
+  })
+
+  test('behavior: supply cap exceeded', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.setSupplyCapSync(client, {
+      supplyCap: parseUnits('10001', 6),
+      token,
+    })
+    const error = await actions.token
+      .mintSync(client, {
+        amount: parseUnits('5', 6),
+        to: account.address,
+        token,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenSupplyCapExceededError)
+    expect(error).toMatchObject({
+      amount: parseUnits('5', 6),
+      supplyCap: parseUnits('10001', 6),
+      token,
+      totalSupply: parseUnits('10000', 6),
+    })
+    expect(error.message).toContain('mintable amount:  1 (1000000)')
+  })
+
+  test('behavior: paused', async () => {
+    const { token } = await setupToken(client)
+    await actions.token.grantRolesSync(client, {
+      roles: ['pause'],
+      to: account.address,
+      token,
+    })
+    await actions.token.pauseSync(client, { token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPausedError)
+    expect(error.token).toBe(token)
+  })
+
+  test('behavior: transfer policy forbids recipient', async () => {
+    const { token } = await setupToken(client)
+    const { policyId } = await actions.policy.createSync(client, {
+      addresses: [account2.address],
+      admin: account.address,
+      type: 'blacklist',
+    })
+    await actions.token.changeTransferPolicySync(client, { policyId, token })
+    const error = await actions.token
+      .transferSync(client, { amount: 1n, to: account2.address, token })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(actions.token.TokenPolicyForbidsError)
+    expect(error).toMatchObject({
+      from: account.address,
+      policyId,
+      recipientAuthorized: false,
+      senderAuthorized: true,
+      to: account2.address,
+      token,
+    })
+    expect(error.shortMessage).toContain(
+      `forbids recipient "${account2.address}"`,
+    )
   })
 })

@@ -1,6 +1,8 @@
+import { AccountConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
+import { nativeMultisigFactory } from './Addresses.js'
 import * as Transaction from './Transaction.js'
 
 const client = getClient({
@@ -22,6 +24,10 @@ describe('getType', () => {
 
   test('behavior: keyAuthorization', () => {
     expect(Transaction.getType({ keyAuthorization: {} })).toBe('tempo')
+  })
+
+  test('behavior: accountSimulation', () => {
+    expect(Transaction.getType({ accountSimulation: {} })).toBe('tempo')
   })
 
   test('behavior: nonceKey', () => {
@@ -216,9 +222,7 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x78')).toBe(true)
   })
 
-  test('behavior: feePayer: true preserves feeToken once feePayerSignature is set', async () => {
-    // Sender-side serialization (no feePayerSignature yet) — feeToken
-    // must be stripped per TIP-76; sender does not commit to a token.
+  test('behavior: feePayer: true strips feeToken from sender sign payload', async () => {
     const unsigned = await Transaction.serialize({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -227,10 +231,39 @@ describe('serialize', () => {
     })
     const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
     expect(unsignedParsed.feeToken).toBeUndefined()
+  })
 
-    // Final broadcast envelope (fee payer has signed) — feeToken must
-    // remain so the chain can verify the fee payer's signature and
-    // identify which token to charge.
+  test('behavior: feePayer: true strips feeToken from sender sign payload even when feePayerSignature is set', async () => {
+    // Sender's payload must still omit feeToken so its recovered address
+    // matches the one used when computing the fee payer signature.
+    const unsigned = await Transaction.serialize({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+      feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 } as never,
+    })
+    const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
+    expect(unsignedParsed.feeToken).toBeUndefined()
+  })
+
+  test('behavior: pre-filled feePayerSignature strips feeToken from sender sign payload', async () => {
+    const unsigned = await Transaction.serialize({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feeToken,
+      feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 } as never,
+    })
+    const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
+    expect(unsignedParsed.feeToken).toBeUndefined()
+    expect(
+      (unsignedParsed as { feePayerSignature: unknown }).feePayerSignature,
+    ).toBeNull()
+  })
+
+  test('behavior: feePayer: true emits full envelope with both signatures (single round trip)', async () => {
+    // Fee payer signature was prefilled during eth_fillTransaction -- emit
+    // a full 0x76 envelope to skip eth_signRawTransaction.
     const signed = await Transaction.serialize(
       {
         chainId: 1,
@@ -242,10 +275,15 @@ describe('serialize', () => {
       },
       { type: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
     )
-    const signedParsed = Transaction.deserialize(signed as `0x78${string}`)
-    expect((signedParsed.feeToken as string)?.toLowerCase()).toBe(
+    expect(signed.startsWith('0x76')).toBe(true)
+
+    const parsed = Transaction.deserialize(signed as `0x76${string}`)
+    expect((parsed.feeToken as string)?.toLowerCase()).toBe(
       feeToken.toLowerCase(),
     )
+    expect(
+      (parsed as { feePayerSignature: { r: string } }).feePayerSignature?.r,
+    ).toBeDefined()
   })
 
   test('behavior: serializes with feePayer as object (co-signed)', async () => {
@@ -261,22 +299,132 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: throws when feePayer object but no from and non-secp256k1 sig', async () => {
-    await expect(
-      Transaction.serialize(
-        {
-          chainId: 1,
-          calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-          feePayer: accounts.at(1)!,
+  test('behavior: feePayer object derives sender from p256 signature', async () => {
+    const serialized = await Transaction.serialize(
+      {
+        chainId: 1,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        feePayer: accounts.at(1)!,
+      },
+      {
+        type: 'p256',
+        signature: { r: 1n, s: 1n },
+        publicKey: { x: 1n, y: 1n, prefix: 4 },
+        prehash: true,
+      },
+    )
+
+    expect(serialized.startsWith('0x76')).toBe(true)
+  })
+
+  test('behavior: explicit nonce key preserves account config', async () => {
+    const owners = [accounts[1], accounts[2]] as const
+    const accountConfig = AccountConfig.from({
+      threshold: 2,
+      owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
+    })
+    const configurableAddress = AccountConfig.getAddress(accountConfig, {
+      factory: nativeMultisigFactory,
+    })
+    const transaction = {
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      from: configurableAddress,
+      accountSimulation: {
+        approvals: owners.map((owner) => ({
+          owner: owner.address,
+        })),
+        config: accountConfig,
+      },
+      nonce: 0,
+      nonceKey: 1n,
+    } as const
+    const signatures = await Promise.all(
+      owners.map((owner) => owner.signTransaction(transaction)),
+    )
+
+    const serialized = await Transaction.serialize({
+      ...transaction,
+      signatures,
+    })
+    const { signature } = Transaction.deserialize(serialized as `0x76${string}`)
+    expect(signature?.type).toBe('configurable')
+    if (signature?.type !== 'configurable') throw new Error('unreachable')
+    const {
+      account: signatureAccount,
+      signatures: approvals,
+      ...rest
+    } = signature
+    expect(signatureAccount).toBeDefined()
+    expect(approvals).toHaveLength(2)
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "config": {
+          "owners": [
+            {
+              "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "threshold": 2,
+          "version": 0n,
         },
-        {
-          type: 'p256',
-          signature: { r: 1n, s: 1n },
-          publicKey: { x: 1n, y: 1n, prefix: 4 },
-          prehash: true,
-        },
-      ),
-    ).rejects.toThrow('Unable to extract sender from transaction or signature.')
+        "type": "configurable",
+      }
+    `)
+  })
+
+  test('behavior: signs owner approvals with config version', async () => {
+    const owner = accounts[1]!
+    const initialConfig = AccountConfig.from({
+      threshold: 1,
+      owners: [{ owner: owner.address, weight: 1 }],
+    })
+    const account = AccountConfig.getAddress(initialConfig, {
+      factory: nativeMultisigFactory,
+    })
+    const accountConfig = AccountConfig.from({
+      ...initialConfig,
+      version: 2n,
+    })
+    const transaction = {
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: 1,
+      from: account,
+      accountSimulation: {
+        approvals: [{ owner: owner.address }],
+        config: accountConfig,
+      },
+      nonce: 1,
+    } as const
+
+    const approval = SignatureEnvelope.from(
+      await owner.signTransaction(transaction),
+    )
+    const payload = TxEnvelopeTempo.getSignPayload(
+      TxEnvelopeTempo.from({
+        calls: transaction.calls,
+        chainId: transaction.chainId,
+        nonce: BigInt(transaction.nonce),
+      }),
+    )
+    const digest = AccountConfig.getSignPayload({
+      account,
+      config: accountConfig,
+      payload,
+    })
+
+    expect(
+      SignatureEnvelope.extractAddress({
+        payload: digest,
+        signature: approval,
+      }),
+    ).toBe(owner.address.toLowerCase())
   })
 })
 

@@ -298,6 +298,12 @@ export function shouldRetry(error: Error) {
     // HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429,
     // so we need to handle this code in addition to the HTTP status check below.
     if (error.code === 429) return true
+    // Request limit exceeded — QuickNode's own non-standard rate-limit code,
+    // distinct from the standard `LimitExceededRpcError` (`-32005`). Seen in
+    // production as `{ code: -32007, message: "N/second request limit
+    // reached - reduce calls per second or upgrade your account at
+    // quicknode.com" }`.
+    if (error.code === -32007) return true
     return false
   }
   if (error instanceof HttpRequestError && error.status) {

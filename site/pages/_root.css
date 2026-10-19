@@ -79,3 +79,12 @@
   flex: 1;
   font-size: 18px;
 }
+
+/* Collapse the margin gap between consecutive twoslash custom tag lines
+   (@log/@error/@warn/@annotate) so their backgrounds form a continuous band. */
+.twoslash-tag-line:has(+ .twoslash-tag-line) {
+  margin-bottom: 0;
+}
+.twoslash-tag-line + .twoslash-tag-line {
+  margin-top: 0;
+}

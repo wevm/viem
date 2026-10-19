@@ -1,0 +1,95 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `propAmm.getSwapQuote`
+
+Quotes the input or output amount for a specific propAMM caller, recipient, and customer route.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { amountOut, price, updatedAt, creditAfter, request } = await client.propAmm.getSwapQuote({
+  amountIn: 1_000_000n,
+  mode: 'exactInput',
+  pool: '0x0000000000000000000000000000000000000002',
+})
+// @log: { amountOut, price, updatedAt, creditAfter, request }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  price: bigint
+  updatedAt: bigint
+  creditAfter: bigint
+  request: Actions.propAmm.getSwapQuote.ReturnValue['request']
+} & ({ amountOut: bigint } | { amountIn: bigint })
+```
+
+Exact input returns `amountOut`. Exact output returns `amountIn`. The other values bind the oracle observation and report the route's remaining rounding credit. Pass `request` directly to `swap` or `swapSync`. The request sets `minAmountOut` or `maxAmountIn` to the quoted amount, with zero oracle price tolerance.
+
+## Parameters
+
+### amountIn
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactInput'`. Input amount in token base units.
+
+### amountOut
+
+- **Type:** `bigint`
+
+Required with `mode: 'exactOutput'`. Output amount in token base units.
+
+### baseToQuote
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Set `true` to send base and receive quote, or `false` to send quote and receive base.
+
+### customerId
+
+- **Type:** `Hex`
+- **Default:** The taker address left-padded to 32 bytes
+
+Nonzero 32-byte customer route identifier. Set an explicit value to separate customer routes that share a wallet. Quotes account for this route's rounding credit.
+
+### mode
+
+- **Type:** `'exactInput' | 'exactOutput'`
+
+Select the amount that you specify.
+
+### pool
+
+- **Type:** `Address`
+
+Address of the propAMM pool.
+
+### recipient
+
+- **Type:** `Address`
+- **Default:** The account override or client account
+
+Destination of the output token. Required when no account is available.
+
+### taker
+
+- **Type:** `Address`
+- **Default:** The read account override or client account
+
+Address that will submit the swap and supply the input token. A taker is required if neither account is set.
+
+<ReadParameters />

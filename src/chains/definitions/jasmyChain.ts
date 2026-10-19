@@ -7,8 +7,15 @@ export const jasmyChain = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'JasmyCoin', symbol: 'JASMY', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.jasmychain.io'],
-      webSocket: ['wss://rpc.jasmychain.io'],
+      http: ['https://rpc.jasmyscan.net'],
+      webSocket: ['wss://rpc.jasmyscan.net/ws'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'JasmyScan',
+      url: 'https://explorer.jasmyscan.net',
+      apiUrl: 'https://explorer.jasmyscan.net/api',
     },
   },
   testnet: false,

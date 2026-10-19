@@ -1,8 +1,8 @@
 import type { Address } from 'abitype'
 import type { DefaultCapabilitiesSchema } from '../types/capabilities.js'
 import type { Hex } from '../types/misc.js'
-import type { ExactPartial, OneOf } from '../types/utils.js'
-import type { DecodeErrorResultReturnType } from '../utils/index.js'
+import type { ExactPartial } from '../types/utils.js'
+import type * as ExecutionError from './ExecutionError.js'
 import type { TransactionRequestTempo } from './Transaction.js'
 
 export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
@@ -18,27 +18,13 @@ export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
 export type FillTransactionRequestCapabilities = {
   /** Whether to include `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
+  /** Whether execution reverts return error capabilities instead of throwing. */
+  errors?: boolean | undefined
 }
 
 export type FillTransactionCapabilities = {
-  autoSwap?:
-    | {
-        calls: readonly { to: Address; data: Hex; value: Hex }[]
-        maxIn: SwapAmount
-        minOut: SwapAmount
-        slippage: number
-      }
-    | undefined
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
-  error?:
-    | OneOf<
-        | (DecodeErrorResultReturnType & {
-            data: Hex
-            message: string
-          })
-        | { errorName: 'unknown'; message: string }
-      >
-    | undefined
+  error?: ExecutionError.Rpc | undefined
   fee?:
     | {
         amount: Hex
@@ -47,7 +33,7 @@ export type FillTransactionCapabilities = {
         symbol: string
       }
     | undefined
-  requireFunds?:
+  insufficientFunds?:
     | {
         amount: Hex
         decimals: number
@@ -68,6 +54,7 @@ export type FillTransactionCapabilities = {
   virtualAddresses?: Readonly<Record<Address, Address | null>> | undefined
 }
 
+/** A token balance preview. Incoming funds and outgoing approval exposure can produce separate entries for the same token. */
 export type BalanceDiff = {
   address: Address
   decimals: number
@@ -76,14 +63,5 @@ export type BalanceDiff = {
   name: string
   recipients: readonly Address[]
   symbol: string
-  value: Hex
-}
-
-export type SwapAmount = {
-  decimals: number
-  formatted: string
-  name: string
-  symbol: string
-  token: Address
   value: Hex
 }

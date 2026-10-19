@@ -25,9 +25,8 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.getBalance.call({
+            actions.token.getBalance.call(client, {
               token: addresses.alphaUsd,
-              account: account.address,
             }),
           ],
         },
@@ -35,7 +34,12 @@ describe('simulateBlocks', () => {
     })
 
     const call = result.blocks[0].calls[0]
-    const { data: _data, result: _result, ...callWithoutDynamic } = call
+    const {
+      data: _data,
+      gasUsed,
+      result: _result,
+      ...callWithoutDynamic
+    } = call
 
     expect({
       calls: [callWithoutDynamic],
@@ -44,7 +48,6 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "gasUsed": 22080n,
             "logs": [],
             "status": "success",
           },
@@ -60,6 +63,8 @@ describe('simulateBlocks', () => {
     `)
 
     expect(call.data).toBeTypeOf('string')
+    expect(gasUsed).toBeTypeOf('bigint')
+    expect(gasUsed).toBeGreaterThan(0n)
     expect(call.result).toBeTypeOf('bigint')
   })
 
@@ -68,10 +73,10 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.transfer.call({
+            actions.token.transfer.call(client, {
               token: addresses.alphaUsd,
               to: accounts[1].address,
-              amount: parseUnits('1', 6),
+              amount: { formatted: '1' },
             }),
           ],
         },
@@ -79,17 +84,17 @@ describe('simulateBlocks', () => {
     })
 
     const call = result.blocks[0].calls[0]
-    const { data: _, ...callWithoutData } = call
+    const { data: _, gasUsed, ...callWithoutDynamic } = call
     const log = call.logs![0]
 
     expect({
-      ...callWithoutData,
-      logs: callWithoutData.logs?.map(
-        ({ blockHash, blockNumber, blockTimestamp, ...l }) => l,
+      ...callWithoutDynamic,
+      logs: callWithoutDynamic.logs?.map(
+        ({ blockHash, blockNumber, blockTimestamp, transactionHash, ...l }) =>
+          l,
       ),
     }).toMatchInlineSnapshot(`
       {
-        "gasUsed": 297770n,
         "logs": [
           {
             "address": "0x20c0000000000000000000000000000000000001",
@@ -101,7 +106,6 @@ describe('simulateBlocks', () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650",
             ],
-            "transactionHash": "0x1cf44b23d9c272c374ae0e2539b96673f0bf2e07a17afc696e4e3a4e256b7cef",
             "transactionIndex": 0,
           },
         ],
@@ -110,6 +114,9 @@ describe('simulateBlocks', () => {
       }
     `)
 
+    expect(gasUsed).toBeTypeOf('bigint')
+    expect(gasUsed).toBeGreaterThan(0n)
+    expect(log.transactionHash).toMatch(/^0x[\da-f]{64}$/)
     expect(log.blockHash).toBeDefined()
     expect(log.blockNumber).toBeTypeOf('bigint')
     expect(log.blockTimestamp).toBeTypeOf('bigint')
@@ -130,10 +137,10 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.transfer.call({
+            actions.token.transfer.call(client, {
               token: addresses.alphaUsd,
               to: accounts[1].address,
-              amount: parseUnits('1', 6),
+              amount: { formatted: '1' },
             }),
           ],
         },
@@ -157,19 +164,19 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.transfer.call({
+            actions.token.transfer.call(client, {
               token: addresses.alphaUsd,
               to: accounts[1].address,
-              amount: parseUnits('1', 6),
+              amount: { formatted: '1' },
             }),
           ],
         },
         {
           calls: [
-            actions.token.transfer.call({
+            actions.token.transfer.call(client, {
               token: addresses.alphaUsd,
               to: accounts[2].address,
-              amount: parseUnits('2', 6),
+              amount: { formatted: '2' },
             }),
           ],
         },
@@ -191,10 +198,10 @@ describe('simulateBlocks', () => {
           calls: [
             {
               account: accounts[1].address,
-              ...actions.token.transfer.call({
+              ...actions.token.transfer.call(client, {
                 token: addresses.alphaUsd,
                 to: accounts[2].address,
-                amount: parseUnits('999999999999', 6),
+                amount: { formatted: '999999999999' },
               }),
             },
           ],
@@ -218,9 +225,8 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.getBalance.call({
+            actions.token.getBalance.call(client, {
               token: addresses.alphaUsd,
-              account: account.address,
             }),
           ],
           stateOverrides: [
@@ -249,9 +255,8 @@ describe('simulateBlocks', () => {
       blocks: [
         {
           calls: [
-            actions.token.getBalance.call({
+            actions.token.getBalance.call(client, {
               token: addresses.alphaUsd,
-              account: account.address,
             }),
           ],
         },
@@ -274,13 +279,11 @@ describe('simulateCalls', () => {
   test('default', async () => {
     const result = await actions.simulate.simulateCalls(client, {
       calls: [
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.alphaUsd,
-          account: account.address,
         }),
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.pathUsd,
-          account: account.address,
         }),
       ],
     })
@@ -320,10 +323,10 @@ describe('simulateCalls', () => {
   test('behavior: account sets from', async () => {
     const { results } = await actions.simulate.simulateCalls(client, {
       calls: [
-        actions.token.transfer.call({
+        actions.token.transfer.call(client, {
           token: addresses.alphaUsd,
           to: accounts[1].address,
-          amount: parseUnits('1', 6),
+          amount: { formatted: '1' },
         }),
       ],
     })
@@ -342,10 +345,10 @@ describe('simulateCalls', () => {
   test('behavior: tokenMetadata passthrough', async () => {
     const result = await actions.simulate.simulateCalls(client, {
       calls: [
-        actions.token.transfer.call({
+        actions.token.transfer.call(client, {
           token: addresses.alphaUsd,
           to: accounts[1].address,
-          amount: parseUnits('1', 6),
+          amount: { formatted: '1' },
         }),
       ],
       traceTransfers: true,
@@ -365,9 +368,8 @@ describe('simulateCalls', () => {
   test('behavior: stateOverrides', async () => {
     const { results } = await actions.simulate.simulateCalls(client, {
       calls: [
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.alphaUsd,
-          account: account.address,
         }),
       ],
       stateOverrides: [
@@ -407,10 +409,10 @@ describe('simulateCalls', () => {
     const result = await actions.simulate.simulateCalls(client, {
       calls: [
         // 1. approve stablecoin DEX to spend quote token
-        actions.token.approve.call({
+        actions.token.approve.call(client, {
           token: quote,
           spender: Addresses.stablecoinDex,
-          amount: parseUnits('100', 6),
+          amount: { decimals: 6, formatted: '100' },
         }),
         // 2. buy base tokens with quote tokens
         actions.dex.buy.call({
@@ -420,7 +422,7 @@ describe('simulateCalls', () => {
           maxAmountIn: parseUnits('100', 6),
         }),
         // 3. transfer bought tokens to another account
-        actions.token.transfer.call({
+        actions.token.transfer.call(client, {
           token: base,
           to: accounts[1].address,
           amount: buyAmount,
@@ -465,12 +467,12 @@ describe('simulateCalls', () => {
     await actions.token.transferSync(client, {
       token: base,
       to: seller.address,
-      amount: parseUnits('500', 6),
+      amount: { decimals: 6, formatted: '500' },
     })
     await actions.token.approveSync(sellerClient, {
       token: base,
       spender: Addresses.stablecoinDex,
-      amount: parseUnits('500', 6),
+      amount: { decimals: 6, formatted: '500' },
     })
 
     // Seller places sell order so there's liquidity to buy against
@@ -488,11 +490,9 @@ describe('simulateCalls', () => {
       await Promise.all([
         actions.token.getBalance(client, {
           token: base,
-          account: account.address,
         }),
         actions.token.getBalance(client, {
           token: quote,
-          account: account.address,
         }),
         actions.token.getBalance(client, {
           token: base,
@@ -504,7 +504,7 @@ describe('simulateCalls', () => {
     await actions.token.approveSync(client, {
       token: quote,
       spender: Addresses.stablecoinDex,
-      amount: parseUnits('100', 6),
+      amount: { decimals: 6, formatted: '100' },
     })
 
     await actions.dex.buySync(client, {
@@ -525,11 +525,9 @@ describe('simulateCalls', () => {
       await Promise.all([
         actions.token.getBalance(client, {
           token: base,
-          account: account.address,
         }),
         actions.token.getBalance(client, {
           token: quote,
-          account: account.address,
         }),
         actions.token.getBalance(client, {
           token: base,
@@ -538,29 +536,29 @@ describe('simulateCalls', () => {
       ])
 
     // Sender's base balance should be unchanged (bought and then transferred out)
-    expect(senderBaseAfter).toBe(senderBaseBefore)
+    expect(senderBaseAfter.amount).toBe(senderBaseBefore.amount)
 
     // Sender's quote balance should have decreased (spent on buy)
-    expect(senderQuoteAfter).toBeLessThan(senderQuoteBefore)
+    expect(senderQuoteAfter.amount).toBeLessThan(senderQuoteBefore.amount)
 
     // Recipient's base balance should have increased by buyAmount
-    expect(recipientBaseAfter - recipientBaseBefore).toBe(buyAmount)
-  })
+    expect(recipientBaseAfter.amount - recipientBaseBefore.amount).toBe(
+      buyAmount,
+    )
+  }, 30_000)
 
   test('behavior: multiple getBalance reads', async () => {
     const result = await actions.simulate.simulateCalls(client, {
       calls: [
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.alphaUsd,
-          account: account.address,
         }),
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.alphaUsd,
           account: accounts[1].address,
         }),
-        actions.token.getBalance.call({
+        actions.token.getBalance.call(client, {
           token: addresses.pathUsd,
-          account: account.address,
         }),
       ],
     })

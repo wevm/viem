@@ -437,7 +437,7 @@ export const client = createPublicClient({
 
 ### Partial Decode
 
-By default, if the `topics` and `data` does not conform to the ABI (a mismatch between the number of indexed/non-indexed arguments), `parseEventLogs` will not return return the decoded log.
+By default, if the `topics` and `data` does not conform to the ABI (a mismatch between the number of indexed/non-indexed arguments), `parseEventLogs` will not return the decoded log.
 
 For example, the following will not return the nonconforming log as there is a mismatch in non-`indexed` arguments & `data` length.
 

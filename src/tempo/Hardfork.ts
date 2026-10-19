@@ -7,6 +7,9 @@ export const hardforks = [
   't1c',
   't2',
   't3',
+  't4',
+  't5',
+  't6',
 ] as const
 
 export type Hardfork = (typeof hardforks)[number]

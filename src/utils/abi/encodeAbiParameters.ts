@@ -26,7 +26,7 @@ import { IntegerOutOfRangeError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
-import { type ConcatErrorType, concat } from '../data/concat.js'
+import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { type PadHexErrorType, padHex } from '../data/pad.js'
 import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceErrorType, slice } from '../data/slice.js'
@@ -101,9 +101,7 @@ export function encodeAbiParameters<
     params: params as readonly AbiParameter[],
     values: values as any,
   })
-  const data = encodeParams(preparedParams)
-  if (data.length === 0) return '0x'
-  return data
+  return encodeParams(preparedParams)
 }
 
 /////////////////////////////////////////////////////////////////
@@ -212,7 +210,8 @@ function encodeParams(preparedParams: PreparedParam[]): Hex {
   }
 
   // 3. Concatenate static and dynamic parts.
-  return concat([...staticParams, ...dynamicParams])
+  // `concatHex` returns `'0x'` for empty input (zero-width parameters).
+  return concatHex([...staticParams, ...dynamicParams])
 }
 
 /////////////////////////////////////////////////////////////////
@@ -229,7 +228,7 @@ function encodeAddress(value: Hex): PreparedParam {
 
 type EncodeArrayErrorType =
   | AbiEncodingArrayLengthMismatchErrorType
-  | ConcatErrorType
+  | ConcatHexErrorType
   | EncodeParamsErrorType
   | InvalidArrayErrorType
   | NumberToHexErrorType
@@ -257,7 +256,9 @@ function encodeArray<const param extends AbiParameter>(
       type: `${param.type}[${length}]`,
     })
 
-  let dynamicChild = false
+  // Zero-length fixed arrays of dynamic types (e.g. `string[0]`) are dynamic
+  // per the ABI spec, even though they have no elements to inspect.
+  let dynamicChild = value.length === 0 && isDynamicType(param)
   const preparedParams: PreparedParam[] = []
   for (let i = 0; i < value.length; i++) {
     const preparedParam = prepareParam({ param, value: value[i] })
@@ -271,20 +272,20 @@ function encodeArray<const param extends AbiParameter>(
       const length = numberToHex(preparedParams.length, { size: 32 })
       return {
         dynamic: true,
-        encoded: preparedParams.length > 0 ? concat([length, data]) : length,
+        encoded: concatHex([length, data]),
       }
     }
     if (dynamicChild) return { dynamic: true, encoded: data }
   }
   return {
     dynamic: false,
-    encoded: concat(preparedParams.map(({ encoded }) => encoded)),
+    encoded: concatHex(preparedParams.map(({ encoded }) => encoded)),
   }
 }
 
 type EncodeBytesErrorType =
   | AbiEncodingBytesSizeMismatchErrorType
-  | ConcatErrorType
+  | ConcatHexErrorType
   | PadHexErrorType
   | NumberToHexErrorType
   | SizeErrorType
@@ -307,7 +308,10 @@ function encodeBytes<const param extends AbiParameter>(
       })
     return {
       dynamic: true,
-      encoded: concat([padHex(numberToHex(bytesSize, { size: 32 })), value_]),
+      encoded: concatHex([
+        padHex(numberToHex(bytesSize, { size: 32 })),
+        value_,
+      ]),
     }
   }
   if (bytesSize !== Number.parseInt(paramSize, 10))
@@ -356,7 +360,7 @@ function encodeNumber(
 }
 
 type EncodeStringErrorType =
-  | ConcatErrorType
+  | ConcatHexErrorType
   | NumberToHexErrorType
   | PadHexErrorType
   | SizeErrorType
@@ -377,7 +381,7 @@ function encodeString(value: string): PreparedParam {
   }
   return {
     dynamic: true,
-    encoded: concat([
+    encoded: concatHex([
       padHex(numberToHex(size(hexValue), { size: 32 })),
       ...parts,
     ]),
@@ -385,7 +389,7 @@ function encodeString(value: string): PreparedParam {
 }
 
 type EncodeTupleErrorType =
-  | ConcatErrorType
+  | ConcatHexErrorType
   | EncodeParamsErrorType
   // TODO: Add back once circular type reference is resolved
   // | PrepareParamErrorType
@@ -413,7 +417,7 @@ function encodeTuple<
     dynamic,
     encoded: dynamic
       ? encodeParams(preparedParams)
-      : concat(preparedParams.map(({ encoded }) => encoded)),
+      : concatHex(preparedParams.map(({ encoded }) => encoded)),
   }
 }
 
@@ -427,4 +431,17 @@ export function getArrayComponents(
     ? // Return `null` if the array is dynamic.
       [matches[2] ? Number(matches[2]) : null, matches[1]]
     : undefined
+}
+
+function isDynamicType(param: AbiParameter): boolean {
+  const { type } = param
+  if (type === 'string') return true
+  if (type === 'bytes') return true
+  if (type.endsWith('[]')) return true
+  if (type === 'tuple')
+    return (param as TupleAbiParameter).components.some(isDynamicType)
+  const arrayComponents = getArrayComponents(type)
+  if (arrayComponents)
+    return isDynamicType({ ...param, type: arrayComponents[1] })
+  return false
 }

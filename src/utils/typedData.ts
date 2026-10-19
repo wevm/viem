@@ -6,6 +6,7 @@ import {
   InvalidDomainError,
   InvalidPrimaryTypeError,
   InvalidStructTypeError,
+  InvalidTypedDataTypeError,
 } from '../errors/typedData.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
@@ -86,6 +87,10 @@ export function validateTypedData<
       const { name, type } = param
       const value = data[name]
 
+      const baseType = type.replace(/(\[[0-9]*\])+$/, '')
+      if (baseType === 'int' || baseType === 'uint')
+        throw new InvalidTypedDataTypeError({ type })
+
       const integerMatch = type.match(integerRegex)
       if (
         integerMatch &&
@@ -143,7 +148,7 @@ export function getTypesForEIP712Domain({
 }): TypedDataParameter[] {
   return [
     typeof domain?.name === 'string' && { name: 'name', type: 'string' },
-    domain?.version && { name: 'version', type: 'string' },
+    typeof domain?.version === 'string' && { name: 'version', type: 'string' },
     (typeof domain?.chainId === 'number' ||
       typeof domain?.chainId === 'bigint') && {
       name: 'chainId',

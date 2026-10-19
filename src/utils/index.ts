@@ -172,6 +172,12 @@ export {
   extractChain,
 } from './chain/extractChain.js'
 export {
+  type FilterChainsErrorType,
+  type FilterChainsParameters,
+  type FilterChainsReturnType,
+  filterChains,
+} from './chain/filterChains.js'
+export {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from './chain/getChainContractAddress.js'
@@ -341,6 +347,7 @@ export {
 export {
   type DefineTransactionRequestErrorType,
   defineTransactionRequest,
+  type ExtractFormattedTransactionRequest,
   type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,

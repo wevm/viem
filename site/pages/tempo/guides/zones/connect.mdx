@@ -1,0 +1,150 @@
+---
+description: Connect a Viem client to a private Tempo Zone and authenticate with an authorization token.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Connect to a Zone
+
+## Overview
+
+Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated
+execution environment that keeps balances, transfers, and history invisible to the public chain while
+inheriting the security guarantees of Tempo Mainnet.
+
+All zone RPC methods require an `X-Authorization-Token` header. The zone `http` transport attaches it
+automatically once you have signed an authorization token.
+
+[See the Tempo Zones specification](https://docs.tempo.xyz/protocol/zones)
+
+:::warning
+Tempo Zones are in early development and available on Tempo Testnet only. Expect breaking changes and
+do not use them in production.
+:::
+
+## Setup
+
+::::steps
+
+### Install
+
+To use Zones, ensure that you have Viem installed.
+
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash [pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+
+### Configure a Zone Client
+
+Configure a [Viem Client](/docs/clients/custom) with [`Zone.a`](/tempo/chains#zones) and the Zone
+`http` transport. `Zone.a` includes its public RPC URL, so `http()` reads the endpoint from the chain
+definition.
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+### Sign an Authorization Token
+
+Before making any zone RPC requests, sign an authorization token with
+[`zone.signAuthorizationToken`](/tempo/actions/zone.signAuthorizationToken). This authenticates your
+account with the zone sequencer, and the zone `http` transport attaches the signed token as the
+`X-Authorization-Token` header on subsequent requests.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @twoslash-cache: {"v":2,"hash":"91d64cb803ab353aee970227944211a26a381fd846bb753a199ee92f45a09a8e","data":"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"}
+import { client } from './zones.config'
+
+const { token } = await client.zone.signAuthorizationToken()
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Use Zone Actions
+
+Once authenticated, use [Zone Actions](/tempo/actions) to interact with your zone, such as
+[`zone.getZoneInfo`](/tempo/actions/zone.getZoneInfo) to read the zone's id, chain id, and sequencers.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @twoslash-cache: {"v":2,"hash":"bdb3ece90d7b9528f360703f34d8a855db9926e1ac299b8ce9111e8f37bbb0d4","data":"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"}
+import { client } from './zones.config'
+
+const info = await client.zone.getZoneInfo()
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+::::
+
+## Best Practices
+
+### Reuse a Persisted Token
+
+The signed token is persisted with [`Store`](/tempo/utilities/Store). By default,
+[`Store.defaultStore`](/tempo/utilities/Store.defaultStore) selects an in-memory store in Node.js
+or `sessionStorage` in browsers. A connected session reuses the token instead of signing each
+request again. Provide a custom `store` to control where the token is stored.
+
+### Check Token Expiry
+
+Authorization tokens expire. Read the current token's account and expiry with
+[`zone.getAuthorizationTokenInfo`](/tempo/actions/zone.getAuthorizationTokenInfo) and re-sign before
+it lapses to avoid failed RPC reads.
+
+### Pick the Right Zone
+
+Set `sourceId` to the Tempo chain that hosts the Zone. A mismatched source chain or RPC endpoint
+causes chain-id mismatches when signing tokens and sending transactions.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-down-to-line"
+    title="Deposit to a Zone"
+    description="Move stablecoins from Tempo Mainnet into a zone."
+    to="/tempo/guides/zones/deposit"
+  />
+  <Card
+    icon="lucide:arrow-up-from-line"
+    title="Withdraw from a Zone"
+    description="Move stablecoins from a zone back to Tempo Mainnet."
+    to="/tempo/guides/zones/withdraw"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="zone.signAuthorizationToken"
+    description="Sign the token that authenticates zone RPC requests."
+    to="/tempo/actions/zone.signAuthorizationToken"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Zones"
+    description="The full Tempo Zones protocol specification."
+    to="https://docs.tempo.xyz/protocol/zones"
+  />
+</Cards>

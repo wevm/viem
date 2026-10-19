@@ -23,19 +23,13 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Provider } from 'accounts'
-import { createClient, custom, publicActions, walletActions } from 'viem'
-import { tempo } from 'viem/chains'
-import { tempoActions } from 'viem/tempo'
+import { createClient, custom } from 'viem/tempo'
 
 const provider = Provider.create()
 
 export const client = createClient({
-  chain: tempo,
   transport: custom(provider),
 })
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
 ```
 
 :::

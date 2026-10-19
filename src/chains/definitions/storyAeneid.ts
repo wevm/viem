@@ -2,12 +2,12 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const storyAeneid = /*#__PURE__*/ defineChain({
   id: 1315,
-  name: 'Story Aeneid',
-  network: 'story-aeneid',
+  name: 'Data Network Aeneid',
+  network: 'data-network-aeneid',
   nativeCurrency: {
     decimals: 18,
-    name: 'IP',
-    symbol: 'IP',
+    name: 'DATA',
+    symbol: 'DATA',
   },
   contracts: {
     multicall3: {
@@ -24,13 +24,13 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
     },
   },
   rpcUrls: {
-    default: { http: ['https://aeneid.storyrpc.io'] },
+    default: { http: ['https://aeneid.datarpc.io'] },
   },
   blockExplorers: {
     default: {
-      name: 'Story Aeneid Explorer',
-      url: 'https://aeneid.storyscan.io',
-      apiUrl: 'https://aeneid.storyscan.io/api/v2',
+      name: 'Data Network Aeneid Explorer',
+      url: 'https://aeneid.datanetscan.io',
+      apiUrl: 'https://aeneid.datanetscan.io/api/v2',
     },
   },
   ensTlds: ['.ip'],

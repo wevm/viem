@@ -42,6 +42,27 @@ export class FeeConflictError extends BaseError {
   }
 }
 
+export type FeePayerNonceMismatchErrorType = FeePayerNonceMismatchError & {
+  name: 'FeePayerNonceMismatchError'
+}
+export class FeePayerNonceMismatchError extends BaseError {
+  constructor({
+    filledNonce,
+    requestedNonce,
+  }: {
+    filledNonce: number | undefined
+    requestedNonce: number
+  }) {
+    super('The filled transaction nonce does not match the requested nonce.', {
+      metaMessages: [
+        `Requested Nonce: ${requestedNonce}`,
+        `Filled Nonce: ${filledNonce}`,
+      ],
+      name: 'FeePayerNonceMismatchError',
+    })
+  }
+}
+
 export type InvalidLegacyVErrorType = InvalidLegacyVError & {
   name: 'InvalidLegacyVError'
 }
@@ -49,6 +70,17 @@ export class InvalidLegacyVError extends BaseError {
   constructor({ v }: { v: bigint }) {
     super(`Invalid \`v\` value "${v}". Expected 27 or 28.`, {
       name: 'InvalidLegacyVError',
+    })
+  }
+}
+
+export type InvalidYParityErrorType = InvalidYParityError & {
+  name: 'InvalidYParityError'
+}
+export class InvalidYParityError extends BaseError {
+  constructor({ yParity }: { yParity: bigint }) {
+    super(`Invalid \`yParity\` value "${yParity}". Expected 0 or 1.`, {
+      name: 'InvalidYParityError',
     })
   }
 }

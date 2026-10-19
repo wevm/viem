@@ -141,9 +141,9 @@ export async function getTimeToNextL2Output<
     // then we assume that the L2 output has already been submitted.
     if (now < latestOutputTimestamp) return 0
 
-    // If the latest L2 output block is newer than the provided L2 block number,
+    // If the latest L2 output covers the provided L2 block number,
     // then we assume that the L2 output has already been submitted.
-    if (latestOutput.l2BlockNumber > l2BlockNumber) return 0
+    if (latestOutput.l2BlockNumber >= l2BlockNumber) return 0
 
     const elapsedBlocks = Number(l2BlockNumber - latestOutput.l2BlockNumber)
 

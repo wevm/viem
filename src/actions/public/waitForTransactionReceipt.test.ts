@@ -1,23 +1,27 @@
-import { describe, expect, test, vi } from 'vitest'
+import { Instance, Pool } from 'prool'
+import {
+  createPublicClient,
+  createTestClient,
+  custom,
+  getAddress,
+  http,
+  type ReplacementReturnType,
+} from 'viem'
+import { getTransactionReceipt } from 'viem/actions'
+import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
+import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
+import type { Chain } from '../../types/chain.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
-import { keccak256 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import {
-  sendRawTransaction,
-  setIntervalMining,
-  signTransaction,
-} from '../index.js'
+import { setIntervalMining } from '../index.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
-import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const client = anvilMainnet.getClient()
@@ -57,6 +61,60 @@ test('waits for transaction (send -> mine -> wait)', async () => {
   })
   expect(status).toBe('success')
 })
+
+test.each([2, 3])(
+  'waits for a mined transaction after %i unavailable receipts without reporting a replacement',
+  async (missingReceipts) => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const laggingNode = await pool.start(2)
+    const minedClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    const hash = await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    await mine(minedClient, { blocks: 1 })
+    const receipt = await getTransactionReceipt(minedClient, { hash })
+    await setIntervalMining(minedClient, { interval: 1 })
+
+    // Route receipt reads to a lagging node while transaction and block reads are current.
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            missingReceipts-- > 0
+          )
+            return laggingClient.request(options)
+          return minedClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const result = await client.waitForTransactionReceipt({
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 10_000,
+    })
+
+    expect(result).toEqual(receipt)
+    expect(replacements).toMatchInlineSnapshot('[]')
+  },
+)
 
 test('waits for transaction (multiple waterfall)', async () => {
   setup()
@@ -111,90 +169,66 @@ test('waits for transaction (multiple parallel)', async () => {
 })
 
 test('waits for transaction (polling many blocks while others waiting does not trigger race condition)', async () => {
-  const getTransaction = vi.spyOn(getTransactionModule, 'getTransaction')
-
-  // create a transaction to use it only as a template for the mocks
-
-  const templateHash = await sendTransaction(client, {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const pending = new Set<string>()
+  const client = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    pollingInterval: 50,
+    transport: http(node.url, {
+      batch: true,
+      async onFetchResponse(response) {
+        const responses = await response.clone().json()
+        for (const { result } of responses)
+          if (result?.blockHash === null && result.hash)
+            pending.add(result.hash)
+      },
+    }),
+  })
+  const hash = await sendTransaction(client, {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
   })
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  const template = await getTransactionModule.getTransaction(client, {
-    hash: templateHash,
-  })
-
-  // Prepare and calculate hash of problematic transaction. Will send it later
-
-  const prepareProblematic = await prepareTransactionRequest(client, {
-    account: privateKeyToAccount(accounts[0].privateKey),
-    to: targetAccount.address,
-    value: parseEther('1'),
-  })
-  const problematicTx = await signTransaction(client, prepareProblematic)
-  const problematicTxHash = keccak256(problematicTx)
-
-  // Prepare a good transaction. Will send it later
-
-  const prepareGood = await prepareTransactionRequest(client, {
-    account: privateKeyToAccount(accounts[0].privateKey),
-    to: targetAccount.address,
+  const confirmedHash = await sendTransaction(client, {
+    account: targetAccount.address,
+    to: sourceAccount.address,
     value: parseEther('0.0001'),
-    nonce: prepareProblematic.nonce + 1,
-  })
-  const goodTx = await signTransaction(client, prepareGood)
-  const goodTxHash = keccak256(goodTx)
-
-  // important step: we need to mock the getTransaction to simulate a transaction that is in the mempool but
-  // is not yet mined.
-  getTransaction.mockResolvedValueOnce({
-    ...template,
-    hash: goodTxHash,
-    nonce: 1233,
   })
 
-  // Start looking for the receipt of the good transaction but did not send it yet. Here it will start polling
-  const goodReceiptPromise = waitForTransactionReceipt(client, {
-    hash: goodTxHash,
-    timeout: 30_000,
+  const confirmedReceipt = waitForTransactionReceipt(client, {
+    confirmations: 102,
+    hash: confirmedHash,
+    timeout: 10_000,
     retryCount: 0,
   })
-  await wait(200)
-
-  // to simulate a transaction that is in the mempool but not yet mined
-  getTransaction.mockResolvedValueOnce({
-    ...template,
-    hash: problematicTxHash,
-    nonce: 1234,
+  const receipt = waitForTransactionReceipt(client, {
+    hash,
+    timeout: 10_000,
+    retryCount: 0,
+  })
+  const receipts = Promise.allSettled([receipt, confirmedReceipt])
+  onTestFinished(async () => {
+    await receipts
   })
 
-  // Start polling the problematic transaction receipt
-  waitForTransactionReceipt(client, { hash: problematicTxHash, retryCount: 0 })
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  // Send the problematic transaction and mine it so we will have the receipt
-  await sendRawTransaction(client, { serializedTransaction: problematicTx })
-  await wait(200)
-
-  // important step: Mine a bunch of blocks together to trigger getTransactionReceipt many times for the same receipt.
-  // getting many receipt will trigger many unwatch from the same listener
+  // Observe both pending transactions before emitting missed blocks to the shared poller.
+  await expect
+    .poll(() => [...pending].sort())
+    .toEqual([hash, confirmedHash].sort())
   await mine(client, { blocks: 100 })
-  await wait(200)
+  expect(await receipt).toEqual(await getTransactionReceipt(client, { hash }))
 
-  // Send good transaction and mine, if the polling is working fine should get the receipt but if not we will get a timeout.
-  await sendRawTransaction(client, { serializedTransaction: goodTx })
-  await mine(client, { blocks: 1 })
-  await wait(200)
+  await mine(client, { blocks: 2 })
 
-  await mine(client, { blocks: 1 })
-  await wait(200)
-
-  const { status } = await goodReceiptPromise
-  expect(status).toBe('success')
+  expect(await confirmedReceipt).toEqual(
+    await getTransactionReceipt(client, { hash: confirmedHash }),
+  )
+  expect((await confirmedReceipt).blockNumber).toMatchInlineSnapshot('1n')
 })
 
 describe('replaced transactions', () => {
@@ -336,6 +370,77 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
+  })
+
+  test('repriced (rpc returns differently-cased addresses)', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    // Checksum pending transaction addresses; anvil returns mined ones lowercase.
+    const checksummingClient = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 50,
+      transport: custom({
+        async request(options) {
+          if (options.method !== 'eth_getTransactionByHash')
+            return client.request(options)
+          const transaction = await client.request({
+            method: 'eth_getTransactionByHash',
+            params: options.params,
+          })
+          if (transaction?.blockNumber !== null) return transaction
+          return {
+            ...transaction,
+            from: getAddress(transaction.from),
+            to: getAddress(transaction.to!),
+          }
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const [receipt, replacementHash] = await Promise.all([
+      waitForTransactionReceipt(checksummingClient, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+        timeout: 10_000,
+      }),
+      (async () => {
+        await wait(500)
+
+        // speed up
+        return sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          nonce,
+          maxFeePerGas: parseGwei('20'),
+        })
+      })(),
+    ])
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
   })
 
   test('replaced (different input)', async () => {
@@ -481,8 +586,16 @@ describe('replaced transactions', () => {
     expect(replacement.transactionReceipt).toBeDefined()
   })
 
-  test('checkReplacement: false', async () => {
+  test('chain: supportsTransactionReplacementDetection: false', async () => {
     setup()
+
+    const client = {
+      ...anvilMainnet.getClient(),
+      chain: {
+        ...anvilMainnet.chain,
+        supportsTransactionReplacementDetection: false,
+      },
+    }
 
     await mine(client, { blocks: 10 })
 
@@ -504,7 +617,6 @@ describe('replaced transactions', () => {
     let replacementCalled = false
     const receiptPromise = waitForTransactionReceipt(client, {
       hash,
-      checkReplacement: false,
       timeout: 3000,
       onReplaced: () => (replacementCalled = true),
     })
@@ -618,7 +730,7 @@ describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
 
-    vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
+    vi.spyOn(getBlock, 'getBlock').mockRejectedValue(new Error('foo'))
 
     await mine(client, { blocks: 10 })
 
@@ -656,5 +768,264 @@ describe('errors', () => {
         })(),
       ]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: foo]')
+  })
+})
+
+describe('concurrent waits with different options', () => {
+  const hash = `0x${'ab'.repeat(32)}` as `0x${string}`
+  const receipt = {
+    transactionHash: hash,
+    transactionIndex: '0x0',
+    blockHash: `0x${'cd'.repeat(32)}`,
+    blockNumber: '0x64',
+    from: `0x${'11'.repeat(20)}`,
+    to: `0x${'22'.repeat(20)}`,
+    cumulativeGasUsed: '0x5208',
+    gasUsed: '0x5208',
+    effectiveGasPrice: '0x1',
+    contractAddress: null,
+    logs: [],
+    logsBloom: `0x${'00'.repeat(256)}`,
+    status: '0x1',
+    type: '0x2',
+  }
+
+  test('a timing out call does not starve a longer-timeout call', async () => {
+    // The transaction is mined 300ms after start; one block per poll.
+    const start = Date.now()
+    let block = 100n
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return `0x${(block++).toString(16)}`
+          if (method === 'eth_getTransactionReceipt')
+            return Date.now() - start > 300 ? receipt : null
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const short = client_.waitForTransactionReceipt({
+      hash,
+      timeout: 100,
+      checkReplacement: false,
+    })
+    const long = client_.waitForTransactionReceipt({
+      hash,
+      timeout: 2_000,
+      checkReplacement: false,
+    })
+
+    await expect(short).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+    expect((await long).transactionHash).toBe(hash)
+  })
+
+  test('a call honors its own confirmations', async () => {
+    // The receipt (block 100) is available immediately; one block per poll.
+    let block = 100n
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return `0x${(block++).toString(16)}`
+          if (method === 'eth_getTransactionReceipt') return receipt
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const first = client_.waitForTransactionReceipt({
+      hash,
+      checkReplacement: false,
+    })
+    const second = client_.waitForTransactionReceipt({
+      hash,
+      confirmations: 5,
+      checkReplacement: false,
+    })
+
+    // Resolves at the default 1 confirmation.
+    await first
+    // 5 confirmations require head >= 104: must keep polling past the
+    // first call's resolution instead of inheriting its confirmations.
+    await second
+    expect(block).toBeGreaterThanOrEqual(105n)
+  })
+})
+
+describe('chain: transactionReplacement', () => {
+  test('ignores a same-nonce transaction in a different slot', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+    const slotClient = createPublicClient({
+      chain: {
+        ...anvilMainnet.chain,
+        transactionReplacement: {
+          getKey: (transaction) =>
+            transaction.hash === hash ? 'awaited' : 'other',
+        },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receiptPromise = waitForTransactionReceipt(slotClient, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 3000,
+    })
+    await wait(500)
+    await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('20'),
+      nonce,
+    })
+
+    await expect(receiptPromise).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+    expect(replacements).toMatchInlineSnapshot('[]')
+  })
+
+  test('uses the chain replacement reason', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+    const reasonClient = createPublicClient({
+      chain: {
+        ...anvilMainnet.chain,
+        transactionReplacement: {
+          getKey: () => 'slot',
+          getReason: () => 'cancelled',
+        },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(anvilMainnet.rpcUrl.http),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const [receipt, replacementHash] = await Promise.all([
+      waitForTransactionReceipt(reasonClient, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+      }),
+      (async () => {
+        await wait(500)
+        return sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          maxFeePerGas: parseGwei('20'),
+          nonce,
+        })
+      })(),
+    ])
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('does not search for a replacement of a mined transaction', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const laggingNode = await pool.start(2)
+    const minedClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    const hash = await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    // A sibling in the same block shares the awaited transaction's slot.
+    await sendTransaction(minedClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('2'),
+    })
+    await mine(minedClient, { blocks: 1 })
+    const receipt = await getTransactionReceipt(minedClient, { hash })
+    await setIntervalMining(minedClient, { interval: 1 })
+
+    // Route receipt reads to a lagging node while transaction and block reads are current.
+    let missingReceipts = 3
+    const client = createPublicClient({
+      chain: {
+        ...mainnet,
+        transactionReplacement: { getKey: () => 'slot' },
+      },
+      pollingInterval: 50,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            missingReceipts-- > 0
+          )
+            return laggingClient.request(options)
+          return minedClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const result = await client.waitForTransactionReceipt({
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      timeout: 10_000,
+    })
+
+    expect(result).toEqual(receipt)
+    expect(replacements).toMatchInlineSnapshot('[]')
   })
 })

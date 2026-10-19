@@ -1,17 +1,22 @@
 import type { Address } from 'abitype'
 import { describe, expectTypeOf, test } from 'vitest'
 
+import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
-import { localhost, optimism } from '../chains/index.js'
+import { getBalance } from '../actions/token/getBalance.js'
+import { localhost, mainnet, optimism } from '../chains/index.js'
 import {
   createPublicClient,
   type EIP1193RequestFn,
   publicActions,
 } from '../index.js'
+import { usdc, usdce } from '../tokens/index.js'
 import type { Chain } from '../types/chain.js'
 import { type Client, createClient, rpcSchema } from './createClient.js'
 import { walletActions } from './decorators/wallet.js'
 import { http } from './transports/http.js'
+
+const account = privateKeyToAccount(`0x${'1'.repeat(64)}`)
 
 test('with chain', () => {
   const client = createClient({
@@ -48,6 +53,46 @@ test('without account', () => {
   })
   expectTypeOf(client).toMatchTypeOf<Client>()
   expectTypeOf(client.account).toEqualTypeOf(undefined)
+})
+
+describe('tokens', () => {
+  test('standalone: infers token symbols from client tokens', () => {
+    const client = createClient({
+      account,
+      chain: mainnet,
+      tokens: [usdc, usdce],
+      transport: http(),
+    })
+
+    getBalance(client, { token: 'usdc' })
+    getBalance(client, { token: '0x' })
+
+    // @ts-expect-error USDC.e has no mainnet address.
+    getBalance(client, { token: 'usdc.e' })
+    // @ts-expect-error unknown name.
+    getBalance(client, { token: 'nope' })
+  })
+
+  test('decorated client: keeps token-symbol inference', () => {
+    const client = createClient({
+      account,
+      chain: mainnet,
+      tokens: [usdc, usdce],
+      transport: http(),
+    }).extend(publicActions)
+
+    client.token.getBalance({ token: 'usdc' })
+    // @ts-expect-error USDC.e has no mainnet address.
+    client.token.getBalance({ token: 'usdc.e' })
+  })
+
+  test('no tokens: only address allowed', () => {
+    const client = createClient({ account, chain: mainnet, transport: http() })
+    getBalance(client, { token: '0x' })
+    // @ts-expect-error no tokens declared.
+    getBalance(client, { token: 'usdc' })
+    expectTypeOf(client.tokens).toEqualTypeOf<undefined>()
+  })
 })
 
 describe('extend', () => {

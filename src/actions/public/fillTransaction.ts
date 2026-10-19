@@ -4,6 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
+import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -194,44 +195,61 @@ export async function fillTransaction<
     // Rewrite fields.
     transaction.data = transaction.input
 
-    // Preference supplied fees (some nodes do not take these preferences).
-    if (transaction.gas) transaction.gas = parameters.gas ?? transaction.gas
-    if (transaction.gasPrice)
-      transaction.gasPrice = parameters.gasPrice ?? transaction.gasPrice
-    if (transaction.maxFeePerBlobGas)
-      transaction.maxFeePerBlobGas =
-        parameters.maxFeePerBlobGas ?? transaction.maxFeePerBlobGas
-    if (transaction.maxFeePerGas)
-      transaction.maxFeePerGas =
-        parameters.maxFeePerGas ?? transaction.maxFeePerGas
-    if (transaction.maxPriorityFeePerGas)
-      transaction.maxPriorityFeePerGas =
-        parameters.maxPriorityFeePerGas ?? transaction.maxPriorityFeePerGas
-    if (typeof transaction.nonce !== 'undefined')
-      transaction.nonce = parameters.nonce ?? transaction.nonce
+    const hasFeePayerSignature =
+      typeof transaction.feePayerSignature !== 'undefined' &&
+      transaction.feePayerSignature !== null
 
-    // Build fee multiplier function.
-    const feeMultiplier = await (async () => {
-      if (typeof chain?.fees?.baseFeeMultiplier === 'function') {
-        const block = await getAction(client, getBlock, 'getBlock')({})
-        return chain.fees.baseFeeMultiplier({
-          block,
-          client,
-          request: parameters,
-        } as ChainFeesFnParameters)
-      }
-      return chain?.fees?.baseFeeMultiplier ?? 1.2
-    })()
-    if (feeMultiplier < 1) throw new BaseFeeScalarError()
+    if (
+      hasFeePayerSignature &&
+      typeof nonce !== 'undefined' &&
+      transaction.nonce !== nonce
+    )
+      throw new FeePayerNonceMismatchError({
+        filledNonce: transaction.nonce,
+        requestedNonce: nonce,
+      })
 
-    const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
-    const denominator = 10 ** decimals
-    const multiplyFee = (base: bigint) =>
-      (base * BigInt(Math.ceil(feeMultiplier * denominator))) /
-      BigInt(denominator)
+    // A fee payer signature commits to the filled transaction, so preserve
+    // its signed fields regardless of who produced the signature.
+    // https://tips.sh/0001#fee-payer-signature
+    if (!hasFeePayerSignature) {
+      // Preference supplied fees (some nodes do not take these preferences).
+      if (transaction.gas) transaction.gas = parameters.gas ?? transaction.gas
+      if (transaction.gasPrice)
+        transaction.gasPrice = parameters.gasPrice ?? transaction.gasPrice
+      if (transaction.maxFeePerBlobGas)
+        transaction.maxFeePerBlobGas =
+          parameters.maxFeePerBlobGas ?? transaction.maxFeePerBlobGas
+      if (transaction.maxFeePerGas)
+        transaction.maxFeePerGas =
+          parameters.maxFeePerGas ?? transaction.maxFeePerGas
+      if (transaction.maxPriorityFeePerGas)
+        transaction.maxPriorityFeePerGas =
+          parameters.maxPriorityFeePerGas ?? transaction.maxPriorityFeePerGas
+      if (typeof transaction.nonce !== 'undefined')
+        transaction.nonce = parameters.nonce ?? transaction.nonce
 
-    // Apply fee multiplier.
-    if (!transaction.feePayerSignature) {
+      // Build fee multiplier function.
+      const feeMultiplier = await (async () => {
+        if (typeof chain?.fees?.baseFeeMultiplier === 'function') {
+          const block = await getAction(client, getBlock, 'getBlock')({})
+          return chain.fees.baseFeeMultiplier({
+            block,
+            client,
+            request: parameters,
+          } as ChainFeesFnParameters)
+        }
+        return chain?.fees?.baseFeeMultiplier ?? 1.2
+      })()
+      if (feeMultiplier < 1) throw new BaseFeeScalarError()
+
+      const decimals = feeMultiplier.toString().split('.')[1]?.length ?? 0
+      const denominator = 10 ** decimals
+      const multiplyFee = (base: bigint) =>
+        (base * BigInt(Math.round(feeMultiplier * denominator))) /
+        BigInt(denominator)
+
+      // Apply fee multiplier.
       if (transaction.maxFeePerGas && !parameters.maxFeePerGas)
         transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
       if (transaction.gasPrice && !parameters.gasPrice)

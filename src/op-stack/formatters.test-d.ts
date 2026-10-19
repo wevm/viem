@@ -105,5 +105,11 @@ describe('smoke', () => {
     expectTypeOf(transactionReceipt.l1FeeScalar).toEqualTypeOf<number | null>()
     expectTypeOf(transactionReceipt.l1GasPrice).toEqualTypeOf<bigint | null>()
     expectTypeOf(transactionReceipt.l1GasUsed).toEqualTypeOf<bigint | null>()
+    expectTypeOf(transactionReceipt.depositNonce).toEqualTypeOf<
+      bigint | undefined
+    >()
+    expectTypeOf(transactionReceipt.depositReceiptVersion).toEqualTypeOf<
+      number | undefined
+    >()
   })
 })

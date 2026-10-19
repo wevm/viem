@@ -1,0 +1,116 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `earn.createErc4626Engine`
+
+Deploys a deterministic engine for an ERC-4626 venue. This API is experimental.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { keccak256, toHex } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.earn.createErc4626EngineSync({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  factory: '0x0000000000000000000000000000000000000001',
+  venue: '0x0000000000000000000000000000000000000002',
+})
+// @log: { deploymentId: '0x...', engine: '0x...', receipt: { ... } }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+The client account deploys and owns the engine by default. Use `owner` to set a different final
+owner. The action derives engine metadata from the venue unless `name` or `symbol` is provided.
+
+### Asynchronous Usage
+
+`earn.createErc4626EngineSync` waits for inclusion and returns the decoded deployment event. Use
+`earn.createErc4626Engine` to return the transaction hash immediately.
+
+```ts twoslash
+import { keccak256, toHex } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const factory = '0x0000000000000000000000000000000000000001'
+const hash = await client.earn.createErc4626Engine({
+  deploymentId: keccak256(toHex('acme-usd-v1')),
+  factory,
+  venue: '0x0000000000000000000000000000000000000002',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+const { args } = Actions.earn.createErc4626Engine.extractEvent(receipt.logs, {
+  factory,
+})
+```
+
+## Return Value
+
+```ts
+type ReturnValue = {
+  /** Venue asset address. */
+  asset: Address
+  /** Deployment identifier. */
+  deploymentId: Hex
+  /** Deployed ERC-4626 engine address. */
+  engine: Address
+  /** Deterministic engine salt. */
+  engineSalt: Hex
+  /** Final engine owner. */
+  owner: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** ERC-4626 venue address. */
+  vault: Address
+}
+```
+
+The asynchronous action returns the transaction hash instead.
+
+## Parameters
+
+### deploymentId
+
+- **Type:** `Hex`
+
+A required, nonzero 32-byte identifier. Reuse it only when resuming the same deployment.
+
+### factory
+
+- **Type:** `Address`
+
+Reviewed `ERC4626EngineFactory` address.
+
+### venue
+
+- **Type:** `Address`
+
+ERC-4626 venue address.
+
+### owner (optional)
+
+- **Type:** `Account | Address`
+- **Default:** `account.address`
+
+Final engine owner. This account must later bind the engine to its EarnVault.
+
+### name (optional)
+
+- **Type:** `string`
+
+Engine name override. An omitted value derives metadata from the venue.
+
+### symbol (optional)
+
+- **Type:** `string`
+
+Engine symbol override. An omitted value derives metadata from the venue.
+
+<WriteParameters />

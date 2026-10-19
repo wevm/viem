@@ -42,7 +42,14 @@ export type GetGameParameters<
     strategy?: 'latest' | 'random'
   }
 export type GetGameReturnType = Game & {
+  /**
+   * L2 block number anchored by the dispute game. For super-root games, this
+   * value is the L2 timestamp instead. Check `usesSuperRoots` to distinguish
+   * the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the dispute game anchors on super roots. */
+  usesSuperRoots: boolean
 }
 
 export type GetGameErrorType =
@@ -86,7 +93,9 @@ export async function getGame<
 
   const latestGames = await getGames(client, parameters)
 
-  const games = latestGames.filter((game) => game.l2BlockNumber > l2BlockNumber)
+  const games = latestGames.filter(
+    (game) => game.l2BlockNumber >= l2BlockNumber,
+  )
 
   const game = (() => {
     if (strategy === 'random')

@@ -1,9 +1,18 @@
+import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { SignatureEnvelope, type TokenId } from 'ox/tempo'
+import {
+  AccountConfig,
+  AccountOperation,
+  type AccountSimulation,
+  SignatureEnvelope,
+  type TokenId,
+} from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
@@ -11,14 +20,20 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account } from './Account.js'
+import type { Account, ConfigurableAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
+import { getConfig } from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
+
+// TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
+const serializeTransaction = ((transaction, signature) =>
+  Transaction.serialize(transaction, signature)) as SerializeTransactionFn
 
 export const chainConfig = {
   blockTime: 1_000,
@@ -39,48 +54,234 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r, { phase }) => {
+    async (r, { client, phase }) => {
       const request = r as Transaction.TransactionRequest & {
-        account?: Account | undefined
+        account?: Account | ConfigurableAccount | undefined
+        chainId?: number | undefined
         chain?:
-          | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
+          | (Chain & {
+              feeToken?: TokenId.TokenIdOrAddress | undefined
+            })
           | undefined
+        feePayerSignature?: Transaction.TransactionSerializableTempo['feePayerSignature']
+        from?: Address | undefined
+        hash?: Hex.Hex | undefined
+        keyData?: Hex.Hex | undefined
+        keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+        accountSimulation?: AccountSimulation.Spec | undefined
+        owner?: Account | ConfigurableAccount | Address | undefined
+        signatures?: readonly unknown[] | undefined
+      }
+
+      if (request.hash) {
+        if (
+          !request.account ||
+          typeof request.account === 'string' ||
+          request.account.source !== 'configurable'
+        )
+          throw new Error(
+            'A local configurable account is required to approve a stored configurable account transaction.',
+          )
+        if (!request.owner || typeof request.owner === 'string')
+          throw new Error(
+            'A local owner account is required to approve a stored configurable account transaction.',
+          )
+        if (request.owner.source !== 'root')
+          throw new Error(
+            'A Tempo owner account is required to approve a stored configurable account transaction.',
+          )
+        const transaction = await getAction(
+          client,
+          getTransaction,
+          'getTransaction',
+        )({ hash: request.hash })
+        const operation =
+          'operation' in transaction
+            ? (transaction.operation as
+                | AccountOperation.TransactionOperation
+                | undefined)
+            : undefined
+        if (!operation)
+          throw new Error('Expected an account operation transaction.')
+        if (!isAddressEqual(operation.account, request.account.address))
+          throw new Error(
+            'Account operation account does not match the requested account.',
+          )
+        const storedTransaction = Transaction.deserialize(
+          operation.transaction as Transaction.TransactionSerializedTempo,
+        )
+        const hash = AccountOperation.getHash({
+          account: operation.account,
+          config: operation.config,
+          transaction: operation.transaction,
+          type: 'transaction',
+        })
+        if (hash.toLowerCase() !== request.hash.toLowerCase())
+          throw new Error('Account operation hash does not match transaction.')
+        return {
+          ...storedTransaction,
+          // Serialized zero values must not trigger a new fill of an approved transaction.
+          gas: storedTransaction.gas ?? 0n,
+          maxFeePerGas: storedTransaction.maxFeePerGas ?? 0n,
+          maxPriorityFeePerGas: storedTransaction.maxPriorityFeePerGas ?? 0n,
+          account: request.account,
+          from: operation.account,
+          accountSimulation: getAccountSimulation({
+            config: operation.config,
+            local: request.account,
+          }),
+          owner: request.owner,
+        } as unknown as typeof r
       }
 
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
       // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (request.feePayer) {
+        // Fee payer signature covers the gas limit, so the relay must set it before signing and Viem must not change it afterward.
+        if (
+          typeof request.gas !== 'undefined' &&
+          request.feePayer &&
+          !request.feePayerSignature
+        ) {
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')
             request.gas = (request.gas ?? 0n) + 10_000n
         }
+
         return request as unknown as typeof r
       }
 
-      // Use expiring nonces for concurrent transactions (TIP-1009).
-      // When nonceKey is 'expiring', feePayer is specified, or concurrent requests
-      // are detected, we use expiring nonces (nonceKey = uint256.max) with a
-      // validBefore timestamp.
+      const configurableIdentity = (() => {
+        if (request.account?.source === 'configurable')
+          return {
+            account: request.account.address,
+            config: (request.account as ConfigurableAccount).config,
+            local: request.account as ConfigurableAccount,
+          }
+        return undefined
+      })()
+      if (request.owner && !configurableIdentity)
+        throw new Error(
+          'A configurable account is required when an owner is provided.',
+        )
+      if (request.owner && typeof request.owner === 'string')
+        throw new Error(
+          'A local owner account is required to approve a configurable account transaction.',
+        )
+      if (request.owner && request.owner.source !== 'root')
+        throw new Error(
+          'A Tempo owner account is required to approve a configurable account transaction.',
+        )
+      const coordinated =
+        !!configurableIdentity &&
+        !!request.owner &&
+        (client.transport as { accounts?: boolean }).accounts === true
+      if (configurableIdentity) {
+        const { account, local } = configurableIdentity
+        if (!account)
+          throw new Error(
+            'A configurable account address is required with a current config.',
+          )
+        const config = await (async () => {
+          if (configurableIdentity.config) return configurableIdentity.config
+          if (!coordinated) return undefined
+          const cachedConfig = await getAction(
+            client,
+            getConfig,
+            'getConfig',
+          )({ address: account })
+          if (!cachedConfig)
+            throw new Error(
+              `No current account config is cached for account ${account}. Provide the current config.`,
+            )
+          return cachedConfig
+        })()
+        if (!config)
+          throw new Error(
+            'An account config is required to prepare a transaction.',
+          )
+        request.from = account
+        request.accountSimulation = getAccountSimulation({
+          config,
+          local,
+        })
+      }
+
+      // Register concurrency before account preparation performs storage or
+      // network I/O so overlapping requests cannot miss each other.
       const useExpiringNonce = await (async () => {
-        if (request.nonceKey === 'expiring') return true
+        if (request.nonceKey === 'expiring' || request.nonceKey === maxUint256)
+          return true
+        if (typeof request.nonceKey !== 'undefined') return false
+        if (configurableIdentity) return false
         if (request.feePayer && typeof request.nonceKey === 'undefined')
           return true
-        const address = request.account?.address
+        const account = request.account as
+          | Account
+          | ConfigurableAccount
+          | Address
+          | undefined
+        const address = typeof account === 'string' ? account : account?.address
         if (address && typeof request.nonceKey === 'undefined')
-          return await Concurrent.detect(address)
+          return await Concurrent.detect(address.toLowerCase())
         return false
       })()
 
-      if (useExpiringNonce) {
-        request.nonceKey = maxUint256
+      if (coordinated && typeof request.nonceKey === 'undefined') {
+        // A random nonce lane lets a stored approval ceremony remain valid
+        // indefinitely without blocking other pending operations.
+        request.nonceKey = Hex.toBigInt(Hex.random(31)) + 1n
         request.nonce = 0
+      } else if (useExpiringNonce) {
+        request.nonceKey = maxUint256
+        request.nonce ??= 0
+        if (typeof request.validAfter === 'undefined')
+          request.validAfter = randomValidAfter()
         if (typeof request.validBefore === 'undefined')
           request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
       } else if (typeof request.nonceKey !== 'undefined') {
-        // Explicit nonceKey provided (2D nonce mode)
         request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
+      }
+
+      if (
+        !request.keyAuthorization &&
+        request.account?.source === 'accessKey'
+      ) {
+        const keyAuthorizationManager = request.account.keyAuthorizationManager
+        if (keyAuthorizationManager) {
+          const chainId = request.chainId ?? request.chain?.id
+          if (typeof chainId !== 'undefined') {
+            const address = request.account.address
+            const accessKey = request.account.accessKeyAddress
+            const key = { address, accessKey, chainId }
+            const keyAuthorization = await keyAuthorizationManager.get(key)
+
+            if (keyAuthorization) {
+              const now = BigInt(Math.floor(Date.now() / 1000))
+              if (
+                keyAuthorization.expiry != null &&
+                BigInt(keyAuthorization.expiry) <= now
+              ) {
+                await keyAuthorizationManager.remove(key)
+              } else {
+                const metadata = await getAction(
+                  client,
+                  getMetadata,
+                  'getMetadata',
+                )({ account: address, accessKey })
+
+                if (
+                  isAddressEqual(metadata.address, accessKey) &&
+                  !metadata.isRevoked &&
+                  metadata.expiry > now
+                )
+                  await keyAuthorizationManager.remove(key)
+                else request.keyAuthorization = keyAuthorization
+              }
+            }
+          }
+        }
       }
 
       if (!request.feeToken && request.chain?.feeToken)
@@ -91,10 +292,29 @@ export const chainConfig = {
     { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
   ],
   serializers: {
-    // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
-    transaction: ((transaction, signature) =>
-      Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
+    transaction: serializeTransaction,
+    async transactionEnvelope({ serializedTransaction, transaction }) {
+      const request = transaction as Transaction.TransactionSerializableTempo
+      if (!request.accountSimulation) return serializedTransaction
+      try {
+        SignatureEnvelope.deserialize(serializedTransaction)
+      } catch {
+        const transaction = Transaction.deserialize(
+          serializedTransaction as Transaction.TransactionSerializedTempo,
+        )
+        if (transaction.signature?.type === 'configurable')
+          return serializedTransaction
+        throw new Error(
+          'A Tempo owner account is required to approve a configurable account transaction.',
+        )
+      }
+      return await serializeTransaction({
+        ...request,
+        signatures: [...(request.signatures ?? []), serializedTransaction],
+      } as never)
+    },
   },
+  transactionReplacement,
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 
@@ -135,8 +355,10 @@ export const chainConfig = {
         const keyInfo = await getMetadata(client, {
           account: address,
           accessKey: accessKeyAddress,
+          blockHash: parameters.blockHash,
           blockNumber: parameters.blockNumber,
           blockTag: parameters.blockTag,
+          requireCanonical: parameters.requireCanonical,
         } as never)
 
         if (keyInfo.isRevoked) return false
@@ -153,8 +375,10 @@ export const chainConfig = {
       if (envelope.type === 'p256' || envelope.type === 'webAuthn') {
         const code = await getCode(client, {
           address,
+          blockHash: parameters.blockHash,
           blockNumber: parameters.blockNumber,
           blockTag: parameters.blockTag,
+          requireCanonical: parameters.requireCanonical,
         } as never)
         // Check if EOA, if not, we want to go down the ERC-1271 flow.
         if (
@@ -179,3 +403,72 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+/** Builds a bounded account spec for gas simulation. */
+function getAccountSimulation(options: {
+  config: AccountConfig.Config
+  local?: ConfigurableAccount | undefined
+}): AccountSimulation.Spec {
+  const { config, local } = options
+  return {
+    approvals: selectOwners(config).map((owner) => {
+      const localOwner = local?.owners.find((account) =>
+        isAddressEqual(account.address, owner.owner),
+      )
+      return {
+        ...getSimulationKey(localOwner),
+        owner: owner.owner,
+      }
+    }),
+    config,
+  }
+}
+
+/** Returns signature metadata for conservative gas estimation. */
+function getSimulationKey(
+  account: unknown,
+):
+  | { keyData: Hex.Hex; keyType: 'webAuthn' }
+  | { keyType: 'p256' | 'secp256k1' } {
+  const keyType = (() => {
+    if (
+      account &&
+      typeof account === 'object' &&
+      'keyType' in account &&
+      typeof account.keyType === 'string'
+    )
+      return account.keyType
+    return undefined
+  })()
+  if (!keyType || keyType === 'webAuthn')
+    return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+  if (keyType === 'p256' || keyType === 'secp256k1') return { keyType }
+  return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
+}
+
+/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
+function randomValidAfter(): number {
+  const now = BigInt(Math.floor(Date.now() / 1_000))
+  const latest = now - 60n
+  if (latest <= 0n) return 0
+  return Number(BigInt(Hex.random(8)) % latest)
+}
+
+/** Selects a deterministic minimum-cardinality owner quorum. */
+function selectOwners(config: AccountConfig.Config) {
+  const owners = [...config.owners].sort(
+    (a, b) =>
+      Number(b.weight) - Number(a.weight) ||
+      a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+  const selected: typeof owners = []
+  let weight = 0
+  for (const owner of owners.slice(0, AccountConfig.maxSignatures)) {
+    if (weight >= Number(config.threshold)) break
+    selected.push(owner)
+    weight += Number(owner.weight)
+  }
+  return selected.sort((a, b) =>
+    a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
+  )
+}

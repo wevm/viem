@@ -29,6 +29,7 @@ import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
+import { FeePayerNonceMismatchError } from '../../errors/transaction.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
@@ -38,7 +39,10 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { TransactionSerializable } from '../../types/transaction.js'
+import type {
+  TransactionRequest,
+  TransactionSerializable,
+} from '../../types/transaction.js'
 import type {
   ExactPartial,
   IsNever,
@@ -50,7 +54,10 @@ import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
 import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
-import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type {
+  ExtractFormattedTransactionRequest,
+  FormattedTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
@@ -98,12 +105,6 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
-type ExtractTransactionRequest<transactionRequest, transactionType> =
-  transactionRequest extends { type?: infer type | undefined }
-    ? Extract<transactionType, type> extends never
-      ? never
-      : transactionRequest
-    : never
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -141,6 +142,30 @@ export type PrepareTransactionRequestParameters<
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
+/**
+ * Infers a chain-specific (non-built-in) transaction type from the request
+ * shape. Returns the custom `type` (e.g. `'tempo'`) only when the request
+ * uniquely matches a custom member of the chain's formatted request union (i.e.
+ * it does not also match any built-in member). Built-in chains have no custom
+ * members, so this resolves to `never` and leaves their inference unchanged.
+ */
+type ExtractCustomFormattedTransactionType<
+  chain extends Chain | undefined,
+  request,
+  ///
+  _candidates = UnionOmit<FormattedTransactionRequest<chain>, 'from'>,
+  _matched extends string = _candidates extends object
+    ? request extends ExactPartial<_candidates>
+      ? _candidates extends { type?: infer type | undefined }
+        ? Extract<type, string>
+        : never
+      : never
+    : never,
+  _builtin = NonNullable<TransactionRequest['type']>,
+> = IsNever<Extract<_matched, _builtin>> extends true
+  ? Exclude<_matched, _builtin>
+  : never
+
 export type PrepareTransactionRequestReturnType<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
@@ -159,14 +184,22 @@ export type PrepareTransactionRequestReturnType<
     accountOverride
   >,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-  _transactionType = request['type'] extends string | undefined
+  _customTransactionType extends string = ExtractCustomFormattedTransactionType<
+    _derivedChain,
+    request
+  >,
+  _transactionType = request['type'] extends string
     ? request['type']
-    : GetTransactionType<request> extends 'legacy'
-      ? unknown
-      : GetTransactionType<request>,
-  _transactionRequest = ExtractTransactionRequest<
-    UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>,
-    _transactionType
+    : IsNever<_customTransactionType> extends false
+      ? _customTransactionType
+      : request['type'] extends string | undefined
+        ? request['type']
+        : GetTransactionType<request> extends 'legacy'
+          ? unknown
+          : GetTransactionType<request>,
+  _transactionRequest = ExtractFormattedTransactionRequest<
+    _derivedChain,
+    { type?: _transactionType extends string ? _transactionType : undefined }
   >,
 > = Prettify<
   UnionRequiredBy<
@@ -305,9 +338,25 @@ export async function prepareTransactionRequest<
     return chainId
   }
 
-  const account = account_ ? parseAccount(account_) : account_
+  let account = account_ ? parseAccount(account_) : account_
 
   let nonce = request.nonce
+  if (
+    prepareTransactionRequest?.fn &&
+    prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
+  ) {
+    request = await prepareTransactionRequest.fn(
+      { ...request, chain },
+      {
+        client,
+        phase: 'beforeFillTransaction',
+      },
+    )
+    nonce ??= request.nonce
+    const sender = request.account ?? (request as TransactionRequest).from
+    account = sender ? parseAccount(sender) : undefined
+  }
+
   if (
     parameters.includes('nonce') &&
     typeof nonce === 'undefined' &&
@@ -322,19 +371,6 @@ export async function prepareTransactionRequest<
     })
   }
 
-  if (
-    prepareTransactionRequest?.fn &&
-    prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
-  ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        phase: 'beforeFillTransaction',
-      },
-    )
-    nonce ??= request.nonce
-  }
-
   const attemptFill = (() => {
     // Do not attempt if blobs are provided.
     if (
@@ -345,7 +381,33 @@ export async function prepareTransactionRequest<
     )
       return false
 
-    // Do not attempt if `eth_fillTransaction` is not supported.
+    // Always attempt if the caller explicitly requested a non-empty set of
+    // `parameters` and a fee payer signature is being requested (e.g. Tempo
+    // sponsorship via `feePayer: true`/`Account`) and has not already been
+    // filled. The fee payer signature can only be obtained as a side effect
+    // of `eth_fillTransaction` (the relay co-signs the returned transaction),
+    // so it must be called even when nonce/gas/fees are already fully
+    // populated, or when the caller's `parameters` option omits `'fees'`/
+    // `'gas'` entirely — otherwise the transaction silently ends up without
+    // a fee payer signature. This check intentionally runs before the
+    // `shouldAttempt` gate below, since fee-payer sponsorship is independent
+    // of which parameters the caller opted into filling.
+    //
+    // The `parameters.length > 0` guard excludes internal micro-prepare calls
+    // that explicitly pass an empty `parameters` array (e.g. `estimateGas`'s
+    // internal `prepareTransactionRequest` call for local accounts) — those
+    // are deliberately scoped to fill nothing, and should not independently
+    // re-attempt `eth_fillTransaction` for fee-payer sponsorship.
+    if (
+      parameters.length > 0 &&
+      'feePayer' in request &&
+      (request as any).feePayer &&
+      !('feePayerSignature' in request && (request as any).feePayerSignature)
+    )
+      return true
+
+    // Sponsorship can route fill requests to a different endpoint, so it must
+    // bypass support state cached from a non-sponsored request.
     if (supportsFillTransaction.get(client.uid) === false) return false
 
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
@@ -390,6 +452,15 @@ export async function prepareTransactionRequest<
             type,
             ...rest
           } = result.transaction
+          const feeToken = 'feeToken' in rest ? rest.feeToken : undefined
+          const hasFilledFeePayerSignature =
+            'feePayerSignature' in rest &&
+            rest.feePayerSignature !== null &&
+            typeof rest.feePayerSignature !== 'undefined'
+          const shouldUseFilledFeeToken =
+            typeof feeToken !== 'undefined' &&
+            feeToken !== null &&
+            (!('feeToken' in request) || hasFilledFeePayerSignature)
           supportsFillTransaction.set(client.uid, true)
           return {
             ...request,
@@ -417,6 +488,17 @@ export async function prepareTransactionRequest<
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
               ? { nonceKey: rest.nonceKey }
               : {}),
+            // Validity bounds are part of the fee-payer signing payload.
+            ...('validBefore' in rest &&
+            rest.validBefore !== null &&
+            typeof rest.validBefore !== 'undefined'
+              ? { validBefore: rest.validBefore }
+              : {}),
+            ...('validAfter' in rest &&
+            rest.validAfter !== null &&
+            typeof rest.validAfter !== 'undefined'
+              ? { validAfter: rest.validAfter }
+              : {}),
             ...('keyAuthorization' in rest &&
             typeof rest.keyAuthorization !== 'undefined' &&
             rest.keyAuthorization !== null &&
@@ -428,12 +510,7 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
-            ...('feeToken' in rest &&
-            typeof rest.feeToken !== 'undefined' &&
-            rest.feeToken !== null &&
-            !('feeToken' in request)
-              ? { feeToken: rest.feeToken }
-              : {}),
+            ...(shouldUseFilledFeeToken ? { feeToken } : {}),
             ...(result.capabilities
               ? { _capabilities: result.capabilities }
               : {}),
@@ -443,6 +520,11 @@ export async function prepareTransactionRequest<
           const error = e as FillTransactionErrorType
 
           if (error.name !== 'TransactionExecutionError') return request
+
+          const nonceMismatch = error.walk?.(
+            (error) => error instanceof FeePayerNonceMismatchError,
+          )
+          if (nonceMismatch) throw e
 
           const executionReverted = error.walk?.((e) => {
             const error = e as BaseError
@@ -480,6 +562,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'beforeFillParameters',
       },
     )
@@ -630,6 +713,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'afterFillParameters',
       },
     )

@@ -348,6 +348,30 @@ test('behavior: invalid scheme', () => {
   `)
 })
 
+test('behavior: invalid scheme (comma)', () => {
+  // `[a-zA-Z0-9+-.]` reads `+-.` as a range (+ , - .), so a comma slipped past the
+  // RFC 3986 scheme check this error is about.
+  expect(() =>
+    createSiweMessage({ ...message, scheme: 'ht,tps' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
+
+    - Scheme must be an RFC 3986 URI scheme.
+    - See https://www.rfc-editor.org/rfc/rfc3986#section-3.1
+
+    Provided value: ht,tps
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('behavior: valid scheme punctuation is still accepted', () => {
+  // RFC 3986 §3.1: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+  for (const scheme of ['https', 'a+b', 'a-b', 'a.b']) {
+    expect(() => createSiweMessage({ ...message, scheme })).not.toThrow()
+  }
+})
+
 test('behavior: invalid statement', () => {
   expect(() =>
     createSiweMessage({ ...message, statement: 'foo\nbar' }),

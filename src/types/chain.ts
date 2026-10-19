@@ -5,6 +5,7 @@ import type {
   VerifyHashParameters,
   VerifyHashReturnType,
 } from '../actions/public/verifyHash.js'
+import type { ReplacementReason } from '../actions/public/waitForTransactionReceipt.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -67,6 +68,8 @@ export type Chain<
   }
   /** Source Chain ID (ie. the L1 chain) */
   sourceId?: number | undefined
+  /** Whether transaction replacement detection is supported. @default true */
+  supportsTransactionReplacementDetection?: boolean | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
 } & ChainConfig<formatters, extendSchema>
@@ -79,9 +82,10 @@ type PrepareTransactionRequestPhase =
   | 'beforeFillTransaction'
   | 'beforeFillParameters'
   | 'afterFillParameters'
+
 type PrepareTransactionRequestFn = (
   args: PrepareTransactionRequestParameters,
-  options: { phase: PrepareTransactionRequestPhase },
+  options: { client: Client; phase: PrepareTransactionRequestPhase },
 ) => Promise<PrepareTransactionRequestParameters>
 
 type ChainVerifyHashFn = (
@@ -122,8 +126,50 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
+  /**
+   * Chain-specific transaction replacement semantics, used by
+   * `waitForTransactionReceipt`.
+   */
+  transactionReplacement?: ChainTransactionReplacement | undefined
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
+}
+
+/////////////////////////////////////////////////////////////////////
+// Transaction replacement
+/////////////////////////////////////////////////////////////////////
+
+/** A formatted transaction, as seen by transaction replacement hooks. */
+type ReplacementTransaction = {
+  from: Address
+  hash: `0x${string}`
+  nonce: number
+}
+
+/**
+ * Chain-specific transaction replacement semantics. `waitForTransactionReceipt`
+ * uses it to find which mined transaction replaced a pending one, and why.
+ */
+export type ChainTransactionReplacement = {
+  /**
+   * Returns the key of the sender's nonce slot that a transaction consumes. A
+   * mined transaction from the same sender with the same key replaces a
+   * pending one.
+   *
+   * @default `String(transaction.nonce)`
+   */
+  getKey?: ((transaction: ReplacementTransaction) => string) | undefined
+  /**
+   * Classifies a replacement.
+   *
+   * @default Compares `to`, `value`, and `input`.
+   */
+  getReason?:
+    | ((parameters: {
+        replaced: ReplacementTransaction
+        replacement: ReplacementTransaction
+      }) => ReplacementReason)
+    | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -247,7 +293,21 @@ export type ChainSerializers<
   transaction?:
     | SerializeTransactionFn<transaction, TransactionSerializedGeneric>
     | undefined
+  /** Modifies how signed Transactions are serialized into an envelope. */
+  transactionEnvelope?: ChainTransactionEnvelopeFn<transaction> | undefined
 }
+
+// Method extraction preserves assignability between generic Chain variants.
+type ChainTransactionEnvelopeFn<
+  transaction extends TransactionSerializableGeneric,
+> = {
+  fn(parameters: {
+    /** Serialized signed transaction. */
+    serializedTransaction: TransactionSerializedGeneric
+    /** Transaction before envelope serialization. */
+    transaction: transaction
+  }): TransactionSerializedGeneric | Promise<TransactionSerializedGeneric>
+}['fn']
 
 /////////////////////////////////////////////////////////////////////
 // Utils

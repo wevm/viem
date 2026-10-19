@@ -7,6 +7,7 @@ import {
 } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -66,6 +67,7 @@ export type CreateAccessListReturnType = Prettify<{
 export type CreateAccessListErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
   | AssertRequestErrorType
+  | BaseErrorType
   | NumberToHexErrorType
   | FormatTransactionRequestErrorType
   | RequestErrorType
@@ -149,6 +151,8 @@ export async function createAccessList<chain extends Chain | undefined>(
       method: 'eth_createAccessList',
       params: [request as ExactPartial<RpcTransactionRequest>, block],
     })
+    if (response.error)
+      throw new BaseError(response.error, { details: response.error })
     return {
       accessList: response.accessList,
       gasUsed: BigInt(response.gasUsed),

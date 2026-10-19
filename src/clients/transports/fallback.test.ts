@@ -695,6 +695,7 @@ describe('client', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "fallback",
           "methods": undefined,

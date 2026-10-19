@@ -12,9 +12,73 @@ import {
   createTransport,
   type Transport,
 } from '../clients/transports/createTransport.js'
+import {
+  type HttpTransport,
+  type HttpTransportConfig,
+  http as http_,
+} from '../clients/transports/http.js'
+import {
+  MethodNotFoundRpcError,
+  MethodNotSupportedRpcError,
+} from '../errors/rpc.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Plugin_ from './internal/relay/plugin.js'
+import * as Request_ from './internal/relay/request.js'
+import type * as Relay_ from './Relay.js'
+import type { Store } from './Store.js'
+import * as Store_ from './Store.js'
 import * as Transaction from './Transaction.js'
+
+export type HttpConfig = Omit<
+  HttpTransportConfig,
+  'batch' | 'raw' | 'rpcSchema'
+> & {
+  /** Store for reading Zone authorization tokens. Defaults to sessionStorage (web) or memory (server). */
+  store?: Store | undefined
+}
+
+/**
+ * Creates an HTTP transport with support for Zone authentication tokens.
+ *
+ * Reads the authorization token from the store and injects the
+ * `X-Authorization-Token` header on every request.
+ *
+ * @example
+ * ```ts
+ * import { createPublicClient } from 'viem'
+ * import { http, Zone } from 'viem/tempo'
+ *
+ * const client = createPublicClient({
+ *   chain: Zone.a,
+ *   transport: http(),
+ * })
+ * ```
+ */
+export function http(
+  url?: string | undefined,
+  config: HttpConfig = {},
+): HttpTransport {
+  const { store: store_, onFetchRequest, ...rest } = config
+  const store = store_ ?? Store_.defaultStore()
+
+  return (config) =>
+    http_(url, {
+      ...rest,
+      async onFetchRequest(request, init) {
+        const next = (await onFetchRequest?.(request, init)) ?? init
+        const headers = new Headers(next.headers)
+
+        const chainId = config.chain?.id
+        if (chainId) {
+          const token = (await store.getItem(`auth:token:${chainId}`)) ?? null
+          if (token) headers.set('X-Authorization-Token', token)
+        }
+
+        return { ...next, headers }
+      },
+    })(config)
+}
 
 type RelayProxyParameters = {
   /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */
@@ -22,7 +86,7 @@ type RelayProxyParameters = {
 }
 
 export type FeePayer = Transport<typeof withFeePayer.type>
-export type Relay = Transport<typeof withRelay.type>
+export type Relay = Transport<typeof withRelay.type, { accounts: true }>
 
 /**
  * Creates a relay transport that routes requests between
@@ -30,32 +94,128 @@ export type Relay = Transport<typeof withRelay.type>
  *
  * All `eth_fillTransaction` requests are sent to the relay with the request's
  * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
+ * Owner approvals, configs, operations, and operation-aware transaction
+ * lookups are also sent to the relay so it can coordinate approvals in its store.
+ * Signed key authorizations are saved to relays with key authorization storage
+ * so they can attach them to the access key's next transaction.
  *
  * The policy parameter controls how the relay handles sponsored transactions:
  * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
  * - `'sign-and-broadcast'`: Relay co-signs and broadcasts the transaction directly
  *
+ * Local plugin options wrap the default transport directly, preserving its attributes.
+ * Local mode enables fee sponsorship only when a `Relay.feePayer` plugin is configured.
+ *
  * @param defaultTransport - The default transport to use.
- * @param relayTransport - The relay transport to use.
+ * @param relayTransport - The remote relay transport or local plugin options.
  * @param parameters - Configuration parameters.
  * @returns A relay transport.
  */
-export function withRelay(
+export function withRelay<
+  transport extends Transport,
+  const plugins extends readonly Relay_.Plugin[] = readonly [],
+>(
+  defaultTransport: transport,
+  options: withRelay.LocalOptions<plugins>,
+): withRelay.LocalReturnValue<transport, plugins>
+export function withRelay<const parameters extends withRelay.Parameters = {}>(
   defaultTransport: Transport,
   relayTransport: Transport,
+  parameters?: parameters | withRelay.Parameters,
+): withRelay.ReturnValue<parameters>
+export function withRelay(
+  defaultTransport: Transport,
+  relayTransport: Transport | withRelay.LocalOptions,
   parameters?: withRelay.Parameters,
-): withRelay.ReturnValue {
-  const { policy = 'sign-only' } = parameters ?? {}
+): Transport {
+  if (typeof relayTransport !== 'function')
+    return (config) => {
+      const transport = defaultTransport(config)
+      const next: Relay_.handleRequest.Handler = (request, options) =>
+        transport.request(request as never, options)
+      const request = Request_.compose(
+        next,
+        relayTransport,
+        config.chain ? () => ({ chain: config.chain! }) : undefined,
+      )
+      return {
+        ...transport,
+        request: ((request_, options) =>
+          request(request_ as Relay_.handleRequest.Request, {
+            chainId: config.chain?.id,
+            ...options,
+          })) as typeof transport.request,
+        value: {
+          ...transport.value,
+          ...(relayTransport.plugins?.some(Plugin_.isAccounts)
+            ? { accounts: true }
+            : {}),
+          ...(relayTransport.plugins?.some(Plugin_.isKeyAuthorization)
+            ? { keyAuthorization: true }
+            : {}),
+        },
+      }
+    }
+
+  const { keyAuthorization, policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
     const transport_default = defaultTransport(config)
     const transport_relay = relayTransport(config)
 
-    return createTransport({
+    const transport = createTransport({
       key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
         if (method === 'eth_fillTransaction')
+          return transport_relay.request({ method, params }, options) as never
+
+        if (
+          method === 'eth_getTransactionByHash' ||
+          method === 'eth_getTransactionReceipt'
+        ) {
+          const result = await transport_default.request(
+            { method, params },
+            options,
+          )
+          if (result !== null && typeof result !== 'undefined')
+            return result as never
+
+          const operation = await (async () => {
+            try {
+              return await transport_relay.request(
+                { method: 'account_getOperation', params },
+                options,
+              )
+            } catch (error) {
+              if (
+                error instanceof MethodNotFoundRpcError ||
+                error instanceof MethodNotSupportedRpcError
+              ) {
+                // Relays without the accounts plugin do not expose this method.
+                return null
+              }
+              throw error
+            }
+          })()
+          if (
+            !operation ||
+            typeof operation !== 'object' ||
+            !('type' in operation) ||
+            operation.type !== 'transaction'
+          )
+            return result as never
+          return transport_relay.request({ method, params }, options) as never
+        }
+
+        if (
+          method === 'account_approveKeyAuthorization' ||
+          method === 'account_approveRawTransaction' ||
+          method === 'account_approveRawTransactionSync' ||
+          method === 'account_getConfig' ||
+          method === 'account_getOperation' ||
+          method === 'relay_saveKeyAuthorization'
+        )
           return transport_relay.request({ method, params }, options) as never
 
         if (
@@ -64,6 +224,9 @@ export function withRelay(
         ) {
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
+
+          if (transaction.signature?.type === 'configurable')
+            return transport_relay.request({ method, params }, options) as never
 
           // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
           // signature until the relay co-signs the transaction.
@@ -102,15 +265,61 @@ export function withRelay(
       },
       type: withRelay.type,
     })
+    return {
+      ...transport,
+      value: {
+        accounts: true,
+        ...(keyAuthorization ? { keyAuthorization } : {}),
+      },
+    }
   }
 }
 
 export declare namespace withRelay {
   export const type = 'relay'
 
-  export type Parameters = RelayProxyParameters
+  export type Parameters = RelayProxyParameters & {
+    /** Whether the relay stores key authorizations with `Relay.keyAuthorization`. Defaults to `false`. */
+    keyAuthorization?: boolean | undefined
+  }
 
-  export type ReturnValue = Relay
+  /** Plugins applied directly to the default transport. */
+  export type LocalOptions<
+    plugins extends readonly Relay_.Plugin[] = readonly Relay_.Plugin[],
+  > = Pick<Relay_.handleRequest.Options, 'resolveTokens'> & {
+    /** Ordered relay plugins. Defaults to an empty list. */
+    plugins?: plugins | undefined
+  }
+
+  /** Wrapped transport preserving its attributes and RPC request schema. */
+  export type LocalReturnValue<
+    transport extends Transport,
+    plugins extends readonly Relay_.Plugin[] = readonly [],
+  > = transport extends Transport<infer type, infer attributes, infer request>
+    ? Transport<
+        type,
+        attributes &
+          (Extract<plugins[number], Relay_.accounts.ReturnType> extends never
+            ? {}
+            : { accounts: true }) &
+          (Extract<
+            plugins[number],
+            Relay_.keyAuthorization.ReturnType
+          > extends never
+            ? {}
+            : { keyAuthorization: true }),
+        request
+      >
+    : never
+
+  /** Remote relay transport, advertising key authorization storage when enabled. */
+  export type ReturnValue<parameters extends Parameters = {}> =
+    parameters extends { keyAuthorization: true }
+      ? Transport<
+          typeof withRelay.type,
+          { accounts: true; keyAuthorization: true }
+        >
+      : Relay
 }
 
 /** @deprecated Use `withRelay` instead. */

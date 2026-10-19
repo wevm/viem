@@ -43,6 +43,69 @@ test('shouldRetry: retries, and then errors', async () => {
   expect(retryTimes).toBe(2)
 })
 
+test('rejects when shouldRetry throws after a retry', async () => {
+  await expect(
+    Promise.race([
+      withRetry(
+        async () => {
+          throw new Error('fn failed')
+        },
+        {
+          delay: 0,
+          shouldRetry: ({ count }) => {
+            if (count === 0) return true
+            throw new Error('shouldRetry failed')
+          },
+        },
+      ),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timed out')), 100),
+      ),
+    ]),
+  ).rejects.toThrowError('shouldRetry failed')
+})
+
+test('rejects when async shouldRetry rejects', async () => {
+  await expect(
+    Promise.race([
+      withRetry(
+        async () => {
+          throw new Error('fn failed')
+        },
+        {
+          shouldRetry: async () => {
+            throw new Error('shouldRetry failed')
+          },
+        },
+      ),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timed out')), 100),
+      ),
+    ]),
+  ).rejects.toThrowError('shouldRetry failed')
+})
+
+test('rejects when delay callback throws after a retry', async () => {
+  await expect(
+    Promise.race([
+      withRetry(
+        async () => {
+          throw new Error('fn failed')
+        },
+        {
+          delay: ({ count }) => {
+            if (count === 0) return 0
+            throw new Error('delay calculation failed')
+          },
+        },
+      ),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('timed out')), 100),
+      ),
+    ]),
+  ).rejects.toThrowError('delay calculation failed')
+})
+
 test('shouldRetry: retries, and then succeeds', async () => {
   let retryTimes = -1
   const server = await createHttpServer((_req, res) => {
