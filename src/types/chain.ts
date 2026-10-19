@@ -11,6 +11,7 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Account } from '../types/account.js'
 import type { FeeValuesType } from '../types/fee.js'
 import type {
+  Transaction,
   TransactionSerializable,
   TransactionSerializableGeneric,
   TransactionSerializedGeneric,
@@ -67,8 +68,14 @@ export type Chain<
   }
   /** Source Chain ID (ie. the L1 chain) */
   sourceId?: number | undefined
-  /** Whether transaction replacement detection is supported. @default true */
-  supportsTransactionReplacementDetection?: boolean | undefined
+  /**
+   * Whether transaction replacement detection is supported, either for every
+   * transaction or per pending transaction. @default true
+   */
+  supportsTransactionReplacementDetection?:
+    | boolean
+    | ((transaction: Transaction) => boolean)
+    | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
 } & ChainConfig<formatters, extendSchema>

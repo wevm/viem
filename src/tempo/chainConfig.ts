@@ -12,6 +12,7 @@ import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import type { Transaction as viem_Transaction } from '../types/transaction.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -313,10 +314,13 @@ export const chainConfig = {
       } as never)
     },
   },
-  // Expiring-nonce transactions (sponsored, access-key, and concurrent sends)
-  // all use nonce 0, so matching a pending hash by sender and nonce can resolve
-  // to an earlier transaction's receipt.
-  supportsTransactionReplacementDetection: false,
+  // Expiring-nonce transactions cannot be replaced, and all share nonce 0 under
+  // the same key, so a sender-and-nonce match would be an earlier transaction.
+  supportsTransactionReplacementDetection(transaction) {
+    return (
+      (transaction as { nonceKey?: bigint | undefined }).nonceKey !== maxUint256
+    )
+  },
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 
@@ -404,7 +408,9 @@ export const chainConfig = {
   },
 } as const satisfies viem_ChainConfig & {
   blockTime: number
-  supportsTransactionReplacementDetection: boolean
+  supportsTransactionReplacementDetection: (
+    transaction: viem_Transaction,
+  ) => boolean
 }
 
 export type ChainConfig = typeof chainConfig

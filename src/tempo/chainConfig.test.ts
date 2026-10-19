@@ -573,9 +573,17 @@ describe('prepareTransactionRequest', () => {
 })
 
 describe('supportsTransactionReplacementDetection', () => {
-  test('disabled on Tempo chains', () => {
-    expect(chainConfig.supportsTransactionReplacementDetection).toBe(false)
-    expect(tempoLocalnet.supportsTransactionReplacementDetection).toBe(false)
+  const detects = (nonceKey: bigint | undefined) =>
+    chainConfig.supportsTransactionReplacementDetection({ nonceKey } as never)
+
+  test('expiring nonces cannot be replaced', () => {
+    expect(detects(maxUint256)).toBe(false)
+  })
+
+  test('protocol and 2D nonce keys can be replaced', () => {
+    expect(detects(undefined)).toBe(true)
+    expect(detects(0n)).toBe(true)
+    expect(detects(1n)).toBe(true)
   })
 })
 

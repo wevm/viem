@@ -13,6 +13,8 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
+import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -854,5 +856,122 @@ describe('concurrent waits with different options', () => {
     // first call's resolution instead of inheriting its confirmations.
     await second
     expect(block).toBeGreaterThanOrEqual(105n)
+  })
+})
+
+describe('nonce keys', () => {
+  const sender = sourceAccount.address
+  const awaitedHash = `0x${'a'.repeat(64)}` as const
+  const otherHash = `0x${'b'.repeat(64)}` as const
+
+  // A sender with a pending transaction at nonce 0, and a mined transaction
+  // from the same sender at nonce 0 under `otherNonceKey`.
+  function getClient(options: {
+    chain?: Chain | undefined
+    nonceKey: Hex
+    otherNonceKey: Hex
+  }) {
+    let blockNumber = 1n
+    let receiptLookups = 0
+    const transaction = (hash: Hex, nonceKey: Hex) => ({
+      blockHash: null,
+      blockNumber: null,
+      from: sender,
+      gas: '0x5208',
+      hash,
+      input: '0x',
+      nonce: '0x0',
+      nonceKey,
+      to: targetAccount.address,
+      type: '0x2',
+      value: '0x0',
+    })
+    const receipt = (hash: Hex) => ({
+      blockHash: `0x${'c'.repeat(64)}`,
+      blockNumber: '0x1',
+      cumulativeGasUsed: '0x5208',
+      effectiveGasPrice: '0x1',
+      from: sender,
+      gasUsed: '0x5208',
+      logs: [],
+      logsBloom: `0x${'0'.repeat(512)}`,
+      status: '0x1',
+      to: targetAccount.address,
+      transactionHash: hash,
+      transactionIndex: '0x0',
+      type: '0x2',
+    })
+    return createPublicClient({
+      chain: options.chain ?? mainnet,
+      pollingInterval: 10,
+      transport: custom({
+        async request({ method, params }) {
+          if (method === 'eth_blockNumber')
+            return `0x${(blockNumber++).toString(16)}`
+          if (method === 'eth_getTransactionByHash')
+            return transaction(awaitedHash, options.nonceKey)
+          if (method === 'eth_getBlockByNumber')
+            return {
+              hash: `0x${'c'.repeat(64)}`,
+              number: '0x1',
+              transactions: [
+                {
+                  ...transaction(otherHash, options.otherNonceKey),
+                  blockHash: `0x${'c'.repeat(64)}`,
+                  blockNumber: '0x1',
+                },
+              ],
+            }
+          if (method === 'eth_getTransactionReceipt') {
+            const [hash] = params as [Hex]
+            if (hash === otherHash) return receipt(otherHash)
+            // The awaited transaction mines after a few polls.
+            return receiptLookups++ < 3 ? null : receipt(awaitedHash)
+          }
+          throw new Error(`unexpected method: ${method}`)
+        },
+      }),
+    })
+  }
+
+  test('ignores a same-nonce transaction under a different nonce key', async () => {
+    const client = getClient({ nonceKey: '0x1', otherNonceKey: '0x2' })
+    const replacements: ReplacementReturnType[] = []
+    const receipt = await client.waitForTransactionReceipt({
+      hash: awaitedHash,
+      onReplaced: (replacement) => replacements.push(replacement),
+    })
+    expect(receipt.transactionHash).toBe(awaitedHash)
+    expect(replacements).toEqual([])
+  })
+
+  test('reports a replacement under the same nonce key', async () => {
+    const client = getClient({ nonceKey: '0x1', otherNonceKey: '0x1' })
+    const replacements: ReplacementReturnType[] = []
+    const receipt = await client.waitForTransactionReceipt({
+      hash: awaitedHash,
+      onReplaced: (replacement) => replacements.push(replacement),
+    })
+    expect(receipt.transactionHash).toBe(otherHash)
+    expect(replacements.map(({ reason }) => reason)).toEqual(['repriced'])
+  })
+
+  test('skips detection when the chain rules out replacement', async () => {
+    const client = getClient({
+      chain: {
+        ...mainnet,
+        supportsTransactionReplacementDetection: (transaction) =>
+          (transaction as { nonceKey?: unknown }).nonceKey !== '0x1',
+      },
+      nonceKey: '0x1',
+      otherNonceKey: '0x1',
+    })
+    const replacements: ReplacementReturnType[] = []
+    const receipt = await client.waitForTransactionReceipt({
+      hash: awaitedHash,
+      onReplaced: (replacement) => replacements.push(replacement),
+    })
+    expect(receipt.transactionHash).toBe(awaitedHash)
+    expect(replacements).toEqual([])
   })
 })

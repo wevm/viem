@@ -56,7 +56,7 @@ export type WaitForTransactionReceiptParameters<
 > = {
   /**
    * Whether to check for transaction replacements.
-   * @default `client.chain?.supportsTransactionReplacementDetection ?? true`
+   * @default `client.chain?.supportsTransactionReplacementDetection !== false`
    */
   checkReplacement?: boolean | undefined
   /**
@@ -143,9 +143,10 @@ export async function waitForTransactionReceipt<
   client: Client<Transport, chain>,
   parameters: WaitForTransactionReceiptParameters<chain>,
 ): Promise<WaitForTransactionReceiptReturnType<chain>> {
+  const supportsReplacement =
+    client.chain?.supportsTransactionReplacementDetection
   const {
-    checkReplacement = client.chain?.supportsTransactionReplacementDetection ??
-      true,
+    checkReplacement = supportsReplacement !== false,
     confirmations = 1,
     hash,
     onReplaced,
@@ -300,6 +301,15 @@ export async function waitForTransactionReceipt<
                 return
               }
 
+              // The chain may rule out replacement for this transaction.
+              if (
+                typeof supportsReplacement === 'function' &&
+                !supportsReplacement(transaction as Transaction)
+              ) {
+                retrying = false
+                return
+              }
+
               try {
                 replacedTransaction = transaction
 
@@ -329,10 +339,13 @@ export async function waitForTransactionReceipt<
                 const replacementTransaction = (
                   block.transactions as {} as Transaction[]
                 ).find(
-                  ({ from, hash, nonce }) =>
-                    isAddressEqual(from, replacedTransaction!.from) &&
-                    hash !== replacedTransaction!.hash &&
-                    nonce === replacedTransaction!.nonce,
+                  (candidate) =>
+                    isAddressEqual(candidate.from, replacedTransaction!.from) &&
+                    candidate.hash !== replacedTransaction!.hash &&
+                    candidate.nonce === replacedTransaction!.nonce &&
+                    // Chains with independent nonce sequences per key (e.g. Tempo)
+                    // only replace within the same key.
+                    nonceKey(candidate) === nonceKey(replacedTransaction!),
                 )
 
                 // If we couldn't find a replacement transaction, continue polling.
@@ -396,4 +409,8 @@ export async function waitForTransactionReceipt<
   )
 
   return promise
+}
+
+function nonceKey(transaction: object) {
+  return (transaction as { nonceKey?: bigint | undefined }).nonceKey ?? 0n
 }
