@@ -11,7 +11,6 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Account } from '../types/account.js'
 import type { FeeValuesType } from '../types/fee.js'
 import type {
-  Transaction,
   TransactionSerializable,
   TransactionSerializableGeneric,
   TransactionSerializedGeneric,
@@ -74,7 +73,11 @@ export type Chain<
    */
   supportsTransactionReplacementDetection?:
     | boolean
-    | ((transaction: Transaction) => boolean)
+    | ((transaction: {
+        from: Address
+        hash: `0x${string}`
+        nonce: number
+      }) => boolean)
     | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined

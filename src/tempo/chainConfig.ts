@@ -12,7 +12,6 @@ import { getTransaction } from '../actions/public/getTransaction.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
-import type { Transaction as viem_Transaction } from '../types/transaction.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -408,9 +407,9 @@ export const chainConfig = {
   },
 } as const satisfies viem_ChainConfig & {
   blockTime: number
-  supportsTransactionReplacementDetection: (
-    transaction: viem_Transaction,
-  ) => boolean
+  supportsTransactionReplacementDetection: NonNullable<
+    Exclude<Chain['supportsTransactionReplacementDetection'], boolean>
+  >
 }
 
 export type ChainConfig = typeof chainConfig
