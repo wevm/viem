@@ -105,6 +105,32 @@ describe('nft', () => {
     )
   })
 
+  test('onchain (encoded json, utf-8 svg)', async () => {
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
+    expect(
+      await parseAvatarRecord(client, {
+        record: `eip155:1/erc721:${contractAddress}/109`,
+      }),
+    ).toMatchInlineSnapshot(
+      '"data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+"',
+    )
+  })
+
+  test('onchain (raw json, utf-8 svg)', async () => {
+    const { contractAddress } = await deployEnsAvatarTokenUri({
+      metadataUri: `${metadataServer.url}/`,
+    })
+    expect(
+      await parseAvatarRecord(client, {
+        record: `eip155:1/erc721:${contractAddress}/110`,
+      }),
+    ).toMatchInlineSnapshot(
+      '"data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+"',
+    )
+  })
+
   test('erc 1155', async () => {
     expect(
       await parseAvatarRecord(client, {
