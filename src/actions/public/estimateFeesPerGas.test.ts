@@ -1,9 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
-import { mainnet } from '../../chains/index.js'
+import { hyperEvm, hyperliquidEvmTestnet, mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import { createTestClient } from '../../index.js'
+import type { Block } from '../../types/block.js'
 import {
   estimateFeesPerGas,
   internal_estimateFeesPerGas,
@@ -12,6 +13,43 @@ import * as getBlock from './getBlock.js'
 import { getGasPrice } from './getGasPrice.js'
 
 const client = anvilMainnet.getClient()
+
+test.each([hyperEvm, hyperliquidEvmTestnet])(
+  'HyperEVM fee headroom: $name',
+  async (chain) => {
+    const client = createPublicClient({ chain, transport: http() })
+
+    const fees = await internal_estimateFeesPerGas(client, {
+      block: { baseFeePerGas: 1_000_000_000n } as Block,
+      request: { maxPriorityFeePerGas: 7n },
+    })
+
+    expect(fees).toEqual({
+      maxFeePerGas: 2_000_000_007n,
+      maxPriorityFeePerGas: 7n,
+    })
+  },
+)
+
+test.each([hyperEvm, hyperliquidEvmTestnet])(
+  'HyperEVM explicit fee cap: $name',
+  async (chain) => {
+    const client = createPublicClient({ chain, transport: http() })
+
+    const fees = await internal_estimateFeesPerGas(client, {
+      block: { baseFeePerGas: 1_000_000_000n } as Block,
+      request: {
+        maxFeePerGas: 1_500_000_000n,
+        maxPriorityFeePerGas: 7n,
+      },
+    })
+
+    expect(fees).toEqual({
+      maxFeePerGas: 1_500_000_000n,
+      maxPriorityFeePerGas: 7n,
+    })
+  },
+)
 
 test('default', async () => {
   const block = await getBlock.getBlock(client)
