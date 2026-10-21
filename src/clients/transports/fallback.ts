@@ -125,7 +125,7 @@ export function fallback<const transports extends readonly Transport[]>(
       {
         key,
         name,
-        async request({ method, params }) {
+        async request({ method, params }, options) {
           let includes: boolean | undefined
 
           const fetch = async (i = 0): Promise<any> => {
@@ -136,10 +136,13 @@ export function fallback<const transports extends readonly Transport[]>(
               timeout,
             })
             try {
-              const response = await transport.request({
-                method,
-                params,
-              } as any)
+              const response = await transport.request(
+                {
+                  method,
+                  params,
+                } as any,
+                options,
+              )
 
               onResponse({
                 method,
