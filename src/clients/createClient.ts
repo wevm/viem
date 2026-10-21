@@ -172,6 +172,39 @@ export type Client<
       Prettify<client> & (extended extends Extended ? extended : unknown),
       tokens
     >
+    /**
+     * Creates a Client with the same configuration, transport, and extensions
+     * that does not share in-flight requests, caches, or batches with other Clients.
+     *
+     * Use a scope for each unit of work that must not wait on another's
+     * requests, such as each request handled by a server or Worker.
+     *
+     * @example
+     * ```ts
+     * import { createPublicClient, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createPublicClient({ chain: mainnet, transport: http() })
+     *
+     * export default {
+     *   async fetch(request: Request) {
+     *     const scoped = client.scope({ signal: request.signal })
+     *     return Response.json({ blockNumber: String(await scoped.getBlockNumber()) })
+     *   },
+     * }
+     * ```
+     */
+    scope: (
+      options?:
+        | {
+            /**
+             * Signal that aborts the scoped Client's requests. Requests made
+             * with their own `signal` use it instead.
+             */
+            signal?: AbortSignal | undefined
+          }
+        | undefined,
+    ) => Client<transport, chain, account, rpcSchema, extended, tokens>
   }
 
 type Client_Base<
@@ -314,8 +347,17 @@ export function createClient(parameters: ClientConfig): Client {
     ...(experimental_blockTag ? { experimental_blockTag } : {}),
   }
 
-  function extend(base: typeof client) {
-    type ExtendFn = (base: typeof client) => unknown
+  return decorate(client)
+}
+
+/**
+ * Attaches `extend` and `scope` to a base Client. Base keys are reserved,
+ * so extensions cannot override them.
+ */
+function decorate<client extends Client_Base>(client: client): Client {
+  type ExtendFn = (base: client) => unknown
+
+  function extend(base: client, extensions: readonly ExtendFn[]) {
     return (extendFn: ExtendFn) => {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
@@ -331,11 +373,38 @@ export function createClient(parameters: ClientConfig): Client {
         if (isPlainObject(a) && isPlainObject(b))
           (combined as Record<string, unknown>)[key] = { ...a, ...b }
       }
-      return Object.assign(combined, { extend: extend(combined as any) })
+      const next = [...extensions, extendFn]
+      return Object.assign(combined, {
+        extend: extend(combined as any, next),
+        scope: scope(next),
+      })
     }
   }
 
-  return Object.assign(client, { extend: extend(client) as any })
+  function scope(extensions: readonly ExtendFn[]) {
+    return (options: { signal?: AbortSignal | undefined } = {}) => {
+      const id = uid()
+      // A scope-owned signal also keys transport queues, such as HTTP batches, to the scope.
+      const signal = options.signal ?? new AbortController().signal
+      const request: EIP1193RequestFn = (args, options_request) =>
+        client.request(args as never, {
+          ...options_request,
+          signal: options_request?.signal ?? signal,
+          // The request `uid` keys in-flight request deduplication.
+          uid: options_request?.uid ?? id,
+        })
+      const scoped = decorate({ ...client, request, uid: id })
+      return extensions.reduce<Client>(
+        (base, extendFn) => base.extend(extendFn as never),
+        scoped,
+      )
+    }
+  }
+
+  return Object.assign(client, {
+    extend: extend(client, []),
+    scope: scope([]),
+  }) as any
 }
 
 /** Whether `value` is a plain object (`{}`), as opposed to a function, array,
