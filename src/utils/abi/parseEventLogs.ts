@@ -213,10 +213,18 @@ function includesArgs(parameters: {
     try {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
-      if (input.type === 'string')
-        return keccak256(stringToBytes(value as string)) === arg
-      if (input.type === 'bytes')
-        return keccak256(toBytes(value as string)) === arg
+      // Indexed `string` and `bytes` are stored as the keccak256 of their
+      // contents. Non-indexed values are ABI-decoded, so compare those directly.
+      if (
+        input.indexed &&
+        (input.type === 'string' || input.type === 'bytes')
+      ) {
+        const bytes =
+          input.type === 'string'
+            ? stringToBytes(value as string)
+            : toBytes(value as string)
+        return keccak256(bytes) === arg
+      }
       return value === arg
     } catch {
       return false

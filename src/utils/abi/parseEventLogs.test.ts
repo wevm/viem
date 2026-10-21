@@ -4,6 +4,9 @@ import { anvilMainnet } from '~test/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
+import { decodeEventLog } from './decodeEventLog.js'
+import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { encodeEventTopics } from './encodeEventTopics.js'
 import { parseEventLogs } from './parseEventLogs.js'
 
 const client = anvilMainnet.getClient()
@@ -151,6 +154,18 @@ test('default', async () => {
 })
 
 describe('args: args', () => {
+  const baseLog = {
+    address: '0x00000000000000000000000000000000000000aa',
+    blockHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    blockNumber: 1n,
+    logIndex: 0,
+    removed: false,
+    transactionHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000002',
+    transactionIndex: 0,
+  } as const
+
   const logs: Log[] = [
     {
       address: '0xc56c7a0eaa804f854b536a5f3d5f49d2ec4b12b8',
@@ -581,6 +596,158 @@ describe('args: args', () => {
     })
 
     expect(parsedLogs).toHaveLength(1)
+  })
+
+  test('named: non-indexed string', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Message',
+        inputs: [
+          { indexed: true, name: 'from', type: 'address' },
+          { indexed: false, name: 'text', type: 'string' },
+        ],
+      },
+    ] as const
+    const topics = encodeEventTopics({
+      abi,
+      eventName: 'Message',
+      args: { from: '0x0000000000000000000000000000000000000001' },
+    })
+    const data = encodeAbiParameters([{ type: 'string' }], ['hello'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const decoded = decodeEventLog({ abi, data, topics })
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: 'hello' },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: 'goodbye' },
+    })
+
+    expect(decoded.args.text).toBe('hello')
+    expect(mismatched).toHaveLength(0)
+    expect(matched).toHaveLength(1)
+    expect(matched[0]?.args.text).toBe('hello')
+  })
+
+  test('named: non-indexed bytes', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Payload',
+        inputs: [{ indexed: false, name: 'data', type: 'bytes' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({ abi, eventName: 'Payload' })
+    const data = encodeAbiParameters([{ type: 'bytes' }], ['0x1234'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const decoded = decodeEventLog({ abi, data, topics })
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0x1234' },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0x5678' },
+    })
+
+    expect(decoded.args.data).toBe('0x1234')
+    expect(mismatched).toHaveLength(0)
+    expect(matched).toHaveLength(1)
+  })
+
+  test('unnamed: non-indexed string', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Message',
+        inputs: [
+          { indexed: true, type: 'address' },
+          { indexed: false, type: 'string' },
+        ],
+      },
+    ] as const
+    const topics = encodeEventTopics({
+      abi,
+      eventName: 'Message',
+      args: ['0x0000000000000000000000000000000000000001'],
+    })
+    const data = encodeAbiParameters([{ type: 'string' }], ['hello'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: ['0x0000000000000000000000000000000000000001', 'hello'],
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: [null, 'goodbye'],
+    })
+
+    expect(matched).toHaveLength(1)
+    expect(mismatched).toHaveLength(0)
+  })
+
+  test('named: empty non-indexed string', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Message',
+        inputs: [{ indexed: false, name: 'text', type: 'string' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({ abi, eventName: 'Message' })
+    const data = encodeAbiParameters([{ type: 'string' }], [''])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: '' },
+    })
+
+    expect(decodeEventLog({ abi, data, topics }).args.text).toBe('')
+    expect(matched).toHaveLength(1)
+  })
+
+  test('named: indexed bytes', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Foo',
+        inputs: [{ indexed: true, name: 'data', type: 'bytes' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({
+      abi,
+      eventName: 'Foo',
+      args: { data: '0x1234' },
+    })
+    const log = { ...baseLog, data: '0x', topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0x1234' },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0x5678' },
+    })
+
+    expect(matched).toHaveLength(1)
+    expect(mismatched).toHaveLength(0)
   })
 
   test('unnamed: single arg', async () => {
