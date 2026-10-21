@@ -309,6 +309,7 @@ export {
   type ReplacementReturnType,
   type WaitForTransactionReceiptErrorType,
   type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReplacement,
   type WaitForTransactionReceiptReturnType,
   waitForTransactionReceipt,
 } from './public/waitForTransactionReceipt.js'

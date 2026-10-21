@@ -1,3 +1,4 @@
+import type { Address } from '../../accounts/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BlockNotFoundError } from '../../errors/block.js'
@@ -9,7 +10,7 @@ import {
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { getAction } from '../../utils/getAction.js'
@@ -51,6 +52,37 @@ export type WaitForTransactionReceiptReturnType<
   chain extends Chain | undefined = Chain | undefined,
 > = GetTransactionReceiptReturnType<chain>
 
+/**
+ * Sender and nonce of a transaction that may already have been dropped.
+ *
+ * `waitForTransactionReceipt` uses this to find the transaction that consumed
+ * the nonce when `eth_getTransactionByHash` no longer returns the original.
+ */
+export type WaitForTransactionReceiptReplacement = {
+  /** The sender of the original transaction. */
+  from: Address
+  /**
+   * Calldata of the original transaction.
+   *
+   * Used to tell a repriced transaction from a different replacement.
+   */
+  input?: Hex | undefined
+  /** Nonce of the original transaction. */
+  nonce: number
+  /**
+   * Recipient of the original transaction. `null` is a contract deployment.
+   *
+   * Used to tell a repriced transaction from a different replacement.
+   */
+  to?: Address | null | undefined
+  /**
+   * Value (in wei) of the original transaction.
+   *
+   * Used to tell a repriced transaction from a different replacement.
+   */
+  value?: bigint | undefined
+}
+
 export type WaitForTransactionReceiptParameters<
   chain extends Chain | undefined = Chain | undefined,
 > = {
@@ -73,6 +105,18 @@ export type WaitForTransactionReceiptParameters<
    * @default client.pollingInterval
    */
   pollingInterval?: number | undefined
+  /**
+   * Sender and nonce of the original transaction.
+   *
+   * Use this when the transaction may already have been dropped before this
+   * wait reads it. The wait can then find the transaction that consumed the
+   * nonce. `input`, `to`, and `value` classify a repriced replacement.
+   *
+   * If the node does not support `eth_getTransactionBySenderAndNonce`, the
+   * wait scans blocks from the one it starts on, so a replacement mined in an
+   * earlier block is not found.
+   */
+  replacement?: WaitForTransactionReceiptReplacement | undefined
   /**
    * Number of times to retry if the transaction or block is not found.
    * @default 6 (exponential backoff)
@@ -110,6 +154,9 @@ export type WaitForTransactionReceiptErrorType =
  *     - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) and extracts the transactions
  *     - Checks if one of the Transactions is a replacement
  *     - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
+ *   - If `replacement` is provided and the original hash is unavailable:
+ *     - Calls `eth_getTransactionBySenderAndNonce` to find the transaction that consumed the nonce
+ *     - If that transaction is a replacement, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
  *
  * The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).
  *
@@ -149,6 +196,7 @@ export async function waitForTransactionReceipt<
     confirmations = 1,
     hash,
     onReplaced,
+    replacement,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 180_000,
@@ -176,6 +224,7 @@ export async function waitForTransactionReceipt<
       checkReplacement,
       confirmations,
       pollingInterval,
+      replacement,
       retryCount,
       timeout,
     },
@@ -271,6 +320,10 @@ export async function waitForTransactionReceipt<
                 {
                   delay: retryDelay,
                   retryCount,
+                  // A dropped hash will not appear on retry. When the caller
+                  // supplied the sender and nonce, look those up immediately.
+                  shouldRetry: ({ error }) =>
+                    !(replacement && error instanceof TransactionNotFoundError),
                 },
               )
               retrying = false
@@ -301,8 +354,85 @@ export async function waitForTransactionReceipt<
             ) {
               if (!transaction) {
                 retrying = false
-                return
+                if (!checkReplacement || !replacement) return
+
+                const hinted = {
+                  from: replacement.from,
+                  hash,
+                  input: replacement.input,
+                  nonce: replacement.nonce,
+                  to: replacement.to,
+                  value: replacement.value,
+                } as GetTransactionReturnType<chain>
+
+                try {
+                  retrying = true
+                  const found = (await getAction(
+                    client,
+                    getTransaction,
+                    'getTransaction',
+                  )({
+                    nonce: replacement.nonce,
+                    sender: replacement.from,
+                  })) as GetTransactionReturnType<chain>
+                  retrying = false
+
+                  // The original nonce is still this hash. Keep polling for
+                  // its receipt, or scan the current block below.
+                  if (found.hash === hash) {
+                    transaction = found
+                  } else {
+                    const replacementReceipt = await getAction(
+                      client,
+                      getTransactionReceipt,
+                      'getTransactionReceipt',
+                    )({
+                      hash: found.hash,
+                    }).catch((error: Error) => {
+                      if (error instanceof TransactionReceiptNotFoundError)
+                        return undefined
+                      throw error
+                    })
+                    if (!replacementReceipt) return
+
+                    if (
+                      confirmations > 1 &&
+                      (!replacementReceipt.blockNumber ||
+                        blockNumber - replacementReceipt.blockNumber + 1n <
+                          confirmations)
+                    )
+                      return
+
+                    const reason =
+                      client.chain?.transactionReplacement?.getReason?.({
+                        replaced: hinted,
+                        replacement: found,
+                      }) ??
+                      getReplacementReason(
+                        hinted as Transaction,
+                        found as Transaction,
+                      )
+
+                    done(() => {
+                      emit.onReplaced?.({
+                        reason,
+                        replacedTransaction: hinted as any,
+                        transaction: found as Transaction,
+                        transactionReceipt: replacementReceipt,
+                      })
+                      emit.resolve(replacementReceipt)
+                    })
+                    return
+                  }
+                } catch {
+                  retrying = false
+                  // The node may not support sender/nonce lookup. Fall
+                  // through and scan the current block with the hints.
+                  transaction = hinted
+                }
               }
+
+              if (!transaction) return
 
               // The transaction was seen mined, so it consumed its nonce slot
               // and was not replaced: its receipt is not indexed yet. The

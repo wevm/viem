@@ -11,6 +11,7 @@ import { getTransactionReceipt } from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createHttpServer } from '~test/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
@@ -22,6 +23,7 @@ import { setIntervalMining } from '../index.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
+import { getTransactionCount } from './getTransactionCount.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const client = anvilMainnet.getClient()
@@ -639,6 +641,154 @@ describe('replaced transactions', () => {
 
     // The onReplaced callback should not have been called
     expect(replacementCalled).toBe(false)
+  })
+
+  test('detects a cancel mined before the original hash is read', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const isolated = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      pollingInterval: 100,
+      transport: http(node.url),
+    })
+
+    const nonce = await getTransactionCount(isolated, {
+      address: sourceAccount.address,
+      blockTag: 'pending',
+    })
+    const hash = await sendTransaction(isolated, {
+      account: sourceAccount.address,
+      maxFeePerGas: parseGwei('2'),
+      maxPriorityFeePerGas: parseGwei('1'),
+      nonce,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    const replacementHash = await sendTransaction(isolated, {
+      account: sourceAccount.address,
+      maxFeePerGas: parseGwei('20'),
+      maxPriorityFeePerGas: parseGwei('10'),
+      nonce,
+      to: sourceAccount.address,
+      value: parseEther('0'),
+    })
+    // Mine the cancel, then another block, so it is not in the head when the
+    // wait starts. The original hash is already gone from the pool.
+    await mine(isolated, { blocks: 2 })
+
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(isolated, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      pollingInterval: 100,
+      replacement: {
+        from: sourceAccount.address,
+        input: '0x',
+        nonce,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+      timeout: 8_000,
+    })
+
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+  test('falls back to the block scan when sender and nonce lookup is unsupported', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const isolated = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      pollingInterval: 100,
+      transport: http(node.url),
+    })
+
+    let lookupRejected = false
+    const proxy = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const { id, method } = JSON.parse(body)
+      res.setHeader('Content-Type', 'application/json')
+      if (method === 'eth_getTransactionBySenderAndNonce') {
+        lookupRejected = true
+        res.end(
+          JSON.stringify({
+            error: { code: -32601, message: 'Method not found' },
+            id,
+            jsonrpc: '2.0',
+          }),
+        )
+        return
+      }
+      const response = await fetch(node.url, {
+        body,
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      })
+      res.end(await response.text())
+    })
+    onTestFinished(async () => {
+      await proxy.close()
+    })
+    const proxied = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 100,
+      transport: http(proxy.url),
+    })
+
+    const nonce = await getTransactionCount(isolated, {
+      address: sourceAccount.address,
+      blockTag: 'pending',
+    })
+    const hash = await sendTransaction(isolated, {
+      account: sourceAccount.address,
+      maxFeePerGas: parseGwei('2'),
+      maxPriorityFeePerGas: parseGwei('1'),
+      nonce,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    const replacementHash = await sendTransaction(isolated, {
+      account: sourceAccount.address,
+      maxFeePerGas: parseGwei('20'),
+      maxPriorityFeePerGas: parseGwei('10'),
+      nonce,
+      to: sourceAccount.address,
+      value: parseEther('0'),
+    })
+    // The cancel is mined in the head block, and the original hash is gone.
+    await mine(isolated, { blocks: 1 })
+
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(proxied, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      pollingInterval: 100,
+      replacement: { from: sourceAccount.address, nonce },
+      timeout: 8_000,
+    })
+
+    expect(lookupRejected).toBe(true)
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
   })
 })
 

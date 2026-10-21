@@ -104,6 +104,24 @@ const transaction = await publicClient.waitForTransactionReceipt(
 )
 ```
 
+### replacement (optional)
+
+- **Type:** `{ from: Address, nonce: number, input?: Hex, to?: Address | null, value?: bigint }`
+
+Sender and nonce of the original transaction. Pass this when the transaction may already have been dropped from the pool before this wait reads it. Viem uses the sender and nonce to find the transaction that consumed that nonce, then returns its receipt. `input`, `to`, and `value` tell a repriced transaction from a different replacement. If the node does not support `eth_getTransactionBySenderAndNonce`, Viem scans blocks from the one the wait starts on, so a replacement mined in an earlier block is not found.
+
+```ts
+const transaction = await publicClient.waitForTransactionReceipt(
+  {
+    hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    replacement: { // [!code focus:1]
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      nonce: 1,
+    },
+  }
+)
+```
+
 ### retryCount (optional)
 
 - **Type:** `number`
@@ -177,3 +195,6 @@ Check out the usage of `waitForTransactionReceipt` in the live [Sending Transact
   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) and extracts the transactions
   - Checks if one of the Transactions is a replacement
   - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
+- If `replacement` is provided and the original hash is unavailable:
+  - Calls `eth_getTransactionBySenderAndNonce` to find the transaction that consumed the nonce
+  - If that transaction is a replacement, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
