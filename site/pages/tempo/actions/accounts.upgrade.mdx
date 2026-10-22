@@ -65,10 +65,32 @@ The transaction hash.
 The owners to install. Owners are normalized into canonical address order, and must use
 primitive signatures.
 
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.upgrade({
+  owners: [{ owner: '0x...', weight: 1 }], // [!code focus]
+  threshold: 1,
+})
+```
+
 ### threshold
 
 - **Type:** `number`
 
 The approval weight required to authorize the upgraded account.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.upgrade({
+  owners: [{ owner: '0x...', weight: 1 }],
+  threshold: 1, // [!code focus]
+})
+```
 
 <WriteParameters />

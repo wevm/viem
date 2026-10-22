@@ -228,8 +228,11 @@ async function submit(options: submit.Options) {
     ) {
       const result = await options.next(options.request, options.requestOptions)
       // Cache after the node accepts the transaction, so only validly signed upgrades are cached.
+      // Caching is best-effort: a store failure must not mask an accepted upgrade.
       if (transaction)
-        await cacheUpgradeConfig({ store: options.store, transaction })
+        await cacheUpgradeConfig({ store: options.store, transaction }).catch(
+          () => {},
+        )
       return result
     }
     throw new RpcResponse.InvalidParamsError({

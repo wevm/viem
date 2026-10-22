@@ -27,6 +27,7 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
+        "scope",
         "accessKey",
         "accounts",
         "amm",

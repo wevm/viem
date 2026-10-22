@@ -698,7 +698,8 @@ export async function upgradeSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  if ((receipt as Transaction.TransactionReceipt).status === 'pending')
+  // Pending and (with `throwOnReceiptRevert: false`) reverted receipts carry no upgrade event.
+  if ((receipt as Transaction.TransactionReceipt).status !== 'success')
     return { receipt } as never
   const { args } = upgrade.extractEvent(receipt.logs)
   return {

@@ -63,16 +63,52 @@ Whether the signature is valid for the account.
 
 Configurable account address the signature is expected to belong to.
 
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.verifyHash({
+  account: '0x...', // [!code focus]
+  hash: '0x...',
+  signature: '0x...',
+})
+```
+
 ### hash
 
 - **Type:** `Hex`
 
 Original message hash that was signed.
 
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.verifyHash({
+  account: '0x...',
+  hash: '0x...', // [!code focus]
+  signature: '0x...',
+})
+```
+
 ### signature
 
 - **Type:** `Hex`
 
 Configurable account signature envelope.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient({ account: Account.fromSecp256k1('0x...') })
+// ---cut---
+await client.accounts.verifyHash({
+  account: '0x...',
+  hash: '0x...',
+  signature: '0x...', // [!code focus]
+})
+```
 
 <ReadParameters />
