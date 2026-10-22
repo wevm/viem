@@ -1,0 +1,133 @@
+# `Gateway`
+
+Wallet-paid inference, object storage, and key-value state on a Tempo Gateway.
+
+:::warning
+This API is experimental and may change in future releases.
+:::
+
+A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. Viem does not implement payments: the app passes a payment-aware `fetch`, such as [`mppx`](https://mpp.dev/sdk/typescript)'s client fetch. Stored data is private to the chain, the paying wallet, and the app namespace.
+
+## Usage
+
+Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, and `client.kv`.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount('0x...')
+const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+
+const client = createClient({ account }).extend(
+  gatewayActions({
+    app: 'my-app',
+    fetch: mppx.fetch,
+    url: 'https://gateway.example.com',
+  }),
+)
+
+const { text } = await client.ai.generateText({
+  model: '@cf/meta/llama-3.1-8b-instruct',
+  prompt: 'Describe this app in one sentence.',
+})
+
+await client.bucket.put({
+  key: 'descriptions/latest.txt',
+  retention: 2_592_000,
+  value: new Blob([text], { type: 'text/plain' }),
+})
+
+const entry = await client.kv.set({
+  ifVersion: null,
+  key: 'description',
+  value: { object: 'descriptions/latest.txt' },
+})
+// @log: { expiresAt: null, key: 'description', value: { object: 'descriptions/latest.txt' }, version: 1 }
+```
+
+### Standalone Actions
+
+Every method is also a standalone action that takes a `Gateway` connection.
+
+```ts
+import { Actions, Gateway } from 'viem/tempo'
+
+const gateway = Gateway.from({
+  app: 'my-app',
+  fetch: mppx.fetch,
+  url: 'https://gateway.example.com',
+})
+
+const entry = await Actions.kv.get(gateway, { key: 'description' })
+```
+
+### Capabilities
+
+`Gateway.getCapabilities` is free and reads the chain, currencies, prices, limits, and models.
+
+```ts
+import { Gateway } from 'viem/tempo'
+
+const gateway = Gateway.from({ app: 'my-app', url: 'https://gateway.example.com' })
+const capabilities = await Gateway.getCapabilities(gateway)
+// @log: { chainId: 4217, currencies: { mach: '0x…', ousd: '0x…' }, limits: { … }, models: { … }, prices: { … }, recipient: '0x…', version: '2026-10-22' }
+```
+
+### Paying with Other Stablecoins
+
+The Gateway accepts its advertised currencies only. A wallet holding another stablecoin can swap through the stablecoin DEX when opening or topping up its session with `mppx`'s `autoSwap`.
+
+```ts
+const mppx = Mppx.create({
+  methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
+  polyfill: false,
+})
+```
+
+## Methods
+
+| Method | Description |
+| --- | --- |
+| `ai.embed` | Embeds text. |
+| `ai.generateText` | Generates text from a `prompt` or `messages`. |
+| `bucket.delete` | Deletes an object. |
+| `bucket.get` | Reads an object as a `ReadableStream`, or `null`. |
+| `bucket.head` | Reads object metadata, or `null`. |
+| `bucket.list` | Lists objects by key prefix. |
+| `bucket.put` | Writes a `Blob`, `Uint8Array`, `ArrayBuffer`, or string for a retention period. |
+| `kv.delete` | Deletes a key. |
+| `kv.get` | Reads a JSON value with its version, or `null`. |
+| `kv.list` | Lists entries by key prefix. |
+| `kv.set` | Writes a JSON value, optionally only if `ifVersion` matches. |
+
+## Errors
+
+| Error | Thrown when |
+| --- | --- |
+| `Gateway.InvalidAppError` | `app` does not match `[a-z0-9][a-z0-9-]{0,62}`. |
+| `Gateway.PaymentRequiredError` | A paid route was called without a payment-aware `fetch`. |
+| `Gateway.RequestError` | The Gateway responded with a problem; see `code`, `detail`, and `status`. |
+| `Gateway.VersionConflictError` | `kv.set` with `ifVersion` did not match the stored version. |
+
+## Parameters
+
+### app
+
+- **Type:** `string`
+
+App namespace sent as the `Gateway-App` header.
+
+### fetch (optional)
+
+- **Type:** `(input: string, init: RequestInit) => Promise<Response>`
+- **Default:** `globalThis.fetch`
+
+Fetch function used for every request. Pass a payment-aware fetch to pay for operations.
+
+### url
+
+- **Type:** `string`
+
+Gateway origin, without the `/v1` version path.

@@ -3534,6 +3534,11 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Gateway',
+              link: '/tempo/utilities/Gateway',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Scopes',
               link: '/tempo/utilities/Scopes',
             },

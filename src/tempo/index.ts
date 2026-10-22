@@ -72,6 +72,17 @@ export * as ExecutionError from './ExecutionError.js'
 export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
+/**
+ * Wallet-paid inference, object storage, and key-value state on a Tempo Gateway.
+ * @experimental
+ */
+export * as Gateway from './Gateway.js'
+export {
+  /** @experimental */
+  type Decorator as GatewayActions,
+  /** @experimental */
+  decorator as gatewayActions,
+} from './GatewayDecorator.js'
 export * as Hardfork from './Hardfork.js'
 /** Client-side storage for pending key authorizations, backed by a `Store`. */
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
