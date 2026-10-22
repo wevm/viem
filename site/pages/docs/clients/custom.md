@@ -72,6 +72,32 @@ const response = await debugClient.traceCall({
 
 For a more succinct implementation of using `.extend`, check out viem's [Public Client implementation](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/createPublicClient.ts#L48-L68) extended with [Public Actions](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/decorators/public.ts#L1377-L1425).
 
+### Scoping Requests
+
+A Client shares in-flight requests, cached values such as the latest block number, and request batches between its callers. The `.scope` function creates a Client with the same configuration, Transport, and extensions that shares none of these with other Clients.
+
+Scope a Client for each request that a server or Worker handles. On Cloudflare Workers, pending I/O is canceled when the request that started it ends, so a later request that joins that I/O never settles.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+})
+
+export default {
+  async fetch(request: Request) {
+    const scoped = client.scope({ signal: request.signal }) // [!code focus]
+    const blockNumber = await scoped.getBlockNumber()
+    return Response.json({ blockNumber: blockNumber.toString() })
+  },
+}
+```
+
+The optional `signal` aborts the scoped Client's requests, such as when the caller disconnects. Calls with the same `signal` return the same Client, so code that handles one request can call `.scope` wherever it needs a Client. Requests that pass their own `signal` use it instead.
+
 ### Tree-shaking
 
 You can use the Client as-is, with no decorated Actions, to maximize tree-shaking in your app. This is useful if you are pedantic about bundle size and want to only include the Actions you use.

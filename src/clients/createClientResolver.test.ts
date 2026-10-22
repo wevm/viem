@@ -174,6 +174,7 @@ test('applies shared client options', () => {
       "name": "Resolved Client",
       "pollingInterval": 1234,
       "request": [Function],
+      "scope": [Function],
       "tokens": [],
       "transport": {
         "fetchOptions": undefined,
