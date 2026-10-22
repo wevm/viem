@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
+import { createHttpServer } from '~test/utils.js'
 import { base, localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
@@ -39,6 +40,7 @@ test('creates', () => {
       "name": "Base Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "scope": [Function],
       "tokens": undefined,
       "transport": {
         "key": "mock",
@@ -95,6 +97,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
@@ -152,6 +155,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
@@ -190,6 +194,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "custom",
@@ -237,6 +242,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -304,6 +310,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -353,6 +360,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -397,6 +405,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -441,6 +450,7 @@ describe('config', () => {
         "name": "Mock Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -485,6 +495,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 10000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -529,6 +540,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "mock",
@@ -650,6 +662,7 @@ describe('extends', () => {
         "prepareTransactionRequest": [Function],
         "readContract": [Function],
         "request": [Function],
+        "scope": [Function],
         "sendRawTransaction": [Function],
         "sendRawTransactionSync": [Function],
         "simulate": [Function],
@@ -768,3 +781,275 @@ describe('extends', () => {
     ])
   })
 })
+
+describe('scope', () => {
+  test('default', () => {
+    const client = createClient({
+      transport: http('https://localhost'),
+    }).extend((client) => ({
+      getUid: () => client.uid,
+    }))
+
+    const scoped = client.scope()
+
+    expect(scoped.uid).not.toBe(client.uid)
+    expect(scoped.getUid()).toBe(scoped.uid)
+    expect(client.getUid()).toBe(client.uid)
+    const { uid: _, ...rest } = scoped
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "account": undefined,
+        "batch": undefined,
+        "cacheTime": 4000,
+        "ccipRead": undefined,
+        "chain": undefined,
+        "dataSuffix": undefined,
+        "extend": [Function],
+        "getUid": [Function],
+        "key": "base",
+        "name": "Base Client",
+        "pollingInterval": 4000,
+        "request": [Function],
+        "scope": [Function],
+        "tokens": undefined,
+        "transport": {
+          "fetchOptions": undefined,
+          "key": "http",
+          "methods": undefined,
+          "name": "HTTP JSON-RPC",
+          "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
+          "timeout": 10000,
+          "type": "http",
+          "url": "https://localhost",
+        },
+        "type": "base",
+      }
+    `)
+  })
+
+  test('behavior: memoizes scopes by signal', () => {
+    const client = createClient({ transport: http('https://localhost') })
+    const { signal } = new AbortController()
+
+    expect(client.scope({ signal })).toBe(client.scope({ signal }))
+    expect(client.scope({ signal })).not.toBe(
+      client.scope({ signal: new AbortController().signal }),
+    )
+    expect(client.scope()).not.toBe(client.scope())
+  })
+
+  test('behavior: deduplicates across calls that share a signal', async () => {
+    await using server = await createHeldServer()
+    const client = createClient({
+      transport: http(server.url),
+    }).extend(publicActions)
+    const { signal } = new AbortController()
+
+    const first = client.scope({ signal }).getChainId()
+    await server.held
+    const second = client.scope({ signal }).getChainId()
+    server.release()
+
+    expect(await Promise.all([first, second])).toMatchInlineSnapshot(`
+      [
+        1,
+        1,
+      ]
+    `)
+  })
+
+  test('behavior: does not join the parent cache', async () => {
+    await using server = await createHeldServer()
+    const client = createClient({
+      transport: http(server.url),
+    }).extend(publicActions)
+
+    const pending = client.getBlockNumber()
+    await server.held
+
+    expect(await client.scope().getBlockNumber()).toMatchInlineSnapshot(`2n`)
+
+    server.release()
+    expect(await pending).toMatchInlineSnapshot(`1n`)
+  })
+
+  test('behavior: does not join deduplicated parent requests', async () => {
+    await using server = await createHeldServer()
+    const client = createClient({
+      transport: http(server.url),
+    }).extend(publicActions)
+
+    const pending = client.getChainId()
+    await server.held
+
+    expect(await client.scope().getChainId()).toMatchInlineSnapshot(`2`)
+
+    server.release()
+    expect(await pending).toMatchInlineSnapshot(`1`)
+  })
+
+  test('behavior: batches within a scope, not across scopes', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await createHttpServer(async (req, res) => {
+      const body = JSON.parse(await readBody(req))
+      res.end(
+        JSON.stringify(
+          body.map(({ id }: { id: number }) => ({
+            id,
+            jsonrpc: '2.0',
+            result: `0x${body.length.toString(16)}`,
+          })),
+        ),
+      )
+    })
+    const client = createClient({
+      transport: http(server.url, { batch: true }),
+    }).extend(publicActions)
+    const scoped = client.scope()
+
+    const results = await Promise.all([
+      client.getBlockNumber(),
+      scoped.getBlockNumber(),
+      scoped.getChainId(),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        1n,
+        2n,
+        2,
+      ]
+    `)
+    await server.close()
+  })
+
+  test('behavior: signal aborts scoped requests', async () => {
+    await using server = await createHeldServer()
+    const client = createClient({
+      transport: http(server.url),
+    }).extend(publicActions)
+    const controller = new AbortController()
+
+    const pending = client.scope({ signal: controller.signal }).getBlockNumber()
+    await server.held
+    controller.abort()
+
+    await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+    expect(await client.getBlockNumber()).toMatchInlineSnapshot(`2n`)
+  })
+
+  test('behavior: signal aborts requests on transports that ignore it', async () => {
+    const client = createClient({
+      transport: custom({ request: () => new Promise(() => {}) }),
+    })
+    const controller = new AbortController()
+
+    const pending = client
+      .scope({ signal: controller.signal })
+      .request({ method: 'eth_blockNumber' })
+    controller.abort()
+
+    await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+  })
+
+  test('behavior: scopes of different Clients sharing a signal do not batch together', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await createHttpServer(async (req, res) => {
+      const body = JSON.parse(await readBody(req))
+      res.end(
+        JSON.stringify(
+          body.map(({ id }: { id: number }) => ({
+            id,
+            jsonrpc: '2.0',
+            result: `0x${body.length.toString(16)}`,
+          })),
+        ),
+      )
+    })
+    const client = createClient({
+      transport: http(server.url, { batch: true }),
+    }).extend(publicActions)
+    const { signal } = new AbortController()
+
+    const results = await Promise.all([
+      client.scope({ signal }).getChainId(),
+      client
+        .extend(() => ({}))
+        .scope({ signal })
+        .getChainId(),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        1,
+        1,
+      ]
+    `)
+    await server.close()
+  })
+
+  test('behavior: an extension named `scope` takes precedence', () => {
+    const client = createClient({ transport: http('https://localhost') })
+      .extend(() => ({ scope: 'custom' as const }))
+      .extend(() => ({}))
+
+    expect(client.scope).toMatchInlineSnapshot(`"custom"`)
+  })
+
+  test('behavior: nested scopes are isolated', async () => {
+    await using server = await createHeldServer()
+    const scoped = createClient({
+      transport: http(server.url),
+    })
+      .extend(publicActions)
+      .scope()
+
+    const pending = scoped.getChainId()
+    await server.held
+
+    expect(await scoped.scope().getChainId()).toMatchInlineSnapshot(`2`)
+
+    server.release()
+    expect(await pending).toMatchInlineSnapshot(`1`)
+  })
+})
+
+/** Starts a JSON-RPC server that holds its first request until released, answering `0x1` to it and `0x2` to the rest. */
+async function createHeldServer() {
+  const held = Promise.withResolvers<void>()
+  const released = Promise.withResolvers<void>()
+  let first = true
+  const server = await createHttpServer(async (req, res) => {
+    const { id } = JSON.parse(await readBody(req))
+    const hold = first
+    first = false
+    if (hold) {
+      held.resolve()
+      await released.promise
+    }
+    res.end(
+      JSON.stringify({ id, jsonrpc: '2.0', result: hold ? '0x1' : '0x2' }),
+    )
+  })
+  return {
+    held: held.promise,
+    release: () => released.resolve(),
+    url: server.url,
+    async [Symbol.asyncDispose]() {
+      released.resolve()
+      await server.close()
+    },
+  }
+}
+
+async function readBody(req: AsyncIterable<Uint8Array>) {
+  const chunks: Uint8Array[] = []
+  for await (const chunk of req) chunks.push(chunk)
+  return Buffer.concat(chunks).toString()
+}

@@ -78,7 +78,10 @@ export async function getPortalVersion<
         address: portalAddress,
         functionName: 'version',
       }),
-    { cacheKey: ['portalVersion', portalAddress].join('.'), cacheTime: 300 },
+    {
+      cacheKey: ['portalVersion', client.uid, portalAddress].join('.'),
+      cacheTime: 300,
+    },
   )
 
   const [major, minor, patch] = version.split('.').map(Number)
