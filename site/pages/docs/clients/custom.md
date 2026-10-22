@@ -96,7 +96,7 @@ export default {
 }
 ```
 
-The optional `signal` aborts the scoped Client's requests, such as when the caller disconnects. Requests that pass their own `signal` use it instead.
+The optional `signal` aborts the scoped Client's requests, such as when the caller disconnects. Calls with the same `signal` return the same Client, so code that handles one request can call `.scope` wherever it needs a Client. Requests that pass their own `signal` use it instead.
 
 ### Tree-shaking
 

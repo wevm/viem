@@ -177,7 +177,8 @@ export type Client<
      * that does not share in-flight requests, caches, or batches with other Clients.
      *
      * Use a scope for each unit of work that must not wait on another's
-     * requests, such as each request handled by a server or Worker.
+     * requests, such as each request handled by a server or Worker. Calls with
+     * the same `signal` return the same Client.
      *
      * @example
      * ```ts
@@ -198,8 +199,8 @@ export type Client<
       options?:
         | {
             /**
-             * Signal that aborts the scoped Client's requests. Requests made
-             * with their own `signal` use it instead.
+             * Signal that aborts the scoped Client's requests and identifies the
+             * scope. Requests made with their own `signal` use it instead.
              */
             signal?: AbortSignal | undefined
           }
@@ -382,7 +383,12 @@ function decorate<client extends Client_Base>(client: client): Client {
   }
 
   function scope(extensions: readonly ExtendFn[]) {
+    // Memoized by signal, so callers sharing one signal share one scope.
+    const scopes = new WeakMap<AbortSignal, Client>()
     return (options: { signal?: AbortSignal | undefined } = {}) => {
+      const cached = options.signal && scopes.get(options.signal)
+      if (cached) return cached
+
       const id = uid()
       // A scope-owned signal also keys transport queues, such as HTTP batches, to the scope.
       const signal = options.signal ?? new AbortController().signal
@@ -393,11 +399,12 @@ function decorate<client extends Client_Base>(client: client): Client {
           // The request `uid` keys in-flight request deduplication.
           uid: options_request?.uid ?? id,
         })
-      const scoped = decorate({ ...client, request, uid: id })
-      return extensions.reduce<Client>(
+      const scoped = extensions.reduce<Client>(
         (base, extendFn) => base.extend(extendFn as never),
-        scoped,
+        decorate({ ...client, request, uid: id }),
       )
+      if (options.signal) scopes.set(options.signal, scoped)
+      return scoped
     }
   }
 

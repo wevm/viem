@@ -2,7 +2,7 @@
 "viem": patch
 ---
 
-Added `client.scope` for creating a Client that does not share in-flight requests, cached values, or request batches with other Clients.
+Added `client.scope` for creating a Client, memoized per `signal`, that does not share in-flight requests, cached values, or request batches with other Clients.
 
 ```ts
 const scoped = client.scope({ signal: request.signal })

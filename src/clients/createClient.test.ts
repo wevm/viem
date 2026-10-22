@@ -829,6 +829,37 @@ describe('scope', () => {
     `)
   })
 
+  test('behavior: memoizes scopes by signal', () => {
+    const client = createClient({ transport: http('https://localhost') })
+    const { signal } = new AbortController()
+
+    expect(client.scope({ signal })).toBe(client.scope({ signal }))
+    expect(client.scope({ signal })).not.toBe(
+      client.scope({ signal: new AbortController().signal }),
+    )
+    expect(client.scope()).not.toBe(client.scope())
+  })
+
+  test('behavior: deduplicates across calls that share a signal', async () => {
+    await using server = await createHeldServer()
+    const client = createClient({
+      transport: http(server.url),
+    }).extend(publicActions)
+    const { signal } = new AbortController()
+
+    const first = client.scope({ signal }).getChainId()
+    await server.held
+    const second = client.scope({ signal }).getChainId()
+    server.release()
+
+    expect(await Promise.all([first, second])).toMatchInlineSnapshot(`
+      [
+        1,
+        1,
+      ]
+    `)
+  })
+
   test('behavior: does not join the parent cache', async () => {
     await using server = await createHeldServer()
     const client = createClient({
