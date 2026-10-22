@@ -177,7 +177,7 @@ describe('read', () => {
   test('error: mismatched operation hash', async () => {
     const store = Store.memory()
     await store.setItem(
-      `multisig:operation:${hash}`,
+      `configurableAccount:operation:${hash}`,
       Json.stringify(otherOperation),
     )
 
@@ -464,7 +464,10 @@ describe('submission', () => {
     'error: malformed submission %#',
     async (value) => {
       const store = Store.memory()
-      await store.setItem(`multisig:submission:${hash}:${submissionId}`, value)
+      await store.setItem(
+        `configurableAccount:submission:${hash}:${submissionId}`,
+        value,
+      )
 
       await expect(
         Operation.readSubmission(store, operation, submissionId),
@@ -510,7 +513,10 @@ describe('storage serialization', () => {
     ).rejects.toThrowError(Operation.InvalidStoreValueError)
 
     const store = Store.memory()
-    await store.setItem(`multisig:operation:${hash}`, ' '.repeat(1_048_577))
+    await store.setItem(
+      `configurableAccount:operation:${hash}`,
+      ' '.repeat(1_048_577),
+    )
     await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
     )
@@ -518,7 +524,7 @@ describe('storage serialization', () => {
 
   test('error: malformed value', async () => {
     const store = Store.memory()
-    await store.setItem(`multisig:operation:${hash}`, '{')
+    await store.setItem(`configurableAccount:operation:${hash}`, '{')
 
     await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,
@@ -533,7 +539,7 @@ describe('storage serialization', () => {
     ),
   ])('error: operation payload does not match hash %#', async (value) => {
     const store = Store.memory()
-    await store.setItem(`multisig:operation:${hash}`, value)
+    await store.setItem(`configurableAccount:operation:${hash}`, value)
 
     await expect(Operation.read(store, hash)).rejects.toThrowError(
       Operation.InvalidStoreValueError,

@@ -225,6 +225,9 @@ Done:
   `AccountConfig.fromUpgrade` covers the config, and the node rejects ineligible accounts.
 - Phase 5: `accessKey.getMetadata` maps signature type `3` to `configurable`.
 - Phase 7: wire field `configurableAccountSimulation`.
+- Phase 6: store keys renamed to `configurableAccount:{config,operation,submission}:*`.
+  Old keys are not read: the new domains change every commitment and operation hash,
+  so old entries could not match anyway.
 
 Not done:
 - Zone ABIs: Tempo main moved `IZonePortal` and `IZoneVerifier` to
@@ -233,4 +236,4 @@ Not done:
 - Phase 5: signing as a configurable access key (`resolveAccessKey`) and relay fee payer
   support for keychain envelopes with configurable inner signatures.
 - Phase 6: `accounts.deriveAccount`, `verifyConfigurableAccount` actions, per-chain
-  recovery factory, `multisig:*` store key rename.
+  recovery factory.

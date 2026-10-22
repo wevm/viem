@@ -1000,7 +1000,7 @@ describe('stateful', () => {
     const address = tempo.accounts[19].address
     const store = Store.memory()
     await store.setItem(
-      `multisig:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
+      `configurableAccount:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
       'invalid json',
     )
     const client = createClient({
@@ -2887,7 +2887,7 @@ describe('stateful', () => {
     expect(operation?.status).toMatchInlineSnapshot(`"success"`)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
   })
@@ -2958,7 +2958,7 @@ describe('stateful', () => {
         throw new Error('Expected transaction operation.')
       return submitting
     })
-    const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
+    const submissionKey = `configurableAccount:submission:${operation.hash}:${submissionId}`
     expect(await store.getItem(submissionKey)).toBeTypeOf('string')
 
     const receipt = await sendTransactionSync(client, {
@@ -3325,7 +3325,7 @@ describe('stateful', () => {
     expect(failedOperation?.weight).toBe(2)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
 

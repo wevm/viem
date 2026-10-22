@@ -108,7 +108,7 @@ function deserialize(value: string): AccountConfig.Config {
 /** Returns the store key for an account and config commitment. */
 function key(options: { address: Address.Address; commitment: Hex.Hex }) {
   const { address, commitment } = options
-  return `multisig:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
+  return `configurableAccount:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
 }
 
 /** Serializes an account config for storage. */
