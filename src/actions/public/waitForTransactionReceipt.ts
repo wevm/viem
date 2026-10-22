@@ -402,7 +402,16 @@ export async function waitForTransactionReceipt<
     },
   )
 
-  return promise
+  // Remove this caller's listener once its promise settles. `done` only
+  // unobserves the caller that started the polling, so a listener from a
+  // concurrent caller with the same options would otherwise stay cached: a
+  // later wait for the same hash would join it, see an existing observer and
+  // never start polling again. The timer is cleared here as well, since a
+  // caller that resolves through another caller's poll never reaches `done`.
+  return promise.finally(() => {
+    clearTimeout(timer)
+    _unobserve?.()
+  })
 }
 
 function getReplacementReason(
