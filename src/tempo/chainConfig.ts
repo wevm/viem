@@ -246,7 +246,11 @@ export const chainConfig = {
           request.validAfter = randomValidAfter()
         if (typeof request.validBefore === 'undefined')
           request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
-      } else if (typeof request.nonceKey !== 'undefined') {
+      } else if (
+        typeof request.nonceKey !== 'undefined' &&
+        // Nonce key 0 is the protocol nonce, so core fills it like an Ethereum nonce.
+        BigInt(request.nonceKey) !== 0n
+      ) {
         request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
       }
 
