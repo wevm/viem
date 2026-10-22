@@ -3,6 +3,7 @@ import { createRequestListener } from '@remix-run/node-fetch-server'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import {
   createClientResolver,
+  hexToBytes,
   http,
   keccak256,
   maxUint256,
@@ -620,6 +621,13 @@ describe('stateless', () => {
     expect(
       await verifyHash(client, {
         address: account.address,
+        hash,
+        signature: hexToBytes(signature),
+      }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, {
+        address: account.address,
         hash: keccak256(toHex('goodbye')),
         signature,
       }),
@@ -647,6 +655,19 @@ describe('stateless', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[Error: The account is already a configurable account.]`,
+    )
+  })
+
+  test('behavior: upgrade rejects additional calls', async () => {
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account: accounts[1],
+        calls: [{ to: accounts[2].address }],
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`calls\` is not supported: the upgrade must be the only call, without authorizations.]`,
     )
   })
 

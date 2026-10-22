@@ -324,10 +324,15 @@ export const chainConfig = {
   async verifyHash(client, parameters) {
     const { address, hash, signature, mode } = parameters
 
+    const serialized = (() => {
+      if (typeof signature === 'string') return signature
+      if (signature instanceof Uint8Array) return Hex.fromBytes(signature)
+      return undefined
+    })()
     const envelope = (() => {
-      if (typeof signature !== 'string') return
+      if (!serialized) return
       try {
-        return SignatureEnvelope.deserialize(signature)
+        return SignatureEnvelope.deserialize(serialized)
       } catch {
         return undefined
       }
@@ -389,7 +394,7 @@ export const chainConfig = {
             ...verifyConfigurableAccount.call({
               account: address,
               hash,
-              signature: signature as Hex.Hex,
+              signature: serialized as Hex.Hex,
             }),
           } as never) as Promise<boolean>
         ).catch((error) => {

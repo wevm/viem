@@ -597,6 +597,17 @@ export namespace upgrade {
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { owners, threshold, ...rest } = parameters
+    for (const key of [
+      'authorizationList',
+      'calls',
+      'data',
+      'keyAuthorization',
+      'to',
+    ])
+      if ((rest as Record<string, unknown>)[key] !== undefined)
+        throw new Error(
+          `\`${key}\` is not supported: the upgrade must be the only call, without authorizations.`,
+        )
     const account = rest.account ?? client.account
     if (typeof account === 'object') {
       if (account.source === 'configurable')
