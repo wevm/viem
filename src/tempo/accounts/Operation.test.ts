@@ -552,7 +552,7 @@ describe('InvalidStoreValueError', () => {
     expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
       [Accounts.Operation.InvalidStoreValueError: Stored account operation is malformed or unsupported.
 
-      Version: viem@2.57.8]
+      Version: viem@x.y.z]
     `)
   })
 
