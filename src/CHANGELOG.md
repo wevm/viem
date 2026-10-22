@@ -1,5 +1,30 @@
 # viem
 
+## 2.57.10
+
+### Patch Changes
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.accounts.upgrade` and `Actions.accounts.upgradeSync` to upgrade an existing account to a configurable account in place ([TIP-1113](https://tips.sh/1113)), and an `upgrade` form of `Account.fromConfig` for the upgraded account.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added the `configurable` key type to `Actions.accessKey.getMetadata` and execution error messages for configurable account upgrades and retired root keys.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Synced configurable accounts with Tempo T14, renaming the `nativeMultisig` ABI, address and selector exports to `configurableAccount`, sending `configurableAccountSimulation` to the node, deriving configurable account addresses and signatures with the `tempo:configurable-account:*` domains, and storing relay state under `configurableAccount:*` store keys.
+
+  ```diff
+  - Abis.nativeMultisig
+  + Abis.configurableAccount
+  - Addresses.nativeMultisig
+  + Addresses.configurableAccount
+  - Addresses.nativeMultisigFactory
+  + Addresses.configurableAccountRecoveryFactory
+  - Selectors.nativeMultisig
+  + Selectors.configurableAccount
+  ```
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.accounts.deriveAccount` and `Actions.accounts.verifyHash` for the configurable account precompiles, configurable account signature support in `verifyHash`, and a `factory` option on `Account.fromConfig` that defaults to `Addresses.configurableAccountRecoveryFactory`.
+
+- [#5260](https://github.com/wevm/viem/pull/5260) [`b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17`](https://github.com/wevm/viem/commit/b56592f7b6cc2d01d926bf6cf278d53cbc0b6e17) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hardforks `t7` through `t14` and fixed `Hardfork.lt` treating unknown hardforks as older than every known hardfork.
+
 ## 2.57.9
 
 ### Patch Changes
