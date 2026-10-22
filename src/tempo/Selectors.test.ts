@@ -19,16 +19,16 @@ const selectorDefinitions = {
     abi: Abis.addressRegistry,
     selectors: Selectors.addressRegistry,
   },
+  configurableAccount: {
+    abi: Abis.configurableAccount,
+    selectors: Selectors.configurableAccount,
+  },
   currentCommittee: {
     abi: Abis.currentCommittee,
     selectors: Selectors.currentCommittee,
   },
   feeAmm: { abi: Abis.feeAmm, selectors: Selectors.feeAmm },
   feeManager: { abi: Abis.feeManager, selectors: Selectors.feeManager },
-  nativeMultisig: {
-    abi: Abis.nativeMultisig,
-    selectors: Selectors.nativeMultisig,
-  },
   nonce: { abi: Abis.nonce, selectors: Selectors.nonce },
   receivePolicyGuard: {
     abi: Abis.receivePolicyGuard,

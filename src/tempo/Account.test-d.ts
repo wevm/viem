@@ -25,9 +25,14 @@ test('fromConfig preserves config availability', () => {
     threshold: 1,
     version: 1,
   })
+  const upgraded = Account.fromConfig({
+    address: owner.address,
+    upgrade: { owners: [owner], threshold: 1 },
+  })
   const addressOnly = Account.fromConfig(initial.address)
 
   expectTypeOf(initial.config).toEqualTypeOf<AccountConfig.Config>()
+  expectTypeOf(upgraded.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(normalizedInitial.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(current.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(addressOnly.config).toEqualTypeOf<undefined>()
@@ -36,6 +41,11 @@ test('fromConfig preserves config availability', () => {
 test('fromConfig distinguishes initial and current configs', () => {
   Account.fromConfig({ owners: [owner] })
   Account.fromConfig({ address: 'infer', owners: [owner] })
+  Account.fromConfig({
+    address: 'infer',
+    factory: '0x9999999999999999999999999999999999999999',
+    owners: [owner],
+  })
   // @ts-expect-error Current configs require `salt`.
   Account.fromConfig({
     address: owner.address,

@@ -72,6 +72,7 @@ const signatureTypes = {
   0: 'secp256k1',
   1: 'p256',
   2: 'webAuthn',
+  3: 'configurable',
 } as const satisfies Record<number, string>
 
 /** @internal */
@@ -558,8 +559,8 @@ export namespace getMetadata {
   export type ReturnValue = {
     /** The access key address. */
     address: Address
-    /** The key type. */
-    keyType: 'secp256k1' | 'p256' | 'webAuthn'
+    /** The key type. `configurable` for a configurable account access key. */
+    keyType: 'secp256k1' | 'p256' | 'webAuthn' | 'configurable'
     /** The expiry timestamp. */
     expiry: bigint
     /** The spending policy. */

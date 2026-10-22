@@ -11,7 +11,7 @@ import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
-import { nativeMultisigFactory } from './Addresses.js'
+import { configurableAccountRecoveryFactory } from './Addresses.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
 
@@ -62,7 +62,7 @@ describe('fromConfig', () => {
       { owners: expect.any(Array) },
       `
       {
-        "address": "0x31bb655CbBD684ac14F7279bE3b5cC7786060D3F",
+        "address": "0x0D93B1AFc81858e91CDAD6373816cBFB1813ecA3",
         "config": {
           "owners": [
             {
@@ -93,7 +93,55 @@ describe('fromConfig', () => {
       owners: ['0x1111111111111111111111111111111111111111'],
     })
 
-    expect(account.address).toBe('0x90bA71Cb7534Da990a1182cf28C9Bf415055E03d')
+    expect(account.address).toBe('0x2318EBe50D1D476Ec10854bFD949f96Ea7737B68')
+  })
+
+  test('behavior: factory', () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      factory: '0x9999999999999999999999999999999999999999',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toMatchInlineSnapshot(
+      `"0x87c346A9029D675F296db533B12e146439CF20d5"`,
+    )
+  })
+
+  test('behavior: upgrade config', () => {
+    const owner = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromConfig({
+      address: '0x3333333333333333333333333333333333333333',
+      upgrade: { owners: [owner], threshold: 1 },
+    })
+
+    expect(account).toMatchInlineSnapshot(
+      { owners: expect.any(Array) },
+      `
+      {
+        "address": "0x3333333333333333333333333333333333333333",
+        "config": {
+          "owners": [
+            {
+              "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x42b3dad8fa6c40b50e6dbbbdaaace72d6c04250c16c1e263a52355983a30eb56",
+          "threshold": 1,
+          "version": 1n,
+        },
+        "owners": Any<Array>,
+        "publicKey": "0x",
+        "sign": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "configurable",
+        "type": "local",
+      }
+    `,
+    )
   })
 
   test('behavior: current config', () => {
@@ -585,7 +633,7 @@ describe('signTransaction', () => {
       chainId: 1,
       maxFeePerGas: parseGwei('10'),
       from: AccountConfig.getAddress(initialConfig, {
-        factory: nativeMultisigFactory,
+        factory: configurableAccountRecoveryFactory,
       }),
       accountSimulation: {
         approvals: [{ owner: owner.address }],

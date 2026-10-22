@@ -10,7 +10,10 @@ import {
   parseUnits,
   type Transport,
 } from '../../../src/index.js'
-import { nativeMultisigFactory, pathUsd } from '../../../src/tempo/Addresses.js'
+import {
+  configurableAccountRecoveryFactory,
+  pathUsd,
+} from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, getClient, nodeEnv } from './config.js'
@@ -113,7 +116,10 @@ export async function createServer() {
           { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
         ),
       )
-      genesis.config.multisigRecoveryFactory = nativeMultisigFactory
+      genesis.config.configurableAccountRecoveryFactory =
+        configurableAccountRecoveryFactory
+      // Configurable accounts activate at T14.
+      genesis.config.t14Time = 0
       return TestContainers.Instance.testcontainer({
         name: 'tempo',
         endpoints: { default: { protocol: 'http', port: 8545 } },

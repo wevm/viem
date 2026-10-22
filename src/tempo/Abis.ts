@@ -1,5 +1,5 @@
 // Generated with `pnpm gen:tempo-abis`. Do not modify manually.
-// Source: tempoxyz/tempo@6ef1f812c9ddcbe90a88ada73944012520942d26
+// Source: tempoxyz/tempo@e539a1dac2921670585a08215e516d8b98aa527a
 
 export const accountKeychain = [
   {
@@ -444,7 +444,7 @@ export const addressRegistry = [
   { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
 ] as const
 
-export const nativeMultisig = [
+export const configurableAccount = [
   {
     name: 'deriveAccount',
     type: 'function',
@@ -505,7 +505,24 @@ export const nativeMultisig = [
     outputs: [],
   },
   {
-    name: 'MultisigConfigUpdated',
+    name: 'upgradeAccount',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+    outputs: [{ type: 'bytes32', name: 'commitment' }],
+  },
+  {
+    name: 'ConfigurableAccountConfigUpdated',
     type: 'event',
     inputs: [
       { type: 'address', name: 'account', indexed: true },
@@ -522,15 +539,37 @@ export const nativeMultisig = [
       },
     ],
   },
+  {
+    name: 'AccountUpgraded',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'commitment', indexed: true },
+      { type: 'bytes32', name: 'salt' },
+      { type: 'uint8', name: 'threshold' },
+      {
+        type: 'tuple[]',
+        name: 'owners',
+        components: [
+          { type: 'address', name: 'owner' },
+          { type: 'uint8', name: 'weight' },
+        ],
+      },
+    ],
+  },
   { name: 'InvalidAccount', type: 'error', inputs: [] },
   { name: 'InvalidConfig', type: 'error', inputs: [] },
   { name: 'InvalidThreshold', type: 'error', inputs: [] },
-  { name: 'InvalidMultisigOwner', type: 'error', inputs: [] },
+  { name: 'InvalidConfigurableAccountOwner', type: 'error', inputs: [] },
   { name: 'InvalidWeight', type: 'error', inputs: [] },
   { name: 'TooManyOwners', type: 'error', inputs: [] },
   { name: 'DuplicateOwner', type: 'error', inputs: [] },
   { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
-  { name: 'UnauthorizedMultisigCaller', type: 'error', inputs: [] },
+  { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
+  { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeOnlyCall', type: 'error', inputs: [] },
+  { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
+  { name: 'AccountHasCode', type: 'error', inputs: [] },
 ] as const
 
 export const currentCommittee = [
@@ -696,6 +735,17 @@ export const signatureVerifier = [
   },
   {
     name: 'verifyKeychainAdmin',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verifyConfigurableAccount',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -1710,6 +1760,11 @@ export const tip20ChannelReserve = [
   { name: 'CaptureAmountInvalid', type: 'error', inputs: [] },
   { name: 'CloseNotReady', type: 'error', inputs: [] },
   { name: 'DepositOverflow', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
 ] as const
 
 export const tip20Factory = [
@@ -2314,6 +2369,11 @@ export const tip20 = [
   { name: 'InvalidSignature', type: 'error', inputs: [] },
   { name: 'LogoURITooLong', type: 'error', inputs: [] },
   { name: 'InvalidLogoURI', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
   {
     name: 'hasRole',
     type: 'function',
@@ -9861,10 +9921,10 @@ export const directPropAmm = [
 export const core = [
   ...accountKeychain,
   ...addressRegistry,
+  ...configurableAccount,
   ...currentCommittee,
   ...feeAmm,
   ...feeManager,
-  ...nativeMultisig,
   ...nonce,
   ...receivePolicyGuard,
   ...signatureVerifier,
@@ -9946,6 +10006,19 @@ export const coreErrors = [
   { name: 'InvalidMasterAddress', type: 'error', inputs: [] },
   { name: 'ProofOfWorkFailed', type: 'error', inputs: [] },
   { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
+  { name: 'InvalidAccount', type: 'error', inputs: [] },
+  { name: 'InvalidConfig', type: 'error', inputs: [] },
+  { name: 'InvalidThreshold', type: 'error', inputs: [] },
+  { name: 'InvalidConfigurableAccountOwner', type: 'error', inputs: [] },
+  { name: 'InvalidWeight', type: 'error', inputs: [] },
+  { name: 'TooManyOwners', type: 'error', inputs: [] },
+  { name: 'DuplicateOwner', type: 'error', inputs: [] },
+  { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
+  { name: 'UnauthorizedConfigurableAccountCaller', type: 'error', inputs: [] },
+  { name: 'PrimitiveRootRequired', type: 'error', inputs: [] },
+  { name: 'UpgradeMustBeOnlyCall', type: 'error', inputs: [] },
+  { name: 'AccountAlreadyConfigurable', type: 'error', inputs: [] },
+  { name: 'AccountHasCode', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'IdenticalAddresses', type: 'error', inputs: [] },
   { name: 'InvalidToken', type: 'error', inputs: [] },
@@ -9956,15 +10029,6 @@ export const coreErrors = [
   { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
   { name: 'InsufficientFeeTokenBalance', type: 'error', inputs: [] },
   { name: 'CannotChangeWithinBlock', type: 'error', inputs: [] },
-  { name: 'InvalidAccount', type: 'error', inputs: [] },
-  { name: 'InvalidConfig', type: 'error', inputs: [] },
-  { name: 'InvalidThreshold', type: 'error', inputs: [] },
-  { name: 'InvalidMultisigOwner', type: 'error', inputs: [] },
-  { name: 'InvalidWeight', type: 'error', inputs: [] },
-  { name: 'TooManyOwners', type: 'error', inputs: [] },
-  { name: 'DuplicateOwner', type: 'error', inputs: [] },
-  { name: 'InvalidOwnerOrder', type: 'error', inputs: [] },
-  { name: 'UnauthorizedMultisigCaller', type: 'error', inputs: [] },
   { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
   { name: 'InvalidNonceKey', type: 'error', inputs: [] },
   { name: 'NonceOverflow', type: 'error', inputs: [] },
@@ -10026,6 +10090,11 @@ export const coreErrors = [
   { name: 'PermitExpired', type: 'error', inputs: [] },
   { name: 'LogoURITooLong', type: 'error', inputs: [] },
   { name: 'InvalidLogoURI', type: 'error', inputs: [] },
+  {
+    name: 'RootKeyRetired',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'account' }],
+  },
   { name: 'ChannelAlreadyExists', type: 'error', inputs: [] },
   { name: 'ChannelNotFound', type: 'error', inputs: [] },
   { name: 'NotPayer', type: 'error', inputs: [] },

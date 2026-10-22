@@ -27,6 +27,7 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
+        "scope",
         "accessKey",
         "accounts",
         "amm",
@@ -55,6 +56,10 @@ describe('decorator', () => {
     expect(typeof client2.accounts.getConfigCommitment.call).toBe('function')
     expect(typeof client2.accounts.updateConfig.call).toBe('function')
     expect(typeof client2.accounts.updateConfig.extractEvent).toBe('function')
+    expect(typeof client2.accounts.upgrade.call).toBe('function')
+    expect(typeof client2.accounts.upgrade.extractEvent).toBe('function')
+    expect(typeof client2.accounts.deriveAccount.call).toBe('function')
+    expect(typeof client2.accounts.verifyHash.call).toBe('function')
     expect(typeof client2.accessKey.getRemainingLimit.callWithPeriod).toBe(
       'function',
     )

@@ -504,6 +504,34 @@ type DecoratorBase<
   }
   accounts: {
     /**
+     * Derives a configurable account address from an initial config with the
+     * configurable account precompile.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const address = await client.accounts.deriveAccount({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and optional salt.
+     * @returns The configurable account address.
+     */
+    deriveAccount: (
+      parameters: accountsActions.deriveAccount.Parameters,
+    ) => Promise<accountsActions.deriveAccount.ReturnValue>
+    /**
      * Gets the current cached config for a configurable account.
      *
      * @param parameters - Parameters.
@@ -543,6 +571,90 @@ type DecoratorBase<
     updateConfigSync: (
       parameters: accountsActions.updateConfigSync.Parameters<chain, account>,
     ) => Promise<accountsActions.updateConfigSync.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accounts.upgrade({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The transaction hash.
+     */
+    upgrade: (
+      parameters: accountsActions.upgrade.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgrade.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place and
+     * waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { config } = await client.accounts.upgradeSync({
+     *   owners: [{ owner: '0x...', weight: 1 }],
+     *   threshold: 1,
+     * })
+     * ```
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The installed configuration, its commitment, and the transaction receipt.
+     */
+    upgradeSync: (
+      parameters: accountsActions.upgradeSync.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgradeSync.ReturnValue>
+    /**
+     * Verifies a configurable account signature against the account's
+     * current configuration.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Account, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: Account.fromSecp256k1('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const valid = await client.accounts.verifyHash({
+     *   account: '0x...',
+     *   hash: '0x...',
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Account, hash, and signature.
+     * @returns Whether the signature is valid for the account.
+     */
+    verifyHash: (
+      parameters: accountsActions.verifyHash.Parameters,
+    ) => Promise<accountsActions.verifyHash.ReturnValue>
   }
   amm: {
     /**
@@ -6206,11 +6318,15 @@ export function decorator() {
         'watchWitnessBurned',
       ]),
       accounts: bindActions(client, accountsActions, [
+        'deriveAccount',
         'getConfig',
         'getConfigCommitment',
         'getOperation',
         'updateConfig',
         'updateConfigSync',
+        'upgrade',
+        'upgradeSync',
+        'verifyHash',
       ]),
       amm: bindActions(client, ammActions, [
         'getPool',

@@ -49,11 +49,12 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
-export const nativeMultisig = {
+export const configurableAccount = {
   deriveAccount: '0xce8e071c',
   getConfigCommitment: '0x5bd93359',
   updateConfig: '0x64203645',
-} as const satisfies FunctionSelectors<typeof Abis.nativeMultisig>
+  upgradeAccount: '0x5f5fdc31',
+} as const satisfies FunctionSelectors<typeof Abis.configurableAccount>
 
 export const currentCommittee = {
   getCommitteeMembers: '0xb2a275f9',
@@ -73,6 +74,7 @@ export const receivePolicyGuard = {
 export const signatureVerifier = {
   recover: '0x19045a25',
   verify: '0x1a86b550',
+  verifyConfigurableAccount: '0x8a4c1645',
   verifyKeychain: '0x6c0c731e',
   verifyKeychainAdmin: '0x5f6fc5b7',
 } as const satisfies FunctionSelectors<typeof Abis.signatureVerifier>
