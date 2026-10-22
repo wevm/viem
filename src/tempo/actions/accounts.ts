@@ -13,7 +13,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
-import type { Compute, UnionOmit } from '../../types/utils.js'
+import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { type ConfigurableAccount, fromConfig } from '../Account.js'
@@ -617,9 +617,11 @@ export namespace upgrade {
           'The root key must sign the upgrade, not an access key.',
         )
     }
+    // Always send a Tempo envelope, so relays recognize and cache the upgrade.
     return (await withExecutionError(action)(client, {
       ...rest,
       ...upgrade.call({ owners, threshold }),
+      type: 'tempo',
     } as never)) as never
   }
 
@@ -734,12 +736,16 @@ export namespace upgradeSync {
 
   export type Args = upgrade.Args
 
-  export type ReturnValue = Compute<{
-    account: Address
-    commitment: Hex.Hex
-    config: AccountConfig.Config
-    receipt: Transaction.TransactionReceipt
-  }>
+  /** Pending and reverted receipts carry no installed configuration. */
+  export type ReturnValue = OneOf<
+    | {
+        account: Address
+        commitment: Hex.Hex
+        config: AccountConfig.Config
+        receipt: Transaction.TransactionReceipt
+      }
+    | { receipt: Transaction.TransactionReceipt }
+  >
 
   export type ErrorType = upgrade.ErrorType
 }

@@ -104,8 +104,9 @@ test('upgrade returns the installed config', async () => {
   const result = await client.accounts.upgradeSync(parameters)
 
   expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(result.commitment).toEqualTypeOf<`0x${string}`>()
-  expectTypeOf(result.config).toEqualTypeOf<AccountConfig.Config>()
+  expectTypeOf(result.config).toEqualTypeOf<AccountConfig.Config | undefined>()
+  if (result.config)
+    expectTypeOf(result.commitment).toEqualTypeOf<`0x${string}`>()
   await client.accounts.upgrade({
     ...parameters,
     // @ts-expect-error The upgrade must be the only call, without a key authorization.

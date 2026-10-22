@@ -192,6 +192,16 @@ config, pass the account's stable address. Pass an `Address` as `value` when no 
 The recovery factory used to derive the address from an initial config. Only set it for a chain
 configured with a different factory.
 
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: 'infer',
+  factory: '0x9999999999999999999999999999999999999999', // [!code focus]
+  owners: ['0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'],
+})
+```
+
 #### value.owners
 
 - **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
@@ -221,6 +231,56 @@ config and required for a current config.
 
 The owners and threshold installed by [`accounts.upgrade`](/tempo/actions/accounts.upgrade). Pass
 it with the upgraded account's `address`, instead of `owners`, `salt`, `threshold`, and `version`.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: { // [!code focus]
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'], // [!code focus]
+    threshold: 1, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### value.upgrade.owners
+
+- **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`
+
+The owners installed by the upgrade. Passing a local account makes it available for local
+aggregation.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: {
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'], // [!code focus]
+    threshold: 1,
+  },
+})
+```
+
+##### value.upgrade.threshold
+
+- **Type:** `number`
+- **Default:** `1`
+
+The approval weight installed by the upgrade.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: {
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'],
+    threshold: 1, // [!code focus]
+  },
+})
+```
 
 #### value.version
 

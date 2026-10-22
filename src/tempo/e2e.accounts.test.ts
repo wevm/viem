@@ -1785,9 +1785,9 @@ describe('stateful', () => {
       to: root.address,
       token: tempo.feeToken,
     })
+    // No Tempo-only fields: the upgrade must still be sent as a Tempo envelope.
     const { config } = await Actions.accounts.upgradeSync(client, {
       account: root,
-      feeToken: tempo.feeToken,
       owners,
       threshold: 1,
     })

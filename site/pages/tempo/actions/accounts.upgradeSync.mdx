@@ -55,9 +55,9 @@ key signs stop working after the upgrade.
 
 ## Return Value
 
-`{ account: Address; commitment: Hex; config: AccountConfig.Config; receipt: TransactionReceipt }`
+`{ account: Address; commitment: Hex; config: AccountConfig.Config; receipt: TransactionReceipt } | { receipt: TransactionReceipt }`
 
-The upgraded account, the installed configuration and its commitment, and the transaction receipt.
+The upgraded account, the installed configuration and its commitment, and the transaction receipt. Only `receipt` is set when the transaction is pending, or reverted with `throwOnReceiptRevert: false`.
 
 ## Parameters
 
