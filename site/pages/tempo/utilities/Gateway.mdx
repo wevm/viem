@@ -1,6 +1,6 @@
 # `Gateway`
 
-Wallet-paid inference, object storage, and key-value state on a Tempo Gateway.
+Wallet-paid inference, object storage, sandboxed compute, and key-value state on a Tempo Gateway.
 
 :::warning
 This API is experimental and may change in future releases.
@@ -10,7 +10,7 @@ A Gateway charges each operation through an [MPP](https://mpp.dev) session paid 
 
 ## Usage
 
-Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, and `client.kv`.
+Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, `client.compute`, and `client.kv`.
 
 ```ts
 import { Mppx, tempo } from 'mppx/client'
@@ -45,6 +45,26 @@ const entry = await client.kv.set({
   value: { object: 'descriptions/latest.txt' },
 })
 // @log: { expiresAt: null, key: 'description', value: { object: 'descriptions/latest.txt' }, version: 1 }
+```
+
+### Compute
+
+`compute.create` starts a sandbox from a container image on CPU or a GPU. It is paid up front for its `timeout`, priced per second by GPU type; `Gateway.getCapabilities` lists the rates.
+
+```ts
+const sandbox = await client.compute.create({
+  gpu: 'H100',
+  image: 'python:3.12-slim',
+  timeout: 600,
+})
+
+const { exitCode, stdout } = await client.compute.exec({
+  command: ['python', '-c', 'print(1 + 1)'],
+  sandboxId: sandbox.sandboxId,
+})
+// @log: { exitCode: 0, stderr: '', stdout: '2\n' }
+
+await client.compute.terminate({ sandboxId: sandbox.sandboxId })
 ```
 
 ### Standalone Actions
@@ -97,6 +117,11 @@ const mppx = Mppx.create({
 | `bucket.head` | Reads object metadata, or `null`. |
 | `bucket.list` | Lists objects by key prefix. |
 | `bucket.put` | Writes a `Blob`, `Uint8Array`, `ArrayBuffer`, or string for a retention period. |
+| `compute.create` | Starts a sandbox on CPU or a GPU, paid up front for its `timeout`. |
+| `compute.exec` | Runs a command in a sandbox and returns its output and exit code. |
+| `compute.list` | Lists sandboxes that have not ended. |
+| `compute.status` | Reads whether a sandbox is running. |
+| `compute.terminate` | Terminates a sandbox. |
 | `kv.delete` | Deletes a key. |
 | `kv.get` | Reads a JSON value with its version, or `null`. |
 | `kv.list` | Lists entries by key prefix. |

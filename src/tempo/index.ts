@@ -73,7 +73,8 @@ export * as Expiry from './Expiry.js'
 export * from './errors.js'
 export * as Formatters from './Formatters.js'
 /**
- * Wallet-paid inference, object storage, and key-value state on a Tempo Gateway.
+ * Wallet-paid inference, object storage, sandboxed compute, and key-value state
+ * on a Tempo Gateway.
  * @experimental
  */
 export * as Gateway from './Gateway.js'

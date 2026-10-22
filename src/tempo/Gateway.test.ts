@@ -18,6 +18,7 @@ type StoredObject = {
 
 const objects = new Map<string, StoredObject>()
 const entries = new Map<string, Entry>()
+const sandboxes = new Map<string, { gpu: string | null; running: boolean }>()
 
 function problem(status: number, code: string, detail: string) {
   return Response.json(
@@ -67,6 +68,65 @@ async function handle(request: Request) {
     key: string
     prefix?: string
     value?: unknown
+  }
+
+  if (pathname.startsWith('/v1/compute/')) {
+    const input = body as unknown as {
+      command?: string[]
+      gpu?: string
+      gpuCount?: number
+      image?: string
+      sandboxId?: string
+      timeout?: number
+    }
+    const sandbox = sandboxes.get(scope(input.sandboxId ?? ''))
+    const view = (sandboxId: string, gpu: string | null) => ({
+      createdAt: 0,
+      expiresAt: 300_000,
+      gpu,
+      image: 'python:3.12-slim',
+      sandboxId,
+    })
+    if (pathname === '/v1/compute/create') {
+      const sandboxId = `sb-${sandboxes.size + 1}`
+      const gpu = input.gpu
+        ? input.gpuCount
+          ? `${input.gpu}:${input.gpuCount}`
+          : input.gpu
+        : null
+      sandboxes.set(scope(sandboxId), { gpu, running: true })
+      return Response.json(view(sandboxId, gpu))
+    }
+    if (pathname === '/v1/compute/list')
+      return Response.json({
+        cursor: null,
+        sandboxes: [...sandboxes]
+          .filter(([key, value]) => key.startsWith(scope('')) && value.running)
+          .map(([key, value]) => view(key.slice(scope('').length), value.gpu)),
+      })
+    if (!sandbox?.running)
+      return problem(404, 'not_found', `${input.sandboxId} does not exist.`)
+    switch (pathname) {
+      case '/v1/compute/exec':
+        return Response.json({
+          exitCode: 0,
+          stderr: '',
+          stdout: `${input.command?.join(' ')}\n`,
+        })
+      case '/v1/compute/status':
+        return Response.json({
+          ...view(input.sandboxId ?? '', sandbox.gpu),
+          exitCode: null,
+          status: 'running',
+        })
+      case '/v1/compute/terminate':
+        sandbox.running = false
+        return Response.json({
+          exitCode: 0,
+          sandboxId: input.sandboxId,
+          status: 'terminated',
+        })
+    }
   }
 
   switch (pathname) {
@@ -478,6 +538,89 @@ describe('kv', () => {
     await expect(
       Actions.kv.set(gateway, { ifVersion: null, key: 'conflict', value: 2 }),
     ).rejects.toThrowError(Gateway.VersionConflictError)
+  })
+})
+
+describe('compute', () => {
+  test('default', async () => {
+    const gateway = Gateway.from({ app: 'compute', fetch: paidFetch, url })
+
+    const created = await Actions.compute.create(gateway, {
+      gpu: 'H100',
+      gpuCount: 2,
+      timeout: 600,
+    })
+    const { sandboxId } = created
+    const executed = await Actions.compute.exec(gateway, {
+      command: ['python', '-c', 'print(1)'],
+      sandboxId,
+    })
+    const status = await Actions.compute.status(gateway, { sandboxId })
+    const listed = await Actions.compute.list(gateway)
+    const terminated = await Actions.compute.terminate(gateway, { sandboxId })
+
+    expect({
+      created,
+      executed,
+      listed,
+      status,
+      terminated,
+    }).toMatchInlineSnapshot(`
+      {
+        "created": {
+          "createdAt": 0,
+          "expiresAt": 300000,
+          "gpu": "H100:2",
+          "image": "python:3.12-slim",
+          "sandboxId": "sb-1",
+        },
+        "executed": {
+          "exitCode": 0,
+          "stderr": "",
+          "stdout": "python -c print(1)
+      ",
+        },
+        "listed": {
+          "cursor": null,
+          "sandboxes": [
+            {
+              "createdAt": 0,
+              "expiresAt": 300000,
+              "gpu": "H100:2",
+              "image": "python:3.12-slim",
+              "sandboxId": "sb-1",
+            },
+          ],
+        },
+        "status": {
+          "createdAt": 0,
+          "exitCode": null,
+          "expiresAt": 300000,
+          "gpu": "H100:2",
+          "image": "python:3.12-slim",
+          "sandboxId": "sb-1",
+          "status": "running",
+        },
+        "terminated": {
+          "exitCode": 0,
+          "sandboxId": "sb-1",
+          "status": "terminated",
+        },
+      }
+    `)
+  })
+
+  test('behavior: ended sandbox', async () => {
+    const gateway = Gateway.from({ app: 'compute', fetch: paidFetch, url })
+
+    const { sandboxId } = await Actions.compute.create(gateway)
+    await Actions.compute.terminate(gateway, { sandboxId })
+
+    const error = await Actions.compute
+      .exec(gateway, { command: ['true'], sandboxId })
+      .catch((error) => error)
+    expect(error).toBeInstanceOf(Gateway.RequestError)
+    expect(error.code).toBe('not_found')
   })
 })
 

@@ -9,10 +9,25 @@ import { BaseError } from '../errors/base.js'
 export type Capabilities = {
   /** Chain the Gateway accepts payments on. */
   chainId: number
+  /** Sandboxed compute. */
+  compute: {
+    /** Whether this Gateway offers compute. */
+    available: boolean
+    /** CPU sandbox price per second in currency units. */
+    cpuPerSecond: number
+    /** Defaults of `compute.create`. */
+    defaults: { image: string; timeout: number }
+    /** Price per GPU-second in currency units, by GPU type. */
+    gpusPerSecond: Record<string, number>
+  }
   /** Payment currencies by name. */
   currencies: Record<string, Address>
   /** Request and storage limits. */
   limits: {
+    /** Maximum `compute.exec` timeout in seconds. */
+    execSeconds: number
+    /** Maximum GPUs per sandbox. */
+    gpuCount: number
     /** Maximum key size in bytes. */
     keyBytes: number
     /** Maximum page size of `list` actions. */
@@ -23,6 +38,8 @@ export type Capabilities = {
     objectBytes: number
     /** Maximum retention or TTL in seconds. */
     retentionSeconds: number
+    /** Maximum sandbox lifetime in seconds. */
+    sandboxSeconds: number
     /** Maximum serialized key-value size in bytes. */
     valueBytes: number
   }
@@ -164,7 +181,7 @@ export declare namespace getCapabilities {
  * Sends a request to a Gateway route under `/v1` and returns the successful
  * response. Problem responses throw a {@link RequestError}.
  *
- * Prefer the typed `ai`, `bucket`, and `kv` actions.
+ * Prefer the typed `ai`, `bucket`, `compute`, and `kv` actions.
  *
  * @experimental
  *

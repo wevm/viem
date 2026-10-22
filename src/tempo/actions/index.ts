@@ -7,6 +7,8 @@ export * as amm from './amm.js'
 /** @experimental */
 export * as bucket from './bucket.js'
 export * as channel from './channel.js'
+/** @experimental */
+export * as compute from './compute.js'
 export * as dex from './dex.js'
 export * as earn from './earn.js'
 export * as faucet from './faucet.js'

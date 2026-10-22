@@ -37,3 +37,24 @@ test('bucket.get: stream or null', () => {
     .toHaveProperty('body')
     .toEqualTypeOf<ReadableStream<Uint8Array>>()
 })
+
+test('compute.create: gpuCount needs gpu', () => {
+  Actions.compute.create(gateway)
+  Actions.compute.create(gateway, { gpu: 'H100', gpuCount: 2 })
+  // @ts-expect-error
+  Actions.compute.create(gateway, { gpuCount: 2 })
+  // @ts-expect-error
+  Actions.compute.create(gateway, { gpu: 'H1000' })
+})
+
+test('compute.exec: non-empty command', () => {
+  Actions.compute.exec(gateway, { command: ['ls', '-la'], sandboxId: 'sb' })
+  // @ts-expect-error
+  Actions.compute.exec(gateway, { command: [], sandboxId: 'sb' })
+})
+
+test('compute.status: running or terminated', () => {
+  expectTypeOf(Actions.compute.status(gateway, { sandboxId: 'sb' }))
+    .resolves.toHaveProperty('status')
+    .toEqualTypeOf<'running' | 'terminated'>()
+})

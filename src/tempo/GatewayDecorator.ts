@@ -4,6 +4,7 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as aiActions from './actions/ai.js'
 import * as bucketActions from './actions/bucket.js'
+import * as computeActions from './actions/compute.js'
 import * as kvActions from './actions/kv.js'
 import * as Gateway from './Gateway.js'
 
@@ -228,6 +229,156 @@ export type Decorator = {
       parameters: bucketActions.put.Parameters,
     ) => Promise<bucketActions.put.ReturnValue>
   }
+  /** Sandboxed CPU and GPU compute, private to the payer and app. */
+  compute: {
+    /**
+     * Starts a sandbox from a container image, on CPU or a GPU, for
+     * `timeout` seconds. Paid up front by GPU and timeout.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const sandbox = await client.compute.create({ gpu: 'H100', timeout: 600 })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The sandbox.
+     */
+    create: (
+      parameters?: computeActions.create.Parameters,
+    ) => Promise<computeActions.create.ReturnValue>
+    /**
+     * Runs a command in a sandbox and waits for it to finish. Paid per
+     * request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const { stdout } = await client.compute.exec({
+     *   command: ['python', '-c', 'print(1 + 1)'],
+     *   sandboxId: sandbox.sandboxId,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The command's output and exit code.
+     */
+    exec: (
+      parameters: computeActions.exec.Parameters,
+    ) => Promise<computeActions.exec.ReturnValue>
+    /**
+     * Lists the app's sandboxes that have not ended. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const { sandboxes } = await client.compute.list()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A page of sandboxes and the next cursor.
+     */
+    list: (
+      parameters?: computeActions.list.Parameters,
+    ) => Promise<computeActions.list.ReturnValue>
+    /**
+     * Reads whether a sandbox is running. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const { status } = await client.compute.status({
+     *   sandboxId: sandbox.sandboxId,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The sandbox and its status.
+     */
+    status: (
+      parameters: computeActions.status.Parameters,
+    ) => Promise<computeActions.status.ReturnValue>
+    /**
+     * Terminates a sandbox. Unused time is not refunded. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * await client.compute.terminate({ sandboxId: sandbox.sandboxId })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The final status.
+     */
+    terminate: (
+      parameters: computeActions.terminate.Parameters,
+    ) => Promise<computeActions.terminate.ReturnValue>
+  }
   /** Key-value state, private to the payer and app. */
   kv: {
     /**
@@ -356,8 +507,9 @@ export type Decorator = {
 }
 
 /**
- * Adds Gateway inference (`client.ai`), object storage (`client.bucket`), and
- * key-value state (`client.kv`) to a Client.
+ * Adds Gateway inference (`client.ai`), object storage (`client.bucket`),
+ * sandboxed compute (`client.compute`), and key-value state (`client.kv`) to a
+ * Client.
  *
  * Viem does not pay for requests: pass a payment-aware `fetch`, such as
  * `mppx`'s client fetch. Data is scoped by chain, the paying wallet, and `app`.
@@ -407,6 +559,13 @@ export function decorator(options: decorator.Options) {
       head: (parameters) => bucketActions.head(gateway, parameters),
       list: (parameters) => bucketActions.list(gateway, parameters),
       put: (parameters) => bucketActions.put(gateway, parameters),
+    },
+    compute: {
+      create: (parameters) => computeActions.create(gateway, parameters),
+      exec: (parameters) => computeActions.exec(gateway, parameters),
+      list: (parameters) => computeActions.list(gateway, parameters),
+      status: (parameters) => computeActions.status(gateway, parameters),
+      terminate: (parameters) => computeActions.terminate(gateway, parameters),
     },
     kv: {
       delete: (parameters) => kvActions.delete(gateway, parameters),
