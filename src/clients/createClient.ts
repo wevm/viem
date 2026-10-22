@@ -351,9 +351,14 @@ export function createClient(parameters: ClientConfig): Client {
   return decorate(client)
 }
 
+/** Built-in `scope` functions, which an extension named `scope` takes precedence over. */
+const scopes_builtin = new WeakSet<object>()
+
+let scopeId = 0
+
 /**
- * Attaches `extend` and `scope` to a base Client. Base keys are reserved,
- * so extensions cannot override them.
+ * Attaches `extend` and `scope` to a base Client. Base keys other than
+ * `scope` are reserved, so extensions cannot override them.
  */
 function decorate<client extends Client_Base>(client: client): Client {
   type ExtendFn = (base: client) => unknown
@@ -361,7 +366,7 @@ function decorate<client extends Client_Base>(client: client): Client {
   function extend(base: client, extensions: readonly ExtendFn[]) {
     return (extendFn: ExtendFn) => {
       const extended = extendFn(base) as Extended
-      for (const key in client) delete extended[key]
+      for (const key in client) if (key !== 'scope') delete extended[key]
       const combined = { ...base, ...extended }
       // For keys that exist on both the base client and the extension and
       // resolve to plain objects (e.g. namespaces like `token`), shallow-merge
@@ -375,9 +380,14 @@ function decorate<client extends Client_Base>(client: client): Client {
           (combined as Record<string, unknown>)[key] = { ...a, ...b }
       }
       const next = [...extensions, extendFn]
+      const { scope: scope_combined } = combined as { scope?: unknown }
       return Object.assign(combined, {
         extend: extend(combined as any, next),
-        scope: scope(next),
+        scope:
+          typeof scope_combined === 'function' &&
+          scopes_builtin.has(scope_combined)
+            ? scope(next)
+            : scope_combined,
       })
     }
   }
@@ -385,17 +395,27 @@ function decorate<client extends Client_Base>(client: client): Client {
   function scope(extensions: readonly ExtendFn[]) {
     // Memoized by signal, so callers sharing one signal share one scope.
     const scopes = new WeakMap<AbortSignal, Client>()
-    return (options: { signal?: AbortSignal | undefined } = {}) => {
+    const fn = (options: { signal?: AbortSignal | undefined } = {}) => {
       const cached = options.signal && scopes.get(options.signal)
       if (cached) return cached
 
-      const id = uid()
-      // A scope-owned signal also keys transport queues, such as HTTP batches, to the scope.
-      const signal = options.signal ?? new AbortController().signal
+      const id = `scope.${scopeId++}`
+      // A scope-owned signal keys transport queues, such as HTTP batches, to the scope.
+      const controller = new AbortController()
+      const { signal } = options
+      if (signal?.aborted) controller.abort(signal.reason)
+      else
+        signal?.addEventListener(
+          'abort',
+          () => controller.abort(signal.reason),
+          {
+            once: true,
+          },
+        )
       const request: EIP1193RequestFn = (args, options_request) =>
         client.request(args as never, {
           ...options_request,
-          signal: options_request?.signal ?? signal,
+          signal: options_request?.signal ?? controller.signal,
           // The request `uid` keys in-flight request deduplication.
           uid: options_request?.uid ?? id,
         })
@@ -403,9 +423,11 @@ function decorate<client extends Client_Base>(client: client): Client {
         (base, extendFn) => base.extend(extendFn as never),
         decorate({ ...client, request, uid: id }),
       )
-      if (options.signal) scopes.set(options.signal, scoped)
+      if (signal) scopes.set(signal, scoped)
       return scoped
     }
+    scopes_builtin.add(fn)
+    return fn
   }
 
   return Object.assign(client, {

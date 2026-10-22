@@ -942,6 +942,66 @@ describe('scope', () => {
     expect(await client.getBlockNumber()).toMatchInlineSnapshot(`2n`)
   })
 
+  test('behavior: signal aborts requests on transports that ignore it', async () => {
+    const client = createClient({
+      transport: custom({ request: () => new Promise(() => {}) }),
+    })
+    const controller = new AbortController()
+
+    const pending = client
+      .scope({ signal: controller.signal })
+      .request({ method: 'eth_blockNumber' })
+    controller.abort()
+
+    await expect(pending).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AbortError: This operation was aborted]`,
+    )
+  })
+
+  test('behavior: scopes of different Clients sharing a signal do not batch together', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await createHttpServer(async (req, res) => {
+      const body = JSON.parse(await readBody(req))
+      res.end(
+        JSON.stringify(
+          body.map(({ id }: { id: number }) => ({
+            id,
+            jsonrpc: '2.0',
+            result: `0x${body.length.toString(16)}`,
+          })),
+        ),
+      )
+    })
+    const client = createClient({
+      transport: http(server.url, { batch: true }),
+    }).extend(publicActions)
+    const { signal } = new AbortController()
+
+    const results = await Promise.all([
+      client.scope({ signal }).getChainId(),
+      client
+        .extend(() => ({}))
+        .scope({ signal })
+        .getChainId(),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        1,
+        1,
+      ]
+    `)
+    await server.close()
+  })
+
+  test('behavior: an extension named `scope` takes precedence', () => {
+    const client = createClient({ transport: http('https://localhost') })
+      .extend(() => ({ scope: 'custom' as const }))
+      .extend(() => ({}))
+
+    expect(client.scope).toMatchInlineSnapshot(`"custom"`)
+  })
+
   test('behavior: nested scopes are isolated', async () => {
     await using server = await createHeldServer()
     const scoped = createClient({
