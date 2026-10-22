@@ -19,5 +19,11 @@ export const zksyncEraTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://block-explorer-api.zksync-era-testnet.zksync.dev/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 10618,
+    },
+  },
   testnet: true,
 })
