@@ -199,7 +199,7 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
       // https://regexr.com/6va6i
-      if (/[a-z]+[1-9]{0,3}(\[[0-9]{0,}\])+$/.test(abiParameterType)) {
+      if (/[a-z]+[0-9]{0,3}(\[[0-9]{0,}\])+$/.test(abiParameterType)) {
         return (
           Array.isArray(arg) &&
           arg.every((x: unknown) =>
@@ -238,6 +238,25 @@ export function getAmbiguousTypes(
         targetParameter.components,
         (args as any)[parameterIndex],
       )
+
+    // arrays with the same `[]` or `[M]` suffix: compare the element types of each item
+    const suffix = /\[[0-9]{0,}\]$/.exec(sourceParameter.type)?.[0]
+    if (suffix && targetParameter.type.endsWith(suffix)) {
+      const element = (parameter: AbiParameter) =>
+        ({
+          ...parameter,
+          type: parameter.type.slice(0, -suffix.length),
+        }) as AbiParameter
+      for (const arg of (args as any)[parameterIndex] as readonly unknown[]) {
+        const types = getAmbiguousTypes(
+          [element(sourceParameter)],
+          [element(targetParameter)],
+          [arg],
+        )
+        if (types) return types
+      }
+      continue
+    }
 
     const types = [sourceParameter.type, targetParameter.type]
 
