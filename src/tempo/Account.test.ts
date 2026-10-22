@@ -96,6 +96,18 @@ describe('fromConfig', () => {
     expect(account.address).toBe('0x2318EBe50D1D476Ec10854bFD949f96Ea7737B68')
   })
 
+  test('behavior: factory', () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      factory: '0x9999999999999999999999999999999999999999',
+      owners: ['0x1111111111111111111111111111111111111111'],
+    })
+
+    expect(account.address).toMatchInlineSnapshot(
+      `"0x87c346A9029D675F296db533B12e146439CF20d5"`,
+    )
+  })
+
   test('behavior: upgrade config', () => {
     const owner = Account.fromSecp256k1(privateKey_secp256k1)
     const account = Account.fromConfig({

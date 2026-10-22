@@ -25,6 +25,88 @@ import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
 
 /**
+ * Derives a configurable account address from an initial config with the
+ * configurable account precompile.
+ *
+ * The precompile validates the config and derives the address with the chain's
+ * recovery factory. To derive the address locally, use
+ * `AccountConfig.getAddress` or `Account.fromConfig({ address: 'infer' })`.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const address = await Actions.accounts.deriveAccount(client, {
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The configurable account address.
+ */
+export async function deriveAccount<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: deriveAccount.Parameters,
+): Promise<deriveAccount.ReturnValue> {
+  const { owners, salt, threshold, ...rest } = parameters
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...deriveAccount.call({ owners, salt, threshold }),
+  })
+}
+
+export namespace deriveAccount {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Weighted owners. Normalized into canonical address order. */
+    owners: AccountConfig.Config['owners']
+    /** Caller-chosen 32-byte salt. Defaults to the zero salt. */
+    salt?: Hex.Hex | undefined
+    /** Minimum total owner weight required for authorization. */
+    threshold: number
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.configurableAccount,
+    'deriveAccount',
+    never
+  >
+
+  /**
+   * Defines a call to the `deriveAccount` function.
+   *
+   * Can be passed to [`multicall`](https://viem.sh/docs/contract/multicall).
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { owners, salt, threshold } = AccountConfig.from(args)
+    return defineCall({
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
+      args: [salt, threshold, owners],
+      functionName: 'deriveAccount',
+    })
+  }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+}
+
+/**
  * Gets the current cached config for a configurable account.
  *
  * The coordinator reads the account's current onchain commitment and returns
@@ -648,4 +730,86 @@ export namespace upgradeSync {
   }>
 
   export type ErrorType = upgrade.ErrorType
+}
+
+/**
+ * Verifies a configurable account signature against the account's current
+ * configuration with the signature verifier precompile.
+ *
+ * Returns `false` when the signature is for another account or a config that
+ * is not the account's current config. Throws when the signature is malformed
+ * or its approvals do not reach quorum.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const valid = await Actions.accounts.verifyHash(client, {
+ *   account: '0x...',
+ *   hash: '0x...',
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the signature is valid for the account.
+ */
+export async function verifyHash<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: verifyHash.Parameters,
+): Promise<verifyHash.ReturnValue> {
+  const { account, hash, signature, ...rest } = parameters
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...verifyHash.call({ account, hash, signature }),
+  })
+}
+
+export namespace verifyHash {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Configurable account address the signature is expected to belong to. */
+    account: Address
+    /** Original message hash that was signed. */
+    hash: Hex.Hex
+    /** Configurable account signature envelope. */
+    signature: Hex.Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.signatureVerifier,
+    'verifyConfigurableAccount',
+    never
+  >
+
+  /**
+   * Defines a call to the `verifyConfigurableAccount` function on the
+   * signature verifier precompile.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, hash, signature } = args
+    return defineCall({
+      address: Addresses.signatureVerifier,
+      abi: Abis.signatureVerifier,
+      args: [account, hash, signature],
+      functionName: 'verifyConfigurableAccount',
+    })
+  }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }

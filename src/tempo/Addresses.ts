@@ -13,7 +13,7 @@ export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
 export const accountRegistrar = '0x7702ac0000000000000000000000000000000000'
 export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
 export const configurableAccount = '0xAACC000000000000000000000000000000000000'
-/** Temporary recovery factory until the production address is finalized. */
+/** Default configurable account recovery factory. Temporary until the production address is finalized. */
 export const configurableAccountRecoveryFactory =
   '0x7171717171717171717171717171717171717171'
 /** Current consensus committee precompile address, used with `Abis.currentCommittee` to read committee members. */

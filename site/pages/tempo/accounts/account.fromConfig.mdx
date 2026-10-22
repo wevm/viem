@@ -184,6 +184,14 @@ installed owners, or an address without a retained config.
 Omit this field or set it to `infer` to derive an account from a version-zero config. For a current
 config, pass the account's stable address. Pass an `Address` as `value` when no config is needed.
 
+#### value.factory
+
+- **Type:** `Address`
+- **Default:** `Addresses.configurableAccountRecoveryFactory`
+
+The recovery factory used to derive the address from an initial config. Only set it for a chain
+configured with a different factory.
+
 #### value.owners
 
 - **Type:** `readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]`

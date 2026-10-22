@@ -235,5 +235,7 @@ Not done:
   `precompiles/`, so the Zone exports were kept at their previous generated values.
 - Phase 5: signing as a configurable access key (`resolveAccessKey`) and relay fee payer
   support for keychain envelopes with configurable inner signatures.
-- Phase 6: `accounts.deriveAccount`, `verifyConfigurableAccount` actions, per-chain
-  recovery factory.
+- Phase 6: none. `accounts.deriveAccount` and `accounts.verifyHash` wrap the precompiles,
+  and Tempo `verifyHash` verifies configurable signatures. The recovery factory stays a
+  default shared by all chains, with a `factory` override on `Account.fromConfig`; the
+  relay and config store use the default.

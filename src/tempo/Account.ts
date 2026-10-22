@@ -331,7 +331,11 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     if ('upgrade' in value) return value.upgrade
-    const { address: _, ...config } = value
+    const {
+      address: _,
+      factory: __,
+      ...config
+    } = value as fromConfig.InitialConfig
     return config
   })()
   const config = (() => {
@@ -368,7 +372,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
       if (typeof value === 'string') return value
       if (value.address === undefined || value.address === 'infer')
         return AccountConfig.getAddress(config!, {
-          factory: configurableAccountRecoveryFactory,
+          factory: value.factory ?? configurableAccountRecoveryFactory,
         })
       return value.address
     })(),
@@ -490,6 +494,11 @@ export declare namespace fromConfig {
   export type InitialConfig = {
     /** Derives the stable account address from this initial config. */
     address?: 'infer' | undefined
+    /**
+     * Recovery factory used to derive the address.
+     * @default `Addresses.configurableAccountRecoveryFactory`
+     */
+    factory?: Address.Address | undefined
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */
@@ -1133,6 +1142,10 @@ declare namespace fromAccessKey {
   export type ReturnValue = AccessKeyAccount
 }
 
+// TODO: support configurable accounts as access keys (TIP-1111): authorize a
+// configurable account with key type `configurable`, sign as it with a keychain
+// envelope wrapping its configurable signature, and accept those envelopes in the
+// relay fee payer.
 /** @internal */
 export function resolveAccessKey(
   accessKey: resolveAccessKey.Parameters,

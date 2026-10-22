@@ -504,6 +504,16 @@ type DecoratorBase<
   }
   accounts: {
     /**
+     * Derives a configurable account address from an initial config with the
+     * configurable account precompile.
+     *
+     * @param parameters - Owners, threshold, and optional salt.
+     * @returns The configurable account address.
+     */
+    deriveAccount: (
+      parameters: accountsActions.deriveAccount.Parameters,
+    ) => Promise<accountsActions.deriveAccount.ReturnValue>
+    /**
      * Gets the current cached config for a configurable account.
      *
      * @param parameters - Parameters.
@@ -562,6 +572,16 @@ type DecoratorBase<
     upgradeSync: (
       parameters: accountsActions.upgradeSync.Parameters<chain, account>,
     ) => Promise<accountsActions.upgradeSync.ReturnValue>
+    /**
+     * Verifies a configurable account signature against the account's
+     * current configuration.
+     *
+     * @param parameters - Account, hash, and signature.
+     * @returns Whether the signature is valid for the account.
+     */
+    verifyHash: (
+      parameters: accountsActions.verifyHash.Parameters,
+    ) => Promise<accountsActions.verifyHash.ReturnValue>
   }
   amm: {
     /**
@@ -6225,6 +6245,7 @@ export function decorator() {
         'watchWitnessBurned',
       ]),
       accounts: bindActions(client, accountsActions, [
+        'deriveAccount',
         'getConfig',
         'getConfigCommitment',
         'getOperation',
@@ -6232,6 +6253,7 @@ export function decorator() {
         'updateConfigSync',
         'upgrade',
         'upgradeSync',
+        'verifyHash',
       ]),
       amm: bindActions(client, ammActions, [
         'getPool',

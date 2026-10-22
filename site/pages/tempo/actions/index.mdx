@@ -11,12 +11,14 @@
 | [`accessKey.signAuthorization`](/tempo/actions/accessKey.signAuthorization) | Signs or coordinates a key authorization (no transaction sent) |
 | [`accessKey.updateLimit`](/tempo/actions/accessKey.updateLimit) | Updates the spending limit for a specific token on an access key |
 | **Accounts Actions** | |
+| [`accounts.deriveAccount`](/tempo/actions/accounts.deriveAccount) | Derives a configurable account address with the configurable account precompile |
 | [`accounts.getConfig`](/tempo/actions/accounts.getConfig) | Gets the cached config selected by current chain state |
 | [`accounts.getOperation`](/tempo/actions/accounts.getOperation) | Gets a coordinated account operation by its hash |
 | [`accounts.updateConfig`](/tempo/actions/accounts.updateConfig) | Replaces a configurable account's current configuration |
 | [`accounts.updateConfigSync`](/tempo/actions/accounts.updateConfigSync) | Replaces a configurable account's current configuration and waits for confirmation |
 | [`accounts.upgrade`](/tempo/actions/accounts.upgrade) | Upgrades an existing account to a configurable account in place |
 | [`accounts.upgradeSync`](/tempo/actions/accounts.upgradeSync) | Upgrades an existing account to a configurable account in place and waits for confirmation |
+| [`accounts.verifyHash`](/tempo/actions/accounts.verifyHash) | Verifies a configurable account signature against the account's current configuration |
 | **AMM Actions** | |
 | [`amm.burn`](/tempo/actions/amm.burn) | Burns liquidity tokens and receives the underlying token pair |
 | [`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance) | Gets the liquidity balance for an address in a specific pool |

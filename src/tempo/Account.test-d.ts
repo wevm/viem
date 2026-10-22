@@ -41,6 +41,11 @@ test('fromConfig preserves config availability', () => {
 test('fromConfig distinguishes initial and current configs', () => {
   Account.fromConfig({ owners: [owner] })
   Account.fromConfig({ address: 'infer', owners: [owner] })
+  Account.fromConfig({
+    address: 'infer',
+    factory: '0x9999999999999999999999999999999999999999',
+    owners: [owner],
+  })
   // @ts-expect-error Current configs require `salt`.
   Account.fromConfig({
     address: owner.address,

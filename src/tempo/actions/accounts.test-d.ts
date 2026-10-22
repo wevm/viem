@@ -112,3 +112,18 @@ test('upgrade returns the installed config', async () => {
     keyAuthorization: {} as never,
   })
 })
+
+test('deriveAccount and verifyHash return precompile results', async () => {
+  const address = await client.accounts.deriveAccount({
+    owners: account.config.owners,
+    threshold: account.config.threshold,
+  })
+  const valid = await client.accounts.verifyHash({
+    account: account.address,
+    hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    signature: '0x',
+  })
+
+  expectTypeOf(address).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(valid).toEqualTypeOf<boolean>()
+})

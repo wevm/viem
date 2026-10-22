@@ -4,6 +4,7 @@ import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import {
   createClientResolver,
   http,
+  keccak256,
   maxUint256,
   parseSignature,
   type Transport,
@@ -16,6 +17,7 @@ import {
   sendRawTransactionSync,
   sendTransactionSync,
   signTransaction,
+  verifyHash,
 } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import {
@@ -576,6 +578,59 @@ describe('stateless', () => {
         token: feeToken,
       }),
     ).rejects.toThrow()
+  })
+
+  test('behavior: deriveAccount matches the local address', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: toHex(0x106140, { size: 32 }),
+      threshold: 2,
+    })
+
+    expect(
+      await Actions.accounts.deriveAccount(client, {
+        owners: account.config.owners,
+        salt: account.config.salt,
+        threshold: account.config.threshold,
+      }),
+    ).toBe(account.address)
+  })
+
+  test('behavior: verifyHash', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: toHex(0x106141, { size: 32 }),
+      threshold: 2,
+    })
+    const hash = keccak256(toHex('hello'))
+    const signature = await account.sign({ hash })
+
+    expect(
+      await Actions.accounts.verifyHash(client, {
+        account: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, { address: account.address, hash, signature }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: keccak256(toHex('goodbye')),
+        signature,
+      }),
+    ).toBe(false)
+    expect(
+      await Actions.accounts.verifyHash(client, {
+        account: accounts[3].address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
   })
 
   test('behavior: upgrade rejects a configurable account', async () => {

@@ -1,0 +1,78 @@
+---
+description: Verifies a configurable account signature against the account's current configuration.
+---
+
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accounts.verifyHash`
+
+Verifies a configurable account signature against the account's current configuration with the
+signature verifier precompile.
+
+Returns `false` when the signature is for another account, or for a config that is not the
+account's current config. Throws when the signature is malformed or its approvals do not reach
+quorum.
+
+[`verifyHash`](/docs/actions/public/verifyHash) on a Tempo chain also verifies configurable
+account signatures, and returns `false` instead of throwing.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const account = Account.fromConfig({ address: 'infer', owners: [owner] })
+
+const hash =
+  '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef'
+const signature = await account.sign({ hash })
+
+const valid = await client.accounts.verifyHash({
+  account: account.address,
+  hash,
+  signature,
+})
+// @log: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+Whether the signature is valid for the account.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Configurable account address the signature is expected to belong to.
+
+### hash
+
+- **Type:** `Hex`
+
+Original message hash that was signed.
+
+### signature
+
+- **Type:** `Hex`
+
+Configurable account signature envelope.
+
+<ReadParameters />

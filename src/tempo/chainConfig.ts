@@ -9,8 +9,11 @@ import {
 } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
+import { readContract } from '../actions/public/readContract.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
+import { BaseError } from '../errors/base.js'
+import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
@@ -22,7 +25,10 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, ConfigurableAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
-import { getConfig } from './actions/accounts.js'
+import {
+  getConfig,
+  verifyHash as verifyConfigurableAccount,
+} from './actions/accounts.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
@@ -369,6 +375,33 @@ export const chainConfig = {
           payload: innerPayload,
         })
       }
+
+      // Configurable account signatures are verified against the account's
+      // current config commitment, which only the chain knows.
+      // Reverts (malformed signatures or approvals below quorum) are invalid signatures.
+      if (envelope.type === 'configurable')
+        return await (
+          readContract(client, {
+            blockHash: parameters.blockHash,
+            blockNumber: parameters.blockNumber,
+            blockTag: parameters.blockTag,
+            requireCanonical: parameters.requireCanonical,
+            ...verifyConfigurableAccount.call({
+              account: address,
+              hash,
+              signature: signature as Hex.Hex,
+            }),
+          } as never) as Promise<boolean>
+        ).catch((error) => {
+          if (
+            error instanceof BaseError &&
+            error.walk(
+              (cause) => cause instanceof ContractFunctionRevertedError,
+            )
+          )
+            return false
+          throw error
+        })
 
       // Stateless, non-keychain signature envelopes (P256, WebAuthn) can be
       // verified directly without a network request.
