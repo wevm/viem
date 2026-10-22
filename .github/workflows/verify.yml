@@ -334,7 +334,7 @@ jobs:
         if: ${{ matrix.runtime == 'bun' }}
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.0.30
+          bun-version: 1.4.4
 
       - name: Set up Node
         if: ${{ matrix.node-version }}
