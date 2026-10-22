@@ -769,6 +769,7 @@ export {
   zksync as zkSync,
   zksync,
 } from './definitions/zksync.js'
+export { zksyncEraTestnet } from './definitions/zksyncEraTestnet.js'
 export {
   /** @deprecated Use `zksync` instead */
   zksyncInMemoryNode as zkSyncInMemoryNode,
