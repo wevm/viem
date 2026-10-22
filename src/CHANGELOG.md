@@ -1,5 +1,22 @@
 # viem
 
+## 2.57.9
+
+### Patch Changes
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed `getPortalVersion` and `supportsExecutionMode` sharing cached results across Clients.
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Added `client.scope` for creating a Client, memoized per `signal`, that does not share in-flight requests, cached values, or request batches with other Clients.
+
+  ```ts
+  const scoped = client.scope({ signal: request.signal });
+  const blockNumber = await scoped.getBlockNumber();
+  ```
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed `fallback` dropping the request `signal` before calling its Transports.
+
+- [#5258](https://github.com/wevm/viem/pull/5258) [`13c03860b3688153af22368ba42709955880edfc`](https://github.com/wevm/viem/commit/13c03860b3688153af22368ba42709955880edfc) Thanks [@jxom](https://github.com/jxom)! - Fixed requests with an aborted `signal` staying pending on Transports that ignore the signal.
+
 ## 2.57.8
 
 ### Patch Changes
