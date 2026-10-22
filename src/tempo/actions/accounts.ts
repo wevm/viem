@@ -13,7 +13,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
-import type { Compute } from '../../types/utils.js'
+import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { type ConfigurableAccount, fromConfig } from '../Account.js'
@@ -118,7 +118,7 @@ export namespace getConfigCommitment {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.nativeMultisig,
+    typeof Abis.configurableAccount,
     'getConfigCommitment',
     never
   >
@@ -133,8 +133,8 @@ export namespace getConfigCommitment {
    */
   export function call(args: Args) {
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [args.account],
       functionName: 'getConfigCommitment',
     })
@@ -348,27 +348,28 @@ export namespace updateConfig {
     const currentConfig = AccountConfig.from(args.currentConfig)
     const nextConfig = AccountConfig.update(currentConfig, args.nextConfig)
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [currentConfig, nextConfig.threshold, nextConfig.owners],
       functionName: 'updateConfig',
     })
   }
 
   /**
-   * Extracts the `MultisigConfigUpdated` event from logs.
+   * Extracts the `ConfigurableAccountConfigUpdated` event from logs.
    *
    * @param logs - Transaction logs.
    * @returns The configuration update event.
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.nativeMultisig,
+      abi: Abis.configurableAccount,
       logs,
-      eventName: 'MultisigConfigUpdated',
+      eventName: 'ConfigurableAccountConfigUpdated',
       strict: true,
     })
-    if (!log) throw new Error('`MultisigConfigUpdated` event not found.')
+    if (!log)
+      throw new Error('`ConfigurableAccountConfigUpdated` event not found.')
     return log
   }
 }
@@ -446,4 +447,205 @@ export namespace updateConfigSync {
   }>
 
   export type ErrorType = updateConfig.ErrorType
+}
+
+/**
+ * Upgrades an existing account to a configurable account in place
+ * ([TIP-1113](https://tips.sh/1113)).
+ *
+ * The account keeps its address and installs `owners` and `threshold`. The
+ * root key must sign the upgrade, which is sent as the transaction's only
+ * call. After the upgrade, the root key can no longer sign for the account.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoLocalnet } from 'viem/chains'
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const root = Account.fromSecp256k1('0x...')
+ * const client = createClient({
+ *   chain: tempoLocalnet,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.accounts.upgrade(client, {
+ *   account: root,
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function upgrade<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: upgrade.Parameters<chain, account>,
+): Promise<upgrade.ReturnValue> {
+  return upgrade.inner(writeContract, client, parameters)
+}
+
+export namespace upgrade {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = UnionOmit<WriteParameters<chain, account>, 'keyAuthorization' | 'owner'> &
+    Args
+
+  export type Args = Pick<AccountConfig.Config, 'owners' | 'threshold'>
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { owners, threshold, ...rest } = parameters
+    const account = rest.account ?? client.account
+    if (typeof account === 'object') {
+      if (account.source === 'configurable')
+        throw new Error('The account is already a configurable account.')
+      if (account.source === 'accessKey')
+        throw new Error(
+          'The root key must sign the upgrade, not an access key.',
+        )
+    }
+    return (await withExecutionError(action)(client, {
+      ...rest,
+      ...upgrade.call({ owners, threshold }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `upgradeAccount` function.
+   *
+   * The call must be the only call in a transaction signed by the account's
+   * root key.
+   *
+   * @example
+   * ```ts
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.accounts.upgrade.call({
+   *   owners: [{ owner: '0x...', weight: 1 }],
+   *   threshold: 1,
+   * })
+   * ```
+   *
+   * @param args - Owners and threshold to install.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { owners, threshold } = AccountConfig.from(args)
+    return defineCall({
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
+      args: [threshold, owners],
+      functionName: 'upgradeAccount',
+    })
+  }
+
+  /**
+   * Extracts the `AccountUpgraded` event from logs.
+   *
+   * @param logs - Transaction logs.
+   * @returns The account upgrade event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.configurableAccount,
+      logs,
+      eventName: 'AccountUpgraded',
+      strict: true,
+    })
+    if (!log) throw new Error('`AccountUpgraded` event not found.')
+    return log
+  }
+}
+
+/**
+ * Upgrades an existing account to a configurable account in place
+ * ([TIP-1113](https://tips.sh/1113)) and waits for confirmation.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoLocalnet } from 'viem/chains'
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const root = Account.fromSecp256k1('0x...')
+ * const client = createClient({
+ *   chain: tempoLocalnet,
+ *   transport: http(),
+ * })
+ *
+ * const { config } = await Actions.accounts.upgradeSync(client, {
+ *   account: root,
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The installed configuration, its commitment, and the transaction receipt.
+ */
+export async function upgradeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: upgradeSync.Parameters<chain, account>,
+): Promise<upgradeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await upgrade.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  if ((receipt as Transaction.TransactionReceipt).status === 'pending')
+    return { receipt } as never
+  const { args } = upgrade.extractEvent(receipt.logs)
+  return {
+    account: args.account,
+    commitment: args.commitment,
+    config: AccountConfig.from({
+      owners: args.owners,
+      salt: args.salt,
+      threshold: args.threshold,
+      version: 1n,
+    }),
+    receipt,
+  } as never
+}
+
+export namespace upgradeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = upgrade.Parameters<chain, account>
+
+  export type Args = upgrade.Args
+
+  export type ReturnValue = Compute<{
+    account: Address
+    commitment: Hex.Hex
+    config: AccountConfig.Config
+    receipt: Transaction.TransactionReceipt
+  }>
+
+  export type ErrorType = upgrade.ErrorType
 }

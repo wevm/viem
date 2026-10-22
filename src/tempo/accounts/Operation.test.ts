@@ -9,7 +9,7 @@ import {
 } from 'ox/tempo'
 import { Store } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { nativeMultisigFactory } from '../Addresses.js'
+import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import * as Operation from './Operation.js'
 import { parseApproval } from './Signature.js'
 
@@ -34,7 +34,7 @@ const initialConfig = AccountConfig.from({
   threshold: 2,
 })
 const account = AccountConfig.getAddress(initialConfig, {
-  factory: nativeMultisigFactory,
+  factory: configurableAccountRecoveryFactory,
 })
 const config = AccountConfig.from({ ...initialConfig, version: 1n })
 const transaction = TxEnvelopeTempo.serialize(
@@ -137,7 +137,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
+        "account": "0xb9a13a0d8ee11b7aa493c7b7755c767b14dddda3",
         "approvals": [
           Any<String>,
         ],
@@ -157,7 +157,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0xd2f6445bbb010aa1c8d040dd9c293e7b31591fda0ff72c9540d0c87d8b011b65",
+        "hash": "0x315e96367ce350eb6a3943610d0303ba2a02a051cf68ecb3c18fb1d38bd00f98",
         "signatureCount": 1,
         "status": "pending",
         "threshold": 2,
@@ -203,7 +203,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
+        "account": "0xb9a13a0d8ee11b7aa493c7b7755c767b14dddda3",
         "approvals": [
           Any<String>,
         ],
@@ -223,7 +223,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0x3efb30f978361d4a99ae002945f798fa0da4d9237ebfe38ebe187e2164f402e4",
+        "hash": "0x8cdcc1ba25575a8bfb8a69238f8b9f5ff6d743c15c13f943d2bb83b3b30d3ba3",
         "keyAuthorization": Any<String>,
         "signatureCount": 1,
         "status": "pending",
@@ -253,7 +253,7 @@ describe('read', () => {
       },
       `
       {
-        "account": "0x41d23255b705c7bb1da00eee61af485acc90e694",
+        "account": "0xb9a13a0d8ee11b7aa493c7b7755c767b14dddda3",
         "approvals": [
           Any<String>,
           Any<String>,
@@ -274,7 +274,7 @@ describe('read', () => {
           "version": 1n,
         },
         "createdAt": 1,
-        "hash": "0x3efb30f978361d4a99ae002945f798fa0da4d9237ebfe38ebe187e2164f402e4",
+        "hash": "0x8cdcc1ba25575a8bfb8a69238f8b9f5ff6d743c15c13f943d2bb83b3b30d3ba3",
         "keyAuthorization": Any<String>,
         "signatureCount": 2,
         "status": "success",
@@ -413,7 +413,7 @@ describe('submission', () => {
     expect(
       await Operation.readSubmission(store, operation, submissionId),
     ).toMatchInlineSnapshot(
-      `"0xa0d835f21a547b8a9178afc39f8cfcb8f6689624214adaad0f436c8f663c2c82"`,
+      `"0x7ae78ce88eff6a0bcf9e6706247506ba2854617b0a014145427759aca1d04bd3"`,
     )
   })
 
@@ -546,7 +546,7 @@ describe('InvalidStoreValueError', () => {
     expect(new Operation.InvalidStoreValueError()).toMatchInlineSnapshot(`
       [Accounts.Operation.InvalidStoreValueError: Stored account operation is malformed or unsupported.
 
-      Version: viem@x.y.z]
+      Version: viem@2.57.8]
     `)
   })
 

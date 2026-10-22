@@ -2558,6 +2558,10 @@ export default defineConfig({
                   text: 'Rotate Owners',
                   link: '/tempo/guides/configurable-accounts/rotate-owners',
                 },
+                {
+                  text: 'Upgrade an Account',
+                  link: '/tempo/guides/configurable-accounts/upgrade',
+                },
               ],
             },
           ],
@@ -2684,6 +2688,16 @@ export default defineConfig({
                   badge: { text: 'EXP', variant: 'warning' },
                   text: 'updateConfigSync',
                   link: '/tempo/actions/accounts.updateConfigSync',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'upgrade',
+                  link: '/tempo/actions/accounts.upgrade',
+                },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'upgradeSync',
+                  link: '/tempo/actions/accounts.upgradeSync',
                 },
               ],
             },

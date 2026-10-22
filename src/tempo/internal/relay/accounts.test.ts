@@ -26,7 +26,7 @@ import {
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
-import { nativeMultisigFactory } from '../../Addresses.js'
+import { configurableAccountRecoveryFactory } from '../../Addresses.js'
 import * as Operation from '../../accounts/Operation.js'
 import { parseApproval } from '../../accounts/Signature.js'
 
@@ -42,7 +42,7 @@ const config = AccountConfig.from({
   threshold: 1,
 })
 const account = AccountConfig.getAddress(config, {
-  factory: nativeMultisigFactory,
+  factory: configurableAccountRecoveryFactory,
 })
 const approval = SignatureEnvelope.from({
   signature: { r: 1n, s: 2n, yParity: 0 },

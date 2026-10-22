@@ -24,7 +24,7 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import { nativeMultisigFactory } from './Addresses.js'
+import { configurableAccountRecoveryFactory } from './Addresses.js'
 import { parseApproval } from './accounts/Signature.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
@@ -281,8 +281,10 @@ export declare namespace fromSecp256k1 {
  *
  * The returned account does not hold a key itself. Omit `address` or set it to
  * `infer` to derive an account address from its initial config. For a current
- * config, set `address` to the stable account address. Pass the address directly
- * for an address-only account.
+ * config, set `address` to the stable account address. For an account
+ * upgraded in place with `Actions.accounts.upgrade`, set `address` to the
+ * upgraded account and pass the installed owners and threshold as `upgrade`.
+ * Pass the address directly for an address-only account.
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
@@ -309,7 +311,7 @@ export declare namespace fromSecp256k1 {
  * const transaction = await client.signTransaction(request)
  * ```
  *
- * @param value Initial config, current config, or account address.
+ * @param value Initial config, current config, upgrade config, or account address.
  * @returns Configurable account.
  */
 export function fromConfig(
@@ -319,12 +321,16 @@ export function fromConfig(
   value: fromConfig.CurrentConfig,
 ): ConfigurableAccount<AccountConfig.Config>
 export function fromConfig(
+  value: fromConfig.UpgradeConfig,
+): ConfigurableAccount<AccountConfig.Config>
+export function fromConfig(
   address: Address.Address,
 ): ConfigurableAccount<undefined>
 export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount
 export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
+    if ('upgrade' in value) return value.upgrade
     const { address: _, ...config } = value
     return config
   })()
@@ -335,16 +341,16 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         ? { owner: value, weight: 1 }
         : value,
     )
-    return AccountConfig.from({
-      ...configInput,
-      owners: ownerEntries.map(({ owner, weight }) => ({
-        owner: typeof owner === 'string' ? owner : owner.address,
-        weight,
-      })),
-      threshold: configInput.threshold ?? 1,
-    })
+    const owners = ownerEntries.map(({ owner, weight }) => ({
+      owner: typeof owner === 'string' ? owner : owner.address,
+      weight,
+    }))
+    const threshold = configInput.threshold ?? 1
+    if (typeof value !== 'string' && 'upgrade' in value)
+      return AccountConfig.fromUpgrade(value.address, { owners, threshold })
+    return AccountConfig.from({ ...configInput, owners, threshold })
   })()
-  if (typeof value !== 'string') {
+  if (typeof value !== 'string' && !('upgrade' in value)) {
     if (
       (value.address === undefined || value.address === 'infer') &&
       config!.version !== 0n
@@ -362,7 +368,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
       if (typeof value === 'string') return value
       if (value.address === undefined || value.address === 'infer')
         return AccountConfig.getAddress(config!, {
-          factory: nativeMultisigFactory,
+          factory: configurableAccountRecoveryFactory,
         })
       return value.address
     })(),
@@ -505,7 +511,24 @@ export declare namespace fromConfig {
       })
 
   /** Parameters for {@link fromConfig}. */
-  export type Parameters = Address.Address | CurrentConfig | InitialConfig
+  export type Parameters =
+    | Address.Address
+    | CurrentConfig
+    | InitialConfig
+    | UpgradeConfig
+
+  /** Account upgraded in place and the owners and threshold it installed. */
+  export type UpgradeConfig = {
+    /** Upgraded account address. */
+    address: Address.Address
+    /** Owners and threshold installed by the upgrade. */
+    upgrade: {
+      /** Weighted owners. */
+      owners: readonly Owner[]
+      /** Minimum owner weight required for authorization. */
+      threshold?: number | undefined
+    }
+  }
 }
 
 export type ConfigurableAccount<

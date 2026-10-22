@@ -7,7 +7,7 @@ import {
   sendTransactionSync,
 } from '../actions/index.js'
 import * as Account from './Account.js'
-import { nativeMultisigFactory } from './Addresses.js'
+import { configurableAccountRecoveryFactory } from './Addresses.js'
 import * as Formatters from './Formatters.js'
 
 const client = getClient({
@@ -157,7 +157,7 @@ describe('formatTransactionRequest', () => {
       },
     } as never)
 
-    expect(rpc.multisigSimulation).toMatchInlineSnapshot(`
+    expect(rpc.configurableAccountSimulation).toMatchInlineSnapshot(`
       {
         "approvals": [
           {
@@ -242,7 +242,7 @@ describe('formatTransactionRequest', () => {
       owners: [{ owner: accounts[1].address, weight: 1 }],
     })
     const account = AccountConfig.getAddress(initialConfig, {
-      factory: nativeMultisigFactory,
+      factory: configurableAccountRecoveryFactory,
     })
     const signature = SignatureEnvelope.from({
       account,
@@ -274,7 +274,7 @@ describe('formatTransactionRequest', () => {
 
     expect(rpc.keyAuthorization?.account).toBe(account)
     expect(rpc.keyAuthorization?.signature).toMatchInlineSnapshot(
-      `"0xf89794005c3446a4e52b28b50c4185becd44725c470122f83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
+      `"0xf89794938872164e97e21d3d86dbd6c78dc5963304c47bf83ba000000000000000000000000000000000000000000000000000000000000000008001d7d6948c8d35429f74ec245f8ef2f4fd1e551cff97d65001f843b841000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000011b"`,
     )
   })
 

@@ -25,9 +25,14 @@ test('fromConfig preserves config availability', () => {
     threshold: 1,
     version: 1,
   })
+  const upgraded = Account.fromConfig({
+    address: owner.address,
+    upgrade: { owners: [owner], threshold: 1 },
+  })
   const addressOnly = Account.fromConfig(initial.address)
 
   expectTypeOf(initial.config).toEqualTypeOf<AccountConfig.Config>()
+  expectTypeOf(upgraded.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(normalizedInitial.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(current.config).toEqualTypeOf<AccountConfig.Config>()
   expectTypeOf(addressOnly.config).toEqualTypeOf<undefined>()

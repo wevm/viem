@@ -2,7 +2,7 @@ import { AccountConfig, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
-import { nativeMultisigFactory } from './Addresses.js'
+import { configurableAccountRecoveryFactory } from './Addresses.js'
 import * as Transaction from './Transaction.js'
 
 const client = getClient({
@@ -324,7 +324,7 @@ describe('serialize', () => {
       owners: owners.map((owner) => ({ owner: owner.address, weight: 1 })),
     })
     const configurableAddress = AccountConfig.getAddress(accountConfig, {
-      factory: nativeMultisigFactory,
+      factory: configurableAccountRecoveryFactory,
     })
     const transaction = {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -386,7 +386,7 @@ describe('serialize', () => {
       owners: [{ owner: owner.address, weight: 1 }],
     })
     const account = AccountConfig.getAddress(initialConfig, {
-      factory: nativeMultisigFactory,
+      factory: configurableAccountRecoveryFactory,
     })
     const accountConfig = AccountConfig.from({
       ...initialConfig,

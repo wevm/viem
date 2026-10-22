@@ -225,8 +225,13 @@ async function submit(options: submit.Options) {
     if (
       options.method === 'eth_sendRawTransaction' ||
       options.method === 'eth_sendRawTransactionSync'
-    )
-      return await options.next(options.request, options.requestOptions)
+    ) {
+      const result = await options.next(options.request, options.requestOptions)
+      // Cache after the node accepts the transaction, so only validly signed upgrades are cached.
+      if (transaction)
+        await cacheUpgradeConfig({ store: options.store, transaction })
+      return result
+    }
     throw new RpcResponse.InvalidParamsError({
       message: 'Expected a configurable account transaction signature.',
     })
@@ -758,7 +763,7 @@ function assertConfig(options: {
   if (
     config.version === 0n &&
     AccountConfig.getAddress(config, {
-      factory: Addresses.nativeMultisigFactory,
+      factory: Addresses.configurableAccountRecoveryFactory,
     }).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
@@ -798,13 +803,16 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
   for (const call of options.transaction.calls) {
     if (
       !call.to ||
-      !isAddressEqual(call.to, Addresses.nativeMultisig) ||
+      !isAddressEqual(call.to, Addresses.configurableAccount) ||
       !call.data
     )
       continue
     const decoded = (() => {
       try {
-        return decodeFunctionData({ abi: Abis.nativeMultisig, data: call.data })
+        return decodeFunctionData({
+          abi: Abis.configurableAccount,
+          data: call.data,
+        })
       } catch {
         return undefined
       }
@@ -851,6 +859,52 @@ declare namespace cacheNextConfigs {
     /** Shared account store. */
     store: Store.Store
     /** Submitted transaction containing potential config updates. */
+    transaction: Transaction.TransactionSerializableTempo
+  }
+}
+
+/** Caches the config installed by a root-signed account upgrade. */
+// biome-ignore lint/correctness/noUnusedVariables: declaration merge
+async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
+  const { calls, from, signature } = options.transaction
+  const [call] = calls
+  if (
+    !from ||
+    !signature ||
+    signature.type === 'keychain' ||
+    calls.length !== 1 ||
+    !call?.to ||
+    !isAddressEqual(call.to, Addresses.configurableAccount) ||
+    !call.data
+  )
+    return
+  const config = (() => {
+    try {
+      const decoded = decodeFunctionData({
+        abi: Abis.configurableAccount,
+        data: call.data,
+      })
+      if (decoded.functionName !== 'upgradeAccount') return undefined
+      const [threshold, owners] = decoded.args
+      return AccountConfig.fromUpgrade(from, { owners, threshold })
+    } catch {
+      return undefined
+    }
+  })()
+  if (!config) return
+  await ConfigStore.write(options.store, {
+    address: from,
+    commitment: AccountConfig.getCommitment(config),
+    config,
+  })
+}
+
+declare namespace cacheUpgradeConfig {
+  /** Parameters for {@link cacheUpgradeConfig}. */
+  export type Options = {
+    /** Shared account store. */
+    store: Store.Store
+    /** Submitted transaction containing a potential account upgrade. */
     transaction: Transaction.TransactionSerializableTempo
   }
 }

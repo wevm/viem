@@ -34,6 +34,9 @@ export type Rpc =
 export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'AbdicationAlreadyScheduled(uint8)':
     'Abdication is already scheduled for capability {0}.',
+  'AccountAlreadyConfigurable()':
+    'The account is already a configurable account.',
+  'AccountHasCode()': 'Accounts with code cannot be upgraded.',
   'AccountNotAllowed(address)': 'Account {0} is not allowed.',
   'ActiveLeaderRemoved()': 'The active leader cannot be removed.',
   'AddressAlreadyHasValidator()': 'This address already has a validator.',
@@ -100,6 +103,7 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidClaimAddress()': 'Invalid claim address.',
   'InvalidClosedLoopConfig()': 'Invalid closed-loop configuration.',
   'InvalidConfig()': 'Invalid configuration.',
+  'InvalidConfigurableAccountOwner()': 'Invalid owner.',
   'InvalidCurrency()': 'Invalid currency.',
   'InvalidDepositTransition()': 'Invalid deposit transition.',
   'InvalidEncryptionKeyIndex(uint256)': 'Invalid encryption key index ({0}).',
@@ -114,7 +118,6 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'InvalidMasterAddress()': 'Invalid master address.',
   'InvalidMigrationIndex()': 'Invalid migration index.',
   'InvalidMode()': 'Invalid mode.',
-  'InvalidMultisigOwner()': 'Invalid owner.',
   'InvalidNonceKey()': 'Invalid nonce key.',
   'InvalidOwner()': 'Invalid owner.',
   'InvalidOwnerOrder()': 'Invalid owner order.',
@@ -191,11 +194,13 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'PolicyNotFound()': 'Policy not found.',
   'PolicyNotSimple()': 'Policy is not a simple policy.',
   'PortalIsPaused()': 'The portal is paused.',
+  'PrimitiveRootRequired()': 'The root key must sign the upgrade transaction.',
   'ProofOfWorkFailed()': 'Proof of work failed.',
   'ProtectedAddress()': 'Address is protected.',
   'ProtocolNonceNotSupported()': 'Protocol nonce is not supported.',
   'PublicKeyAlreadyExists()': 'Public key already exists.',
   'ReentrantWithdrawal()': 'Reentrant withdrawals are not allowed.',
+  'RootKeyRetired(address)': 'The root key of {0} is retired.',
   'SequencerConfigurationUnchanged()':
     'The sequencer configuration is unchanged.',
   'SignatureTypeMismatch(uint8,uint8)':
@@ -219,8 +224,11 @@ export const messages: Record<`${AbiErrorName}(${string})`, string> = {
   'Unauthorized()': 'Unauthorized.',
   'UnauthorizedCaller()': 'Unauthorized caller.',
   'UnauthorizedClaimer()': 'Unauthorized claimer.',
-  'UnauthorizedMultisigCaller()': 'Unauthorized multisig caller.',
+  'UnauthorizedConfigurableAccountCaller()':
+    'Unauthorized configurable account caller.',
   'Uninitialized()': 'Uninitialized.',
+  'UpgradeMustBeOnlyCall()':
+    'The upgrade must be the only call in the transaction.',
   'ValidatorAlreadyDeactivated()': 'Validator is already deactivated.',
   'ValidatorAlreadyExists()': 'Validator already exists.',
   'ValidatorNotFound()': 'Validator not found.',
@@ -310,6 +318,24 @@ export const hints: Partial<Record<keyof typeof messages, readonly string[]>> =
     'SupplyCapExceeded()': ['Mint a smaller amount, or raise the supply cap.'],
     'TickOutOfBounds(int16)': ['Use a tick within the allowed range.'],
     'Unauthorized()': ['The account lacks the permission this call requires.'],
+    'AccountAlreadyConfigurable()': [
+      'The account is already configurable. Rotate its owners with `updateConfig` instead.',
+    ],
+    'AccountHasCode()': [
+      'Only accounts without code or delegation can be upgraded in place.',
+    ],
+    'PrimitiveRootRequired()': [
+      "Send the upgrade from the account's root key, not an access key or another account.",
+    ],
+    'RootKeyRetired(address)': [
+      'The account was upgraded to a configurable account. Sign with its owners instead of the retired root key.',
+    ],
+    'UnauthorizedConfigurableAccountCaller()': [
+      'Only the configurable account can update its own configuration.',
+    ],
+    'UpgradeMustBeOnlyCall()': [
+      'Send `upgradeAccount` as the only call, without a key authorization or authorization list.',
+    ],
   }
 
 /** Interpolate `{0}`, `{1}`, … placeholders with args. */

@@ -543,6 +543,25 @@ type DecoratorBase<
     updateConfigSync: (
       parameters: accountsActions.updateConfigSync.Parameters<chain, account>,
     ) => Promise<accountsActions.updateConfigSync.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place.
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The transaction hash.
+     */
+    upgrade: (
+      parameters: accountsActions.upgrade.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgrade.ReturnValue>
+    /**
+     * Upgrades an existing account to a configurable account in place and
+     * waits for confirmation.
+     *
+     * @param parameters - Owners, threshold, and transaction parameters.
+     * @returns The installed configuration, its commitment, and the transaction receipt.
+     */
+    upgradeSync: (
+      parameters: accountsActions.upgradeSync.Parameters<chain, account>,
+    ) => Promise<accountsActions.upgradeSync.ReturnValue>
   }
   amm: {
     /**
@@ -6211,6 +6230,8 @@ export function decorator() {
         'getOperation',
         'updateConfig',
         'updateConfigSync',
+        'upgrade',
+        'upgradeSync',
       ]),
       amm: bindActions(client, ammActions, [
         'getPool',

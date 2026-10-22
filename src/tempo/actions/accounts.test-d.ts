@@ -89,3 +89,26 @@ test('updateConfig.call requires the current config', () => {
     },
   })
 })
+
+test('upgrade returns the installed config', async () => {
+  const root = Account.fromSecp256k1(
+    '0x0000000000000000000000000000000000000000000000000000000000000002',
+  )
+  const parameters = {
+    account: root,
+    owners: [{ owner: owner.address, weight: 1 }],
+    threshold: 1,
+  } as const
+
+  const hash = await client.accounts.upgrade(parameters)
+  const result = await client.accounts.upgradeSync(parameters)
+
+  expectTypeOf(hash).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(result.commitment).toEqualTypeOf<`0x${string}`>()
+  expectTypeOf(result.config).toEqualTypeOf<AccountConfig.Config>()
+  await client.accounts.upgrade({
+    ...parameters,
+    // @ts-expect-error The upgrade must be the only call, without a key authorization.
+    keyAuthorization: {} as never,
+  })
+})

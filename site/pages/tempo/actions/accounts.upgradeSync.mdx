@@ -1,0 +1,82 @@
+---
+description: Upgrades an existing account to a configurable account in place and waits for transaction confirmation.
+---
+
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `accounts.upgradeSync`
+
+Upgrades an existing account to a configurable account in place
+([TIP-1113](https://tips.sh/1113)), waits for confirmation, and returns the installed configuration
+with the receipt.
+
+The account's root key must sign the upgrade, and the upgrade must be the transaction's only call.
+After the upgrade, the root key can no longer sign for the account. Use
+[`accounts.upgrade`](/tempo/actions/accounts.upgrade) when you do not want to wait.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+
+const result = await client.accounts.upgradeSync({
+  account: root,
+  owners: [{ owner: owner.address, weight: 1 }],
+  threshold: 1,
+})
+// @log: {
+// @log:   account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   commitment: '0x...',
+// @log:   config: { owners: [...], salt: '0x...', threshold: 1, version: 1n },
+// @log:   receipt: { ... },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::warning
+Retiring the root key is permanent. Access key grants, permits, and channel vouchers that the root
+key signs stop working after the upgrade.
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  account: Address
+  commitment: Hex
+  config: AccountConfig.Config
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### owners
+
+- **Type:** `readonly { owner: Address; weight: number }[]`
+
+The owners to install. Owners are normalized into canonical address order, and must use
+primitive signatures.
+
+### threshold
+
+- **Type:** `number`
+
+The approval weight required to authorize the upgraded account.
+
+<WriteParameters />

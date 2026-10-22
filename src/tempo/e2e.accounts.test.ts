@@ -516,6 +516,85 @@ describe('stateless', () => {
     expect(receipt.from).toBe(currentAccount.address.toLowerCase())
   })
 
+  test('example: in-place upgrade', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const owners = [
+      { owner: owner_1.address, weight: 1 },
+      { owner: owner_2.address, weight: 1 },
+    ]
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: feeToken,
+    })
+
+    const { receipt, ...result } = await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      owners,
+      threshold: 2,
+    })
+    expect(receipt.status).toBe('success')
+    const config = AccountConfig.fromUpgrade(root.address, {
+      owners,
+      threshold: 2,
+    })
+    expect(result).toEqual({
+      account: root.address,
+      commitment: AccountConfig.getCommitment(config),
+      config,
+    })
+    expect(
+      await Actions.accounts.getConfigCommitment(client, {
+        account: root.address,
+      }),
+    ).toBe(AccountConfig.getCommitment(config))
+
+    const account = Account.fromConfig({
+      address: root.address,
+      upgrade: { owners: [owner_1, owner_2], threshold: 2 },
+    })
+    expect(account.config).toEqual(config)
+    const transfer = await Actions.token.transferSync(client, {
+      account,
+      amount: 1n,
+      to,
+      token: feeToken,
+    })
+    expect(transfer.receipt.status).toBe('success')
+    expect(transfer.receipt.from).toBe(root.address.toLowerCase())
+
+    await expect(
+      Actions.token.transferSync(client, {
+        account: root,
+        amount: 1n,
+        to,
+        token: feeToken,
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('behavior: upgrade rejects a configurable account', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1]],
+    })
+
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account,
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: The account is already a configurable account.]`,
+    )
+  })
+
   test.each([
     { name: '1-of-1', ownerCount: 1, salt: 0x106131, threshold: 1 },
     { name: '1-of-4', ownerCount: 4, salt: 0x106132, threshold: 1 },
@@ -1618,6 +1697,31 @@ describe('stateful', () => {
         "version": 2n,
       }
     `)
+  })
+
+  test('behavior: caches the config installed by an in-place upgrade', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const owners = [{ owner: tempo.accounts[1].address, weight: 1 }]
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: tempo.feeToken,
+    })
+    const { config } = await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken: tempo.feeToken,
+      owners,
+      threshold: 1,
+    })
+
+    expect(config).toEqual(
+      AccountConfig.fromUpgrade(root.address, { owners, threshold: 1 }),
+    )
+    expect(await client.accounts.getConfig({ address: root.address })).toEqual(
+      config,
+    )
   })
 
   test('behavior: rejects a JSON-RPC owner account', async () => {

@@ -70,7 +70,27 @@ const account = Account.fromConfig({
 ```
 
 Tempo stores the config commitment, not the config fields. Retain each current config or
-recover it from the account's `MultisigConfigUpdated` events.
+recover it from the account's `ConfigurableAccountConfigUpdated` events.
+
+### Upgraded Account
+
+For an account upgraded in place with [`accounts.upgrade`](/tempo/actions/accounts.upgrade), pass
+the upgraded address and the owners and threshold it installed as `upgrade`.
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+
+const account = Account.fromConfig({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  upgrade: {
+    owners: ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8'],
+    threshold: 1,
+  },
+})
+```
+
+The upgrade installs version `1` of the account's config. After a later config update, use the
+current config fields instead.
 
 ### Address Only
 
@@ -154,8 +174,8 @@ supported.
 
 - **Type:** `Account.fromConfig.Parameters`
 
-An initial config, a stable address with its current config, or an address without a retained
-config.
+An initial config, a stable address with its current config, an upgraded address with its
+installed owners, or an address without a retained config.
 
 #### value.address
 
@@ -186,6 +206,13 @@ config.
 
 The total owner weight required to authorize an operation. This field is optional for an initial
 config and required for a current config.
+
+#### value.upgrade
+
+- **Type:** `{ owners: readonly (Address | LocalAccount | { owner: Address | LocalAccount; weight: number })[]; threshold?: number }`
+
+The owners and threshold installed by [`accounts.upgrade`](/tempo/actions/accounts.upgrade). Pass
+it with the upgraded account's `address`, instead of `owners`, `salt`, `threshold`, and `version`.
 
 #### value.version
 

@@ -1,6 +1,6 @@
 # Plan: sync viem configurable accounts with Tempo main
 
-Status: proposed · Owner: jxom · Last reviewed: 2026-10-20
+Status: in progress · Owner: jxom · Last reviewed: 2026-10-22
 
 Bring `viem/tempo` configurable-account support up to date with Tempo main and
 the current TIP cluster, and add TIP-1113 in-place migration actions.
@@ -200,3 +200,37 @@ Per PR:
   `MigrationNotActive` if it ships.
 - Wire names: confirm the final names with joshieDo before Phase 7.
 - How long to keep the `nativeMultisig` aliases and old store-key fallbacks.
+
+## Progress (2026-10-22)
+
+Synced against tempoxyz/tempo `joshie/configurable-t14-devnet-checkpoint` (`e539a1d`),
+matching ox. ox is pinned to the 0.x prerelease `https://pkg.pr.new/ox@e9b66c2` until
+`0.14.57` is published.
+
+Done:
+- Phase 0: ox prerelease bump and snapshot refresh for the new domains.
+- Phase 1: `Abis`, `Addresses` and `Selectors` renamed to `configurableAccount` without
+  aliases (the API is experimental, following #5216). `Addresses.nativeMultisigFactory`
+  is now `configurableAccountRecoveryFactory`. ABIs regenerated with
+  `TEMPO_REF=joshie/configurable-t14-devnet-checkpoint`, which also adds
+  `verifyConfigurableAccount` and `RootKeyRetired`. The compatibility block is removed.
+  Execution error messages and hints cover the migration errors.
+- Phase 2: genesis key `configurableAccountRecoveryFactory`, `t14Time: 0`, CI image
+  `sha-04e67d3`.
+- Phase 3: hardforks `t7`…`t14`; `Hardfork.lt` treats unknown names as newer. Admin
+  key rejection is dropped: the checkpoint node allows configurable admin keys.
+- Phase 4: `accounts.upgrade`, `accounts.upgradeSync`, `upgrade.call`,
+  `upgrade.extractEvent`, `Account.fromConfig({ address, upgrade })`, relay caching of
+  root-signed upgrades, action docs and an upgrade guide. `prepareUpgrade` was skipped:
+  `AccountConfig.fromUpgrade` covers the config, and the node rejects ineligible accounts.
+- Phase 5: `accessKey.getMetadata` maps signature type `3` to `configurable`.
+- Phase 7: wire field `configurableAccountSimulation`.
+
+Not done:
+- Zone ABIs: Tempo main moved `IZonePortal` and `IZoneVerifier` to
+  `crates/contracts/src/zones/`, and `IZoneFactory` changed. The generator only reads
+  `precompiles/`, so the Zone exports were kept at their previous generated values.
+- Phase 5: signing as a configurable access key (`resolveAccessKey`) and relay fee payer
+  support for keychain envelopes with configurable inner signatures.
+- Phase 6: `accounts.deriveAccount`, `verifyConfigurableAccount` actions, per-chain
+  recovery factory, `multisig:*` store key rename.
