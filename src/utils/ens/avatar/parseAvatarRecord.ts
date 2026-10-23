@@ -93,7 +93,9 @@ async function parseNftAvatarUri<chain extends Chain | undefined>(
     const encodedJson = isEncoded
       ? // if it is encoded, decode it
         Base64.toString(
-          resolvedNftUri.replace('data:application/json;base64,', ''),
+          resolvedNftUri
+            .replace('data:application/json;base64,', '')
+            .replace(/\s/g, ''),
         )
       : // if it isn't encoded assume it is a JSON string, but it could be anything (it will error if it is)
         resolvedNftUri

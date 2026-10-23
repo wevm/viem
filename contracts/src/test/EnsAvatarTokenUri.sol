@@ -62,6 +62,11 @@ contract EnsAvatarTokenUri {
                 unicode'{"name":"café ⚡","image_data":"<svg><text>café ⚡</text></svg>"}';
         }
 
+        if (tokenId == 111) {
+            return
+                "data:application/json;base64,eyJuYW1lIjoiY2Fmw6kg4pqhIiwiaW1hZ2VfZGF0\nYSI6Ijxzdmc+PHRleHQ+Y2Fmw6kg4pqhPC90ZXh0Pjwvc3ZnPiJ9\n";
+        }
+
         if (tokenId == 200) {
             return
                 "https://images2.minutemediacdn.com/image/upload/c_fill,w_1440,ar_16:9,f_auto,q_auto,g_auto/shape/cover/sport/62455-shout-factory1-869b74b647b88045caac956956bd1ff8.jpg";
