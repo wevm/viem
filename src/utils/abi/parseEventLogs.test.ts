@@ -627,9 +627,30 @@ describe('args: args', () => {
       args: { text: 'goodbye' },
     })
 
-    expect(mismatched).toHaveLength(0)
-    expect(matched).toHaveLength(1)
-    expect(matched[0]?.args.text).toBe('hello')
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "from": "0x0000000000000000000000000000000000000001",
+            "text": "hello",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000",
+          "eventName": "Message",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x811f7cff0a3374ff67cccc3726035d34ba70410e0256818a891e4d6acc01d88e",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
   })
 
   test('named: non-indexed bytes', () => {
@@ -655,8 +676,123 @@ describe('args: args', () => {
       args: { data: '0x5678' },
     })
 
-    expect(mismatched).toHaveLength(0)
-    expect(matched).toHaveLength(1)
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "data": "0x1234",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000",
+          "eventName": "Payload",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xeb97ac09dbc44f303d5741cdaeaaadf5fd56853b06160c5e4efdea3afdb50cf1",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('named: non-indexed bytes (mixed case)', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Payload',
+        inputs: [{ indexed: false, name: 'data', type: 'bytes' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({ abi, eventName: 'Payload' })
+    const data = encodeAbiParameters([{ type: 'bytes' }], ['0xabcd'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0xABCD' },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: '0xab' },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "data": "0xabcd",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002abcd000000000000000000000000000000000000000000000000000000000000",
+          "eventName": "Payload",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xeb97ac09dbc44f303d5741cdaeaaadf5fd56853b06160c5e4efdea3afdb50cf1",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('named: non-indexed bytes32 (mixed case)', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Payload',
+        inputs: [{ indexed: false, name: 'data', type: 'bytes32' }],
+      },
+    ] as const
+    const value = `0x${'ab'.repeat(32)}` as const
+    const topics = encodeEventTopics({ abi, eventName: 'Payload' })
+    const data = encodeAbiParameters([{ type: 'bytes32' }], [value])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: `0x${'AB'.repeat(32)}` },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { data: `0x${'cd'.repeat(32)}` },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "data": "0xabababababababababababababababababababababababababababababababab",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0xabababababababababababababababababababababababababababababababab",
+          "eventName": "Payload",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x00195b2b63724134ae63adbdb9e96ca893375208928704e8d0274ad573199f22",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
   })
 
   test('unnamed: non-indexed string', () => {
@@ -689,8 +825,30 @@ describe('args: args', () => {
       args: [null, 'goodbye'],
     })
 
-    expect(matched).toHaveLength(1)
-    expect(mismatched).toHaveLength(0)
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": [
+            "0x0000000000000000000000000000000000000001",
+            "hello",
+          ],
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000",
+          "eventName": "Message",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x811f7cff0a3374ff67cccc3726035d34ba70410e0256818a891e4d6acc01d88e",
+            "0x0000000000000000000000000000000000000000000000000000000000000001",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
   })
 
   test('named: empty non-indexed string', () => {
@@ -711,7 +869,27 @@ describe('args: args', () => {
       args: { text: '' },
     })
 
-    expect(matched).toHaveLength(1)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "text": "",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+          "eventName": "Message",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x51a7f65c6325882f237d4aeb43228179cfad48b868511d508e24b4437a819137",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
   })
 
   test('named: indexed bytes', () => {
@@ -740,8 +918,29 @@ describe('args: args', () => {
       args: { data: '0x5678' },
     })
 
-    expect(matched).toHaveLength(1)
-    expect(mismatched).toHaveLength(0)
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "data": "0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x",
+          "eventName": "Foo",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0xefc9afd358f1472682cf8cc82e1d3ae36be2538ed858a4a604119399d6f22b48",
+            "0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
   })
 
   test('unnamed: single arg', async () => {
