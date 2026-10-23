@@ -3383,10 +3383,6 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  text: 'deposit',
-                  link: '/tempo/actions/zone.deposit',
-                },
-                {
                   text: 'encryptedDeposit',
                   link: '/tempo/actions/zone.encryptedDeposit',
                 },
