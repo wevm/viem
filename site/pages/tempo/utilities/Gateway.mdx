@@ -49,14 +49,14 @@ const entry = await client.kv.set({
 
 ### Compute
 
-`compute.create` starts a sandbox from a container image, with optional `apt/pip` layers, on CPU or a GPU. It is paid up front for its `timeout`, priced per second by GPU, CPU, and memory; `Gateway.getCapabilities` lists the rates. `exec` waits up to 120 seconds; `spawn` runs longer jobs in the background, and `read` polls their log from an offset.
+`compute.create` starts a sandbox from a container image, with optional `apt/pip` layers, on CPU or a GPU. Compute is metered: creation pays for `lease` seconds at the sandbox's GPU, CPU, and memory rate (`Gateway.getCapabilities` lists them), `renew` pays for more up to `timeout`, and the Gateway terminates a sandbox about a minute after its `paidUntil`. `stream` yields a command's output as it runs; `spawn` starts a background job and `logs` follows its log until it exits.
 
 ```ts
 const sandbox = await client.compute.create({
   gpu: 'T4',
   image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
-  ports: [8000],
-  timeout: 1200,
+  lease: 600,
+  timeout: 3600,
 })
 
 await client.compute.write({
@@ -70,17 +70,32 @@ const job = await client.compute.spawn({
   workdir: '/root',
 })
 
-let offset = 0
-while (!(await client.compute.read({ path: job.exitPath, sandboxId: sandbox.sandboxId }))) {
-  const log = await client.compute.read({ offset, path: job.logPath, sandboxId: sandbox.sandboxId })
-  const text = log ? await new Response(log.body).text() : ''
-  offset += new TextEncoder().encode(text).byteLength
-  console.log(text)
-  await new Promise((resolve) => setTimeout(resolve, 10_000))
+for await (const event of client.compute.logs({
+  logPath: job.logPath,
+  sandboxId: sandbox.sandboxId,
+})) {
+  if (event.type === 'log') process.stdout.write(event.data)
+  if (event.type === 'exit') console.log('exit', event.exitCode)
 }
 
-const { snapshot } = await client.compute.snapshot({ sandboxId: sandbox.sandboxId })
 await client.compute.terminate({ sandboxId: sandbox.sandboxId })
+```
+
+Renew while a long job runs, for example every few minutes:
+
+```ts
+await client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 })
+```
+
+### Streaming Text
+
+```ts
+for await (const event of client.ai.streamText({
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Write a haiku about Tempo.',
+})) {
+  if (event.type === 'text') process.stdout.write(event.delta)
+}
 ```
 
 ### Standalone Actions
@@ -128,18 +143,22 @@ const mppx = Mppx.create({
 | --- | --- |
 | `ai.embed` | Embeds text. |
 | `ai.generateText` | Generates text from a `prompt` or `messages`. |
+| `ai.streamText` | Yields text and reasoning deltas as they are generated, then usage. |
 | `bucket.delete` | Deletes an object. |
 | `bucket.get` | Reads an object as a `ReadableStream`, or `null`. |
 | `bucket.head` | Reads object metadata, or `null`. |
 | `bucket.list` | Lists objects by key prefix. |
 | `bucket.put` | Writes a `Blob`, `Uint8Array`, `ArrayBuffer`, or string for a retention period. |
-| `compute.create` | Starts a sandbox from an image (with `apt/pip` layers) or snapshot, on CPU or a GPU, with ports served over HTTPS tunnels. |
+| `compute.create` | Starts a sandbox from an image (with `apt/pip` layers) or snapshot, on CPU or a GPU, paying a first lease; ports are served over HTTPS tunnels. |
 | `compute.exec` | Runs a command for up to 120 seconds and returns its output and exit code. |
 | `compute.list` | Lists sandboxes that have not ended. |
+| `compute.logs` | Yields a background job's log as it grows, then its exit code. |
 | `compute.read` | Reads a file or log from an offset, or `null`. |
+| `compute.renew` | Pays for more seconds of a sandbox. |
 | `compute.snapshot` | Saves a sandbox's filesystem as a snapshot for 30 days. |
 | `compute.spawn` | Starts a background command with a log and exit-code file. |
 | `compute.status` | Reads whether a sandbox is running. |
+| `compute.stream` | Runs a command and yields its output as it is written, then its exit. |
 | `compute.terminate` | Terminates a sandbox. |
 | `compute.write` | Writes a file into a sandbox. |
 | `kv.delete` | Deletes a key. |

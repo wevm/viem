@@ -78,3 +78,24 @@ test('compute.create: tunnels keyed by ports', async () => {
   // @ts-expect-error
   sandbox.tunnels[9000]
 })
+
+test('compute.stream: events narrow by type', async () => {
+  for await (const event of Actions.compute.stream(gateway, {
+    command: ['ls'],
+    sandboxId: 'sb',
+  })) {
+    if (event.type === 'exit')
+      expectTypeOf(event.exitCode).toEqualTypeOf<number | null>()
+    else expectTypeOf(event.data).toEqualTypeOf<string>()
+  }
+})
+
+test('ai.streamText: deltas then usage', async () => {
+  for await (const event of Actions.ai.streamText(gateway, {
+    model: 'model',
+    prompt: 'hi',
+  })) {
+    if (event.type === 'done') expectTypeOf(event).toHaveProperty('usage')
+    else expectTypeOf(event.delta).toEqualTypeOf<string>()
+  }
+})

@@ -46,6 +46,8 @@ export type Capabilities = {
     retentionSeconds: number
     /** Maximum sandbox lifetime in seconds. */
     sandboxSeconds: number
+    /** Maximum `compute.stream` timeout in seconds. */
+    streamSeconds: number
     /** Maximum serialized key-value size in bytes. */
     valueBytes: number
   }
@@ -362,5 +364,52 @@ export class VersionConflictError extends RequestError {
       name: 'Gateway.VersionConflictError',
       shortMessage: 'Stored version does not match ifVersion.',
     })
+  }
+}
+
+/**
+ * Reads a Gateway NDJSON stream, one event per line. An `error` event throws a
+ * {@link RequestError}.
+ *
+ * @internal
+ */
+export async function* events<event extends { type: string }>(
+  response: Response,
+): AsyncGenerator<event> {
+  if (!response.body) return
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      buffer += decoder.decode(value, { stream: !done })
+
+      const lines = buffer.split('\n')
+      buffer = done ? '' : (lines.pop() ?? '')
+
+      for (const line of lines) {
+        if (!line.trim()) continue
+
+        const event = JSON.parse(line) as event & {
+          code?: string
+          detail?: string
+        }
+        if (event.type === 'error')
+          throw new RequestError({
+            code: event.code ?? 'upstream_failed',
+            detail: event.detail ?? '',
+            status: 502,
+            url: response.url,
+          })
+        yield event
+      }
+
+      if (done) return
+    }
+  } finally {
+    reader.releaseLock()
   }
 }

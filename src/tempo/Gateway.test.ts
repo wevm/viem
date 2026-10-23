@@ -102,6 +102,7 @@ async function handle(request: Request) {
       expiresAt: 300_000,
       gpu,
       image,
+      paidUntil: 300_000,
       sandboxId,
     })
     if (pathname === '/v1/compute/create') {
@@ -135,7 +136,40 @@ async function handle(request: Request) {
     if (!sandbox?.running)
       return problem(404, 'not_found', `${input.sandboxId} does not exist.`)
     const file = (path: string) => scope(`${input.sandboxId}${path}`)
+    const ndjson = (events: readonly object[]) =>
+      new Response(
+        events.map((event) => `${JSON.stringify(event)}\n`).join(''),
+        {
+          headers: { 'content-type': 'application/x-ndjson' },
+        },
+      )
     switch (pathname) {
+      case '/v1/compute/renew':
+        return Response.json({
+          ...view(input.sandboxId ?? '', sandbox.gpu, sandbox.image),
+          paidUntil: 600_000,
+        })
+      case '/v1/compute/stream':
+        if (input.command?.[0] === 'fail')
+          return ndjson([
+            { data: 'partial', type: 'stdout' },
+            {
+              code: 'upstream_failed',
+              detail: 'Lost the sandbox.',
+              type: 'error',
+            },
+          ])
+        return ndjson([
+          { data: 'out\n', type: 'stdout' },
+          { data: 'err\n', type: 'stderr' },
+          { exitCode: 3, timedOut: false, type: 'exit' },
+        ])
+      case '/v1/compute/logs':
+        return ndjson([
+          { data: 'step 1\n', offset: 7, type: 'log' },
+          { data: 'step 2\n', offset: 14, type: 'log' },
+          { exitCode: 0, offset: 14, type: 'exit' },
+        ])
       case '/v1/compute/exec':
         return Response.json({
           exitCode: 0,
@@ -188,6 +222,25 @@ async function handle(request: Request) {
     case '/v1/ai/embed':
       return Response.json({ embeddings: [[0.5, 0.25]], shape: [1, 2] })
     case '/v1/ai/generate':
+      if ((body as unknown as { stream?: boolean }).stream)
+        return new Response(
+          [
+            { delta: 'thinking', type: 'reasoning' },
+            { delta: 'Hello', type: 'text' },
+            { delta: ' world', type: 'text' },
+            {
+              type: 'done',
+              usage: {
+                completion_tokens: 2,
+                prompt_tokens: 1,
+                total_tokens: 3,
+              },
+            },
+          ]
+            .map((event) => `${JSON.stringify(event)}\n`)
+            .join(''),
+          { headers: { 'content-type': 'application/x-ndjson' } },
+        )
       return Response.json({
         text: JSON.stringify(body),
         usage: { completion_tokens: 2, prompt_tokens: 1, total_tokens: 3 },
@@ -367,6 +420,42 @@ describe('ai', () => {
           2,
         ],
       }
+    `)
+  })
+
+  test('streamText', async () => {
+    const gateway = Gateway.from({ app: 'ai', fetch: paidFetch, url })
+
+    const events = []
+    for await (const event of Actions.ai.streamText(gateway, {
+      model: '@cf/zai-org/glm-5.3',
+      prompt: 'hi',
+    }))
+      events.push(event)
+
+    expect(events).toMatchInlineSnapshot(`
+      [
+        {
+          "delta": "thinking",
+          "type": "reasoning",
+        },
+        {
+          "delta": "Hello",
+          "type": "text",
+        },
+        {
+          "delta": " world",
+          "type": "text",
+        },
+        {
+          "type": "done",
+          "usage": {
+            "inputTokens": 1,
+            "outputTokens": 2,
+            "totalTokens": 3,
+          },
+        },
+      ]
     `)
   })
 
@@ -628,6 +717,7 @@ describe('compute', () => {
           "expiresAt": 300000,
           "gpu": "H100:2",
           "image": "python:3.12-slim",
+          "paidUntil": 300000,
           "sandboxId": "sb-1",
           "tunnels": {
             "8000": "https://8000.tunnel.test",
@@ -649,6 +739,7 @@ describe('compute', () => {
               "expiresAt": 300000,
               "gpu": "H100:2",
               "image": "python:3.12-slim",
+              "paidUntil": 300000,
               "sandboxId": "sb-1",
             },
           ],
@@ -659,6 +750,7 @@ describe('compute', () => {
           "expiresAt": 300000,
           "gpu": "H100:2",
           "image": "python:3.12-slim",
+          "paidUntil": 300000,
           "sandboxId": "sb-1",
           "status": "running",
         },
@@ -733,6 +825,82 @@ describe('compute', () => {
         },
       }
     `)
+  })
+
+  test('behavior: metering and streaming', async () => {
+    const gateway = Gateway.from({ app: 'compute', fetch: paidFetch, url })
+
+    const { sandboxId } = await Actions.compute.create(gateway, {
+      lease: 60,
+      timeout: 600,
+    })
+    const renewed = await Actions.compute.renew(gateway, {
+      sandboxId,
+      seconds: 300,
+    })
+    const streamed = []
+    for await (const event of Actions.compute.stream(gateway, {
+      command: ['python', 'train.py'],
+      sandboxId,
+    }))
+      streamed.push(event)
+    const logged = []
+    for await (const event of Actions.compute.logs(gateway, {
+      logPath: '/tmp/gateway/1.log',
+      sandboxId,
+    }))
+      logged.push(event)
+    const failed = await (async () => {
+      for await (const _ of Actions.compute.stream(gateway, {
+        command: ['fail'],
+        sandboxId,
+      })) {
+      }
+    })().catch((error) => error)
+
+    expect(renewed.paidUntil).toBe(600_000)
+    expect({ logged, streamed }).toMatchInlineSnapshot(`
+      {
+        "logged": [
+          {
+            "data": "step 1
+      ",
+            "offset": 7,
+            "type": "log",
+          },
+          {
+            "data": "step 2
+      ",
+            "offset": 14,
+            "type": "log",
+          },
+          {
+            "exitCode": 0,
+            "offset": 14,
+            "type": "exit",
+          },
+        ],
+        "streamed": [
+          {
+            "data": "out
+      ",
+            "type": "stdout",
+          },
+          {
+            "data": "err
+      ",
+            "type": "stderr",
+          },
+          {
+            "exitCode": 3,
+            "timedOut": false,
+            "type": "exit",
+          },
+        ],
+      }
+    `)
+    expect(failed).toBeInstanceOf(Gateway.RequestError)
+    expect(failed.detail).toBe('Lost the sandbox.')
   })
 
   test('behavior: ended sandbox', async () => {

@@ -78,6 +78,40 @@ export type Decorator = {
     generateText: (
       parameters: aiActions.generateText.Parameters,
     ) => Promise<aiActions.generateText.ReturnValue>
+    /**
+     * Generates text with a Gateway model and yields it as it is produced.
+     * Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * for await (const event of client.ai.streamText({
+     *   model: '@cf/zai-org/glm-5.3',
+     *   prompt: 'Write a haiku about Tempo.',
+     * })) {
+     *   if (event.type === 'text') process.stdout.write(event.delta)
+     * }
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Text and reasoning deltas, then usage.
+     */
+    streamText: (
+      parameters: aiActions.streamText.Parameters,
+    ) => AsyncGenerator<aiActions.streamText.Event>
   }
   /** Object storage, private to the payer and app. */
   bucket: {
@@ -510,6 +544,103 @@ export type Decorator = {
     write: (
       parameters: computeActions.write.Parameters,
     ) => Promise<computeActions.write.ReturnValue>
+    /**
+     * Pays for more seconds of a sandbox at its per-second rate, up to its
+     * `timeout`. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * await client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The sandbox with its new `paidUntil`.
+     */
+    renew: (
+      parameters: computeActions.renew.Parameters,
+    ) => Promise<computeActions.renew.ReturnValue>
+    /**
+     * Runs a command and yields its output as it is written, then its exit.
+     * Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * for await (const event of client.compute.stream({
+     *   command: ['python', 'train.py'],
+     *   sandboxId: sandbox.sandboxId,
+     * })) {
+     *   if (event.type !== 'exit') process.stdout.write(event.data)
+     * }
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Output and exit events.
+     */
+    stream: (
+      parameters: computeActions.stream.Parameters,
+    ) => AsyncGenerator<computeActions.stream.Event>
+    /**
+     * Follows the log of a command started with `spawn` and yields it as it
+     * grows, then the exit code. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * for await (const event of client.compute.logs({
+     *   logPath: job.logPath,
+     *   sandboxId: sandbox.sandboxId,
+     * })) {
+     *   if (event.type === 'log') process.stdout.write(event.data)
+     * }
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Log, exit, and end events.
+     */
+    logs: (
+      parameters: computeActions.logs.Parameters,
+    ) => AsyncGenerator<computeActions.logs.Event>
   }
   /** Key-value state, private to the payer and app. */
   kv: {
@@ -684,6 +815,7 @@ export function decorator(options: decorator.Options) {
     ai: {
       embed: (parameters) => aiActions.embed(gateway, parameters),
       generateText: (parameters) => aiActions.generateText(gateway, parameters),
+      streamText: (parameters) => aiActions.streamText(gateway, parameters),
     },
     bucket: {
       delete: (parameters) => bucketActions.delete(gateway, parameters),
@@ -696,10 +828,13 @@ export function decorator(options: decorator.Options) {
       create: (parameters) => computeActions.create(gateway, parameters),
       exec: (parameters) => computeActions.exec(gateway, parameters),
       list: (parameters) => computeActions.list(gateway, parameters),
+      logs: (parameters) => computeActions.logs(gateway, parameters),
       read: (parameters) => computeActions.read(gateway, parameters),
+      renew: (parameters) => computeActions.renew(gateway, parameters),
       snapshot: (parameters) => computeActions.snapshot(gateway, parameters),
       spawn: (parameters) => computeActions.spawn(gateway, parameters),
       status: (parameters) => computeActions.status(gateway, parameters),
+      stream: (parameters) => computeActions.stream(gateway, parameters),
       terminate: (parameters) => computeActions.terminate(gateway, parameters),
       write: (parameters) => computeActions.write(gateway, parameters),
     },

@@ -30,15 +30,18 @@ export type Sandbox = {
   gpu: string | null
   /** Container image, or the snapshot it started from. */
   image: string
+  /** End of the paid lease as a Unix timestamp in milliseconds. */
+  paidUntil: number
   /** Sandbox ID. */
   sandboxId: string
 }
 
 /**
- * Starts a sandbox for `timeout` seconds from a container image, with optional
- * `apt/pip` layers, or from a snapshot. Paid up front by GPU, CPU, memory, and
- * timeout; see `Gateway.getCapabilities`. `ports` are served over public HTTPS
- * tunnels returned in `tunnels`.
+ * Starts a sandbox that can live up to `timeout` seconds, from a container image
+ * with optional `apt/pip` layers or from a snapshot. Compute is metered: creation
+ * pays for `lease` seconds at the sandbox's GPU, CPU, and memory rate (see
+ * `Gateway.getCapabilities`), and `renew` pays for more. `ports` are served
+ * over public HTTPS tunnels returned in `tunnels`.
  *
  * @experimental
  *
@@ -80,6 +83,7 @@ export async function create<
     gpuCount,
     idleTimeout,
     image,
+    lease,
     memory,
     pip,
     ports,
@@ -98,6 +102,7 @@ export async function create<
       gpuCount,
       idleTimeout,
       image,
+      lease,
       memory,
       pip,
       ports,
@@ -126,6 +131,13 @@ export declare namespace create {
     /** Seconds without activity after which the sandbox ends. */
     idleTimeout?: number | undefined
     /**
+     * Seconds paid at creation. Pay for more with `renew`; the sandbox is
+     * terminated about a minute after its lease ends.
+     *
+     * @default 300, or `timeout` if shorter
+     */
+    lease?: number | undefined
+    /**
      * Memory in MiB.
      *
      * @default 1024
@@ -136,7 +148,7 @@ export declare namespace create {
     /** Signal to abort the request. */
     signal?: AbortSignal | undefined
     /**
-     * Lifetime in seconds, paid up front.
+     * Longest lifetime in seconds, whatever is paid.
      *
      * @default 300
      */
@@ -704,6 +716,206 @@ export declare namespace write {
     /** Bytes written. */
     size: number
   }
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Pays for more seconds of a sandbox at its per-second rate, up to its
+ * `timeout`. A sandbox whose `paidUntil` passes is terminated within about a
+ * minute. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * const { paidUntil } = await Actions.compute.renew(gateway, {
+ *   sandboxId: sandbox.sandboxId,
+ *   seconds: 300,
+ * })
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns The sandbox with its new `paidUntil`.
+ */
+export async function renew(
+  gateway: Gateway.Gateway,
+  parameters: renew.Parameters,
+): Promise<renew.ReturnValue> {
+  const { sandboxId, seconds, signal } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ sandboxId, seconds }),
+    path: '/compute/renew',
+    signal,
+  })
+  return (await response.json()) as renew.ReturnValue
+}
+
+export declare namespace renew {
+  type Parameters = {
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Seconds to pay for. */
+    seconds: number
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+  }
+
+  type ReturnValue = Sandbox
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Runs a command in a sandbox and yields its output as it is written, then
+ * its exit. Up to `timeout` seconds (at most 3600). Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * for await (const event of Actions.compute.stream(gateway, {
+ *   command: ['python', 'train.py'],
+ *   sandboxId: sandbox.sandboxId,
+ * })) {
+ *   if (event.type === 'exit') console.log('exit', event.exitCode)
+ *   else process.stdout.write(event.data)
+ * }
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns Output and exit events.
+ */
+export async function* stream(
+  gateway: Gateway.Gateway,
+  parameters: stream.Parameters,
+): AsyncGenerator<stream.Event> {
+  const { command, env, sandboxId, signal, timeout, workdir } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ command, env, sandboxId, timeout, workdir }),
+    path: '/compute/stream',
+    signal,
+  })
+  yield* Gateway.events<stream.Event>(response)
+}
+
+export declare namespace stream {
+  type Parameters = exec.Parameters
+
+  type Event =
+    | {
+        /** Output text. */
+        data: string
+        /** Output stream. */
+        type: 'stderr' | 'stdout'
+      }
+    | {
+        /** Exit code, or `null` if the command did not exit. */
+        exitCode: number | null
+        /** Whether the command was stopped at its timeout. */
+        timedOut: boolean
+        type: 'exit'
+      }
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Follows the log of a command started with `spawn` from `offset` and yields
+ * it as it grows, then the exit code. After an hour it yields `end` with the
+ * offset to resume from. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * for await (const event of Actions.compute.logs(gateway, {
+ *   logPath: job.logPath,
+ *   sandboxId: sandbox.sandboxId,
+ * })) {
+ *   if (event.type === 'log') process.stdout.write(event.data)
+ * }
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns Log, exit, and end events.
+ */
+export async function* logs(
+  gateway: Gateway.Gateway,
+  parameters: logs.Parameters,
+): AsyncGenerator<logs.Event> {
+  const { logPath, offset, sandboxId, signal } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ logPath, offset, sandboxId }),
+    path: '/compute/logs',
+    signal,
+  })
+  yield* Gateway.events<logs.Event>(response)
+}
+
+export declare namespace logs {
+  type Parameters = {
+    /** Log path returned by `spawn`. */
+    logPath: string
+    /**
+     * Byte offset to start from.
+     *
+     * @default 0
+     */
+    offset?: number | undefined
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+  }
+
+  type Event =
+    | {
+        /** Log text. */
+        data: string
+        /** Byte offset after this chunk. */
+        offset: number
+        type: 'log'
+      }
+    | {
+        /** Exit code of the command. */
+        exitCode: number | null
+        /** Byte offset at the end of the log. */
+        offset: number
+        type: 'exit'
+      }
+    | {
+        /** Byte offset to resume from. */
+        offset: number
+        type: 'end'
+      }
 
   type ErrorType = Gateway.request.ErrorType
 }
