@@ -699,6 +699,10 @@ export { unique } from './definitions/unique.js'
 export { uniqueOpal } from './definitions/uniqueOpal.js'
 export { uniqueQuartz } from './definitions/uniqueQuartz.js'
 export { unreal } from './definitions/unreal.js'
+/** ValueChain mainnet. */
+export { valuechain } from './definitions/valuechain.js'
+/** ValueChain testnet. */
+export { valuechainTestnet } from './definitions/valuechainTestnet.js'
 export { valygoNft } from './definitions/valygoNft.js'
 export { valygoSmartchain } from './definitions/valygoSmartchain.js'
 export { vana } from './definitions/vana.js'
