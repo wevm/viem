@@ -81,6 +81,7 @@ async function handle(request: Request) {
     ifVersion?: number | null
     key: string
     prefix?: string
+    ttl?: number
     value?: unknown
   }
 
@@ -348,7 +349,7 @@ describe('from', () => {
 
       Use 1 to 63 lowercase letters, digits, or hyphens.
 
-      Version: viem@2.57.10]
+      Version: viem@x.y.z]
     `)
   })
 })

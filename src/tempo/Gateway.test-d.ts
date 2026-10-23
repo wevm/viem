@@ -24,7 +24,7 @@ test('ai.generateText: prompt or messages', () => {
 
 test('kv.get: entry or null', () => {
   expectTypeOf(Actions.kv.get(gateway, { key: 'key' })).resolves.toEqualTypeOf<{
-    expiresAt: number | null
+    expiresAt: number
     key: string
     value: unknown
     version: number
