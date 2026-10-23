@@ -1,0 +1,197 @@
+# `Gateway`
+
+Wallet-paid inference, object storage, sandboxed compute, and key-value state on a Tempo Gateway.
+
+:::warning
+This API is experimental and may change in future releases.
+:::
+
+A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. AI operations are metered per token: a request reserves the most it can cost and the unused part is credited back to the session. Viem does not implement payments: the app passes a payment-aware `fetch`, such as [`mppx`](https://mpp.dev/sdk/typescript)'s client fetch. Stored data is private to the chain, the paying wallet, and the app namespace.
+
+## Usage
+
+Extend a Client with `gatewayActions` to add `client.ai`, `client.bucket`, `client.compute`, and `client.kv`.
+
+```ts
+import { Mppx, tempo } from 'mppx/client'
+import { privateKeyToAccount } from 'viem/accounts'
+import { createClient, gatewayActions } from 'viem/tempo'
+
+const account = privateKeyToAccount('0x...')
+const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+
+const client = createClient({ account }).extend(
+  gatewayActions({
+    app: 'my-app',
+    fetch: mppx.fetch,
+    url: 'https://gateway.example.com',
+  }),
+)
+
+const { text } = await client.ai.generateText({
+  model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+  prompt: 'Describe this app in one sentence.',
+})
+
+await client.bucket.put({
+  key: 'descriptions/latest.txt',
+  retention: 2_592_000,
+  value: new Blob([text], { type: 'text/plain' }),
+})
+
+const entry = await client.kv.set({
+  ifVersion: null,
+  key: 'description',
+  value: { object: 'descriptions/latest.txt' },
+})
+// @log: { expiresAt: null, key: 'description', value: { object: 'descriptions/latest.txt' }, version: 1 }
+```
+
+### Compute
+
+`compute.create` starts a sandbox from a container image, with optional `apt/pip` layers, on CPU or a GPU. Compute is metered: creation pays for `lease` seconds at the sandbox's GPU, CPU, and memory rate (`Gateway.getCapabilities` lists them), `renew` pays for more up to `timeout`, and the Gateway terminates a sandbox about a minute after its `paidUntil`. `stream` yields a command's output as it runs; `spawn` starts a background job and `logs` follows its log until it exits.
+
+```ts
+const sandbox = await client.compute.create({
+  gpu: 'T4',
+  image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
+  lease: 600,
+  timeout: 3600,
+})
+
+await client.compute.write({
+  path: '/root/train.py',
+  sandboxId: sandbox.sandboxId,
+  value: script,
+})
+const job = await client.compute.spawn({
+  command: ['python', 'train.py'],
+  sandboxId: sandbox.sandboxId,
+  workdir: '/root',
+})
+
+for await (const event of client.compute.logs({
+  logPath: job.logPath,
+  sandboxId: sandbox.sandboxId,
+})) {
+  if (event.type === 'log') process.stdout.write(event.data)
+  if (event.type === 'exit') console.log('exit', event.exitCode)
+}
+
+await client.compute.terminate({ sandboxId: sandbox.sandboxId })
+```
+
+Renew while a long job runs, for example every few minutes:
+
+```ts
+await client.compute.renew({ sandboxId: sandbox.sandboxId, seconds: 300 })
+```
+
+### Streaming Text
+
+```ts
+for await (const event of client.ai.streamText({
+  model: '@cf/zai-org/glm-5.3',
+  prompt: 'Write a haiku about Tempo.',
+})) {
+  if (event.type === 'text') process.stdout.write(event.delta)
+}
+```
+
+### Standalone Actions
+
+Every method is also a standalone action that takes a `Gateway` connection.
+
+```ts
+import { Actions, Gateway } from 'viem/tempo'
+
+const gateway = Gateway.from({
+  app: 'my-app',
+  fetch: mppx.fetch,
+  url: 'https://gateway.example.com',
+})
+
+const entry = await Actions.kv.get(gateway, { key: 'description' })
+```
+
+### Capabilities
+
+`Gateway.getCapabilities` is free and reads the chain, currencies, prices, limits, and models.
+
+```ts
+import { Gateway } from 'viem/tempo'
+
+const gateway = Gateway.from({ app: 'my-app', url: 'https://gateway.example.com' })
+const capabilities = await Gateway.getCapabilities(gateway)
+// @log: { chainId: 4217, currencies: { mach: '0x…', ousd: '0x…' }, limits: { … }, models: { … }, prices: { … }, recipient: '0x…', version: '2026-10-22' }
+```
+
+### Paying with Other Stablecoins
+
+The Gateway accepts its advertised currencies only. A wallet holding another stablecoin can swap through the stablecoin DEX when opening or topping up its session with `mppx`'s `autoSwap`.
+
+```ts
+const mppx = Mppx.create({
+  methods: [tempo({ account, autoSwap: true, maxDeposit: '1' })],
+  polyfill: false,
+})
+```
+
+## Methods
+
+| Method | Description |
+| --- | --- |
+| `ai.embed` | Embeds text. |
+| `ai.generateText` | Generates text from a `prompt` or `messages`. |
+| `ai.streamText` | Yields text and reasoning deltas as they are generated, then usage. |
+| `bucket.delete` | Deletes an object. |
+| `bucket.get` | Reads an object as a `ReadableStream`, or `null`. |
+| `bucket.head` | Reads object metadata, or `null`. |
+| `bucket.list` | Lists objects by key prefix. |
+| `bucket.put` | Writes a `Blob`, `Uint8Array`, `ArrayBuffer`, or string for a retention period. |
+| `compute.create` | Starts a sandbox from an image (with `apt/pip` layers) or snapshot, on CPU or a GPU, paying a first lease; ports are served over HTTPS tunnels. |
+| `compute.exec` | Runs a command for up to 120 seconds and returns its output and exit code. |
+| `compute.list` | Lists sandboxes that have not ended. |
+| `compute.logs` | Yields a background job's log as it grows, then its exit code. |
+| `compute.read` | Reads a file or log from an offset, or `null`. |
+| `compute.renew` | Pays for more seconds of a sandbox. |
+| `compute.snapshot` | Saves a sandbox's filesystem as a snapshot for 30 days. |
+| `compute.spawn` | Starts a background command with a log and exit-code file. |
+| `compute.status` | Reads whether a sandbox is running. |
+| `compute.stream` | Runs a command and yields its output as it is written, then its exit. |
+| `compute.terminate` | Terminates a sandbox. |
+| `compute.write` | Writes a file into a sandbox. |
+| `kv.delete` | Deletes a key. |
+| `kv.get` | Reads a JSON value with its version, or `null`. |
+| `kv.list` | Lists entries by key prefix. |
+| `kv.set` | Writes a JSON value, optionally only if `ifVersion` matches. |
+
+## Errors
+
+| Error | Thrown when |
+| --- | --- |
+| `Gateway.InvalidAppError` | `app` does not match `[a-z0-9][a-z0-9-]{0,62}`. |
+| `Gateway.PaymentRequiredError` | A paid route was called without a payment-aware `fetch`. |
+| `Gateway.RequestError` | The Gateway responded with a problem; see `code`, `detail`, and `status`. |
+| `Gateway.VersionConflictError` | `kv.set` with `ifVersion` did not match the stored version. |
+
+## Parameters
+
+### app
+
+- **Type:** `string`
+
+App namespace sent as the `Gateway-App` header.
+
+### fetch (optional)
+
+- **Type:** `(input: string, init: RequestInit) => Promise<Response>`
+- **Default:** `globalThis.fetch`
+
+Fetch function used for every request. Pass a payment-aware fetch to pay for operations.
+
+### url
+
+- **Type:** `string`
+
+Gateway origin, without the `/v1` version path.
