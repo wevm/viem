@@ -56,7 +56,7 @@ export type ClientConfig<
   experimental_blockTag?: BlockTag | undefined
   /**
    * Time (in ms) that cached data will remain in memory.
-   * @default chain.blockTime / 3
+   * @default min(pollingInterval, chain.blockTime / 2)
    */
   cacheTime?: number | undefined
   /**
@@ -85,7 +85,7 @@ export type ClientConfig<
   name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
-   * @default chain.blockTime / 3
+   * @default chain.blockTime / 2 (min 500, max 4_000)
    */
   pollingInterval?: number | undefined
   /**
@@ -233,7 +233,7 @@ type Client_Base<
   key: string
   /** A name for the client. */
   name: string
-  /** Frequency (in ms) for polling enabled actions & events. Defaults to 4_000 milliseconds. */
+  /** Frequency (in ms) for polling enabled actions & events. */
   pollingInterval: number
   /** Request function wrapped with friendly error handling */
   request: EIP1193RequestFn<
@@ -318,7 +318,8 @@ export function createClient(parameters: ClientConfig): Client {
     4_000,
   )
   const pollingInterval = parameters.pollingInterval ?? defaultPollingInterval
-  const cacheTime = parameters.cacheTime ?? pollingInterval
+  const cacheTime =
+    parameters.cacheTime ?? Math.min(pollingInterval, Math.floor(blockTime / 2))
 
   const account = parameters.account
     ? parseAccount(parameters.account)
