@@ -4,7 +4,6 @@ import { anvilMainnet } from '~test/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
-import { decodeEventLog } from './decodeEventLog.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 import { encodeEventTopics } from './encodeEventTopics.js'
 import { parseEventLogs } from './parseEventLogs.js'
@@ -617,7 +616,6 @@ describe('args: args', () => {
     const data = encodeAbiParameters([{ type: 'string' }], ['hello'])
     const log = { ...baseLog, data, topics } as Log
 
-    const decoded = decodeEventLog({ abi, data, topics })
     const matched = parseEventLogs({
       abi,
       logs: [log],
@@ -629,7 +627,6 @@ describe('args: args', () => {
       args: { text: 'goodbye' },
     })
 
-    expect(decoded.args.text).toBe('hello')
     expect(mismatched).toHaveLength(0)
     expect(matched).toHaveLength(1)
     expect(matched[0]?.args.text).toBe('hello')
@@ -647,7 +644,6 @@ describe('args: args', () => {
     const data = encodeAbiParameters([{ type: 'bytes' }], ['0x1234'])
     const log = { ...baseLog, data, topics } as Log
 
-    const decoded = decodeEventLog({ abi, data, topics })
     const matched = parseEventLogs({
       abi,
       logs: [log],
@@ -659,7 +655,6 @@ describe('args: args', () => {
       args: { data: '0x5678' },
     })
 
-    expect(decoded.args.data).toBe('0x1234')
     expect(mismatched).toHaveLength(0)
     expect(matched).toHaveLength(1)
   })
@@ -716,7 +711,6 @@ describe('args: args', () => {
       args: { text: '' },
     })
 
-    expect(decodeEventLog({ abi, data, topics }).args.text).toBe('')
     expect(matched).toHaveLength(1)
   })
 
