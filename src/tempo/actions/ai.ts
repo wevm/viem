@@ -128,7 +128,10 @@ export declare namespace generateText {
   }
 
   type Parameters = {
-    /** Maximum generated tokens. */
+    /**
+     * Maximum generated tokens. The request reserves their cost and refunds
+     * what is not generated.
+     */
     maxOutputTokens?: number | undefined
     /** Generation model. See `Gateway.getCapabilities`. */
     model: string

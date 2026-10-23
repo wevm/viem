@@ -6,7 +6,7 @@ Wallet-paid inference, object storage, sandboxed compute, and key-value state on
 This API is experimental and may change in future releases.
 :::
 
-A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. Viem does not implement payments: the app passes a payment-aware `fetch`, such as [`mppx`](https://mpp.dev/sdk/typescript)'s client fetch. Stored data is private to the chain, the paying wallet, and the app namespace.
+A Gateway charges each operation through an [MPP](https://mpp.dev) session paid by the caller's wallet. AI operations are metered per token: a request reserves the most it can cost and the unused part is credited back to the session. Viem does not implement payments: the app passes a payment-aware `fetch`, such as [`mppx`](https://mpp.dev/sdk/typescript)'s client fetch. Stored data is private to the chain, the paying wallet, and the app namespace.
 
 ## Usage
 

@@ -51,6 +51,8 @@ export type Capabilities = {
     /** Maximum serialized key-value size in bytes. */
     valueBytes: number
   }
+  /** Operations priced per token instead of per request. */
+  metered: readonly string[]
   /** Supported models by operation. */
   models: {
     /** Embedding models. */
@@ -58,10 +60,18 @@ export type Capabilities = {
     /** Text generation models. */
     generate: readonly string[]
   }
-  /** Price of each operation in human-readable currency units. */
+  /**
+   * Price of each operation in human-readable currency units. Metered
+   * operations list their minimum.
+   */
   prices: Record<string, string>
   /** Payment recipient. */
   recipient: Address
+  /**
+   * Price of metered AI operations per million tokens, by model. A request
+   * reserves the most it can cost and the unused part is refunded.
+   */
+  tokens: Record<string, { input: number; output: number }>
   /** Pricing version. */
   version: string
 }
