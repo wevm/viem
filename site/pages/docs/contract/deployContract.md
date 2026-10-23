@@ -15,7 +15,7 @@ import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
 
 const hash = await walletClient.deployContract({
-  abi,
+  abi: wagmiAbi,
   account,
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',
 })
@@ -56,12 +56,11 @@ export const account = privateKeyToAccount(...)
 :::code-group
 
 ```ts [example.ts] {8}
-import { deployContract } from 'viem'
 import { wagmiAbi } from './abi'
 import { account, walletClient } from './config'
 
 const hash = await walletClient.deployContract({
-  abi,
+  abi: wagmiAbi,
   account,
   args: [69420],
   bytecode: '0x608060405260405161083e38038061083e833981016040819052610...',

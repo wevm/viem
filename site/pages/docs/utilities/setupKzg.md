@@ -41,7 +41,7 @@ As seen above, when you set up your KZG interface, you will need to provide a tr
 
 Viem exports the following trusted setups:
 
-- `mainnet.json`: For Ethereum Mainnet & it's Testnets (Sepolia, Goerli, etc).
+- `mainnet.json`: For Ethereum Mainnet & its Testnets (Sepolia, Goerli, etc).
 - `minimal.json`: For low-resource local dev testnets, and spec-testing.
 
 The trusted setup files are retrieved from the Ethereum [consensus-specs repository](https://github.com/ethereum/consensus-specs/tree/dev/presets).
@@ -51,10 +51,7 @@ The trusted setup files are retrieved from the Ethereum [consensus-specs reposit
 Viem exports **paths to the trusted setup** via the `viem/node` entrypoint, designed to be used with `setupKzg`. 
 
 ```ts
-import {
-  mainnetTrustedSetupPath,
-  minimalTrustedSetupPath,
-} from 'viem/node'
+import { mainnetTrustedSetupPath } from 'viem/node'
 ```
 
 #### `viem/trusted-setups` Entrypoint
