@@ -5,7 +5,7 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
@@ -152,11 +152,18 @@ export function http<
             shouldSplitBatch(requests) {
               return requests.length > batchSize
             },
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
+            fn: async (body: RpcRequest[]) => {
+              const response = (await rpcClient.request({
                 body,
                 fetchOptions,
-              }),
+              })) as RpcResponse | RpcResponse[]
+              // A server that rejects the batch as a whole (e.g. rate limited or
+              // batch too large) replies with a single error object instead of
+              // an array. Hand that error to every request in the batch.
+              if (!Array.isArray(response) && response?.error)
+                return body.map(() => response)
+              return response as RpcResponse[]
+            },
             sort: (a, b) => a.id - b.id,
           })
 

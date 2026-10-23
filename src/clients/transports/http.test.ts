@@ -330,6 +330,74 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch: single error response for the whole batch', async () => {
+    let count = 0
+    const server = await createHttpServer((_, res) => {
+      count++
+      res.appendHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32600, message: 'batch size too large' },
+        }),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+    ])
+
+    for (const result of results) {
+      expect(result.status).toBe('rejected')
+      const error = (result as PromiseRejectedResult).reason
+      expect(error.name).toBe('InvalidRequestRpcError')
+      expect(error.details).toBe('batch size too large')
+    }
+    expect(count).toBe(1)
+
+    await server.close()
+  })
+
+  test('batch: single error response with a non-2xx status', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(429, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32005, message: 'rate limit exceeded' },
+        }),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+      retryCount: 0,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+    ])
+
+    for (const result of results) {
+      expect(result.status).toBe('rejected')
+      const error = (result as PromiseRejectedResult).reason
+      expect(error.name).toBe('LimitExceededRpcError')
+      expect(error.details).toBe('rate limit exceeded')
+    }
+
+    await server.close()
+  })
+
   test('behavior: dedupe', async () => {
     const args: string[] = []
     const server = await createHttpServer((req, res) => {
