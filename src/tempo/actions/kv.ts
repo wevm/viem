@@ -6,8 +6,8 @@ import * as Gateway from '../Gateway.js'
  * @experimental
  */
 export type Entry = {
-  /** Expiry as a Unix timestamp in milliseconds, or `null` without a TTL. */
-  expiresAt: number | null
+  /** Expiry as a Unix timestamp in milliseconds. */
+  expiresAt: number
   /** Key. */
   key: string
   /** JSON value. Validate it before use. */
@@ -233,7 +233,7 @@ export declare namespace set {
     key: string
     /** Signal to abort the request. */
     signal?: AbortSignal | undefined
-    /** Time to live in seconds. Without it, the entry does not expire. */
+    /** Time to live in seconds. Without it, the entry is kept for the Gateway's longest retention (`limits.retentionSeconds`). */
     ttl?: number | undefined
     /** JSON-serializable value. */
     value: unknown

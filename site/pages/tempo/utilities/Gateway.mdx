@@ -29,7 +29,7 @@ const client = createClient({ account }).extend(
 )
 
 const { text } = await client.ai.generateText({
-  model: '@cf/meta/llama-3.1-8b-instruct',
+  model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
   prompt: 'Describe this app in one sentence.',
 })
 

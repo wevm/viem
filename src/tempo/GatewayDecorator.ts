@@ -37,7 +37,7 @@ export type Decorator = {
      *
      * const { embeddings } = await client.ai.embed({
      *   input: ['hello world'],
-     *   model: '@cf/baai/bge-base-en-v1.5',
+     *   model: '@cf/baai/bge-m3',
      * })
      * ```
      *
@@ -67,7 +67,7 @@ export type Decorator = {
      * )
      *
      * const { text } = await client.ai.generateText({
-     *   model: '@cf/meta/llama-3.1-8b-instruct',
+     *   model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
      *   prompt: 'Describe this app in one sentence.',
      * })
      * ```
@@ -794,7 +794,7 @@ export type Decorator = {
  * )
  *
  * const { text } = await client.ai.generateText({
- *   model: '@cf/meta/llama-3.1-8b-instruct',
+ *   model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
  *   prompt: 'Describe this app in one sentence.',
  * })
  * await client.kv.set({ key: 'description', value: text })

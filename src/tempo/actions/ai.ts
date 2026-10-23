@@ -17,7 +17,7 @@ import * as Gateway from '../Gateway.js'
  *
  * const { embeddings } = await Actions.ai.embed(gateway, {
  *   input: ['hello world'],
- *   model: '@cf/baai/bge-base-en-v1.5',
+ *   model: '@cf/baai/bge-m3',
  * })
  * ```
  *
@@ -79,7 +79,7 @@ export declare namespace embed {
  * })
  *
  * const { text } = await Actions.ai.generateText(gateway, {
- *   model: '@cf/meta/llama-3.1-8b-instruct',
+ *   model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
  *   prompt: 'Describe this app in one sentence.',
  * })
  * ```

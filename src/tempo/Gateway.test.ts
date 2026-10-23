@@ -5,7 +5,7 @@ import { Actions, createClient, Gateway, gatewayActions } from 'viem/tempo'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 type Entry = {
-  expiresAt: number | null
+  expiresAt: number
   key: string
   value: unknown
   version: number
@@ -295,7 +295,7 @@ async function handle(request: Request) {
           `${body.key} does not match ifVersion.`,
         )
       const entry = {
-        expiresAt: null,
+        expiresAt: (body.ttl ?? 7_776_000) * 1000,
         key: body.key,
         value: body.value,
         version: (current?.version ?? 0) + 1,
@@ -348,7 +348,7 @@ describe('from', () => {
 
       Use 1 to 63 lowercase letters, digits, or hyphens.
 
-      Version: viem@x.y.z]
+      Version: viem@2.57.10]
     `)
   })
 })
@@ -405,7 +405,7 @@ describe('ai', () => {
     expect(
       await Actions.ai.embed(gateway, {
         input: 'hello',
-        model: '@cf/baai/bge-base-en-v1.5',
+        model: '@cf/baai/bge-m3',
       }),
     ).toMatchInlineSnapshot(`
       {
@@ -465,12 +465,12 @@ describe('ai', () => {
     expect(
       await Actions.ai.generateText(gateway, {
         maxOutputTokens: 16,
-        model: '@cf/meta/llama-3.1-8b-instruct',
+        model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
         prompt: 'hello',
       }),
     ).toMatchInlineSnapshot(`
       {
-        "text": "{"maxOutputTokens":16,"model":"@cf/meta/llama-3.1-8b-instruct","prompt":"hello"}",
+        "text": "{"maxOutputTokens":16,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","prompt":"hello"}",
         "usage": {
           "inputTokens": 1,
           "outputTokens": 2,
@@ -630,7 +630,7 @@ describe('kv', () => {
     }).toMatchInlineSnapshot(`
       {
         "created": {
-          "expiresAt": null,
+          "expiresAt": 7776000000,
           "key": "counter",
           "value": {
             "count": 1,
@@ -644,7 +644,7 @@ describe('kv', () => {
           "cursor": null,
           "entries": [
             {
-              "expiresAt": null,
+              "expiresAt": 7776000000,
               "key": "counter",
               "value": {
                 "count": 2,
@@ -655,7 +655,7 @@ describe('kv', () => {
         },
         "missing": null,
         "read": {
-          "expiresAt": null,
+          "expiresAt": 7776000000,
           "key": "counter",
           "value": {
             "count": 2,
@@ -663,7 +663,7 @@ describe('kv', () => {
           "version": 2,
         },
         "updated": {
-          "expiresAt": null,
+          "expiresAt": 7776000000,
           "key": "counter",
           "value": {
             "count": 2,
@@ -930,7 +930,7 @@ describe('gatewayActions', () => {
       bucket: await client.bucket.head({ key: 'greeting' }),
       generated: await client.ai.generateText({
         messages: [{ content: 'hi', role: 'user' }],
-        model: '@cf/meta/llama-3.1-8b-instruct',
+        model: '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
       }),
       kv: await client.kv.get({ key: 'greeting' }),
     }).toMatchInlineSnapshot(`
@@ -944,7 +944,7 @@ describe('gatewayActions', () => {
           "uploadedAt": 0,
         },
         "generated": {
-          "text": "{"messages":[{"content":"hi","role":"user"}],"model":"@cf/meta/llama-3.1-8b-instruct"}",
+          "text": "{"messages":[{"content":"hi","role":"user"}],"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast"}",
           "usage": {
             "inputTokens": 1,
             "outputTokens": 2,
@@ -952,7 +952,7 @@ describe('gatewayActions', () => {
           },
         },
         "kv": {
-          "expiresAt": null,
+          "expiresAt": 7776000000,
           "key": "greeting",
           "value": "hello",
           "version": 1,
