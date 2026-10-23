@@ -28,15 +28,17 @@ export type Sandbox = {
   expiresAt: number
   /** GPU, such as `H100` or `H100:2`, or `null` on CPU. */
   gpu: string | null
-  /** Container image. */
+  /** Container image, or the snapshot it started from. */
   image: string
   /** Sandbox ID. */
   sandboxId: string
 }
 
 /**
- * Starts a sandbox from a container image, on CPU or a GPU, for `timeout`
- * seconds. Paid up front by GPU and timeout; see `Gateway.getCapabilities`.
+ * Starts a sandbox for `timeout` seconds from a container image, with optional
+ * `apt/pip` layers, or from a snapshot. Paid up front by GPU, CPU, memory, and
+ * timeout; see `Gateway.getCapabilities`. `ports` are served over public HTTPS
+ * tunnels returned in `tunnels`.
  *
  * @experimental
  *
@@ -51,37 +53,86 @@ export type Sandbox = {
  * })
  *
  * const sandbox = await Actions.compute.create(gateway, {
- *   gpu: 'H100',
- *   image: 'python:3.12-slim',
- *   timeout: 600,
+ *   gpu: 'T4',
+ *   image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
+ *   ports: [8000],
+ *   timeout: 1200,
  * })
+ * const url = sandbox.tunnels[8000]
  * ```
  *
  * @param gateway - Gateway connection.
  * @param parameters - Parameters.
- * @returns The sandbox.
+ * @returns The sandbox and its tunnels.
  */
-export async function create(
+export async function create<
+  const ports extends readonly number[] = readonly [],
+>(
   gateway: Gateway.Gateway,
-  parameters: create.Parameters = {},
-): Promise<create.ReturnValue> {
-  const { gpu, gpuCount, image, signal, timeout } = parameters
+  parameters: create.Parameters<ports> = {} as create.Parameters<ports>,
+): Promise<create.ReturnValue<ports>> {
+  const {
+    apt,
+    blockNetwork,
+    cpu,
+    env,
+    gpu,
+    gpuCount,
+    idleTimeout,
+    image,
+    memory,
+    pip,
+    ports,
+    signal,
+    snapshot,
+    timeout,
+    workdir,
+  } = parameters
   const response = await Gateway.request(gateway, {
-    body: JSON.stringify({ gpu, gpuCount, image, timeout }),
+    body: JSON.stringify({
+      apt,
+      blockNetwork,
+      cpu,
+      env,
+      gpu,
+      gpuCount,
+      idleTimeout,
+      image,
+      memory,
+      pip,
+      ports,
+      snapshot,
+      timeout,
+      workdir,
+    }),
     path: '/compute/create',
     signal,
   })
-  return (await response.json()) as create.ReturnValue
+  return (await response.json()) as create.ReturnValue<ports>
 }
 
 export declare namespace create {
-  type Parameters = {
+  type Parameters<ports extends readonly number[] = readonly number[]> = {
+    /** Block all network access from the sandbox. */
+    blockNetwork?: boolean | undefined
     /**
-     * Container image.
+     * CPU cores.
      *
-     * @default 'python:3.12-slim'
+     * @default 1
      */
-    image?: string | undefined
+    cpu?: number | undefined
+    /** Environment variables. */
+    env?: Record<string, string> | undefined
+    /** Seconds without activity after which the sandbox ends. */
+    idleTimeout?: number | undefined
+    /**
+     * Memory in MiB.
+     *
+     * @default 1024
+     */
+    memory?: number | undefined
+    /** Ports to serve over public HTTPS tunnels, up to 4. */
+    ports?: ports | undefined
     /** Signal to abort the request. */
     signal?: AbortSignal | undefined
     /**
@@ -90,30 +141,59 @@ export declare namespace create {
      * @default 300
      */
     timeout?: number | undefined
+    /** Working directory. */
+    workdir?: string | undefined
   } & (
     | {
-        /** GPU type. Omit to run on CPU. */
-        gpu: Gpu
+        /** Debian packages to install on the image. */
+        apt?: readonly string[] | undefined
         /**
-         * Number of GPUs.
+         * Container image.
          *
-         * @default 1
+         * @default 'python:3.12-slim'
          */
-        gpuCount?: number | undefined
+        image?: string | undefined
+        /** pip requirements to install on the image. */
+        pip?: readonly string[] | undefined
+        snapshot?: undefined
       }
     | {
-        gpu?: undefined
-        gpuCount?: undefined
+        apt?: undefined
+        image?: undefined
+        pip?: undefined
+        /** Snapshot ID from `snapshot` to start from instead of an image. */
+        snapshot: string
       }
-  )
+  ) &
+    (
+      | {
+          /** GPU type. Omit to run on CPU. */
+          gpu: Gpu
+          /**
+           * Number of GPUs.
+           *
+           * @default 1
+           */
+          gpuCount?: number | undefined
+        }
+      | {
+          gpu?: undefined
+          gpuCount?: undefined
+        }
+    )
 
-  type ReturnValue = Sandbox
+  type ReturnValue<ports extends readonly number[] = readonly number[]> =
+    Sandbox & {
+      /** Public HTTPS URL of each requested port. */
+      tunnels: { [port in ports[number] as `${port}`]: string }
+    }
 
   type ErrorType = Gateway.request.ErrorType
 }
 
 /**
- * Runs a command in a sandbox and waits for it to finish. Paid per request.
+ * Runs a command in a sandbox and waits up to `timeout` seconds (at most 120)
+ * for it to finish. Use `spawn` for longer jobs. Paid per request.
  *
  * @experimental
  *
@@ -141,9 +221,9 @@ export async function exec(
   gateway: Gateway.Gateway,
   parameters: exec.Parameters,
 ): Promise<exec.ReturnValue> {
-  const { command, sandboxId, signal, timeout } = parameters
+  const { command, env, sandboxId, signal, timeout, workdir } = parameters
   const response = await Gateway.request(gateway, {
-    body: JSON.stringify({ command, sandboxId, timeout }),
+    body: JSON.stringify({ command, env, sandboxId, timeout, workdir }),
     path: '/compute/exec',
     signal,
   })
@@ -154,16 +234,20 @@ export declare namespace exec {
   type Parameters = {
     /** Program and arguments, run without a shell. */
     command: readonly [string, ...string[]]
+    /** Environment variables. */
+    env?: Record<string, string> | undefined
     /** Sandbox ID. */
     sandboxId: string
     /** Signal to abort the request. */
     signal?: AbortSignal | undefined
     /**
-     * Command timeout in seconds.
+     * Command timeout in seconds, at most 120.
      *
      * @default 30
      */
     timeout?: number | undefined
+    /** Working directory. */
+    workdir?: string | undefined
   }
 
   type ReturnValue = {
@@ -173,6 +257,10 @@ export declare namespace exec {
     stderr: string
     /** Standard output. */
     stdout: string
+    /** Whether the command was stopped at its timeout. */
+    timedOut: boolean
+    /** Whether output was cut at 1 MiB per stream. */
+    truncated: boolean
   }
 
   type ErrorType = Gateway.request.ErrorType
@@ -228,6 +316,212 @@ export declare namespace list {
     cursor: string | null
     /** Sandboxes on this page. */
     sandboxes: readonly Sandbox[]
+  }
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Reads a file from a sandbox, from `offset` for up to `length` bytes (8 MiB
+ * per request). Returns `null` when the file does not exist. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * const log = await Actions.compute.read(gateway, {
+ *   offset: 0,
+ *   path: job.logPath,
+ *   sandboxId: sandbox.sandboxId,
+ * })
+ * const text = log && (await new Response(log.body).text())
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns The bytes read and the whole file size, or `null`.
+ */
+export async function read(
+  gateway: Gateway.Gateway,
+  parameters: read.Parameters,
+): Promise<read.ReturnValue> {
+  const { length, offset, path, sandboxId, signal } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ length, offset, path, sandboxId }),
+    path: '/compute/read',
+    signal,
+  }).catch((error) => {
+    if (error instanceof Gateway.RequestError && error.code === 'not_found')
+      return null
+    throw error
+  })
+  if (!response?.body) return null
+
+  return {
+    body: response.body,
+    offset: offset ?? 0,
+    size: Number(response.headers.get('gateway-file-size')),
+  }
+}
+
+export declare namespace read {
+  type Parameters = {
+    /** Maximum bytes to read, at most 8 MiB. */
+    length?: number | undefined
+    /**
+     * Byte offset to read from.
+     *
+     * @default 0
+     */
+    offset?: number | undefined
+    /** Absolute file path. */
+    path: string
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+  }
+
+  type ReturnValue = {
+    /** Bytes read. */
+    body: ReadableStream<Uint8Array>
+    /** Offset the bytes start at. */
+    offset: number
+    /** Size of the whole file in bytes. */
+    size: number
+  } | null
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Saves a sandbox's filesystem as a snapshot kept for 30 days. Pass it to
+ * `create` to start new sandboxes from it. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * const { snapshot } = await Actions.compute.snapshot(gateway, {
+ *   sandboxId: sandbox.sandboxId,
+ * })
+ * const copy = await Actions.compute.create(gateway, { snapshot })
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns The snapshot ID and its expiry.
+ */
+export async function snapshot(
+  gateway: Gateway.Gateway,
+  parameters: snapshot.Parameters,
+): Promise<snapshot.ReturnValue> {
+  const { sandboxId, signal } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ sandboxId }),
+    path: '/compute/snapshot',
+    signal,
+  })
+  return (await response.json()) as snapshot.ReturnValue
+}
+
+export declare namespace snapshot {
+  type Parameters = {
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+  }
+
+  type ReturnValue = {
+    /** Creation time as a Unix timestamp in milliseconds. */
+    createdAt: number
+    /** Expiry as a Unix timestamp in milliseconds. */
+    expiresAt: number
+    /** Snapshot ID. */
+    snapshot: string
+  }
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Starts a command in the background and returns at once. Its output goes to
+ * `logPath` and its exit code to `exitPath` when it finishes; poll both with
+ * `read`. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * const job = await Actions.compute.spawn(gateway, {
+ *   command: ['python', 'train.py'],
+ *   sandboxId: sandbox.sandboxId,
+ * })
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns The process ID and the paths of its log and exit code.
+ */
+export async function spawn(
+  gateway: Gateway.Gateway,
+  parameters: spawn.Parameters,
+): Promise<spawn.ReturnValue> {
+  const { command, env, sandboxId, signal, workdir } = parameters
+  const response = await Gateway.request(gateway, {
+    body: JSON.stringify({ command, env, sandboxId, workdir }),
+    path: '/compute/spawn',
+    signal,
+  })
+  return (await response.json()) as spawn.ReturnValue
+}
+
+export declare namespace spawn {
+  type Parameters = {
+    /** Program and arguments, run without a shell. */
+    command: readonly [string, ...string[]]
+    /** Environment variables. */
+    env?: Record<string, string> | undefined
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+    /** Working directory. */
+    workdir?: string | undefined
+  }
+
+  type ReturnValue = {
+    /** File that holds the exit code once the command finishes. */
+    exitPath: string
+    /** File with the command's standard output and error. */
+    logPath: string
+    /** Process ID. */
+    pid: number
   }
 
   type ErrorType = Gateway.request.ErrorType
@@ -338,6 +632,77 @@ export declare namespace terminate {
     sandboxId: string
     /** Sandbox status. */
     status: 'terminated'
+  }
+
+  type ErrorType = Gateway.request.ErrorType
+}
+
+/**
+ * Writes a file into a sandbox at an absolute path, creating its directories.
+ * Up to 8 MiB. Paid per request.
+ *
+ * @experimental
+ *
+ * @example
+ * ```ts
+ * import { Actions, Gateway } from 'viem/tempo'
+ *
+ * const gateway = Gateway.from({
+ *   app: 'my-app',
+ *   fetch: mppx.fetch,
+ *   url: 'https://gateway.example.com',
+ * })
+ *
+ * await Actions.compute.write(gateway, {
+ *   path: '/root/train.py',
+ *   sandboxId: sandbox.sandboxId,
+ *   value: 'print("training")',
+ * })
+ * ```
+ *
+ * @param gateway - Gateway connection.
+ * @param parameters - Parameters.
+ * @returns The path and size written.
+ */
+export async function write(
+  gateway: Gateway.Gateway,
+  parameters: write.Parameters,
+): Promise<write.ReturnValue> {
+  const { path, sandboxId, signal, value } = parameters
+  const body =
+    typeof value === 'string' ? new TextEncoder().encode(value) : value
+  const size = body instanceof Blob ? body.size : body.byteLength
+  const response = await Gateway.request(gateway, {
+    body: body as BodyInit,
+    headers: {
+      'content-type': 'application/octet-stream',
+      'gateway-path': path,
+      'gateway-sandbox': sandboxId,
+      'gateway-size': String(size),
+    },
+    path: '/compute/write',
+    signal,
+  })
+  return (await response.json()) as write.ReturnValue
+}
+
+export declare namespace write {
+  type Parameters = {
+    /** Absolute file path. */
+    path: string
+    /** Sandbox ID. */
+    sandboxId: string
+    /** Signal to abort the request. */
+    signal?: AbortSignal | undefined
+    /** File contents. */
+    value: Blob | Uint8Array | ArrayBuffer | string
+  }
+
+  type ReturnValue = {
+    /** Absolute file path. */
+    path: string
+    /** Bytes written. */
+    size: number
   }
 
   type ErrorType = Gateway.request.ErrorType

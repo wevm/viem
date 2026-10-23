@@ -13,17 +13,21 @@ export type Capabilities = {
   compute: {
     /** Whether this Gateway offers compute. */
     available: boolean
-    /** CPU sandbox price per second in currency units. */
+    /** Price per CPU core-second in currency units. */
     cpuPerSecond: number
     /** Defaults of `compute.create`. */
-    defaults: { image: string; timeout: number }
+    defaults: { cpu: number; image: string; memory: number; timeout: number }
     /** Price per GPU-second in currency units, by GPU type. */
     gpusPerSecond: Record<string, number>
+    /** Price per GiB-second of memory in currency units. */
+    memoryGiBPerSecond: number
   }
   /** Payment currencies by name. */
   currencies: Record<string, Address>
   /** Request and storage limits. */
   limits: {
+    /** Maximum CPU cores per sandbox. */
+    cpu: number
     /** Maximum `compute.exec` timeout in seconds. */
     execSeconds: number
     /** Maximum GPUs per sandbox. */
@@ -34,6 +38,8 @@ export type Capabilities = {
     listLimit: number
     /** Maximum `maxOutputTokens` of `ai.generateText`. */
     maxOutputTokens: number
+    /** Maximum sandbox memory in MiB. */
+    memory: number
     /** Maximum object size in bytes. */
     objectBytes: number
     /** Maximum retention or TTL in seconds. */

@@ -58,3 +58,23 @@ test('compute.status: running or terminated', () => {
     .resolves.toHaveProperty('status')
     .toEqualTypeOf<'running' | 'terminated'>()
 })
+
+test('compute.create: snapshot excludes image', () => {
+  Actions.compute.create(gateway, { image: 'python:3.12-slim', pip: ['numpy'] })
+  Actions.compute.create(gateway, { snapshot: 'im-1' })
+  Actions.compute.create(gateway, {
+    image: 'python:3.12-slim',
+    // @ts-expect-error
+    snapshot: 'im-1',
+  })
+})
+
+test('compute.create: tunnels keyed by ports', async () => {
+  const sandbox = await Actions.compute.create(gateway, { ports: [8000, 8080] })
+  expectTypeOf(sandbox.tunnels).toEqualTypeOf<{
+    '8000': string
+    '8080': string
+  }>()
+  // @ts-expect-error
+  sandbox.tunnels[9000]
+})

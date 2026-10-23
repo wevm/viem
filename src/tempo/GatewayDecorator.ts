@@ -232,8 +232,9 @@ export type Decorator = {
   /** Sandboxed CPU and GPU compute, private to the payer and app. */
   compute: {
     /**
-     * Starts a sandbox from a container image, on CPU or a GPU, for
-     * `timeout` seconds. Paid up front by GPU and timeout.
+     * Starts a sandbox for `timeout` seconds from a container image, with
+     * optional `apt/pip` layers, or from a snapshot. Paid up front by GPU, CPU,
+     * memory, and timeout. `ports` are served over public HTTPS tunnels.
      *
      * @experimental
      *
@@ -251,18 +252,22 @@ export type Decorator = {
      *   }),
      * )
      *
-     * const sandbox = await client.compute.create({ gpu: 'H100', timeout: 600 })
+     * const sandbox = await client.compute.create({
+     *   gpu: 'T4',
+     *   image: 'pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime',
+     *   timeout: 1200,
+     * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The sandbox.
+     * @returns The sandbox and its tunnels.
      */
-    create: (
-      parameters?: computeActions.create.Parameters,
-    ) => Promise<computeActions.create.ReturnValue>
+    create: <const ports extends readonly number[] = readonly []>(
+      parameters?: computeActions.create.Parameters<ports>,
+    ) => Promise<computeActions.create.ReturnValue<ports>>
     /**
-     * Runs a command in a sandbox and waits for it to finish. Paid per
-     * request.
+     * Runs a command in a sandbox and waits up to `timeout` seconds (at most
+     * 120). Use `spawn` for longer jobs. Paid per request.
      *
      * @experimental
      *
@@ -281,7 +286,7 @@ export type Decorator = {
      * )
      *
      * const { stdout } = await client.compute.exec({
-     *   command: ['python', '-c', 'print(1 + 1)'],
+     *   command: ['nvidia-smi'],
      *   sandboxId: sandbox.sandboxId,
      * })
      * ```
@@ -320,6 +325,101 @@ export type Decorator = {
     list: (
       parameters?: computeActions.list.Parameters,
     ) => Promise<computeActions.list.ReturnValue>
+    /**
+     * Reads a file from a sandbox from `offset`, up to 8 MiB per request. Returns
+     * `null` when the file does not exist. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const log = await client.compute.read({
+     *   path: job.logPath,
+     *   sandboxId: sandbox.sandboxId,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The bytes read and the whole file size, or `null`.
+     */
+    read: (
+      parameters: computeActions.read.Parameters,
+    ) => Promise<computeActions.read.ReturnValue>
+    /**
+     * Saves a sandbox's filesystem as a snapshot kept for 30 days. Paid per
+     * request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const { snapshot } = await client.compute.snapshot({
+     *   sandboxId: sandbox.sandboxId,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The snapshot ID and its expiry.
+     */
+    snapshot: (
+      parameters: computeActions.snapshot.Parameters,
+    ) => Promise<computeActions.snapshot.ReturnValue>
+    /**
+     * Starts a command in the background; its output goes to `logPath` and its
+     * exit code to `exitPath`. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * const job = await client.compute.spawn({
+     *   command: ['python', 'train.py'],
+     *   sandboxId: sandbox.sandboxId,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The process ID and the paths of its log and exit code.
+     */
+    spawn: (
+      parameters: computeActions.spawn.Parameters,
+    ) => Promise<computeActions.spawn.ReturnValue>
     /**
      * Reads whether a sandbox is running. Paid per request.
      *
@@ -378,6 +478,38 @@ export type Decorator = {
     terminate: (
       parameters: computeActions.terminate.Parameters,
     ) => Promise<computeActions.terminate.ReturnValue>
+    /**
+     * Writes a file into a sandbox, up to 8 MiB. Paid per request.
+     *
+     * @experimental
+     *
+     * @example
+     * ```ts
+     * import { Mppx, tempo } from 'mppx/client'
+     * import { createClient, gatewayActions } from 'viem/tempo'
+     *
+     * const mppx = Mppx.create({ methods: [tempo({ account })], polyfill: false })
+     * const client = createClient({ account }).extend(
+     *   gatewayActions({
+     *     app: 'my-app',
+     *     fetch: mppx.fetch,
+     *     url: 'https://gateway.example.com',
+     *   }),
+     * )
+     *
+     * await client.compute.write({
+     *   path: '/root/train.py',
+     *   sandboxId: sandbox.sandboxId,
+     *   value: 'print("training")',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The path and size written.
+     */
+    write: (
+      parameters: computeActions.write.Parameters,
+    ) => Promise<computeActions.write.ReturnValue>
   }
   /** Key-value state, private to the payer and app. */
   kv: {
@@ -564,8 +696,12 @@ export function decorator(options: decorator.Options) {
       create: (parameters) => computeActions.create(gateway, parameters),
       exec: (parameters) => computeActions.exec(gateway, parameters),
       list: (parameters) => computeActions.list(gateway, parameters),
+      read: (parameters) => computeActions.read(gateway, parameters),
+      snapshot: (parameters) => computeActions.snapshot(gateway, parameters),
+      spawn: (parameters) => computeActions.spawn(gateway, parameters),
       status: (parameters) => computeActions.status(gateway, parameters),
       terminate: (parameters) => computeActions.terminate(gateway, parameters),
+      write: (parameters) => computeActions.write(gateway, parameters),
     },
     kv: {
       delete: (parameters) => kvActions.delete(gateway, parameters),

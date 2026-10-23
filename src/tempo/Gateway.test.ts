@@ -18,7 +18,11 @@ type StoredObject = {
 
 const objects = new Map<string, StoredObject>()
 const entries = new Map<string, Entry>()
-const sandboxes = new Map<string, { gpu: string | null; running: boolean }>()
+const sandboxes = new Map<
+  string,
+  { gpu: string | null; image: string; running: boolean }
+>()
+const files = new Map<string, Uint8Array>()
 
 function problem(status: number, code: string, detail: string) {
   return Response.json(
@@ -49,6 +53,16 @@ async function handle(request: Request) {
     return problem(402, 'payment_required', 'Payment is required.')
   const scope = (key: string) => `${app}/${key}`
 
+  if (pathname === '/v1/compute/write') {
+    const bytes = new Uint8Array(await request.arrayBuffer())
+    if (bytes.byteLength !== Number(request.headers.get('gateway-size')))
+      return problem(400, 'invalid_request', 'Gateway-Size does not match.')
+    const sandbox = request.headers.get('gateway-sandbox') ?? ''
+    const path = request.headers.get('gateway-path') ?? ''
+    files.set(scope(`${sandbox}${path}`), bytes)
+    return Response.json({ path, size: bytes.byteLength })
+  }
+
   if (pathname === '/v1/bucket/put') {
     const bytes = await request.arrayBuffer()
     if (bytes.byteLength !== Number(request.headers.get('gateway-size')))
@@ -76,15 +90,18 @@ async function handle(request: Request) {
       gpu?: string
       gpuCount?: number
       image?: string
+      offset?: number
+      path?: string
+      ports?: number[]
       sandboxId?: string
-      timeout?: number
+      snapshot?: string
     }
     const sandbox = sandboxes.get(scope(input.sandboxId ?? ''))
-    const view = (sandboxId: string, gpu: string | null) => ({
+    const view = (sandboxId: string, gpu: string | null, image: string) => ({
       createdAt: 0,
       expiresAt: 300_000,
       gpu,
-      image: 'python:3.12-slim',
+      image,
       sandboxId,
     })
     if (pathname === '/v1/compute/create') {
@@ -94,28 +111,66 @@ async function handle(request: Request) {
           ? `${input.gpu}:${input.gpuCount}`
           : input.gpu
         : null
-      sandboxes.set(scope(sandboxId), { gpu, running: true })
-      return Response.json(view(sandboxId, gpu))
+      const image = input.snapshot ?? input.image ?? 'python:3.12-slim'
+      sandboxes.set(scope(sandboxId), { gpu, image, running: true })
+      return Response.json({
+        ...view(sandboxId, gpu, image),
+        tunnels: Object.fromEntries(
+          (input.ports ?? []).map((port) => [
+            port,
+            `https://${port}.tunnel.test`,
+          ]),
+        ),
+      })
     }
     if (pathname === '/v1/compute/list')
       return Response.json({
         cursor: null,
         sandboxes: [...sandboxes]
           .filter(([key, value]) => key.startsWith(scope('')) && value.running)
-          .map(([key, value]) => view(key.slice(scope('').length), value.gpu)),
+          .map(([key, value]) =>
+            view(key.slice(scope('').length), value.gpu, value.image),
+          ),
       })
     if (!sandbox?.running)
       return problem(404, 'not_found', `${input.sandboxId} does not exist.`)
+    const file = (path: string) => scope(`${input.sandboxId}${path}`)
     switch (pathname) {
       case '/v1/compute/exec':
         return Response.json({
           exitCode: 0,
           stderr: '',
           stdout: `${input.command?.join(' ')}\n`,
+          timedOut: false,
+          truncated: false,
+        })
+      case '/v1/compute/read': {
+        const bytes = files.get(file(input.path ?? ''))
+        if (!bytes)
+          return problem(404, 'not_found', `${input.path} does not exist.`)
+        return new Response(bytes.slice(input.offset ?? 0), {
+          headers: { 'gateway-file-size': String(bytes.byteLength) },
+        })
+      }
+      case '/v1/compute/snapshot':
+        return Response.json({ createdAt: 0, expiresAt: 1, snapshot: 'im-1' })
+      case '/v1/compute/spawn':
+        files.set(
+          file('/tmp/gateway/1.log'),
+          new TextEncoder().encode(`${input.command?.join(' ')}\n`),
+        )
+        files.set(
+          file('/tmp/gateway/1.log.exit'),
+          new TextEncoder().encode('0\n'),
+        )
+        return Response.json({
+          exitPath: '/tmp/gateway/1.log.exit',
+          logPath: '/tmp/gateway/1.log',
+          pid: 1,
         })
       case '/v1/compute/status':
         return Response.json({
-          ...view(input.sandboxId ?? '', sandbox.gpu),
+          ...view(input.sandboxId ?? '', sandbox.gpu, sandbox.image),
           exitCode: null,
           status: 'running',
         })
@@ -548,6 +603,7 @@ describe('compute', () => {
     const created = await Actions.compute.create(gateway, {
       gpu: 'H100',
       gpuCount: 2,
+      ports: [8000],
       timeout: 600,
     })
     const { sandboxId } = created
@@ -573,12 +629,17 @@ describe('compute', () => {
           "gpu": "H100:2",
           "image": "python:3.12-slim",
           "sandboxId": "sb-1",
+          "tunnels": {
+            "8000": "https://8000.tunnel.test",
+          },
         },
         "executed": {
           "exitCode": 0,
           "stderr": "",
           "stdout": "python -c print(1)
       ",
+          "timedOut": false,
+          "truncated": false,
         },
         "listed": {
           "cursor": null,
@@ -605,6 +666,70 @@ describe('compute', () => {
           "exitCode": 0,
           "sandboxId": "sb-1",
           "status": "terminated",
+        },
+      }
+    `)
+  })
+
+  test('behavior: files, background jobs and snapshots', async () => {
+    const gateway = Gateway.from({ app: 'compute', fetch: paidFetch, url })
+
+    const { sandboxId } = await Actions.compute.create(gateway)
+    const written = await Actions.compute.write(gateway, {
+      path: '/root/train.py',
+      sandboxId,
+      value: 'print("training")',
+    })
+    const script = await Actions.compute.read(gateway, {
+      offset: 6,
+      path: '/root/train.py',
+      sandboxId,
+    })
+    const job = await Actions.compute.spawn(gateway, {
+      command: ['python', 'train.py'],
+      sandboxId,
+    })
+    const log = await Actions.compute.read(gateway, {
+      path: job.logPath,
+      sandboxId,
+    })
+    const missing = await Actions.compute.read(gateway, {
+      path: '/nope',
+      sandboxId,
+    })
+    const { snapshot } = await Actions.compute.snapshot(gateway, { sandboxId })
+    const copy = await Actions.compute.create(gateway, { snapshot })
+
+    expect({
+      copy: copy.image,
+      job,
+      log: log && (await new Response(log.body).text()),
+      missing,
+      script: script && {
+        offset: script.offset,
+        size: script.size,
+        text: await new Response(script.body).text(),
+      },
+      written,
+    }).toMatchInlineSnapshot(`
+      {
+        "copy": "im-1",
+        "job": {
+          "exitPath": "/tmp/gateway/1.log.exit",
+          "logPath": "/tmp/gateway/1.log",
+          "pid": 1,
+        },
+        "log": "python train.py
+      ",
+        "missing": null,
+        "script": {
+          "offset": 6,
+          "size": 17,
+          "text": ""training")",
+        },
+        "written": {
+          "path": "/root/train.py",
+          "size": 17,
         },
       }
     `)
