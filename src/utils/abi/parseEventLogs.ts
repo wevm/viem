@@ -10,6 +10,7 @@ import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { formatLog } from '../formatters/log.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
+import { bytesRegex } from '../regex.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
@@ -230,8 +231,7 @@ function includesArgs(parameters: {
       if (
         typeof value === 'string' &&
         typeof arg === 'string' &&
-        (input.type === 'bytes' ||
-          /^bytes(?:[1-9]|1[0-9]|2[0-9]|3[0-2])$/.test(input.type))
+        bytesRegex.test(input.type)
       )
         return value.toLowerCase() === arg.toLowerCase()
       return value === arg
