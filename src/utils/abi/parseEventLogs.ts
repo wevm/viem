@@ -214,7 +214,7 @@ function includesArgs(parameters: {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
       // Indexed `string` and `bytes` are stored as the keccak256 of their
-      // contents. Non-indexed values are ABI-decoded, so compare those directly.
+      // contents. Other values are ABI-decoded.
       if (
         input.indexed &&
         (input.type === 'string' || input.type === 'bytes')
@@ -225,6 +225,15 @@ function includesArgs(parameters: {
             : toBytes(value as string)
         return keccak256(bytes) === arg
       }
+      // Decoded `bytes` and `bytesN` are lowercase hex. Match either case,
+      // same as the indexed `bytes` hash path.
+      if (
+        typeof value === 'string' &&
+        typeof arg === 'string' &&
+        (input.type === 'bytes' ||
+          /^bytes(?:[1-9]|1[0-9]|2[0-9]|3[0-2])$/.test(input.type))
+      )
+        return value.toLowerCase() === arg.toLowerCase()
       return value === arg
     } catch {
       return false
