@@ -1,15 +1,11 @@
 import { SignatureEnvelope } from 'ox/tempo'
 
-/** Parses a primitive multisig owner approval. */
+/** Parses a multisig owner approval (a primitive or ZK signature). */
 export function parseApproval(
   signature: SignatureEnvelope.Serialized,
-): SignatureEnvelope.Primitive {
+): SignatureEnvelope.MultisigApproval {
   const approval = SignatureEnvelope.from(signature)
-  if (
-    approval.type === 'multisig' ||
-    approval.type === 'keychain' ||
-    approval.type === 'zk'
-  )
-    throw new Error('Multisig owners must use primitive signatures.')
+  if (approval.type === 'multisig' || approval.type === 'keychain')
+    throw new Error('Multisig owners must use primitive or ZK signatures.')
   return approval
 }
