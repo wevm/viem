@@ -10,6 +10,7 @@ import { stringToBytes, toBytes } from '../encoding/toBytes.js'
 import { formatLog } from '../formatters/log.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
+import { bytesRegex } from '../regex.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
@@ -162,15 +163,11 @@ export function parseEventLogs<
             strict: false,
           })
         } catch {
-          // If decoding still fails, return partial log in non-strict mode.
+          // If decoding still fails, use a partial log in non-strict mode.
           const isUnnamed = abiItem.abi.inputs?.some(
             (x) => !('name' in x && x.name),
           )
-          return {
-            ...formattedLog,
-            args: isUnnamed ? [] : {},
-            eventName: abiItem.abi.name,
-          }
+          event = { eventName: abiItem.abi.name, args: isUnnamed ? [] : {} }
         }
       }
 
@@ -186,6 +183,7 @@ export function parseEventLogs<
           args: event.args,
           inputs: abiItem.abi.inputs,
           matchArgs: args,
+          topics: formattedLog.topics,
         })
       )
         return null
@@ -203,20 +201,43 @@ function includesArgs(parameters: {
   args: unknown
   inputs: AbiEvent['inputs']
   matchArgs: unknown
+  topics: Log['topics']
 }) {
-  const { args, inputs, matchArgs } = parameters
+  const { args, inputs, matchArgs, topics } = parameters
 
   if (!matchArgs) return true
   if (!args) return false
+
+  // Topics hold the signature, then indexed inputs in order. Non-strict
+  // decoding reads indexed inputs without a topic from data.
+  const topicInputs = inputs
+    .filter((input) => input.indexed)
+    .slice(0, topics.length - 1)
 
   function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
     try {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
-      if (input.type === 'string')
-        return keccak256(stringToBytes(value as string)) === arg
-      if (input.type === 'bytes')
-        return keccak256(toBytes(value as string)) === arg
+      // `string` and `bytes` topics hold the keccak256 of their contents.
+      // Other values are ABI-decoded.
+      if (
+        topicInputs.includes(input) &&
+        (input.type === 'string' || input.type === 'bytes')
+      ) {
+        const bytes =
+          input.type === 'string'
+            ? stringToBytes(value as string)
+            : toBytes(value as string)
+        return keccak256(bytes) === arg
+      }
+      // Decoded `bytes` and `bytesN` are lowercase hex. Match either case,
+      // same as the indexed `bytes` hash path.
+      if (
+        typeof value === 'string' &&
+        typeof arg === 'string' &&
+        bytesRegex.test(input.type)
+      )
+        return value.toLowerCase() === arg.toLowerCase()
       return value === arg
     } catch {
       return false

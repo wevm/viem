@@ -1258,6 +1258,78 @@ describe('behavior', () => {
       expect(retryCount).toBe(3)
     })
 
+    test('non-deterministic HttpRequestError (503 w/ Retry-After HTTP-date)', async () => {
+      // HTTP-dates have whole-second precision.
+      const retryAt = Math.ceil(Date.now() / 1000) * 1000 + 1000
+      const server = await createHttpServer((_req, res) => {
+        // Timers can fire a few ms early.
+        if (Date.now() < retryAt - 100) {
+          res.writeHead(503, {
+            'Content-Type': 'application/json',
+            'Retry-After': new Date(retryAt).toUTCString(),
+          })
+          res.end(JSON.stringify({}))
+          return
+        }
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), { retryCount: 1 })({
+          method: 'eth_blockNumber',
+        }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    })
+
+    test('non-deterministic HttpRequestError (503 w/ Retry-After HTTP-date beyond timer limit)', async () => {
+      const retryAt = Date.now() + 30 * 24 * 60 * 60 * 1000
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(503, {
+          'Content-Type': 'application/json',
+          'Retry-After': new Date(retryAt).toUTCString(),
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), { retryCount: 1 })(
+          { method: 'eth_blockNumber' },
+          { signal: AbortSignal.timeout(200) },
+        ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[TimeoutError: The operation was aborted due to timeout]`,
+      )
+    })
+
+    test('non-deterministic HttpRequestError (503 w/ past Retry-After HTTP-date)', async () => {
+      const start = Date.now()
+      const server = await createHttpServer((_req, res) => {
+        // Retries sooner than the backoff get another 503.
+        if (Date.now() < start + 100) {
+          res.writeHead(503, {
+            'Content-Type': 'application/json',
+            'Retry-After': new Date(start - 60_000).toUTCString(),
+          })
+          res.end(JSON.stringify({}))
+          return
+        }
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      expect(
+        await buildRequest(request(server.url), {
+          retryCount: 1,
+          retryDelay: 200,
+        })({ method: 'eth_blockNumber' }),
+      ).toMatchInlineSnapshot(`"0x1"`)
+    })
+
     test('non-deterministic HttpRequestError (403)', async () => {
       let retryCount = -1
       const server = await createHttpServer((_req, res) => {

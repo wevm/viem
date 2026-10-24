@@ -35,3 +35,19 @@ test('default', () => {
   `,
   )
 })
+
+test('behavior: `r` and `yParityAndS` shorter than 32 bytes', () => {
+  expect(
+    compactSignatureToSignature({
+      r: '0x1cdb3cbf94c7059e0e16d2ba046daef144d77384995a66f379194b638fc07e',
+      yParityAndS:
+        '0xc3d1ccd2c334876b9f8ef0ba3725c30dd5e1def225df36efa406d881ed610b',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "r": "0x001cdb3cbf94c7059e0e16d2ba046daef144d77384995a66f379194b638fc07e",
+      "s": "0x00c3d1ccd2c334876b9f8ef0ba3725c30dd5e1def225df36efa406d881ed610b",
+      "yParity": 0,
+    }
+  `)
+})

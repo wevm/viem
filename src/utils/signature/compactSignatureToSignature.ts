@@ -1,11 +1,13 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Signature } from '../../types/misc.js'
+import { type PadErrorType, pad } from '../data/pad.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 export type CompactSignatureToSignatureErrorType =
   | BytesToHexErrorType
   | HexToBytesErrorType
+  | PadErrorType
   | ErrorType
 
 /**
@@ -29,9 +31,9 @@ export function compactSignatureToSignature({
   r,
   yParityAndS,
 }: CompactSignature): Signature {
-  const yParityAndS_bytes = hexToBytes(yParityAndS)
+  const yParityAndS_bytes = hexToBytes(pad(yParityAndS))
   const yParity = yParityAndS_bytes[0] & 0x80 ? 1 : 0
   const s = yParityAndS_bytes
   if (yParity === 1) s[0] &= 0x7f
-  return { r, s: bytesToHex(s), yParity }
+  return { r: pad(r), s: bytesToHex(s), yParity }
 }

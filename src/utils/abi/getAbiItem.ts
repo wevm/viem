@@ -21,6 +21,7 @@ import {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,
 } from '../hash/toFunctionSelector.js'
+import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type GetAbiItemParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -174,9 +175,7 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
             return (
               argType === 'object' &&
               isArgOfType(
-                Object.values(arg as unknown[] | Record<string, unknown>)[
-                  index
-                ],
+                getComponentValue(arg, component, index),
                 component as AbiParameter,
               )
             )
@@ -198,16 +197,14 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
         return argType === 'string' || arg instanceof Uint8Array
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
-      // https://regexr.com/6va6i
-      if (/[a-z]+[1-9]{0,3}(\[[0-9]{0,}\])+$/.test(abiParameterType)) {
+      const arrayComponents = getArrayComponents(abiParameterType)
+      if (arrayComponents) {
+        const [length, type] = arrayComponents
         return (
           Array.isArray(arg) &&
+          (length === null || arg.length === length) &&
           arg.every((x: unknown) =>
-            isArgOfType(x, {
-              ...abiParameter,
-              // Pop off `[]` or `[M]` from end of type
-              type: abiParameterType.replace(/(\[[0-9]{0,}\])$/, ''),
-            } as AbiParameter),
+            isArgOfType(x, { ...abiParameter, type } as AbiParameter),
           )
         )
       }
@@ -226,27 +223,52 @@ export function getAmbiguousTypes(
   for (const parameterIndex in sourceParameters) {
     const sourceParameter = sourceParameters[parameterIndex]
     const targetParameter = targetParameters[parameterIndex]
+    if (!targetParameter) continue
 
     if (
       sourceParameter.type === 'tuple' &&
       targetParameter.type === 'tuple' &&
       'components' in sourceParameter &&
       'components' in targetParameter
-    )
-      return getAmbiguousTypes(
+    ) {
+      const value = args[parameterIndex]
+      const types = getAmbiguousTypes(
         sourceParameter.components,
         targetParameter.components,
-        (args as any)[parameterIndex],
+        sourceParameter.components.map((component, index) =>
+          getComponentValue(value, component, index),
+        ),
       )
+      if (types) return types
+      continue
+    }
+
+    const sourceArray = getArrayComponents(sourceParameter.type)
+    const targetArray = getArrayComponents(targetParameter.type)
+    if (sourceArray && targetArray) {
+      // Every item matches both element types, so the first item (or `undefined` for an empty array) decides.
+      const types = getAmbiguousTypes(
+        [{ ...sourceParameter, type: sourceArray[1] } as AbiParameter],
+        [{ ...targetParameter, type: targetArray[1] } as AbiParameter],
+        [(args[parameterIndex] as readonly unknown[] | undefined)?.[0]],
+      )
+      if (types) return types
+      continue
+    }
 
     const types = [sourceParameter.type, targetParameter.type]
+    const value = args[parameterIndex]
 
     const ambiguous = (() => {
       if (types.includes('address') && types.includes('bytes20')) return true
-      if (types.includes('address') && types.includes('string'))
-        return isAddress(args[parameterIndex] as Address, { strict: false })
-      if (types.includes('address') && types.includes('bytes'))
-        return isAddress(args[parameterIndex] as Address, { strict: false })
+      // An `undefined` value comes from an empty array, which matches both types.
+      if (
+        types.includes('address') &&
+        (types.includes('string') || types.includes('bytes'))
+      )
+        return (
+          value === undefined || isAddress(value as Address, { strict: false })
+        )
       return false
     })()
 
@@ -254,4 +276,14 @@ export function getAmbiguousTypes(
   }
 
   return
+}
+
+/** Reads a tuple component's value by index from arrays and by name from objects, like `encodeAbiParameters`. */
+function getComponentValue(
+  arg: unknown,
+  component: AbiParameter,
+  index: number,
+): unknown {
+  if (Array.isArray(arg)) return arg[index]
+  return (arg as Record<string, unknown> | undefined)?.[component.name!]
 }

@@ -191,16 +191,20 @@ export function getHttpRpcClient(
           }
         }
 
+        // A server that rejects a whole batch replies with a single error, bare
+        // or in a one-element array (geth).
+        const error =
+          Array.isArray(body) && Array.isArray(data) && data.length === 1
+            ? data[0]
+            : data
+
         if (!response.ok) {
           // A valid JSON-RPC error body keeps its RPC error class and the
           // response status and headers for retries.
-          if (
-            typeof data.error?.code === 'number' &&
-            typeof data.error?.message === 'string'
-          )
+          if (isRpcError(error))
             throw new RpcRequestError({
               body,
-              error: data.error,
+              error: error.error,
               headers: response.headers,
               status: response.status,
               url,
@@ -215,7 +219,11 @@ export function getHttpRpcClient(
           })
         }
 
-        return data
+        if (!Array.isArray(body) || !body.length) return data
+        if (Array.isArray(data) && data.length >= body.length) return data
+        if (!isRpcError(error))
+          throw new Error(`Expected ${body.length} responses to batch request.`)
+        return body.map(() => error)
       } catch (err) {
         if (signal_?.aborted) throw getAbortError(signal_)
         if (isAbortError(err)) throw err
@@ -314,6 +322,13 @@ async function readResponseBody(
   } finally {
     reader.releaseLock()
   }
+}
+
+function isRpcError(data: any) {
+  return (
+    typeof data?.error?.code === 'number' &&
+    typeof data?.error?.message === 'string'
+  )
 }
 
 /** @internal */
