@@ -33,14 +33,13 @@ export function signatureToCompactSignature(
   const { r, s, v, yParity } = signature
   const yParity_ = (() => {
     if (yParity === 0 || yParity === 1) return yParity
+    if (v === 0n || v === 1n) return Number(v)
     if (v && (v === 27n || v === 28n || v >= 35n)) return v % 2n === 0n ? 1 : 0
     throw new Error('Invalid `v` or `yParity` value')
   })()
-  let yParityAndS = s
-  if (yParity_ === 1) {
-    const bytes = hexToBytes(pad(s, { size: 32 }))
-    bytes[0] |= 0x80
-    yParityAndS = bytesToHex(bytes)
-  }
-  return { r, yParityAndS }
+  const bytes = hexToBytes(pad(s))
+  // EIP-2098 stores yParity in the top bit, which is always clear for a low `s`.
+  if (bytes[0] & 0x80) throw new Error('Invalid `s` value')
+  if (yParity_ === 1) bytes[0] |= 0x80
+  return { r: pad(r), yParityAndS: bytesToHex(bytes) }
 }
