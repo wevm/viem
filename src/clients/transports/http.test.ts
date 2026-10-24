@@ -477,6 +477,55 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch: single error for the whole batch (non-2xx, one-element array)', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(429, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify([
+          {
+            jsonrpc: '2.0',
+            id: 0,
+            error: { code: -32005, message: 'rate limit exceeded' },
+          },
+        ]),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+      retryCount: 0,
+    })({ chain: localhost })
+
+    const results = await Promise.allSettled([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+    ])
+
+    expect(
+      results.map(
+        (result) =>
+          result.status === 'rejected' && [
+            result.reason.name,
+            result.reason.details,
+          ],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "LimitExceededRpcError",
+          "rate limit exceeded",
+        ],
+        [
+          "LimitExceededRpcError",
+          "rate limit exceeded",
+        ],
+      ]
+    `)
+
+    await server.close()
+  })
+
   test('batch: missing responses', async () => {
     const server = await createHttpServer((_, res) => {
       res.appendHeader('Content-Type', 'application/json')

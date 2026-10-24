@@ -765,6 +765,32 @@ describe('http (batch)', () => {
     )
   })
 
+  test('empty batch', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: null,
+          error: { code: -32600, message: 'empty batch' },
+        }),
+      )
+    })
+
+    const client = getHttpRpcClient(server.url)
+
+    expect(await client.request({ body: [] })).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32600,
+          "message": "empty batch",
+        },
+        "id": null,
+        "jsonrpc": "2.0",
+      }
+    `)
+  })
+
   test('unknown', async () => {
     const client = getHttpRpcClient('http://127.0.0.1')
 
