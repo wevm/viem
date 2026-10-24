@@ -46,6 +46,25 @@ isHex(
 // true
 ```
 
+### options.even
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+When enabled, also checks that the value has an even number of hex characters, so it encodes whole bytes. Useful for byte data (addresses, hashes, calldata), where `0x1` is malformed.
+Keep it disabled for RPC quantities such as `0x0` or `0x400`, which are valid with an odd number of hex characters.
+
+```ts
+isHex('0x1', { even: true })
+// false
+
+isHex('0x01', { even: true })
+// true
+
+isHex('0x1', { even: false })
+// true
+```
+
 ### options.strict
 
 - **Type:** `boolean`
