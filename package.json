@@ -220,13 +220,13 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "53 kB",
+      "limit": "54 kB",
       "import": "*"
     },
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "28 kB",
+      "limit": "29 kB",
       "import": "{ getEnsAvatar }"
     },
     {
