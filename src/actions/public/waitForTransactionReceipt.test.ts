@@ -687,16 +687,19 @@ describe('args: confirmations', () => {
       nonce,
     })
 
-    const [receipt] = await Promise.all([
+    const replacements: ReplacementReturnType[] = []
+
+    const [receipt, replacementHash] = await Promise.all([
       waitForTransactionReceipt(client, {
         confirmations: 3,
         hash,
+        onReplaced: (replacement) => replacements.push(replacement),
       }),
       (async () => {
         await wait(500)
 
         // speed up
-        await sendTransaction(client, {
+        const hash = await sendTransaction(client, {
           account: sourceAccount.address,
           to: targetAccount.address,
           value: parseEther('1'),
@@ -705,10 +708,16 @@ describe('args: confirmations', () => {
         })
 
         await wait(1000)
+        return hash
       })(),
     ])
 
-    expect(receipt !== null).toBeTruthy()
+    expect(receipt.transactionHash).toBe(replacementHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
   })
 })
 
@@ -927,8 +936,9 @@ describe('args: replacement', () => {
     })
     const replacements: ReplacementReturnType[] = []
 
+    // RPC hashes are lowercase, so an uppercase hash still matches.
     const result = await waitForTransactionReceipt(client, {
-      hash,
+      hash: `0x${hash.slice(2).toUpperCase()}`,
       onReplaced: (replacement) => replacements.push(replacement),
       replacement: transaction,
       timeout: 10_000,
@@ -939,13 +949,26 @@ describe('args: replacement', () => {
   })
 
   test('waits for confirmations of a replacement', async () => {
-    const { cancelHash, hash, testClient } = await replaceTransaction({
+    const { cancelHash, hash, rpcUrl, testClient } = await replaceTransaction({
       blocks: 1,
     })
     await setIntervalMining(testClient, { interval: 1 })
+
+    // Only the first lookup succeeds, so the wait keeps the replacement it
+    // found while it waits for confirmations.
+    let lookups = 1
+    const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
+      if (method === 'eth_getTransactionBySenderAndNonce' && lookups-- <= 0)
+        return { code: -32601, message: 'method not found' }
+      return undefined
+    })
+    const client = createPublicClient({
+      chain: mainnet,
+      transport: http(proxyUrl),
+    })
     const replacements: ReplacementReturnType[] = []
 
-    const receipt = await waitForTransactionReceipt(testClient, {
+    const receipt = await waitForTransactionReceipt(client, {
       confirmations: 2,
       hash,
       onReplaced: (replacement) => replacements.push(replacement),

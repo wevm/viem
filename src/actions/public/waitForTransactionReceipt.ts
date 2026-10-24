@@ -227,6 +227,8 @@ export async function waitForTransactionReceipt<
 
   let transaction: GetTransactionReturnType<chain> | undefined
   let receipt: GetTransactionReceiptReturnType<chain> | undefined
+  // A found replacement, kept while `receipt` waits for confirmations.
+  let replacementResponse: ReplacementReturnType<chain> | undefined
   let retrying = false
 
   let _unobserve: () => void
@@ -292,7 +294,10 @@ export async function waitForTransactionReceipt<
               )
                 return
 
-              done(() => emit.resolve(receipt!))
+              done(() => {
+                if (replacementResponse) emit.onReplaced?.(replacementResponse)
+                emit.resolve(receipt!)
+              })
               return
             }
 
@@ -349,13 +354,13 @@ export async function waitForTransactionReceipt<
               retrying = false
 
               // A node that dropped the transaction no longer returns it, so
-              // the known fields of it stand in.
+              // the known fields of it stand in. RPC hashes are lowercase.
               const replaced =
                 transaction ??
                 (checkReplacement && replacement
                   ? ({
                       ...replacement,
-                      hash,
+                      hash: hash.toLowerCase(),
                     } as GetTransactionReturnType<chain>)
                   : undefined)
               if (!replaced) return
@@ -391,7 +396,10 @@ export async function waitForTransactionReceipt<
                   retrying = false
 
                   // The transaction still holds its nonce slot.
-                  if (found?.hash === hash) {
+                  if (
+                    (found as Transaction | undefined)?.hash.toLowerCase() ===
+                    replaced.hash
+                  ) {
                     transaction = found
                     return
                   }
@@ -410,33 +418,33 @@ export async function waitForTransactionReceipt<
                     })
                     if (!replacementReceipt) return
 
+                    receipt = replacementReceipt
+                    replacementResponse = {
+                      reason:
+                        client.chain?.transactionReplacement?.getReason?.({
+                          replaced,
+                          replacement: found,
+                        }) ??
+                        getReplacementReason(
+                          replaced as Transaction,
+                          found as Transaction,
+                        ),
+                      replacedTransaction: replaced as Transaction,
+                      transaction: found as Transaction,
+                      transactionReceipt: receipt,
+                    }
+
                     // Check if we have enough confirmations. If not, continue polling.
                     if (
                       confirmations > 1 &&
-                      (!replacementReceipt.blockNumber ||
-                        blockNumber - replacementReceipt.blockNumber + 1n <
-                          confirmations)
+                      (!receipt.blockNumber ||
+                        blockNumber - receipt.blockNumber + 1n < confirmations)
                     )
                       return
 
-                    const reason =
-                      client.chain?.transactionReplacement?.getReason?.({
-                        replaced,
-                        replacement: found,
-                      }) ??
-                      getReplacementReason(
-                        replaced as Transaction,
-                        found as Transaction,
-                      )
-
                     done(() => {
-                      emit.onReplaced?.({
-                        reason,
-                        replacedTransaction: replaced as Transaction,
-                        transaction: found as Transaction,
-                        transactionReceipt: replacementReceipt,
-                      })
-                      emit.resolve(replacementReceipt)
+                      emit.onReplaced?.(replacementResponse!)
+                      emit.resolve(receipt!)
                     })
                     return
                   }
@@ -486,6 +494,20 @@ export async function waitForTransactionReceipt<
                 )({
                   hash: replacementTransaction.hash,
                 })
+                replacementResponse = {
+                  reason:
+                    client.chain?.transactionReplacement?.getReason?.({
+                      replaced,
+                      replacement: replacementTransaction,
+                    }) ??
+                    getReplacementReason(
+                      replaced as Transaction,
+                      replacementTransaction,
+                    ),
+                  replacedTransaction: replaced as Transaction,
+                  transaction: replacementTransaction,
+                  transactionReceipt: receipt,
+                }
 
                 // Check if we have enough confirmations. If not, continue polling.
                 if (
@@ -495,23 +517,8 @@ export async function waitForTransactionReceipt<
                 )
                   return
 
-                const reason =
-                  client.chain?.transactionReplacement?.getReason?.({
-                    replaced,
-                    replacement: replacementTransaction,
-                  }) ??
-                  getReplacementReason(
-                    replaced as Transaction,
-                    replacementTransaction,
-                  )
-
                 done(() => {
-                  emit.onReplaced?.({
-                    reason,
-                    replacedTransaction: replaced as Transaction,
-                    transaction: replacementTransaction,
-                    transactionReceipt: receipt!,
-                  })
+                  emit.onReplaced?.(replacementResponse!)
                   emit.resolve(receipt!)
                 })
               } catch (err_) {
