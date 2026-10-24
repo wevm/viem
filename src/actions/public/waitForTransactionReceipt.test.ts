@@ -5,7 +5,9 @@ import {
   custom,
   getAddress,
   http,
+  InvalidInputRpcError,
   type ReplacementReturnType,
+  RpcRequestError,
 } from 'viem'
 import { getTransactionReceipt } from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
@@ -710,6 +712,363 @@ describe('args: confirmations', () => {
   })
 })
 
+describe('args: replacement', () => {
+  const transaction = {
+    from: sourceAccount.address,
+    input: '0x',
+    nonce: 0,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  } as const
+
+  test('detects a replacement mined before the wait starts', async () => {
+    const { cancelHash, hash, testClient } = await replaceTransaction({
+      blocks: 2,
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(testClient, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      pollingInterval: 100,
+      replacement: transaction,
+      timeout: 5_000,
+    })
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements).toHaveLength(1)
+    expect(replacements[0]!.reason).toBe('cancelled')
+    expect(replacements[0]!.replacedTransaction).toEqual({
+      ...transaction,
+      hash,
+    })
+    expect(replacements[0]!.transaction.hash).toBe(cancelHash)
+    expect(replacements[0]!.transactionReceipt).toEqual(receipt)
+  })
+
+  test('looks up the transaction again after a failed lookup', async () => {
+    const { cancelHash, hash, testClient } = await replaceTransaction({
+      blocks: 2,
+    })
+    await setIntervalMining(testClient, { interval: 1 })
+
+    // The first lookup fails, as on a node behind the latest block.
+    let failures = 1
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 100,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionBySenderAndNonce' &&
+            failures-- > 0
+          )
+            throw new RpcRequestError({
+              body: options,
+              error: { code: -32000, message: 'header not found' },
+              url: 'http://localhost',
+            })
+          return testClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(client, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      replacement: transaction,
+      timeout: 10_000,
+    })
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test.each([-32601, -32004])(
+    'scans blocks when the lookup fails with code %i',
+    async (code) => {
+      const { cancelHash, hash, testClient } = await replaceTransaction({
+        blocks: 1,
+      })
+      const client = createPublicClient({
+        chain: mainnet,
+        pollingInterval: 100,
+        transport: custom({
+          request(options) {
+            if (options.method === 'eth_getTransactionBySenderAndNonce')
+              throw new RpcRequestError({
+                body: options,
+                error: { code, message: 'method not supported' },
+                url: 'http://localhost',
+              })
+            return testClient.request(options)
+          },
+        }),
+      })
+      const replacements: ReplacementReturnType[] = []
+
+      const receipt = await waitForTransactionReceipt(client, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+        replacement: transaction,
+        timeout: 5_000,
+      })
+
+      expect(receipt.transactionHash).toBe(cancelHash)
+      expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+        [
+          "cancelled",
+        ]
+      `)
+    },
+  )
+
+  test('waits for the receipt of a replacement', async () => {
+    const { cancelHash, hash, pool, testClient } = await replaceTransaction({
+      blocks: 1,
+    })
+    const laggingNode = await pool.start(2)
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    await setIntervalMining(testClient, { interval: 1 })
+
+    // Route the first receipt read of the replacement to a lagging node.
+    let missingReceipts = 1
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 100,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            (options.params as readonly unknown[])[0] === cancelHash &&
+            missingReceipts-- > 0
+          )
+            return laggingClient.request(options)
+          return testClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(client, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      replacement: transaction,
+      timeout: 10_000,
+    })
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('rejects when the receipt of a replacement fails', async () => {
+    const { cancelHash, hash, testClient } = await replaceTransaction({
+      blocks: 2,
+    })
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 100,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionReceipt' &&
+            (options.params as readonly unknown[])[0] === cancelHash
+          )
+            throw new RpcRequestError({
+              body: options,
+              error: { code: -32000, message: 'receipt unavailable' },
+              url: 'http://localhost',
+            })
+          return testClient.request(options)
+        },
+      }),
+    })
+
+    await expect(
+      waitForTransactionReceipt(client, {
+        hash,
+        replacement: transaction,
+        timeout: 5_000,
+      }),
+    ).rejects.toThrowError(InvalidInputRpcError)
+  })
+
+  test('waits for the transaction when it holds its nonce slot', async () => {
+    const pool = Pool.define({
+      instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+    })
+    onTestFinished(() => pool.destroyAll())
+    const node = await pool.start(1)
+    const laggingNode = await pool.start(2)
+    const testClient = createTestClient({
+      chain: mainnet,
+      mode: 'anvil',
+      transport: http(node.url),
+    })
+    const laggingClient = createPublicClient({
+      transport: http(laggingNode.url),
+    })
+    const hash = await sendTransaction(testClient, {
+      account: sourceAccount.address,
+      nonce: 0,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    await mine(testClient, { blocks: 1 })
+    const receipt = await getTransactionReceipt(testClient, { hash })
+    await setIntervalMining(testClient, { interval: 1 })
+
+    // Route transaction reads, and the first receipt read, to a lagging node.
+    let missingReceipts = 1
+    const client = createPublicClient({
+      chain: mainnet,
+      pollingInterval: 100,
+      transport: custom({
+        request(options) {
+          if (
+            options.method === 'eth_getTransactionByHash' ||
+            (options.method === 'eth_getTransactionReceipt' &&
+              missingReceipts-- > 0)
+          )
+            return laggingClient.request(options)
+          return testClient.request(options)
+        },
+      }),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const result = await waitForTransactionReceipt(client, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      replacement: transaction,
+      timeout: 10_000,
+    })
+
+    expect(result).toEqual(receipt)
+    expect(replacements).toMatchInlineSnapshot('[]')
+  })
+
+  test('waits for confirmations of a replacement', async () => {
+    const { cancelHash, hash, testClient } = await replaceTransaction({
+      blocks: 1,
+    })
+    await setIntervalMining(testClient, { interval: 1 })
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(testClient, {
+      confirmations: 2,
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      pollingInterval: 100,
+      replacement: transaction,
+      timeout: 10_000,
+    })
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "cancelled",
+      ]
+    `)
+  })
+
+  test('uses the chain replacement reason', async () => {
+    const { cancelHash, hash, rpcUrl } = await replaceTransaction({
+      blocks: 2,
+    })
+    const client = createPublicClient({
+      chain: {
+        ...mainnet,
+        transactionReplacement: { getReason: () => 'repriced' },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(rpcUrl),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    const receipt = await waitForTransactionReceipt(client, {
+      hash,
+      onReplaced: (replacement) => replacements.push(replacement),
+      replacement: transaction,
+      timeout: 5_000,
+    })
+
+    expect(receipt.transactionHash).toBe(cancelHash)
+    expect(replacements.map(({ reason }) => reason)).toMatchInlineSnapshot(`
+      [
+        "repriced",
+      ]
+    `)
+  })
+
+  test('ignores a same-nonce transaction in a different slot', async () => {
+    const { hash, rpcUrl } = await replaceTransaction({ blocks: 1 })
+    const client = createPublicClient({
+      chain: {
+        ...mainnet,
+        transactionReplacement: {
+          getKey: (transaction) =>
+            transaction.hash === hash ? 'awaited' : 'other',
+        },
+      } satisfies Chain,
+      pollingInterval: 100,
+      transport: http(rpcUrl),
+    })
+    const replacements: ReplacementReturnType[] = []
+
+    await expect(
+      waitForTransactionReceipt(client, {
+        hash,
+        onReplaced: (replacement) => replacements.push(replacement),
+        replacement: transaction,
+        timeout: 2_000,
+      }),
+    ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+    expect(replacements).toMatchInlineSnapshot('[]')
+  })
+
+  test('rejects when onReplaced throws', async () => {
+    const { hash, testClient } = await replaceTransaction({ blocks: 2 })
+
+    await expect(
+      waitForTransactionReceipt(testClient, {
+        hash,
+        onReplaced: () => {
+          throw new Error('onReplaced failed')
+        },
+        pollingInterval: 100,
+        replacement: transaction,
+        timeout: 5_000,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: onReplaced failed]')
+  })
+
+  test('ignores it when checkReplacement is false', async () => {
+    const { hash, testClient } = await replaceTransaction({ blocks: 2 })
+
+    await expect(
+      waitForTransactionReceipt(testClient, {
+        checkReplacement: false,
+        hash,
+        pollingInterval: 100,
+        replacement: transaction,
+        timeout: 1_000,
+      }),
+    ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+  })
+})
+
 test('args: timeout', async () => {
   setup()
 
@@ -1142,3 +1501,40 @@ describe('chain: transactionReplacement', () => {
     expect(replacements).toMatchInlineSnapshot('[]')
   })
 })
+
+/**
+ * Sends a transaction and a cancel at its nonce to an isolated node, which
+ * drops the transaction from its pool, then mines the cancel.
+ */
+async function replaceTransaction(options: { blocks: number }) {
+  const pool = Pool.define({
+    instance: Instance.anvil({ chainId: mainnet.id, noMining: true }),
+  })
+  onTestFinished(() => pool.destroyAll())
+  const node = await pool.start(1)
+  const testClient = createTestClient({
+    chain: mainnet,
+    mode: 'anvil',
+    transport: http(node.url),
+  })
+
+  const hash = await sendTransaction(testClient, {
+    account: sourceAccount.address,
+    maxFeePerGas: parseGwei('2'),
+    maxPriorityFeePerGas: parseGwei('1'),
+    nonce: 0,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  const cancelHash = await sendTransaction(testClient, {
+    account: sourceAccount.address,
+    maxFeePerGas: parseGwei('20'),
+    maxPriorityFeePerGas: parseGwei('10'),
+    nonce: 0,
+    to: sourceAccount.address,
+    value: 0n,
+  })
+  await mine(testClient, { blocks: options.blocks })
+
+  return { cancelHash, hash, pool, rpcUrl: node.url, testClient }
+}
