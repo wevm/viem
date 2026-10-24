@@ -1284,6 +1284,26 @@ describe('behavior', () => {
       ).toMatchInlineSnapshot(`"0x1"`)
     })
 
+    test('non-deterministic HttpRequestError (503 w/ Retry-After HTTP-date beyond timer limit)', async () => {
+      const retryAt = Date.now() + 30 * 24 * 60 * 60 * 1000
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(503, {
+          'Content-Type': 'application/json',
+          'Retry-After': new Date(retryAt).toUTCString(),
+        })
+        res.end(JSON.stringify({}))
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), { retryCount: 1 })(
+          { method: 'eth_blockNumber' },
+          { signal: AbortSignal.timeout(200) },
+        ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[TimeoutError: The operation was aborted due to timeout]`,
+      )
+    })
+
     test('non-deterministic HttpRequestError (503 w/ past Retry-After HTTP-date)', async () => {
       const start = Date.now()
       const server = await createHttpServer((_req, res) => {

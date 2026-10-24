@@ -11,10 +11,14 @@ export async function wait(
     }
 
     const cleanup = () => signal?.removeEventListener('abort', onAbort)
-    const timeout = setTimeout(() => {
-      cleanup()
-      resolve()
-    }, time)
+    // `setTimeout` fires after 1ms for delays above the 32-bit limit (~24.8 days).
+    const timeout = setTimeout(
+      () => {
+        cleanup()
+        resolve()
+      },
+      Math.min(time, 2 ** 31 - 1),
+    )
     const onAbort = () => {
       clearTimeout(timeout)
       cleanup()
