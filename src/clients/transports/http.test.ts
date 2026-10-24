@@ -362,10 +362,18 @@ describe('request', () => {
             result.reason.details,
           ],
       ),
-    ).toEqual([
-      ['InvalidRequestRpcError', 'batch too large'],
-      ['InvalidRequestRpcError', 'batch too large'],
-    ])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "InvalidRequestRpcError",
+          "batch too large",
+        ],
+        [
+          "InvalidRequestRpcError",
+          "batch too large",
+        ],
+      ]
+    `)
     expect(count).toEqual(1)
 
     await server.close()
@@ -405,10 +413,18 @@ describe('request', () => {
             result.reason.details,
           ],
       ),
-    ).toEqual([
-      ['InvalidRequestRpcError', 'batch too large'],
-      ['InvalidRequestRpcError', 'batch too large'],
-    ])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "InvalidRequestRpcError",
+          "batch too large",
+        ],
+        [
+          "InvalidRequestRpcError",
+          "batch too large",
+        ],
+      ]
+    `)
     expect(count).toEqual(1)
 
     await server.close()
@@ -445,10 +461,18 @@ describe('request', () => {
             result.reason.details,
           ],
       ),
-    ).toEqual([
-      ['LimitExceededRpcError', 'rate limit exceeded'],
-      ['LimitExceededRpcError', 'rate limit exceeded'],
-    ])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "LimitExceededRpcError",
+          "rate limit exceeded",
+        ],
+        [
+          "LimitExceededRpcError",
+          "rate limit exceeded",
+        ],
+      ]
+    `)
 
     await server.close()
   })
@@ -478,10 +502,18 @@ describe('request', () => {
             result.reason.details,
           ],
       ),
-    ).toEqual([
-      ['HttpRequestError', 'Expected 2 responses to batch request.'],
-      ['HttpRequestError', 'Expected 2 responses to batch request.'],
-    ])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "HttpRequestError",
+          "Expected 2 responses to batch request.",
+        ],
+        [
+          "HttpRequestError",
+          "Expected 2 responses to batch request.",
+        ],
+      ]
+    `)
 
     await server.close()
   })
