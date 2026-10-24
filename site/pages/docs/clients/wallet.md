@@ -282,7 +282,7 @@ const client = createWalletClient({
 ### cacheTime (optional)
 
 - **Type:** `number`
-- **Default:** the shorter of `pollingInterval` and half of `chain.blockTime`
+- **Default:** `pollingInterval` when set, otherwise the shorter of the default `pollingInterval` and half of `chain.blockTime`
 
 Time (in ms) that cached data will remain in memory. Without `chain.blockTime`, Viem assumes 12 second blocks.
 

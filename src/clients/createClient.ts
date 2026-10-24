@@ -56,7 +56,7 @@ export type ClientConfig<
   experimental_blockTag?: BlockTag | undefined
   /**
    * Time (in ms) that cached data will remain in memory.
-   * @default min(pollingInterval, chain.blockTime / 2)
+   * @default pollingInterval, or min(pollingInterval, chain.blockTime / 2) when pollingInterval is not set
    */
   cacheTime?: number | undefined
   /**
@@ -319,7 +319,9 @@ export function createClient(parameters: ClientConfig): Client {
   )
   const pollingInterval = parameters.pollingInterval ?? defaultPollingInterval
   const cacheTime =
-    parameters.cacheTime ?? Math.min(pollingInterval, Math.floor(blockTime / 2))
+    parameters.cacheTime ??
+    parameters.pollingInterval ??
+    Math.min(defaultPollingInterval, Math.floor(blockTime / 2))
 
   const account = parameters.account
     ? parseAccount(parameters.account)
