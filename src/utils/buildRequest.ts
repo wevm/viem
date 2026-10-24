@@ -2,6 +2,7 @@ import { BaseError } from '../errors/base.js'
 import {
   HttpRequestError,
   type HttpRequestErrorType,
+  RpcRequestError,
   type RpcRequestErrorType,
   type TimeoutErrorType,
   type WebSocketRequestErrorType,
@@ -268,15 +269,14 @@ export function buildRequest<
           {
             delay: ({ count, error }) => {
               // If we find a Retry-After header, let's retry after the given time.
-              if (error && error instanceof HttpRequestError) {
-                const retryAfter = error?.headers?.get('Retry-After')
-                if (retryAfter) {
-                  const seconds = Number.parseInt(retryAfter, 10)
-                  if (!Number.isNaN(seconds)) return seconds * 1000
-                  // HTTP-date form. A past or invalid date falls back to backoff.
-                  const delay = Date.parse(retryAfter) - Date.now()
-                  if (delay > 0) return delay
-                }
+              const retryAfter =
+                getHttpError(error)?.headers?.get('Retry-After')
+              if (retryAfter) {
+                const seconds = Number.parseInt(retryAfter, 10)
+                if (!Number.isNaN(seconds)) return seconds * 1000
+                // HTTP-date form. A past or invalid date falls back to backoff.
+                const delay = Date.parse(retryAfter) - Date.now()
+                if (delay > 0) return delay
               }
 
               // Otherwise, let's retry with an exponential backoff.
@@ -295,6 +295,7 @@ export function buildRequest<
 /** @internal */
 export function shouldRetry(error: Error) {
   if (isAbortError(error)) return false
+  const status = getHttpError(error)?.status
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
@@ -309,28 +310,37 @@ export function shouldRetry(error: Error) {
     // reached - reduce calls per second or upgrade your account at
     // quicknode.com" }`.
     if (error.code === -32007) return true
-    return false
+    // A JSON-RPC error from a non-2xx response also retries by its HTTP status.
+    if (!status) return false
   }
-  if (error instanceof HttpRequestError && error.status) {
+  if (status) {
     // Forbidden
-    if (error.status === 403) return true
+    if (status === 403) return true
     // Request Timeout
-    if (error.status === 408) return true
+    if (status === 408) return true
     // Request Entity Too Large
-    if (error.status === 413) return true
+    if (status === 413) return true
     // Too Many Requests
-    if (error.status === 429) return true
+    if (status === 429) return true
     // Internal Server Error
-    if (error.status === 500) return true
+    if (status === 500) return true
     // Bad Gateway
-    if (error.status === 502) return true
+    if (status === 502) return true
     // Service Unavailable
-    if (error.status === 503) return true
+    if (status === 503) return true
     // Gateway Timeout
-    if (error.status === 504) return true
+    if (status === 504) return true
     return false
   }
   return true
+}
+
+/** Returns the error in the cause chain that carries the HTTP response. */
+function getHttpError(error: Error | undefined) {
+  if (!(error instanceof BaseError)) return undefined
+  return error.walk(
+    (err) => err instanceof HttpRequestError || err instanceof RpcRequestError,
+  ) as HttpRequestError | RpcRequestError | null
 }
 
 /** @internal cyrb53 – fast, non-cryptographic 53-bit string hash */

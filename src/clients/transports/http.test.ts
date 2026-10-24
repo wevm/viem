@@ -834,6 +834,92 @@ describe('request', () => {
     expect(end > 500 && end < 520).toBeTruthy()
   })
 
+  test('behavior: retry rpc error by http status', async () => {
+    // Only the first request is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
+    const server = await createHttpServer((_req, res) => {
+      const rateLimit = rateLimits.shift()
+      if (rateLimit) {
+        res.writeHead(429, {
+          'Content-Type': 'application/json',
+          'Retry-After': '1',
+        })
+        res.end(JSON.stringify(rateLimit))
+        return
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+    })({ chain: localhost })
+
+    const start = Date.now()
+    const result = await transport.request({ method: 'eth_blockNumber' })
+    const elapsed = Date.now() - start
+
+    expect(result).toMatchInlineSnapshot(`"0x1"`)
+    expect(elapsed).toBeGreaterThan(900)
+
+    await server.close()
+  })
+
+  test('behavior: retry rpc error by http status (batch)', async () => {
+    // Only the first batch is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        const rateLimit = rateLimits.shift()
+        if (rateLimit) {
+          res.writeHead(429, {
+            'Content-Type': 'application/json',
+            'Retry-After': '1',
+          })
+          res.end(JSON.stringify(rateLimit))
+          return
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(
+          JSON.stringify(
+            JSON.parse(body).map((request: { id: number; method: string }) => ({
+              id: request.id,
+              result: request.method,
+            })),
+          ),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      batch: true,
+    })({ chain: localhost })
+
+    const start = Date.now()
+    const results = await Promise.all([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }),
+    ])
+    const elapsed = Date.now() - start
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "eth_a",
+        "eth_b",
+      ]
+    `)
+    expect(elapsed).toBeGreaterThan(900)
+
+    await server.close()
+  })
+
   test('behavior: timeout', async () => {
     const server = await createHttpServer(async (_req, res) => {
       await wait(5000)
@@ -966,6 +1052,35 @@ describe('request', () => {
     `)
   })
 
+  test('behavior: raw (rpc error with http status)', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(429, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({ error: { code: -32000, message: 'rate limited' } }),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      raw: true,
+    })({ chain: localhost })
+
+    const response = await transport.request({ method: 'eth_blockNumber' })
+
+    expect(response).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32000,
+          "message": "rate limited",
+        },
+        "result": undefined,
+      }
+    `)
+
+    await server.close()
+  })
+
   test('errors: rpc error', async () => {
     const transport = http(anvilMainnet.rpcUrl.http, {
       key: 'jsonRpc',
@@ -985,6 +1100,84 @@ describe('request', () => {
       Details: Method not found
       Version: viem@x.y.z]
     `)
+  })
+
+  test('errors: rpc error with http status', async () => {
+    // Each attempt reverts with different data, so `0x02` shows the retry.
+    const reverts = ['0x01', '0x02']
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(500, { 'Content-Type': 'application/json' })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: reverts.shift(),
+          },
+        }),
+      )
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 1,
+      retryDelay: 0,
+    })({ chain: localhost })
+
+    const promise = transport.request({ method: 'eth_call' })
+
+    await expect(promise).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcRequestError: RPC Request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"method":"eth_call"}
+
+      Details: execution reverted
+      Version: viem@x.y.z]
+    `)
+    await expect(promise).rejects.toMatchObject({ data: '0x02' })
+
+    await server.close()
+  })
+
+  test('errors: rpc error with non-retryable http status', async () => {
+    // A retry would receive the second, successful response.
+    const responses = [
+      {
+        status: 400,
+        body: { error: { code: -32601, message: 'Method not found' } },
+      },
+      { status: 200, body: { result: '0x1' } },
+    ]
+    const server = await createHttpServer((_req, res) => {
+      const { status, body } = responses.shift()!
+      res.writeHead(status, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(body))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      retryCount: 1,
+      retryDelay: 0,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_wagmi' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
+
+      Status: 400
+      URL: http://localhost
+      Request body: {"method":"eth_wagmi"}
+
+      Details: Method not found
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
   })
 })
 

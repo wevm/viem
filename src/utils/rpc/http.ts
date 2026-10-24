@@ -3,6 +3,8 @@ import {
   type HttpRequestErrorType as HttpRequestErrorType_,
   ResponseBodyTooLargeError,
   type ResponseBodyTooLargeErrorType,
+  RpcRequestError,
+  type RpcRequestErrorType,
   TimeoutError,
   type TimeoutErrorType,
 } from '../../errors/request.js'
@@ -77,6 +79,7 @@ export type HttpRequestReturnType<
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
   | ResponseBodyTooLargeErrorType
+  | RpcRequestErrorType
   | TimeoutErrorType
   | WithTimeoutErrorType
   | ErrorType
@@ -195,9 +198,18 @@ export function getHttpRpcClient(
             ? data[0]
             : data
 
-        // A non-2xx response with a valid JSON-RPC error body flows through the
-        // normal RPC error handling pipeline.
-        if (!response.ok && !isRpcError(error))
+        if (!response.ok) {
+          // A valid JSON-RPC error body keeps its RPC error class and the
+          // response status and headers for retries.
+          if (isRpcError(error))
+            throw new RpcRequestError({
+              body,
+              error: error.error,
+              headers: response.headers,
+              status: response.status,
+              url,
+            })
+
           throw new HttpRequestError({
             body,
             details: stringify(data.error) || response.statusText,
@@ -205,6 +217,7 @@ export function getHttpRpcClient(
             status: response.status,
             url,
           })
+        }
 
         if (!Array.isArray(body) || !body.length) return data
         if (Array.isArray(data) && data.length >= body.length) return data
@@ -216,6 +229,7 @@ export function getHttpRpcClient(
         if (isAbortError(err)) throw err
         if (err instanceof HttpRequestError) throw err
         if (err instanceof ResponseBodyTooLargeError) throw err
+        if (err instanceof RpcRequestError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,

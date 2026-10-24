@@ -170,7 +170,12 @@ export function http<
                   }),
                 ]
 
-          const [{ error, result }] = await fn(body)
+          const [{ error, result }] = await fn(body).catch((err) => {
+            // Raw transports also return JSON-RPC errors from non-2xx responses.
+            if (raw && err instanceof RpcRequestError)
+              return [{ error: err.cause, result: undefined }]
+            throw err
+          })
 
           if (raw) return { error, result }
           if (error)
