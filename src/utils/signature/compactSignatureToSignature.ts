@@ -35,5 +35,5 @@ export function compactSignatureToSignature({
   const yParity = yParityAndS_bytes[0] & 0x80 ? 1 : 0
   const s = yParityAndS_bytes
   if (yParity === 1) s[0] &= 0x7f
-  return { r, s: bytesToHex(s), yParity }
+  return { r: pad(r), s: bytesToHex(s), yParity }
 }
