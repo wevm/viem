@@ -313,6 +313,14 @@ describe('resolveAvatarUri()', () => {
         isEncoded: false,
       },
     },
+    {
+      uri: '<svg><text>café ⚡</text></svg>',
+      expected: {
+        uri: 'data:image/svg+xml;base64,PHN2Zz48dGV4dD5jYWbDqSDimqE8L3RleHQ+PC9zdmc+',
+        isOnChain: true,
+        isEncoded: false,
+      },
+    },
   ])(
     'http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri',
     ({ uri, expected }) => {

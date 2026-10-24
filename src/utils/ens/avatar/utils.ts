@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Base64 from 'ox/Base64'
 
 import {
   type ReadContractErrorType,
@@ -132,7 +133,7 @@ export function resolveAvatarUri({
   let parsedUri = uri.replace(dataURIRegex, '')
   if (parsedUri.startsWith('<svg')) {
     // if svg, base64 encode
-    parsedUri = `data:image/svg+xml;base64,${btoa(parsedUri)}`
+    parsedUri = `data:image/svg+xml;base64,${Base64.fromString(parsedUri)}`
   }
 
   if (parsedUri.startsWith('data:') || parsedUri.startsWith('{')) {
