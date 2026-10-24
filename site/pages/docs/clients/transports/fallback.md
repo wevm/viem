@@ -80,7 +80,7 @@ const client = createPublicClient({
 
 ### Self-Hosted RPC Proxy
 
-A self-hosted JSON-RPC proxy, such as [eRPC](https://github.com/erpc/erpc), can retry and fail over between providers on the server. Pass the proxy URL to an `http` Transport like any other RPC URL.
+A self-hosted JSON-RPC proxy, can retry and fail over between providers on the server. Pass the proxy URL to an `http` Transport like any other RPC URL.
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
