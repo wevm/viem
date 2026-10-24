@@ -486,6 +486,44 @@ test('overloads: tuple object with array component', () => {
   `)
 })
 
+test('overloads: tuple object keys in a different order', () => {
+  const abi = parseAbi([
+    'function foo((address a, string b) x)',
+    'function foo((string a, string b) x)',
+  ])
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'foo',
+      args: [{ b: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', a: 'hello' }],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "name": "a",
+              "type": "string",
+            },
+            {
+              "name": "b",
+              "type": "string",
+            },
+          ],
+          "name": "x",
+          "type": "tuple",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
 test('overloads: tuple', () => {
   expect(
     getAbiItem({
@@ -794,6 +832,24 @@ test('overloads: ambiguious types', () => {
     [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
 
     \`bytes20\` in \`foo(bytes20[])\`, and
+    \`address\` in \`foo(address[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(address[])', 'function foo(string[])']),
+      name: 'foo',
+      args: [[]],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`string\` in \`foo(string[])\`, and
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
@@ -1140,6 +1196,19 @@ describe('getAmbiguousTypes', () => {
         [['foo', 'bar']],
       ),
     ).toBeUndefined()
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string[]'),
+        parseAbiParameters('address[]'),
+        [[]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
 
     expect(
       getAmbiguousTypes(
