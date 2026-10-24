@@ -395,6 +395,135 @@ test('overload: different types', () => {
   `)
 })
 
+test('overloads: array of sized type with a zero digit', () => {
+  const abi = parseAbi(['function foo(bool x)', 'function foo(uint160[] x)'])
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'foo',
+      args: [[1n, 2n]],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "name": "x",
+          "type": "uint160[]",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
+test('overloads: fixed-length arrays', () => {
+  const abi = parseAbi([
+    'function foo(uint256[3] x)',
+    'function foo(uint256[2] x)',
+  ])
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'foo',
+      args: [[1n, 2n, 3n]],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "name": "x",
+          "type": "uint256[3]",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
+test('overloads: tuple object with array component', () => {
+  const abi = parseAbi([
+    'function foo((uint256[] a) x)',
+    'function foo((uint256[] a, uint256 b) x)',
+  ])
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'foo',
+      args: [{ a: [1n], b: 2n }],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "name": "a",
+              "type": "uint256[]",
+            },
+            {
+              "name": "b",
+              "type": "uint256",
+            },
+          ],
+          "name": "x",
+          "type": "tuple",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
+test('overloads: tuple object keys in a different order', () => {
+  const abi = parseAbi([
+    'function foo((address a, string b) x)',
+    'function foo((string a, string b) x)',
+  ])
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'foo',
+      args: [{ b: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', a: 'hello' }],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "name": "a",
+              "type": "string",
+            },
+            {
+              "name": "b",
+              "type": "string",
+            },
+          ],
+          "name": "x",
+          "type": "tuple",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
 test('overloads: tuple', () => {
   expect(
     getAbiItem({
@@ -677,6 +806,125 @@ test('overloads: ambiguious types', () => {
 
   expect(() =>
     getAbiItem({
+      abi: parseAbi(['function foo(address[])', 'function foo(bytes20[])']),
+      name: 'foo',
+      args: [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo(bytes20[])\`, and
+    \`address\` in \`foo(address[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(address[])', 'function foo(bytes20[])']),
+      name: 'foo',
+      args: [[]],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo(bytes20[])\`, and
+    \`address\` in \`foo(address[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(address[])', 'function foo(string[])']),
+      name: 'foo',
+      args: [[]],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`string\` in \`foo(string[])\`, and
+    \`address\` in \`foo(address[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(address[2])', 'function foo(bytes20[])']),
+      name: 'foo',
+      args: [
+        [
+          '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+          '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+        ],
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo(bytes20[])\`, and
+    \`address\` in \`foo(address[2])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo((address[] a))',
+        'function foo((bytes20[] a))',
+      ]),
+      name: 'foo',
+      args: [{ a: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'] }],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo((bytes20[]))\`, and
+    \`address\` in \`foo((address[]))\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo((uint256), address[])',
+        'function foo((uint256), bytes20[])',
+      ]),
+      name: 'foo',
+      args: [[1n], ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes20\` in \`foo((uint256),bytes20[])\`, and
+    \`address\` in \`foo((uint256),address[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(() =>
+    getAbiItem({
       abi: parseAbi([
         'function foo(string, (address))',
         'function foo(string, (bytes))',
@@ -882,6 +1130,99 @@ describe('getAmbiguousTypes', () => {
       ]
     `)
   })
+
+  test('arrays', () => {
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('address[]'),
+        parseAbiParameters('bytes20[]'),
+        [['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('address[]'),
+        parseAbiParameters('bytes20[]'),
+        [[]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string[2]'),
+        parseAbiParameters('address[]'),
+        [
+          [
+            '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+            '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+          ],
+        ],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('(address[] a)'),
+        parseAbiParameters('(bytes20[] a)'),
+        [{ a: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'] }],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string[]'),
+        parseAbiParameters('address[]'),
+        [['foo', 'bar']],
+      ),
+    ).toBeUndefined()
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('string[]'),
+        parseAbiParameters('address[]'),
+        [[]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "string",
+        "address",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('address[][]'),
+        parseAbiParameters('bytes20[][]'),
+        [[['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']]],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "address",
+        "bytes20",
+      ]
+    `)
+  })
 })
 
 describe.each([
@@ -893,6 +1234,15 @@ describe.each([
   {
     arg: [1n],
     abiParameter: { type: 'uint256[]' },
+    expected: true,
+  },
+  { arg: [1n], abiParameter: { type: 'uint160[]' }, expected: true },
+  { arg: [1, 2], abiParameter: { type: 'int40[2]' }, expected: true },
+  { arg: [1n, 2n, 3n], abiParameter: { type: 'uint256[2]' }, expected: false },
+  { arg: [[1n]], abiParameter: { type: 'uint120[][]' }, expected: true },
+  {
+    arg: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+    abiParameter: { type: 'bytes20[]' },
     expected: true,
   },
   {
