@@ -598,17 +598,16 @@ describe('request', () => {
   })
 
   test('behavior: retry rpc error by http status', async () => {
-    let requests = 0
+    // Only the first request is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
     const server = await createHttpServer((_req, res) => {
-      requests++
-      if (requests === 1) {
+      const rateLimit = rateLimits.shift()
+      if (rateLimit) {
         res.writeHead(429, {
           'Content-Type': 'application/json',
           'Retry-After': '1',
         })
-        res.end(
-          JSON.stringify({ error: { code: -32000, message: 'rate limited' } }),
-        )
+        res.end(JSON.stringify(rateLimit))
         return
       }
       res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -631,24 +630,21 @@ describe('request', () => {
   })
 
   test('behavior: retry rpc error by http status (batch)', async () => {
-    let requests = 0
+    // Only the first batch is rate limited.
+    const rateLimits = [{ error: { code: -32000, message: 'rate limited' } }]
     const server = await createHttpServer((req, res) => {
       let body = ''
       req.on('data', (chunk) => {
         body += chunk
       })
       req.on('end', () => {
-        requests++
-        if (requests === 1) {
+        const rateLimit = rateLimits.shift()
+        if (rateLimit) {
           res.writeHead(429, {
             'Content-Type': 'application/json',
             'Retry-After': '1',
           })
-          res.end(
-            JSON.stringify({
-              error: { code: -32000, message: 'rate limited' },
-            }),
-          )
+          res.end(JSON.stringify(rateLimit))
           return
         }
         res.writeHead(200, { 'Content-Type': 'application/json' })
