@@ -38,11 +38,13 @@ test('fromZk returns a ZK account', async () => {
   )
 })
 
-test('fromMultisig rejects ZK owners', () => {
-  const account = Account.fromZk(credential)
-  // @ts-expect-error ZK owners are unsupported.
+test('fromMultisig accepts ZK owners', () => {
+  const accessKey = Account.fromSecp256k1(`0x${'2'.repeat(64)}`, {
+    access: Account.fromZk(credential),
+  })
+  const account = Account.fromZk(credential, { accessKey })
+  expectTypeOf(account).toEqualTypeOf<Account.ZkAccount>()
   Account.fromMultisig({ owners: [account] })
-  // @ts-expect-error Weighted ZK owners are unsupported.
   Account.fromMultisig({ owners: [{ owner: account, weight: 1 }] })
 })
 

@@ -288,8 +288,9 @@ export declare namespace fromSecp256k1 {
  *
  * Owners can be accounts or addresses directly, or weighted `{ owner, weight }`
  * entries. Direct owners default to weight `1`, and `threshold` defaults to `1`.
- * Local owner accounts are retained for signing, using primitive signatures.
- * Configs containing only owner addresses require external approvals through
+ * Local owner accounts are retained for signing, using primitive signatures or,
+ * for ZK accounts created with an `accessKey`, ZK signatures. Configs
+ * containing only owner addresses require external approvals through
  * `signatures`.
  *
  * Normalizes supplied config fields with `MultisigConfig.from`, so callers do
@@ -379,13 +380,10 @@ export function fromMultisig(value: fromMultisig.Parameters): MultisigAccount {
   })()
   if (
     ownerAccounts.some(
-      (owner) =>
-        owner.source === 'multisig' ||
-        owner.source === 'zk' ||
-        isAccessKeyAccount(owner),
+      (owner) => owner.source === 'multisig' || isAccessKeyAccount(owner),
     )
   )
-    throw new Error('Multisig owners must use primitive signatures.')
+    throw new Error('Multisig owners must use primitive or ZK signatures.')
   const owners =
     config?.owners.flatMap(({ owner }) => {
       const account = ownerAccounts.find((account) =>
@@ -498,7 +496,6 @@ export declare namespace fromMultisig {
     | Address.Address
     | (LocalAccount & {
         accessKeyAddress?: never
-        credential?: never
         owners?: never
       })
     | (Omit<MultisigConfig.Owner, 'owner'> & {
@@ -506,7 +503,6 @@ export declare namespace fromMultisig {
           | Address.Address
           | (LocalAccount & {
               accessKeyAddress?: never
-              credential?: never
               owners?: never
             })
       })
@@ -535,7 +531,7 @@ async function signMultisig(
   parameters: {
     config?: MultisigConfig.Config | undefined
     payload: Hex.Hex
-    signatures?: readonly SignatureEnvelope.Primitive[] | undefined
+    signatures?: readonly SignatureEnvelope.MultisigApproval[] | undefined
   },
 ): Promise<SignatureEnvelope.Multisig> {
   const { config, payload, signatures: providedSignatures = [] } = parameters
@@ -758,6 +754,9 @@ export declare namespace fromWebCryptoP256 {
  * authorizations for the access key the credential commits to, using that
  * access key. Authorized access keys sign transactions for the account.
  *
+ * Pass `accessKey` to let the account `sign` ZK signatures directly, for use
+ * as an owner approval in a multisig account (`Account.fromMultisig`).
+ *
  * [TIP-1131](https://tips.sh/1131)
  *
  * @example
@@ -777,27 +776,51 @@ export declare namespace fromWebCryptoP256 {
  * ```
  *
  * @param credential ZK credential, committing to an access key.
+ * @param options Options.
  * @returns ZK account.
  */
-export function fromZk(credential: ZkSignature.Credential): ZkAccount {
+export function fromZk(
+  credential: ZkSignature.Credential,
+  options: fromZk.Options = {},
+): ZkAccount {
   ZkSignature.assert(credential)
+  const { accessKey } = options
+
+  /** Signs a payload as a ZK signature, using the committed access key. */
+  async function signZk(
+    key: AccessKeyAccount,
+    payload: Hex.Hex,
+  ): Promise<SignatureEnvelope.Zk> {
+    const { validUntil } = credential
+    // The node accepts a ZK signature until its block timestamp passes `validUntil`.
+    if (validUntil < Math.floor(Date.now() / 1000))
+      throw new ZkCredentialExpiredError({ validUntil })
+    const accessKeySignature = await key.sign({
+      hash: ZkSignature.getSignPayload({ credential, payload }),
+      raw: true,
+    })
+    return SignatureEnvelope.from({
+      ...credential,
+      accessKeySignature: SignatureEnvelope.from(accessKeySignature),
+      type: 'zk',
+    } as never)
+  }
+
   return {
     address: Address.checksum(ZkSignature.getAddress(credential)),
     credential,
     publicKey: '0x',
     source: 'zk',
     type: 'local',
-    async sign() {
-      throw new Error(
-        '`sign` is not supported for ZK accounts. Sign with an authorized access key.',
-      )
+    async sign({ hash }) {
+      if (!accessKey)
+        throw new Error(
+          '`sign` requires the access key the credential commits to. Pass it to `Account.fromZk(credential, { accessKey })`.',
+        )
+      return SignatureEnvelope.serialize(await signZk(accessKey, hash))
     },
     async signKeyAuthorization(key, parameters) {
       const { admin, chainId, expiry, limits, scopes, witness } = parameters
-      const { validUntil } = credential
-      // The node accepts a ZK signature until its block timestamp passes `validUntil`.
-      if (validUntil < Math.floor(Date.now() / 1000))
-        throw new ZkCredentialExpiredError({ validUntil })
       if (!isAccessKeyAccount(key))
         throw new Error(
           'ZK accounts sign key authorizations with the access key their credential commits to. Pass that access key account.',
@@ -816,18 +839,10 @@ export function fromZk(credential: ZkSignature.Credential): ZkAccount {
         ...(admin ? { isAdmin: true } : {}),
         ...restrictions,
       } as never)
-      const accessKeySignature = await key.sign({
-        hash: ZkSignature.getSignPayload({ credential, payload }),
-        raw: true,
-      })
       return KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
-        signature: SignatureEnvelope.from({
-          ...credential,
-          accessKeySignature: SignatureEnvelope.from(accessKeySignature),
-          type: 'zk',
-        } as never),
+        signature: await signZk(key, payload),
         type,
         ...(witness ? { witness } : {}),
         ...(admin ? { isAdmin: true } : {}),
@@ -849,6 +864,16 @@ export function fromZk(credential: ZkSignature.Credential): ZkAccount {
         '`signTypedData` is not supported for ZK accounts. Sign with an authorized access key.',
       )
     },
+  }
+}
+
+export declare namespace fromZk {
+  export type Options = {
+    /**
+     * Access key the credential commits to. When provided, `sign` produces
+     * ZK signatures for use as multisig owner approvals.
+     */
+    accessKey?: AccessKeyAccount | undefined
   }
 }
 

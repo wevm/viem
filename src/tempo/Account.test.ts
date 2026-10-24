@@ -20,6 +20,7 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
 import { nativeMultisigFactory } from './Addresses.js'
+import { ZkCredentialExpiredError } from './errors.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
 
@@ -190,12 +191,58 @@ describe('fromMultisig', () => {
     )
   })
 
-  test('error: ZK owner', () => {
-    expect(() =>
-      // @ts-expect-error Verify runtime rejection for untyped callers.
-      Account.fromMultisig({ owners: [Account.fromZk(credential)] }),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Multisig owners must use primitive signatures.]`,
+  test('behavior: ZK owner', async () => {
+    const zkAccount = Account.fromZk(credential)
+    const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: zkAccount,
+    })
+    const owner = Account.fromZk(credential, { accessKey })
+    const account = Account.fromMultisig({
+      owners: [{ owner, weight: 2 }, tempo.accounts[1]],
+      threshold: 2,
+    })
+
+    const hash = keccak256('0x1234')
+    const signature = SignatureEnvelope.deserialize(
+      await account.sign({ hash }),
+    )
+    if (signature.type !== 'multisig') throw new Error('expected multisig')
+    expect(signature.signatures).toHaveLength(1)
+    const [approval] = signature.signatures
+    if (approval?.type !== 'zk') throw new Error('expected a ZK approval')
+    const digest = MultisigConfig.getSignPayload({
+      account: account.address,
+      config: account.config,
+      payload: hash,
+    })
+    expect(
+      Address.isEqual(
+        SignatureEnvelope.extractAddress({
+          payload: digest,
+          signature: approval,
+        }),
+        zkAccount.address,
+      ),
+    ).toBe(true)
+    if (approval.accessKeySignature.type !== 'secp256k1')
+      throw new Error('expected a secp256k1 access key signature')
+    expect(
+      Secp256k1.recoverAddress({
+        payload: ZkSignature.getSignPayload({ credential, payload: digest }),
+        signature: approval.accessKeySignature.signature,
+      }),
+    ).toBe(accessKey.accessKeyAddress)
+  })
+
+  test('error: ZK owner without access key', async () => {
+    const account = Account.fromMultisig({
+      owners: [Account.fromZk(credential)],
+    })
+
+    await expect(
+      account.sign({ hash: keccak256('0x1234') }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`sign\` requires the access key the credential commits to. Pass it to \`Account.fromZk(credential, { accessKey })\`.]`,
     )
   })
 })
@@ -599,12 +646,40 @@ describe('fromZk', () => {
     expect(signature.type).toBe('zk')
   })
 
+  test('behavior: sign with access key', async () => {
+    const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: Account.fromZk(credential),
+    })
+    const account = Account.fromZk(credential, { accessKey })
+
+    const hash = keccak256('0x1234')
+    const signature = SignatureEnvelope.deserialize(
+      await account.sign({ hash }),
+    )
+    if (signature.type !== 'zk') throw new Error('expected a ZK signature')
+    const { accessKeySignature, type: _, ...signed } = signature
+    expect(signed).toEqual(credential)
+    if (accessKeySignature.type !== 'secp256k1')
+      throw new Error('expected a secp256k1 signature')
+    expect(
+      Secp256k1.recoverAddress({
+        payload: ZkSignature.getSignPayload({ credential, payload: hash }),
+        signature: accessKeySignature.signature,
+      }),
+    ).toBe(accessKey.accessKeyAddress)
+  })
+
   test('error: expired credential', async () => {
     const account = Account.fromZk(expiredCredential)
     const accessKey = Account.fromSecp256k1(privateKey_secp256k1, {
       access: account,
     })
 
+    await expect(
+      Account.fromZk(expiredCredential, { accessKey }).sign({
+        hash: keccak256('0x1234'),
+      }),
+    ).rejects.toThrow(ZkCredentialExpiredError)
     await expect(
       account.signKeyAuthorization(accessKey, { chainId: 4217n }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -646,7 +721,7 @@ describe('fromZk', () => {
     await expect(
       account.sign({ hash: keccak256('0x1234') }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: \`sign\` is not supported for ZK accounts. Sign with an authorized access key.]`,
+      `[Error: \`sign\` requires the access key the credential commits to. Pass it to \`Account.fromZk(credential, { accessKey })\`.]`,
     )
     await expect(
       account.signMessage({ message: 'hello' }),

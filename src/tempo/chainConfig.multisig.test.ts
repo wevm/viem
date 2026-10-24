@@ -135,7 +135,7 @@ describe('prepareTransactionRequest', () => {
     const child = Account.fromMultisig({ owners: [accounts[1]] })
     // @ts-expect-error Verify runtime rejection for untyped callers.
     expect(() => Account.fromMultisig({ owners: [child] })).toThrow(
-      'Multisig owners must use primitive signatures.',
+      'Multisig owners must use primitive or ZK signatures.',
     )
   })
 
