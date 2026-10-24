@@ -1,0 +1,109 @@
+---
+description: Read EIP-8130 receipt fields — per-phase statuses, payer, and metadata
+---
+
+# Receipts
+
+An `AA_TX_TYPE` (`0x79`) receipt carries extra fields beyond a standard receipt: the resolved gas **payer**, the **per-phase execution statuses**, and the echoed **metadata**. `getTransactionReceipt` and `waitForTransactionReceipt` surface these under a parsed `eip8130` property while still returning the raw receipt.
+
+:::tip
+If your chain is defined with [`eip8130ChainConfig`](/eip8130#1-native-core-actions-eip8130chainconfig), core `client.getTransactionReceipt` and `client.waitForTransactionReceipt` return the same `eip8130` fields natively, so you don't need the `viem/eip8130` variants shown below.
+:::
+
+## Wait for a receipt
+
+```ts
+import { waitForTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await waitForTransactionReceipt(client, { hash })
+
+receipt.status                  // 'success' only if every phase succeeded
+receipt.eip8130.payer           // who paid gas (sender for self-pay)
+receipt.eip8130.phaseStatuses   // e.g. ['0x1', '0x0'] — per phase, in order
+receipt.eip8130.metadata        // opaque bytes echoed from the signed tx
+```
+
+It polls `eth_getTransactionReceipt` until the transaction is mined (default every `500ms`, timing out after `60_000ms` — both configurable). Unlike the generic `waitForTransactionReceipt`, it skips same-nonce replacement detection, since EIP-8130 uses 2D channel nonces.
+
+### Expiring transactions
+
+Any transaction with a non-zero `validBefore` (sequenced or nonce-free) can no longer land once the chain's latest block timestamp passes it. Pass the `validBefore` (unix **milliseconds**) you signed with and the wait rejects with a `TransactionExpiredError` the moment it lapses, instead of silently spinning until the timeout.
+
+For a nonce-free send, `sendTransaction` auto-computes `validBefore` as `Date.now()` plus a 15s window when you don't pass one. The node admits a nonce-free transaction at most 20s ahead of chain time, and the default leaves slack under that cap for clock skew. Because the node enforces the deadline against **block time**, a client clock that differs from the chain can make a send arrive already-expired or too far ahead. Pass `now` (e.g. the chain's latest block timestamp in ms) to anchor the deadline to block time, or `expiryWindow` to change it (up to 20s):
+
+```ts
+const { timestamp } = await client.getBlock() // seconds
+const hash = await sendTransaction(client, {
+  account,
+  calls,
+  gas,
+  nonceKey: nonceKeyMax,     // nonce-free (expiring) mode
+  now: timestamp * 1000n,    // anchor to block time, immune to skew
+  expiryWindow: 18_000n,     // optional: change the 15s default (max 20s)
+})
+```
+
+Thread the resolved `validBefore` out of `sendTransaction` with `onTransaction` — this is reliable because it's the exact value the tx was signed with (including auto-computed nonce-free windows), and it doesn't depend on the node returning a pending transaction:
+
+```ts
+import { TransactionExpiredError, sendTransaction, waitForTransactionReceipt } from 'viem/eip8130'
+
+let validBefore: bigint | undefined
+const hash = await sendTransaction(client, {
+  account,
+  calls,
+  gas,
+  onTransaction: (tx) => { validBefore = tx.validBefore },
+})
+
+try {
+  const receipt = await waitForTransactionReceipt(client, { hash, validBefore })
+} catch (e) {
+  if (e instanceof TransactionExpiredError) {
+    // tx can never land — resubmit with a fresh `validBefore`
+  }
+}
+```
+
+If you omit `validBefore`, the wait still tries to read it off the pending transaction, but that is best-effort only — a node is not obligated to serve a pending `eth_getTransactionByHash`.
+
+## Fetch without waiting
+
+`getTransactionReceipt` returns `null` if the receipt is not yet available:
+
+```ts
+import { getTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await getTransactionReceipt(client, { hash })
+if (receipt) console.log(receipt.eip8130.phaseStatuses)
+```
+
+The `eip8130` fields are only populated for `AA_TX_TYPE` receipts on a node with the extension; they are `undefined` for standard receipts or older nodes.
+
+## Per-phase statuses
+
+`phaseStatuses` reports each [call phase](/eip8130/calls-and-batching) in order — `0x1` for success, `0x0` for revert. Because a reverted phase halts execution, every phase after the first failure is reported `0x0`. The array is empty when the transaction has no calls (e.g. a config-only change).
+
+The receipt itself is a standard EIP-1559 receipt, and its `status` is `1` only if every phase succeeded. A transaction with no calls reports `1`. `allPhasesSucceeded` gives the same answer from the `eip8130` fields:
+
+```ts
+import { allPhasesSucceeded, waitForTransactionReceipt } from 'viem/eip8130'
+
+const receipt = await waitForTransactionReceipt(client, { hash })
+if (!allPhasesSucceeded(receipt.eip8130)) {
+  // The tx was still included and the fee was paid, but a phase reverted.
+  const failedPhase = receipt.eip8130.phaseStatuses?.findIndex((s) => s !== '0x1')
+}
+```
+
+:::warning[A reverted 8130 transaction is still included]
+Unlike a failed EVM call, a reverted `AA_TX_TYPE` transaction is mined: its nonce is consumed, its fee is paid, and account changes still apply. A `status` of `0` means at least one phase reverted; use `phaseStatuses` to see which phases committed.
+:::
+
+## The Payer Field
+
+`eip8130.payer` is the account that paid the gas: the sender for a self-paid transaction, the named [payer](/eip8130/sponsoring-transactions) for a sponsored one, or the recovered signer in [open payer mode](/eip8130/sponsoring-transactions#open-payer-mode). Use it to confirm sponsorship landed as expected.
+
+## Next
+
+- Attach and read application data with [metadata](/eip8130/metadata).
