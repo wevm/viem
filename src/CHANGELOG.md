@@ -1,5 +1,31 @@
 # viem
 
+## 2.57.11
+
+### Patch Changes
+
+- [#5274](https://github.com/wevm/viem/pull/5274) [`bea62b141a437cfd4027be182e94ae9b7a56fcf1`](https://github.com/wevm/viem/commit/bea62b141a437cfd4027be182e94ae9b7a56fcf1) Thanks [@mmv08](https://github.com/mmv08)! - Changed the default `cacheTime` to the shorter of `pollingInterval` and half of `chain.blockTime`, so block numbers are cached for at most half a block and a long `pollingInterval` no longer lengthens the cache.
+
+- [#5245](https://github.com/wevm/viem/pull/5245) [`f4da1f6384a2bec09d81164a9bd953c159acdcd6`](https://github.com/wevm/viem/commit/f4da1f6384a2bec09d81164a9bd953c159acdcd6) Thanks [@wavebyrd](https://github.com/wavebyrd)! - Fixed `watchEvent` so concurrent polling watchers on one client each honor their own `events` and `strict` instead of sharing the first watcher's filter.
+
+- [#5253](https://github.com/wevm/viem/pull/5253) [`94e5c08e73f3627f3b99660d4498344f976707c2`](https://github.com/wevm/viem/commit/94e5c08e73f3627f3b99660d4498344f976707c2) Thanks [@decofe](https://github.com/decofe)! - Increased the base fee multiplier to 2 for HyperEVM mainnet and testnet to provide more headroom for fee increases.
+
+- [#5247](https://github.com/wevm/viem/pull/5247) [`d65dff84a25d3c89352610bd23d29dc8d773a48a`](https://github.com/wevm/viem/commit/d65dff84a25d3c89352610bd23d29dc8d773a48a) Thanks [@clippytool](https://github.com/clippytool)! - Fixed `waitForTransactionReceipt` leaving a listener behind for concurrent calls with the same options, which made later waits for the same hash join an observer that was no longer polling and never settle.
+
+- [#5250](https://github.com/wevm/viem/pull/5250) [`2d54066f114a10ad9a05871c321a8d2e9d49445d`](https://github.com/wevm/viem/commit/2d54066f114a10ad9a05871c321a8d2e9d49445d) Thanks [@RaphaelFakhri](https://github.com/RaphaelFakhri)! - Fixed `getEnsAvatar` returning `null` for inline SVG avatars containing non-Latin-1 characters (e.g. `é` or emoji), and decoded base64 NFT metadata as UTF-8.
+
+- [#5273](https://github.com/wevm/viem/pull/5273) [`ef92315ab2139aee63f9222634109f5bb48c69e8`](https://github.com/wevm/viem/commit/ef92315ab2139aee63f9222634109f5bb48c69e8) Thanks [@mmv08](https://github.com/mmv08)! - Updated `monad` and `monadTestnet` `blockTime` to 300 ms.
+
+- [#5244](https://github.com/wevm/viem/pull/5244) [`55ee45c4d9573badcdc76ef6d39de294bfe8184b`](https://github.com/wevm/viem/commit/55ee45c4d9573badcdc76ef6d39de294bfe8184b) Thanks [@erkancamli](https://github.com/erkancamli)! - Fixed `nonceManager` handing out a duplicate nonce when the previously consumed nonce was `0`.
+
+- [#5267](https://github.com/wevm/viem/pull/5267) [`4ae58f6135c77b5afeb70c19af237d6a3bd127a6`](https://github.com/wevm/viem/commit/4ae58f6135c77b5afeb70c19af237d6a3bd127a6) Thanks [@struong](https://github.com/struong)! - `viem/tempo`: Fixed `prepareTransactionRequest` defaulting `nonce` to `0` for `nonceKey: 0n`. The protocol nonce key now fills `nonce` from the account's transaction count or `nonceManager`.
+
+- [#5269](https://github.com/wevm/viem/pull/5269) [`3b9afb2219498bd338f136f505e3770589a8404e`](https://github.com/wevm/viem/commit/3b9afb2219498bd338f136f505e3770589a8404e) Thanks [@jxom](https://github.com/jxom)! - Exported the `FeePayerTransport` and `RelayTransport` types from `viem/tempo`, so declaration emit can name the transports that `withFeePayer` and `withRelay` return.
+
+- [#5275](https://github.com/wevm/viem/pull/5275) [`7315f38a32e83d489d412a73225afd8a3d9f614d`](https://github.com/wevm/viem/commit/7315f38a32e83d489d412a73225afd8a3d9f614d) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `getTransactionConfirmations` returning `0n` or a negative number for a transaction already in a block, when the block number it read was lower than the transaction's block number.
+
+- [#5266](https://github.com/wevm/viem/pull/5266) [`6834ec45211b8b38167950c6a9a5f5d3c1406c47`](https://github.com/wevm/viem/commit/6834ec45211b8b38167950c6a9a5f5d3c1406c47) Thanks [@bxpana](https://github.com/bxpana)! - Added ZKsync Era Testnet chain.
+
 ## 2.57.10
 
 ### Patch Changes
