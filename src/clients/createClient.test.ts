@@ -486,7 +486,7 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "cacheTime": 10000,
+        "cacheTime": 6000,
         "ccipRead": undefined,
         "chain": undefined,
         "dataSuffix": undefined,
@@ -566,6 +566,26 @@ test('behavior: cacheTime, pollingInterval based on chain.blockTime', () => {
 
   expect(client.cacheTime).toEqual(Math.floor(base.blockTime / 2))
   expect(client.pollingInterval).toEqual(Math.floor(base.blockTime / 2))
+})
+
+test('behavior: cacheTime below the polling floor on sub-second chain.blockTime', () => {
+  const client = createClient({
+    chain: { ...localhost, blockTime: 300 },
+    transport: http(),
+  })
+
+  expect(client.cacheTime).toMatchInlineSnapshot(`150`)
+  expect(client.pollingInterval).toMatchInlineSnapshot(`500`)
+})
+
+test('behavior: cacheTime follows a pollingInterval shorter than half of chain.blockTime', () => {
+  const client = createClient({
+    chain: { ...localhost, blockTime: 300 },
+    pollingInterval: 100,
+    transport: http(),
+  })
+
+  expect(client.cacheTime).toMatchInlineSnapshot(`100`)
 })
 
 describe('extends', () => {
