@@ -104,6 +104,32 @@ const transaction = await publicClient.waitForTransactionReceipt(
 )
 ```
 
+### replacement (optional)
+
+- **Type:** `{ from: Address, nonce: number, input?: Hex, to?: Address | null, value?: bigint }`
+
+The sender and nonce of the Transaction, and optionally the fields it was sent with.
+
+A node can drop a replaced Transaction before the wait first reads it. With `replacement`, the wait looks up the Transaction in its nonce slot with `eth_getTransactionBySenderAndNonce`, and detects a replacement mined before the wait started.
+
+```ts
+const transaction = await publicClient.waitForTransactionReceipt(
+  {
+    hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+    replacement: { // [!code focus:4]
+      from: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      nonce: 69,
+    },
+  }
+)
+```
+
+:::note
+If the node does not support `eth_getTransactionBySenderAndNonce`, the wait scans each Block from the one it starts on, so it misses a replacement mined earlier. `input`, `to`, and `value` identify a repriced Transaction, and `onReplaced` receives the fields of `replacement` as `replacedTransaction`.
+
+Chains with their own replacement keys (e.g. Tempo nonce lanes) ignore `replacement`, since a sender and nonce do not identify a nonce slot there.
+:::
+
 ### retryCount (optional)
 
 - **Type:** `number`
@@ -177,3 +203,6 @@ Check out the usage of `waitForTransactionReceipt` in the live [Sending Transact
   - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) and extracts the transactions
   - Checks if one of the Transactions is a replacement
   - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
+- If the Transaction is not found and `replacement` is provided:
+  - Calls `eth_getTransactionBySenderAndNonce` to find the Transaction in its nonce slot
+  - If it is a replacement, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
