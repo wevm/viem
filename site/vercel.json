@@ -1,0 +1,4 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../ && pnpm install --ignore-scripts && node node_modules/bun/install.js"
+}

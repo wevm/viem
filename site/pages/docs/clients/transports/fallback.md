@@ -78,6 +78,35 @@ const client = createPublicClient({
 })
 ```
 
+### Self-Hosted RPC Proxy
+
+A self-hosted JSON-RPC proxy, can retry and fail over between providers on the server. Pass the proxy URL to an `http` Transport like any other RPC URL.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http('http://localhost:4000/main/evm/1'), // [!code focus]
+})
+```
+
+To keep serving requests when the proxy itself is down, list it first in the `fallback` Transport with a direct RPC URL after it.
+
+```ts twoslash
+import { createPublicClient, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: fallback([
+    http('http://localhost:4000/main/evm/1'), // [!code focus]
+    http('https://mainnet.infura.io/v3/...'), // [!code focus]
+  ]),
+})
+```
+
 ## Parameters
 
 ### rank (optional)
