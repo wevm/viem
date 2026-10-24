@@ -943,6 +943,157 @@ describe('args: args', () => {
     `)
   })
 
+  test('named: indexed bytes32 (mixed case)', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Key',
+        inputs: [{ indexed: true, name: 'key', type: 'bytes32' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({
+      abi,
+      eventName: 'Key',
+      args: { key: `0x${'ab'.repeat(32)}` },
+    })
+    const log = { ...baseLog, data: '0x', topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { key: `0x${'AB'.repeat(32)}` },
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { key: `0x${'cd'.repeat(32)}` },
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "key": "0xabababababababababababababababababababababababababababababababab",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x",
+          "eventName": "Key",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x63477955f5c506226aa570ac3165ddb5e760fe0c871d3890ef7708e146a16742",
+            "0xabababababababababababababababababababababababababababababababab",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('named: indexed string without topic (non-strict)', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Message',
+        inputs: [{ indexed: true, name: 'text', type: 'string' }],
+      },
+    ] as const
+    const topics = encodeEventTopics({ abi, eventName: 'Message' })
+    const data = encodeAbiParameters([{ type: 'string' }], ['hello'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const matched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: 'hello' },
+      strict: false,
+    })
+    const mismatched = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: 'goodbye' },
+      strict: false,
+    })
+
+    expect(mismatched).toMatchInlineSnapshot(`[]`)
+    expect(matched).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {
+            "text": "hello",
+          },
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000",
+          "eventName": "Message",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x51a7f65c6325882f237d4aeb43228179cfad48b868511d508e24b4437a819137",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
+  test('behavior: partial log in non-strict mode does not match args', () => {
+    const abi = [
+      {
+        type: 'event',
+        name: 'Flag',
+        inputs: [
+          { indexed: true, name: 'flag', type: 'bool' },
+          { indexed: false, name: 'text', type: 'string' },
+        ],
+      },
+    ] as const
+    // `2` is not a valid `bool` topic, so decoding fails.
+    const [signature] = encodeEventTopics({ abi, eventName: 'Flag' })
+    const topics: Log['topics'] = [
+      signature,
+      '0x0000000000000000000000000000000000000000000000000000000000000002',
+    ]
+    const data = encodeAbiParameters([{ type: 'string' }], ['goodbye'])
+    const log = { ...baseLog, data, topics } as Log
+
+    const unfiltered = parseEventLogs({ abi, logs: [log], strict: false })
+    const filtered = parseEventLogs({
+      abi,
+      logs: [log],
+      args: { text: 'hello' },
+      strict: false,
+    })
+
+    expect(filtered).toMatchInlineSnapshot(`[]`)
+    expect(unfiltered).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x00000000000000000000000000000000000000aa",
+          "args": {},
+          "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "blockNumber": 1n,
+          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000007676f6f6462796500000000000000000000000000000000000000000000000000",
+          "eventName": "Flag",
+          "logIndex": 0,
+          "removed": false,
+          "topics": [
+            "0x4725e85d69d1ce0e1dc8542b7b8191f49f218a2d42aa95cbc69a21af2777ee04",
+            "0x0000000000000000000000000000000000000000000000000000000000000002",
+          ],
+          "transactionHash": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "transactionIndex": 0,
+        },
+      ]
+    `)
+  })
+
   test('unnamed: single arg', async () => {
     const parsedLogs = parseEventLogs({
       abi: abi_unnamed,

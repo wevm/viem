@@ -163,15 +163,11 @@ export function parseEventLogs<
             strict: false,
           })
         } catch {
-          // If decoding still fails, return partial log in non-strict mode.
+          // If decoding still fails, use a partial log in non-strict mode.
           const isUnnamed = abiItem.abi.inputs?.some(
             (x) => !('name' in x && x.name),
           )
-          return {
-            ...formattedLog,
-            args: isUnnamed ? [] : {},
-            eventName: abiItem.abi.name,
-          }
+          event = { eventName: abiItem.abi.name, args: isUnnamed ? [] : {} }
         }
       }
 
@@ -187,6 +183,7 @@ export function parseEventLogs<
           args: event.args,
           inputs: abiItem.abi.inputs,
           matchArgs: args,
+          topics: formattedLog.topics,
         })
       )
         return null
@@ -204,20 +201,27 @@ function includesArgs(parameters: {
   args: unknown
   inputs: AbiEvent['inputs']
   matchArgs: unknown
+  topics: Log['topics']
 }) {
-  const { args, inputs, matchArgs } = parameters
+  const { args, inputs, matchArgs, topics } = parameters
 
   if (!matchArgs) return true
   if (!args) return false
+
+  // Topics hold the signature, then indexed inputs in order. Non-strict
+  // decoding reads indexed inputs without a topic from data.
+  const topicInputs = inputs
+    .filter((input) => input.indexed)
+    .slice(0, topics.length - 1)
 
   function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
     try {
       if (input.type === 'address')
         return isAddressEqual(value as Address, arg as Address)
-      // Indexed `string` and `bytes` are stored as the keccak256 of their
-      // contents. Other values are ABI-decoded.
+      // `string` and `bytes` topics hold the keccak256 of their contents.
+      // Other values are ABI-decoded.
       if (
-        input.indexed &&
+        topicInputs.includes(input) &&
         (input.type === 'string' || input.type === 'bytes')
       ) {
         const bytes =

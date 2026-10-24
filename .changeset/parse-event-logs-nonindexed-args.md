@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `parseEventLogs` dropping logs when filtering on a non-indexed `string` or `bytes` argument, and matching `bytes` filters regardless of hex case.
+Fixed `parseEventLogs` `args` filters dropping logs whose `string` or `bytes` values were decoded from data or differed in hex case, and matching every partially decoded log.
