@@ -1,5 +1,25 @@
 # viem
 
+## 2.57.12
+
+### Patch Changes
+
+- [#5281](https://github.com/wevm/viem/pull/5281) [`744f749bcd56fa0bc93efd0fcdc05125e0252c21`](https://github.com/wevm/viem/commit/744f749bcd56fa0bc93efd0fcdc05125e0252c21) Thanks [@jxom](https://github.com/jxom)! - Fixed `getAbiItem` overload resolution for arrays with a `0` in the element size (e.g. `uint160[]`) or the wrong fixed length, tuple objects with reordered keys, and ambiguous `address[]` overloads.
+
+- [#5279](https://github.com/wevm/viem/pull/5279) [`10ef1295f73362ea4f3c36b6655fef1cb04b397e`](https://github.com/wevm/viem/commit/10ef1295f73362ea4f3c36b6655fef1cb04b397e) Thanks [@jxom](https://github.com/jxom)! - Fixed `signatureToCompactSignature` and `compactSignatureToSignature` for values shorter than 32 bytes and a legacy `v` with a chain id, and added errors for invalid `v` and high `s`.
+
+- [#5282](https://github.com/wevm/viem/pull/5282) [`52140fef00389781737477de205f82f71553b3c3`](https://github.com/wevm/viem/commit/52140fef00389781737477de205f82f71553b3c3) Thanks [@jxom](https://github.com/jxom)! - Fixed `http` transport batches and `getHttpRpcClient` array requests mishandling a server that rejected the whole batch with a single error or returned fewer responses than requests.
+
+- [#5286](https://github.com/wevm/viem/pull/5286) [`8e058ca71bf09c85d2a4669af5e98aeb5bc87e71`](https://github.com/wevm/viem/commit/8e058ca71bf09c85d2a4669af5e98aeb5bc87e71) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport to retry JSON-RPC errors from non-2xx responses by their HTTP status and `Retry-After` header, and exposed `status` and `headers` on `RpcRequestError`.
+
+- [#5283](https://github.com/wevm/viem/pull/5283) [`b2b7a3b82fd52ad74f80075d5a25cd99750f754a`](https://github.com/wevm/viem/commit/b2b7a3b82fd52ad74f80075d5a25cd99750f754a) Thanks [@jxom](https://github.com/jxom)! - Added an `even` option to `isHex` that rejects hex values with an odd number of hex characters.
+
+- [#5280](https://github.com/wevm/viem/pull/5280) [`e7e0122fab41b6c43d1d03ffe395044d1445bcc0`](https://github.com/wevm/viem/commit/e7e0122fab41b6c43d1d03ffe395044d1445bcc0) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseEventLogs` `args` filters dropping logs whose `string` or `bytes` values were decoded from data or differed in hex case, and matching every partially decoded log.
+
+- [#5284](https://github.com/wevm/viem/pull/5284) [`b3e39473523d7be57ec5f35f51cb416f16b6cbd2`](https://github.com/wevm/viem/commit/b3e39473523d7be57ec5f35f51cb416f16b6cbd2) Thanks [@jxom](https://github.com/jxom)! - Added a `replacement` parameter to `waitForTransactionReceipt` that detects a replacement of a Transaction the node dropped before the wait first read it, and fixed `onReplaced` not being called for a replacement when `confirmations` is greater than 1.
+
+- [#5288](https://github.com/wevm/viem/pull/5288) [`75ffe81d29d85bee3b895a5d7ae612675b625ee8`](https://github.com/wevm/viem/commit/75ffe81d29d85bee3b895a5d7ae612675b625ee8) Thanks [@jxom](https://github.com/jxom)! - Fixed request retries firing immediately for `Retry-After` headers in HTTP-date form or for delays longer than the 24.8-day timer limit.
+
 ## 2.57.11
 
 ### Patch Changes
