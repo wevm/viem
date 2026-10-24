@@ -270,8 +270,13 @@ export function buildRequest<
               // If we find a Retry-After header, let's retry after the given time.
               if (error && error instanceof HttpRequestError) {
                 const retryAfter = error?.headers?.get('Retry-After')
-                if (retryAfter?.match(/\d/))
-                  return Number.parseInt(retryAfter, 10) * 1000
+                if (retryAfter) {
+                  const seconds = Number.parseInt(retryAfter, 10)
+                  if (!Number.isNaN(seconds)) return seconds * 1000
+                  // HTTP-date form. A past or invalid date falls back to backoff.
+                  const delay = Date.parse(retryAfter) - Date.now()
+                  if (delay > 0) return delay
+                }
               }
 
               // Otherwise, let's retry with an exponential backoff.
