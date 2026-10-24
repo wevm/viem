@@ -106,9 +106,9 @@ const transaction = await publicClient.waitForTransactionReceipt(
 
 ### replacement (optional)
 
-- **Type:** `{ from: Address, nonce: number } & Partial<Transaction>`
+- **Type:** `{ from: Address, nonce: number, input?: Hex, to?: Address | null, value?: bigint }`
 
-The sender and nonce of the Transaction, and any other known fields of it (e.g. from the request it was sent with).
+The sender and nonce of the Transaction, and optionally the fields it was sent with.
 
 A node can drop a replaced Transaction before the wait first reads it. With `replacement`, the wait looks up the Transaction in its nonce slot with `eth_getTransactionBySenderAndNonce`, and detects a replacement mined before the wait started.
 
@@ -126,6 +126,8 @@ const transaction = await publicClient.waitForTransactionReceipt(
 
 :::note
 If the node does not support `eth_getTransactionBySenderAndNonce`, the wait scans each Block from the one it starts on, so it misses a replacement mined earlier. `input`, `to`, and `value` identify a repriced Transaction, and `onReplaced` receives the fields of `replacement` as `replacedTransaction`.
+
+Chains with their own replacement keys (e.g. Tempo nonce lanes) ignore `replacement`, since a sender and nonce do not identify a nonce slot there.
 :::
 
 ### retryCount (optional)

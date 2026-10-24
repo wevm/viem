@@ -7,12 +7,12 @@ import {
   http,
   InvalidInputRpcError,
   type ReplacementReturnType,
-  RpcRequestError,
 } from 'viem'
 import { getTransactionReceipt } from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createHttpServer } from '~test/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
@@ -747,30 +747,22 @@ describe('args: replacement', () => {
   })
 
   test('looks up the transaction again after a failed lookup', async () => {
-    const { cancelHash, hash, testClient } = await replaceTransaction({
+    const { cancelHash, hash, rpcUrl, testClient } = await replaceTransaction({
       blocks: 2,
     })
     await setIntervalMining(testClient, { interval: 1 })
 
     // The first lookup fails, as on a node behind the latest block.
     let failures = 1
+    const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
+      if (method === 'eth_getTransactionBySenderAndNonce' && failures-- > 0)
+        return { code: -32000, message: 'header not found' }
+      return undefined
+    })
     const client = createPublicClient({
       chain: mainnet,
       pollingInterval: 100,
-      transport: custom({
-        request(options) {
-          if (
-            options.method === 'eth_getTransactionBySenderAndNonce' &&
-            failures-- > 0
-          )
-            throw new RpcRequestError({
-              body: options,
-              error: { code: -32000, message: 'header not found' },
-              url: 'http://localhost',
-            })
-          return testClient.request(options)
-        },
-      }),
+      transport: http(proxyUrl),
     })
     const replacements: ReplacementReturnType[] = []
 
@@ -792,23 +784,18 @@ describe('args: replacement', () => {
   test.each([-32601, -32004])(
     'scans blocks when the lookup fails with code %i',
     async (code) => {
-      const { cancelHash, hash, testClient } = await replaceTransaction({
+      const { cancelHash, hash, rpcUrl } = await replaceTransaction({
         blocks: 1,
+      })
+      const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
+        if (method === 'eth_getTransactionBySenderAndNonce')
+          return { code, message: 'method not supported' }
+        return undefined
       })
       const client = createPublicClient({
         chain: mainnet,
         pollingInterval: 100,
-        transport: custom({
-          request(options) {
-            if (options.method === 'eth_getTransactionBySenderAndNonce')
-              throw new RpcRequestError({
-                body: options,
-                error: { code, message: 'method not supported' },
-                url: 'http://localhost',
-              })
-            return testClient.request(options)
-          },
-        }),
+        transport: http(proxyUrl),
       })
       const replacements: ReplacementReturnType[] = []
 
@@ -873,26 +860,18 @@ describe('args: replacement', () => {
   })
 
   test('rejects when the receipt of a replacement fails', async () => {
-    const { cancelHash, hash, testClient } = await replaceTransaction({
+    const { cancelHash, hash, rpcUrl } = await replaceTransaction({
       blocks: 2,
+    })
+    const proxyUrl = await createRpcProxy(rpcUrl, ({ method, params }) => {
+      if (method === 'eth_getTransactionReceipt' && params[0] === cancelHash)
+        return { code: -32000, message: 'receipt unavailable' }
+      return undefined
     })
     const client = createPublicClient({
       chain: mainnet,
       pollingInterval: 100,
-      transport: custom({
-        request(options) {
-          if (
-            options.method === 'eth_getTransactionReceipt' &&
-            (options.params as readonly unknown[])[0] === cancelHash
-          )
-            throw new RpcRequestError({
-              body: options,
-              error: { code: -32000, message: 'receipt unavailable' },
-              url: 'http://localhost',
-            })
-          return testClient.request(options)
-        },
-      }),
+      transport: http(proxyUrl),
     })
 
     await expect(
@@ -1012,14 +991,13 @@ describe('args: replacement', () => {
     `)
   })
 
-  test('ignores a same-nonce transaction in a different slot', async () => {
+  test('ignores it on chains with their own replacement keys', async () => {
     const { hash, rpcUrl } = await replaceTransaction({ blocks: 1 })
     const client = createPublicClient({
       chain: {
         ...mainnet,
         transactionReplacement: {
-          getKey: (transaction) =>
-            transaction.hash === hash ? 'awaited' : 'other',
+          getKey: (transaction) => `0:${transaction.nonce}`,
         },
       } satisfies Chain,
       pollingInterval: 100,
@@ -1537,4 +1515,39 @@ async function replaceTransaction(options: { blocks: number }) {
   await mine(testClient, { blocks: options.blocks })
 
   return { cancelHash, hash, pool, rpcUrl: node.url, testClient }
+}
+
+/**
+ * Serves JSON-RPC on an ephemeral HTTP server that forwards each request to
+ * `url`, or responds with the error that `getError` returns for it.
+ */
+async function createRpcProxy(
+  url: string,
+  getError: (request: {
+    method: string
+    params: readonly unknown[]
+  }) => { code: number; message: string } | undefined,
+) {
+  const server = await createHttpServer(async (req, res) => {
+    let body = ''
+    for await (const chunk of req) body += chunk
+    const request = JSON.parse(body)
+    const error = getError(request)
+
+    res.setHeader('Content-Type', 'application/json')
+    if (error) {
+      res.end(JSON.stringify({ error, id: request.id, jsonrpc: '2.0' }))
+      return
+    }
+    const response = await fetch(url, {
+      body,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+    res.end(await response.text())
+  })
+  onTestFinished(async () => {
+    await server.close()
+  })
+  return server.url
 }

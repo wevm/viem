@@ -1,12 +1,10 @@
+import { createPublicClient, http } from 'viem'
+import { waitForTransactionReceipt } from 'viem/actions'
 import { test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
-import { tempo } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http } from '../../clients/transports/http.js'
-import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
+import { mainnet } from '../../chains/index.js'
 
-const client = anvilMainnet.getClient()
+const client = createPublicClient({ chain: mainnet, transport: http() })
 
 const from = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266'
 const hash =
@@ -27,16 +25,7 @@ test('args: replacement', () => {
 
   waitForTransactionReceipt(client, {
     hash,
-    // @ts-expect-error `nonceKey` is not a field of the chain's transactions.
+    // @ts-expect-error `nonceKey` is not a field of `replacement`.
     replacement: { from, nonce: 0, nonceKey: 1n },
-  })
-})
-
-test('args: replacement (chain transaction fields)', () => {
-  const client = createPublicClient({ chain: tempo, transport: http() })
-
-  waitForTransactionReceipt(client, {
-    hash,
-    replacement: { from, nonce: 0, nonceKey: 1n, type: 'tempo' },
   })
 })
