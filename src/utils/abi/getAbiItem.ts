@@ -21,6 +21,7 @@ import {
   type ToFunctionSelectorErrorType,
   toFunctionSelector,
 } from '../hash/toFunctionSelector.js'
+import { getArrayComponents } from './encodeAbiParameters.js'
 
 export type GetAbiItemParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -198,16 +199,14 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
         return argType === 'string' || arg instanceof Uint8Array
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
-      // https://regexr.com/6va6i
-      if (/[a-z]+[0-9]{0,3}(\[[0-9]{0,}\])+$/.test(abiParameterType)) {
+      const arrayComponents = getArrayComponents(abiParameterType)
+      if (arrayComponents) {
+        const [length, type] = arrayComponents
         return (
           Array.isArray(arg) &&
+          (length === null || arg.length === length) &&
           arg.every((x: unknown) =>
-            isArgOfType(x, {
-              ...abiParameter,
-              // Pop off `[]` or `[M]` from end of type
-              type: abiParameterType.replace(/(\[[0-9]{0,}\])$/, ''),
-            } as AbiParameter),
+            isArgOfType(x, { ...abiParameter, type } as AbiParameter),
           )
         )
       }
@@ -226,35 +225,34 @@ export function getAmbiguousTypes(
   for (const parameterIndex in sourceParameters) {
     const sourceParameter = sourceParameters[parameterIndex]
     const targetParameter = targetParameters[parameterIndex]
+    if (!targetParameter) continue
 
     if (
       sourceParameter.type === 'tuple' &&
       targetParameter.type === 'tuple' &&
       'components' in sourceParameter &&
       'components' in targetParameter
-    )
-      return getAmbiguousTypes(
+    ) {
+      // Tuple args can be arrays or objects, matched by position like `isArgOfType`.
+      const types = getAmbiguousTypes(
         sourceParameter.components,
         targetParameter.components,
-        (args as any)[parameterIndex],
+        Object.values((args[parameterIndex] ?? {}) as object),
       )
+      if (types) return types
+      continue
+    }
 
-    // arrays with the same `[]` or `[M]` suffix: compare the element types of each item
-    const suffix = /\[[0-9]{0,}\]$/.exec(sourceParameter.type)?.[0]
-    if (suffix && targetParameter.type.endsWith(suffix)) {
-      const element = (parameter: AbiParameter) =>
-        ({
-          ...parameter,
-          type: parameter.type.slice(0, -suffix.length),
-        }) as AbiParameter
-      for (const arg of (args as any)[parameterIndex] as readonly unknown[]) {
-        const types = getAmbiguousTypes(
-          [element(sourceParameter)],
-          [element(targetParameter)],
-          [arg],
-        )
-        if (types) return types
-      }
+    const sourceArray = getArrayComponents(sourceParameter.type)
+    const targetArray = getArrayComponents(targetParameter.type)
+    if (sourceArray && targetArray) {
+      // Every item matches both element types, so the first item decides. Empty arrays compare types only.
+      const types = getAmbiguousTypes(
+        [{ ...sourceParameter, type: sourceArray[1] } as AbiParameter],
+        [{ ...targetParameter, type: targetArray[1] } as AbiParameter],
+        [(args[parameterIndex] as readonly unknown[] | undefined)?.[0]],
+      )
+      if (types) return types
       continue
     }
 
