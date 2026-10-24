@@ -863,6 +863,51 @@ test('args: dataSuffix', async () => {
   `)
 })
 
+test('args: dataSuffix (no data)', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x12345678",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})
+
 describe('behavior: client dataSuffix', () => {
   const getClientWithDataSuffix = <
     chain extends Chain | undefined = undefined,
