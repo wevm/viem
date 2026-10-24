@@ -70,6 +70,23 @@ test('parameters: domain', () => {
     Issued At: 2023-02-01T00:00:00.000Z"
   `)
 
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.xn--p1ai',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.xn--p1ai wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
   vi.useRealTimers()
 })
 
