@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import * as Base64 from 'ox/Base64'
 
 import {
   type ReadContractErrorType,
@@ -20,6 +19,7 @@ import {
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { AssetGatewayUrls } from '../../../types/ens.js'
+import { stringToBytes } from '../../encoding/toBytes.js'
 import { type NumberToHexErrorType, numberToHex } from '../../encoding/toHex.js'
 
 type UriItem = {
@@ -133,7 +133,10 @@ export function resolveAvatarUri({
   let parsedUri = uri.replace(dataURIRegex, '')
   if (parsedUri.startsWith('<svg')) {
     // if svg, base64 encode
-    parsedUri = `data:image/svg+xml;base64,${Base64.fromString(parsedUri)}`
+    const binary = Array.from(stringToBytes(parsedUri), (byte) =>
+      String.fromCharCode(byte),
+    ).join('')
+    parsedUri = `data:image/svg+xml;base64,${btoa(binary)}`
   }
 
   if (parsedUri.startsWith('data:') || parsedUri.startsWith('{')) {
