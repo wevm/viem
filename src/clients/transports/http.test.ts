@@ -870,13 +870,17 @@ describe('request', () => {
   })
 
   test('errors: rpc error with http status', async () => {
-    let requests = 0
+    // Each attempt reverts with different data, so `0x02` shows the retry.
+    const reverts = ['0x01', '0x02']
     const server = await createHttpServer((_req, res) => {
-      requests++
       res.writeHead(500, { 'Content-Type': 'application/json' })
       res.end(
         JSON.stringify({
-          error: { code: 3, message: 'execution reverted', data: '0xdeadbeef' },
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: reverts.shift(),
+          },
         }),
       )
     })
@@ -900,22 +904,24 @@ describe('request', () => {
       Details: execution reverted
       Version: viem@x.y.z]
     `)
-    await expect(promise).rejects.toMatchObject({ data: '0xdeadbeef' })
-    expect(requests).toBe(2)
+    await expect(promise).rejects.toMatchObject({ data: '0x02' })
 
     await server.close()
   })
 
   test('errors: rpc error with non-retryable http status', async () => {
-    let requests = 0
+    // A retry would receive the second, successful response.
+    const responses = [
+      {
+        status: 400,
+        body: { error: { code: -32601, message: 'Method not found' } },
+      },
+      { status: 200, body: { result: '0x1' } },
+    ]
     const server = await createHttpServer((_req, res) => {
-      requests++
-      res.writeHead(400, { 'Content-Type': 'application/json' })
-      res.end(
-        JSON.stringify({
-          error: { code: -32601, message: 'Method not found' },
-        }),
-      )
+      const { status, body } = responses.shift()!
+      res.writeHead(status, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(body))
     })
 
     const transport = http(server.url, {
@@ -937,7 +943,6 @@ describe('request', () => {
       Details: Method not found
       Version: viem@x.y.z]
     `)
-    expect(requests).toBe(1)
 
     await server.close()
   })
