@@ -1,11 +1,10 @@
+import { encodeAbiParameters, encodeEventTopics } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
-import { encodeAbiParameters } from './encodeAbiParameters.js'
-import { encodeEventTopics } from './encodeEventTopics.js'
 import { parseEventLogs } from './parseEventLogs.js'
 
 const client = anvilMainnet.getClient()
