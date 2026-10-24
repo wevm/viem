@@ -96,7 +96,9 @@ export type RpcRequestErrorType = RpcRequestError & {
 export class RpcRequestError extends BaseError {
   code: number
   data?: unknown
+  /** Response headers, when the error came from a non-2xx HTTP response. */
   headers?: Headers | undefined
+  /** Response status, when the error came from a non-2xx HTTP response. */
   status?: number | undefined
   url: string
   constructor({
