@@ -65,13 +65,13 @@
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^4.1.11",
-    "bun": "^1.2.22",
+    "@vitest/coverage-v8": "^4.1.12",
+    "bun": "^1.4.4",
     "ethers": "^6.15.0",
     "fast-check": "^4.9.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.56",
+    "ox": "0.14.57",
     "permissionless": "^0.2.57",
     "prool": "~0.2.16",
     "publint": "^0.2.12",
@@ -80,7 +80,7 @@
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
     "typescript": "catalog:",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "packageManager": "pnpm@11.13.1",
   "engines": {
@@ -149,7 +149,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "112 kB"
+      "limit": "113 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -196,7 +196,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "130 kB",
+      "limit": "131 kB",
       "import": "*"
     },
     {

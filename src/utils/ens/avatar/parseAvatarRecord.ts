@@ -1,3 +1,5 @@
+import * as Base64 from 'ox/Base64'
+
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -90,7 +92,11 @@ async function parseNftAvatarUri<chain extends Chain | undefined>(
   ) {
     const encodedJson = isEncoded
       ? // if it is encoded, decode it
-        atob(resolvedNftUri.replace('data:application/json;base64,', ''))
+        Base64.toString(
+          resolvedNftUri
+            .replace('data:application/json;base64,', '')
+            .replace(/\s/g, ''),
+        )
       : // if it isn't encoded assume it is a JSON string, but it could be anything (it will error if it is)
         resolvedNftUri
 

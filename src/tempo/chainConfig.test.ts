@@ -310,6 +310,34 @@ describe('prepareTransactionRequest', () => {
     expect(request.nonce).toBe(0)
   })
 
+  test('behavior: protocol nonce key consumes a sequential nonce', async () => {
+    const consume = vi.fn(async () => 7)
+    const nonceManager = {
+      consume,
+      get: vi.fn(async () => 7),
+      increment: vi.fn(),
+      reset: vi.fn(),
+    }
+
+    const protocol = await prepareTransactionRequest(client, {
+      nonceKey: 0n,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    expect(protocol.nonceKey).toBe(0n)
+    expect(protocol.nonce).toBe(7)
+    expect(consume).toHaveBeenCalledTimes(1)
+
+    const parallel = await prepareTransactionRequest(client, {
+      nonceKey: 42n,
+      nonceManager,
+      parameters: ['nonce'],
+    })
+    expect(parallel.nonceKey).toBe(42n)
+    expect(parallel.nonce).toBe(0)
+    expect(consume).toHaveBeenCalledTimes(1)
+  })
+
   test('behavior: detects concurrent JSON-RPC address accounts', async () => {
     const address = accounts.at(0)!.address
     const requests = await Promise.all([

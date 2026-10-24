@@ -360,6 +360,96 @@ describe('poll', () => {
     })
   })
 
+  test('args: events (concurrent watchers)', async () => {
+    const transferLogs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.transfer]
+    >[] = []
+    const approvalLogs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.approval]
+    >[] = []
+
+    const unwatch_1 = watchEvent(client, {
+      address: usdcContractConfig.address,
+      events: [event.transfer],
+      onLogs: (logs_) => transferLogs.push(logs_),
+      poll: true,
+    })
+    const unwatch_2 = watchEvent(client, {
+      address: usdcContractConfig.address,
+      events: [event.approval],
+      onLogs: (logs_) => approvalLogs.push(logs_),
+      poll: true,
+    })
+
+    await wait(100)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(client, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 2n],
+      account: address.vitalik,
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    unwatch_1()
+    unwatch_2()
+
+    expect(transferLogs.flat().map((log) => log.eventName)).toEqual([
+      'Transfer',
+    ])
+    expect(approvalLogs.flat().map((log) => log.eventName)).toEqual([
+      'Approval',
+    ])
+  })
+
+  test('args: strict (concurrent watchers)', async () => {
+    const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+    const logs_unstrict: WatchEventOnLogsParameter<typeof event.transfer>[] = []
+    const logs_strict: WatchEventOnLogsParameter<typeof event.transfer>[] = []
+
+    const unwatch_unstrict = watchEvent(client, {
+      event: event.transfer,
+      onLogs: (logs_) => logs_unstrict.push(logs_),
+      poll: true,
+    })
+    const unwatch_strict = watchEvent(client, {
+      event: event.transfer,
+      onLogs: (logs_) => logs_strict.push(logs_),
+      poll: true,
+      strict: true,
+    })
+
+    await wait(100)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await writeContract(client, {
+      abi: ERC20InvalidTransferEvent.abi,
+      address: contractAddress!,
+      functionName: 'transfer',
+      args: [accounts[0].address, 1n],
+      account: address.vitalik,
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    unwatch_unstrict()
+    unwatch_strict()
+
+    expect(logs_unstrict.flat().length).toBe(2)
+    expect(logs_strict.flat().length).toBe(1)
+  })
+
   test('args: fromBlock', async () => {
     const logs: WatchEventOnLogsParameter<
       undefined,

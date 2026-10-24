@@ -1,0 +1,86 @@
+---
+description: Upgrade an existing account to a configurable account without changing its address.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Upgrade an Existing Account
+
+## Overview
+
+An existing account can become a configurable account in place ([TIP-1113](https://tips.sh/1113)).
+It keeps its address, balances, and history, and installs a set of weighted owners.
+
+The account's root key signs a transaction whose only call is the upgrade. After the upgrade, only
+the installed owners can authorize the account. The root key is retired permanently.
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Upgrade to a 2-of-2 Account
+
+Sign the upgrade with the root key, then recreate the account from its address and the installed
+owners with [`Account.fromConfig`](/tempo/accounts/account.fromConfig).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const root = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const owner_1 = Account.fromSecp256k1(
+  '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
+)
+const owner_2 = Account.fromSecp256k1(
+  '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
+)
+
+await client.accounts.upgradeSync({ // [!code focus]
+  account: root, // [!code focus]
+  owners: [ // [!code focus]
+    { owner: owner_1.address, weight: 1 }, // [!code focus]
+    { owner: owner_2.address, weight: 1 }, // [!code focus]
+  ], // [!code focus]
+  threshold: 2, // [!code focus]
+}) // [!code focus]
+
+const account = Account.fromConfig({ // [!code focus]
+  address: root.address, // [!code focus]
+  upgrade: { owners: [owner_1, owner_2], threshold: 2 }, // [!code focus]
+}) // [!code focus]
+
+const receipt = await client.sendTransactionSync({
+  account,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Treat the Upgrade as Permanent
+
+The root key cannot be restored. Access key grants, permits, and channel vouchers that the root key
+signs stop working, so re-issue them from the configurable account after the upgrade.
+
+### Upgrade Accounts Without Code
+
+Only accounts without code can be upgraded. An account that is already
+configurable rotates its owners with [`accounts.updateConfig`](/tempo/actions/accounts.updateConfig).
+
+## See More
+
+<Cards>
+  <Card icon="lucide:square-function" title="accounts.upgradeSync" description="Upgrade an existing account and wait for confirmation." to="/tempo/actions/accounts.upgradeSync" />
+  <Card icon="lucide:refresh-cw" title="Rotate Owners" description="Replace owners or thresholds while preserving the account address." to="/tempo/guides/configurable-accounts/rotate-owners" />
+  <Card icon="lucide:book-open" title="TIP-1113" description="Read the specification for in-place account upgrades." to="https://tips.sh/1113" />
+</Cards>

@@ -119,8 +119,12 @@ export type {
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
 export {
+  /** Transport that `withFeePayer` returns. */
+  type FeePayer as FeePayerTransport,
   type HttpConfig,
   http,
+  /** Transport that `withRelay` returns for a remote relay. */
+  type Relay as RelayTransport,
   walletNamespaceCompat,
   withFeePayer,
   withRelay,

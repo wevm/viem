@@ -858,6 +858,119 @@ describe('concurrent waits with different options', () => {
   })
 })
 
+describe('concurrent waits with identical options', () => {
+  const hash = `0x${'ef'.repeat(32)}` as `0x${string}`
+  const receipt = {
+    transactionHash: hash,
+    transactionIndex: '0x0',
+    blockHash: `0x${'cd'.repeat(32)}`,
+    blockNumber: '0x64',
+    from: `0x${'11'.repeat(20)}`,
+    to: `0x${'22'.repeat(20)}`,
+    cumulativeGasUsed: '0x5208',
+    gasUsed: '0x5208',
+    effectiveGasPrice: '0x1',
+    contractAddress: null,
+    logs: [],
+    logsBloom: `0x${'00'.repeat(256)}`,
+    status: '0x1',
+    type: '0x2',
+  }
+
+  // A wait that joins an observer nothing polls for never settles on its own,
+  // so bound it and fail on the reason instead of hanging the suite.
+  async function expectHash(promise: Promise<{ transactionHash: string }>) {
+    const settled = await Promise.race([
+      promise.then(({ transactionHash }) => transactionHash),
+      wait(1_000).then(() => 'stalled' as const),
+    ])
+    expect(settled).toBe(hash)
+  }
+
+  test('a settled caller does not leave a stale listener behind', async () => {
+    // The transaction is already mined, so the first caller resolves from its
+    // setup call and never starts polling.
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_getTransactionReceipt') return receipt
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const [first, second] = await Promise.all([
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+    ])
+    expect(first.transactionHash).toBe(hash)
+    expect(second.transactionHash).toBe(hash)
+
+    // Both callers are settled, so the observer they shared must be gone. If
+    // the second caller's listener is still cached, this wait joins it, skips
+    // its own setup and never settles.
+    await expectHash(
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+    )
+  })
+
+  test('a caller that resolves during polling unobserves without a timeout', async () => {
+    // Mined on the third poll: both callers are attached to the same observer
+    // before the receipt exists, and `timeout: 0` leaves no timer behind to
+    // clean up a listener that resolves through another caller's poll.
+    let block = 100n
+    const client_ = createPublicClient({
+      chain: mainnet,
+      transport: custom({
+        async request({ method }) {
+          if (method === 'eth_blockNumber') return `0x${(block++).toString(16)}`
+          if (method === 'eth_getTransactionReceipt')
+            return block > 102n ? receipt : null
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+      pollingInterval: 20,
+    })
+
+    const [first, second] = await Promise.all([
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+    ])
+    expect(first.transactionHash).toBe(hash)
+    expect(second.transactionHash).toBe(hash)
+
+    await expectHash(
+      client_.waitForTransactionReceipt({
+        hash,
+        timeout: 0,
+        checkReplacement: false,
+      }),
+    )
+  })
+})
+
 describe('chain: transactionReplacement', () => {
   test('ignores a same-nonce transaction in a different slot', async () => {
     setup()

@@ -200,3 +200,20 @@ test('https://github.com/wevm/viem/issues/1955', () => {
     transport: http(),
   })
 })
+
+describe('scope', () => {
+  test('default', () => {
+    const client = createClient({
+      account,
+      chain: localhost,
+      transport: http(),
+    })
+      .extend(publicActions)
+      .extend(() => ({ foo: 'bar' as const }))
+
+    const scoped = client.scope({ signal: new AbortController().signal })
+
+    expectTypeOf(scoped).toEqualTypeOf<typeof client>()
+    expectTypeOf(scoped.scope()).toEqualTypeOf<typeof client>()
+  })
+})

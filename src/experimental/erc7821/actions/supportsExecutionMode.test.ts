@@ -9,6 +9,8 @@ import {
   sendTransaction,
   signAuthorization,
 } from '../../../actions/index.js'
+import { createClient } from '../../../clients/createClient.js'
+import { custom } from '../../../clients/transports/custom.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
 const client = anvilMainnet.getClient({
@@ -90,4 +92,26 @@ test('args: mode (hex)', async () => {
       mode: '0x0100000000007821000200000000000000000000000000000000000000000000',
     }),
   ).toBe(true)
+})
+
+test('behavior: does not share in-flight checks across Clients', async () => {
+  const address = '0x0000000000000000000000000000000000000001'
+  const pending = supportsExecutionMode(
+    createClient({
+      transport: custom({ request: () => new Promise(() => {}) }),
+    }),
+    { address },
+  )
+  void pending
+
+  expect(
+    await supportsExecutionMode(
+      createClient({
+        transport: custom({
+          request: async () => `0x${'1'.padStart(64, '0')}`,
+        }),
+      }),
+      { address },
+    ),
+  ).toMatchInlineSnapshot(`true`)
 })

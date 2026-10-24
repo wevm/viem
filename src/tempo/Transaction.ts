@@ -103,8 +103,8 @@ export type TransactionRequestRpc = OneOf<
       TransactionRequestTempo<Hex.Hex, Hex.Hex, '0x76'>,
       'accountSimulation'
     > & {
-      /** Account simulation spec, named `multisigSimulation` by the node. */
-      multisigSimulation?: AccountSimulation.Rpc | undefined
+      /** Account simulation spec, named `configurableAccountSimulation` by the node. */
+      configurableAccountSimulation?: AccountSimulation.Rpc | undefined
     })
 >
 

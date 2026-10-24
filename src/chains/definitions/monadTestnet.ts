@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const monadTestnet = /*#__PURE__*/ defineChain({
   id: 10_143,
   name: 'Monad Testnet',
-  blockTime: 400,
+  blockTime: 300,
   nativeCurrency: {
     name: 'Testnet MON Token',
     symbol: 'MON',

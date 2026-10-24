@@ -213,6 +213,19 @@ test('get preserves consumed nonce cache', async () => {
   expect(await nonceManager.consume(mainnetArgs)).toBe(2)
 })
 
+test('consumed nonce 0 is not re-served by a stale source', async () => {
+  const nonceManager = createNonceManager({
+    source: {
+      get: () => 0,
+      set: () => {},
+    },
+  })
+
+  expect(await nonceManager.consume(mainnetArgs)).toBe(0)
+  expect(await nonceManager.get(mainnetArgs)).toBe(1)
+  expect(await nonceManager.consume(mainnetArgs)).toBe(1)
+})
+
 test('failed sendTransaction resets consumed nonce', async () => {
   const nonceManager = createNonceManager({
     source: jsonRpc(),

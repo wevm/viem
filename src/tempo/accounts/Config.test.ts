@@ -2,7 +2,7 @@ import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { AccountConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import { nativeMultisigFactory } from '../Addresses.js'
+import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
@@ -12,7 +12,7 @@ const initialConfig = AccountConfig.from({
   threshold: 1,
 })
 const address = AccountConfig.getAddress(initialConfig, {
-  factory: nativeMultisigFactory,
+  factory: configurableAccountRecoveryFactory,
 })
 const zeroCommitment = Hex.fromNumber(0, { size: 32 })
 const currentConfig = AccountConfig.from({

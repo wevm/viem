@@ -75,5 +75,19 @@ export async function getTransactionConfirmations<
   const transactionBlockNumber =
     transactionReceipt?.blockNumber || transaction?.blockNumber
   if (!transactionBlockNumber) return 0n
-  return blockNumber - transactionBlockNumber! + 1n
+  // The block number can be out of date: it may come from the cache, or from
+  // a request sent before the transaction's block existed.
+  const headBlockNumber =
+    blockNumber < transactionBlockNumber
+      ? await getAction(
+          client,
+          getBlockNumber,
+          'getBlockNumber',
+        )({ cacheTime: 0 })
+      : blockNumber
+  // A transaction in a block has at least one confirmation, even when the
+  // node that gave the block number is behind the node that gave the
+  // transaction.
+  if (headBlockNumber < transactionBlockNumber) return 1n
+  return headBlockNumber - transactionBlockNumber + 1n
 }

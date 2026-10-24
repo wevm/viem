@@ -3,7 +3,9 @@ import { createRequestListener } from '@remix-run/node-fetch-server'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import {
   createClientResolver,
+  hexToBytes,
   http,
+  keccak256,
   maxUint256,
   parseSignature,
   type Transport,
@@ -16,6 +18,7 @@ import {
   sendRawTransactionSync,
   sendTransactionSync,
   signTransaction,
+  verifyHash,
 } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import {
@@ -516,6 +519,158 @@ describe('stateless', () => {
     expect(receipt.from).toBe(currentAccount.address.toLowerCase())
   })
 
+  test('example: in-place upgrade', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const owners = [
+      { owner: owner_1.address, weight: 1 },
+      { owner: owner_2.address, weight: 1 },
+    ]
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: feeToken,
+    })
+
+    const { receipt, ...result } = await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      owners,
+      threshold: 2,
+    })
+    expect(receipt.status).toBe('success')
+    const config = AccountConfig.fromUpgrade(root.address, {
+      owners,
+      threshold: 2,
+    })
+    expect(result).toEqual({
+      account: root.address,
+      commitment: AccountConfig.getCommitment(config),
+      config,
+    })
+    expect(
+      await Actions.accounts.getConfigCommitment(client, {
+        account: root.address,
+      }),
+    ).toBe(AccountConfig.getCommitment(config))
+
+    const account = Account.fromConfig({
+      address: root.address,
+      upgrade: { owners: [owner_1, owner_2], threshold: 2 },
+    })
+    expect(account.config).toEqual(config)
+    const transfer = await Actions.token.transferSync(client, {
+      account,
+      amount: 1n,
+      to,
+      token: feeToken,
+    })
+    expect(transfer.receipt.status).toBe('success')
+    expect(transfer.receipt.from).toBe(root.address.toLowerCase())
+
+    await expect(
+      Actions.token.transferSync(client, {
+        account: root,
+        amount: 1n,
+        to,
+        token: feeToken,
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('behavior: deriveAccount matches the local address', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: toHex(0x106140, { size: 32 }),
+      threshold: 2,
+    })
+
+    expect(
+      await Actions.accounts.deriveAccount(client, {
+        owners: account.config.owners,
+        salt: account.config.salt,
+        threshold: account.config.threshold,
+      }),
+    ).toBe(account.address)
+  })
+
+  test('behavior: verifyHash', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: toHex(0x106141, { size: 32 }),
+      threshold: 2,
+    })
+    const hash = keccak256(toHex('hello'))
+    const signature = await account.sign({ hash })
+
+    expect(
+      await Actions.accounts.verifyHash(client, {
+        account: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, { address: account.address, hash, signature }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature: hexToBytes(signature),
+      }),
+    ).toBe(true)
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: keccak256(toHex('goodbye')),
+        signature,
+      }),
+    ).toBe(false)
+    expect(
+      await Actions.accounts.verifyHash(client, {
+        account: accounts[3].address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: upgrade rejects a configurable account', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1]],
+    })
+
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account,
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: The account is already a configurable account.]`,
+    )
+  })
+
+  test('behavior: upgrade rejects additional calls', async () => {
+    await expect(
+      Actions.accounts.upgrade(client, {
+        account: accounts[1],
+        calls: [{ to: accounts[2].address }],
+        owners: [{ owner: accounts[2].address, weight: 1 }],
+        threshold: 1,
+      } as never),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: \`calls\` is not supported: the upgrade must be the only call, without authorizations.]`,
+    )
+  })
+
   test.each([
     { name: '1-of-1', ownerCount: 1, salt: 0x106131, threshold: 1 },
     { name: '1-of-4', ownerCount: 4, salt: 0x106132, threshold: 1 },
@@ -921,7 +1076,7 @@ describe('stateful', () => {
     const address = tempo.accounts[19].address
     const store = Store.memory()
     await store.setItem(
-      `multisig:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
+      `configurableAccount:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
       'invalid json',
     )
     const client = createClient({
@@ -985,7 +1140,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x029952e495a2384147162bc806f4869d1a6eee58",
+        "account": "0xe39e3169f0771c102580ed7c7d61e0d33e738ccf",
         "approvals": [
           Any<String>,
         ],
@@ -1048,7 +1203,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x029952e495a2384147162bc806f4869d1a6eee58",
+        "account": "0xe39e3169f0771c102580ed7c7d61e0d33e738ccf",
         "approvals": [
           Any<String>,
           Any<String>,
@@ -1100,7 +1255,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x029952e495a2384147162bc806f4869d1a6eee58",
+        "account": "0xe39e3169f0771c102580ed7c7d61e0d33e738ccf",
         "config": {
           "owners": [
             {
@@ -1157,7 +1312,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x029952e495a2384147162bc806f4869d1a6eee58",
+        "account": "0xe39e3169f0771c102580ed7c7d61e0d33e738ccf",
         "approvals": [
           Any<String>,
         ],
@@ -1620,6 +1775,31 @@ describe('stateful', () => {
     `)
   })
 
+  test('behavior: caches the config installed by an in-place upgrade', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const owners = [{ owner: tempo.accounts[1].address, weight: 1 }]
+
+    await Actions.token.transferSync(client, {
+      account: tempo.accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: tempo.feeToken,
+    })
+    // No Tempo-only fields: the upgrade must still be sent as a Tempo envelope.
+    const { config } = await Actions.accounts.upgradeSync(client, {
+      account: root,
+      owners,
+      threshold: 1,
+    })
+
+    expect(config).toEqual(
+      AccountConfig.fromUpgrade(root.address, { owners, threshold: 1 }),
+    )
+    expect(await client.accounts.getConfig({ address: root.address })).toEqual(
+      config,
+    )
+  })
+
   test('behavior: rejects a JSON-RPC owner account', async () => {
     const owner = tempo.accounts[1]
     const account = Account.fromConfig({
@@ -1639,7 +1819,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0xce5fa12b6687C80BDAa7ed41D4554ff92C0b97FE
+        from:  0x333fCA5BABb77c66F77970a294593191CAFaB0d5
 
       Details: A local owner account is required to approve a configurable account transaction.
       Version: viem@x.y.z]
@@ -1682,7 +1862,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0x58274813EdbD14aD26F41daeCf8b5BE03974DcFA
+        from:  0x947bCbb253f754557D00aB9C5c7c648a478d03b2
 
       Details: A Tempo owner account is required to approve a stored configurable account transaction.
       Version: viem@x.y.z]
@@ -2014,12 +2194,12 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0xa520a4d129dc15f3de2f53ac2f74a717e1a05359",
+        "account": "0x410ed3918031d0e2645393efa9ba1e4a78bf5717",
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "operation": {
-          "account": "0xa520a4d129dc15f3de2f53ac2f74a717e1a05359",
+          "account": "0x410ed3918031d0e2645393efa9ba1e4a78bf5717",
           "approvals": [
             Any<String>,
           ],
@@ -2094,12 +2274,12 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0xa520a4d129dc15f3de2f53ac2f74a717e1a05359",
+        "account": "0x410ed3918031d0e2645393efa9ba1e4a78bf5717",
         "address": Any<String>,
         "chainId": 1337n,
         "hash": Any<String>,
         "operation": {
-          "account": "0xa520a4d129dc15f3de2f53ac2f74a717e1a05359",
+          "account": "0x410ed3918031d0e2645393efa9ba1e4a78bf5717",
           "approvals": [
             Any<String>,
             Any<String>,
@@ -2675,7 +2855,7 @@ describe('stateful', () => {
       },
       `
       {
-        "account": "0x28a07f110e95722f1c27cd9ceaa5337148dbcfad",
+        "account": "0x91c20844e35fa0fca5d5ac29cfbb1e4b8685a6d6",
         "config": {
           "owners": [
             {
@@ -2783,7 +2963,7 @@ describe('stateful', () => {
     expect(operation?.status).toMatchInlineSnapshot(`"success"`)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
   })
@@ -2854,7 +3034,7 @@ describe('stateful', () => {
         throw new Error('Expected transaction operation.')
       return submitting
     })
-    const submissionKey = `multisig:submission:${operation.hash}:${submissionId}`
+    const submissionKey = `configurableAccount:submission:${operation.hash}:${submissionId}`
     expect(await store.getItem(submissionKey)).toBeTypeOf('string')
 
     const receipt = await sendTransactionSync(client, {
@@ -3208,7 +3388,7 @@ describe('stateful', () => {
       [TransactionExecutionError: An error occurred.
 
       Request Arguments:
-        from:  0x2f7dea517DdC7aa2Fc0Dfa101F8Dd75d08892024
+        from:  0x9d46a0Fe58e5c4812461006712e380148aB19aCd
 
       Details: Internal error
       Version: viem@x.y.z]
@@ -3221,7 +3401,7 @@ describe('stateful', () => {
     expect(failedOperation?.weight).toBe(2)
     await expect(
       store.getItem(
-        `multisig:submission:${pending.transactionHash}:${submitting.submissionId}`,
+        `configurableAccount:submission:${pending.transactionHash}:${submitting.submissionId}`,
       ),
     ).resolves.toMatchInlineSnapshot(`null`)
 

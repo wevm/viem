@@ -128,7 +128,7 @@ async function configurableHandoff(options: configurableHandoff.Options) {
   const account =
     options.account ??
     AccountConfig.getAddress(config, {
-      factory: Addresses.nativeMultisigFactory,
+      factory: Addresses.configurableAccountRecoveryFactory,
     })
   const envelope = TxEnvelopeTempo.from({
     calls: [transfer],
@@ -186,7 +186,7 @@ async function configurableKeyAuthorization(
 ) {
   const { config, signer } = options
   const victim = AccountConfig.getAddress(config, {
-    factory: Addresses.nativeMultisigFactory,
+    factory: Addresses.configurableAccountRecoveryFactory,
   })
   const accessKey = Account.fromSecp256k1(generatePrivateKey())
   const unsigned = KeyAuthorization.from({

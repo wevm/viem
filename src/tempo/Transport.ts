@@ -85,7 +85,9 @@ type RelayProxyParameters = {
   policy?: 'sign-only' | 'sign-and-broadcast' | undefined
 }
 
+/** Transport that {@link withFeePayer} returns. */
 export type FeePayer = Transport<typeof withFeePayer.type>
+/** Transport that {@link withRelay} returns for a remote relay. */
 export type Relay = Transport<typeof withRelay.type, { accounts: true }>
 
 /**

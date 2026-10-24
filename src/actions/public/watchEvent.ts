@@ -199,7 +199,9 @@ export function watchEvent<
       batch,
       client.uid,
       event,
+      events,
       pollingInterval,
+      strict,
       fromBlock,
     ])
 

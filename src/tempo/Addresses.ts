@@ -12,13 +12,13 @@ export const accountImplementation =
 export const accountKeychain = '0xaAAAaaAA00000000000000000000000000000000'
 export const accountRegistrar = '0x7702ac0000000000000000000000000000000000'
 export const addressRegistry = '0xfdc0000000000000000000000000000000000000'
+export const configurableAccount = '0xAACC000000000000000000000000000000000000'
+/** Default configurable account recovery factory. Temporary until the production address is finalized. */
+export const configurableAccountRecoveryFactory =
+  '0x7171717171717171717171717171717171717171'
 /** Current consensus committee precompile address, used with `Abis.currentCommittee` to read committee members. */
 export const currentCommittee = '0xC077e00000000000000000000000000000000000'
 export const feeManager = '0xfeec000000000000000000000000000000000000'
-export const nativeMultisig = '0xAACC000000000000000000000000000000000000'
-/** Temporary recovery factory until the production address is finalized. */
-export const nativeMultisigFactory =
-  '0x7171717171717171717171717171717171717171'
 export const nonceManager = '0x4e4F4E4345000000000000000000000000000000'
 export const ousd = '0x20c0000000000000000000006a37DA5C996874BE'
 export const pathUsd = '0x20c0000000000000000000000000000000000000'

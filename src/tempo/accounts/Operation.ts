@@ -173,12 +173,12 @@ function assertHash(operation: AccountOperation.Operation) {
 
 /** Returns the store key for an operation hash. */
 function operationKey(hash: Hex.Hex) {
-  return `multisig:operation:${hash.toLowerCase()}`
+  return `configurableAccount:operation:${hash.toLowerCase()}`
 }
 
 /** Returns the store key for a submission attempt. */
 function submissionKey(hash: Hex.Hex, submissionId: Hex.Hex) {
-  return `multisig:submission:${hash.toLowerCase()}:${submissionId.toLowerCase()}`
+  return `configurableAccount:submission:${hash.toLowerCase()}:${submissionId.toLowerCase()}`
 }
 
 /** Thrown when a stored account operation is malformed or unsupported. */

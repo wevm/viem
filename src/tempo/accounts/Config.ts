@@ -4,7 +4,7 @@ import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { AccountConfig } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
-import { nativeMultisigFactory } from '../Addresses.js'
+import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import type * as Store from '../Store.js'
 
 /** A valid 48-owner config is much smaller; 64 KiB bounds hostile store parsing work. */
@@ -78,7 +78,9 @@ function assertKey(options: {
   if (config.version === 0n) {
     if (
       !Address.isEqual(
-        AccountConfig.getAddress(config, { factory: nativeMultisigFactory }),
+        AccountConfig.getAddress(config, {
+          factory: configurableAccountRecoveryFactory,
+        }),
         address,
       )
     )
@@ -106,7 +108,7 @@ function deserialize(value: string): AccountConfig.Config {
 /** Returns the store key for an account and config commitment. */
 function key(options: { address: Address.Address; commitment: Hex.Hex }) {
   const { address, commitment } = options
-  return `multisig:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
+  return `configurableAccount:config:${address.toLowerCase()}:${commitment.toLowerCase()}`
 }
 
 /** Serializes an account config for storage. */

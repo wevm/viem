@@ -15,6 +15,19 @@ catalog:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - bun@1.4.4
+  - '@oven/bun-darwin-aarch64@1.4.4'
+  - '@oven/bun-darwin-x64@1.4.4'
+  - '@oven/bun-freebsd-aarch64@1.4.4'
+  - '@oven/bun-freebsd-x64@1.4.4'
+  - '@oven/bun-linux-aarch64@1.4.4'
+  - '@oven/bun-linux-aarch64-android@1.4.4'
+  - '@oven/bun-linux-aarch64-musl@1.4.4'
+  - '@oven/bun-linux-x64@1.4.4'
+  - '@oven/bun-linux-x64-android@1.4.4'
+  - '@oven/bun-linux-x64-musl@1.4.4'
+  - '@oven/bun-windows-aarch64@1.4.4'
+  - '@oven/bun-windows-x64@1.4.4'
   - '@modelcontextprotocol/sdk'
   - '@vitest/*'
   - abitype
@@ -51,9 +64,11 @@ auditConfig:
     # extract-zip has no patched release.
     - GHSA-jmr9-qjv8-65gv
     - GHSA-7pqw-9j4j-h8q3
+    # zod 3 has no patched release and is only used by development tooling.
+    - GHSA-mrhx-c7xc-m3w5
 
 overrides:
-  ox: 0.14.56
+  ox: 0.14.57
   typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
@@ -75,7 +90,7 @@ overrides:
   esbuild: '>=0.28.1'
   estree-util-value-to-estree@<3.3.3: 3.3.3
   express-rate-limit@>=8.2.0 <8.2.2: '>=8.2.2'
-  fastify: '>=5.12.5'
+  fastify: '>=5.12.6'
   fflate@>=0.8.0 <0.8.3: 0.8.3
   follow-redirects@<1.16.1: 1.16.1
   uuid@<14.0.0: 14.0.0
@@ -88,7 +103,7 @@ overrides:
   find-my-way@>=9.0.0 <9.6.1: 9.7.0
   glob@>=10.3.7 <=11.0.3: '>=11.1.0'
   hono: '>=4.13.11'
-  ip-address@<=10.7.0: 10.7.1
+  ip-address@<10.7.4: 10.7.4
   lodash@>=4.0.0 <=4.17.23: 4.18.1
   lodash-es@>=4.0.0 <=4.17.23: 4.18.1
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
@@ -104,13 +119,13 @@ overrides:
   react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4: 19.2.4
   rollup@>=4.0.0 <4.59.0: 4.59.0
   send@<0.19.0: ^0.19.0
-  serialize-javascript@<7.0.5: 7.0.5
+  serialize-javascript@<7.1.3: 7.1.3
   serve-static@<1.16.0: ^1.16.0
   smol-toml@<=1.8.0: 1.9.0
   tar: '>=7.5.21'
   tar-fs@>=3.0.0 <3.1.1: '>=3.1.1'
   tmp: '>=0.2.7'
-  undici@>=7.0.0 <7.29.1: 7.29.1
+  undici@>=7.0.0 <7.30.1: 7.30.1
   vite@>=6.0.0 <6.4.4: 6.4.4
   vite@>=7.0.0 <=7.3.1: 7.3.2
   vite@>=8.0.0 <8.1.6: 8.1.6
@@ -132,20 +147,23 @@ overrides:
   brace-expansion@>=4.0.0 <5.0.12: 5.0.12
   yaml@>=2.0.0 <2.8.3: 2.8.3
   '@vitejs/plugin-rsc@<=0.5.25': 0.5.26
-  next@>=16.0.0-beta.0 <16.3.8: 16.3.8
+  next@>=16.0.0-beta.0 <16.4.1: 16.4.1
   react-server-dom-webpack@>=19.2.0 <19.2.6: 19.2.6
   basic-ftp@<=6.2.0: 6.2.1
-  fast-uri@>=3.0.0 <3.1.8: 3.1.8
-  fast-uri@>=4.0.0 <4.1.5: 4.1.5
+  fast-uri@>=3.0.0 <3.1.9: 3.1.9
+  fast-uri@>=4.0.0 <4.2.3: 4.2.3
   sharp@<0.35.5: 0.35.5
   baseline-browser-mapping@>=2.0.0 <2.11.0: 2.11.21
   '@toon-format/toon@<2.3.1': 2.3.1
-  toml@<4.2.0: 4.2.0
+  toml@<5.0.1: 5.0.1
   proxy-addr@>=1.1.0 <2.0.8: 2.0.8
   source-map-js@>=1.0.0 <1.2.2: 1.2.2
   vue@<3.5.42: 3.5.42
   fast-copy@>=3.0.0 <3.1.0: 3.1.0
   katex@>=0.11.0 <0.18.2: 0.18.2
+  dompurify@<3.4.17: 3.4.17
+  body-parser@>=2.0.0 <2.4.0: 2.4.0
+  zod@>=4.0.0 <4.6.6: 4.6.6
 
 allowBuilds:
   bun: true

@@ -13,7 +13,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
-import type { Compute } from '../../types/utils.js'
+import type { Compute, OneOf, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import { type ConfigurableAccount, fromConfig } from '../Account.js'
@@ -23,6 +23,88 @@ import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type * as Transaction from '../Transaction.js'
+
+/**
+ * Derives a configurable account address from an initial config with the
+ * configurable account precompile.
+ *
+ * The precompile validates the config and derives the address with the chain's
+ * recovery factory. To derive the address locally, use
+ * `AccountConfig.getAddress` or `Account.fromConfig({ address: 'infer' })`.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const address = await Actions.accounts.deriveAccount(client, {
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The configurable account address.
+ */
+export async function deriveAccount<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: deriveAccount.Parameters,
+): Promise<deriveAccount.ReturnValue> {
+  const { owners, salt, threshold, ...rest } = parameters
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...deriveAccount.call({ owners, salt, threshold }),
+  })
+}
+
+export namespace deriveAccount {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Weighted owners. Normalized into canonical address order. */
+    owners: AccountConfig.Config['owners']
+    /** Caller-chosen 32-byte salt. Defaults to the zero salt. */
+    salt?: Hex.Hex | undefined
+    /** Minimum total owner weight required for authorization. */
+    threshold: number
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.configurableAccount,
+    'deriveAccount',
+    never
+  >
+
+  /**
+   * Defines a call to the `deriveAccount` function.
+   *
+   * Can be passed to [`multicall`](https://viem.sh/docs/contract/multicall).
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { owners, salt, threshold } = AccountConfig.from(args)
+    return defineCall({
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
+      args: [salt, threshold, owners],
+      functionName: 'deriveAccount',
+    })
+  }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+}
 
 /**
  * Gets the current cached config for a configurable account.
@@ -118,7 +200,7 @@ export namespace getConfigCommitment {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.nativeMultisig,
+    typeof Abis.configurableAccount,
     'getConfigCommitment',
     never
   >
@@ -133,8 +215,8 @@ export namespace getConfigCommitment {
    */
   export function call(args: Args) {
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [args.account],
       functionName: 'getConfigCommitment',
     })
@@ -348,27 +430,28 @@ export namespace updateConfig {
     const currentConfig = AccountConfig.from(args.currentConfig)
     const nextConfig = AccountConfig.update(currentConfig, args.nextConfig)
     return defineCall({
-      address: Addresses.nativeMultisig,
-      abi: Abis.nativeMultisig,
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
       args: [currentConfig, nextConfig.threshold, nextConfig.owners],
       functionName: 'updateConfig',
     })
   }
 
   /**
-   * Extracts the `MultisigConfigUpdated` event from logs.
+   * Extracts the `ConfigurableAccountConfigUpdated` event from logs.
    *
    * @param logs - Transaction logs.
    * @returns The configuration update event.
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.nativeMultisig,
+      abi: Abis.configurableAccount,
       logs,
-      eventName: 'MultisigConfigUpdated',
+      eventName: 'ConfigurableAccountConfigUpdated',
       strict: true,
     })
-    if (!log) throw new Error('`MultisigConfigUpdated` event not found.')
+    if (!log)
+      throw new Error('`ConfigurableAccountConfigUpdated` event not found.')
     return log
   }
 }
@@ -446,4 +529,305 @@ export namespace updateConfigSync {
   }>
 
   export type ErrorType = updateConfig.ErrorType
+}
+
+/**
+ * Upgrades an existing account to a configurable account in place
+ * ([TIP-1113](https://tips.sh/1113)).
+ *
+ * The account keeps its address and installs `owners` and `threshold`. The
+ * root key must sign the upgrade, which is sent as the transaction's only
+ * call. After the upgrade, the root key can no longer sign for the account.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoLocalnet } from 'viem/chains'
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const root = Account.fromSecp256k1('0x...')
+ * const client = createClient({
+ *   chain: tempoLocalnet,
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.accounts.upgrade(client, {
+ *   account: root,
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function upgrade<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: upgrade.Parameters<chain, account>,
+): Promise<upgrade.ReturnValue> {
+  return upgrade.inner(writeContract, client, parameters)
+}
+
+export namespace upgrade {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = UnionOmit<WriteParameters<chain, account>, 'keyAuthorization' | 'owner'> &
+    Args
+
+  export type Args = Pick<AccountConfig.Config, 'owners' | 'threshold'>
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { owners, threshold, ...rest } = parameters
+    for (const key of [
+      'authorizationList',
+      'calls',
+      'data',
+      'keyAuthorization',
+      'to',
+    ])
+      if ((rest as Record<string, unknown>)[key] !== undefined)
+        throw new Error(
+          `\`${key}\` is not supported: the upgrade must be the only call, without authorizations.`,
+        )
+    const account = rest.account ?? client.account
+    if (typeof account === 'object') {
+      if (account.source === 'configurable')
+        throw new Error('The account is already a configurable account.')
+      if (account.source === 'accessKey')
+        throw new Error(
+          'The root key must sign the upgrade, not an access key.',
+        )
+    }
+    // Always send a Tempo envelope, so relays recognize and cache the upgrade.
+    return (await withExecutionError(action)(client, {
+      ...rest,
+      ...upgrade.call({ owners, threshold }),
+      type: 'tempo',
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `upgradeAccount` function.
+   *
+   * The call must be the only call in a transaction signed by the account's
+   * root key.
+   *
+   * @example
+   * ```ts
+   * import { Actions } from 'viem/tempo'
+   *
+   * const call = Actions.accounts.upgrade.call({
+   *   owners: [{ owner: '0x...', weight: 1 }],
+   *   threshold: 1,
+   * })
+   * ```
+   *
+   * @param args - Owners and threshold to install.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { owners, threshold } = AccountConfig.from(args)
+    return defineCall({
+      address: Addresses.configurableAccount,
+      abi: Abis.configurableAccount,
+      args: [threshold, owners],
+      functionName: 'upgradeAccount',
+    })
+  }
+
+  /**
+   * Extracts the `AccountUpgraded` event from logs.
+   *
+   * @param logs - Transaction logs.
+   * @returns The account upgrade event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.configurableAccount,
+      logs,
+      eventName: 'AccountUpgraded',
+      strict: true,
+    })
+    if (!log) throw new Error('`AccountUpgraded` event not found.')
+    return log
+  }
+}
+
+/**
+ * Upgrades an existing account to a configurable account in place
+ * ([TIP-1113](https://tips.sh/1113)) and waits for confirmation.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoLocalnet } from 'viem/chains'
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const root = Account.fromSecp256k1('0x...')
+ * const client = createClient({
+ *   chain: tempoLocalnet,
+ *   transport: http(),
+ * })
+ *
+ * const { config } = await Actions.accounts.upgradeSync(client, {
+ *   account: root,
+ *   owners: [{ owner: '0x...', weight: 1 }],
+ *   threshold: 1,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The installed configuration, its commitment, and the transaction receipt.
+ */
+export async function upgradeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: upgradeSync.Parameters<chain, account>,
+): Promise<upgradeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await upgrade.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  // Pending and (with `throwOnReceiptRevert: false`) reverted receipts carry no upgrade event.
+  if ((receipt as Transaction.TransactionReceipt).status !== 'success')
+    return { receipt } as never
+  const { args } = upgrade.extractEvent(receipt.logs)
+  return {
+    account: args.account,
+    commitment: args.commitment,
+    config: AccountConfig.from({
+      owners: args.owners,
+      salt: args.salt,
+      threshold: args.threshold,
+      version: 1n,
+    }),
+    receipt,
+  } as never
+}
+
+export namespace upgradeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = upgrade.Parameters<chain, account>
+
+  export type Args = upgrade.Args
+
+  /** Pending and reverted receipts carry no installed configuration. */
+  export type ReturnValue = OneOf<
+    | {
+        account: Address
+        commitment: Hex.Hex
+        config: AccountConfig.Config
+        receipt: Transaction.TransactionReceipt
+      }
+    | { receipt: Transaction.TransactionReceipt }
+  >
+
+  export type ErrorType = upgrade.ErrorType
+}
+
+/**
+ * Verifies a configurable account signature against the account's current
+ * configuration with the signature verifier precompile.
+ *
+ * Returns `false` when the signature is for another account or a config that
+ * is not the account's current config. Throws when the signature is malformed
+ * or its approvals do not reach quorum.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const valid = await Actions.accounts.verifyHash(client, {
+ *   account: '0x...',
+ *   hash: '0x...',
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the signature is valid for the account.
+ */
+export async function verifyHash<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: verifyHash.Parameters,
+): Promise<verifyHash.ReturnValue> {
+  const { account, hash, signature, ...rest } = parameters
+  return withExecutionError(readContract)(client, {
+    ...rest,
+    ...verifyHash.call({ account, hash, signature }),
+  })
+}
+
+export namespace verifyHash {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Configurable account address the signature is expected to belong to. */
+    account: Address
+    /** Original message hash that was signed. */
+    hash: Hex.Hex
+    /** Configurable account signature envelope. */
+    signature: Hex.Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.signatureVerifier,
+    'verifyConfigurableAccount',
+    never
+  >
+
+  /**
+   * Defines a call to the `verifyConfigurableAccount` function on the
+   * signature verifier precompile.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, hash, signature } = args
+    return defineCall({
+      address: Addresses.signatureVerifier,
+      abi: Abis.signatureVerifier,
+      args: [account, hash, signature],
+      functionName: 'verifyConfigurableAccount',
+    })
+  }
+
+  export type ErrorType = Errors.ExecutionErrorType | BaseErrorType
 }

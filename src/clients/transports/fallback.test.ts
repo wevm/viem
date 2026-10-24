@@ -100,6 +100,43 @@ describe('request', () => {
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
   })
 
+  test('signal', async () => {
+    // Each response reports the size of the batch that carried it.
+    const server = await createHttpServer(async (req, res) => {
+      const chunks: Uint8Array[] = []
+      for await (const chunk of req) chunks.push(chunk)
+      const body = JSON.parse(Buffer.concat(chunks).toString())
+      res.end(
+        JSON.stringify(
+          body.map(({ id }: { id: number }) => ({
+            id,
+            jsonrpc: '2.0',
+            result: `0x${body.length.toString(16)}`,
+          })),
+        ),
+      )
+    })
+
+    const transport = fallback([http(server.url, { batch: true })])({
+      chain: localhost,
+    })
+    const { signal } = new AbortController()
+    const results = await Promise.all([
+      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_blockNumber' }, { signal }),
+      transport.request({ method: 'eth_chainId' }, { signal }),
+    ])
+
+    expect(results).toMatchInlineSnapshot(`
+      [
+        "0x1",
+        "0x2",
+        "0x2",
+      ]
+    `)
+    await server.close()
+  })
+
   test('error', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {
@@ -695,6 +732,7 @@ describe('client', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "scope": [Function],
         "tokens": undefined,
         "transport": {
           "key": "fallback",
