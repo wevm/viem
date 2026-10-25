@@ -76,6 +76,21 @@ const output = await publicClientL1.waitToProve({
 })
 ```
 
+### l2Timestamp (optional)
+
+- **Type:** `bigint`
+- **Default:** `blockTimestamp` of the receipt's logs
+
+The L2 timestamp of the withdrawal. Dispute games that anchor on super roots (e.g. OP Mainnet) are matched by L2 timestamp instead of L2 block number. For these games, if `l2Timestamp` is not passed and the receipt's logs have no `blockTimestamp`, an `L2TimestampRequiredError` is thrown.
+
+```ts
+const { output, withdrawal } = await publicClientL1.waitToProve({
+  l2Timestamp: 1792936085n, // [!code focus]
+  receipt,
+  targetChain: optimism,
+})
+```
+
 ### l2OutputOracleAddress (optional)
 
 - **Type:** `Address`

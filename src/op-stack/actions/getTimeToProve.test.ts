@@ -106,3 +106,36 @@ test('legacy (portal v2)', async () => {
   })
   expect(time).toBeDefined()
 })
+
+test('super root game', async () => {
+  await reset(optimismClient, {
+    blockNumber: 158668700n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+  await reset(client, {
+    blockNumber: 26270300n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  // L2 timestamp 1792936085, newer than the latest game (1792934571).
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+  })
+
+  vi.setSystemTime(new Date(1792938611000))
+
+  const time = await getTimeToProve(client, {
+    receipt,
+    targetChain: optimismClient.chain,
+  })
+
+  vi.useRealTimers()
+
+  expect(time).toMatchInlineSnapshot(`
+    {
+      "interval": 3618,
+      "seconds": 1172,
+      "timestamp": 1792939783000,
+    }
+  `)
+})
