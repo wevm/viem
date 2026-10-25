@@ -27,6 +27,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
+import { InsufficientFundsError } from '../../errors/node.js'
 import {
   createClient,
   decodeFunctionResult,
@@ -491,13 +492,13 @@ describe('errors', () => {
       Version: viem@x.y.z]
     `)
 
-    await expect(() =>
-      call(mainnetClient, {
-        account: sourceAccount.address,
-        to: accounts[0].address,
-        value: parseEther('100000'),
-      }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    const error = await call(mainnetClient, {
+      account: sourceAccount.address,
+      to: accounts[0].address,
+      value: parseEther('100000'),
+    }).catch((e) => e)
+
+    expect(error.cause).toBeInstanceOf(InsufficientFundsError)
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
