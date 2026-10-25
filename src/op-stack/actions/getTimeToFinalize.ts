@@ -14,7 +14,12 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import { l2OutputOracleAbi, portal2Abi, portalAbi } from '../abis.js'
+import {
+  disputeGameAbi,
+  l2OutputOracleAbi,
+  portal2Abi,
+  portalAbi,
+} from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import { getPortalVersion } from './getPortalVersion.js'
 
@@ -142,7 +147,7 @@ export async function getTimeToFinalize<
     args: [withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => undefined)
 
-  const [[_disputeGameProxy, proveTimestamp], proofMaturityDelaySeconds] =
+  const [[disputeGameProxy, proveTimestamp], proofMaturityDelaySeconds] =
     await Promise.all([
       proofSubmitter
         ? readContract(client, {
@@ -151,7 +156,7 @@ export async function getTimeToFinalize<
             functionName: 'provenWithdrawals',
             args: [withdrawalHash, proofSubmitter],
           })
-        : Promise.resolve(['0x', 0n]),
+        : Promise.resolve(['0x', 0n] as const),
       readContract(client, {
         abi: portal2Abi,
         address: portalAddress,
@@ -162,12 +167,66 @@ export async function getTimeToFinalize<
   if (proveTimestamp === 0n)
     throw new BaseError('Withdrawal has not been proven on L1.')
 
-  const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
-  const secondsToFinalize =
-    Number(proofMaturityDelaySeconds) - secondsSinceProven
+  // The withdrawal can only be finalized once the proof's dispute game is
+  // resolved and its finality delay has passed, so also read the game.
+  const [
+    resolvedAt,
+    createdAt,
+    expectedResolution,
+    maxClockDuration,
+    disputeGameFinalityDelaySeconds,
+  ] = await Promise.all([
+    readContract(client, {
+      abi: disputeGameAbi,
+      address: disputeGameProxy,
+      functionName: 'resolvedAt',
+    }),
+    readContract(client, {
+      abi: disputeGameAbi,
+      address: disputeGameProxy,
+      functionName: 'createdAt',
+    }),
+    // Not every game type implements `expectedResolution` (e.g. `AggregateVerifier` does).
+    readContract(client, {
+      abi: disputeGameAbi,
+      address: disputeGameProxy,
+      functionName: 'expectedResolution',
+    }).catch(() => undefined),
+    // Not every game type implements `maxClockDuration` (e.g. `FaultDisputeGame` does).
+    readContract(client, {
+      abi: disputeGameAbi,
+      address: disputeGameProxy,
+      functionName: 'maxClockDuration',
+    }).catch(() => undefined),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'disputeGameFinalityDelaySeconds',
+    }),
+  ])
+
+  // When the game is not resolved yet, estimate when it will be: the expected
+  // resolution reported by the game, or the end of an unchallenged root claim's clock.
+  const gameResolvedAt = (() => {
+    if (resolvedAt > 0n) return resolvedAt
+    if (typeof expectedResolution === 'bigint') return expectedResolution
+    if (typeof maxClockDuration === 'bigint')
+      return createdAt + maxClockDuration
+    return 0n
+  })()
+
+  const now = Date.now() / 1000
+  const secondsToProofMaturity =
+    Number(proofMaturityDelaySeconds) - (now - Number(proveTimestamp))
+  const secondsToGameFinality =
+    Number(gameResolvedAt + disputeGameFinalityDelaySeconds) - now
+  const secondsToFinalize = Math.max(
+    secondsToProofMaturity,
+    secondsToGameFinality,
+  )
 
   const seconds = Math.floor(
-    secondsToFinalize < 0n ? 0 : secondsToFinalize + buffer,
+    secondsToFinalize < 0 ? 0 : secondsToFinalize + buffer,
   )
   const timestamp = Date.now() + seconds * 1000
 
