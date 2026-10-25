@@ -27,7 +27,6 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
-import { InsufficientFundsError } from '../../errors/node.js'
 import {
   createClient,
   decodeFunctionResult,
@@ -35,6 +34,7 @@ import {
   encodeFunctionResult,
   type Hex,
   http,
+  InsufficientFundsError,
   maxUint256,
   multicall3Abi,
   pad,
@@ -492,13 +492,16 @@ describe('errors', () => {
       Version: viem@x.y.z]
     `)
 
-    const error = await call(mainnetClient, {
-      account: sourceAccount.address,
-      to: accounts[0].address,
-      value: parseEther('100000'),
-    }).catch((e) => e)
-
-    expect(error.cause).toBeInstanceOf(InsufficientFundsError)
+    await expect(() =>
+      call(mainnetClient, {
+        account: sourceAccount.address,
+        to: accounts[0].address,
+        value: parseEther('100000'),
+      }),
+    ).rejects.toMatchObject({
+      cause: expect.any(InsufficientFundsError),
+      name: 'CallExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
