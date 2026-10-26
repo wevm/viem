@@ -142,6 +142,9 @@ importers:
       '@fast-check/vitest':
         specifier: ^0.4.1
         version: 0.4.1(vitest@4.1.12)
+      '@jridgewell/remapping':
+        specifier: ^2.3.5
+        version: 2.3.5
       '@paulmillr/trusted-setups':
         specifier: ^0.1.2
         version: 0.1.2
@@ -163,6 +166,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^4.1.12
         version: 4.1.12(vitest@4.1.12)
+      acorn:
+        specifier: ^8.17.0
+        version: 8.17.0
       bun:
         specifier: ^1.4.4
         version: 1.4.4
@@ -175,6 +181,9 @@ importers:
       knip:
         specifier: ^5.64.0
         version: 5.64.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.5.2)(typescript@5.9.3)
+      magic-string:
+        specifier: ^0.30.21
+        version: 0.30.21
       micro-eth-signer:
         specifier: ^0.14.0
         version: 0.14.0
