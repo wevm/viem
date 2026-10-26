@@ -1,0 +1,11 @@
+{
+  "name": "test-ses",
+  "private": true,
+  "scripts": {
+    "test": "node index.js && node index.mjs"
+  },
+  "dependencies": {
+    "ses": "^2.3.0",
+    "viem": "file:../../src/"
+  }
+}

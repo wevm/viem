@@ -298,7 +298,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        type: ['bun', 'node-22', 'node-latest', 'next', 'tsc', 'vite']
+        type: ['bun', 'node-22', 'node-latest', 'next', 'ses', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
@@ -310,6 +310,8 @@ jobs:
             runtime: node
           - type: next
             runtime: next
+          - type: ses
+            runtime: ses
           - type: tsc
             node-version: 22
             runtime: tsc
