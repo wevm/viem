@@ -253,7 +253,7 @@ export class TipAboveFeeCapError extends BaseError {
             ? ` = ${formatGwei(maxPriorityFeePerGas)} gwei`
             : ''
         }) cannot be higher than the fee cap (\`maxFeePerGas\`${
-          maxFeePerGas !== undefined
+          typeof maxFeePerGas === 'bigint'
             ? ` = ${formatGwei(maxFeePerGas)} gwei`
             : ''
         }).`,
