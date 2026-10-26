@@ -797,9 +797,7 @@ function assertConfig(options: {
   const { account, commitment, config } = options
   if (
     config.version === 0n &&
-    AccountConfig.getAddress(config, {
-      factory: Addresses.configurableAccountRecoveryFactory,
-    }).toLowerCase() !== account.toLowerCase()
+    AccountConfig.getAddress(config).toLowerCase() !== account.toLowerCase()
   )
     throw new RpcResponse.InvalidParamsError({
       message:

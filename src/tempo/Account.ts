@@ -24,7 +24,6 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import { configurableAccountRecoveryFactory } from './Addresses.js'
 import { parseApproval } from './accounts/Signature.js'
 import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
@@ -331,11 +330,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
   const configInput = (() => {
     if (typeof value === 'string') return undefined
     if ('upgrade' in value) return value.upgrade
-    const {
-      address: _,
-      factory: __,
-      ...config
-    } = value as fromConfig.InitialConfig
+    const { address: _, ...config } = value as fromConfig.InitialConfig
     return config
   })()
   const config = (() => {
@@ -371,9 +366,7 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
     (() => {
       if (typeof value === 'string') return value
       if (value.address === undefined || value.address === 'infer')
-        return AccountConfig.getAddress(config!, {
-          factory: value.factory ?? configurableAccountRecoveryFactory,
-        })
+        return AccountConfig.getAddress(config!)
       return value.address
     })(),
   )
@@ -494,11 +487,6 @@ export declare namespace fromConfig {
   export type InitialConfig = {
     /** Derives the stable account address from this initial config. */
     address?: 'infer' | undefined
-    /**
-     * Recovery factory used to derive the address.
-     * @default `Addresses.configurableAccountRecoveryFactory`
-     */
-    factory?: Address.Address | undefined
     /** Weighted owners. */
     owners: readonly Owner[]
     /** Caller-chosen 32-byte salt. */

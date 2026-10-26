@@ -1,5 +1,49 @@
 # viem
 
+## 2.57.12
+
+### Patch Changes
+
+- [#5281](https://github.com/wevm/viem/pull/5281) [`744f749bcd56fa0bc93efd0fcdc05125e0252c21`](https://github.com/wevm/viem/commit/744f749bcd56fa0bc93efd0fcdc05125e0252c21) Thanks [@jxom](https://github.com/jxom)! - Fixed `getAbiItem` overload resolution for arrays with a `0` in the element size (e.g. `uint160[]`) or the wrong fixed length, tuple objects with reordered keys, and ambiguous `address[]` overloads.
+
+- [#5304](https://github.com/wevm/viem/pull/5304) [`918955e81ef333af521e3e3e1b3fe03cb5231bdf`](https://github.com/wevm/viem/commit/918955e81ef333af521e3e3e1b3fe03cb5231bdf) Thanks [@jxom](https://github.com/jxom)! - Fixed `serializeAuthorizationList` and `serializeTransaction` to encode an EIP-7702 authorization `yParity` above 1 as is instead of normalizing it to 1, which changed the transaction hash.
+
+- [#5279](https://github.com/wevm/viem/pull/5279) [`10ef1295f73362ea4f3c36b6655fef1cb04b397e`](https://github.com/wevm/viem/commit/10ef1295f73362ea4f3c36b6655fef1cb04b397e) Thanks [@jxom](https://github.com/jxom)! - Fixed `signatureToCompactSignature` and `compactSignatureToSignature` for values shorter than 32 bytes and a legacy `v` with a chain id, and added errors for invalid `v` and high `s`.
+
+- [#5298](https://github.com/wevm/viem/pull/5298) [`a69e96c8e89cc0398a6b918c392e24e3b615bee0`](https://github.com/wevm/viem/commit/a69e96c8e89cc0398a6b918c392e24e3b615bee0) Thanks [@jxom](https://github.com/jxom)! - Fixed `getTimeToFinalize` and `waitToFinalize` to also wait for the proof's dispute game to resolve and pass its finality delay, instead of only the proof maturity delay.
+
+- [#5282](https://github.com/wevm/viem/pull/5282) [`52140fef00389781737477de205f82f71553b3c3`](https://github.com/wevm/viem/commit/52140fef00389781737477de205f82f71553b3c3) Thanks [@jxom](https://github.com/jxom)! - Fixed `http` transport batches and `getHttpRpcClient` array requests mishandling a server that rejected the whole batch with a single error or returned fewer responses than requests.
+
+- [#5286](https://github.com/wevm/viem/pull/5286) [`8e058ca71bf09c85d2a4669af5e98aeb5bc87e71`](https://github.com/wevm/viem/commit/8e058ca71bf09c85d2a4669af5e98aeb5bc87e71) Thanks [@jxom](https://github.com/jxom)! - Fixed the `http` transport to retry JSON-RPC errors from non-2xx responses by their HTTP status and `Retry-After` header, and exposed `status` and `headers` on `RpcRequestError`.
+
+- [#5300](https://github.com/wevm/viem/pull/5300) [`485a9d922ffe00a3d2bc4bbfc6ef0262a85e9f45`](https://github.com/wevm/viem/commit/485a9d922ffe00a3d2bc4bbfc6ef0262a85e9f45) Thanks [@jxom](https://github.com/jxom)! - Fixed `toFunctionSelector` and `toSignatureHash` keeping the `error` keyword in string signatures like `error Foo(uint256)`, which produced the wrong selector.
+
+- [#5283](https://github.com/wevm/viem/pull/5283) [`b2b7a3b82fd52ad74f80075d5a25cd99750f754a`](https://github.com/wevm/viem/commit/b2b7a3b82fd52ad74f80075d5a25cd99750f754a) Thanks [@jxom](https://github.com/jxom)! - Added an `even` option to `isHex` that rejects hex values with an odd number of hex characters.
+
+- [#5303](https://github.com/wevm/viem/pull/5303) [`d10dc3c203c63ec42abc2cd392fb7de4562cb591`](https://github.com/wevm/viem/commit/d10dc3c203c63ec42abc2cd392fb7de4562cb591) Thanks [@jxom](https://github.com/jxom)! - Fixed `InsufficientFundsError` not being raised for reth's `EVM error: OutOfFunds` node message.
+
+- [#5280](https://github.com/wevm/viem/pull/5280) [`e7e0122fab41b6c43d1d03ffe395044d1445bcc0`](https://github.com/wevm/viem/commit/e7e0122fab41b6c43d1d03ffe395044d1445bcc0) Thanks [@jxom](https://github.com/jxom)! - Fixed `parseEventLogs` `args` filters dropping logs whose `string` or `bytes` values were decoded from data or differed in hex case, and matching every partially decoded log.
+
+- [#5284](https://github.com/wevm/viem/pull/5284) [`b3e39473523d7be57ec5f35f51cb416f16b6cbd2`](https://github.com/wevm/viem/commit/b3e39473523d7be57ec5f35f51cb416f16b6cbd2) Thanks [@jxom](https://github.com/jxom)! - Added a `replacement` parameter to `waitForTransactionReceipt` that detects a replacement of a Transaction the node dropped before the wait first read it, and fixed `onReplaced` not being called for a replacement when `confirmations` is greater than 1.
+
+- [#5288](https://github.com/wevm/viem/pull/5288) [`75ffe81d29d85bee3b895a5d7ae612675b625ee8`](https://github.com/wevm/viem/commit/75ffe81d29d85bee3b895a5d7ae612675b625ee8) Thanks [@jxom](https://github.com/jxom)! - Fixed request retries firing immediately for `Retry-After` headers in HTTP-date form or for delays longer than the 24.8-day timer limit.
+
+- [#5301](https://github.com/wevm/viem/pull/5301) [`efda1c43147b85fdde5a9d5b88c4ffd5a9262073`](https://github.com/wevm/viem/commit/efda1c43147b85fdde5a9d5b88c4ffd5a9262073) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCalls` dropping a call's `dataSuffix` when the call has no `data`.
+
+- [#5306](https://github.com/wevm/viem/pull/5306) [`30833eca2ef352e2af34f577964b633823acc999`](https://github.com/wevm/viem/commit/30833eca2ef352e2af34f577964b633823acc999) Thanks [@jxom](https://github.com/jxom)! - Fixed importing `viem`, `viem/actions`, `viem/chains`, and other entrypoints under SES `lockdown()`, which threw `Cannot assign to read only property 'call'`.
+
+- [#5299](https://github.com/wevm/viem/pull/5299) [`6c2278d129eb21b2928999fd2f5b28c233132f7d`](https://github.com/wevm/viem/commit/6c2278d129eb21b2928999fd2f5b28c233132f7d) Thanks [@jxom](https://github.com/jxom)! - Fixed `createSiweMessage` rejecting domains with a punycode (internationalized) top-level domain, such as `example.xn--p1ai`, and accepting top-level domain labels longer than 63 characters.
+
+- [#5302](https://github.com/wevm/viem/pull/5302) [`c42c189ee8fe1b0183b6abf1b00a58f134ea2b57`](https://github.com/wevm/viem/commit/c42c189ee8fe1b0183b6abf1b00a58f134ea2b57) Thanks [@jxom](https://github.com/jxom)! - Fixed `getWithdrawalStatus`, `getTimeToProve` and `waitToProve` matching super-root dispute games against the withdrawal's L2 block number when `l2Timestamp` was not passed: they now use the `blockTimestamp` of the receipt's logs, or throw `L2TimestampRequiredError` when it is missing.
+
+- [#5311](https://github.com/wevm/viem/pull/5311) [`e3247c5513912695313dba030111e7f6a1e1aacd`](https://github.com/wevm/viem/commit/e3247c5513912695313dba030111e7f6a1e1aacd) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Derived configurable account addresses from the initial config hash instead of a recovery factory (tempoxyz/tempo#8595), so `Account.fromConfig` no longer takes a `factory` option and `Addresses.configurableAccountRecoveryFactory` was removed.
+
+- [#5308](https://github.com/wevm/viem/pull/5308) [`71636a342b859fa9f15296d2f15377430db4629e`](https://github.com/wevm/viem/commit/71636a342b859fa9f15296d2f15377430db4629e) Thanks [@jxom](https://github.com/jxom)! - Fixed `validateTypedData` and `hashTypedData` to accept struct names that start with a Solidity type name (such as `intent`), to reject struct names that shadow a Solidity type (such as `uint256[]` or `uint7`), and to include struct names that contain `$` in the encoded type.
+
+- [#5271](https://github.com/wevm/viem/pull/5271) [`2867b2a88458044af6aa84fc5494539eab05e143`](https://github.com/wevm/viem/commit/2867b2a88458044af6aa84fc5494539eab05e143) Thanks [@loveyuanfandj-glitch](https://github.com/loveyuanfandj-glitch)! - Added ValueChain mainnet and testnet chains.
+
+- [#5309](https://github.com/wevm/viem/pull/5309) [`5068c9ffc5cdb8b7240aa18158db6c62ad455944`](https://github.com/wevm/viem/commit/5068c9ffc5cdb8b7240aa18158db6c62ad455944) Thanks [@mmv08](https://github.com/mmv08)! - Fixed `watchEvent` to pass `strict` to its `getLogs` fallback, so a `strict: true` watcher on an RPC Provider without filters no longer gets logs that do not match the event.
+
 ## 2.57.11
 
 ### Patch Changes

@@ -245,9 +245,8 @@ jobs:
           CI: true
           VITE_TEMPO_ENV: localnet
           VITE_TEMPO_ACCOUNTS: 'true'
-          # Built from tempoxyz/tempo `joshie/configurable-t14-devnet-checkpoint` with the
-          # configurable account recovery factory genesis option.
-          VITE_TEMPO_TAG: sha-04e67d3
+          # Built from tempoxyz/tempo `joshie/configurable-checkpoint` (tempoxyz/tempo#8595).
+          VITE_TEMPO_TAG: sha-179347b
 
   test-tempo:
     name: Test Local Tempo (${{ matrix.hardfork }}, ${{ matrix.shard }}/${{ matrix.total-shards }})

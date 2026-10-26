@@ -4,7 +4,6 @@ import type * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { AccountConfig } from 'ox/tempo'
 import { BaseError } from '../../errors/base.js'
-import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import type * as Store from '../Store.js'
 
 /** A valid 48-owner config is much smaller; 64 KiB bounds hostile store parsing work. */
@@ -96,14 +95,7 @@ function assertKey(options: {
   if (!Address.validate(address) || !Hash.validate(commitment))
     throw new InvalidStoreValueError()
   if (config.version === 0n) {
-    if (
-      !Address.isEqual(
-        AccountConfig.getAddress(config, {
-          factory: configurableAccountRecoveryFactory,
-        }),
-        address,
-      )
-    )
+    if (!Address.isEqual(AccountConfig.getAddress(config), address))
       throw new InvalidStoreValueError()
     if (commitment.toLowerCase() === zeroCommitment) return
   }

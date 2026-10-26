@@ -43,6 +43,7 @@ test('fromConfig distinguishes initial and current configs', () => {
   Account.fromConfig({ address: 'infer', owners: [owner] })
   Account.fromConfig({
     address: 'infer',
+    // @ts-expect-error Addresses derive from the config alone.
     factory: '0x9999999999999999999999999999999999999999',
     owners: [owner],
   })

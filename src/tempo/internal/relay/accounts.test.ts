@@ -28,7 +28,6 @@ import {
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
-import { configurableAccountRecoveryFactory } from '../../Addresses.js'
 import * as Operation from '../../accounts/Operation.js'
 import { parseApproval } from '../../accounts/Signature.js'
 
@@ -43,9 +42,7 @@ const config = AccountConfig.from({
   owners: [{ owner: owner.address, weight: 1 }],
   threshold: 1,
 })
-const account = AccountConfig.getAddress(config, {
-  factory: configurableAccountRecoveryFactory,
-})
+const account = AccountConfig.getAddress(config)
 const approval = SignatureEnvelope.from({
   signature: { r: 1n, s: 2n, yParity: 0 },
   type: 'secp256k1',
@@ -292,7 +289,7 @@ test('rejects a signed payload conflicting with the client chain', async () => {
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-04e67d3',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('plugin: accounts', () => {
   beforeAll(async () => {
     await Actions.faucet.fundSync(caller, {
@@ -700,7 +697,7 @@ describe.runIf(
 
 describe.runIf(
   import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-04e67d3',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('plugin: keyAuthorization', () => {
   const relay = Relay.create({
     client: caller,

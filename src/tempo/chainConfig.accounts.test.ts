@@ -4,7 +4,6 @@ import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest } from '../actions/index.js'
-import { configurableAccountRecoveryFactory } from './Addresses.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -95,9 +94,7 @@ describe('prepareTransactionRequest', () => {
       threshold: 1,
     })
     const account = Account.fromConfig({
-      address: AccountConfig.getAddress(initial, {
-        factory: configurableAccountRecoveryFactory,
-      }),
+      address: AccountConfig.getAddress(initial),
       ...initial,
       version: 2n,
     })
