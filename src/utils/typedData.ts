@@ -178,14 +178,14 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
 
 /** @internal */
 function validateReference(type: string) {
-  // Struct type must not be a Solidity type.
+  // Struct type must not be a Solidity type. Match whole type names so a struct
+  // such as `intent` or `bytesInfo` is not mistaken for `int` or `bytes`.
   if (
     type === 'address' ||
     type === 'bool' ||
     type === 'string' ||
-    type.startsWith('bytes') ||
-    type.startsWith('uint') ||
-    type.startsWith('int')
+    bytesRegex.test(type) ||
+    integerRegex.test(type)
   )
     throw new InvalidStructTypeError({ type })
 }

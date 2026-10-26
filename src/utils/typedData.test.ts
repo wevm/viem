@@ -523,6 +523,36 @@ describe('validateTypedData', () => {
       },
     })
   })
+
+  test.each(['intent', 'interval', 'uintPair', 'bytesInfo'])(
+    'struct named like a Solidity type prefix: %s',
+    (name) => {
+      validateTypedData({
+        primaryType: 'Order',
+        types: {
+          Order: [{ name: 'inner', type: name }],
+          [name]: [{ name: 'amount', type: 'uint256' }],
+        },
+        message: { inner: { amount: 1n } },
+      } as never)
+    },
+  )
+
+  test.each(['uint256', 'bytes', 'address', 'bool', 'string'])(
+    'struct named as a Solidity type: %s',
+    (name) => {
+      expect(() =>
+        validateTypedData({
+          primaryType: 'Order',
+          types: {
+            Order: [{ name: 'inner', type: name }],
+            [name]: [{ name: 'amount', type: 'uint256' }],
+          },
+          message: { inner: { amount: 1n } },
+        } as never),
+      ).toThrowError(`Struct type "${name}" is invalid.`)
+    },
+  )
 })
 
 describe('domainSeparator', () => {
