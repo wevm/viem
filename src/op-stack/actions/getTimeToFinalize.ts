@@ -32,7 +32,7 @@ export type GetTimeToFinalizeParameters<
     withdrawalHash: Hash
   }
 export type GetTimeToFinalizeReturnType = {
-  /** The finalization period (in seconds). */
+  /** The proof maturity delay (in seconds). */
   period: number
   /** Seconds until the withdrawal can be finalized. */
   seconds: number
@@ -186,13 +186,13 @@ export async function getTimeToFinalize<
       address: disputeGameProxy,
       functionName: 'createdAt',
     }),
-    // Not every game type implements `expectedResolution` (e.g. `AggregateVerifier` does).
+    // Only some game types implement `expectedResolution` (e.g. `AggregateVerifier`).
     readContract(client, {
       abi: disputeGameAbi,
       address: disputeGameProxy,
       functionName: 'expectedResolution',
     }).catch(() => undefined),
-    // Not every game type implements `maxClockDuration` (e.g. `FaultDisputeGame` does).
+    // Only some game types implement `maxClockDuration` (e.g. `FaultDisputeGame`).
     readContract(client, {
       abi: disputeGameAbi,
       address: disputeGameProxy,
@@ -205,21 +205,28 @@ export async function getTimeToFinalize<
     }),
   ])
 
+  const now = Date.now() / 1000
+
   // When the game is not resolved yet, estimate when it will be: the expected
   // resolution reported by the game, or the end of an unchallenged root claim's clock.
+  // An unresolved game cannot have resolved in the past, so the estimate is at least `now`.
   const gameResolvedAt = (() => {
-    if (resolvedAt > 0n) return resolvedAt
-    if (typeof expectedResolution === 'bigint') return expectedResolution
-    if (typeof maxClockDuration === 'bigint')
-      return createdAt + maxClockDuration
-    return 0n
+    if (resolvedAt > 0n) return Number(resolvedAt)
+    const estimate = (() => {
+      if (typeof expectedResolution === 'bigint') return expectedResolution
+      if (typeof maxClockDuration === 'bigint')
+        return createdAt + maxClockDuration
+      return undefined
+    })()
+    // Without an estimate, only the proof maturity delay applies.
+    if (estimate === undefined) return 0
+    return Math.max(Number(estimate), now)
   })()
 
-  const now = Date.now() / 1000
   const secondsToProofMaturity =
     Number(proofMaturityDelaySeconds) - (now - Number(proveTimestamp))
   const secondsToGameFinality =
-    Number(gameResolvedAt + disputeGameFinalityDelaySeconds) - now
+    gameResolvedAt + Number(disputeGameFinalityDelaySeconds) - now
   const secondsToFinalize = Math.max(
     secondsToProofMaturity,
     secondsToGameFinality,

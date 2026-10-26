@@ -54,7 +54,7 @@ export const publicClientL2 = createPublicClient({
 `{ period: number, seconds: number, timestamp: number }`
 
 - `period` in seconds of the proof maturity delay.
-- `seconds` until the transaction can be finalized. This is the later of the proof maturity delay and the resolution of the proof's dispute game plus its finality delay.
+- `seconds` until the transaction can be finalized. This is the later of the proof maturity delay and the resolution of the proof's dispute game plus its finality delay. While the game is unresolved, its resolution time is an estimate.
 - `timestamp` of when the transaction can be finalized.
 
 ## Parameters
