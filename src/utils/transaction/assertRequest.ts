@@ -42,8 +42,8 @@ export function assertRequest(args: AssertRequestParameters) {
   if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
-    maxPriorityFeePerGas &&
-    maxFeePerGas &&
+    maxPriorityFeePerGas !== undefined &&
+    maxFeePerGas !== undefined &&
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })

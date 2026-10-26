@@ -661,7 +661,7 @@ export async function prepareTransactionRequest<
 
         if (
           typeof request.maxPriorityFeePerGas === 'undefined' &&
-          request.maxFeePerGas &&
+          typeof request.maxFeePerGas !== 'undefined' &&
           request.maxFeePerGas < maxPriorityFeePerGas
         )
           throw new MaxFeePerGasTooLowError({
