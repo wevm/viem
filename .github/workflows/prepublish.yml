@@ -10,24 +10,151 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
   cancel-in-progress: true
 
+permissions: {} # each job should declare only the permissions it needs
+
 jobs:
-  build:
-    if: ${{ github.event_name == 'push' || !github.event.pull_request.draft }}
+  # Packs the prerelease at `0.0.0-<sha>` on main, or `0.0.0-pr-<number>-<sha>` on a pull request.
+  # It runs the commit's code and its dependencies' install scripts, so it holds no npm identity.
+  pack:
+    name: Pack prerelease
+    # A pull request publishes only from a branch of this repository, which only maintainers can push.
+    if: >-
+      github.repository == 'wevm/viem' && (
+        github.event_name == 'push' || (
+          !github.event.pull_request.draft &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          github.event.pull_request.user.type != 'Bot'
+        )
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     permissions:
-      contents: read
+      contents: read # checkout repository contents
 
     steps:
-      - name: Checkout
+      # Runs before any of the commit's code, so the publish job trusts its output.
+      - name: Resolve version
+        id: version
+        env:
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            version="0.0.0-pr-$PULL_REQUEST-${SHA:0:7}"
+          elif [[ "${SHA:0:7}" =~ ^0[0-9]+$ ]]; then
+            # SemVer forbids a leading zero in a numeric identifier, so such a short SHA takes its full form.
+            version="0.0.0-$SHA"
+          else
+            version="0.0.0-${SHA:0:7}"
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Clone repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           submodules: 'recursive'
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Prepublish
+      - name: Pack
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         run: |
-          cd src && pnpm version prerelease --preid "$(git rev-parse --short=7 HEAD)" --no-git-tag-version && cd ..
+          cd src && pnpm version "$VERSION" --no-git-tag-version && cd ..
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          cd src && pnpm pack --pack-destination "$RUNNER_TEMP/prerelease"
+
+      - name: Upload prerelease
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          if-no-files-found: error
+          name: prerelease
+          path: ${{ runner.temp }}/prerelease/*.tgz
+          retention-days: 1
+
+  # Publishes the pack to npm with no dist-tag, so it installs only by its version.
+  # It alone holds the OIDC token that npm trusts, and runs none of the commit's code.
+  publish:
+    name: Publish prerelease
+    needs: pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write # authenticate to npm via trusted publishing
+      pull-requests: write # comment the prerelease on the pull request
+
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.22.1
+
+      # Trusted publishing manages dist-tags from npm 11.21.0.
+      - name: Set up npm
+        run: npm install --global npm@11.21.1
+
+      - name: Download prerelease
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: prerelease
+          path: ${{ runner.temp }}/prerelease
+
+      - name: Publish prerelease
+        env:
+          VERSION: ${{ needs.pack.outputs.version }}
+        run: |
+          pack="$RUNNER_TEMP/prerelease/viem-$VERSION.tgz"
+
+          # The pack comes from the commit's code, so its manifest must name this version.
+          manifest="$(tar -xOzf "$pack" package/package.json | node -p 'const { name, version } = JSON.parse(require("fs").readFileSync(0)); `${name}@${version}`')"
+          if [ "$manifest" != "viem@$VERSION" ]; then
+            echo "::error::The pack holds $manifest, not viem@$VERSION."
+            exit 1
+          fi
+
+          # A rerun builds the same commit, whose version can already be published.
+          if [ -z "$(npm view "viem@$VERSION" version 2> /dev/null)" ]; then
+            npm publish "$pack" --ignore-scripts --tag prerelease
+          fi
+
+          # npm publishes only under a dist-tag, so the version takes `prerelease` and drops it again.
+          # Another run can move or drop the tag first, so the check is that the tag no longer names this version.
+          npm dist-tag rm viem prerelease || true
+          if npm dist-tag ls viem | grep -qxF "prerelease: $VERSION"; then
+            echo "::error::The prerelease dist-tag still names viem@$VERSION. Allow npm dist-tag on the trusted publisher for this workflow."
+            exit 1
+          fi
+
+          echo "Published \`viem@$VERSION\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment prerelease
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+          VERSION: ${{ needs.pack.outputs.version }}
+        run: |
+          marker='<!-- prerelease -->'
+          cat > "$RUNNER_TEMP/comment.md" <<EOF
+          $marker
+          Published \`viem@$VERSION\` from the head commit of this pull request.
+
+          \`\`\`sh
+          pnpm add viem@$VERSION
+          \`\`\`
+          EOF
+
+          id="$(
+            gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/issues/$PULL_REQUEST/comments?per_page=100" |
+              jq -r --arg marker "$marker" '[.[][] | select(.user.login == "github-actions[bot]" and (.body | startswith($marker)))][0].id // empty'
+          )"
+          if [ -n "$id" ]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PULL_REQUEST/comments" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          fi
