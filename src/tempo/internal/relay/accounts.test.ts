@@ -8,7 +8,9 @@ import {
 import {
   createClient,
   createClientResolver,
+  custom,
   http,
+  isAddressEqual,
   parseUnits,
   toHex,
 } from 'viem'
@@ -216,6 +218,49 @@ test('error: rejects conflicting chain ids', async () => {
   )
 })
 
+test('error: requires a chain to read a config', async () => {
+  const handle = Relay.handleRequest(async () => null, {
+    plugins: [Relay.accounts({ store: Store.memory() })],
+  })
+
+  await expect(
+    handle({ method: 'account_getConfig', params: [{ address: account }] }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: A chain ID is required to resolve the downstream client.]`,
+  )
+})
+
+test('error: requires a chain to approve a key authorization for any chain', async () => {
+  const handle = Relay.handleRequest(async () => null, {
+    plugins: [Relay.accounts({ store: Store.memory() })],
+  })
+  const keyAuthorization = KeyAuthorization.from(
+    {
+      account,
+      address: '0x2222222222222222222222222222222222222222',
+      chainId: 0n,
+      isAdmin: false,
+      type: 'secp256k1',
+    },
+    {
+      signature: SignatureEnvelope.from({
+        account,
+        config,
+        signatures: [parseApproval(SignatureEnvelope.serialize(approval))],
+      }),
+    },
+  )
+
+  await expect(
+    handle({
+      method: 'account_approveKeyAuthorization',
+      params: [{ keyAuthorization: KeyAuthorization.toRpc(keyAuthorization) }],
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: A chain ID is required to resolve the downstream client.]`,
+  )
+})
+
 test('accounts plugin infers the chain before client resolution', async () => {
   const resolver = createClientResolver({
     chains: [tempo, tempoModerato],
@@ -420,6 +465,228 @@ describe.runIf(
         hash: pending.transactionHash,
       }),
     ).toMatchObject({ status: 'success' })
+  })
+
+  test('behavior: serves a pending config only on its chain', async () => {
+    const store = Store.memory()
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.accounts({ store })],
+    })
+    const other = Relay.create({
+      client: Tempo.getClient({
+        chain: { ...Tempo.chain, id: Tempo.chain.id + 1 },
+      }),
+      plugins: [Relay.accounts({ store })],
+    })
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(relay),
+    })
+    const owner_1 = Tempo.accounts[1]!
+    const owner_2 = Tempo.accounts[2]!
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1.address, owner_2.address],
+      salt: toHex(0x109702, { size: 32 }),
+      threshold: 2,
+    })
+    const token = Tempo.addresses.alphaUsd
+    await Actions.token.transferSync(caller, {
+      account: feePayerAccount,
+      token,
+      to: account.address,
+      amount: parseUnits('1', 6),
+    })
+
+    await sendTransactionSync(client, {
+      account,
+      owner: owner_1,
+      feeToken: token,
+      calls: [
+        Actions.token.transfer.call(client, {
+          token,
+          to: recipient.address,
+          amount: 1n,
+        }),
+      ],
+    })
+
+    expect([
+      await Actions.accounts.getConfig(client, { address: account.address }),
+      await Actions.accounts.getConfig(
+        Tempo.getClient({
+          chain: { ...Tempo.chain, id: Tempo.chain.id + 1 },
+          transport: custom(other),
+        }),
+        { address: account.address },
+      ),
+    ]).toMatchInlineSnapshot(`
+      [
+        {
+          "owners": [
+            {
+              "owner": "0x8c8d35429f74ec245f8ef2f4fd1e551cff97d650",
+              "weight": 1,
+            },
+            {
+              "owner": "0x98e503f35d0a019cb0a251ad243a4ccfcf371f46",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000109702",
+          "threshold": 2,
+          "version": 0n,
+        },
+        null,
+      ]
+    `)
+  })
+
+  test('behavior: stores a config from resolveConfig', async () => {
+    const store = Store.memory()
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[3]!.address, weight: 1 }],
+      salt: toHex(0x109703, { size: 32 }),
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(config)
+    const resolving = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [
+            Relay.accounts({
+              resolveConfig: (options) =>
+                options.chainId === Tempo.chain.id &&
+                isAddressEqual(options.address, address) &&
+                options.commitment === toHex(0, { size: 32 })
+                  ? config
+                  : null,
+              store,
+            }),
+          ],
+        }),
+      ),
+    })
+    const stored = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ store })],
+        }),
+      ),
+    })
+
+    expect([
+      await Actions.accounts.getConfig(resolving, { address }),
+      await Actions.accounts.getConfig(stored, { address }),
+    ]).toMatchInlineSnapshot(`
+      [
+        {
+          "owners": [
+            {
+              "owner": "0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000109703",
+          "threshold": 1,
+          "version": 0n,
+        },
+        {
+          "owners": [
+            {
+              "owner": "0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2",
+              "weight": 1,
+            },
+          ],
+          "salt": "0x0000000000000000000000000000000000000000000000000000000000109703",
+          "threshold": 1,
+          "version": 0n,
+        },
+      ]
+    `)
+  })
+
+  test('error: propagates a store failure while saving a resolved config', async () => {
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[6]!.address, weight: 1 }],
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(config)
+    const store = Store.from({
+      compareAndSet() {
+        throw new Error('Store unavailable.')
+      },
+      getItem() {
+        return null
+      },
+      removeItem() {},
+      setItem() {},
+    })
+    const client = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ resolveConfig: () => config, store })],
+        }),
+      ),
+    })
+
+    await expect(
+      Actions.accounts.getConfig(client, { address }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [UnknownRpcError: An unknown RPC error occurred.
+
+      Details: Store unavailable.
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: drops a resolved config for another account', async () => {
+    const store = Store.memory()
+    const config = AccountConfig.from({
+      owners: [{ owner: Tempo.accounts[4]!.address, weight: 1 }],
+      threshold: 1,
+    })
+    const address = AccountConfig.getAddress(
+      AccountConfig.from({
+        owners: [{ owner: Tempo.accounts[5]!.address, weight: 1 }],
+        threshold: 1,
+      }),
+    )
+    const resolving = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ resolveConfig: () => config, store })],
+        }),
+      ),
+    })
+    const stored = Tempo.getClient({
+      chain: Tempo.chain,
+      transport: custom(
+        Relay.create({
+          client: caller,
+          plugins: [Relay.accounts({ store })],
+        }),
+      ),
+    })
+
+    expect([
+      await Actions.accounts.getConfig(resolving, { address }),
+      await Actions.accounts.getConfig(stored, { address }),
+    ]).toMatchInlineSnapshot(`
+      [
+        null,
+        null,
+      ]
+    `)
   })
 })
 

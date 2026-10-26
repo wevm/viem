@@ -44,6 +44,40 @@ instances, use the same persistent [atomic store](/tempo/utilities/Store). See
 [Send Configurable Account Transactions](/tempo/guides/configurable-accounts/send) for the client
 flow.
 
+### Resolve Configs the Relay Has Not Seen
+
+The plugin stores the configs that pass through it. Pass `resolveConfig` to look up any other
+config, such as from an indexer of `ConfigurableAccountConfigUpdated` events. The plugin
+stores a resolved config only when it matches the account and its onchain commitment.
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { http } from 'viem'
+import {
+  AccountConfig,
+  createClient,
+  Relay,
+  Store,
+  withRelay,
+} from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.accounts({
+        async resolveConfig({ address, chainId, commitment }) { // [!code focus]
+          const response = await fetch( // [!code focus]
+            `https://indexer.example.com/configs/${chainId}/${address}/${commitment}`, // [!code focus]
+          ) // [!code focus]
+          if (!response.ok) return null // [!code focus]
+          return AccountConfig.fromRpc(await response.json()) // [!code focus]
+        }, // [!code focus]
+        store: Store.memory(),
+      }),
+    ],
+  }),
+})
+```
+
 ## `Relay.accounts`
 
 Creates middleware that coordinates configurable account approvals. The middleware infers
@@ -59,6 +93,27 @@ const plugin = Relay.accounts({ store: Store.memory() })
 ```
 
 ### Parameters
+
+#### options.resolveConfig
+
+- **Type:** `(options: Relay.accounts.resolveConfig.Options) => MaybePromise<AccountConfig.Config | null | undefined>`
+
+Resolves a config that `store` does not hold. `account_getConfig` calls it with the account, its
+chain, and the commitment read from that chain. The plugin stores and returns the result only
+when it matches the account and commitment. Otherwise the response is `null`.
+
+```ts twoslash
+import { type AccountConfig, Relay, Store } from 'viem/tempo'
+
+declare function findConfig(
+  options: Relay.accounts.resolveConfig.Options,
+): Promise<AccountConfig.Config | null>
+// ---cut---
+const plugin = Relay.accounts({
+  resolveConfig: (options) => findConfig(options), // [!code focus]
+  store: Store.memory(),
+})
+```
 
 #### options.store
 
@@ -96,8 +151,9 @@ this capability to enable coordinated transaction preparation.
 ### `account_getConfig`
 
 Reads the account's current config commitment and returns the matching validated config from the
-shared store. It returns `null` when the relay has not seen that config. The response includes the
-owner addresses and weights, so public handlers expose cached owner lists.
+shared store, or from `resolveConfig`. It returns `null` when neither holds that config. Configs are
+stored per chain. The response includes the owner addresses and weights, so public handlers expose
+cached owner lists.
 
 ### `eth_sendRawTransaction`
 

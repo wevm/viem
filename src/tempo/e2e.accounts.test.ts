@@ -1076,7 +1076,7 @@ describe('stateful', () => {
     const address = tempo.accounts[19].address
     const store = Store.memory()
     await store.setItem(
-      `configurableAccount:config:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
+      `configurableAccount:config:${tempoLocalnet.id}:${address.toLowerCase()}:${toHex(0, { size: 32 })}`,
       'invalid json',
     )
     const client = createClient({
