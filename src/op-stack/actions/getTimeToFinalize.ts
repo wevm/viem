@@ -2,10 +2,14 @@ import {
   type MulticallErrorType,
   multicall,
 } from '../../actions/public/multicall.js'
-import { readContract } from '../../actions/public/readContract.js'
+import {
+  type ReadContractErrorType,
+  readContract,
+} from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import { ContractFunctionRevertedError } from '../../errors/contract.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type {
@@ -39,7 +43,10 @@ export type GetTimeToFinalizeReturnType = {
   /** Timestamp of when the withdrawal can be finalized. */
   timestamp: number
 }
-export type GetTimeToFinalizeErrorType = MulticallErrorType | ErrorType
+export type GetTimeToFinalizeErrorType =
+  | MulticallErrorType
+  | ReadContractErrorType
+  | ErrorType
 
 const buffer = 10
 
@@ -191,13 +198,13 @@ export async function getTimeToFinalize<
       abi: disputeGameAbi,
       address: disputeGameProxy,
       functionName: 'expectedResolution',
-    }).catch(() => undefined),
+    }).catch(unsupported),
     // Only some game types implement `maxClockDuration` (e.g. `FaultDisputeGame`).
     readContract(client, {
       abi: disputeGameAbi,
       address: disputeGameProxy,
       functionName: 'maxClockDuration',
-    }).catch(() => undefined),
+    }).catch(unsupported),
     readContract(client, {
       abi: portal2Abi,
       address: portalAddress,
@@ -238,4 +245,10 @@ export async function getTimeToFinalize<
   const timestamp = Date.now() + seconds * 1000
 
   return { period: Number(proofMaturityDelaySeconds), seconds, timestamp }
+}
+
+/** Returns `undefined` when the game does not implement the getter, and rethrows other errors. */
+function unsupported(error: ReadContractErrorType) {
+  if (error.cause instanceof ContractFunctionRevertedError) return undefined
+  throw error
 }
