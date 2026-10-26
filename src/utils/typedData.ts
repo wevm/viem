@@ -119,12 +119,13 @@ export function validateTypedData<
       }
 
       const struct = types[type]
-      if (struct) {
-        validateReference(type)
-        validateData(struct, value as Record<string, unknown>)
-      }
+      if (struct) validateData(struct, value as Record<string, unknown>)
     }
   }
+
+  // Validate struct types, including ones that are only referenced as array
+  // elements.
+  for (const type of Object.keys(types)) validateReference(type)
 
   // Validate domain types.
   if (types.EIP712Domain && domain) {
@@ -178,14 +179,16 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
 
 /** @internal */
 function validateReference(type: string) {
-  // Struct type must not be a Solidity type.
+  // Struct type must contain only letters, digits, `_` and `$`, and must not be
+  // a Solidity type, so it cannot shadow a Solidity type or an array of one. A
+  // struct such as `intent` or `bytesInfo` is valid, while `uint7` or `bytes33`
+  // is rejected, since other implementations parse it as a Solidity type.
   if (
+    !/^[A-Za-z0-9_$]+$/.test(type) ||
     type === 'address' ||
     type === 'bool' ||
     type === 'string' ||
-    type.startsWith('bytes') ||
-    type.startsWith('uint') ||
-    type.startsWith('int')
+    /^(u?int|bytes)[0-9]*$/.test(type)
   )
     throw new InvalidStructTypeError({ type })
 }

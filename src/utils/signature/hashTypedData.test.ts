@@ -286,7 +286,59 @@ test('https://github.com/wevm/viem/issues/2888', () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidStructTypeError: Struct type "bytes32" is invalid.
 
-    Struct type must not be a Solidity type.
+    Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('struct type: prefixed by a Solidity type', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'intent', type: 'intent' }],
+        intent: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { intent: { amount: 1n } },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0xcbeb995e95e87817f47e51736d0e5825644055cbcad196c2b26449ad78fd87ee"`,
+  )
+})
+
+test('struct type: with $', () => {
+  expect(
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'order', type: 'Order$1' }],
+        Order$1: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { order: { amount: 1n } },
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x97a137d1f96a18c6a214fd8e7b991ed7309ff25f223b68aa63a4670f9838a94a"`,
+  )
+})
+
+test('struct type: array of a Solidity type', () => {
+  expect(() =>
+    hashTypedData({
+      domain: { name: 'Domain' },
+      types: {
+        Message: [{ name: 'amounts', type: 'uint256[]' }],
+        'uint256[]': [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Message',
+      message: { amounts: { amount: 1n } },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidStructTypeError: Struct type "uint256[]" is invalid.
+
+    Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
 
     Version: viem@x.y.z]
   `)
