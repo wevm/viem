@@ -100,7 +100,7 @@ export function assertTransactionEIP1559(
   const { chainId, maxPriorityFeePerGas, maxFeePerGas, to } = transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
-  if (typeof maxFeePerGas === 'bigint' && maxFeePerGas > maxUint256)
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     typeof maxPriorityFeePerGas === 'bigint' &&
@@ -129,7 +129,7 @@ export function assertTransactionEIP2930(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid EIP-2930 Transaction attribute.',
     )
-  if (typeof gasPrice === 'bigint' && gasPrice > maxUint256)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }
 
@@ -153,6 +153,6 @@ export function assertTransactionLegacy(
     throw new BaseError(
       '`maxFeePerGas`/`maxPriorityFeePerGas` is not a valid Legacy Transaction attribute.',
     )
-  if (typeof gasPrice === 'bigint' && gasPrice > maxUint256)
+  if (gasPrice && gasPrice > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas: gasPrice })
 }

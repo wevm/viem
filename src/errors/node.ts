@@ -53,9 +53,7 @@ export class FeeCapTooHighError extends BaseError {
   } = {}) {
     super(
       `The fee cap (\`maxFeePerGas\`${
-        typeof maxFeePerGas === 'bigint'
-          ? ` = ${formatGwei(maxFeePerGas)} gwei`
-          : ''
+        maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ''
       }) cannot be higher than the maximum allowed value (2^256-1).`,
       {
         cause,
