@@ -28,8 +28,8 @@ import type * as Transaction from '../Transaction.js'
  * Derives a configurable account address from an initial config with the
  * configurable account precompile.
  *
- * The precompile validates the config and derives the address with the chain's
- * recovery factory. To derive the address locally, use
+ * The precompile validates the config and derives the address from its hash.
+ * To derive the address locally, use
  * `AccountConfig.getAddress` or `Account.fromConfig({ address: 'infer' })`.
  *
  * @example

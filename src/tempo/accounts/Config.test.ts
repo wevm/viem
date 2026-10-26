@@ -2,7 +2,6 @@ import * as Hex from 'ox/Hex'
 import * as Json from 'ox/Json'
 import { AccountConfig } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
@@ -11,9 +10,7 @@ const initialConfig = AccountConfig.from({
   owners: [{ owner, weight: 1 }],
   threshold: 1,
 })
-const address = AccountConfig.getAddress(initialConfig, {
-  factory: configurableAccountRecoveryFactory,
-})
+const address = AccountConfig.getAddress(initialConfig)
 const zeroCommitment = Hex.fromNumber(0, { size: 32 })
 const currentConfig = AccountConfig.from({
   ...initialConfig,

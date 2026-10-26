@@ -24,7 +24,6 @@ import {
 } from '~test/tempo/config.js'
 import { custom } from '../clients/transports/custom.js'
 import * as Account_ from './Account.js'
-import { configurableAccountRecoveryFactory } from './Addresses.js'
 import * as Transaction_ from './Transaction.js'
 import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
@@ -109,9 +108,7 @@ describe('withRelay', () => {
     const transaction = {
       calls: [{ data: '0xdeadbeef', to: accounts[20].address }],
       chainId: chain.id,
-      from: AccountConfig.getAddress(config, {
-        factory: configurableAccountRecoveryFactory,
-      }),
+      from: AccountConfig.getAddress(config),
       accountSimulation: {
         approvals: [{ owner: owner.address }],
         config,

@@ -10,10 +10,7 @@ import {
   parseUnits,
   type Transport,
 } from '../../../src/index.js'
-import {
-  configurableAccountRecoveryFactory,
-  pathUsd,
-} from '../../../src/tempo/Addresses.js'
+import { pathUsd } from '../../../src/tempo/Addresses.js'
 import * as actions from '../../../src/tempo/actions/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
 import { accounts, getClient, nodeEnv } from './config.js'
@@ -91,7 +88,7 @@ export async function createServer() {
     if (import.meta.env.VITE_TEMPO_BINARY) {
       if (import.meta.env.VITE_TEMPO_ACCOUNTS === 'true')
         throw new Error(
-          'Configurable account tests require the Docker image with a configured recovery factory; unset VITE_TEMPO_BINARY.',
+          'Configurable account tests require the Docker image; unset VITE_TEMPO_BINARY.',
         )
       return Instance.tempo({
         ...args,
@@ -116,8 +113,6 @@ export async function createServer() {
           { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 },
         ),
       )
-      genesis.config.configurableAccountRecoveryFactory =
-        configurableAccountRecoveryFactory
       // Configurable accounts activate at T14.
       genesis.config.t14Time = 0
       return TestContainers.Instance.testcontainer({
