@@ -34,6 +34,7 @@ import {
   encodeFunctionResult,
   type Hex,
   http,
+  InsufficientFundsError,
   maxUint256,
   multicall3Abi,
   pad,
@@ -497,7 +498,10 @@ describe('errors', () => {
         to: accounts[0].address,
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toMatchObject({
+      cause: expect.any(InsufficientFundsError),
+      name: 'CallExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {

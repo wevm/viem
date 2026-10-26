@@ -7,6 +7,7 @@
  *        - Custom chain types
  *        - Custom nonce
  */
+import { InsufficientFundsError } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample } from '~contracts/generated.js'
@@ -768,7 +769,13 @@ describe('node errors', () => {
         // @ts-expect-error
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toMatchObject({
+      cause: {
+        cause: expect.any(InsufficientFundsError),
+        name: 'CallExecutionError',
+      },
+      name: 'ContractFunctionExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
