@@ -118,3 +118,29 @@ test('default', () => {
     ]
   `)
 })
+
+test('behavior: yParity above 1', () => {
+  expect(
+    serializeAuthorizationList([
+      {
+        address: wagmiContractConfig.address,
+        chainId: 1,
+        nonce: 69,
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        yParity: 28,
+      },
+    ]),
+  ).toMatchInlineSnapshot(`
+    [
+      [
+        "0x1",
+        "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+        "0x45",
+        "0x1c",
+        "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+        "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+      ],
+    ]
+  `)
+})
