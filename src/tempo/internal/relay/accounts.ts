@@ -25,6 +25,7 @@ import type * as Relay from '../../Relay.js'
 import type * as Store from '../../Store.js'
 import * as Transaction from '../../Transaction.js'
 import * as Plugin from './plugin.js'
+import * as Utils from './utils.js'
 
 const submissionTtl = 30_000
 const pollingInterval = 100
@@ -81,8 +82,11 @@ export function create(
           throw new RpcResponse.InvalidParamsError({
             message: 'A chain ID is required to resolve the downstream client.',
           })
+        // Surface a downstream failure as its RPC error, not as a reverted read.
         const commitment = await getConfigCommitment(client, {
           account: address,
+        }).catch((error) => {
+          throw Utils.toRpcError(error)
         })
         const config = await ConfigStore.read(options.store, {
           address,
