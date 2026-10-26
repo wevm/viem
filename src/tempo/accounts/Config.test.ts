@@ -6,6 +6,7 @@ import { configurableAccountRecoveryFactory } from '../Addresses.js'
 import * as Store from '../Store.js'
 import * as Config from './Config.js'
 
+const chainId = 4217
 const owner = '0x1111111111111111111111111111111111111111'
 const initialConfig = AccountConfig.from({
   owners: [{ owner, weight: 1 }],
@@ -26,15 +27,21 @@ describe('read', () => {
     const store = Store.memory()
     await Config.write(store, {
       address,
+      chainId,
       commitment: zeroCommitment,
       config: initialConfig,
     })
     const commitment = AccountConfig.getCommitment(initialConfig)
-    expect(await Config.read(store, { address, commitment })).toEqual(
+    expect(await Config.read(store, { address, chainId, commitment })).toEqual(
       initialConfig,
     )
-    await Config.write(store, { address, commitment, config: initialConfig })
-    expect(await Config.read(store, { address, commitment })).toEqual(
+    await Config.write(store, {
+      address,
+      chainId,
+      commitment,
+      config: initialConfig,
+    })
+    expect(await Config.read(store, { address, chainId, commitment })).toEqual(
       initialConfig,
     )
   })
@@ -43,12 +50,13 @@ describe('read', () => {
     const store = Store.memory()
     await Config.write(store, {
       address,
+      chainId,
       commitment: zeroCommitment,
       config: initialConfig,
     })
 
     await expect(
-      Config.read(store, { address, commitment: zeroCommitment }),
+      Config.read(store, { address, chainId, commitment: zeroCommitment }),
     ).resolves.toMatchInlineSnapshot(`
       {
         "owners": [
@@ -68,12 +76,13 @@ describe('read', () => {
     const store = Store.memory()
     await Config.write(store, {
       address,
+      chainId,
       commitment: currentCommitment,
       config: currentConfig,
     })
 
     await expect(
-      Config.read(store, { address, commitment: currentCommitment }),
+      Config.read(store, { address, chainId, commitment: currentCommitment }),
     ).resolves.toMatchInlineSnapshot(`
       {
         "owners": [
@@ -98,11 +107,13 @@ describe('read', () => {
     const rotatedCommitment = AccountConfig.getCommitment(rotatedConfig)
     await Config.write(store, {
       address,
+      chainId,
       commitment: currentCommitment,
       config: currentConfig,
     })
     await Config.write(store, {
       address,
+      chainId,
       commitment: rotatedCommitment,
       config: rotatedConfig,
     })
@@ -111,18 +122,21 @@ describe('read', () => {
       (
         await Config.read(store, {
           address,
+          chainId,
           commitment: currentCommitment,
         })
       )?.version,
       (
         await Config.read(store, {
           address,
+          chainId,
           commitment: rotatedCommitment,
         })
       )?.version,
       (
         await Config.read(store, {
           address,
+          chainId,
           commitment: currentCommitment,
         })
       )?.version,
@@ -135,10 +149,29 @@ describe('read', () => {
     `)
   })
 
+  test('behavior: returns null on another chain', async () => {
+    const store = Store.memory()
+    await Config.write(store, {
+      address,
+      chainId,
+      commitment: zeroCommitment,
+      config: initialConfig,
+    })
+
+    await expect(
+      Config.read(store, {
+        address,
+        chainId: 1,
+        commitment: zeroCommitment,
+      }),
+    ).resolves.toMatchInlineSnapshot(`null`)
+  })
+
   test('behavior: returns null for an unknown config', async () => {
     await expect(
       Config.read(Store.memory(), {
         address,
+        chainId,
         commitment: zeroCommitment,
       }),
     ).resolves.toMatchInlineSnapshot(`null`)
@@ -155,6 +188,11 @@ describe('read', () => {
   ])('error: rejects malformed stored data %#', async (value) => {
     const values = new Map<string, string>()
     const store = Store.from({
+      compareAndSet(key, expected, value) {
+        if ((values.get(key) ?? null) !== expected) return false
+        values.set(key, value)
+        return true
+      },
       getItem(key) {
         return values.get(key) ?? null
       },
@@ -167,6 +205,7 @@ describe('read', () => {
     })
     await Config.write(store, {
       address,
+      chainId,
       commitment: zeroCommitment,
       config: initialConfig,
     })
@@ -175,7 +214,7 @@ describe('read', () => {
     values.set(key, value)
 
     await expect(
-      Config.read(store, { address, commitment: zeroCommitment }),
+      Config.read(store, { address, chainId, commitment: zeroCommitment }),
     ).rejects.toMatchObject({
       name: 'Accounts.Config.InvalidStoreValueError',
       shortMessage: 'Stored account config is malformed or mismatched.',
@@ -184,10 +223,49 @@ describe('read', () => {
 })
 
 describe('write', () => {
+  test('behavior: keeps an existing value', async () => {
+    const values = new Map<string, string>()
+    const store = Store.from({
+      compareAndSet(key, expected, value) {
+        if ((values.get(key) ?? null) !== expected) return false
+        values.set(key, value)
+        return true
+      },
+      getItem(key) {
+        return values.get(key) ?? null
+      },
+      removeItem(key) {
+        values.delete(key)
+      },
+      setItem(key, value) {
+        values.set(key, value)
+      },
+    })
+    await Config.write(store, {
+      address,
+      chainId,
+      commitment: currentCommitment,
+      config: currentConfig,
+    })
+    const key = values.keys().next().value
+    if (!key) throw new Error('Expected config store key.')
+    values.set(key, 'existing')
+
+    await Config.write(store, {
+      address,
+      chainId,
+      commitment: currentCommitment,
+      config: currentConfig,
+    })
+
+    expect(values.get(key)).toMatchInlineSnapshot(`"existing"`)
+  })
+
   test('error: rejects an initial config for another account', async () => {
     await expect(
       Config.write(Store.memory(), {
         address: '0x2222222222222222222222222222222222222222',
+        chainId,
         commitment: zeroCommitment,
         config: initialConfig,
       }),
@@ -201,8 +279,23 @@ describe('write', () => {
     await expect(
       Config.write(Store.memory(), {
         address,
+        chainId,
         commitment: zeroCommitment,
         config: currentConfig,
+      }),
+    ).rejects.toMatchObject({
+      name: 'Accounts.Config.InvalidStoreValueError',
+      shortMessage: 'Stored account config is malformed or mismatched.',
+    })
+  })
+
+  test('error: rejects a malformed config', async () => {
+    await expect(
+      Config.write(Store.memory(), {
+        address,
+        chainId,
+        commitment: currentCommitment,
+        config: { ...currentConfig, threshold: 0 },
       }),
     ).rejects.toMatchObject({
       name: 'Accounts.Config.InvalidStoreValueError',

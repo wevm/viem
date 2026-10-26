@@ -76,17 +76,39 @@ export function create(
           throw new RpcResponse.InvalidParamsError({
             message: 'Expected a configurable account address.',
           })
-        const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+        const chainId = requestOptions?.chainId
+        if (chainId === undefined)
+          throw new RpcResponse.InvalidParamsError({
+            message: 'A chain ID is required to resolve the downstream client.',
+          })
         const commitment = await getConfigCommitment(client, {
           account: address,
-          blockNumber,
         })
         const config = await ConfigStore.read(options.store, {
           address,
+          chainId,
           commitment,
         })
-        if (!config) return null
-        return AccountConfig.toRpc(config)
+        if (config) return AccountConfig.toRpc(config)
+        const resolved = await options.resolveConfig?.({
+          address,
+          chainId,
+          commitment,
+        })
+        if (!resolved) return null
+        try {
+          await ConfigStore.write(options.store, {
+            address,
+            chainId,
+            commitment,
+            config: resolved,
+          })
+        } catch (error) {
+          // A resolved config that does not match the account and commitment is not served.
+          if (error instanceof ConfigStore.InvalidStoreValueError) return null
+          throw error
+        }
+        return AccountConfig.toRpc(AccountConfig.from(resolved))
       }
 
       if (request.method === 'account_getOperation') {
@@ -101,6 +123,7 @@ export function create(
 
       if (request.method === 'account_approveKeyAuthorization')
         return await approveKeyAuthorization({
+          chainId: requestOptions?.chainId,
           client,
           request,
           store: options.store,
@@ -325,6 +348,7 @@ async function submit(options: submit.Options) {
 
   await ConfigStore.write(options.store, {
     address: signature.account,
+    chainId: transaction.chainId,
     commitment: configCommitment,
     config,
   })
@@ -643,6 +667,11 @@ async function approveKeyAuthorization(
       message: 'A owner approval envelope must include a signature.',
     })
 
+  const { chainId } = options
+  if (chainId === undefined)
+    throw new RpcResponse.InvalidParamsError({
+      message: 'A chain ID is required to resolve the downstream client.',
+    })
   const blockNumber = await getBlockNumber(options.client, { cacheTime: 0 })
   const commitment = await validateConfig({
     account: approval.account,
@@ -723,6 +752,7 @@ async function approveKeyAuthorization(
   )
   await ConfigStore.write(options.store, {
     address: approval.account,
+    chainId,
     commitment,
     config: approval.config,
   })
@@ -734,6 +764,8 @@ async function approveKeyAuthorization(
 declare namespace approveKeyAuthorization {
   /** Options for {@link approveKeyAuthorization}. */
   export type Options = {
+    /** Chain of `client`, whose commitment validates the config. */
+    chainId?: number | undefined
     /** Client used to validate configs. */
     client: ReturnType<typeof createClient>
     /** Original RPC request. */
@@ -845,6 +877,7 @@ async function cacheNextConfigs(options: cacheNextConfigs.Options) {
     if (!config) continue
     await ConfigStore.write(options.store, {
       address: options.account,
+      chainId: options.transaction.chainId,
       commitment: AccountConfig.getCommitment(config),
       config,
     })
@@ -860,7 +893,7 @@ declare namespace cacheNextConfigs {
     /** Root config used to authorize the transaction. */
     config: AccountConfig.Config
     /** Shared account store. */
-    store: Store.Store
+    store: Store.Atomic
     /** Submitted transaction containing potential config updates. */
     transaction: Transaction.TransactionSerializableTempo
   }
@@ -897,6 +930,7 @@ async function cacheUpgradeConfig(options: cacheUpgradeConfig.Options) {
   if (!config) return
   await ConfigStore.write(options.store, {
     address: from,
+    chainId: options.transaction.chainId,
     commitment: AccountConfig.getCommitment(config),
     config,
   })
@@ -906,7 +940,7 @@ declare namespace cacheUpgradeConfig {
   /** Parameters for {@link cacheUpgradeConfig}. */
   export type Options = {
     /** Shared account store. */
-    store: Store.Store
+    store: Store.Atomic
     /** Submitted transaction containing a potential account upgrade. */
     transaction: Transaction.TransactionSerializableTempo
   }

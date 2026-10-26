@@ -1,9 +1,12 @@
 import type { Address } from 'abitype'
+import type * as Hex from 'ox/Hex'
 import * as RpcResponse from 'ox/RpcResponse'
+import type { AccountConfig } from 'ox/tempo'
 import type { LocalAccount } from '../accounts/types.js'
 import type { Client as Client_ } from '../clients/createClient.js'
 import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
+import type { MaybePromise } from '../types/utils.js'
 import * as Accounts from './internal/relay/accounts.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
@@ -342,9 +345,32 @@ export function accounts(options: accounts.Options): accounts.ReturnType {
 export declare namespace accounts {
   /** Configurable account options. */
   export type Options = {
+    /**
+     * Resolves a config that `store` does not hold, such as from an indexer of
+     * `ConfigurableAccountConfigUpdated` events. The plugin stores and returns
+     * a resolved config only when it matches the account and commitment.
+     */
+    resolveConfig?:
+      | ((
+          options: resolveConfig.Options,
+        ) => MaybePromise<AccountConfig.Config | null | undefined>)
+      | undefined
     /** Store shared by relays, with atomic compare-and-set support. */
     store: Store.Atomic
   }
+
+  export namespace resolveConfig {
+    /** Lookup that `resolveConfig` receives. */
+    export type Options = {
+      /** Configurable account address. */
+      address: Address
+      /** Chain whose commitment the config must match. */
+      chainId: number
+      /** Config commitment read from the chain. */
+      commitment: Hex.Hex
+    }
+  }
+
   /** Middleware advertising configurable account support. */
   export type ReturnType = Plugin & { readonly [accountsBrand]: true }
 }
