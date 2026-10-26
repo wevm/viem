@@ -243,6 +243,28 @@ test('TipAboveFeeCapError', () => {
 
     Version: viem@x.y.z]
   `)
+
+  error = new TipAboveFeeCapError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+    Version: viem@x.y.z]
+  `)
+
+  error = new TipAboveFeeCapError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: null as never,
+    maxPriorityFeePerGas: parseGwei('70'),
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 70 gwei) cannot be higher than the fee cap (\`maxFeePerGas\`).
+
+    Version: viem@x.y.z]
+  `)
 })
 
 test('UnknownNodeError', () => {
