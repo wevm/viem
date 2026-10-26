@@ -1,12 +1,4 @@
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  onTestFinished,
-  test,
-  vi,
-} from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
@@ -416,17 +408,12 @@ describe('without `eth_fillTransaction`', () => {
 
   test('args: maxFeePerGas (zero, under default tip)', async () => {
     await setup()
-    supportsFillTransaction.set(client.uid, false)
-    onTestFinished(() => {
-      supportsFillTransaction.delete(client.uid)
-    })
 
     await expect(() =>
       prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
         to: targetAccount.address,
         maxFeePerGas: 0n,
-        parameters: ['fees'],
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
