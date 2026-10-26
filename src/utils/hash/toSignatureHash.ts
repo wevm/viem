@@ -10,7 +10,7 @@ export type ToSignatureHashErrorType =
   | ErrorType
 
 /**
- * Returns the hash (of the function/event signature) for a given event or function definition.
+ * Returns the hash (of the function/event/error signature) for a given function, event, or error definition.
  */
 export function toSignatureHash(fn: string | AbiFunction | AbiEvent) {
   return hashSignature(toSignature(fn))

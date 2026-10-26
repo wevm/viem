@@ -26,6 +26,14 @@ test('creates function signature', () => {
   )
 })
 
+test('creates error selector', () => {
+  expect(toFunctionSelector('error Unauthorized(address)')).toEqual(
+    '0x8e4a23d6',
+  )
+  expect(toFunctionSelector('error Error(string)')).toEqual('0x08c379a0')
+  expect(toFunctionSelector('error Panic(uint256 code)')).toEqual('0x4e487b71')
+})
+
 test('creates function signature from `AbiFunction`', () => {
   expect(
     toFunctionSelector({
