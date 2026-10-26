@@ -550,9 +550,7 @@ describe.runIf(
       salt: toHex(0x109703, { size: 32 }),
       threshold: 1,
     })
-    const address = AccountConfig.getAddress(config, {
-      factory: configurableAccountRecoveryFactory,
-    })
+    const address = AccountConfig.getAddress(config)
     const resolving = Tempo.getClient({
       chain: Tempo.chain,
       transport: custom(
@@ -618,9 +616,7 @@ describe.runIf(
       owners: [{ owner: Tempo.accounts[6]!.address, weight: 1 }],
       threshold: 1,
     })
-    const address = AccountConfig.getAddress(config, {
-      factory: configurableAccountRecoveryFactory,
-    })
+    const address = AccountConfig.getAddress(config)
     const store = Store.from({
       compareAndSet() {
         throw new Error('Store unavailable.')
@@ -662,7 +658,6 @@ describe.runIf(
         owners: [{ owner: Tempo.accounts[5]!.address, weight: 1 }],
         threshold: 1,
       }),
-      { factory: configurableAccountRecoveryFactory },
     )
     const resolving = Tempo.getClient({
       chain: Tempo.chain,
