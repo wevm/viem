@@ -361,7 +361,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: with feePayer', () => {
 describe.runIf(
   nodeEnv === 'localnet' &&
     import.meta.env.VITE_TEMPO_ACCOUNTS === 'true' &&
-    import.meta.env.VITE_TEMPO_TAG === 'sha-04e67d3',
+    import.meta.env.VITE_TEMPO_TAG === 'sha-179347b',
 )('accounts', () => {
   let client: typeof caller
   let server: Server

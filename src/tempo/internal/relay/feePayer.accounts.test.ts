@@ -6,7 +6,7 @@ import {
   TxEnvelopeTempo,
 } from 'ox/tempo'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions, Addresses, Relay, Transaction } from 'viem/tempo'
+import { Account, Actions, Relay, Transaction } from 'viem/tempo'
 import { expect, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
 
@@ -125,11 +125,7 @@ function configurableConfig(
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
 async function configurableHandoff(options: configurableHandoff.Options) {
   const { config, owners } = options
-  const account =
-    options.account ??
-    AccountConfig.getAddress(config, {
-      factory: Addresses.configurableAccountRecoveryFactory,
-    })
+  const account = options.account ?? AccountConfig.getAddress(config)
   const envelope = TxEnvelopeTempo.from({
     calls: [transfer],
     chainId: Tempo.chain.id,
@@ -185,9 +181,7 @@ async function configurableKeyAuthorization(
   options: configurableKeyAuthorization.Options,
 ) {
   const { config, signer } = options
-  const victim = AccountConfig.getAddress(config, {
-    factory: Addresses.configurableAccountRecoveryFactory,
-  })
+  const victim = AccountConfig.getAddress(config)
   const accessKey = Account.fromSecp256k1(generatePrivateKey())
   const unsigned = KeyAuthorization.from({
     account: victim,

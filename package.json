@@ -75,7 +75,7 @@
     "knip": "^5.64.0",
     "magic-string": "^0.30.21",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.57",
+    "ox": "0.14.59",
     "permissionless": "^0.2.57",
     "prool": "~0.2.16",
     "publint": "^0.2.12",

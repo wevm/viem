@@ -11,7 +11,6 @@ import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
-import { configurableAccountRecoveryFactory } from './Addresses.js'
 import * as Scopes from './Scopes.js'
 import * as Transaction from './Transaction.js'
 
@@ -62,7 +61,7 @@ describe('fromConfig', () => {
       { owners: expect.any(Array) },
       `
       {
-        "address": "0x0D93B1AFc81858e91CDAD6373816cBFB1813ecA3",
+        "address": "0x00a786b5deE39362fEAB935C9B9BCAc7D6b36850",
         "config": {
           "owners": [
             {
@@ -87,25 +86,13 @@ describe('fromConfig', () => {
     )
   })
 
-  test('behavior: Tempo CREATE2 vector', () => {
+  test('behavior: Tempo account vector', () => {
     const account = Account.fromConfig({
       address: 'infer',
       owners: ['0x1111111111111111111111111111111111111111'],
     })
 
-    expect(account.address).toBe('0x2318EBe50D1D476Ec10854bFD949f96Ea7737B68')
-  })
-
-  test('behavior: factory', () => {
-    const account = Account.fromConfig({
-      address: 'infer',
-      factory: '0x9999999999999999999999999999999999999999',
-      owners: ['0x1111111111111111111111111111111111111111'],
-    })
-
-    expect(account.address).toMatchInlineSnapshot(
-      `"0x87c346A9029D675F296db533B12e146439CF20d5"`,
-    )
+    expect(account.address).toBe('0xCbB727E2489C904A905420E794e8275B6150bfE1')
   })
 
   test('behavior: upgrade config', () => {
@@ -632,9 +619,7 @@ describe('signTransaction', () => {
       calls: [],
       chainId: 1,
       maxFeePerGas: parseGwei('10'),
-      from: AccountConfig.getAddress(initialConfig, {
-        factory: configurableAccountRecoveryFactory,
-      }),
+      from: AccountConfig.getAddress(initialConfig),
       accountSimulation: {
         approvals: [{ owner: owner.address }],
         config,
