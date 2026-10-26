@@ -1,7 +1,7 @@
 import { json } from 'node:stream/consumers'
 import { http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance, mine, sendCalls } from 'viem/actions'
+import { getBalance, getTransaction, mine, sendCalls } from 'viem/actions'
 import { describe, expect, onTestFinished, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
@@ -763,6 +763,26 @@ describe('behavior: eth_sendTransaction fallback', () => {
     })
     const hashes = expectFallbackId(response.id, 3)
     expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
+  })
+
+  test('behavior: dataSuffix (no data)', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+          dataSuffix: '0x12345678',
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+
+    const [hash] = expectFallbackId(response.id, 1)
+    const { input } = await getTransaction(client, { hash: hash! })
+    expect(input).toMatchInlineSnapshot(`"0x12345678"`)
   })
 })
 
