@@ -9,7 +9,7 @@ import {
 export type ToSignatureErrorType = NormalizeSignatureErrorType | ErrorType
 
 /**
- * Returns the signature for a given function or event definition.
+ * Returns the signature for a given function, event, or error definition.
  *
  * @example
  * const signature = toSignature('function ownerOf(uint256 tokenId)')
