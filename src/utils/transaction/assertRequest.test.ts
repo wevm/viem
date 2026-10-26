@@ -74,6 +74,15 @@ test('null fee cap', () => {
   ).not.toThrow()
 })
 
+test('zero tip and zero fee cap', () => {
+  expect(() =>
+    assertRequest({
+      maxFeePerGas: 0n,
+      maxPriorityFeePerGas: 0n,
+    }),
+  ).not.toThrow()
+})
+
 test('tip higher than zero fee cap', () => {
   expect(() =>
     assertRequest({

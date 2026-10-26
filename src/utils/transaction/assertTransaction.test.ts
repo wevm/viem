@@ -211,6 +211,16 @@ describe('eip1559', () => {
     `)
   })
 
+  test('zero tip and zero fee cap', () => {
+    expect(() =>
+      assertTransactionEIP1559({
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 0n,
+        chainId: 1,
+      }),
+    ).not.toThrow()
+  })
+
   test('tip higher than zero fee cap', () => {
     expect(() =>
       assertTransactionEIP1559({

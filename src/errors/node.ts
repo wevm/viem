@@ -249,7 +249,7 @@ export class TipAboveFeeCapError extends BaseError {
     super(
       [
         `The provided tip (\`maxPriorityFeePerGas\`${
-          maxPriorityFeePerGas
+          typeof maxPriorityFeePerGas === 'bigint'
             ? ` = ${formatGwei(maxPriorityFeePerGas)} gwei`
             : ''
         }) cannot be higher than the fee cap (\`maxFeePerGas\`${

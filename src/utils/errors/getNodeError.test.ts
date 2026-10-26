@@ -307,6 +307,32 @@ test('TipAboveFeeCap (zero fee cap)', () => {
   `)
 })
 
+test('TipAboveFeeCap (zero tip)', () => {
+  const error = new TransactionRejectedRpcError(
+    new RpcRequestError({
+      body: {},
+      error: {
+        code: -32003,
+        message: 'max priority fee per gas higher than max fee per gas',
+      },
+      url: '',
+    }),
+  )
+
+  const result = getNodeError(error, {
+    account: address.vitalik,
+    maxFeePerGas: 0n,
+    maxPriorityFeePerGas: 0n,
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+    Details: max priority fee per gas higher than max fee per gas
+    Version: viem@x.y.z]
+  `)
+})
+
 test('TipAboveFeeCap (null fee cap)', () => {
   const error = new TransactionRejectedRpcError(
     new RpcRequestError({
