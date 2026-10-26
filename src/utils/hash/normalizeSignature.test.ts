@@ -27,6 +27,10 @@ test('event Bar()', () => {
   expect(normalizeSignature('event Bar()')).toBe('Bar()')
 })
 
+test('error Foo(uint256 a)', () => {
+  expect(normalizeSignature('error Foo(uint256 a)')).toBe('Foo(uint256)')
+})
+
 test('function bar(uint foo)', () => {
   expect(normalizeSignature('function bar(uint foo)')).toBe('bar(uint)')
 })

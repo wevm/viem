@@ -1,7 +1,7 @@
 import { json } from 'node:stream/consumers'
 import { http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { getBalance, mine, sendCalls } from 'viem/actions'
+import { getBalance, getTransaction, mine, sendCalls } from 'viem/actions'
 import { describe, expect, onTestFinished, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
@@ -764,6 +764,26 @@ describe('behavior: eth_sendTransaction fallback', () => {
     const hashes = expectFallbackId(response.id, 3)
     expect(hashes).toContain(fallbackTransactionErrorMagicIdentifier)
   })
+
+  test('behavior: dataSuffix (no data)', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+          dataSuffix: '0x12345678',
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+
+    const [hash] = expectFallbackId(response.id, 1)
+    const { input } = await getTransaction(client, { hash: hash! })
+    expect(input).toMatchInlineSnapshot(`"0x12345678"`)
+  })
 })
 
 test('error: insufficient funds', async () => {
@@ -850,6 +870,51 @@ test('args: dataSuffix', async () => {
               "data": "0x1249c58b12345678",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})
+
+test('args: dataSuffix (no data)', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x12345678",
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
             },
           ],
           "capabilities": undefined,

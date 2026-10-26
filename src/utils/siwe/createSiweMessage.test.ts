@@ -70,6 +70,40 @@ test('parameters: domain', () => {
     Issued At: 2023-02-01T00:00:00.000Z"
   `)
 
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.xn--p1ai',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.xn--p1ai wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
+  expect(
+    createSiweMessage({
+      ...message,
+      domain: 'example.XN--P1AI',
+    }),
+  ).toMatchInlineSnapshot(`
+    "example.XN--P1AI wants you to sign in with your Ethereum account:
+    0xA0Cf798816D4b9b9866b5330EEa46a18382f251e
+
+
+    URI: https://example.com/path
+    Version: 1
+    Chain ID: 1
+    Nonce: foobarbaz
+    Issued At: 2023-02-01T00:00:00.000Z"
+  `)
+
   vi.useRealTimers()
 })
 
@@ -412,6 +446,12 @@ test.each([
   'example.com:3000',
   'localhost:3000',
   '127.0.0.1:3000',
+  'example.xN--p1ai',
+  'example.xn--p1ai:443',
+  'example.xn--vermgensberater-ctb',
+  // 63 octets: "xn--" plus 59 LDH characters.
+  `example.xn--${'a'.repeat(59)}`,
+  `example.${'a'.repeat(63)}`,
 ])('valid domain `%s`', (domain) => {
   expect(
     createSiweMessage({
@@ -430,6 +470,13 @@ test.each([
   'http://127.0.0.1:3000',
   'foobarbaz',
   '-example.com',
+  'example.xn--',
+  'example.xn--p1ai-',
+  'example.xx--p1ai',
+  'xn--p1ai',
+  // 64 octets: one past the maximum label length.
+  `example.xn--${'a'.repeat(60)}`,
+  `example.${'a'.repeat(64)}`,
 ])('invalid domain `%s`', (domain) => {
   expect(() =>
     createSiweMessage({
