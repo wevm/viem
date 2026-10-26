@@ -51,7 +51,17 @@ test('FeeCapTooLowError', () => {
 
   error = new FeeCapTooLowError({ cause: new BaseError('foo') })
   expect(error).toMatchInlineSnapshot(`
-    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` gwei) cannot be lower than the block base fee.
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\`) cannot be lower than the block base fee.
+
+    Version: viem@x.y.z]
+  `)
+
+  error = new FeeCapTooLowError({
+    cause: new BaseError('foo'),
+    maxFeePerGas: 0n,
+  })
+  expect(error).toMatchInlineSnapshot(`
+    [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 0 gwei) cannot be lower than the block base fee.
 
     Version: viem@x.y.z]
   `)

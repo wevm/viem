@@ -39,7 +39,7 @@ export function assertRequest(args: AssertRequestParameters) {
     throw new InvalidAddressError({ address: account.address })
   if (to && !isAddress(to)) throw new InvalidAddressError({ address: to })
 
-  if (maxFeePerGas && maxFeePerGas > maxUint256)
+  if (typeof maxFeePerGas === 'bigint' && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
     typeof maxPriorityFeePerGas === 'bigint' &&
