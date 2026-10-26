@@ -451,6 +451,7 @@ test.each([
   'example.xn--vermgensberater-ctb',
   // 63 octets: "xn--" plus 59 LDH characters.
   `example.xn--${'a'.repeat(59)}`,
+  `example.${'a'.repeat(63)}`,
 ])('valid domain `%s`', (domain) => {
   expect(
     createSiweMessage({
@@ -475,6 +476,7 @@ test.each([
   'xn--p1ai',
   // 64 octets: one past the maximum label length.
   `example.xn--${'a'.repeat(60)}`,
+  `example.${'a'.repeat(64)}`,
 ])('invalid domain `%s`', (domain) => {
   expect(() =>
     createSiweMessage({
