@@ -188,6 +188,74 @@ describe('validateTypedData', () => {
     ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
   })
 
+  test.each([
+    '1Order',
+    '_Order',
+    'bytesInfo',
+    'Foo$Bar',
+    'intent',
+    'interval',
+    'uintPair',
+  ])('struct type: %s', (type) => {
+    validateTypedData({
+      types: {
+        Order: [{ name: 'inner', type }],
+        [type]: [{ name: 'amount', type: 'uint256' }],
+      },
+      primaryType: 'Order',
+      message: { inner: { amount: 1n } },
+    } as any)
+  })
+
+  test.each([
+    'address',
+    'bool',
+    'bytes',
+    'bytes32',
+    'bytes32[]',
+    'bytes33',
+    'Foo.Bar',
+    'int',
+    'int8',
+    'int8[2]',
+    'string',
+    'uint',
+    'uint256',
+    'uint256 ',
+    'uint256[]',
+    'uint7',
+  ])('invalid struct type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Order: [{ name: 'inner', type }],
+          [type]: [{ name: 'amount', type: 'uint256' }],
+        },
+        primaryType: 'Order',
+        message: { inner: { amount: 1n } },
+      } as any),
+    ).toThrowError(`Struct type "${type}" is invalid.`)
+  })
+
+  test('invalid struct type: array element', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Message: [{ name: 'contents', type: 'bytes32[]' }],
+          bytes32: [],
+        },
+        primaryType: 'Message',
+        message: { contents: [pad('0x11', { size: 32 })] },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidStructTypeError: Struct type "bytes32" is invalid.
+
+      Struct type must contain only letters, digits, "_" and "$", and must not be a Solidity type.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('negative uint', () => {
     expect(() =>
       validateTypedData({
