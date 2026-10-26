@@ -1,10 +1,13 @@
-import { beforeAll, describe, expect, test, vi } from 'vitest'
+import { beforeAll, describe, expect, onTestFinished, test, vi } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts, address } from '~test/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/utils.js'
+import {
+  createHttpServer,
+  deployErc20InvalidTransferEvent,
+} from '~test/utils.js'
 import type { Client } from '../../index.js'
 
 import {
@@ -745,6 +748,104 @@ describe('poll', () => {
       unwatch()
 
       expect(logs.flat().length).toBe(2)
+    })
+
+    test('skips logs that do not match `event` when `strict: true`', async () => {
+      const server = await createHttpServer(async (req, res) => {
+        let body = ''
+        for await (const chunk of req) body += chunk
+        const request = JSON.parse(body)
+
+        res.setHeader('Content-Type', 'application/json')
+        if (request.method === 'eth_newFilter') {
+          res.end(
+            JSON.stringify({
+              error: { code: -32601, message: 'Method not found' },
+              id: request.id,
+              jsonrpc: '2.0',
+            }),
+          )
+          return
+        }
+        const response = await fetch(anvilMainnet.rpcUrl.http, {
+          body,
+          headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+        })
+        res.end(await response.text())
+      })
+      onTestFinished(async () => {
+        await server.close()
+      })
+      const proxyClient = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(server.url),
+      })
+      const { contractAddress } = await deployErc20InvalidTransferEvent()
+
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await writeContract(client, {
+        abi: ERC20InvalidTransferEvent.abi,
+        address: contractAddress!,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 1 })
+      const fromBlock = await getBlockNumber.getBlockNumber(client, {
+        cacheTime: 0,
+      })
+
+      const logs = await new Promise<
+        WatchEventOnLogsParameter<typeof event.transfer>
+      >((resolve, reject) => {
+        const unwatch = watchEvent(proxyClient, {
+          event: event.transfer,
+          fromBlock,
+          onError: reject,
+          onLogs: (logs_) => resolve(logs_),
+          strict: true,
+        })
+        onTestFinished(unwatch)
+      })
+
+      expect(
+        logs.map(
+          ({
+            blockHash: _blockHash,
+            blockNumber: _blockNumber,
+            blockTimestamp: _blockTimestamp,
+            transactionHash: _transactionHash,
+            ...log
+          }) => log,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            ],
+            "transactionIndex": 0,
+          },
+        ]
+      `)
     })
   })
 
