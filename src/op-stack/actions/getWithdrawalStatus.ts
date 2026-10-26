@@ -260,7 +260,9 @@ export async function getWithdrawalStatus<
   }).catch(() => withdrawal.sender)
 
   // Super-root games anchor on L2 timestamps instead of L2 block numbers.
-  const gameL2BlockNumber = await (async () => {
+  // Not awaited, so a missing L2 timestamp only fails the game lookup and a
+  // finalized withdrawal still resolves.
+  const gameL2BlockNumber = (async () => {
     if (typeof l2Timestamp === 'bigint') return l2Timestamp
     const gameType = await readContract(client, {
       abi: portal2Abi,
@@ -280,11 +282,13 @@ export async function getWithdrawalStatus<
     checkWithdrawalResult,
     finalizedResult,
   ] = await Promise.allSettled([
-    getGame(client, {
-      ...parameters,
-      l2BlockNumber: gameL2BlockNumber,
-      limit: gameLimit,
-    } as GetGameParameters),
+    gameL2BlockNumber.then((l2BlockNumber) =>
+      getGame(client, {
+        ...parameters,
+        l2BlockNumber,
+        limit: gameLimit,
+      } as GetGameParameters),
+    ),
     readContract(client, {
       abi: portal2Abi,
       address: portalAddress,

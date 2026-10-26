@@ -362,6 +362,17 @@ describe('super root games', () => {
     expect(status).toBe('ready-to-prove')
   })
 
+  test('finalized: no l2Timestamp', async () => {
+    const status = await getWithdrawalStatus(client, {
+      targetChain: optimismClient.chain,
+      l2BlockNumber: 21890440n,
+      withdrawalHash:
+        '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
+      sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
+    })
+    expect(status).toBe('finalized')
+  })
+
   test('error: receipt logs without blockTimestamp', async () => {
     const receipt = await getTransactionReceipt(optimismClient, {
       hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',

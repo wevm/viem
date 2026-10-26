@@ -12,6 +12,7 @@ const optimismClient = anvilOptimism.getClient()
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.useRealTimers()
 })
 
 test('args: l2Timestamp', async () => {
@@ -128,8 +129,6 @@ test('super root game', async () => {
     receipt,
     targetChain: optimismClient.chain,
   })
-
-  vi.useRealTimers()
 
   expect(time).toMatchInlineSnapshot(`
     {
