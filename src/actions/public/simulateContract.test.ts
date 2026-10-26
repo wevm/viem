@@ -24,6 +24,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { maxUint256 } from '../../constants/number.js'
+import { InsufficientFundsError } from '../../errors/node.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
@@ -768,7 +769,13 @@ describe('node errors', () => {
         // @ts-expect-error
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toMatchObject({
+      cause: {
+        cause: expect.any(InsufficientFundsError),
+        name: 'CallExecutionError',
+      },
+      name: 'ContractFunctionExecutionError',
+    })
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
