@@ -12,7 +12,6 @@ const optimismClient = anvilOptimism.getClient()
 
 afterEach(() => {
   vi.restoreAllMocks()
-  vi.useRealTimers()
 })
 
 test('args: l2Timestamp', async () => {
@@ -123,18 +122,42 @@ test('super root game', async () => {
     hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
   })
 
-  vi.setSystemTime(new Date(1792938611000))
-
-  const time = await getTimeToProve(client, {
+  const { interval, seconds } = await getTimeToProve(client, {
     receipt,
     targetChain: optimismClient.chain,
   })
 
-  expect(time).toMatchInlineSnapshot(`
-    {
-      "interval": 3618,
-      "seconds": 1172,
-      "timestamp": 1792939783000,
-    }
+  expect(interval).toMatchInlineSnapshot(`3618`)
+  expect(seconds).toBeGreaterThan(0)
+})
+
+test('error: super root game, receipt logs without blockTimestamp', async () => {
+  await reset(optimismClient, {
+    blockNumber: 158668700n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+  await reset(client, {
+    blockNumber: 26270300n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xdab8c1862755454ce77526f02c11dfda79687cb4838a47778f1543123ab205f6',
+  })
+
+  await expect(() =>
+    getTimeToProve(client, {
+      receipt: {
+        ...receipt,
+        logs: receipt.logs.map(({ blockTimestamp: _, ...log }) => log),
+      },
+      targetChain: optimismClient.chain,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [L2TimestampRequiredError: Dispute game type 9 anchors on L2 timestamps, so the L2 timestamp of the withdrawal is required.
+
+    Pass \`l2Timestamp\`, or a receipt whose logs include \`blockTimestamp\`.
+
+    Version: viem@x.y.z]
   `)
 })

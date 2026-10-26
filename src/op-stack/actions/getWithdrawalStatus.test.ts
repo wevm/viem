@@ -346,6 +346,7 @@ describe('super root games', () => {
       receipt,
       targetChain: optimismClient.chain,
     })
+
     expect(status).toBe('waiting-to-prove')
   })
 
@@ -359,6 +360,7 @@ describe('super root games', () => {
       receipt,
       targetChain: optimismClient.chain,
     })
+
     expect(status).toBe('ready-to-prove')
   })
 
@@ -370,6 +372,7 @@ describe('super root games', () => {
         '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
       sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
     })
+
     expect(status).toBe('finalized')
   })
 
