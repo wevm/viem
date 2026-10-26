@@ -173,11 +173,13 @@ test('InsufficientFundsError (OutOfFunds)', () => {
       url: '',
     }),
   )
+
   const result = getNodeError(error, {
     account: address.vitalik,
     nonce: 1,
     value: parseEther('10'),
   })
+
   expect(result).toMatchInlineSnapshot(`
     [InsufficientFundsError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
 

@@ -7,6 +7,7 @@
  *        - Custom chain types
  *        - Custom nonce
  */
+import { InsufficientFundsError } from 'viem'
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample } from '~contracts/generated.js'
@@ -24,7 +25,6 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { maxUint256 } from '../../constants/number.js'
-import { InsufficientFundsError } from '../../errors/node.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
