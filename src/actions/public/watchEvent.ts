@@ -269,6 +269,7 @@ export function watchEvent<
                   event: event!,
                   events,
                   fromBlock: previousBlockNumber + 1n,
+                  strict,
                   toBlock: blockNumber,
                 } as unknown as GetLogsParameters)
               } else {
