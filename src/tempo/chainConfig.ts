@@ -15,8 +15,13 @@ import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import type { RpcBlock } from '../types/rpc.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
+import {
+  defineBlock,
+  formatBlock as viem_formatBlock,
+} from '../utils/formatters/block.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
@@ -41,6 +46,34 @@ const maxExpirySecs = 25
 const serializeTransaction = ((transaction, signature) =>
   Transaction.serialize(transaction, signature)) as SerializeTransactionFn
 
+// The base formatters decode nonces as safe integers and throw on Tempo expiring nonces (random
+// u64 values), so Tempo formats every transaction itself, including those inside blocks.
+const transactionFormatter = defineTransaction({
+  exclude: ['aaAuthorizationList' as never],
+  format: Formatters.formatTransaction,
+})
+
+const formatTransaction = ((transaction) => {
+  const formatted = Formatters.formatTransaction(transaction as never)
+  delete (formatted as { aaAuthorizationList?: unknown | undefined })
+    .aaAuthorizationList
+  return formatted
+}) as typeof transactionFormatter.format
+
+const blockFormatter = defineBlock({ format: () => ({}) })
+
+const formatBlock = ((block: RpcBlock) => {
+  const { transactions = [], ...rest } = block
+  return {
+    ...viem_formatBlock({ ...rest, transactions: [] }),
+    transactions: transactions.map((transaction) =>
+      typeof transaction === 'string'
+        ? transaction
+        : formatTransaction(transaction as never),
+    ),
+  }
+}) as typeof blockFormatter.format
+
 export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
@@ -48,10 +81,8 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   formatters: {
-    transaction: defineTransaction({
-      exclude: ['aaAuthorizationList' as never],
-      format: Formatters.formatTransaction,
-    }),
+    block: { ...blockFormatter, format: formatBlock },
+    transaction: { ...transactionFormatter, format: formatTransaction },
     transactionReceipt: defineTransactionReceipt({
       format: Formatters.formatTransactionReceipt,
     }),
