@@ -6,15 +6,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, closed]
 
-concurrency:
-  # A closed pull request takes a group of its own, so the close does not cancel a publish job in progress.
-  group: ${{ github.workflow }}-${{ github.event.action == 'closed' && 'closed-' || '' }}${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
-  cancel-in-progress: true
-
 permissions: {} # each job should declare only the permissions it needs
 
 jobs:
-  # Packs the prerelease at `0.0.0-<sha>` on main, or `0.0.0-pr-<number>-<sha>` on a pull request.
+  # Packs the prerelease at `0.0.0-<sha>` on main, or `0.0.0-pr-<number>-<short sha>` on a pull request.
   # It runs the commit's code and its dependencies' install scripts, so it holds no npm identity.
   pack:
     name: Pack prerelease
@@ -30,6 +25,9 @@ jobs:
       )
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    concurrency:
+      group: ${{ github.workflow }}-pack-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     outputs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
@@ -48,18 +46,16 @@ jobs:
             echo "tag=pr-$PULL_REQUEST" >> "$GITHUB_OUTPUT"
             echo "version=0.0.0-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
           else
-            sha="${SHA:0:7}"
-            # SemVer forbids a leading zero in a numeric identifier, so such a short SHA takes its full form.
-            if [[ "$sha" =~ ^0[0-9]+$ ]]; then sha="$SHA"; fi
+            # A short SHA can repeat across main's history, and npm never republishes a version, so main takes the full SHA.
             echo "tag=main" >> "$GITHUB_OUTPUT"
-            echo "version=0.0.0-$sha" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-$SHA" >> "$GITHUB_OUTPUT"
           fi
 
+      # On a pull request, this checks out the merge commit that `GITHUB_SHA` names, which npm's provenance attests.
       - name: Clone repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           submodules: 'recursive'
 
       - name: Install dependencies
@@ -89,6 +85,10 @@ jobs:
     runs-on: ubuntu-latest
     # npm can take up to 40 minutes to serve a new version.
     timeout-minutes: 45
+    # Publishes run one at a time, each until npm serves its version, so the dist-tag ends on the newest commit.
+    concurrency:
+      group: ${{ github.workflow }}-publish-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: false
     permissions:
       id-token: write # authenticate to npm via trusted publishing
       pull-requests: write # comment the prerelease on the pull request
@@ -123,10 +123,22 @@ jobs:
             exit 1
           fi
 
-          # A rerun builds the same commit, whose version can already be published.
           if [ -z "$(npm view "viem@$VERSION" version 2> /dev/null)" ]; then
             npm publish "$pack" --ignore-scripts --tag "$TAG"
+          else
+            # A rerun or a reopened pull request keeps its commit, whose version is already published.
+            npm dist-tag add "viem@$VERSION" "$TAG"
           fi
+
+          # npm processes a new version for some minutes, and applies its dist-tag only once it serves the version.
+          for attempt in $(seq 1 240); do
+            [ -n "$(npm view "viem@$VERSION" version 2> /dev/null)" ] && break
+            if [ "$attempt" = 240 ]; then
+              echo "::error::npm does not serve viem@$VERSION after 40 minutes."
+              exit 1
+            fi
+            sleep 10
+          done
 
           echo "Published \`viem@$VERSION\` under the \`$TAG\` dist-tag." >> "$GITHUB_STEP_SUMMARY"
 
@@ -138,19 +150,11 @@ jobs:
           TAG: ${{ needs.pack.outputs.tag }}
           VERSION: ${{ needs.pack.outputs.version }}
         run: |
-          # npm processes a new version for some minutes, and applies its dist-tag only once it serves the version.
-          for attempt in $(seq 1 240); do
-            [ -n "$(npm view "viem@$VERSION" version 2> /dev/null)" ] && break
-            if [ "$attempt" = 240 ]; then
-              echo "::error::npm does not serve viem@$VERSION after 40 minutes."
-              exit 1
-            fi
-            sleep 10
-          done
-
           # The cleanup job finds no tag when the pull request closes before npm applies it, so this job removes it.
-          if [ "$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq .state)" = closed ]; then
-            if npm dist-tag ls viem | grep -q "^$TAG:"; then
+          state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq .state)"
+          if [ "$state" = closed ]; then
+            tags="$(npm dist-tag ls viem)"
+            if grep -q "^$TAG:" <<< "$tags"; then
               npm dist-tag rm viem "$TAG"
             fi
             exit 0
@@ -205,6 +209,7 @@ jobs:
         env:
           TAG: pr-${{ github.event.pull_request.number }}
         run: |
-          if npm dist-tag ls viem | grep -q "^$TAG:"; then
+          tags="$(npm dist-tag ls viem)"
+          if grep -q "^$TAG:" <<< "$tags"; then
             npm dist-tag rm viem "$TAG"
           fi
