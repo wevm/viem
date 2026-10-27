@@ -670,7 +670,7 @@ describe('formatters', () => {
     )
 
     expect(transaction.type).toBe('tempo')
-    expect(transaction.nonce).toBe(Number(0xe723b82c0de6fb54n))
+    expect(transaction.nonce).toBe(0xe723b82c0de6fb54n)
     expect(transaction.nonceKey).toBe(
       0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
     )
@@ -688,7 +688,7 @@ describe('formatters', () => {
       block.transactions as readonly Transaction.Transaction[]
     expect(block.number).toBe(0x2c052d2n)
     expect(transaction?.type).toBe('tempo')
-    expect(transaction?.nonce).toBe(Number(0xe723b82c0de6fb54n))
+    expect(transaction?.nonce).toBe(0xe723b82c0de6fb54n)
     expect(transaction && 'aaAuthorizationList' in transaction).toBe(false)
   })
 

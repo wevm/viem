@@ -92,7 +92,7 @@ describe('stateless', () => {
       expect(tx.signature?.type).toBe('configurable')
       if (tx.signature?.type !== 'configurable') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(0)
+      expect(tx.nonce).toBe(0n)
     }
 
     {
@@ -123,7 +123,7 @@ describe('stateless', () => {
       expect(tx.signature?.type).toBe('configurable')
       if (tx.signature?.type !== 'configurable') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(1)
+      expect(tx.nonce).toBe(1n)
     }
   })
 
@@ -828,7 +828,7 @@ describe('stateless', () => {
       const result = await getTransaction(client, {
         hash: success.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('configurable')
       if (result.signature?.type !== 'configurable')
         throw new Error('unreachable')
@@ -883,7 +883,7 @@ describe('stateless', () => {
       const result = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('configurable')
       if (result.signature?.type !== 'configurable')
         throw new Error('unreachable')
@@ -1958,7 +1958,7 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: success.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('configurable')
@@ -2013,7 +2013,7 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('configurable')
