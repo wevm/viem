@@ -60,5 +60,6 @@ function toRecoveryBit(yParityOrV: number) {
   if (yParityOrV === 0 || yParityOrV === 1) return yParityOrV
   if (yParityOrV === 27) return 0
   if (yParityOrV === 28) return 1
+  if (yParityOrV >= 35) return yParityOrV % 2 === 0 ? 1 : 0
   throw new Error('Invalid yParityOrV value')
 }
