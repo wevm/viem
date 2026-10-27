@@ -2,6 +2,7 @@
 
 import { createServer, type RequestListener } from 'node:http'
 import type { AddressInfo } from 'node:net'
+import { onTestFinished } from 'vitest'
 import {
   EnsAvatarTokenUri,
   ERC20InvalidTransferEvent,
@@ -75,6 +76,45 @@ export function createHttpServer(
       resolve({ close: closeAsync, url: `http://localhost:${port}` })
     })
   })
+}
+
+/**
+ * Serves JSON-RPC on an ephemeral HTTP server that forwards each request to
+ * `url`, or responds with the reply that `getReply` returns for it. The server
+ * closes when the test finishes.
+ */
+export async function createRpcProxy(
+  url: string,
+  getReply: (request: {
+    method: string
+    params: readonly unknown[]
+  }) =>
+    | { error: { code: number; message: string } }
+    | { result: unknown }
+    | undefined,
+) {
+  const server = await createHttpServer(async (req, res) => {
+    let body = ''
+    for await (const chunk of req) body += chunk
+    const request = JSON.parse(body)
+    const reply = getReply(request)
+
+    res.setHeader('Content-Type', 'application/json')
+    if (reply) {
+      res.end(JSON.stringify({ ...reply, id: request.id, jsonrpc: '2.0' }))
+      return
+    }
+    const response = await fetch(url, {
+      body,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+    })
+    res.end(await response.text())
+  })
+  onTestFinished(async () => {
+    await server.close()
+  })
+  return server.url
 }
 
 export async function deploy<const abi extends Abi | readonly unknown[]>(

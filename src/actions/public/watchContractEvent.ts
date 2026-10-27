@@ -106,7 +106,7 @@ export type WatchContractEventErrorType =
  *
  * This Action will batch up all the event logs found within the [`pollingInterval`](https://viem.sh/docs/contract/watchContractEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/contract/watchContractEvent#onLogs).
  *
- * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead.
+ * `watchContractEvent` will attempt to create an [Event Filter](https://viem.sh/docs/contract/createContractEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchContractEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead. If `getLogs` fails, `watchContractEvent` will retry with smaller block ranges and may call `onLogs` more than once per polling interval.
  *
  * @param client - Client to use
  * @param parameters - {@link WatchContractEventParameters}
@@ -185,10 +185,33 @@ export function watchContractEvent<
     ])
 
     return observe(observerId, { onLogs, onError }, (emit) => {
-      let previousBlockNumber: bigint
-      if (fromBlock !== undefined) previousBlockNumber = fromBlock - 1n
+      let active = true
+      let previousBlockNumber =
+        fromBlock === undefined ? undefined : fromBlock - 1n
       let filter: Filter<'event', abi, eventName> | undefined
       let initialized = false
+
+      const emitLogs = (logs: Log[]) => {
+        if (logs.length === 0) return
+        if (batch) emit.onLogs(logs as any)
+        else for (const log of logs) emit.onLogs([log] as any)
+      }
+
+      // Fetches the logs of the blocks from `from` to `to`, inclusive.
+      const getLogsInRange = (from: bigint, to: bigint) =>
+        getAction(
+          client,
+          getContractEvents,
+          'getContractEvents',
+        )({
+          abi,
+          address,
+          args,
+          eventName,
+          fromBlock: from,
+          toBlock: to,
+          strict,
+        } as {} as GetContractEventsParameters)
 
       const unwatch = poll(
         async () => {
@@ -208,54 +231,54 @@ export function watchContractEvent<
               })) as Filter<'event', abi, eventName>
             } catch {}
             initialized = true
-            return
+            if (filter) return
           }
 
           try {
-            let logs: Log[]
             if (filter) {
-              logs = await getAction(
+              const logs = await getAction(
                 client,
                 getFilterChanges,
                 'getFilterChanges',
               )({ filter })
-            } else {
-              // If the filter doesn't exist, we will fall back to use `getLogs`.
-              // The fall back exists because some RPC Providers do not support filters.
-
-              // Fetch the block number to use for `getLogs`.
-              const blockNumber = await getAction(
-                client,
-                getBlockNumber,
-                'getBlockNumber',
-              )({})
-
-              // If the block number has changed, we will need to fetch the logs.
-              // If the block number doesn't exist, we are yet to reach the first poll interval,
-              // so do not emit any logs.
-              if (previousBlockNumber && previousBlockNumber < blockNumber) {
-                logs = await getAction(
-                  client,
-                  getContractEvents,
-                  'getContractEvents',
-                )({
-                  abi,
-                  address,
-                  args,
-                  eventName,
-                  fromBlock: previousBlockNumber + 1n,
-                  toBlock: blockNumber,
-                  strict,
-                } as {} as GetContractEventsParameters)
-              } else {
-                logs = []
-              }
-              previousBlockNumber = blockNumber
+              emitLogs(logs)
+              return
             }
 
-            if (logs.length === 0) return
-            if (batch) emit.onLogs(logs as any)
-            else for (const log of logs) emit.onLogs([log] as any)
+            // If the filter doesn't exist, we will fall back to use `getLogs`.
+            // The fall back exists because some RPC Providers do not support filters.
+            const blockNumber = await getAction(
+              client,
+              getBlockNumber,
+              'getBlockNumber',
+            )({})
+
+            // Without `fromBlock`, start watching from the current block.
+            previousBlockNumber ??= blockNumber
+
+            // RPC Providers limit `eth_getLogs` by block range, log count or response
+            // size. `size` is the most blocks to request at once: it starts with all
+            // new blocks and halves whenever a request fails.
+            let size = blockNumber - previousBlockNumber
+            while (previousBlockNumber < blockNumber) {
+              const from = previousBlockNumber + 1n
+              const end: bigint = previousBlockNumber + size
+              const to = end < blockNumber ? end : blockNumber
+
+              const logs = await getLogsInRange(from, to).catch((error) => {
+                // A single block cannot be split, so report the error.
+                if (from === to) throw error
+              })
+              if (!active) return
+              if (!logs) {
+                size = (to - from + 1n) / 2n
+                continue
+              }
+
+              // Only move past blocks whose logs were fetched, so none are skipped.
+              previousBlockNumber = to
+              emitLogs(logs)
+            }
           } catch (err) {
             // If a filter has been set and gets uninstalled, providers will throw an InvalidInput error.
             // Reinitialize the filter when this occurs
@@ -271,6 +294,7 @@ export function watchContractEvent<
       )
 
       return async () => {
+        active = false
         if (filter)
           await getAction(
             client,

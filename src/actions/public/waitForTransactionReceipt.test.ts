@@ -12,7 +12,7 @@ import { getTransactionReceipt } from 'viem/actions'
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { createHttpServer } from '~test/utils.js'
+import { createRpcProxy } from '~test/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import type { Chain } from '../../types/chain.js'
@@ -765,7 +765,7 @@ describe('args: replacement', () => {
     let failures = 1
     const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
       if (method === 'eth_getTransactionBySenderAndNonce' && failures-- > 0)
-        return { code: -32000, message: 'header not found' }
+        return { error: { code: -32000, message: 'header not found' } }
       return undefined
     })
     const client = createPublicClient({
@@ -798,7 +798,7 @@ describe('args: replacement', () => {
       })
       const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
         if (method === 'eth_getTransactionBySenderAndNonce')
-          return { code, message: 'method not supported' }
+          return { error: { code, message: 'method not supported' } }
         return undefined
       })
       const client = createPublicClient({
@@ -874,7 +874,7 @@ describe('args: replacement', () => {
     })
     const proxyUrl = await createRpcProxy(rpcUrl, ({ method, params }) => {
       if (method === 'eth_getTransactionReceipt' && params[0] === cancelHash)
-        return { code: -32000, message: 'receipt unavailable' }
+        return { error: { code: -32000, message: 'receipt unavailable' } }
       return undefined
     })
     const client = createPublicClient({
@@ -959,7 +959,7 @@ describe('args: replacement', () => {
     let lookups = 1
     const proxyUrl = await createRpcProxy(rpcUrl, ({ method }) => {
       if (method === 'eth_getTransactionBySenderAndNonce' && lookups-- <= 0)
-        return { code: -32601, message: 'method not found' }
+        return { error: { code: -32601, message: 'method not found' } }
       return undefined
     })
     const client = createPublicClient({
@@ -1538,39 +1538,4 @@ async function replaceTransaction(options: { blocks: number }) {
   await mine(testClient, { blocks: options.blocks })
 
   return { cancelHash, hash, pool, rpcUrl: node.url, testClient }
-}
-
-/**
- * Serves JSON-RPC on an ephemeral HTTP server that forwards each request to
- * `url`, or responds with the error that `getError` returns for it.
- */
-async function createRpcProxy(
-  url: string,
-  getError: (request: {
-    method: string
-    params: readonly unknown[]
-  }) => { code: number; message: string } | undefined,
-) {
-  const server = await createHttpServer(async (req, res) => {
-    let body = ''
-    for await (const chunk of req) body += chunk
-    const request = JSON.parse(body)
-    const error = getError(request)
-
-    res.setHeader('Content-Type', 'application/json')
-    if (error) {
-      res.end(JSON.stringify({ error, id: request.id, jsonrpc: '2.0' }))
-      return
-    }
-    const response = await fetch(url, {
-      body,
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-    })
-    res.end(await response.text())
-  })
-  onTestFinished(async () => {
-    await server.close()
-  })
-  return server.url
 }

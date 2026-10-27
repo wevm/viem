@@ -1,12 +1,11 @@
-import { json } from 'node:stream/consumers'
 import { http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { getBalance, getTransaction, mine, sendCalls } from 'viem/actions'
-import { describe, expect, onTestFinished, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { createHttpServer } from '~test/utils.js'
+import { createRpcProxy } from '~test/utils.js'
 import { type Chain, mainnet } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
@@ -18,7 +17,6 @@ import type {
   WalletGetCallsStatusReturnType,
 } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcRequest } from '../../types/rpc.js'
 import { getHttpRpcClient, numberToHex, parseEther } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
 import {
@@ -451,41 +449,24 @@ test('behavior: capability: paymasterService', async () => {
 describe('behavior: eth_sendTransaction fallback', () => {
   const client = anvilMainnet.getClient()
 
-  async function createRpcServer(error: { code: number; message: string }) {
-    const server = await createHttpServer(async (req, res) => {
-      const body = (await json(req)) as RpcRequest
-      res.setHeader('Content-Type', 'application/json')
-
-      if (body.method === 'wallet_sendCalls') {
-        res.end(JSON.stringify({ jsonrpc: '2.0', id: body.id, error }))
-        return
-      }
-
-      const response = await fetch(anvilMainnet.rpcUrl.http, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      res.end(await response.text())
-    })
-    onTestFinished(async () => {
-      await server.close()
-    })
-    return server
+  function createRpcServer(error: { code: number; message: string }) {
+    return createRpcProxy(anvilMainnet.rpcUrl.http, ({ method }) =>
+      method === 'wallet_sendCalls' ? { error } : undefined,
+    )
   }
 
   test.each([
     ['json-rpc', accounts[0].address],
     ['local', privateKeyToAccount(accounts[0].privateKey)],
   ] as const)('behavior: Base RPC with %s account', async (_, account) => {
-    const server = await createRpcServer({
+    const url = await createRpcServer({
       code: -32604,
       message: 'this request method is not supported',
     })
     const wallet = createWalletClient({
       account,
       chain: mainnet,
-      transport: http(server.url),
+      transport: http(url),
     })
     await mine(client, { blocks: 1 })
     const balance = await getBalance(client, { address: accounts[1].address })
@@ -506,14 +487,14 @@ describe('behavior: eth_sendTransaction fallback', () => {
   test.each([undefined, false])(
     'behavior: Base RPC with experimental_fallback=%s',
     async (experimental_fallback) => {
-      const server = await createRpcServer({
+      const url = await createRpcServer({
         code: -32604,
         message: 'this request method is not supported',
       })
       const wallet = createWalletClient({
         account: accounts[0].address,
         chain: mainnet,
-        transport: http(server.url),
+        transport: http(url),
       })
 
       await expect(
@@ -534,11 +515,11 @@ describe('behavior: eth_sendTransaction fallback', () => {
     { code: -32603, message: 'internal server error' },
     { code: 4001, message: 'user rejected the request' },
   ])('error: $message', async (error) => {
-    const server = await createRpcServer(error)
+    const url = await createRpcServer(error)
     const wallet = createWalletClient({
       account: accounts[0].address,
       chain: mainnet,
-      transport: http(server.url),
+      transport: http(url),
     })
 
     await expect(
