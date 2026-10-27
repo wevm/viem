@@ -11,7 +11,7 @@ concurrency:
 jobs:
   lock-issue:
     if: ${{ github.repository_owner == 'wevm' }}
-    uses: wevm/actions/.github/workflows/lock-issue.yml@main
+    uses: wevm/actions/.github/workflows/lock-issue.yml@fb23e449c43e848371a2090a5e3fd49f7f569b87
     permissions:
       contents: read
       issues: write
