@@ -28,7 +28,14 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-  },
+  webServer: [
+    {
+      command: 'anvil --port 18545 --silent',
+      url: 'http://127.0.0.1:18545',
+    },
+    {
+      command: 'pnpm dev --port 3000',
+      url: 'http://localhost:3000',
+    },
+  ],
 })

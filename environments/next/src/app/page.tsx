@@ -1,16 +1,16 @@
 import { createPublicClient, http, webSocket } from 'viem'
-import { mainnet } from 'viem/chains'
+import { foundry } from 'viem/chains'
 import { Client } from './client'
 
 export default async function Home() {
   const client = createPublicClient({
-    chain: mainnet,
-    transport: http(),
+    chain: foundry,
+    transport: http('http://127.0.0.1:18545'),
   })
 
   const webSocketClient = createPublicClient({
-    chain: mainnet,
-    transport: webSocket('wss://mainnet.gateway.tenderly.co'),
+    chain: foundry,
+    transport: webSocket('ws://127.0.0.1:18545'),
   })
 
   await client.getBlockNumber()
