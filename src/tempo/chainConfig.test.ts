@@ -674,6 +674,7 @@ describe('formatters', () => {
     expect(transaction.nonceKey).toBe(
       0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
     )
+    expect(transaction.gasPrice).toBe(0x23c34600n)
     expect('aaAuthorizationList' in transaction).toBe(false)
   })
 

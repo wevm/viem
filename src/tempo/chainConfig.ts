@@ -22,7 +22,10 @@ import {
   defineBlock,
   formatBlock as viem_formatBlock,
 } from '../utils/formatters/block.js'
-import { defineTransaction } from '../utils/formatters/transaction.js'
+import {
+  defineTransaction,
+  formatTransaction as viem_formatTransaction,
+} from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
@@ -54,7 +57,12 @@ const transactionFormatter = defineTransaction({
 })
 
 const formatTransaction = ((transaction) => {
-  const formatted = Formatters.formatTransaction(transaction as never)
+  // The base formatter still supplies fields Tempo leaves out (such as `gasPrice`); the Tempo
+  // formatter overrides `nonce`.
+  const formatted = {
+    ...viem_formatTransaction({ ...(transaction as object), nonce: '0x0' }),
+    ...Formatters.formatTransaction(transaction as never),
+  }
   delete (formatted as { aaAuthorizationList?: unknown | undefined })
     .aaAuthorizationList
   return formatted
