@@ -5,9 +5,9 @@ description: Initiates a deposit transaction on an L1, which executes a transact
 
 # depositTransaction
 
-Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on an L2. 
+Initiates a [deposit transaction](https://specs.optimism.io/protocol/deposits.html) on an L1, which executes a transaction on an L2. 
 
-Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
+Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/0130abb2f07230ce01c904ba2fbb5d6338ba549f/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L796) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol).
 
 ## Usage
 
@@ -408,7 +408,7 @@ const hash = await client.depositTransaction({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.portal[chainId].address`
 
-The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
+The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
 
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 

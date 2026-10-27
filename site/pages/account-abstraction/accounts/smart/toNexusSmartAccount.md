@@ -4,7 +4,7 @@
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement Biconomy's [Nexus Smart Account](https://github.com/bcnmy/nexus), you can use the [`toNexusSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toNexusSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement Biconomy's [Nexus Smart Account](https://github.com/bcnmy/nexus), you can use the [`toNexusSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toNexusSmartAccount) module from [permissionless.js](https://docs.pimlico.io/references/permissionless)
 
 ## Install
 

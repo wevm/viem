@@ -5,7 +5,7 @@ description: Estimates gas required to initiate a withdrawal on an L2 to the L1.
 
 # estimateInitiateWithdrawalGas
 
-Estimates gas required to initiate a [withdrawal](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L2 to the L1. 
+Estimates gas required to initiate a [withdrawal](https://specs.optimism.io/protocol/withdrawals.html) on an L2 to the L1. 
 
 ## Usage
 

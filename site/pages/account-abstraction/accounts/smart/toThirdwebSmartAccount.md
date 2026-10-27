@@ -4,7 +4,7 @@
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement [Thirdweb Smart Account](https://portal.thirdweb.com/), you can use the [`toThirdwebSmartAccount`](https://github.com/pimlicolabs/permissionless.js/blob/main/packages/permissionless/accounts/thirdweb/toThirdwebSmartAccount.ts) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement [Thirdweb Smart Account](https://portal.thirdweb.com/), you can use the [`toThirdwebSmartAccount`](https://github.com/pimlicolabs/permissionless.js/blob/main/packages/permissionless/accounts/thirdweb/toThirdwebSmartAccount.ts) module from [permissionless.js](https://docs.pimlico.io/references/permissionless)
 
 ## Install
 

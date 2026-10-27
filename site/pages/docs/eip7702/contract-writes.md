@@ -92,7 +92,7 @@ contract Delegation {
 
 ### 1. Set up Smart Contract
 
-We will need to set up a Smart Contract to designate on the Account. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a simple demonstration `Delegation.sol` contract, however, you can use any existing deployed contract.
+We will need to set up a Smart Contract to designate on the Account. For the purposes of this guide, we will [create](https://getfoundry.sh/forge/reference/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a simple demonstration `Delegation.sol` contract, however, you can use any existing deployed contract.
 
 Firstly, [deploy a Contract](https://book.getfoundry.sh/forge/deploying) to the Network with the following source:
 

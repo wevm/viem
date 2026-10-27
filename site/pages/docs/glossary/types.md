@@ -8,19 +8,19 @@ Re-exported from [ABIType](https://abitype.dev/api/types#abi).
 
 ## `AbiError`
 
-ABI [Error](https://docs.soliditylang.org/en/latest/abi-spec#errors) type.
+ABI [Error](https://docs.soliditylang.org/en/latest/abi-spec.html#errors) type.
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abierror).
 
 ## `AbiEvent`
 
-ABI [Event](https://docs.soliditylang.org/en/latest/abi-spec#events) type.
+ABI [Event](https://docs.soliditylang.org/en/latest/abi-spec.html#events) type.
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abievent).
 
 ## `AbiFunction`
 
-ABI [Function](https://docs.soliditylang.org/en/latest/abi-spec#argument-encoding) type.
+ABI [Function](https://docs.soliditylang.org/en/latest/abi-spec.html#argument-encoding) type.
 
 Re-exported from [ABIType](https://abitype.dev/api/types#abifunction).
 

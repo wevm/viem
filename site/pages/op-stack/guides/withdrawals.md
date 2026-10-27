@@ -4,7 +4,7 @@ This guide will demonstrate how to withdraw **1 Ether** from **[Optimism (OP Mai
 
 ## Overview
 
-Withdrawals on the OP Stack are a [two-step (plus one) process](https://blog.oplabs.co/two-step-withdrawals/). The process involves:
+Withdrawals on the OP Stack are a [two-step (plus one) process](https://docs.optimism.io/op-stack/bridging/withdrawal-flow). The process involves:
 
 0. **Initiating** the Withdrawal Transaction on the L2,
    

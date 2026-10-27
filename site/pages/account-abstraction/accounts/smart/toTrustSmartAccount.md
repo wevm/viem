@@ -4,7 +4,7 @@
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement the [Trust Smart Wallet](https://developer.trustwallet.com/developer/barz-smart-wallet/build-with-trust-wallet-and-barz-aa-sdk), you can use the [`toTrustSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toTrustSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement the [Trust Smart Wallet](https://developer.trustwallet.com/developer/barz-smart-wallet), you can use the [`toTrustSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toTrustSmartAccount) module from [permissionless.js](https://docs.pimlico.io/references/permissionless)
 
 ## Install
 

@@ -4,7 +4,7 @@
 **Note:** This implementation is maintained & distributed by [permissionless.js](https://docs.pimlico.io/permissionless).
 :::
 
-To implement the [Kernel (ZeroDev) Smart Account](https://github.com/zerodevapp/kernel), you can use the [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount) module from [permissionless.js](https://docs.pimlico.io/permissionless/)
+To implement the [Kernel (ZeroDev) Smart Account](https://github.com/zerodevapp/kernel), you can use the [`toEcdsaKernelSmartAccount`](https://docs.pimlico.io/references/permissionless/reference/accounts/toKernelSmartAccount) module from [permissionless.js](https://docs.pimlico.io/references/permissionless)
 
 ## Install
 
@@ -68,4 +68,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-[See Parameters](https://docs.pimlico.io/permissionless/reference/accounts/toEcdsaKernelSmartAccount#parameters)
+[See Parameters](https://docs.pimlico.io/references/permissionless/reference/accounts/toKernelSmartAccount#parameters)

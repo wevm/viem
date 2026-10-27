@@ -1,6 +1,6 @@
 # decodeAbiParameters [Decodes ABI encoded data.]
 
-Decodes ABI encoded data using the [ABI specification](https://solidity.readthedocs.io/en/latest/abi-spec), given a set of ABI parameters (`inputs`/`outputs`) and the encoded ABI data.
+Decodes ABI encoded data using the [ABI specification](https://docs.soliditylang.org/en/latest/abi-spec.html), given a set of ABI parameters (`inputs`/`outputs`) and the encoded ABI data.
 
 The `decodeAbiParameters` function is used by the other contract decoding utilities (ie. `decodeFunctionData`, `decodeEventLog`, etc).
 
@@ -57,7 +57,7 @@ The decoded data. Type is inferred from the ABI.
 
 The set of ABI parameters to decode against `data`, in the shape of the `inputs` or `outputs` attribute of an ABI event/function.
 
-These parameters must include valid [ABI types](https://docs.soliditylang.org/en/develop/abi-spec#types).
+These parameters must include valid [ABI types](https://docs.soliditylang.org/en/develop/abi-spec.html#types).
 
 ```ts
 const values = decodeAbiParameters(

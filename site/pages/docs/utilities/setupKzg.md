@@ -44,7 +44,7 @@ Viem exports the following trusted setups:
 - `mainnet.json`: For Ethereum Mainnet & it's Testnets (Sepolia, Goerli, etc).
 - `minimal.json`: For low-resource local dev testnets, and spec-testing.
 
-The trusted setup files are retrieved from the Ethereum [consensus-specs repository](https://github.com/ethereum/consensus-specs/tree/dev/presets).
+The trusted setup files are retrieved from the Ethereum [consensus-specs repository](https://github.com/ethereum/consensus-specs/tree/master/presets).
 
 #### `viem/node` Entrypoint
 

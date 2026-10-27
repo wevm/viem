@@ -5,7 +5,7 @@ description: Estimates gas to initiate a deposit transaction on an L1, which exe
 
 # estimateDepositTransactionGas
 
-Estimates gas to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on an L2. 
+Estimates gas to initiate a [deposit transaction](https://specs.optimism.io/protocol/deposits.html) on an L1, which executes a transaction on an L2. 
 
 ## Usage
 
@@ -288,7 +288,7 @@ const gas = await client.estimateDepositTransactionGas({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.portal[chainId].address`
 
-The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
+The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
 
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 

@@ -10,7 +10,7 @@ Retrieves the first L2 output proposal that occurred after a provided block numb
 :::warning
 **This Action will be deprecated in the future.**
 
-Use [`getGame`](/op-stack/actions/getGame) for OP Stack chains that have upgraded to [Fault Proofs](https://docs.optimism.io/stack/protocol/fault-proofs/overview) and have a deployed [DisputeGameFactoryProxy contract](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
+Use [`getGame`](/op-stack/actions/getGame) for OP Stack chains that have upgraded to [Fault Proofs](https://docs.optimism.io/op-stack/fault-proofs/explainer) and have a deployed [DisputeGameFactoryProxy contract](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
 :::
 
 ## Usage
@@ -79,7 +79,7 @@ const output = await publicClientL1.getL2Output({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.l2OutputOracle[chainId].address`
 
-The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/L2OutputOracle.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
+The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/op-contracts/v1.8.0/packages/contracts-bedrock/src/L1/L2OutputOracle.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
 
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 

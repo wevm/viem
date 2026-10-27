@@ -7,7 +7,7 @@ description: Proves a withdrawal that occurred on an L2.
 
 Proves a withdrawal that occurred on an L2. Used in the Withdrawal flow.
 
-Internally performs a contract write to the [`proveWithdrawalTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L197) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
+Internally performs a contract write to the [`proveWithdrawalTransaction` function](https://github.com/ethereum-optimism/optimism/blob/0130abb2f07230ce01c904ba2fbb5d6338ba549f/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L462) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol).
 
 ## Usage
 
@@ -362,7 +362,7 @@ const hash = await client.proveWithdrawal({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.portal[chainId].address`
 
-The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
+The address of the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the Optimism Portal contract specified on the `targetChain`.
 
 If a `portalAddress` is provided, the `targetChain` parameter becomes optional.
 
