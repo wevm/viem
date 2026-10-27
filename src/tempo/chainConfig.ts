@@ -14,6 +14,7 @@ import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
+import type { Block } from '../types/block.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import type { RpcBlock } from '../types/rpc.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
@@ -68,7 +69,9 @@ const formatTransaction = ((transaction) => {
   return formatted
 }) as typeof transactionFormatter.format
 
-const blockFormatter = defineBlock({ format: () => ({}) })
+const blockFormatter = defineBlock({
+  format: (_: RpcBlock) => ({}) as Block,
+})
 
 const formatBlock = ((block: RpcBlock) => {
   const { transactions = [], ...rest } = block
