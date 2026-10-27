@@ -39,23 +39,23 @@ If you're not using a package manager, you can also use Viem via an ESM-compatib
 
 ## Using Unreleased Commits
 
-If you can't wait for a new release to test the latest features, commits to `main` and maintainers' pull requests are continuously published to npm as prereleases. They have no dist-tag, so install them by exact version: `0.0.0-<short commit SHA>` for a commit, or `0.0.0-pr-<pull request number>-<short commit SHA>` for a pull request.
+If you can't wait for a new release to test the latest features, commits to `main` and maintainers' pull requests are continuously published to npm as prereleases. The `main` dist-tag installs the latest commit to `main`, and the `pr-<number>` dist-tag installs a pull request's latest commit until the pull request closes. Each prerelease also stays installable by its exact version: `0.0.0-<short commit SHA>` for a commit, or `0.0.0-pr-<number>-<short commit SHA>` for a pull request.
 
 :::code-group
 ```bash [pnpm]
-pnpm add viem@0.0.0-pr-123-abc1234
+pnpm add viem@pr-123
 ```
 
 ```bash [npm]
-npm install viem@0.0.0-pr-123-abc1234
+npm install viem@pr-123
 ```
 
 ```bash [yarn]
-yarn add viem@0.0.0-pr-123-abc1234
+yarn add viem@pr-123
 ```
 
 ```bash [bun]
-bun add viem@0.0.0-pr-123-abc1234
+bun add viem@pr-123
 ```
 :::
 

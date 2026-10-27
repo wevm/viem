@@ -4,10 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, closed]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
+  # A closed pull request takes a group of its own, so the close does not cancel a publish job in progress.
+  group: ${{ github.workflow }}-${{ github.event.action == 'closed' && 'closed-' || '' }}${{ github.event_name == 'pull_request' && format('branch-{0}-{1}', github.event.pull_request.head.repo.full_name, github.head_ref) || format('{0}-{1}-{2}', github.ref_type, github.repository, github.ref_name) }}
   cancel-in-progress: true
 
 permissions: {} # each job should declare only the permissions it needs
@@ -21,6 +22,7 @@ jobs:
     if: >-
       github.repository == 'wevm/viem' && (
         github.event_name == 'push' || (
+          github.event.action != 'closed' &&
           !github.event.pull_request.draft &&
           github.event.pull_request.head.repo.full_name == github.repository &&
           github.event.pull_request.user.type != 'Bot'
@@ -29,12 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
+      tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
     permissions:
       contents: read # checkout repository contents
 
     steps:
-      # Runs before any of the commit's code, so the publish job trusts its output.
+      # Runs before any of the commit's code, so the publish job trusts its outputs.
       - name: Resolve version
         id: version
         env:
@@ -42,14 +45,15 @@ jobs:
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
-            version="0.0.0-pr-$PULL_REQUEST-${SHA:0:7}"
-          elif [[ "${SHA:0:7}" =~ ^0[0-9]+$ ]]; then
-            # SemVer forbids a leading zero in a numeric identifier, so such a short SHA takes its full form.
-            version="0.0.0-$SHA"
+            echo "tag=pr-$PULL_REQUEST" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-pr-$PULL_REQUEST-${SHA:0:7}" >> "$GITHUB_OUTPUT"
           else
-            version="0.0.0-${SHA:0:7}"
+            sha="${SHA:0:7}"
+            # SemVer forbids a leading zero in a numeric identifier, so such a short SHA takes its full form.
+            if [[ "$sha" =~ ^0[0-9]+$ ]]; then sha="$SHA"; fi
+            echo "tag=main" >> "$GITHUB_OUTPUT"
+            echo "version=0.0.0-$sha" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Clone repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -77,7 +81,7 @@ jobs:
           path: ${{ runner.temp }}/prerelease/*.tgz
           retention-days: 1
 
-  # Publishes the pack to npm with no dist-tag, so it installs only by its version.
+  # Publishes the pack to npm under the dist-tag `main` or `pr-<number>`.
   # It alone holds the OIDC token that npm trusts, and runs none of the commit's code.
   publish:
     name: Publish prerelease
@@ -107,6 +111,7 @@ jobs:
 
       - name: Publish prerelease
         env:
+          TAG: ${{ needs.pack.outputs.tag }}
           VERSION: ${{ needs.pack.outputs.version }}
         run: |
           pack="$RUNNER_TEMP/prerelease/viem-$VERSION.tgz"
@@ -120,9 +125,19 @@ jobs:
 
           # A rerun builds the same commit, whose version can already be published.
           if [ -z "$(npm view "viem@$VERSION" version 2> /dev/null)" ]; then
-            npm publish "$pack" --ignore-scripts --tag prerelease
+            npm publish "$pack" --ignore-scripts --tag "$TAG"
           fi
 
+          echo "Published \`viem@$VERSION\` under the \`$TAG\` dist-tag." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment prerelease
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+          TAG: ${{ needs.pack.outputs.tag }}
+          VERSION: ${{ needs.pack.outputs.version }}
+        run: |
           # npm processes a new version for some minutes, and applies its dist-tag only once it serves the version.
           for attempt in $(seq 1 240); do
             [ -n "$(npm view "viem@$VERSION" version 2> /dev/null)" ] && break
@@ -133,29 +148,21 @@ jobs:
             sleep 10
           done
 
-          # npm publishes only under a dist-tag, so the version takes `prerelease` and drops it again.
-          # Another run can move or drop the tag first, so the check is that the tag no longer names this version.
-          npm dist-tag rm viem prerelease || true
-          if npm dist-tag ls viem | grep -qxF "prerelease: $VERSION"; then
-            echo "::error::The prerelease dist-tag still names viem@$VERSION. Allow npm dist-tag on the trusted publisher for this workflow."
-            exit 1
+          # The cleanup job finds no tag when the pull request closes before npm applies it, so this job removes it.
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq .state)" = closed ]; then
+            if npm dist-tag ls viem | grep -q "^$TAG:"; then
+              npm dist-tag rm viem "$TAG"
+            fi
+            exit 0
           fi
 
-          echo "Published \`viem@$VERSION\`." >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Comment prerelease
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PULL_REQUEST: ${{ github.event.pull_request.number }}
-          VERSION: ${{ needs.pack.outputs.version }}
-        run: |
           marker='<!-- prerelease -->'
           cat > "$RUNNER_TEMP/comment.md" <<EOF
           $marker
-          Published \`viem@$VERSION\` from the head commit of this pull request.
+          Published \`viem@$VERSION\` under the \`$TAG\` dist-tag, which follows this pull request until it closes.
 
           \`\`\`sh
+          pnpm add viem@$TAG
           pnpm add viem@$VERSION
           \`\`\`
           EOF
@@ -168,4 +175,36 @@ jobs:
             gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
           else
             gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PULL_REQUEST/comments" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+          fi
+
+  # Removes the `pr-<number>` dist-tag once the pull request closes or merges.
+  # Its prereleases stay installable by version.
+  cleanup:
+    name: Remove prerelease tag
+    if: >-
+      github.repository == 'wevm/viem' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write # authenticate to npm via trusted publishing
+
+    steps:
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.22.1
+
+      # Trusted publishing manages dist-tags from npm 11.21.0.
+      - name: Set up npm
+        run: npm install --global npm@11.21.1
+
+      - name: Remove tag
+        env:
+          TAG: pr-${{ github.event.pull_request.number }}
+        run: |
+          if npm dist-tag ls viem | grep -q "^$TAG:"; then
+            npm dist-tag rm viem "$TAG"
           fi
