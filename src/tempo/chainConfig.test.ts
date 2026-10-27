@@ -600,6 +600,53 @@ describe('prepareTransactionRequest', () => {
   })
 })
 
+const expiringNonceTransaction = {
+  accessList: [],
+  aaAuthorizationList: [],
+  blockHash:
+    '0x2a1be7bdf66a1d611af5af52d961261bd8f2f49fd6131ec00d702b585dca6f45',
+  blockNumber: '0x2c052d2',
+  blockTimestamp: '0x6ae0cad2',
+  calls: [
+    {
+      data: null,
+      input:
+        '0xa9059cbb0000000000000000000000004c2c0f0bb2631b02ac9299c59690914ee7a200b8000000000000000000000000000000000000000000000000000000000052b3e0',
+      to: '0x20c0000000000000000000006a37da5c996874be',
+      value: '0x0',
+    },
+  ],
+  chainId: '0x1079',
+  feePayerSignature: {
+    r: '0x7c4ef2a5e8e020d72493c05b7973ebcef0d67229042de01a0a07d64933f8880f',
+    s: '0x2298cf0122f6e8e6cd9d6bec68a06e75176f0e8231b81ad35430065b49323bc9',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  feeToken: '0x20c0000000000000000000000000000000000000',
+  from: '0xec069186420e91902de5343393503d635ea90382',
+  gas: '0x916d2',
+  gasPrice: '0x23c34600',
+  hash: '0x3ca9e5ecdbaba0f924a21c5f232410a002173abb1d23f44661fe0bed1ad56239',
+  keyAuthorization: null,
+  maxFeePerGas: '0x47868c00',
+  maxPriorityFeePerGas: '0x0',
+  nonce: '0xe723b82c0de6fb54',
+  nonceKey:
+    '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  signature: {
+    r: '0x20b5df0d1c766184d8d3867f4322fc6980bd6c8cf3cd41ceb4620fafb7e9f7fd',
+    s: '0x567734f30f9b8e9cbf71eb2be871a3a5eecf773da2feb74eda0fe82d52d83813',
+    type: 'secp256k1',
+    v: '0x0',
+    yParity: '0x0',
+  },
+  transactionIndex: '0x0',
+  type: '0x76',
+  validAfter: null,
+  validBefore: '0x6ae0cb0d',
+} as const
+
 describe('formatters', () => {
   test('transaction formatter (getTransaction)', async () => {
     const receipt = await sendTransactionSync(client, {
@@ -615,6 +662,34 @@ describe('formatters', () => {
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
     expect(transaction.feeToken).toBe(feeToken)
+  })
+
+  test('behavior: transaction formatter accepts expiring nonces above 2^53', () => {
+    const transaction = chainConfig.formatters.transaction.format(
+      expiringNonceTransaction as never,
+    )
+
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction.nonceKey).toBe(
+      0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
+    )
+    expect(transaction.gasPrice).toBe(0x23c34600n)
+    expect('aaAuthorizationList' in transaction).toBe(false)
+  })
+
+  test('behavior: block formatter formats Tempo transactions', () => {
+    const block = chainConfig.formatters.block.format({
+      number: '0x2c052d2',
+      transactions: [expiringNonceTransaction],
+    } as never)
+
+    const [transaction] =
+      block.transactions as readonly Transaction.Transaction[]
+    expect(block.number).toBe(0x2c052d2n)
+    expect(transaction?.type).toBe('tempo')
+    expect(transaction?.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction && 'aaAuthorizationList' in transaction).toBe(false)
   })
 
   test('transactionReceipt formatter (getTransactionReceipt)', async () => {

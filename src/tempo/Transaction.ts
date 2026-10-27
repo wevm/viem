@@ -72,7 +72,10 @@ export type TransactionTempo<
   isPending extends boolean = boolean,
   type = 'tempo',
 > = PartialBy<
-  Omit<TransactionBase<quantity, index, isPending>, 'input' | 'value' | 'to'>,
+  Omit<
+    TransactionBase<quantity, index, isPending>,
+    'input' | 'nonce' | 'value' | 'to'
+  >,
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
@@ -83,6 +86,8 @@ export type TransactionTempo<
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   operation?: AccountOperation.TransactionOperation | undefined
+  /** Sequence number, or for expiring nonce transactions (TIP-1106) an opaque `uint64` discriminator, often above `Number.MAX_SAFE_INTEGER`. */
+  nonce: quantity
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
