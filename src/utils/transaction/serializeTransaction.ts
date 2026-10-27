@@ -3,12 +3,7 @@ import {
   type InvalidLegacyVErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type {
-  ByteArray,
-  Hex,
-  Signature,
-  SignatureLegacy,
-} from '../../types/misc.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP1559,
@@ -142,7 +137,7 @@ export function serializeTransaction<
 
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
-    signature as SignatureLegacy,
+    signature,
   ) as SerializedTransactionReturnType<transaction>
 }
 
@@ -391,7 +386,7 @@ type SerializeTransactionLegacyErrorType =
 
 function serializeTransactionLegacy(
   transaction: TransactionSerializableLegacy,
-  signature?: SignatureLegacy | undefined,
+  signature?: Signature | undefined,
 ): TransactionSerializedLegacy {
   const { chainId = 0, gas, data, nonce, to, value, gasPrice } = transaction
 
@@ -409,19 +404,27 @@ function serializeTransactionLegacy(
   if (signature) {
     const v = (() => {
       // EIP-155 (inferred chainId)
-      if (signature.v >= 35n) {
+      if (typeof signature.v === 'bigint' && signature.v >= 35n) {
         const inferredChainId = (signature.v - 35n) / 2n
         if (inferredChainId > 0) return signature.v
         return 27n + (signature.v === 35n ? 0n : 1n)
       }
 
+      // Normalize to a pre-EIP-155 `v` (27 or 28). A signature may carry
+      // `yParity` instead of `v` (e.g. from `parseSignature` or
+      // `compactSignatureToSignature`), or a `v` of 0 or 1.
+      const v = (() => {
+        if (signature.v === 27n || signature.v === 28n) return signature.v
+        if (signature.v === 0n || signature.v === 1n) return 27n + signature.v
+        if (signature.yParity === 0 || signature.yParity === 1)
+          return 27n + BigInt(signature.yParity)
+        throw new InvalidLegacyVError({ v: signature.v! })
+      })()
+
       // EIP-155 (explicit chainId)
-      if (chainId > 0)
-        return BigInt(chainId * 2) + BigInt(35n + signature.v - 27n)
+      if (chainId > 0) return BigInt(chainId * 2) + 35n + v - 27n
 
       // Pre-EIP-155 (no chainId)
-      const v = 27n + (signature.v === 27n ? 0n : 1n)
-      if (signature.v !== v) throw new InvalidLegacyVError({ v: signature.v })
       return v
     })()
 

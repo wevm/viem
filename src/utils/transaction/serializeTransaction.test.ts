@@ -875,6 +875,65 @@ describe('legacy', () => {
     )
   })
 
+  test('signature (yParity)', () => {
+    const r =
+      '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
+    const s =
+      '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9'
+
+    // Pre-EIP-155 (no chainId)
+    expect(serializeTransaction(baseLegacy, { r, s, yParity: 0 })).toEqual(
+      serializeTransaction(baseLegacy, { r, s, v: 27n }),
+    )
+    expect(serializeTransaction(baseLegacy, { r, s, yParity: 1 })).toEqual(
+      serializeTransaction(baseLegacy, { r, s, v: 28n }),
+    )
+
+    // EIP-155 (explicit chainId)
+    const args = { ...baseLegacy, chainId: 69 }
+    const serialized = serializeTransaction(args, { r, s, yParity: 0 })
+    expect(serialized).toEqual(serializeTransaction(args, { r, s, v: 27n }))
+    expect(parseTransaction(serialized)).toEqual({
+      ...args,
+      r,
+      s,
+      v: 173n,
+      yParity: 0,
+      type: 'legacy',
+    })
+    expect(serializeTransaction(args, { r, s, yParity: 1 })).toEqual(
+      serializeTransaction(args, { r, s, v: 28n }),
+    )
+  })
+
+  test('signature (v as 0 or 1)', () => {
+    const r =
+      '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
+    const s =
+      '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9'
+
+    // Pre-EIP-155 (no chainId)
+    expect(serializeTransaction(baseLegacy, { r, s, v: 0n })).toEqual(
+      serializeTransaction(baseLegacy, { r, s, v: 27n }),
+    )
+    expect(serializeTransaction(baseLegacy, { r, s, v: 1n })).toEqual(
+      serializeTransaction(baseLegacy, { r, s, v: 28n }),
+    )
+
+    // EIP-155 (explicit chainId)
+    const args = { ...baseLegacy, chainId: 69 }
+    const serialized = serializeTransaction(args, { r, s, v: 1n })
+    expect(serialized).toEqual(serializeTransaction(args, { r, s, v: 28n }))
+    expect(parseTransaction(serialized)).toEqual({
+      ...args,
+      r,
+      s,
+      v: 174n,
+      yParity: 1,
+      type: 'legacy',
+    })
+  })
+
   test('signed w/ chainId', async () => {
     const args = {
       ...baseLegacy,
