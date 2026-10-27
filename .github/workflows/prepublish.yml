@@ -194,6 +194,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       id-token: write # authenticate to npm via trusted publishing
+      pull-requests: read # read the pull request's current state
 
     steps:
       - name: Set up Node
@@ -207,8 +208,16 @@ jobs:
 
       - name: Remove tag
         env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
           TAG: pr-${{ github.event.pull_request.number }}
         run: |
+          # A reopened pull request can take its tag back before this job runs, so the job reads the current state.
+          state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PULL_REQUEST" --jq .state)"
+          if [ "$state" != closed ]; then
+            exit 0
+          fi
+
           tags="$(npm dist-tag ls viem)"
           if grep -q "^$TAG:" <<< "$tags"; then
             npm dist-tag rm viem "$TAG"
