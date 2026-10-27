@@ -83,7 +83,8 @@ jobs:
     name: Publish prerelease
     needs: pack
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # npm can take up to 40 minutes to serve a new version.
+    timeout-minutes: 45
     permissions:
       id-token: write # authenticate to npm via trusted publishing
       pull-requests: write # comment the prerelease on the pull request
@@ -121,6 +122,16 @@ jobs:
           if [ -z "$(npm view "viem@$VERSION" version 2> /dev/null)" ]; then
             npm publish "$pack" --ignore-scripts --tag prerelease
           fi
+
+          # npm processes a new version for some minutes, and applies its dist-tag only once it serves the version.
+          for attempt in $(seq 1 240); do
+            [ -n "$(npm view "viem@$VERSION" version 2> /dev/null)" ] && break
+            if [ "$attempt" = 240 ]; then
+              echo "::error::npm does not serve viem@$VERSION after 40 minutes."
+              exit 1
+            fi
+            sleep 10
+          done
 
           # npm publishes only under a dist-tag, so the version takes `prerelease` and drops it again.
           # Another run can move or drop the tag first, so the check is that the tag no longer names this version.
