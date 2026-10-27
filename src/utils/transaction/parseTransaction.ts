@@ -188,14 +188,14 @@ function parseTransactionEIP7702(
   if (isHex(data) && data !== '0x') transaction.data = data
   if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (
     isHex(maxFeePerGas) &&
-    (maxFeePerGas !== '0x' || maxPriorityFeePerGas !== '0x')
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
   )
     transaction.maxFeePerGas =
       maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
-  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
-    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
   if (authorizationList.length !== 0 && authorizationList !== '0x')
@@ -293,14 +293,14 @@ function parseTransactionEIP4844(
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(maxFeePerBlobGas) && maxFeePerBlobGas !== '0x')
     transaction.maxFeePerBlobGas = hexToBigInt(maxFeePerBlobGas)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (
     isHex(maxFeePerGas) &&
-    (maxFeePerGas !== '0x' || maxPriorityFeePerGas !== '0x')
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
   )
     transaction.maxFeePerGas =
       maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
-  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
-    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
   if (blobs && commitments && proofs)
@@ -386,14 +386,14 @@ function parseTransactionEIP1559(
   if (isHex(data) && data !== '0x') transaction.data = data
   if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (
     isHex(maxFeePerGas) &&
-    (maxFeePerGas !== '0x' || maxPriorityFeePerGas !== '0x')
+    (maxFeePerGas !== '0x' || transaction.maxPriorityFeePerGas)
   )
     transaction.maxFeePerGas =
       maxFeePerGas === '0x' ? 0n : hexToBigInt(maxFeePerGas)
-  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
-    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
 
