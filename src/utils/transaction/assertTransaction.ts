@@ -103,8 +103,8 @@ export function assertTransactionEIP1559(
   if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })
   if (
-    maxPriorityFeePerGas &&
-    maxFeePerGas &&
+    typeof maxPriorityFeePerGas === 'bigint' &&
+    typeof maxFeePerGas === 'bigint' &&
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })

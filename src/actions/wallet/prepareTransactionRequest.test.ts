@@ -406,6 +406,23 @@ describe('without `eth_fillTransaction`', () => {
     `)
   })
 
+  test('args: maxFeePerGas (zero, under default tip)', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        maxFeePerGas: 0n,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (1 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('args: maxFeePerGas (on legacy)', async () => {
     await setup()
 
@@ -1558,6 +1575,24 @@ describe('with `eth_fillTransaction`', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0.1 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('args: maxFeePerGas (zero, under default tip)', async () => {
+    await setup()
+
+    await expect(() =>
+      prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        maxFeePerGas: 0n,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
 
       Version: viem@x.y.z]
     `)
