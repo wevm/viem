@@ -148,6 +148,7 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -166,6 +167,7 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -183,15 +185,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -224,6 +222,7 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -242,6 +241,7 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -259,15 +259,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -303,6 +299,7 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -321,6 +318,7 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -331,15 +329,11 @@ describe('sendTransaction', () => {
         "authorizationList": [],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -370,6 +364,7 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -389,6 +384,7 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -406,14 +402,10 @@ describe('sendTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -506,6 +498,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -525,6 +518,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -542,15 +536,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -591,6 +581,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -611,6 +602,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -621,15 +613,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -663,6 +651,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -682,6 +671,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -699,14 +689,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -802,6 +788,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -821,6 +808,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -838,15 +826,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -884,6 +868,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         signature,
         ...transaction
       } = await getTransaction(client, {
@@ -901,6 +886,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
     })
@@ -928,6 +914,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         signature,
         ...transaction
       } = await getTransaction(client, { hash })
@@ -941,6 +928,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
     })
@@ -1009,6 +997,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1028,6 +1017,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1045,15 +1035,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1098,6 +1084,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1118,6 +1105,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1128,15 +1116,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1174,6 +1158,7 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1193,6 +1178,7 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1210,14 +1196,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1389,6 +1371,7 @@ describe('signTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -1408,6 +1391,7 @@ describe('signTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
+    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -1425,14 +1409,10 @@ describe('signTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -1566,6 +1546,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1586,6 +1567,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1596,14 +1578,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1716,6 +1694,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1736,6 +1715,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1746,14 +1726,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1814,6 +1790,7 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
+        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1834,6 +1811,7 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
+      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1844,14 +1822,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })

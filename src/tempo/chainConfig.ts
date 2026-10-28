@@ -17,6 +17,7 @@ import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
+import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
@@ -49,8 +50,14 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   formatters: {
-    block: { format: Formatters.formatBlock, type: 'block' },
-    transaction: { format: Formatters.formatTransaction, type: 'transaction' },
+    block: { format: Formatters.formatBlock, type: 'block' as const },
+    transaction: {
+      ...defineTransaction({
+        exclude: ['aaAuthorizationList' as never],
+        format: Formatters.formatTransaction,
+      }),
+      format: Formatters.formatTransaction,
+    },
     transactionReceipt: defineTransactionReceipt({
       format: Formatters.formatTransactionReceipt,
     }),
