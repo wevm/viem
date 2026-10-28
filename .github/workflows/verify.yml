@@ -329,7 +329,7 @@ jobs:
           version: v1.7.1
 
       - name: Set up pnpm
-        uses: wevm/actions/.github/actions/pnpm@6ef040d0ae453f66108446f1cd232e842a17fc8f
+        uses: wevm/actions/.github/actions/pnpm@28b5093e040885467b40d0a5cf0164f8be0fc038
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
