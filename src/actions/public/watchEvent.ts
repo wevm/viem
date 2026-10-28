@@ -6,6 +6,8 @@ import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
 } from '../../errors/abi.js'
+import { BaseError } from '../../errors/base.js'
+import { HttpRequestError, RpcRequestError } from '../../errors/request.js'
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber } from '../../types/block.js'
@@ -128,7 +130,7 @@ export type WatchEventErrorType =
  *
  * This Action will batch up all the Event Logs found within the [`pollingInterval`](https://viem.sh/docs/actions/public/watchEvent#pollinginterval-optional), and invoke them via [`onLogs`](https://viem.sh/docs/actions/public/watchEvent#onLogs).
  *
- * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead. If `getLogs` fails, `watchEvent` will retry with smaller block ranges and may call `onLogs` more than once per polling interval.
+ * `watchEvent` will attempt to create an [Event Filter](https://viem.sh/docs/actions/public/createEventFilter) and listen to changes to the Filter per polling interval, however, if the RPC Provider does not support Filters (e.g. `eth_newFilter`), then `watchEvent` will fall back to using [`getLogs`](https://viem.sh/docs/actions/public/getLogs) instead. If `getLogs` fails for a block range, `watchEvent` will retry with smaller block ranges and may call `onLogs` more than once per polling interval.
  *
  * @param client - Client to use
  * @param parameters - {@link WatchEventParameters}
@@ -291,8 +293,9 @@ export function watchEvent<
               const to = end < blockNumber ? end : blockNumber
 
               const logs = await getLogsInRange(from, to).catch((error) => {
-                // A single block cannot be split, so report the error.
-                if (from === to) throw error
+                // A single block cannot be split, and a smaller range does not
+                // help when the RPC Provider is unreachable or rejects the client.
+                if (from === to || !isRangeError(error)) throw error
               })
               if (!active) return
               if (!logs) {
@@ -415,4 +418,20 @@ export function watchEvent<
   }
 
   return enablePolling ? pollEvent() : subscribeEvent()
+}
+
+/** Returns whether a failed `eth_getLogs` request may succeed with a smaller block range. */
+function isRangeError(error: unknown) {
+  if (!(error instanceof BaseError)) return true
+  const cause = error.walk(
+    (err) => err instanceof HttpRequestError || err instanceof RpcRequestError,
+  ) as HttpRequestError | RpcRequestError | null
+  if (!cause) return true
+  // Rate limited.
+  if (cause instanceof RpcRequestError && cause.code === 429) return false
+  // Unreachable.
+  if (cause instanceof HttpRequestError && cause.status === undefined)
+    return false
+  // Unauthorized, forbidden or rate limited.
+  return cause.status !== 401 && cause.status !== 403 && cause.status !== 429
 }

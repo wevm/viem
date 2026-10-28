@@ -1056,6 +1056,56 @@ describe('poll', () => {
       `)
     })
 
+    test('does not split block ranges when rate limited', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method, params }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method !== 'eth_getLogs') return undefined
+          const [{ fromBlock: from, toBlock: to }] = params as [
+            { fromBlock: Hex.Hex; toBlock: Hex.Hex },
+          ]
+          // Only a split range would succeed.
+          if (from !== to)
+            return { error: { code: 429, message: 'Too Many Requests' } }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url, { retryCount: 0 }),
+      })
+
+      const fromBlock =
+        (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 2 })
+
+      const error = await new Promise<Error>((resolve, reject) => {
+        const unwatch = watchEvent(client_, {
+          address: usdcContractConfig.address,
+          event: event.transfer,
+          fromBlock,
+          onError(error) {
+            unwatch()
+            resolve(error)
+          },
+          onLogs() {
+            unwatch()
+            reject(new Error('Expected an error.'))
+          },
+        })
+      })
+
+      expect(error.name).toMatchInlineSnapshot(`"RpcRequestError"`)
+    })
+
     test('does not repeat logs when the RPC Provider reports a lower block number', async () => {
       const fromBlock =
         (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
