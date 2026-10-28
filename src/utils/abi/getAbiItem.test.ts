@@ -687,7 +687,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -709,7 +709,7 @@ test('overloads: ambiguious types', () => {
     \`string\` in \`foo(string)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -781,7 +781,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -799,7 +799,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((address))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -817,7 +817,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -835,7 +835,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -853,7 +853,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -876,7 +876,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[2])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -897,7 +897,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((address[]))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -918,7 +918,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((uint256),address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -939,7 +939,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(string,(address))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -965,7 +965,7 @@ test('overloads: bytes32 vs bytes', () => {
     \`bytes32\` in \`isValidSignature(bytes32,bytes)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -985,7 +985,7 @@ test('overloads: uint256 vs int256', () => {
     \`uint256\` in \`foo(uint256)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -1008,7 +1008,7 @@ test('overloads: uint256[] vs uint256[2]', () => {
     \`uint256[]\` in \`foo(uint256[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -1060,7 +1060,7 @@ test('overloads: uint256[2][] vs uint256[][2]', () => {
     \`uint256[2]\` in \`foo(uint256[2][])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+    Remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -1477,9 +1477,13 @@ describe.each([
   { arg: 'true', abiParameter: { type: 'bool' }, expected: false },
   // bytes
   { arg: 'foo', abiParameter: { type: 'bytes' }, expected: true },
-  { arg: 'foo', abiParameter: { type: 'bytes32' }, expected: true },
+  { arg: 'foo', abiParameter: { type: 'bytes32' }, expected: false },
   { arg: toBytes('foo'), abiParameter: { type: 'bytes' }, expected: true },
   { arg: 1, abiParameter: { type: 'bytes32' }, expected: false },
+  { arg: '0x1234', abiParameter: { type: 'bytes2' }, expected: true },
+  { arg: '0x1234', abiParameter: { type: 'bytes4' }, expected: false },
+  { arg: toBytes('foo'), abiParameter: { type: 'bytes3' }, expected: true },
+  { arg: toBytes('foo'), abiParameter: { type: 'bytes4' }, expected: false },
   // function
   { arg: 'foo', abiParameter: { type: 'function' }, expected: true },
   { arg: 1, abiParameter: { type: 'function' }, expected: false },
@@ -1494,6 +1498,34 @@ describe.each([
   { arg: 1, abiParameter: { type: 'uint256' }, expected: true },
   { arg: 1, abiParameter: { type: 'int69' }, expected: false },
   { arg: 1, abiParameter: { type: 'uint69' }, expected: false },
+  { arg: -129, abiParameter: { type: 'int8' }, expected: false },
+  { arg: -128, abiParameter: { type: 'int8' }, expected: true },
+  { arg: 127, abiParameter: { type: 'int8' }, expected: true },
+  { arg: 128, abiParameter: { type: 'int8' }, expected: false },
+  { arg: -1n, abiParameter: { type: 'uint8' }, expected: false },
+  { arg: 0n, abiParameter: { type: 'uint8' }, expected: true },
+  { arg: 255n, abiParameter: { type: 'uint8' }, expected: true },
+  { arg: 256n, abiParameter: { type: 'uint8' }, expected: false },
+  { arg: 2n ** 256n - 1n, abiParameter: { type: 'uint256' }, expected: true },
+  { arg: 2n ** 256n, abiParameter: { type: 'uint256' }, expected: false },
+  { arg: -(2n ** 255n), abiParameter: { type: 'int256' }, expected: true },
+  {
+    arg: -(2n ** 255n) - 1n,
+    abiParameter: { type: 'int256' },
+    expected: false,
+  },
+  { arg: Number.NaN, abiParameter: { type: 'uint256' }, expected: false },
+  {
+    arg: Number.POSITIVE_INFINITY,
+    abiParameter: { type: 'uint256' },
+    expected: false,
+  },
+  { arg: 1.5, abiParameter: { type: 'uint256' }, expected: false },
+  {
+    arg: Number.MAX_SAFE_INTEGER + 1,
+    abiParameter: { type: 'uint256' },
+    expected: true,
+  },
   // string
   { arg: 'foo', abiParameter: { type: 'string' }, expected: true },
   { arg: 1, abiParameter: { type: 'string' }, expected: false },

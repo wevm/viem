@@ -363,7 +363,7 @@ export class AbiItemAmbiguityError extends BaseError {
         `\`${y.type}\` in \`${formatAbiItem(y.abiItem)}\``,
         '',
         'These types encode differently and cannot be distinguished at runtime.',
-        'Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.',
+        'Remove one of the ambiguous items in the ABI.',
       ],
       name: 'AbiItemAmbiguityError',
     })

@@ -16,6 +16,7 @@ import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate } from '../../types/utils.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { size } from '../data/size.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
 import {
   type ToFunctionSelectorErrorType,
@@ -188,13 +189,30 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
         /^u?int(8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|152|160|168|176|184|192|200|208|216|224|232|240|248|256)?$/.test(
           abiParameterType,
         )
-      )
-        return argType === 'number' || argType === 'bigint'
+      ) {
+        if (typeof arg !== 'bigint' && typeof arg !== 'number') return false
+        if (typeof arg === 'number' && !Number.isInteger(arg)) return false
+
+        const signed = abiParameterType.startsWith('int')
+        const bits = Number.parseInt(
+          abiParameterType.replace(/^u?int/, '') || '256',
+          10,
+        )
+        const max = 2n ** (BigInt(bits) - (signed ? 1n : 0n)) - 1n
+        const min = signed ? -max - 1n : 0n
+        return arg >= min && arg <= max
+      }
 
       // `bytes<M>`: binary type of `M` bytes, `0 < M <= 32`
       // https://regexr.com/6va55
-      if (/^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.test(abiParameterType))
-        return argType === 'string' || arg instanceof Uint8Array
+      if (/^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.test(abiParameterType)) {
+        if (typeof arg !== 'string' && !(arg instanceof Uint8Array))
+          return false
+        const bytes = abiParameterType.slice(5)
+        if (!bytes) return true
+        if (typeof arg === 'string' && !isHex(arg)) return false
+        return size(arg) === Number.parseInt(bytes, 10)
+      }
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
       const arrayComponents = getArrayComponents(abiParameterType)
