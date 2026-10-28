@@ -16,7 +16,7 @@ runs:
         version: v1.7.1
 
     - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm-v4@67ad93da5866fc6ad24c25e49e5e8efabc08c718
+      uses: wevm/actions/.github/actions/pnpm@6ef040d0ae453f66108446f1cd232e842a17fc8f
       with:
         node-version: 24.22.1
         skip-cache: ${{ inputs.skip-cache }}
