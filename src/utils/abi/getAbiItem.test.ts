@@ -945,6 +945,52 @@ test('overloads: ambiguious types', () => {
   `)
 })
 
+test('overloads: bytes32 vs bytes', () => {
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function isValidSignature(bytes32 hash, bytes signature)',
+        'function isValidSignature(bytes data, bytes signature)',
+      ]),
+      name: 'isValidSignature',
+      args: [
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+        '0x1234',
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes\` in \`isValidSignature(bytes,bytes)\`, and
+    \`bytes32\` in \`isValidSignature(bytes32,bytes)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('overloads: uint256 vs int256', () => {
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi(['function foo(uint256 x)', 'function foo(int256 x)']),
+      name: 'foo',
+      args: [1n],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`int256\` in \`foo(int256)\`, and
+    \`uint256\` in \`foo(uint256)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 describe('getAmbiguousTypes', () => {
   test('string/address', () => {
     expect(
@@ -1087,7 +1133,7 @@ describe('getAmbiguousTypes', () => {
     expect(
       getAmbiguousTypes(
         parseAbiParameters('uint256, (address)'),
-        parseAbiParameters('uint128, (bytes20)'),
+        parseAbiParameters('uint256, (bytes20)'),
         [69420n, ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']],
       ),
     ).toMatchInlineSnapshot(`
@@ -1099,7 +1145,7 @@ describe('getAmbiguousTypes', () => {
     expect(
       getAmbiguousTypes(
         parseAbiParameters('uint256, (string, (address))'),
-        parseAbiParameters('uint128, (string, (bytes20))'),
+        parseAbiParameters('uint256, (string, (bytes20))'),
         [69420n, ['foo', ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e']]],
       ),
     ).toMatchInlineSnapshot(`
@@ -1111,7 +1157,7 @@ describe('getAmbiguousTypes', () => {
     expect(
       getAmbiguousTypes(
         parseAbiParameters('uint256, (string, (address, bytes))'),
-        parseAbiParameters('uint128, (string, (bytes20, address))'),
+        parseAbiParameters('uint256, (string, (bytes20, address))'),
         [
           123n,
           [
@@ -1127,6 +1173,49 @@ describe('getAmbiguousTypes', () => {
       [
         "address",
         "bytes20",
+      ]
+    `)
+  })
+
+  test('bytes', () => {
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('bytes32'),
+        parseAbiParameters('bytes'),
+        ['0x0000000000000000000000000000000000000000000000000000000000000001'],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "bytes32",
+        "bytes",
+      ]
+    `)
+  })
+
+  test('integers', () => {
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint256'),
+        parseAbiParameters('int256'),
+        [1n],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "uint256",
+        "int256",
+      ]
+    `)
+
+    expect(
+      getAmbiguousTypes(
+        parseAbiParameters('uint256'),
+        parseAbiParameters('uint128'),
+        [69420n],
+      ),
+    ).toMatchInlineSnapshot(`
+      [
+        "uint256",
+        "uint128",
       ]
     `)
   })

@@ -269,6 +269,9 @@ export function getAmbiguousTypes(
         return (
           value === undefined || isAddress(value as Address, { strict: false })
         )
+      // Distinct types that both matched cannot be distinguished at runtime
+      // (e.g. `bytes` vs `bytes32`, `uint256` vs `int256`).
+      if (sourceParameter.type !== targetParameter.type) return true
       return false
     })()
 

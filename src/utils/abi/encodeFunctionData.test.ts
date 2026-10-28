@@ -1,3 +1,4 @@
+import { parseAbi } from 'abitype'
 import { erc20Abi } from 'abitype/abis'
 import { expect, test } from 'vitest'
 import { encodeFunctionData } from './encodeFunctionData.js'
@@ -180,6 +181,43 @@ test("errors: function doesn't exist", () => {
     Make sure you are using the correct ABI and that the function exists on it.
 
     Docs: https://viem.sh/docs/contract/encodeFunctionData
+    Version: viem@x.y.z]
+  `)
+})
+
+test('overloads: bytes32 vs bytes', () => {
+  const hash =
+    '0x0000000000000000000000000000000000000000000000000000000000000001'
+  const signature = '0x1234'
+
+  expect(
+    encodeFunctionData({
+      abi: parseAbi([
+        'function isValidSignature(bytes32 hash, bytes signature)',
+      ]),
+      functionName: 'isValidSignature',
+      args: [hash, signature],
+    }).slice(0, 10),
+  ).toEqual('0x1626ba7e')
+
+  expect(() =>
+    encodeFunctionData({
+      abi: parseAbi([
+        'function isValidSignature(bytes32 hash, bytes signature)',
+        'function isValidSignature(bytes data, bytes signature)',
+      ]),
+      functionName: 'isValidSignature',
+      args: [hash, signature],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes\` in \`isValidSignature(bytes,bytes)\`, and
+    \`bytes32\` in \`isValidSignature(bytes32,bytes)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
     Version: viem@x.y.z]
   `)
 })
