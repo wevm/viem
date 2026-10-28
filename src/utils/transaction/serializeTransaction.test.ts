@@ -880,29 +880,32 @@ describe('legacy', () => {
       '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
     const s =
       '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9'
+    const transaction = { ...baseLegacy, chainId: 69 }
 
-    // Pre-EIP-155 (no chainId)
-    expect(serializeTransaction(baseLegacy, { r, s, yParity: 0 })).toEqual(
-      serializeTransaction(baseLegacy, { r, s, v: 27n }),
-    )
-    expect(serializeTransaction(baseLegacy, { r, s, yParity: 1 })).toEqual(
-      serializeTransaction(baseLegacy, { r, s, v: 28n }),
-    )
+    const serialized = serializeTransaction(transaction, { r, s, yParity: 1 })
 
-    // EIP-155 (explicit chainId)
-    const args = { ...baseLegacy, chainId: 69 }
-    const serialized = serializeTransaction(args, { r, s, yParity: 0 })
-    expect(serialized).toEqual(serializeTransaction(args, { r, s, v: 27n }))
-    expect(parseTransaction(serialized)).toEqual({
-      ...args,
-      r,
-      s,
-      v: 173n,
-      yParity: 0,
-      type: 'legacy',
-    })
-    expect(serializeTransaction(args, { r, s, yParity: 1 })).toEqual(
-      serializeTransaction(args, { r, s, v: 28n }),
+    expect(serialized).toMatchInlineSnapshot(
+      `"0xf86c8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a76400008081aea060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea030539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9"`,
+    )
+    expect(serialized).toBe(serializeTransaction(transaction, { r, s, v: 28n }))
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "chainId": 69,
+        "gasPrice": 2000000000n,
+        "nonce": 785,
+        "r": "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+        "s": "0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "v": 174n,
+        "value": 1000000000000000000n,
+        "yParity": 1,
+      }
+    `)
+    expect(
+      serializeTransaction(baseLegacy, { r, s, yParity: 0 }),
+    ).toMatchInlineSnapshot(
+      `"0xf86b8203118477359400809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a7640000801ba060fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fea030539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9"`,
     )
   })
 
@@ -911,27 +914,58 @@ describe('legacy', () => {
       '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
     const s =
       '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9'
+    const transaction = { ...baseLegacy, chainId: 69 }
 
-    // Pre-EIP-155 (no chainId)
-    expect(serializeTransaction(baseLegacy, { r, s, v: 0n })).toEqual(
+    const serialized = serializeTransaction(transaction, { r, s, v: 1n })
+
+    expect(serialized).toBe(serializeTransaction(transaction, { r, s, v: 28n }))
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "chainId": 69,
+        "gasPrice": 2000000000n,
+        "nonce": 785,
+        "r": "0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe",
+        "s": "0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "legacy",
+        "v": 174n,
+        "value": 1000000000000000000n,
+        "yParity": 1,
+      }
+    `)
+    expect(serializeTransaction(baseLegacy, { r, s, v: 0n })).toBe(
       serializeTransaction(baseLegacy, { r, s, v: 27n }),
     )
-    expect(serializeTransaction(baseLegacy, { r, s, v: 1n })).toEqual(
-      serializeTransaction(baseLegacy, { r, s, v: 28n }),
-    )
+  })
 
-    // EIP-155 (explicit chainId)
-    const args = { ...baseLegacy, chainId: 69 }
-    const serialized = serializeTransaction(args, { r, s, v: 1n })
-    expect(serialized).toEqual(serializeTransaction(args, { r, s, v: 28n }))
-    expect(parseTransaction(serialized)).toEqual({
-      ...args,
+  test('signature (yParity takes precedence over v)', () => {
+    const r =
+      '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe'
+    const s =
+      '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9'
+
+    const serialized = serializeTransaction(baseLegacy, {
       r,
       s,
-      v: 174n,
+      v: 27n,
       yParity: 1,
-      type: 'legacy',
     })
+
+    expect(serialized).toBe(serializeTransaction(baseLegacy, { r, s, v: 28n }))
+  })
+
+  test('error: invalid yParity', () => {
+    expect(() =>
+      serializeTransaction(baseLegacy, {
+        r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
+        s: '0x30539ad8a5b9fe92b6c0a0de9c6c8a04e0e3eb04da4c5f4d7d2b8a8ab3dbb3e9',
+        yParity: 2,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
+
+      Version: viem@x.y.z]
+    `)
   })
 
   test('signed w/ chainId', async () => {

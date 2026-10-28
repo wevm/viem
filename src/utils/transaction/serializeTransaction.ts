@@ -1,6 +1,8 @@
 import {
   InvalidLegacyVError,
   type InvalidLegacyVErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
@@ -146,6 +148,7 @@ type SerializeTransactionEIP7702ErrorType =
   | SerializeAuthorizationListErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
+  | InvalidYParityErrorType
   | NumberToHexErrorType
   | ToRlpErrorType
   | SerializeAccessListErrorType
@@ -412,12 +415,16 @@ function serializeTransactionLegacy(
 
       // Normalize to a pre-EIP-155 `v` (27 or 28). A signature may carry
       // `yParity` instead of `v` (e.g. from `parseSignature` or
-      // `compactSignatureToSignature`), or a `v` of 0 or 1.
+      // `compactSignatureToSignature`), or a `v` of 0 or 1. `yParity` takes
+      // precedence over `v`, matching the typed transaction serializers.
       const v = (() => {
+        if (typeof signature.yParity === 'number') {
+          if (signature.yParity === 0 || signature.yParity === 1)
+            return 27n + BigInt(signature.yParity)
+          throw new InvalidYParityError({ yParity: BigInt(signature.yParity) })
+        }
         if (signature.v === 27n || signature.v === 28n) return signature.v
         if (signature.v === 0n || signature.v === 1n) return 27n + signature.v
-        if (signature.yParity === 0 || signature.yParity === 1)
-          return 27n + BigInt(signature.yParity)
         throw new InvalidLegacyVError({ v: signature.v! })
       })()
 
