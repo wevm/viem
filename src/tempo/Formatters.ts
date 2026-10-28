@@ -65,8 +65,7 @@ export function formatTransaction(
           yParity: feePayerSignature.yParity,
         }
       : undefined,
-    nonce: Number(nonce ?? 0n),
-    nonceExact: nonce ?? 0n,
+    nonce: nonce ?? 0n,
     operation: formatOperation(operation),
     typeHex:
       ox_Transaction.toRpcType[

@@ -183,15 +183,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -259,15 +255,11 @@ describe('sendTransaction', () => {
         ],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -331,15 +323,11 @@ describe('sendTransaction', () => {
         "authorizationList": [],
         "data": undefined,
         "feePayerSignature": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "validAfter": null,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -406,14 +394,10 @@ describe('sendTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -542,15 +526,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -621,15 +601,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -699,14 +675,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -838,15 +810,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1045,15 +1013,11 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1128,15 +1092,11 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "validAfter": null,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1210,14 +1170,10 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1425,14 +1381,10 @@ describe('signTransaction', () => {
           },
         ],
         "data": undefined,
-        "maxFeePerBlobGas": undefined,
         "operation": undefined,
-        "to": null,
         "type": "tempo",
         "typeHex": "0x76",
-        "v": undefined,
         "value": 0n,
-        "yParity": undefined,
       }
     `)
   })
@@ -1596,14 +1548,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1746,14 +1694,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
@@ -1844,14 +1788,10 @@ describe('relay', () => {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
-          "maxFeePerBlobGas": undefined,
           "operation": undefined,
-          "to": null,
           "type": "tempo",
           "typeHex": "0x76",
-          "v": undefined,
           "value": 0n,
-          "yParity": undefined,
         }
       `)
     })
