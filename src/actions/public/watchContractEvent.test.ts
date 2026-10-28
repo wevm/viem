@@ -1,10 +1,11 @@
+import { Hex } from 'ox'
 import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts, address } from '~test/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/utils.js'
+import { createRpcProxy, deployErc20InvalidTransferEvent } from '~test/utils.js'
 import {
   type Client,
   createClient,
@@ -514,6 +515,40 @@ describe('poll', () => {
   })
 
   describe('`getLogs` fallback', () => {
+    /** Watches USDC transfers from `fromBlock` until `count` logs arrive. */
+    function collectTransfers(
+      client: Client,
+      fromBlock: bigint,
+      count: number,
+    ) {
+      return new Promise<
+        WatchContractEventOnLogsParameter<
+          typeof usdcContractConfig.abi,
+          'Transfer'
+        >
+      >((resolve, reject) => {
+        const logs: WatchContractEventOnLogsParameter<
+          typeof usdcContractConfig.abi,
+          'Transfer'
+        > = []
+        const unwatch = watchContractEvent(client, {
+          ...usdcContractConfig,
+          eventName: 'Transfer',
+          fromBlock,
+          onError(error) {
+            unwatch()
+            reject(error)
+          },
+          onLogs(logs_) {
+            logs.push(...logs_)
+            if (logs.length < count) return
+            unwatch()
+            resolve(logs)
+          },
+        })
+      })
+    }
+
     test('falls back to `getLogs` if `createContractEventFilter` throws', async () => {
       // TODO: Something weird going on where the `getFilterChanges` spy is taking
       // results of the previous test. This `wait` fixes it. ¯\_(ツ)_/¯
@@ -695,6 +730,398 @@ describe('poll', () => {
         value: 1n,
       })
       expect(logs[1][0].eventName).toEqual('Approval')
+    })
+
+    test('splits block ranges the RPC Provider rejects', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method, params }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method !== 'eth_getLogs') return undefined
+          const [{ fromBlock: from, toBlock: to }] = params as [
+            { fromBlock: Hex.Hex; toBlock: Hex.Hex },
+          ]
+          if (Hex.toBigInt(to) - Hex.toBigInt(from) + 1n > 5n)
+            return { error: { code: -32602, message: 'block range too large' } }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url),
+      })
+
+      const fromBlock =
+        (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 10 })
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 10 })
+
+      // The first poll covers 20 blocks, more than the server allows.
+      const logs = await collectTransfers(client_, fromBlock, 2)
+
+      expect(
+        logs.map(
+          ({
+            blockHash,
+            blockNumber,
+            blockTimestamp,
+            transactionHash,
+            ...log
+          }) => log,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            ],
+            "transactionIndex": 0,
+          },
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+            ],
+            "transactionIndex": 0,
+          },
+        ]
+      `)
+    })
+
+    test('reports one error when a single block fails, then resumes from it', async () => {
+      // Reject every `eth_getLogs` request until the watcher reports an error.
+      let failing = true
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method === 'eth_getLogs' && failing)
+            return { error: { code: -32602, message: 'block range too large' } }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url),
+      })
+
+      const fromBlock =
+        (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 2 })
+
+      const errors: Error[] = []
+      const logs = await new Promise<
+        WatchContractEventOnLogsParameter<
+          typeof usdcContractConfig.abi,
+          'Transfer'
+        >
+      >((resolve) => {
+        const unwatch = watchContractEvent(client_, {
+          ...usdcContractConfig,
+          eventName: 'Transfer',
+          fromBlock,
+          onError(error) {
+            errors.push(error)
+            failing = false
+          },
+          onLogs(logs) {
+            unwatch()
+            resolve(logs)
+          },
+        })
+      })
+
+      expect(errors.map((error) => error.name)).toMatchInlineSnapshot(`
+        [
+          "InvalidParamsRpcError",
+        ]
+      `)
+      expect(
+        logs.map(
+          ({
+            blockHash,
+            blockNumber,
+            blockTimestamp,
+            transactionHash,
+            ...log
+          }) => log,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            ],
+            "transactionIndex": 0,
+          },
+        ]
+      `)
+    })
+
+    test('does not split block ranges when rate limited', async () => {
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method, params }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method !== 'eth_getLogs') return undefined
+          const [{ fromBlock: from, toBlock: to }] = params as [
+            { fromBlock: Hex.Hex; toBlock: Hex.Hex },
+          ]
+          // Only a split range would succeed.
+          if (from !== to)
+            return { error: { code: 429, message: 'Too Many Requests' } }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url, { retryCount: 0 }),
+      })
+
+      const fromBlock =
+        (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 2 })
+
+      const error = await new Promise<Error>((resolve, reject) => {
+        const unwatch = watchContractEvent(client_, {
+          ...usdcContractConfig,
+          eventName: 'Transfer',
+          fromBlock,
+          onError(error) {
+            unwatch()
+            resolve(error)
+          },
+          onLogs() {
+            unwatch()
+            reject(new Error('Expected an error.'))
+          },
+        })
+      })
+
+      expect(error.name).toMatchInlineSnapshot(`"RpcRequestError"`)
+    })
+
+    test('does not repeat logs when the RPC Provider reports a lower block number', async () => {
+      const fromBlock =
+        (await getBlockNumber.getBlockNumber(client, { cacheTime: 0 })) + 1n
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 1 })
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 1 })
+
+      // The first poll sees only the first transfer's block, the second a lower one.
+      const blockNumbers = [fromBlock, fromBlock - 1n]
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method === 'eth_blockNumber' && blockNumbers.length > 0)
+            return { result: Hex.fromNumber(blockNumbers.shift()!) }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url),
+      })
+
+      const logs = await collectTransfers(client_, fromBlock, 2)
+
+      expect(
+        logs.map(
+          ({
+            blockHash,
+            blockNumber,
+            blockTimestamp,
+            transactionHash,
+            ...log
+          }) => log,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            ],
+            "transactionIndex": 0,
+          },
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+            ],
+            "transactionIndex": 0,
+          },
+        ]
+      `)
+    })
+
+    test('does not emit logs before a `fromBlock` past the latest block', async () => {
+      const blockNumber = await getBlockNumber.getBlockNumber(client, {
+        cacheTime: 0,
+      })
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[0].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 1 })
+      await writeContract(client, {
+        ...usdcContractConfig,
+        functionName: 'transfer',
+        args: [accounts[1].address, 1n],
+        account: address.vitalik,
+      })
+      await mine(client, { blocks: 1 })
+
+      // The first poll sees a latest block before `fromBlock`.
+      const blockNumbers = [blockNumber]
+      const url = await createRpcProxy(
+        anvilMainnet.rpcUrl.http,
+        ({ method }) => {
+          if (method === 'eth_newFilter')
+            return { error: { code: -32601, message: 'Method not found' } }
+          if (method === 'eth_blockNumber' && blockNumbers.length > 0)
+            return { result: Hex.fromNumber(blockNumbers.shift()!) }
+          return undefined
+        },
+      )
+      const client_ = createClient({
+        ...anvilMainnet.clientConfig,
+        transport: http(url),
+      })
+
+      const logs = await collectTransfers(client_, blockNumber + 2n, 1)
+
+      expect(
+        logs.map(
+          ({
+            blockHash,
+            blockNumber,
+            blockTimestamp,
+            transactionHash,
+            ...log
+          }) => log,
+        ),
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "args": {
+              "from": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+              "to": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+              "value": 1n,
+            },
+            "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
+            "eventName": "Transfer",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045",
+              "0x00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8",
+            ],
+            "transactionIndex": 0,
+          },
+        ]
+      `)
     })
   })
 
