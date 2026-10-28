@@ -157,6 +157,47 @@ export async function getTransaction<
       index,
     })
 
+  // EIP-8130 (`AA_TX_TYPE`, type 0x79) responses wrap the transaction body in a
+  // nested `tx` object and omit the `hash` field (unlike standard tx responses).
+  // Flatten the nested body and inject the request hash so downstream formatters
+  // (and `waitForTransactionReceipt`) have all the fields they expect.
+  if ((transaction as any).type === '0x79') {
+    const raw = transaction as any
+    const body = raw.tx ?? {}
+    transaction = {
+      // Inject the request hash — not present in the RPC response.
+      hash: hash ?? undefined,
+      type: '0x79',
+      // Top-level block context fields (present in mined txs).
+      blockHash: raw.blockHash,
+      blockNumber: raw.blockNumber,
+      blockTimestamp: raw.blockTimestamp,
+      transactionIndex: raw.transactionIndex,
+      gasPrice: raw.gasPrice,
+      // Tx body fields mapped to standard hex form.
+      from: raw.from ?? body.sender,
+      chainId: body.chainId != null ? numberToHex(body.chainId) : undefined,
+      gas: body.gasLimit != null ? numberToHex(body.gasLimit) : undefined,
+      maxFeePerGas: body.maxFeePerGas,
+      maxPriorityFeePerGas: body.maxPriorityFeePerGas,
+      // Map 2D nonce: use nonceSequence as the canonical nonce for compat.
+      nonce: body.nonceSequence != null ? numberToHex(body.nonceSequence) : undefined,
+      // EIP-8130 txs have no single `to` — calls are a structured list.
+      to: null,
+      value: '0x0',
+      input: '0x',
+      // EIP-8130 extra fields (preserved as-is for the eip8130 `getTransaction`).
+      nonceKey: body.nonceKey,
+      expiry: body.expiry,
+      calls: body.calls,
+      accountChanges: body.accountChanges,
+      metadata: body.metadata,
+      payer: body.payer ?? null,
+      senderAuth: raw.senderAuth,
+      payerAuth: raw.payerAuth,
+    } as unknown as RpcTransaction
+  }
+
   const format =
     client.chain?.formatters?.transaction?.format || formatTransaction
   return format(transaction, 'getTransaction')
