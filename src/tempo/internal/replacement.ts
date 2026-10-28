@@ -22,7 +22,7 @@ export const transactionReplacement = {
     if (tx.type !== 'tempo') return `0:${tx.nonce}`
     const nonceKey = tx.nonceKey ?? 0n
     if (nonceKey === maxUint256) return `expiring:${getExpiringNonceHash(tx)}`
-    return `${nonceKey}:${tx.nonce}`
+    return `${nonceKey}:${tx.nonceExact ?? tx.nonce}`
   },
   getReason({ replaced, replacement }) {
     return getReason(replaced as Transaction, replacement as Transaction)
@@ -49,7 +49,7 @@ export function getExpiringNonceHash(transaction: Transaction) {
     keyAuthorization: tx.keyAuthorization ?? undefined,
     maxFeePerGas: tx.maxFeePerGas,
     maxPriorityFeePerGas: tx.maxPriorityFeePerGas,
-    nonce: BigInt(tx.nonce),
+    nonce: tx.nonceExact ?? BigInt(tx.nonce),
     nonceKey: tx.nonceKey,
     validAfter: tx.validAfter,
     validBefore: tx.validBefore,
