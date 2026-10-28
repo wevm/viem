@@ -165,8 +165,41 @@ type ConfigurableAccount = LocalAccount<'configurable'> & {
 ```
 
 The account's `signTransaction` method combines retained local owner approvals with any approvals
-provided through the request's `signatures`. `sign`, `signMessage`, and `signTypedData` are not
-supported.
+provided through the request's `signatures`.
+
+`sign`, `signMessage`, and `signTypedData` return a configurable signature envelope with local
+owner approvals up to the threshold. They throw when local owners do not meet the threshold.
+
+### Signature Verification
+
+Verify message and typed data signatures with [`verifyMessage`](/docs/actions/public/verifyMessage)
+or [`verifyTypedData`](/docs/actions/public/verifyTypedData) on a Tempo client. Tempo's
+`verifyHash` checks them with the signature verifier precompile.
+
+```ts twoslash
+import { Account, createClient } from 'viem/tempo'
+
+const client = createClient()
+const owner = Account.fromSecp256k1(
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+)
+const account = Account.fromConfig({ address: 'infer', owners: [owner] })
+
+const signature = await account.signMessage({ message: 'hello' })
+
+const valid = await client.verifyMessage({
+  address: account.address,
+  message: 'hello',
+  signature,
+})
+// @log: true
+```
+
+:::warning
+Signatures verify against the account's current config, so a config update invalidates earlier
+signatures. Configurable accounts have no code and do not implement ERC-1271 `isValidSignature`,
+so ERC-1271 verifiers do not accept their signatures.
+:::
 
 ## Parameters
 
