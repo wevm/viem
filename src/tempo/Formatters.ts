@@ -9,6 +9,9 @@ import {
 } from 'ox/tempo'
 import type { Account as viem_Account } from '../accounts/types.js'
 import { parseAccount } from '../accounts/utils/parseAccount.js'
+import type { Block } from '../types/block.js'
+import type { RpcBlock } from '../types/rpc.js'
+import { formatBlock as viem_formatBlock } from '../utils/formatters/block.js'
 import { formatTransaction as viem_formatTransaction } from '../utils/formatters/transaction.js'
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
@@ -23,6 +26,18 @@ import {
   type TransactionRpc,
 } from './Transaction.js'
 
+export function formatBlock(block: RpcBlock): Block {
+  const { transactions = [], ...rest } = block
+  return {
+    ...viem_formatBlock({ ...rest, transactions: [] }),
+    transactions: transactions.map((transaction) =>
+      typeof transaction === 'string'
+        ? transaction
+        : formatTransaction(transaction as never),
+    ),
+  } as never
+}
+
 export function formatTransaction(
   transaction: TransactionRpc,
 ): Transaction<bigint, number, boolean> {
@@ -34,12 +49,9 @@ export function formatTransaction(
       ? undefined
       : BigInt(transaction.blockTimestamp)
   const operation = transaction.operation
-  const {
-    feePayerSignature,
-    gasPrice: _,
-    nonce,
-    ...tx
-  } = ox_Transaction.fromRpc(transaction as never) as ox_Transaction.Tempo
+  const { feePayerSignature, nonce, ...tx } = ox_Transaction.fromRpc(
+    transaction as never,
+  ) as ox_Transaction.Tempo
 
   return {
     ...tx,
@@ -53,7 +65,8 @@ export function formatTransaction(
           yParity: feePayerSignature.yParity,
         }
       : undefined,
-    nonce: nonce ?? 0n,
+    nonce: Number(nonce ?? 0n),
+    nonceExact: nonce ?? 0n,
     operation: formatOperation(operation),
     typeHex:
       ox_Transaction.toRpcType[

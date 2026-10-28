@@ -13,7 +13,7 @@ import {
 import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
-import { hashMessage } from '../utils/index.js'
+import { hashMessage, keccak256 } from '../utils/index.js'
 import { withResolvers } from '../utils/promise/withResolvers.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import { chainConfig } from './chainConfig.js'
@@ -670,12 +670,23 @@ describe('formatters', () => {
     )
 
     expect(transaction.type).toBe('tempo')
-    expect(transaction.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction.nonce).toBe(Number(0xe723b82c0de6fb54n))
+    expect(transaction.nonceExact).toBe(0xe723b82c0de6fb54n)
     expect(transaction.nonceKey).toBe(
       0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
     )
     expect(transaction.gasPrice).toBe(0x23c34600n)
     expect('aaAuthorizationList' in transaction).toBe(false)
+  })
+
+  test('behavior: serializes formatted expiring nonces exactly', async () => {
+    const transaction = chainConfig.formatters.transaction.format(
+      expiringNonceTransaction as never,
+    )
+
+    const serialized = await Transaction.serialize(transaction as never)
+
+    expect(keccak256(serialized)).toBe(expiringNonceTransaction.hash)
   })
 
   test('behavior: block formatter formats Tempo transactions', () => {
@@ -688,7 +699,10 @@ describe('formatters', () => {
       block.transactions as readonly Transaction.Transaction[]
     expect(block.number).toBe(0x2c052d2n)
     expect(transaction?.type).toBe('tempo')
-    expect(transaction?.nonce).toBe(0xe723b82c0de6fb54n)
+    expect(transaction?.nonce).toBe(Number(0xe723b82c0de6fb54n))
+    expect(transaction?.type === 'tempo' && transaction.nonceExact).toBe(
+      0xe723b82c0de6fb54n,
+    )
     expect(transaction && 'aaAuthorizationList' in transaction).toBe(false)
   })
 

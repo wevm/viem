@@ -72,10 +72,7 @@ export type TransactionTempo<
   isPending extends boolean = boolean,
   type = 'tempo',
 > = PartialBy<
-  Omit<
-    TransactionBase<quantity, index, isPending>,
-    'input' | 'nonce' | 'value' | 'to'
-  >,
+  Omit<TransactionBase<quantity, index, isPending>, 'input' | 'value' | 'to'>,
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
@@ -86,14 +83,20 @@ export type TransactionTempo<
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   operation?: AccountOperation.TransactionOperation | undefined
-  /** Sequence number, or for expiring nonce transactions (TIP-1106) an opaque `uint64` discriminator, often above `Number.MAX_SAFE_INTEGER`. */
-  nonce: quantity
+  /**
+   * Exact `nonce`. For expiring nonce transactions (TIP-1106) the nonce is an opaque `uint64`
+   * discriminator, often above `Number.MAX_SAFE_INTEGER`, which `nonce` cannot hold exactly.
+   */
+  nonceExact?: quantity | undefined
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
   validBefore?: index | undefined
   validAfter?: index | undefined
-} & FeeValuesEIP1559<quantity>
+} & Omit<FeeValuesEIP1559<quantity>, 'gasPrice'> & {
+    /** Effective gas price the transaction paid, once included. */
+    gasPrice?: quantity | undefined
+  }
 
 export type TransactionRequest<
   bigintType = bigint,
@@ -344,9 +347,10 @@ async function serializeTempo(
     feePayer,
     accountSimulation,
     nonce,
+    nonceExact,
     owner: _owner,
     ...rest
-  } = transaction
+  } = transaction as typeof transaction & { nonceExact?: bigint | undefined }
 
   const feePayerSignature = (() => {
     const feePayerSignature = transaction.feePayerSignature
@@ -392,7 +396,12 @@ async function serializeTempo(
     chainId: Number(chainId),
     feePayerSignature,
     type: 'tempo',
-    ...(nonce ? { nonce: BigInt(nonce) } : {}),
+    // Prefer the exact nonce of a formatted transaction unless `nonce` was changed since.
+    ...(typeof nonceExact === 'bigint' && Number(nonceExact) === Number(nonce)
+      ? { nonce: nonceExact }
+      : nonce
+        ? { nonce: BigInt(nonce) }
+        : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
   // Sender does not commit to `feeToken` under sponsorship. Strip it
