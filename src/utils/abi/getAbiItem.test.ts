@@ -687,7 +687,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -709,7 +709,7 @@ test('overloads: ambiguious types', () => {
     \`string\` in \`foo(string)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -781,7 +781,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -799,7 +799,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((address))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -817,7 +817,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -835,7 +835,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -853,7 +853,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -876,7 +876,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(address[2])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -897,7 +897,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((address[]))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -918,7 +918,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo((uint256),address[])\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -939,7 +939,7 @@ test('overloads: ambiguious types', () => {
     \`address\` in \`foo(string,(address))\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -965,7 +965,7 @@ test('overloads: bytes32 vs bytes', () => {
     \`bytes32\` in \`isValidSignature(bytes32,bytes)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)
@@ -985,9 +985,117 @@ test('overloads: uint256 vs int256', () => {
     \`uint256\` in \`foo(uint256)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
+  `)
+})
+
+test('overloads: uint256[] vs uint256[2]', () => {
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(uint256[] x)',
+        'function foo(uint256[2] x)',
+      ]),
+      name: 'foo',
+      args: [[1n, 1n]],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`uint256[2]\` in \`foo(uint256[2])\`, and
+    \`uint256[]\` in \`foo(uint256[])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+
+  expect(
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(uint256[] x)',
+        'function foo(uint256[2] x)',
+      ]),
+      name: 'foo',
+      args: [[1n, 1n, 1n]],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "name": "x",
+          "type": "uint256[]",
+        },
+      ],
+      "name": "foo",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+})
+
+test('overloads: uint256[2][] vs uint256[][2]', () => {
+  expect(() =>
+    getAbiItem({
+      abi: parseAbi([
+        'function foo(uint256[2][] x)',
+        'function foo(uint256[][2] x)',
+      ]),
+      name: 'foo',
+      args: [
+        [
+          [1n, 1n],
+          [1n, 1n],
+        ],
+      ],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`uint256[]\` in \`foo(uint256[][2])\`, and
+    \`uint256[2]\` in \`foo(uint256[2][])\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('overloads: selector chooses one of two matches', () => {
+  expect(
+    getAbiItem({
+      abi: parseAbi([
+        'function isValidSignature(bytes32 hash, bytes signature)',
+        'function isValidSignature(bytes data, bytes signature)',
+      ]),
+      name: '0x1626ba7e',
+      args: [
+        '0x0000000000000000000000000000000000000000000000000000000000000001',
+        '0x1234',
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "name": "hash",
+          "type": "bytes32",
+        },
+        {
+          "name": "signature",
+          "type": "bytes",
+        },
+      ],
+      "name": "isValidSignature",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
   `)
 })
 

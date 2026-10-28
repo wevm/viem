@@ -189,6 +189,10 @@ test('overloads: bytes32 vs bytes', () => {
   const hash =
     '0x0000000000000000000000000000000000000000000000000000000000000001'
   const signature = '0x1234'
+  const abi = parseAbi([
+    'function isValidSignature(bytes32 hash, bytes signature)',
+    'function isValidSignature(bytes data, bytes signature)',
+  ])
 
   expect(
     encodeFunctionData({
@@ -197,15 +201,24 @@ test('overloads: bytes32 vs bytes', () => {
       ]),
       functionName: 'isValidSignature',
       args: [hash, signature],
-    }).slice(0, 10),
-  ).toEqual('0x1626ba7e')
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x1626ba7e0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000"`,
+  )
+
+  expect(
+    encodeFunctionData({
+      abi,
+      functionName: '0x1626ba7e',
+      args: [hash, signature],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x1626ba7e0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000021234000000000000000000000000000000000000000000000000000000000000"`,
+  )
 
   expect(() =>
     encodeFunctionData({
-      abi: parseAbi([
-        'function isValidSignature(bytes32 hash, bytes signature)',
-        'function isValidSignature(bytes data, bytes signature)',
-      ]),
+      abi,
       functionName: 'isValidSignature',
       args: [hash, signature],
     }),
@@ -216,7 +229,7 @@ test('overloads: bytes32 vs bytes', () => {
     \`bytes32\` in \`isValidSignature(bytes32,bytes)\`
 
     These types encode differently and cannot be distinguished at runtime.
-    Remove one of the ambiguous items in the ABI.
+    Pass a selector to choose an overload, or remove one of the ambiguous items in the ABI.
 
     Version: viem@x.y.z]
   `)

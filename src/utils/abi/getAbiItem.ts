@@ -253,6 +253,15 @@ export function getAmbiguousTypes(
         [(args[parameterIndex] as readonly unknown[] | undefined)?.[0]],
       )
       if (types) return types
+      // Same element type, different array shape: `uint256[]` and `uint256[2]`
+      // both accept `[1n, 1n]`, but one is dynamic and the other is static.
+      // Skip this when the element types differ. `string[]` vs `address[]`
+      // stays unambiguous for a non-address string.
+      if (
+        sourceArray[1] === targetArray[1] &&
+        sourceParameter.type !== targetParameter.type
+      )
+        return [sourceParameter.type, targetParameter.type]
       continue
     }
 
@@ -260,8 +269,8 @@ export function getAmbiguousTypes(
     const value = args[parameterIndex]
 
     const ambiguous = (() => {
-      if (types.includes('address') && types.includes('bytes20')) return true
       // An `undefined` value comes from an empty array, which matches both types.
+      // This stays above the catch-all: a non-address string is not ambiguous.
       if (
         types.includes('address') &&
         (types.includes('string') || types.includes('bytes'))
@@ -270,7 +279,7 @@ export function getAmbiguousTypes(
           value === undefined || isAddress(value as Address, { strict: false })
         )
       // Distinct types that both matched cannot be distinguished at runtime
-      // (e.g. `bytes` vs `bytes32`, `uint256` vs `int256`).
+      // (e.g. `bytes` vs `bytes32`, `uint256` vs `int256`, `address` vs `bytes20`).
       if (sourceParameter.type !== targetParameter.type) return true
       return false
     })()
