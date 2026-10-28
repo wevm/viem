@@ -72,7 +72,10 @@ export type TransactionTempo<
   isPending extends boolean = boolean,
   type = 'tempo',
 > = PartialBy<
-  Omit<TransactionBase<quantity, index, isPending>, 'input' | 'value' | 'to'>,
+  Omit<
+    TransactionBase<quantity, index, isPending>,
+    'input' | 'nonce' | 'value' | 'to'
+  >,
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
@@ -83,11 +86,8 @@ export type TransactionTempo<
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   operation?: AccountOperation.TransactionOperation | undefined
-  /**
-   * Exact `nonce`. For expiring nonce transactions (TIP-1106) the nonce is an opaque `uint64`
-   * discriminator, often above `Number.MAX_SAFE_INTEGER`, which `nonce` cannot hold exactly.
-   */
-  nonceExact?: quantity | undefined
+  /** Sequence number, or for expiring nonce transactions (TIP-1106) an opaque `uint64` discriminator, often above `Number.MAX_SAFE_INTEGER`. */
+  nonce: quantity
   nonceKey?: quantity | undefined
   signature: SignatureEnvelope.SignatureEnvelope
   type: type
@@ -347,10 +347,9 @@ async function serializeTempo(
     feePayer,
     accountSimulation,
     nonce,
-    nonceExact,
     owner: _owner,
     ...rest
-  } = transaction as typeof transaction & { nonceExact?: bigint | undefined }
+  } = transaction
 
   const feePayerSignature = (() => {
     const feePayerSignature = transaction.feePayerSignature
@@ -396,12 +395,7 @@ async function serializeTempo(
     chainId: Number(chainId),
     feePayerSignature,
     type: 'tempo',
-    // Prefer the exact nonce of a formatted transaction unless `nonce` was changed since.
-    ...(typeof nonceExact === 'bigint' && Number(nonceExact) === Number(nonce)
-      ? { nonce: nonceExact }
-      : nonce
-        ? { nonce: BigInt(nonce) }
-        : {}),
+    ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
   // Sender does not commit to `feeToken` under sponsorship. Strip it

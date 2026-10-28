@@ -202,7 +202,8 @@ export async function fillTransaction<
     if (
       hasFeePayerSignature &&
       typeof nonce !== 'undefined' &&
-      transaction.nonce !== nonce
+      // Tempo formats nonces as bigints (TIP-1106 discriminators exceed 2^53).
+      BigInt(transaction.nonce) !== BigInt(nonce)
     )
       throw new FeePayerNonceMismatchError({
         filledNonce: transaction.nonce,

@@ -148,7 +148,6 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -167,7 +166,6 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
-    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -222,7 +220,6 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -241,7 +238,6 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
-    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -299,7 +295,6 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -318,7 +313,6 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
-    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -364,7 +358,6 @@ describe('sendTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -384,7 +377,6 @@ describe('sendTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
-    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -498,7 +490,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -518,7 +509,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -581,7 +571,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -602,7 +591,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -651,7 +639,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -671,7 +658,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -788,7 +774,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -808,7 +793,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -868,7 +852,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         signature,
         ...transaction
       } = await getTransaction(client, {
@@ -886,7 +869,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
     })
@@ -914,7 +896,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         signature,
         ...transaction
       } = await getTransaction(client, { hash })
@@ -928,7 +909,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(signature).toBeDefined()
       expect(transaction).toBeDefined()
     })
@@ -997,7 +977,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1017,7 +996,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1084,7 +1062,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1105,7 +1082,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1158,7 +1134,6 @@ describe('sendTransaction', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1178,7 +1153,6 @@ describe('sendTransaction', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1371,7 +1345,6 @@ describe('signTransaction', () => {
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
-      nonceExact,
       nonceKey,
       signature,
       transactionIndex,
@@ -1391,7 +1364,6 @@ describe('signTransaction', () => {
     expect(maxFeePerGas).toBeDefined()
     expect(maxPriorityFeePerGas).toBeDefined()
     expect(nonce).toBeDefined()
-    expect(nonceExact).toBe(BigInt(nonce))
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
@@ -1546,7 +1518,6 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1567,7 +1538,6 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1694,7 +1664,6 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1715,7 +1684,6 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
@@ -1790,7 +1758,6 @@ describe('relay', () => {
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce,
-        nonceExact,
         nonceKey,
         signature,
         transactionIndex,
@@ -1811,7 +1778,6 @@ describe('relay', () => {
       expect(maxFeePerGas).toBeDefined()
       expect(maxPriorityFeePerGas).toBeDefined()
       expect(nonce).toBeDefined()
-      expect(nonceExact).toBe(BigInt(nonce))
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
