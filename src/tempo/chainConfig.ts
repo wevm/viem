@@ -15,6 +15,7 @@ import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import type { RpcBlock } from '../types/rpc.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -50,13 +51,17 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   formatters: {
-    block: { format: Formatters.formatBlock, type: 'block' as const },
+    block: {
+      format: (block: RpcBlock) => Formatters.formatBlock(block),
+      type: 'block' as const,
+    },
     transaction: {
       ...defineTransaction({
         exclude: ['aaAuthorizationList' as never],
         format: Formatters.formatTransaction,
       }),
-      format: Formatters.formatTransaction,
+      format: (transaction: Transaction.TransactionRpc) =>
+        Formatters.formatTransaction(transaction),
     },
     transactionReceipt: defineTransactionReceipt({
       format: Formatters.formatTransactionReceipt,
