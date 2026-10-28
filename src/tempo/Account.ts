@@ -294,6 +294,14 @@ export declare namespace fromSecp256k1 {
  * Normalizes supplied config fields with `AccountConfig.from`, so callers do
  * not need to normalize owner ordering themselves.
  *
+ * `sign`, `signMessage`, and `signTypedData` return a configurable signature
+ * envelope with local owner approvals up to the config threshold. Signatures
+ * verify against the account's current config, so a config update invalidates
+ * earlier signatures. Verify them with `verifyHash`, `verifyMessage`, or
+ * `verifyTypedData` on a Tempo client, which use the signature verifier
+ * precompile. Configurable accounts have no code and do not implement ERC-1271
+ * `isValidSignature`, so ERC-1271 verifiers do not accept their signatures.
+ *
  * @example
  * ```ts
  * import { Account } from 'viem/tempo'
@@ -406,10 +414,8 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         await signConfigurable(account, { payload: hash }),
       )
     },
-    async signMessage() {
-      throw new Error(
-        '`signMessage` is not supported for configurable accounts.',
-      )
+    async signMessage({ message }) {
+      return await account.sign({ hash: hashMessage(message) })
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
@@ -456,10 +462,8 @@ export function fromConfig(value: fromConfig.Parameters): ConfigurableAccount {
         signature as never,
       )) as Hex.Hex
     },
-    async signTypedData() {
-      throw new Error(
-        '`signTypedData` is not supported for configurable accounts.',
-      )
+    async signTypedData(typedData) {
+      return await account.sign({ hash: hashTypedData(typedData) })
     },
   }
   return account
@@ -528,6 +532,12 @@ export declare namespace fromConfig {
   }
 }
 
+/**
+ * Configurable account (TIP-1107) returned by {@link fromConfig}.
+ *
+ * Its signatures verify against the account's current config through Tempo's
+ * `verifyHash`, not ERC-1271, and a config update invalidates earlier signatures.
+ */
 export type ConfigurableAccount<
   config extends AccountConfig.Config | undefined =
     | AccountConfig.Config
