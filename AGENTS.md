@@ -160,6 +160,7 @@ This document contains general guidelines for AI agents working on the Viem code
   - Use `pnpm test --project core --bail=1` for core failures.
   - Use `--project tempo` for tempo work.
 - **Next.js environment tests use local Anvil**; `pnpm test:env:next` needs `anvil` on PATH. Playwright owns ports 18545 and 3000 and waits for both servers. Keep its HTTP and WebSocket calls local rather than depending on public RPC services.
+- **Node error wording can vary**; relay tests running against multiple Tempo versions should accept known equivalent node errors while retaining assertions on relay behavior, rather than snapshotting one node's exact wording.
 - **Synchronize polling tests with observations**; await the initial callback before mining and await each expected emission. Fork startup can exceed the polling interval.
 - **Mine pending transactions before balance baselines**; shared Anvil tests may leave pending transfers. Mine before measuring a balance delta so earlier tests cannot affect it.
 - **Verify type-test discovery**; if `pnpm test:typecheck` reports no files, temporarily

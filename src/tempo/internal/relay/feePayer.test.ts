@@ -1744,8 +1744,8 @@ describe('rejected broadcasts', () => {
         method: 'eth_sendRawTransaction',
         params: [await userAccount.signTransaction(transaction as never)],
       }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.BaseError: gas price is less than basefee]`,
+    ).rejects.toThrow(
+      /^(gas price is less than basefee|fee cap less than base fee: max_fee_per_gas 1, base_fee [1-9]\d*)$/,
     )
 
     expect(
@@ -1781,6 +1781,31 @@ describe('rejected broadcasts', () => {
       response: { code: -32000, message: 'gas price is less than basefee' },
       maxFeePerGas: 1n,
       minimumBaseFee: 1n,
+    },
+    {
+      response: {
+        code: -32000,
+        message:
+          'fee cap less than base fee: max_fee_per_gas 600000000, base_fee 1200000000',
+      },
+      maxFeePerGas: 600_000_000n,
+    },
+    {
+      response: {
+        code: -32000,
+        message:
+          'fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000',
+      },
+      maxFeePerGas: 1n,
+      minimumBaseFee: 1n,
+    },
+    {
+      response: {
+        code: -32603,
+        message:
+          'fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000',
+      },
+      maxFeePerGas: 1n,
     },
   ])(
     'ambiguous broadcast failures stay unreported: $response.message',

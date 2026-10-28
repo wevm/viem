@@ -817,7 +817,14 @@ function isBaseFeeRejection(error: unknown) {
     const { cause, code, message } = current as Record<string, unknown>
     // Reth reports pool admission failures as invalid input (-32000). `transaction underpriced`
     // reflects a node-configurable floor, so another node could still admit the envelope.
-    if (code === -32000 && message === 'gas price is less than basefee')
+    if (
+      code === -32000 &&
+      typeof message === 'string' &&
+      (message === 'gas price is less than basefee' ||
+        /^fee cap less than base fee: max_fee_per_gas \d+, base_fee \d+$/.test(
+          message,
+        ))
+    )
       return true
     current = cause
   }
