@@ -1745,7 +1745,7 @@ describe('rejected broadcasts', () => {
         params: [await userAccount.signTransaction(transaction as never)],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[RpcResponse.BaseError: gas price is less than basefee]`,
+      `[RpcResponse.BaseError: fee cap less than base fee: max_fee_per_gas 1, base_fee 600000000]`,
     )
 
     expect(
