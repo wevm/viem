@@ -5,7 +5,9 @@ import { Hex, RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
 import { Period } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
+  fillTransaction,
   getTransaction,
+  getTransactionCount,
   prepareTransactionRequest,
   sendRawTransaction,
   sendTransaction,
@@ -1387,6 +1389,26 @@ describe('signTransaction', () => {
         "value": 0n,
       }
     `)
+  })
+})
+
+describe('fillTransaction', () => {
+  test('behavior: requested nonce stays a bigint', async () => {
+    const account = accounts[0]
+    const nonce = await getTransactionCount(client, {
+      address: account.address,
+      blockTag: 'pending',
+    })
+
+    const { transaction } = await fillTransaction(client, {
+      account: account.address,
+      calls: [{ to: '0xcafebabecafebabecafebabecafebabecafebabe' }],
+      nonce,
+    })
+
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.feePayerSignature).toBeUndefined()
+    expect(transaction.nonce).toBe(BigInt(nonce))
   })
 })
 
