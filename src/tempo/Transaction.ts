@@ -93,7 +93,10 @@ export type TransactionTempo<
   type: type
   validBefore?: index | undefined
   validAfter?: index | undefined
-} & FeeValuesEIP1559<quantity>
+} & Omit<FeeValuesEIP1559<quantity>, 'gasPrice'> & {
+    /** Effective gas price the transaction paid, once included. */
+    gasPrice?: quantity | undefined
+  }
 
 export type TransactionRequest<
   bigintType = bigint,
