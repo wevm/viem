@@ -122,6 +122,22 @@ describe('formatTransaction', () => {
     })
     expect(transaction.type).toBe('tempo')
   })
+
+  test('behavior: fee payer signature marker of a filled transaction', () => {
+    const transaction = Formatters.formatTransaction({
+      accessList: [],
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      chainId: '0x1',
+      feePayerSignature: { r: '0x0', s: '0x0', v: '0x0', yParity: '0x0' },
+      from: '0x0000000000000000000000000000000000000001',
+      gas: '0x5208',
+      maxFeePerGas: '0x1',
+      maxPriorityFeePerGas: '0x0',
+      nonce: '0x0',
+      type: '0x76',
+    } as never)
+    expect(transaction.feePayerSignature).toBeUndefined()
+  })
 })
 
 describe('formatTransactionRequest', () => {
@@ -357,6 +373,32 @@ describe('formatTransactionRequest', () => {
     } as never)
     expect((rpc as Record<string, unknown>).feeToken).toBe(feeToken)
     expect((rpc as Record<string, unknown>).feePayer).toBe(true)
+  })
+
+  test('behavior: feePayer: true marks fill and estimate requests for the fee payer access', () => {
+    const request = {
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+    } as const
+
+    for (const action of ['estimateGas', 'fillTransaction'])
+      expect(
+        (
+          Formatters.formatTransactionRequest(
+            { ...request } as never,
+            action,
+          ) as Record<string, unknown>
+        ).feePayerSignature,
+      ).toEqual({ r: '0x0', s: '0x0', yParity: '0x0' })
+    expect(
+      (
+        Formatters.formatTransactionRequest({ ...request } as never) as Record<
+          string,
+          unknown
+        >
+      ).feePayerSignature,
+    ).toBeUndefined()
   })
 
   test('behavior: keyData >4 bytes is shimmed to length hint', () => {

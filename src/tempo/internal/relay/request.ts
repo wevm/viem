@@ -6,6 +6,7 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
+import * as FeePayerSignature from '../feePayerSignature.js'
 import * as Store from './cache.js'
 import * as Deadline from './deadline.js'
 import { formatError, isExecutionError } from './error.js'
@@ -154,7 +155,8 @@ export function compose(
           const sponsored =
             state.request.method === 'eth_fillTransaction' &&
             parameters?.feePayer === true &&
-            !parameters.feePayerSignature
+            (!parameters.feePayerSignature ||
+              FeePayerSignature.isMarker(parameters.feePayerSignature))
               ? parameters
               : undefined
           const fees = sponsored ? parseFees(sponsored) : undefined
@@ -435,7 +437,12 @@ function parseFees(parameters: Record<string, unknown>): Fees | undefined {
 function restoreFees(result: unknown, fees: Fees): unknown {
   const { tx } = (result ?? {}) as Partial<Result>
   // A downstream sponsor signature binds its own fees; changing them would invalidate it.
-  if (!tx || typeof tx !== 'object' || tx.feePayerSignature) return result
+  if (
+    !tx ||
+    typeof tx !== 'object' ||
+    (tx.feePayerSignature && !FeePayerSignature.isMarker(tx.feePayerSignature))
+  )
+    return result
   const filled = parseFee(tx.maxFeePerGas)
   const tip = parseFee(tx.maxPriorityFeePerGas)
   // A caller tip above the node-chosen fee cap raises the cap so the transaction stays valid.

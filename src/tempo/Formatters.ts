@@ -16,6 +16,7 @@ import { formatTransaction as viem_formatTransaction } from '../utils/formatters
 import { formatTransactionReceipt as viem_formatTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { formatTransactionRequest as viem_formatTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import type { Account, ConfigurableAccount } from './Account.js'
+import * as FeePayerSignature from './internal/feePayerSignature.js'
 import {
   isTempo,
   type Transaction,
@@ -49,8 +50,11 @@ export function formatTransaction(
       ? undefined
       : BigInt(transaction.blockTimestamp)
   const operation = transaction.operation
+  // A filled transaction returns the marker of its request until the fee payer signs.
   const { feePayerSignature, nonce, ...tx } = ox_Transaction.fromRpc(
-    transaction as never,
+    (FeePayerSignature.isMarker(transaction.feePayerSignature)
+      ? { ...transaction, feePayerSignature: null }
+      : transaction) as never,
   ) as ox_Transaction.Tempo
 
   return {
@@ -214,10 +218,20 @@ export function formatTransactionRequest(
               : request.feePayer,
         }
       : {}),
-    ...('feePayerSignature' in request &&
-    request.feePayerSignature !== undefined
-      ? { feePayerSignature: request.feePayerSignature }
-      : {}),
+    ...(() => {
+      if (
+        'feePayerSignature' in request &&
+        request.feePayerSignature !== undefined
+      )
+        return { feePayerSignature: request.feePayerSignature }
+      // A fee payer that signs later costs gas that only the marker makes the node estimate.
+      if (
+        request.feePayer &&
+        (action === 'estimateGas' || action === 'fillTransaction')
+      )
+        return { feePayerSignature: FeePayerSignature.marker }
+      return {}
+    })(),
   } as never
 }
 

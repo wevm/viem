@@ -6,6 +6,7 @@ import {
 } from 'ox/tempo'
 import type { Client } from '../../../clients/createClient.js'
 import { UnknownRpcError } from '../../../errors/rpc.js'
+import * as FeePayerSignature from '../feePayerSignature.js'
 
 export function resolveChainId(value: unknown) {
   if (typeof value === 'number') return value
@@ -112,7 +113,11 @@ export function normalizeTempoTransaction(
   return core_Transaction.fromRpc({
     type: '0x76',
     ...value,
-  } as core_Transaction.Rpc)!
+    // The marker of a sponsored request is no fee payer signature.
+    ...(FeePayerSignature.isMarker(value.feePayerSignature)
+      ? { feePayerSignature: null }
+      : {}),
+  } as unknown as core_Transaction.Rpc)!
 }
 
 /** Preserves the nonce domain when serializing filled Tempo transactions. */
