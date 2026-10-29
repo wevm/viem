@@ -38,6 +38,9 @@ import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
 
+// One cold account access (EIP-2929): 100 warm read plus the 2,500 cold surcharge.
+const feePayerAccessGas = 2_600n
+
 // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
 const serializeTransaction = ((transaction, signature) =>
   Transaction.serialize(transaction, signature)) as SerializeTransactionFn
@@ -164,6 +167,9 @@ export const chainConfig = {
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')
             request.gas = (request.gas ?? 0n) + 10_000n
+          // The fee payer account costs one cold account access from T14, which the estimate cannot see.
+          // Added at every fork because earlier forks refund the unused gas.
+          request.gas = (request.gas ?? 0n) + feePayerAccessGas
         }
 
         return request as unknown as typeof r
