@@ -168,8 +168,10 @@ export const chainConfig = {
           else if (request.account?.source === 'accessKey')
             request.gas = (request.gas ?? 0n) + 10_000n
           // The fee payer account costs one cold account access from T14, which the estimate cannot see.
-          // Added at every fork because earlier forks refund the unused gas.
-          request.gas = (request.gas ?? 0n) + feePayerAccessGas
+          // Added at every fork because earlier forks refund the unused gas. Owner signatures already
+          // commit to the gas limit, so a request that carries them keeps it.
+          if (!request.signatures?.length)
+            request.gas = (request.gas ?? 0n) + feePayerAccessGas
         }
 
         return request as unknown as typeof r
