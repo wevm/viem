@@ -11,7 +11,7 @@ concurrency:
 jobs:
   issue-labeled:
     if: ${{ github.repository_owner == 'wevm' }}
-    uses: wevm/actions/.github/workflows/issue-labeled.yml@6663f8b3660eb6a38a51369be9893b0018393d02
+    uses: wevm/actions/.github/workflows/issue-labeled.yml@58a07e5ab313e569f9ce2175ac7f17e32fde7c25
     permissions:
       contents: read
       issues: write
