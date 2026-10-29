@@ -15,6 +15,7 @@ import { maxUint256 } from '../constants/number.js'
 import { BaseError } from '../errors/base.js'
 import { ContractFunctionRevertedError } from '../errors/contract.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import type { RpcBlock } from '../types/rpc.js'
 import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -41,6 +42,8 @@ const maxExpirySecs = 25
 const serializeTransaction = ((transaction, signature) =>
   Transaction.serialize(transaction, signature)) as SerializeTransactionFn
 
+// The base formatters decode nonces as safe integers and throw on Tempo expiring nonces (random
+// u64 values), so Tempo formats every transaction itself, including those inside blocks.
 export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
@@ -48,10 +51,18 @@ export const chainConfig = {
     hardfork?: Hardfork | undefined
   }>(),
   formatters: {
-    transaction: defineTransaction({
-      exclude: ['aaAuthorizationList' as never],
-      format: Formatters.formatTransaction,
-    }),
+    block: {
+      format: (block: RpcBlock) => Formatters.formatBlock(block),
+      type: 'block' as const,
+    },
+    transaction: {
+      ...defineTransaction({
+        exclude: ['aaAuthorizationList' as never],
+        format: Formatters.formatTransaction,
+      }),
+      format: (transaction: Transaction.TransactionRpc) =>
+        Formatters.formatTransaction(transaction),
+    },
     transactionReceipt: defineTransactionReceipt({
       format: Formatters.formatTransactionReceipt,
     }),

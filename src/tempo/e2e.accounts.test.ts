@@ -3,6 +3,7 @@ import { createRequestListener } from '@remix-run/node-fetch-server'
 import { KeyAuthorization, SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
 import {
   createClientResolver,
+  hashMessage,
   hexToBytes,
   http,
   keccak256,
@@ -19,6 +20,8 @@ import {
   sendTransactionSync,
   signTransaction,
   verifyHash,
+  verifyMessage,
+  verifyTypedData,
 } from 'viem/actions'
 import { tempoLocalnet } from 'viem/chains'
 import {
@@ -44,6 +47,12 @@ describe('stateless', () => {
   const { accounts, feeToken } = tempo
 
   const to = '0x0000000000000000000000000000000000000001'
+  const typedData = {
+    domain: { chainId: tempoLocalnet.id, name: 'Test', version: '1' },
+    message: { value: 'hello' },
+    primaryType: 'Test',
+    types: { Test: [{ name: 'value', type: 'string' }] },
+  } as const
 
   test('example: repeatable initial config', async () => {
     const owner_1 = accounts[1]
@@ -92,7 +101,7 @@ describe('stateless', () => {
       expect(tx.signature?.type).toBe('configurable')
       if (tx.signature?.type !== 'configurable') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(0)
+      expect(tx.nonce).toBe(0n)
     }
 
     {
@@ -123,7 +132,7 @@ describe('stateless', () => {
       expect(tx.signature?.type).toBe('configurable')
       if (tx.signature?.type !== 'configurable') throw new Error('unreachable')
       expect(tx.signature.config).toMatchObject({ threshold: 2, version: 0n })
-      expect(tx.nonce).toBe(1)
+      expect(tx.nonce).toBe(1n)
     }
   })
 
@@ -641,6 +650,248 @@ describe('stateless', () => {
     ).toBe(false)
   })
 
+  test('behavior: signMessage and signTypedData (derived account)', async () => {
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [accounts[1], accounts[2]],
+      salt: toHex(0x106150, { size: 32 }),
+      threshold: 2,
+    })
+
+    const signature = await account.signMessage({ message: 'hello' })
+    const typedSignature = await account.signTypedData(typedData)
+
+    expect(SignatureEnvelope.deserialize(signature).type).toBe('configurable')
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'goodbye',
+        signature,
+      }),
+    ).toBe(false)
+    expect(
+      await verifyTypedData(client, {
+        ...typedData,
+        address: account.address,
+        signature: typedSignature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyTypedData(client, {
+        ...typedData,
+        address: account.address,
+        message: { value: 'goodbye' },
+        signature: typedSignature,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: signMessage and signTypedData (upgraded account)', async () => {
+    const root = Account.fromSecp256k1(generatePrivateKey())
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: root.address,
+      token: feeToken,
+    })
+    await Actions.accounts.upgradeSync(client, {
+      account: root,
+      feeToken,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+      threshold: 2,
+    })
+    const account = Account.fromConfig({
+      address: root.address,
+      upgrade: { owners: [owner_1, owner_2], threshold: 2 },
+    })
+
+    const signature = await account.signMessage({ message: 'hello' })
+    const typedSignature = await account.signTypedData(typedData)
+
+    expect(
+      await verifyMessage(client, {
+        address: root.address,
+        message: 'hello',
+        signature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyTypedData(client, {
+        ...typedData,
+        address: root.address,
+        signature: typedSignature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: signMessage and signTypedData across a config update', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const owner_3 = accounts[3]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1],
+      salt: toHex(0x106151, { size: 32 }),
+    })
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: { formatted: '10000' },
+      to: account.address,
+      token: feeToken,
+    })
+
+    const initialSignature = await account.signMessage({ message: 'hello' })
+    const initialTypedSignature = await account.signTypedData(typedData)
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature: initialSignature,
+      }),
+    ).toBe(true)
+
+    const update = await sendTransactionSync(client, {
+      account,
+      calls: [
+        Actions.accounts.updateConfig.call({
+          currentConfig: account.config,
+          nextConfig: {
+            owners: [
+              { owner: owner_2.address, weight: 1 },
+              { owner: owner_3.address, weight: 1 },
+            ],
+            threshold: 2,
+          },
+        }),
+      ],
+      feeToken,
+    })
+    assertSuccess(update)
+
+    const currentAccount = Account.fromConfig({
+      address: account.address,
+      owners: [owner_2, owner_3],
+      salt: account.config.salt,
+      threshold: 2,
+      version: 1,
+    })
+
+    const signature = await currentAccount.signMessage({ message: 'hello' })
+    const typedSignature = await currentAccount.signTypedData(typedData)
+
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature,
+      }),
+    ).toBe(true)
+    expect(
+      await verifyTypedData(client, {
+        ...typedData,
+        address: account.address,
+        signature: typedSignature,
+      }),
+    ).toBe(true)
+
+    // Signatures made under the previous config no longer verify.
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello',
+        signature: initialSignature,
+      }),
+    ).toBe(false)
+    expect(
+      await verifyTypedData(client, {
+        ...typedData,
+        address: account.address,
+        signature: initialTypedSignature,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: signMessage rejects approvals below the threshold', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const account = Account.fromConfig({
+      address: 'infer',
+      owners: [owner_1, owner_2],
+      salt: toHex(0x106152, { size: 32 }),
+      threshold: 2,
+    })
+    const message = 'hello'
+    const signature = await account.signMessage({ message })
+    const envelope = SignatureEnvelope.deserialize(signature)
+    if (envelope.type !== 'configurable') throw new Error('unreachable')
+    const digest = AccountConfig.getSignPayload({
+      account: account.address,
+      config: account.config,
+      payload: hashMessage(message),
+    })
+    const [approval] = envelope.signatures
+    if (!approval) throw new Error('unreachable')
+
+    // Fewer local owners than the threshold fail at signing time.
+    await expect(
+      Account.fromConfig({
+        address: 'infer',
+        owners: [owner_1, owner_2.address],
+        salt: account.config.salt,
+        threshold: 2,
+      }).signMessage({ message }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[Error: Local owners do not meet the threshold.]`,
+    )
+
+    // An envelope below the threshold does not verify.
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message,
+        signature: SignatureEnvelope.serialize({
+          ...envelope,
+          signatures: [approval],
+        }),
+      }),
+    ).toBe(false)
+
+    // A non-owner approval does not count toward the threshold.
+    const nonOwner = SignatureEnvelope.from(
+      await accounts[3].sign({ hash: digest }),
+    )
+    if (nonOwner.type !== 'secp256k1') throw new Error('unreachable')
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message,
+        signature: SignatureEnvelope.serialize({
+          ...envelope,
+          signatures: SignatureEnvelope.sortApprovals({
+            account: account.address,
+            config: account.config,
+            payload: hashMessage(message),
+            signatures: [approval, nonOwner],
+          }),
+        }),
+      }),
+    ).toBe(false)
+  })
+
   test('behavior: upgrade rejects a configurable account', async () => {
     const account = Account.fromConfig({
       address: 'infer',
@@ -828,7 +1079,7 @@ describe('stateless', () => {
       const result = await getTransaction(client, {
         hash: success.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('configurable')
       if (result.signature?.type !== 'configurable')
         throw new Error('unreachable')
@@ -883,7 +1134,7 @@ describe('stateless', () => {
       const result = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(result.nonce).toBe(nonce)
+      expect(result.nonce).toBe(BigInt(nonce))
       expect(result.signature?.type).toBe('configurable')
       if (result.signature?.type !== 'configurable')
         throw new Error('unreachable')
@@ -1958,7 +2209,7 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: success.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('configurable')
@@ -2013,7 +2264,7 @@ describe('stateful', () => {
       const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
-      expect(transaction.nonce).toBe(0)
+      expect(transaction.nonce).toBe(0n)
       expect(transaction.nonceKey).not.toBe(0n)
       expect(transaction.nonceKey).not.toBe(maxUint256)
       expect(transaction.signature?.type).toBe('configurable')
