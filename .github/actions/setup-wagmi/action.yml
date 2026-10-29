@@ -15,7 +15,7 @@ runs:
         package_json_file: ./wagmi/package.json
 
     - name: Set up node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
       env:
         NPM_CONFIG_MANAGE_PACKAGE_MANAGER_VERSIONS: 'false'
       with:
