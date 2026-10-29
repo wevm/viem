@@ -136,7 +136,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -152,7 +152,7 @@ jobs:
           VITE_SHARD_ID: ${{ matrix.shard }}
 
       - name: Upload coverage reports to Codecov
-        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v4
+        uses: wevm/actions/vendor/codecov/codecov-action/v4.6.0@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -205,7 +205,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -236,7 +236,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Run tests
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -276,7 +276,7 @@ jobs:
         run: pnpm contracts:build
 
       - name: Test Local Tempo
-        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v3
+        uses: wevm/actions/vendor/nick-fields/retry/v3.0.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           timeout_minutes: 10
           max_attempts: 3
@@ -324,7 +324,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Set up foundry
-        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v1
+        uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           version: v1.7.1
 
@@ -333,7 +333,7 @@ jobs:
 
       - name: Set up Bun
         if: ${{ matrix.runtime == 'bun' }}
-        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@73e899a58d51092d694fbaf94b7a1d8c09bfea28 # v2
+        uses: wevm/actions/vendor/oven-sh/setup-bun/v2.2.0@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           bun-version: 1.4.4
 
