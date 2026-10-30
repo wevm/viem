@@ -14,6 +14,10 @@ import {
 import {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
+  TimeoutError,
+  type TimeoutErrorType,
 } from '../errors/request.js'
 import { type ErrorType, getAbortError, isAbortError } from '../errors/utils.js'
 import type { Chain } from '../types/chain.js'
@@ -25,10 +29,18 @@ import { isAddressEqual } from './address/isAddressEqual.js'
 import { concat } from './data/concat.js'
 import { isHex } from './data/isHex.js'
 import {
+  ccipReadLimit,
   localBatchGatewayRequest,
   localBatchGatewayUrl,
 } from './ens/localBatchGatewayRequest.js'
+import { withTimeout } from './promise/withTimeout.js'
 import { stringify } from './stringify.js'
+
+const ccipTimeout = 10_000
+// Same ceiling as the HTTP transport.
+const maxCcipResponseBytes = 10_485_760
+
+const ccipDepths = new WeakMap<object, number>()
 
 export const offchainLookupSignature = '0x556f1830'
 export const offchainLookupAbiItem = {
@@ -60,6 +72,12 @@ export const offchainLookupAbiItem = {
 
 export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
 
+/**
+ * Performs an EIP-3668 CCIP-Read lookup for a reverted `OffchainLookup` call.
+ *
+ * Follows at most 4 nested callbacks. A nested local batch shares that depth.
+ * Each gateway request uses the client transport timeout.
+ */
 export async function offchainLookup<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   {
@@ -85,7 +103,17 @@ export async function offchainLookup<chain extends Chain | undefined>(
       ? ccipRead.request
       : ccipRequest
 
+  const depth = requestOptions ? (ccipDepths.get(requestOptions) ?? 0) : 0
+  const deepest = { n: depth }
+  const timeout = client.transport.timeout
+
   try {
+    if (depth >= ccipReadLimit.depth)
+      throw new HttpRequestError({
+        details: `CCIP Read exceeded the maximum callback depth (${ccipReadLimit.depth}).`,
+        url: urls[0] ?? '',
+      })
+
     if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
@@ -93,9 +121,28 @@ export async function offchainLookup<chain extends Chain | undefined>(
       ? await localBatchGatewayRequest({
           data: callData,
           ccipRequest: (parameters) =>
-            ccipRequest_({ ...parameters, requestOptions }),
+            ccipRequest_({
+              ...parameters,
+              requestOptions,
+              timeout: parameters.timeout ?? timeout,
+            }),
+          budget: {
+            depth,
+            maxDepth: ccipReadLimit.depth,
+            deepest,
+          },
         })
-      : await ccipRequest_({ data: callData, requestOptions, sender, urls })
+      : await ccipRequest_({
+          data: callData,
+          requestOptions,
+          sender,
+          timeout,
+          urls,
+        })
+
+    // The next callback continues from the deepest frame this lookup reached.
+    const requestOptions_ = { ...requestOptions }
+    ccipDepths.set(requestOptions_, deepest.n + 1)
 
     const { data: data_ } = await call(client, {
       blockNumber,
@@ -107,7 +154,7 @@ export async function offchainLookup<chain extends Chain | undefined>(
           [result, extraData],
         ),
       ]),
-      requestOptions,
+      requestOptions: requestOptions_,
       to,
     } as CallParameters)
 
@@ -132,6 +179,8 @@ export type CcipRequestParameters = {
   data: Hex
   requestOptions?: EIP1193RequestOptions | undefined
   sender: Address
+  /** The timeout (in ms) for each gateway request. Default: 10_000 */
+  timeout?: number | undefined
   urls: readonly string[]
 }
 
@@ -140,34 +189,72 @@ export type CcipRequestReturnType = Hex
 export type CcipRequestErrorType =
   | HttpRequestErrorType
   | OffchainLookupResponseMalformedErrorType
+  | ResponseBodyTooLargeErrorType
+  | TimeoutErrorType
   | ErrorType
 
+/**
+ * Requests a CCIP-Read gateway result.
+ *
+ * Tries each HTTP(S) URL in order. Each request, including the response body,
+ * times out after `timeout` (default 10 seconds) and reads at most 10 MiB.
+ */
 export async function ccipRequest({
   data,
   requestOptions,
   sender,
+  timeout = ccipTimeout,
   urls,
 }: CcipRequestParameters): Promise<CcipRequestReturnType> {
   let error = new Error('An unknown error occurred.')
 
-  for (let i = 0; i < urls.length; i++) {
+  for (const url of urls) {
     if (requestOptions?.signal?.aborted)
       throw getAbortError(requestOptions.signal)
 
-    const url = urls[i]
+    const requestUrl = url
+      .replace('{sender}', sender.toLowerCase())
+      .replace('{data}', data)
     const method = url.includes('{data}') ? 'GET' : 'POST'
     const body = method === 'POST' ? { data, sender } : undefined
     const headers: HeadersInit =
       method === 'POST' ? { 'Content-Type': 'application/json' } : {}
 
     try {
-      const response = await fetch(
-        url.replace('{sender}', sender.toLowerCase()).replace('{data}', data),
+      assertCcipUrl(requestUrl)
+
+      const { response, responseBody } = await withTimeout(
+        async ({ signal: timeoutSignal }) => {
+          // Abort on whichever fires first so that a `signal` does not
+          // disable the timeout.
+          const { signal, cleanup } = anySignal([
+            requestOptions?.signal,
+            timeout > 0 ? timeoutSignal : null,
+          ])
+          try {
+            const response = await fetch(requestUrl, {
+              body: JSON.stringify(body),
+              headers,
+              method,
+              ...(signal ? { signal } : {}),
+            })
+            // Read the body within the timeout too, so a response that stalls
+            // after its headers cannot hang the request.
+            const responseBody = await readResponseBody(response, {
+              maxResponseBodySize: maxCcipResponseBytes,
+            })
+            return { response, responseBody }
+          } finally {
+            cleanup()
+          }
+        },
         {
-          body: JSON.stringify(body),
-          headers,
-          method,
-          ...(requestOptions?.signal ? { signal: requestOptions.signal } : {}),
+          errorInstance: new TimeoutError({
+            body: body ?? { data, sender },
+            url,
+          }),
+          signal: true,
+          timeout,
         },
       )
 
@@ -175,9 +262,9 @@ export async function ccipRequest({
       if (
         response.headers.get('Content-Type')?.startsWith('application/json')
       ) {
-        result = (await response.json()).data
+        result = JSON.parse(responseBody).data
       } else {
-        result = (await response.text()) as any
+        result = responseBody
       }
 
       if (!response.ok) {
@@ -206,14 +293,124 @@ export async function ccipRequest({
       if (requestOptions?.signal?.aborted)
         throw getAbortError(requestOptions.signal)
       if (isAbortError(err)) throw err
+      if (
+        err instanceof HttpRequestError ||
+        err instanceof TimeoutError ||
+        err instanceof ResponseBodyTooLargeError
+      ) {
+        error = err
+        continue
+      }
 
       error = new HttpRequestError({
         body,
-        details: (err as Error).message,
+        cause: err as Error,
         url,
       })
     }
   }
 
   throw error
+}
+
+function assertCcipUrl(url: string) {
+  const parsed = (() => {
+    try {
+      return new URL(url)
+    } catch {
+      throw new HttpRequestError({
+        details: 'CCIP Read URL is invalid.',
+        url,
+      })
+    }
+  })()
+
+  if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return
+  throw new HttpRequestError({
+    details: `CCIP Read URL scheme "${parsed.protocol.slice(0, -1)}" is not allowed.`,
+    url,
+  })
+}
+
+/**
+ * Returns a signal that aborts as soon as any of `signals` aborts, and a
+ * `cleanup` function that detaches the listeners added to `signals`.
+ */
+function anySignal(signals: readonly (AbortSignal | null | undefined)[]) {
+  const signals_ = signals.filter((signal) => !!signal)
+  if (signals_.length < 2)
+    return { signal: signals_[0] ?? null, cleanup: () => {} }
+
+  const controller = new AbortController()
+  const onAbort = () => {
+    cleanup()
+    controller.abort(signals_.find((signal) => signal.aborted)?.reason)
+  }
+  const cleanup = () => {
+    for (const signal of signals_) signal.removeEventListener('abort', onAbort)
+  }
+
+  for (const signal of signals_) {
+    if (signal.aborted) {
+      cleanup()
+      controller.abort(signal.reason)
+      break
+    }
+    signal.addEventListener('abort', onAbort)
+  }
+
+  return { signal: controller.signal, cleanup }
+}
+
+async function readResponseBody(
+  response: Response,
+  { maxResponseBodySize }: { maxResponseBodySize: number },
+) {
+  const contentLength = response.headers.get('Content-Length')
+  if (contentLength) {
+    const size = Number(contentLength)
+    if (size > maxResponseBodySize) {
+      await response.body?.cancel()
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    }
+  }
+
+  if (!response.body) {
+    const body = await response.text()
+    const size = new TextEncoder().encode(body).length
+    if (size > maxResponseBodySize)
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    return body
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let body = ''
+  let size = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > maxResponseBodySize) {
+        await reader.cancel()
+        throw new ResponseBodyTooLargeError({
+          maxSize: maxResponseBodySize,
+          size,
+        })
+      }
+      body += decoder.decode(value, { stream: true })
+    }
+    body += decoder.decode()
+    return body
+  } finally {
+    reader.releaseLock()
+  }
 }
