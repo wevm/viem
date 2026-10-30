@@ -11,7 +11,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up foundry
-      uses: foundry-rs/foundry-toolchain@dba66c27052e63476d886f22216e119ba7e615bf # v1
+      uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
       with:
         version: v1.7.1
 
