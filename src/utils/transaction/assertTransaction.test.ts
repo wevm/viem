@@ -79,6 +79,21 @@ describe('eip7702', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('tip higher than zero fee cap', () => {
+    expect(() =>
+      assertTransactionEIP7702({
+        authorizationList: [],
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 1n,
+        chainId: 1,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('eip4844', () => {
@@ -148,6 +163,24 @@ describe('eip4844', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('tip higher than zero fee cap', () => {
+    expect(() =>
+      assertTransactionEIP4844({
+        blobVersionedHashes: [
+          '0x01febabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+        ],
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 1n,
+        chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('eip1559', () => {
@@ -173,6 +206,30 @@ describe('eip1559', () => {
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('zero tip and zero fee cap', () => {
+    expect(() =>
+      assertTransactionEIP1559({
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 0n,
+        chainId: 1,
+      }),
+    ).not.toThrow()
+  })
+
+  test('tip higher than zero fee cap', () => {
+    expect(() =>
+      assertTransactionEIP1559({
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: 1n,
+        chainId: 1,
+      }),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
 
       Version: viem@x.y.z]
     `)
