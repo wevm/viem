@@ -1,3 +1,4 @@
+import { createPublicClient, HttpRequestError } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~contracts/generated.js'
@@ -342,9 +343,8 @@ describe('ccipRequest', async () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}
 
-      Details: Failed to parse URL from fakeurl
+      Details: CCIP Read URL is invalid.
       Version: viem@x.y.z]
     `)
 
@@ -415,5 +415,235 @@ describe('ccipRequest', async () => {
     await server1.close()
     await server2.close()
     await server3.close()
+  })
+
+  test('error: non-http scheme', async () => {
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        urls: ['file:///etc/passwd'],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      URL: http://localhost
+
+      Details: CCIP Read URL scheme "file" is not allowed.
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('error: response too large', async () => {
+    const server = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': String(10_485_761),
+        'Content-Type': 'text/plain',
+      })
+      res.end('x')
+    })
+
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        urls: [server.url],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 10485760 bytes
+      Received: 10485761 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
+  test('error: gateway timeout', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(5_000)
+      res.end('0x')
+    })
+
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        timeout: 50,
+        urls: [`${server.url}/{sender}/{data}`],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TimeoutError: The request took too long to respond.
+
+      URL: http://localhost
+      Request body: {"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}
+
+      Details: The request timed out.
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
+  test('tries every url', async () => {
+    const seen: string[] = []
+    const server = await createHttpServer((req, res) => {
+      seen.push(req.url ?? '')
+      res.writeHead(500)
+      res.end()
+    })
+
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        sender: accounts[0].address,
+        urls: Array.from({ length: 9 }, (_, i) => `${server.url}/u${i}`),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [HttpRequestError: HTTP request failed.
+
+      Status: 500
+      URL: http://localhost
+      Request body: {"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}
+
+      Details: Internal Server Error
+      Version: viem@x.y.z]
+    `)
+    expect([...seen].sort()).toMatchInlineSnapshot(`
+      [
+        "/u0",
+        "/u1",
+        "/u2",
+        "/u3",
+        "/u4",
+        "/u5",
+        "/u6",
+        "/u7",
+        "/u8",
+      ]
+    `)
+
+    await server.close()
+  })
+
+  test('callback depth', async () => {
+    const seen: string[] = []
+    const gateway = await createHttpServer((req, res) => {
+      seen.push(req.url ?? '')
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as { id?: number }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: revertData,
+          },
+        }),
+      )
+    })
+    const publicClient = createPublicClient({ transport: http(rpc.url) })
+
+    const caught = await publicClient.call({ data: '0x', to: contract }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+
+    const cause = (() => {
+      let current = caught
+      while (current instanceof Error) {
+        if (current instanceof HttpRequestError) return current
+        current = current.cause
+      }
+      return undefined
+    })()
+    expect(cause?.details).toMatchInlineSnapshot(
+      `"CCIP Read exceeded the maximum callback depth (4)."`,
+    )
+    expect(seen).toMatchInlineSnapshot(`
+      [
+        "/0x0000000000000000000000000000000000000001/0x",
+        "/0x0000000000000000000000000000000000000001/0x",
+        "/0x0000000000000000000000000000000000000001/0x",
+        "/0x0000000000000000000000000000000000000001/0x",
+      ]
+    `)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
+  test('callback result', async () => {
+    const gateway = await createHttpServer((_req, res) => {
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as {
+        id?: number
+        params?: readonly [{ data?: string }]
+      }
+      const data = request.params?.[0]?.data
+      res.setHeader('Content-Type', 'application/json')
+      const payload =
+        data === '0x'
+          ? {
+              error: {
+                code: 3,
+                message: 'execution reverted',
+                data: revertData,
+              },
+            }
+          : { result: '0x1234' }
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...payload }))
+    })
+    const publicClient = createPublicClient({ transport: http(rpc.url) })
+
+    await expect(
+      publicClient.call({ data: '0x', to: contract }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "data": "0x1234",
+      }
+    `)
+
+    await gateway.close()
+    await rpc.close()
   })
 })
