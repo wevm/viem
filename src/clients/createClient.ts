@@ -65,7 +65,8 @@ export type ClientConfig<
    *
    * Gateway URLs must be HTTP(S). A lookup follows at most 4 nested callbacks,
    * including a nested local batch. Each gateway request, including the
-   * response body, times out after 10 seconds and reads at most 10 MiB.
+   * response body, uses the transport timeout (default 10 seconds) and reads
+   * at most 10 MiB.
    */
   ccipRead?:
     | {

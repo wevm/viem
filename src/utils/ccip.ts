@@ -76,6 +76,7 @@ export type OffchainLookupErrorType = OffchainLookupErrorType_ | ErrorType
  * Performs an EIP-3668 CCIP-Read lookup for a reverted `OffchainLookup` call.
  *
  * Follows at most 4 nested callbacks. A nested local batch shares that depth.
+ * Each gateway request uses the client transport timeout.
  */
 export async function offchainLookup<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
@@ -103,6 +104,8 @@ export async function offchainLookup<chain extends Chain | undefined>(
       : ccipRequest
 
   const depth = requestOptions ? (ccipDepths.get(requestOptions) ?? 0) : 0
+  const deepest = { n: depth }
+  const timeout = client.transport.timeout
 
   try {
     if (depth >= ccipReadLimit.depth)
@@ -118,13 +121,28 @@ export async function offchainLookup<chain extends Chain | undefined>(
       ? await localBatchGatewayRequest({
           data: callData,
           ccipRequest: (parameters) =>
-            ccipRequest_({ ...parameters, requestOptions }),
+            ccipRequest_({
+              ...parameters,
+              requestOptions,
+              timeout: parameters.timeout ?? timeout,
+            }),
+          budget: {
+            depth,
+            maxDepth: ccipReadLimit.depth,
+            deepest,
+          },
         })
-      : await ccipRequest_({ data: callData, requestOptions, sender, urls })
+      : await ccipRequest_({
+          data: callData,
+          requestOptions,
+          sender,
+          timeout,
+          urls,
+        })
 
-    // Passed into the callback `call`, so a nested lookup sees the next depth.
+    // The next callback continues from the deepest frame this lookup reached.
     const requestOptions_ = { ...requestOptions }
-    ccipDepths.set(requestOptions_, depth + 1)
+    ccipDepths.set(requestOptions_, deepest.n + 1)
 
     const { data: data_ } = await call(client, {
       blockNumber,

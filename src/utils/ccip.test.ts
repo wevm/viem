@@ -1,4 +1,4 @@
-import { createPublicClient, HttpRequestError } from 'viem'
+import { createPublicClient, HttpRequestError, TimeoutError } from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~contracts/generated.js'
@@ -8,12 +8,14 @@ import { accounts } from '~test/constants.js'
 import { createHttpServer, deployOffchainLookupExample } from '~test/utils.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
+import { batchGatewayAbi } from '../constants/abis.js'
 import { getUrl } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { ccipRequest, offchainLookup, offchainLookupAbiItem } from './ccip.js'
 import { trim } from './data/trim.js'
+import { localBatchGatewayUrl } from './ens/localBatchGatewayRequest.js'
 import { wait } from './wait.js'
 
 const client = anvilMainnet.getClient()
@@ -587,6 +589,165 @@ describe('ccipRequest', async () => {
         "/0x0000000000000000000000000000000000000001/0x",
         "/0x0000000000000000000000000000000000000001/0x",
         "/0x0000000000000000000000000000000000000001/0x",
+        "/0x0000000000000000000000000000000000000001/0x",
+      ]
+    `)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
+  test('transport timeout', async () => {
+    const gateway = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as { id?: number }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: revertData,
+          },
+        }),
+      )
+    })
+    const publicClient = createPublicClient({
+      transport: http(rpc.url, { timeout: 50 }),
+    })
+
+    const caught = await publicClient.call({ data: '0x', to: contract }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+
+    const cause = (() => {
+      let current = caught
+      while (current instanceof Error) {
+        if (current instanceof TimeoutError) return current
+        current = current.cause
+      }
+      return undefined
+    })()
+    expect(cause?.details).toMatchInlineSnapshot(`"The request timed out."`)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
+  test('nested batch shares callback depth', async () => {
+    const seen: string[] = []
+    const gateway = await createHttpServer((req, res) => {
+      seen.push(req.url ?? '')
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    let batchData = encodeFunctionData({
+      abi: batchGatewayAbi,
+      functionName: 'query',
+      args: [
+        [
+          {
+            sender: contract,
+            data: '0x',
+            urls: [`${gateway.url}/leaf`],
+          },
+        ],
+      ],
+    })
+    for (let i = 0; i < 3; i++)
+      batchData = encodeFunctionData({
+        abi: batchGatewayAbi,
+        functionName: 'query',
+        args: [
+          [
+            {
+              sender: contract,
+              data: batchData,
+              urls: [localBatchGatewayUrl],
+            },
+          ],
+        ],
+      })
+
+    const firstRevert = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const batchRevert = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [contract, [localBatchGatewayUrl], batchData, '0xdeadbeef', '0x'],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as {
+        id?: number
+        params?: readonly [{ data?: string }]
+      }
+      const data = request.params?.[0]?.data
+      res.setHeader('Content-Type', 'application/json')
+      const payload = (() => {
+        if (data === '0x')
+          return {
+            error: {
+              code: 3,
+              message: 'execution reverted',
+              data: firstRevert,
+            },
+          }
+        if (data?.startsWith('0xcafebabe'))
+          return {
+            error: {
+              code: 3,
+              message: 'execution reverted',
+              data: batchRevert,
+            },
+          }
+        return { result: '0x1234' }
+      })()
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...payload }))
+    })
+    const publicClient = createPublicClient({ transport: http(rpc.url) })
+
+    await expect(
+      publicClient.call({ data: '0x', to: contract }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "data": "0x1234",
+      }
+    `)
+    expect(seen).toMatchInlineSnapshot(`
+      [
         "/0x0000000000000000000000000000000000000001/0x",
       ]
     `)

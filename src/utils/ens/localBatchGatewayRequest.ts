@@ -16,7 +16,7 @@ export const localBatchGatewayUrl = 'x-batch-gateway:true'
 /**
  * Caps for one CCIP-Read lookup.
  *
- * Nested batch gateways share the same callback depth.
+ * Callbacks and nested batch gateways share this depth.
  */
 export const ccipReadLimit = {
   depth: 4,
@@ -25,6 +25,8 @@ export const ccipReadLimit = {
 type CcipBatchBudget = {
   depth: number
   maxDepth: number
+  /** Highest depth reached on this lookup. Shared with the caller. */
+  deepest: { n: number }
 }
 
 export async function localBatchGatewayRequest(parameters: {
@@ -38,6 +40,7 @@ export async function localBatchGatewayRequest(parameters: {
   const budget = parameters.budget ?? {
     depth: 0,
     maxDepth: ccipReadLimit.depth,
+    deepest: { n: 0 },
   }
 
   if (budget.depth >= budget.maxDepth)
@@ -45,6 +48,8 @@ export async function localBatchGatewayRequest(parameters: {
       details: `CCIP Read exceeded the maximum callback depth (${budget.maxDepth}).`,
       url: '',
     })
+
+  if (budget.depth > budget.deepest.n) budget.deepest.n = budget.depth
 
   const {
     args: [queries],
@@ -83,6 +88,7 @@ export async function localBatchGatewayRequest(parameters: {
             budget: {
               depth: budget.depth + 1,
               maxDepth: budget.maxDepth,
+              deepest: budget.deepest,
             },
           }),
         ),
