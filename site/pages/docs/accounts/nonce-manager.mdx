@@ -171,6 +171,8 @@ The nonce manager, exposing:
 - **`increment`**: increments the tracked nonce.
 - **`reset`**: resets the tracked nonce, re-seeding from the source on next use.
 
+When a send fails after the manager consumed a nonce, [`transaction.send`](/docs/actions/wallet/transaction/send) and `transaction.sendSync` call `reset` with that nonce as `nonce`. They omit `nonce` when `consume` threw. A custom manager that tracks a nonce per send can use it to release that nonce only; the built-in managers ignore it.
+
 Each method identifies the tracked nonce by `{ address, chainId }`.
 
 ## `NonceManager.jsonRpc`
