@@ -216,6 +216,23 @@ describe('eip1559', () => {
       '"0x02f8590182031184773594008504a817c800825208808080c001a06ea33b188b30a5f5d0d1cec62b2bac7203ff428a49048766596727737689043fa0255b74c8e704e3692497a29cd246ffc4344b4107457ce1c914fe2b4e09993859"',
     )
   })
+
+  test('error: tip higher than zero fee cap', async () => {
+    await expect(() =>
+      signTransaction({
+        transaction: {
+          ...baseEip1559,
+          maxFeePerGas: 0n,
+          maxPriorityFeePerGas: 76984525153045n,
+        },
+        privateKey: accounts[0].privateKey,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 76984.525153045 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Version: viem@x.y.z]
+    `)
+  })
 })
 
 describe('eip2930', () => {
