@@ -45,7 +45,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: wevm/actions/vendor/changesets/action/viem@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -76,7 +76,7 @@ jobs:
           skip-cache: true # avoid cache poisoning attacks
 
       - name: Publish to NPM
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: wevm/actions/vendor/changesets/action/viem@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           createGithubReleases: false
           publish: pnpm changeset:publish
@@ -108,7 +108,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
+        uses: wevm/actions/vendor/changesets/action/viem@73e899a58d51092d694fbaf94b7a1d8c09bfea28
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish

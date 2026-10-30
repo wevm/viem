@@ -11,12 +11,12 @@ runs:
   using: "composite"
   steps:
     - name: Set up foundry
-      uses: foundry-rs/foundry-toolchain@v1
+      uses: wevm/actions/vendor/foundry-rs/foundry-toolchain/v1.9.2@73e899a58d51092d694fbaf94b7a1d8c09bfea28
       with:
         version: nightly-08e262a80b23493d13b3811d4b4ba4b10b1221be
 
     - name: Set up pnpm
-      uses: pnpm/action-setup@v6
+      uses: wevm/actions/vendor/pnpm/action-setup/v6@73e899a58d51092d694fbaf94b7a1d8c09bfea28
 
     - name: Set up node
       uses: actions/setup-node@v6
