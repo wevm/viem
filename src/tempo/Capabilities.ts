@@ -16,7 +16,15 @@ export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
 }
 
 export type FillTransactionRequestCapabilities = {
-  /** Whether to include `balanceDiffs` in the response. */
+  /** Opts into a `Relay.autoSwap` buy of a missing token. A `slippage` can only tighten the relay's bound. */
+  autoSwap?:
+    | boolean
+    | {
+        /** Largest accepted price slippage, between 0 and 1. */
+        slippage?: number | undefined
+      }
+    | undefined
+  /** Opts into `balanceDiffs` in the response. */
   balanceDiffs?: boolean | undefined
   /** Whether execution reverts return error capabilities instead of throwing. */
   errors?: boolean | undefined

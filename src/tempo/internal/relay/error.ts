@@ -62,8 +62,13 @@ export async function formatError(
 
     const normalized = Utils.normalizeFillTransactionRequest(parameters)
 
-    // Simulate from zero address for optimistic balance diffs.
-    const optimisticCalls = normalized ? extractCalls(normalized) : undefined
+    // Simulate from zero address for optimistic balance diffs, when the caller opted in.
+    const optimisticCalls =
+      normalized &&
+      (parameters.capabilities as Record<string, unknown> | undefined)
+        ?.balanceDiffs === true
+        ? extractCalls(normalized)
+        : undefined
     const [{ balanceDiffs, tokenMetadata }, virtualAddresses] = optimisticCalls
       ? await Promise.all([
           simulateAndParseDiffs(client, {

@@ -1718,6 +1718,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
       amount: 100n,
     })
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: sender.address,
       to: callTo,
       data,
@@ -1858,6 +1859,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
     const buyAmount = parseUnits('10', 6)
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
         Actions.token.approve.call(caller, {
@@ -1921,6 +1923,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
     // Transferring to the spender does not consume its allowance.
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
         Actions.token.approve.call(caller, {
@@ -1953,6 +1956,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
 
     // The full approval remains available after the direct transfer.
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: sender.address,
       calls: [
         Actions.token.approve.call(caller, {
@@ -2666,7 +2670,7 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: error capabilities', () => {
           amount: parseUnits('100', 6),
         }),
       ],
-      capabilities: { errors: true },
+      capabilities: { balanceDiffs: true, errors: true },
     })
 
     // Unlike the hosted snapshot, this node emits no optimistic transfer logs

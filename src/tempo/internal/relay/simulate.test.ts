@@ -45,6 +45,7 @@ test('returns fees and balance changes without executing the transfer', async ()
     token: Tempo.addresses.alphaUsd,
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
@@ -79,6 +80,7 @@ test.each([50n, 200n])(
       transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
     })
     const { capabilities } = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: userAccount.address,
       feeToken: Tempo.addresses.alphaUsd,
       calls: [
@@ -117,6 +119,7 @@ test.each([
     transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     feeToken: Tempo.addresses.alphaUsd,
     calls: amounts.map((amount) =>
@@ -146,6 +149,7 @@ test('reports the allowance left after spenders consume it', async () => {
     transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     feeToken: Tempo.addresses.alphaUsd,
     calls: [
@@ -213,6 +217,7 @@ test('keeps replacement approvals separate across tokens and spenders', async ()
     transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     feeToken: Tempo.addresses.alphaUsd,
     calls: [
@@ -294,7 +299,7 @@ test.each([
   expect(capabilities?.fee).toMatchObject({ amount, formatted })
 })
 
-test.each([undefined, false])(
+test.each([true, false, undefined])(
   'returns transfer capabilities through Fetch, balanceDiffs: %s',
   async (balanceDiffs) => {
     const relay = Relay.create({ client: caller, plugins: [Relay.simulate()] })
@@ -335,7 +340,8 @@ test.each([undefined, false])(
     })
     expect(BigInt(result.capabilities.fee.amount)).toBeGreaterThan(0n)
     expect(Number(result.capabilities.fee.formatted)).toBeGreaterThan(0)
-    if (balanceDiffs === false)
+    // Diffs are opt-in; the fee is always estimated.
+    if (balanceDiffs !== true)
       expect(result.capabilities.balanceDiffs).toBeUndefined()
     else
       expect(result.capabilities.balanceDiffs[userAccount.address]).toEqual([
@@ -654,6 +660,7 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
     })
 
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: userAccount.address,
       feeToken: token,
       calls: [

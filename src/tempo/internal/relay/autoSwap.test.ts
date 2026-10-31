@@ -55,6 +55,7 @@ test('buys a missing token and previews every leg', async () => {
     params: [
       {
         calls: [transfer(parseUnits('2', 6))],
+        capabilities: { autoSwap: true, balanceDiffs: true },
         from: payer.address,
       },
     ],
@@ -151,7 +152,13 @@ test('applies the configured slippage', async () => {
 
   const { capabilities } = (await relay.request({
     method: 'eth_fillTransaction',
-    params: [{ calls: [transfer(parseUnits('2', 6))], from: payer.address }],
+    params: [
+      {
+        calls: [transfer(parseUnits('2', 6))],
+        capabilities: { autoSwap: true },
+        from: payer.address,
+      },
+    ],
   })) as Relay.Plugin.FillResult
 
   const { maxIn, slippage } = capabilities?.autoSwap as {
@@ -179,7 +186,13 @@ test('never rounds the slippage bound up', async () => {
 
   const { capabilities } = (await relay.request({
     method: 'eth_fillTransaction',
-    params: [{ calls: [transfer(parseUnits('2', 6))], from: payer.address }],
+    params: [
+      {
+        calls: [transfer(parseUnits('2', 6))],
+        capabilities: { autoSwap: true },
+        from: payer.address,
+      },
+    ],
   })) as Relay.Plugin.FillResult
 
   const { maxIn } = capabilities?.autoSwap as { maxIn: { formatted: string } }
@@ -195,7 +208,13 @@ test('swaps from a balance that covers the quote but not the slippage bound', as
 
   const { capabilities } = (await relay.request({
     method: 'eth_fillTransaction',
-    params: [{ calls: [transfer(parseUnits('2', 6))], from: tight.address }],
+    params: [
+      {
+        calls: [transfer(parseUnits('2', 6))],
+        capabilities: { autoSwap: true },
+        from: tight.address,
+      },
+    ],
   })) as Relay.Plugin.FillResult
 
   const { maxIn, minOut } = capabilities?.autoSwap as {
@@ -225,7 +244,7 @@ test('reports the missing funds when no funded token has a route', async () => {
     params: [
       {
         calls: [transfer(parseUnits('1000', 6))],
-        capabilities: { errors: true },
+        capabilities: { autoSwap: true, errors: true },
         from: payer.address,
       },
     ],
@@ -246,6 +265,93 @@ test('reports the missing funds when no funded token has a route', async () => {
       "token": "0x<base>",
     }
   `)
+})
+
+test('leaves the revert alone without an opt-in', async () => {
+  const relay = Relay.create({
+    client: maker,
+    plugins: [Relay.feeToken(), Relay.simulate(), Relay.autoSwap()],
+    resolveTokens: () => [quote],
+  })
+
+  const { capabilities } = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [
+      {
+        calls: [transfer(parseUnits('2', 6))],
+        capabilities: { errors: true },
+        from: payer.address,
+      },
+    ],
+  })) as Relay.Plugin.FillResult
+
+  const { autoSwap, error } = capabilities as Record<
+    string,
+    { errorName?: string | undefined } | undefined
+  >
+  expect(autoSwap).toBeUndefined()
+  expect(error?.errorName).toMatchInlineSnapshot(`"InsufficientBalance"`)
+})
+
+test.each([
+  { configured: 0.05, maxIn: '2.02', requested: 0.01, slippage: 0.01 },
+  { configured: 0.02, maxIn: '2.04', requested: 0.1, slippage: 0.02 },
+])(
+  'requests tighten but never loosen the bound: $configured, $requested',
+  async ({ configured, maxIn: expected, requested, slippage: bound }) => {
+    const relay = Relay.create({
+      client: maker,
+      plugins: [
+        Relay.feeToken(),
+        Relay.simulate(),
+        Relay.autoSwap({ slippage: configured }),
+      ],
+      resolveTokens: () => [quote],
+    })
+
+    const { capabilities } = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          calls: [transfer(parseUnits('2', 6))],
+          capabilities: { autoSwap: { slippage: requested } },
+          from: payer.address,
+        },
+      ],
+    })) as Relay.Plugin.FillResult
+
+    const { maxIn, slippage } = capabilities?.autoSwap as {
+      maxIn: { formatted: string }
+      slippage: number
+    }
+    expect({ maxIn: maxIn.formatted, slippage }).toEqual({
+      maxIn: expected,
+      slippage: bound,
+    })
+  },
+)
+
+test('error: rejects a requested slippage outside 0 and 1', async () => {
+  const relay = Relay.create({
+    client: maker,
+    plugins: [Relay.feeToken(), Relay.simulate(), Relay.autoSwap()],
+    resolveTokens: () => [quote],
+  })
+
+  await expect(
+    relay.request({
+      method: 'eth_fillTransaction',
+      params: [
+        {
+          calls: [transfer(parseUnits('2', 6))],
+          capabilities: { autoSwap: { slippage: 2 } },
+          from: payer.address,
+        },
+      ],
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[RpcResponse.InvalidParamsError: Expected \`capabilities.autoSwap.slippage\` between 0 and 1.]`,
+  )
 })
 
 test('error: rejects slippage outside 0 and 1', () => {

@@ -44,9 +44,10 @@ export function create(options: Relay.simulate.Options): Relay.Plugin {
       const signal = context.options.signal
       const transaction = Utils.normalizeTempoTransaction(result.tx)
       const feeToken = transaction.feeToken as Address | undefined
+      // Balance diffs cost a simulation, so callers opt in; the fee is always estimated.
       const simulation =
         (parameters.capabilities as Record<string, unknown> | undefined)
-          ?.balanceDiffs !== false
+          ?.balanceDiffs === true
           ? await simulateAndParseDiffs(context.client, {
               account: parameters.from as Address | undefined,
               calls: extractCalls(transaction),

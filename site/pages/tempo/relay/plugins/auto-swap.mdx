@@ -7,6 +7,10 @@
 funded token, prepends the buy to the transaction, and reports it as
 `capabilities.autoSwap`.
 
+Swaps change what the sender signs, so requests opt in with
+`capabilities.autoSwap: true`, or `{ slippage }` to tighten the relay's bound for
+one request. Without the opt-in, the original revert is returned.
+
 Place it last, after [`Relay.simulate`](/tempo/relay/plugins/simulate), so it sees
 the execution node's revert before `simulate` turns it into an error capability.
 
@@ -27,6 +31,7 @@ import { client } from './viem.config'
 
 const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
   account: '0x1111111111111111111111111111111111111111',
+  capabilities: { autoSwap: true }, // [!code focus]
   calls: [Actions.token.transfer.call(client, {
     token: '0x20c0000000000000000000000000000000000000', // pathUSD
     to: '0x2222222222222222222222222222222222222222',
@@ -73,7 +78,7 @@ The input token is the first funded candidate the DEX can sell for the missing
 amount within the slippage bound, trying the request's fee token and the sender's
 onchain preference before the remaining candidates by balance. The DEX debits the
 sender directly, so the swap adds no allowance. `balanceDiffs` from
-`Relay.simulate` include the swap: the input token paid to the DEX and the bought
+`Relay.simulate`, when requested, include the swap: the input token paid to the DEX and the bought
 token received.
 
 Without a funded, routable candidate the original revert is returned unchanged.

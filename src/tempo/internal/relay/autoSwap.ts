@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { Hex } from 'ox'
+import { Hex, RpcResponse } from 'ox'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Actions from '../../actions/index.js'
 import type * as Capabilities from '../../Capabilities.js'
@@ -12,8 +12,6 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
   const slippage = options.slippage ?? 0.05
   if (!Number.isFinite(slippage) || slippage < 0 || slippage > 1)
     throw new RangeError('Expected `slippage` between 0 and 1.')
-  // Rounded down to parts per million so the maximum input never exceeds the configured bound.
-  const ppm = BigInt(Math.floor(slippage * 1_000_000))
   return {
     async handleRequest(context, next) {
       if (context.request.method !== 'eth_fillTransaction') return next()
@@ -21,10 +19,20 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
         await next()
       } catch (error) {
         const parameters = context.request.params![0] as Record<string, unknown>
+        // Swaps change what the sender signs, so callers opt in per request.
+        const requested = parseRequest(parameters.capabilities)
+        if (requested === undefined) throw error
         const deficit = parseDeficit(error)
         const from = parameters.from as Address | undefined
         if (!deficit || !from) throw error
 
+        // A request may tighten, never loosen, the configured slippage bound.
+        const slippage_request = Math.min(
+          slippage,
+          requested.slippage ?? slippage,
+        )
+        // Rounded down to parts per million so the maximum input never exceeds the bound.
+        const ppm = BigInt(Math.floor(slippage_request * 1_000_000))
         const maxAmountIn = deficit.amount + (deficit.amount * ppm) / 1_000_000n
         const tokenIn = await selectTokenIn(context, {
           account: from,
@@ -62,7 +70,7 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
             token: deficit.token,
             value: Hex.fromNumber(deficit.amount),
           },
-          slippage,
+          slippage: slippage_request,
         }
         return {
           ...result,
@@ -108,6 +116,27 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
 type Capability = Omit<Capabilities.AutoSwap, 'maxIn' | 'minOut'> & {
   maxIn: Pick<Capabilities.AutoSwapAmount, 'token' | 'value'>
   minOut: Pick<Capabilities.AutoSwapAmount, 'token' | 'value'>
+}
+
+/** Returns the request's auto-swap opt-in, or `undefined` when the caller did not opt in. */
+function parseRequest(
+  capabilities: unknown,
+): { slippage?: number } | undefined {
+  const value = (capabilities as Record<string, unknown> | undefined)?.autoSwap
+  if (value === true) return {}
+  if (!value || typeof value !== 'object') return undefined
+  const { slippage } = value as { slippage?: unknown }
+  if (slippage === undefined) return {}
+  if (
+    typeof slippage !== 'number' ||
+    !Number.isFinite(slippage) ||
+    slippage < 0 ||
+    slippage > 1
+  )
+    throw new RpcResponse.InvalidParamsError({
+      message: 'Expected `capabilities.autoSwap.slippage` between 0 and 1.',
+    })
+  return { slippage }
 }
 
 /** Returns the missing token and amount of an `InsufficientBalance` revert. */
