@@ -1,5 +1,21 @@
 # viem
 
+## 2.57.14
+
+### Patch Changes
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Added `Relay.autoSwap`, which buys a fill's missing token on the stablecoin DEX and reports the swap as `capabilities.autoSwap`.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed relay previews omitting every balance diff when a moved token is a plain ERC-20, such as a vault share, by reading its standard metadata.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Changed `Relay.simulate` balance diffs and `Relay.autoSwap` swaps to require request opt-in through `capabilities.balanceDiffs: true` and `capabilities.autoSwap`; fee estimates stay default.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Changed `Relay.simulate` to report same-token incoming and outgoing transfers separately, and approval exposure net of allowance the calls consumed.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed sponsored Tempo transactions failing with intrinsic gas too low on T14 by reserving gas for the fee payer's signature and fee token.
+
+- [#5356](https://github.com/wevm/viem/pull/5356) [`51b4392225161440bf29643e2fbced31c35cfa7a`](https://github.com/wevm/viem/commit/51b4392225161440bf29643e2fbced31c35cfa7a) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo request formatting dropping `capabilities` from fill requests without Tempo-specific fields.
+
 ## 2.57.13
 
 ### Patch Changes
