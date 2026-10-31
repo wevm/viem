@@ -367,3 +367,50 @@ test('error: no outputs', () => {
   `,
   )
 })
+
+test('error: integer out of range', () => {
+  expect(() =>
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'decimals',
+          outputs: [{ type: 'uint8' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      functionName: 'decimals',
+      data: '0x0000000000000000000000000000000000000000000000000000000000000100',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [IntegerOutOfRangeError: Number "256" is not in safe 8-bit unsigned integer range (0 to 255)
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('error: address with dirty padding', () => {
+  expect(() =>
+    decodeFunctionResult({
+      abi: [
+        {
+          inputs: [],
+          name: 'owner',
+          outputs: [{ type: 'address' }],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      functionName: 'owner',
+      data: '0xffffffffffffffffffffffffa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidAddressError: Address "0xffffffffffffffffffffffffa5cc3c03994db5b0d9a5eedd10cabab0813678ac" is invalid.
+
+    - Address must be a hex value of 20 bytes (40 hex characters).
+    - Address must match its checksum counterpart.
+
+    Version: viem@x.y.z]
+  `)
+})

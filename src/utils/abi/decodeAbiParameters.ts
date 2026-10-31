@@ -9,7 +9,15 @@ import {
   InvalidAbiDecodingTypeError,
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
+import {
+  InvalidAddressError,
+  type InvalidAddressErrorType,
+} from '../../errors/address.js'
 import { BaseError } from '../../errors/base.js'
+import {
+  IntegerOutOfRangeError,
+  type IntegerOutOfRangeErrorType,
+} from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import {
@@ -27,6 +35,7 @@ import {
   type BytesToBoolErrorType,
   type BytesToNumberErrorType,
   type BytesToStringErrorType,
+  bytesToBigInt,
   bytesToBool,
   bytesToNumber,
 } from '../encoding/fromBytes.js'
@@ -242,7 +251,7 @@ function readNumber(cursor: Cursor): number {
   return wordToNumber(cursor.readBytes(32))
 }
 
-function wordToNumber(word: ByteArray, signed?: boolean | undefined): number {
+function wordToNumber(word: ByteArray): number {
   let high = 0
   for (let i = 0; i < 25; i++) high |= word[i]!
   if (high === 0 && word[25]! < 0x20)
@@ -254,16 +263,22 @@ function wordToNumber(word: ByteArray, signed?: boolean | undefined): number {
         word[31]!) >>>
         0)
     )
-  return bytesToNumber(word, { signed })
+  return bytesToNumber(word)
 }
 
 type DecodeAddressErrorType =
   | ChecksumAddressErrorType
   | BytesToHexErrorType
+  | InvalidAddressErrorType
   | ErrorType
 
 function decodeAddress(cursor: Cursor) {
   const value = cursor.readBytes(32)
+  // An address occupies the low 20 bytes of the word; the high 12 bytes
+  // must be zero padding.
+  for (let i = 0; i < 12; i++)
+    if (value[i] !== 0)
+      throw new InvalidAddressError({ address: bytesToHex(value) })
   return checksumAddress(bytesToHex(value.subarray(12)))
 }
 
@@ -398,23 +413,44 @@ function decodeBytes(cursor: Cursor, budget: Budget, staticPosition: number) {
 }
 
 type DecodeNumberErrorType =
-  | BytesToNumberErrorType
   | BytesToBigIntErrorType
+  | IntegerOutOfRangeErrorType
   | ErrorType
 
 function decodeNumber(cursor: Cursor, param: CompiledParam) {
   const { signed, size } = param
   const position = cursor.position
   const value = cursor.readBytes(32)
-  if (!(size > 48)) return wordToNumber(value, signed)
-  // Read the word as four big-endian 64-bit limbs.
+  // The bytes above the declared size must be zero padding (unsigned) or a
+  // sign extension (signed); otherwise the word does not fit the type.
+  const bytes = size / 8
+  const pad = signed && value[32 - bytes]! >= 0x80 ? 0xff : 0
+  for (let i = 0; i < 32 - bytes; i++)
+    if (value[i] !== pad) {
+      const max = 2n ** BigInt(signed ? size - 1 : size) - 1n
+      throw new IntegerOutOfRangeError({
+        max: max.toString(),
+        min: (signed ? -max - 1n : 0n).toString(),
+        signed,
+        size: bytes,
+        value: bytesToBigInt(value, { signed }).toString(),
+      })
+    }
   const view = cursor.dataView
+  if (!(size > 48)) {
+    // Read the low 48 bits, which hold the value and its sign extension.
+    const result =
+      view.getUint16(position + 26) * 0x1_0000_0000 +
+      view.getUint32(position + 28)
+    return pad ? result - 2 ** 48 : result
+  }
+  // Read the word as four big-endian 64-bit limbs.
   const result =
     (view.getBigUint64(position) << 192n) |
     (view.getBigUint64(position + 8) << 128n) |
     (view.getBigUint64(position + 16) << 64n) |
     view.getBigUint64(position + 24)
-  if (signed && value[0]! >= 0x80) return result - (1n << 256n)
+  if (pad) return result - (1n << 256n)
   return result
 }
 
