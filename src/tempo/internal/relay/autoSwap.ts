@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import { Hex } from 'ox'
 import { formatUnits } from '../../../utils/unit/formatUnits.js'
 import * as Actions from '../../actions/index.js'
+import type * as Capabilities from '../../Capabilities.js'
 import * as ExecutionError from '../../ExecutionError.js'
 import type * as Relay from '../../Relay.js'
 import { isExecutionError } from './error.js'
@@ -11,8 +12,8 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
   const slippage = options.slippage ?? 0.05
   if (!Number.isFinite(slippage) || slippage < 0 || slippage > 1)
     throw new RangeError('Expected `slippage` between 0 and 1.')
-  // Per-mille precision keeps the maximum input exact in integer math.
-  const permille = BigInt(Math.round(slippage * 1_000))
+  // Rounded down to parts per million so the maximum input never exceeds the configured bound.
+  const ppm = BigInt(Math.floor(slippage * 1_000_000))
   return {
     async handleRequest(context, next) {
       if (context.request.method !== 'eth_fillTransaction') return next()
@@ -24,8 +25,7 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
         const from = parameters.from as Address | undefined
         if (!deficit || !from) throw error
 
-        const maxAmountIn =
-          deficit.amount + (deficit.amount * permille) / 1_000n
+        const maxAmountIn = deficit.amount + (deficit.amount * ppm) / 1_000_000n
         const tokenIn = await selectTokenIn(context, {
           account: from,
           amountOut: deficit.amount,
@@ -105,11 +105,9 @@ export function create(options: Relay.autoSwap.Options): Relay.Plugin {
 }
 
 /** Swap facts carried from the fill to `afterFill` in the response capability. */
-type Capability = {
-  calls: readonly { data: Hex.Hex; to: Address }[]
-  maxIn: { token: Address; value: Hex.Hex }
-  minOut: { token: Address; value: Hex.Hex }
-  slippage: number
+type Capability = Omit<Capabilities.AutoSwap, 'maxIn' | 'minOut'> & {
+  maxIn: Pick<Capabilities.AutoSwapAmount, 'token' | 'value'>
+  minOut: Pick<Capabilities.AutoSwapAmount, 'token' | 'value'>
 }
 
 /** Returns the missing token and amount of an `InsufficientBalance` revert. */
@@ -124,7 +122,7 @@ function parseDeficit(error: unknown) {
 }
 
 /**
- * Returns the first funded token that the DEX can sell for the missing amount within `maxAmountIn`,
+ * Returns the first token whose DEX quote for the missing amount is within `maxAmountIn` and the sender's balance,
  * trying the named fee token and the sender's preferred token before the best-funded candidates.
  */
 // biome-ignore lint/correctness/noUnusedVariables: declaration merge
@@ -162,17 +160,18 @@ async function selectTokenIn(
       token,
     })),
   )
+  const rank = (token: Address) => {
+    const index = preferred.indexOf(token)
+    return index === -1 ? preferred.length : index
+  }
   const funded = balances
-    .filter(({ balance }) => balance >= maxAmountIn)
+    .filter(({ balance }) => balance > 0n)
     .sort((a, b) => {
-      const rank = (token: Address) => {
-        const index = preferred.indexOf(token)
-        return index === -1 ? preferred.length : index
-      }
       if (rank(a.token) !== rank(b.token)) return rank(a.token) - rank(b.token)
       return a.balance === b.balance ? 0 : a.balance > b.balance ? -1 : 1
     })
-  // Quotes fail for tokens without a DEX route or enough liquidity.
+  // Quotes fail for tokens without a DEX route or enough liquidity. The DEX spends only the
+  // quoted input, so a balance covering the quote suffices even below `maxAmountIn`.
   const quotes = await Promise.all(
     funded.map(({ token }) =>
       Actions.dex
@@ -184,9 +183,10 @@ async function selectTokenIn(
         .catch(() => undefined),
     ),
   )
-  return funded.find(
-    (_, index) => quotes[index] !== undefined && quotes[index] <= maxAmountIn,
-  )?.token
+  return funded.find(({ balance }, index) => {
+    const quote = quotes[index]
+    return quote !== undefined && quote <= maxAmountIn && balance >= quote
+  })?.token
 }
 
 declare namespace selectTokenIn {
@@ -199,7 +199,7 @@ declare namespace selectTokenIn {
     exclude: Address
     /** Fee token the fill names, preferred when funded. */
     feeToken?: Address | undefined
-    /** Largest accepted input, which the sender's balance must also cover. */
+    /** Largest accepted input. */
     maxAmountIn: bigint
   }
 }
@@ -222,7 +222,7 @@ function getCalls(parameters: Record<string, unknown>): readonly unknown[] {
 function describe(
   amount: Capability['maxIn'],
   metadata: { decimals: number; name: string; symbol: string },
-) {
+): Capabilities.AutoSwapAmount {
   return {
     decimals: metadata.decimals,
     formatted: formatUnits(Hex.toBigInt(amount.value), metadata.decimals),

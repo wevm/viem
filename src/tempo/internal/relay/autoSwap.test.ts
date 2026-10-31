@@ -9,6 +9,8 @@ const maker = Tempo.getClient({ account: Tempo.accounts[0] })
 const recipient = Tempo.accounts[7]!.address
 /** Holds only the quote token and the faucet's fee tokens. */
 const payer = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
+/** Holds 2.05 of the quote token: enough for a 2.002 quote, short of a 5% ceiling of 2.1. */
+const tight = Account.fromSecp256k1(Secp256k1.randomPrivateKey())
 
 let base: `0x${string}`
 let quote: `0x${string}`
@@ -18,11 +20,17 @@ beforeAll(async () => {
   base = pair.base
   quote = pair.quote
   await Actions.faucet.fundSync(maker, { account: payer, timeout: 60_000 })
+  await Actions.faucet.fundSync(maker, { account: tight, timeout: 60_000 })
   await sendTransactionSync(maker, {
     calls: [
       Actions.token.transfer.call(maker, {
         amount: parseUnits('10', 6),
         to: payer.address,
+        token: quote,
+      }),
+      Actions.token.transfer.call(maker, {
+        amount: parseUnits('2.05', 6),
+        to: tight.address,
         token: quote,
       }),
     ],
@@ -154,6 +162,53 @@ test('applies the configured slippage', async () => {
     {
       "maxIn": "2.04",
       "slippage": 0.02,
+    }
+  `)
+})
+
+test('never rounds the slippage bound up', async () => {
+  const relay = Relay.create({
+    client: maker,
+    plugins: [
+      Relay.feeToken(),
+      Relay.simulate(),
+      Relay.autoSwap({ slippage: 0.0015 }),
+    ],
+    resolveTokens: () => [quote],
+  })
+
+  const { capabilities } = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [{ calls: [transfer(parseUnits('2', 6))], from: payer.address }],
+  })) as Relay.Plugin.FillResult
+
+  const { maxIn } = capabilities?.autoSwap as { maxIn: { formatted: string } }
+  expect(maxIn.formatted).toMatchInlineSnapshot(`"2.003"`)
+})
+
+test('swaps from a balance that covers the quote but not the slippage bound', async () => {
+  const relay = Relay.create({
+    client: maker,
+    plugins: [Relay.feeToken(), Relay.simulate(), Relay.autoSwap()],
+    resolveTokens: () => [quote],
+  })
+
+  const { capabilities } = (await relay.request({
+    method: 'eth_fillTransaction',
+    params: [{ calls: [transfer(parseUnits('2', 6))], from: tight.address }],
+  })) as Relay.Plugin.FillResult
+
+  const { maxIn, minOut } = capabilities?.autoSwap as {
+    maxIn: { formatted: string }
+    minOut: { formatted: string }
+  }
+  expect({
+    maxIn: maxIn.formatted,
+    minOut: minOut.formatted,
+  }).toMatchInlineSnapshot(`
+    {
+      "maxIn": "2.1",
+      "minOut": "2",
     }
   `)
 })

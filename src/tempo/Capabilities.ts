@@ -23,6 +23,8 @@ export type FillTransactionRequestCapabilities = {
 }
 
 export type FillTransactionCapabilities = {
+  /** Stablecoin DEX buy prepended by `Relay.autoSwap` to cover a missing token. */
+  autoSwap?: AutoSwap | undefined
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
   error?: ExecutionError.Rpc | undefined
   fee?:
@@ -54,7 +56,29 @@ export type FillTransactionCapabilities = {
   virtualAddresses?: Readonly<Record<Address, Address | null>> | undefined
 }
 
-/** A token balance preview. Incoming funds and outgoing approval exposure can produce separate entries for the same token. */
+/** A swap that buys a fill's missing token before its calls. */
+export type AutoSwap = {
+  /** Swap calls prepended to the transaction. */
+  calls: readonly { data: Hex; to: Address }[]
+  /** Largest amount of the input token the swap may spend. */
+  maxIn: AutoSwapAmount
+  /** Amount of the missing token the swap buys. */
+  minOut: AutoSwapAmount
+  /** Largest accepted price slippage over the missing amount. */
+  slippage: number
+}
+
+/** One side of an {@link AutoSwap}. */
+export type AutoSwapAmount = {
+  decimals: number
+  formatted: string
+  name: string
+  symbol: string
+  token: Address
+  value: Hex
+}
+
+/** A token balance preview. A token's incoming and outgoing movements use separate entries; outgoing includes remaining approval exposure. */
 export type BalanceDiff = {
   address: Address
   decimals: number
