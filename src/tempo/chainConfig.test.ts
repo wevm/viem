@@ -252,7 +252,28 @@ describe('prepareTransactionRequest', () => {
       parameters: [],
     })
 
-    expect(request.gas).toBe(43_000n)
+    expect(request.gas).toBe(45_600n)
+  })
+
+  test('behavior: bumps prepared gas for sponsored transactions', async () => {
+    const request = await prepareTransactionRequest(client, {
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    expect(request.gas).toBe(35_600n)
+  })
+
+  test('behavior: keeps prepared gas for sponsored transactions with owner signatures', async () => {
+    const request = await prepareTransactionRequest(client, {
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+      signatures: ['0x01'],
+    } as never)
+
+    expect(request.gas).toBe(33_000n)
   })
 
   test('behavior: nonceKey expiring uses expiring nonces', async () => {
