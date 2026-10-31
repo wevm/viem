@@ -66,6 +66,11 @@ auditConfig:
     - GHSA-7pqw-9j4j-h8q3
     # zod 3 has no patched release and is only used by development tooling.
     - GHSA-mrhx-c7xc-m3w5
+    # vite 6.4.4 has no patched release and is only used by test tooling.
+    - GHSA-8g5g-mxqh-grgj
+    # glob and minimatch are patched only in majors archiver cannot use; only test containers depend on them.
+    - GHSA-3g3m-2fjr-6pw4
+    - GHSA-g3hv-75wg-m249
 
 overrides:
   ox: 0.14.59
@@ -92,7 +97,7 @@ overrides:
   express-rate-limit@>=8.2.0 <8.2.2: '>=8.2.2'
   fastify: '>=5.12.6'
   fflate@>=0.8.0 <0.8.3: 0.8.3
-  follow-redirects@<1.16.1: 1.16.1
+  follow-redirects@<1.16.2: 1.16.2
   uuid@<14.0.0: 14.0.0
   postcss@<8.5.23: 8.5.23
   protobufjs@<=7.6.4: 7.6.5

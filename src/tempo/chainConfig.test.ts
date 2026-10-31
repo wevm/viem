@@ -2,6 +2,7 @@ import { Transaction } from 'viem/tempo'
 import { describe, expect, test, vi } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
   getTransaction,
   getTransactionReceipt,
@@ -252,7 +253,19 @@ describe('prepareTransactionRequest', () => {
       parameters: [],
     })
 
-    expect(request.gas).toBe(43_000n)
+    // 5,000 for the fee payer's signature and fee token, plus 10,000 for the access-key signature.
+    expect(request.gas).toBe(48_000n)
+  })
+
+  test('behavior: bumps prepared gas for sponsored transactions', async () => {
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(generatePrivateKey()),
+      feePayer: true,
+      gas: 33_000n,
+      parameters: [],
+    })
+
+    expect(request.gas).toBe(38_000n)
   })
 
   test('behavior: nonceKey expiring uses expiring nonces', async () => {
