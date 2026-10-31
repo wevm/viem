@@ -1881,18 +1881,37 @@ describe.skipIf(nodeEnv !== 'localnet')('behavior: capabilities', () => {
     const meta = result.capabilities
 
     const diffs = findDiffs(meta?.balanceDiffs, sender.address)!
-    expect(diffs).toHaveLength(1)
+    expect(diffs).toHaveLength(3)
 
-    const quoteDiff = diffs[0]!
-    expect(quoteDiff.address.toLowerCase()).toBe(quote.toLowerCase())
+    // The DEX debits the sender directly, so the 100 TQUOTE approval stays exposed beside the spend.
+    const quoteDiff = diffs.find(
+      (d) => d.address.toLowerCase() === quote.toLowerCase(),
+    )!
     expect(quoteDiff.direction).toBe('outgoing')
     expect(quoteDiff.symbol).toBe('TQUOTE')
     expect(quoteDiff.name).toBe('Test Quote')
     expect(quoteDiff.decimals).toBe(6)
-    // No base diff — bought and immediately transferred out (net zero).
+    expect(quoteDiff.recipients.map((r) => r.toLowerCase())).toEqual([
+      Addresses.stablecoinDex.toLowerCase(),
+    ])
+    expect(BigInt(quoteDiff.value) > parseUnits('110', 6)).toBe(true)
+    // The bought base stays visible in both directions instead of netting to zero.
     expect(
-      diffs.find((d) => d.address.toLowerCase() === base.toLowerCase()),
-    ).toBeUndefined()
+      diffs
+        .filter((d) => d.address.toLowerCase() === base.toLowerCase())
+        .map(({ direction, recipients, value }) => ({
+          direction,
+          recipients,
+          value,
+        })),
+    ).toEqual([
+      { direction: 'incoming', recipients: [], value: '0x989680' },
+      {
+        direction: 'outgoing',
+        recipients: [recipient.address],
+        value: '0x989680',
+      },
+    ])
   })
 
   test('behavior: transfer to a spender retains approval exposure', async () => {
