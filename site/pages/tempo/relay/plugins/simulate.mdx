@@ -76,9 +76,11 @@ export const client = createClient({
 
 :::
 
-`balanceDiffs` groups net token transfers and final approval exposure by account.
-Outgoing amounts include approval exposure. Incoming funds use a separate entry
-for the same token, so they do not cancel outgoing approval exposure.
+`balanceDiffs` groups token transfers and approval exposure by account.
+Incoming and outgoing transfers of the same token use separate entries, so a
+token received and passed on in one transaction stays visible. Outgoing amounts
+include approval exposure: the allowance left after the calls for direct
+`approve` calls, otherwise the final approved amount.
 
 ### Report Missing Funds
 

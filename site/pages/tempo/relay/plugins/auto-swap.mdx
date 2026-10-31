@@ -1,0 +1,118 @@
+# Auto Swap Plugin
+
+## Overview
+
+[`Relay.autoSwap`](#relayautoswap) recovers fills that revert with
+`InsufficientBalance`. It buys the missing amount on the stablecoin DEX with a
+funded token, prepends the buy to the transaction, and reports it as
+`capabilities.autoSwap`.
+
+Place it last, after [`Relay.simulate`](/tempo/relay/plugins/simulate), so it sees
+the execution node's revert before `simulate` turns it into an error capability.
+
+## Recipes
+
+### Send a Token the Sender Does Not Hold
+
+The sender holds USDC.e but no pathUSD. The relay buys the missing pathUSD with
+USDC.e before the transfer. Replace the sender and recipient addresses.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { prepareTransactionRequest } from 'viem/actions'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
+  account: '0x1111111111111111111111111111111111111111',
+  calls: [Actions.token.transfer.call(client, {
+    token: '0x20c0000000000000000000000000000000000000', // pathUSD
+    to: '0x2222222222222222222222222222222222222222',
+    amount: parseUnits('2', 6),
+  })],
+})
+
+// [!code focus:start]
+capabilities?.autoSwap?.maxIn
+// @log: { decimals: 6, formatted: '2.1', name: 'Bridged USDC (Stargate)', symbol: 'USDC.e', token: '0x20c000000000000000000000b9537d11c60e8b50', value: '0x200b20' }
+capabilities?.autoSwap?.minOut
+// @log: { decimals: 6, formatted: '2', name: 'pathUSD', symbol: 'pathUSD', token: '0x20c0000000000000000000000000000000000000', value: '0x1e8480' }
+// [!code focus:end]
+```
+
+```ts twoslash [viem.config.ts (Local Relay)] filename="viem.config.ts"
+import { http } from 'viem'
+import { createClient, Relay, withRelay } from 'viem/tempo'
+
+export const client = createClient({
+  transport: withRelay(http(), {
+    plugins: [
+      Relay.feeToken(),
+      Relay.simulate(),
+      Relay.autoSwap(), // [!code focus]
+    ],
+  }),
+})
+```
+
+```ts twoslash [viem.config.ts (Remote Relay)] filename="viem.remote.config.ts"
+import { http } from 'viem'
+import { createClient } from 'viem/tempo'
+
+// See https://viem.sh/tempo/guides/relay/run for instructions on running a relay.
+export const client = createClient({
+  transport: http('https://relay.example.com/rpc'), // [!code focus]
+})
+```
+
+:::
+
+The input token is the first funded candidate the DEX can sell for the missing
+amount within the slippage bound, trying the request's fee token and the sender's
+onchain preference before the remaining candidates by balance. The DEX debits the
+sender directly, so the swap adds no allowance. `balanceDiffs` from
+`Relay.simulate` include the swap: the input token paid to the DEX and the bought
+token received.
+
+Without a funded, routable candidate the original revert is returned unchanged.
+
+## `Relay.autoSwap`
+
+Creates an auto-swap plugin.
+
+### Usage
+
+```ts twoslash
+import { Relay } from 'viem/tempo'
+
+const plugin = Relay.autoSwap({ slippage: 0.02 })
+```
+
+### Parameters
+
+#### options.slippage
+
+- **Type:** `number`
+- **Default:** `0.05`
+
+Largest accepted price slippage over the missing amount, between 0 and 1.
+
+#### options.store
+
+- **Type:** `Store.Store`
+
+Store for cached token metadata. Omit to read metadata for each request.
+
+### Return Value
+
+`Relay.Plugin`
+
+A plugin for `Relay.create`, `Relay.handleRequest`, or local `withRelay`.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `RangeError` | `slippage` is outside 0 and 1. |

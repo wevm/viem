@@ -8,6 +8,7 @@ import { ChainNotConfiguredError } from '../clients/createClientResolver.js'
 import type { EIP1193RequestOptions } from '../types/eip1193.js'
 import type { MaybePromise } from '../types/utils.js'
 import * as Accounts from './internal/relay/accounts.js'
+import * as AutoSwap from './internal/relay/autoSwap.js'
 import * as Sponsorship from './internal/relay/feePayer.js'
 import * as FeeToken from './internal/relay/feeToken.js'
 import * as KeyAuthorization from './internal/relay/keyAuthorization.js'
@@ -373,6 +374,36 @@ export declare namespace accounts {
 
   /** Middleware advertising configurable account support. */
   export type ReturnType = Plugin & { readonly [accountsBrand]: true }
+}
+
+/**
+ * Recovers fills that revert with `InsufficientBalance` by buying the missing
+ * amount on the stablecoin DEX from a funded token. The swap call is
+ * prepended to the transaction and reported as `capabilities.autoSwap`.
+ *
+ * Place this plugin last, after `Relay.simulate()`, so it sees node reverts
+ * before they become error capabilities.
+ *
+ * @example
+ * ```ts
+ * import { Relay } from 'viem/tempo'
+ * const plugins = [Relay.feeToken(), Relay.simulate(), Relay.autoSwap()]
+ * ```
+ * @param options - Slippage tolerance and metadata store.
+ * @returns An auto-swap relay plugin.
+ */
+export function autoSwap(options: autoSwap.Options = {}): Plugin {
+  return AutoSwap.create(options)
+}
+
+export declare namespace autoSwap {
+  /** Auto-swap configuration. */
+  export type Options = {
+    /** Largest accepted price slippage over the missing amount, between 0 and 1. @default 0.05 */
+    slippage?: number | undefined
+    /** Store for cached token metadata. Omit to read metadata for each request. */
+    store?: Store.Store | undefined
+  }
 }
 
 /**

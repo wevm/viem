@@ -3447,6 +3447,10 @@ export default defineConfig({
               text: 'Plugins',
               items: [
                 {
+                  text: 'Auto Swap',
+                  link: '/tempo/relay/plugins/auto-swap',
+                },
+                {
                   text: 'Fee Payer',
                   link: '/tempo/relay/plugins/fee-payer',
                 },
