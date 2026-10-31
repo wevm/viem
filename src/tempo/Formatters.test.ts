@@ -218,6 +218,25 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
+  test('behavior: non-tempo fill requests keep relay capabilities', () => {
+    const rpc = Formatters.formatTransactionRequest(
+      {
+        capabilities: { balanceDiffs: true, errors: true },
+        data: '0x',
+        to: '0x0000000000000000000000000000000000000001',
+      } as never,
+      'fillTransaction',
+    )
+    expect(
+      (rpc as { capabilities?: unknown | undefined }).capabilities,
+    ).toMatchInlineSnapshot(`
+      {
+        "balanceDiffs": true,
+        "errors": true,
+      }
+    `)
+  })
+
   test('error: JSON-RPC owner', () => {
     const config = AccountConfig.from({
       owners: [{ owner: accounts[1].address, weight: 1 }],

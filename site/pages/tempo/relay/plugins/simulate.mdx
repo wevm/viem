@@ -29,6 +29,7 @@ import { client } from './viem.config'
 const { _capabilities: capabilities } = await prepareTransactionRequest(client, {
   account: '0x1111111111111111111111111111111111111111',
   feeToken: Addresses.pathUsd,
+  capabilities: { balanceDiffs: true }, // [!code focus]
   calls: [Actions.token.transfer.call(client, {
     token: '0x20c000000000000000000000b9537d11c60e8b50', // USDC.e on Tempo mainnet
     to: '0x2222222222222222222222222222222222222222',
@@ -76,9 +77,14 @@ export const client = createClient({
 
 :::
 
-`balanceDiffs` groups net token transfers and final approval exposure by account.
-Outgoing amounts include approval exposure. Incoming funds use a separate entry
-for the same token, so they do not cancel outgoing approval exposure.
+Balance diffs cost an extra simulation, so requests opt in with
+`capabilities.balanceDiffs: true`. The fee estimate is always included.
+
+`balanceDiffs` groups token transfers and approval exposure by account.
+Incoming and outgoing transfers of the same token use separate entries, so a
+token received and passed on in one transaction stays visible. Outgoing amounts
+include approval exposure: the allowance left after the calls for direct
+`approve` calls, otherwise the final approved amount.
 
 ### Report Missing Funds
 

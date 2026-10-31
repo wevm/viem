@@ -329,9 +329,14 @@ describe('withRelay', () => {
               method: 'eth_fillTransaction',
               params: params as never,
             })
+            const filled = Transaction.deserialize(
+              result.raw as `0x76${string}`,
+            )
             const transaction = {
-              ...Transaction.deserialize(result.raw as `0x76${string}`),
+              ...filled,
               feeToken,
+              // Mirrors `Relay.feePayer`, which reserves intrinsic gas for its signature before signing.
+              gas: (filled.gas ?? 0n) + 20_000n,
             }
             sponsorFillFields = {
               gas: transaction.gas,
@@ -358,6 +363,7 @@ describe('withRelay', () => {
                     ...result.tx,
                     feePayerSignature: Signature.toRpc(feePayerSignature),
                     feeToken,
+                    gas: Hex.fromNumber(transaction.gas),
                   },
                 },
               }),

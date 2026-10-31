@@ -44,7 +44,7 @@ overrides:
   express-rate-limit@>=8.2.0 <8.2.2: '>=8.2.2'
   fastify: '>=5.12.6'
   fflate@>=0.8.0 <0.8.3: 0.8.3
-  follow-redirects@<1.16.1: 1.16.1
+  follow-redirects@<1.16.2: 1.16.2
   uuid@<14.0.0: 14.0.0
   postcss@<8.5.23: 8.5.23
   protobufjs@<=7.6.4: 7.6.5
@@ -4736,8 +4736,8 @@ packages:
   focus-trap@7.8.0:
     resolution: {integrity: sha512-/yNdlIkpWbM0ptxno3ONTuf+2g318kh2ez3KSeZN5dZ8YC6AAmgeWz+GasYYiBJPFaYcSAPeu4GfhUaChzIJXA==}
 
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
+  follow-redirects@1.16.2:
+    resolution: {integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -12166,7 +12166,7 @@ snapshots:
     dependencies:
       tabbable: 6.5.0
 
-  follow-redirects@1.16.1: {}
+  follow-redirects@1.16.2: {}
 
   foreground-child@3.3.1:
     dependencies:
@@ -12530,7 +12530,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.16.1
+      follow-redirects: 1.16.2
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

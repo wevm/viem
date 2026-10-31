@@ -25,11 +25,23 @@ import {
   http as viem_http,
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
+import * as Hardfork from '../../../src/tempo/Hardfork.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
 import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
+
+/**
+ * Whether the test node can create admin access keys, which T14 removed (TIP-1137).
+ * A localnet without a pinned hardfork runs every hardfork, including T14.
+ */
+export const adminKeys = (() => {
+  if (nodeEnv !== 'localnet') return true
+  const hardfork = import.meta.env.VITE_TEMPO_HARDFORK
+  if (!hardfork || hardfork === 'Tnext') return false
+  return Hardfork.lt(hardfork.toLowerCase(), 't14')
+})()
 
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')

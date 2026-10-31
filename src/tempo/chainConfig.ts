@@ -155,11 +155,18 @@ export const chainConfig = {
       // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
         // Fee payer signature covers the gas limit, so the relay must set it before signing and Viem must not change it afterward.
+        // Owner approvals also cover it, so a request carrying them keeps its gas.
+        const approved =
+          Array.isArray((request as { signatures?: unknown }).signatures) &&
+          (request as { signatures: readonly unknown[] }).signatures.length > 0
         if (
           typeof request.gas !== 'undefined' &&
           request.feePayer &&
-          !request.feePayerSignature
+          !request.feePayerSignature &&
+          !approved
         ) {
+          // The fill omits the fee payer's signature and fee token (85 bytes), which count toward intrinsic gas.
+          request.gas = (request.gas ?? 0n) + feePayerGas
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
           else if (request.account?.source === 'accessKey')
@@ -525,3 +532,6 @@ function selectOwners(config: AccountConfig.Config) {
     a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()),
   )
 }
+
+/** Intrinsic gas reserved for a fee payer's signature and fee token, which `eth_fillTransaction` estimates without. */
+const feePayerGas = 5_000n

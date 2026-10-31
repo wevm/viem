@@ -162,37 +162,40 @@ test('behavior: does not attach to keys authorized onchain', async () => {
   expect(transaction.keyAuthorization).toBeUndefined()
 })
 
-test('behavior: does not save key authorizations signed by an admin key', async () => {
-  const store = Store.memory()
-  const client = createClient({
-    chain: Tempo.chain,
-    transport: withRelay(Tempo.http(), {
-      plugins: [Relay.keyAuthorization({ store })],
-    }),
-  })
-  const adminKey = Account.fromP256(generatePrivateKey(), { access: root })
-  const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
+test.runIf(Tempo.adminKeys)(
+  'behavior: does not save key authorizations signed by an admin key',
+  async () => {
+    const store = Store.memory()
+    const client = createClient({
+      chain: Tempo.chain,
+      transport: withRelay(Tempo.http(), {
+        plugins: [Relay.keyAuthorization({ store })],
+      }),
+    })
+    const adminKey = Account.fromP256(generatePrivateKey(), { access: root })
+    const accessKey = Account.fromP256(generatePrivateKey(), { access: root })
 
-  await Actions.accessKey.authorizeSync(caller, {
-    account: root,
-    accessKey: adminKey,
-    admin: true,
-    feeToken,
-  })
-  await Actions.accessKey.signAuthorization(client, {
-    account: adminKey,
-    accessKey,
-    expiry: expiry(),
-  })
-
-  await expect(
-    fillTransaction(client, {
-      account: accessKey,
+    await Actions.accessKey.authorizeSync(caller, {
+      account: root,
+      accessKey: adminKey,
+      admin: true,
       feeToken,
-      to: zeroAddress,
-    }),
-  ).rejects.toThrow('KeyNotFound')
-})
+    })
+    await Actions.accessKey.signAuthorization(client, {
+      account: adminKey,
+      accessKey,
+      expiry: expiry(),
+    })
+
+    await expect(
+      fillTransaction(client, {
+        account: accessKey,
+        feeToken,
+        to: zeroAddress,
+      }),
+    ).rejects.toThrow('KeyNotFound')
+  },
+)
 
 test('behavior: keeps an explicit key authorization', async () => {
   const store = Store.memory()

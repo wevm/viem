@@ -127,12 +127,12 @@ export function formatTransactionRequest(
       'A local owner account is required to approve a configurable account transaction.',
     )
 
-  // If the request is not a Tempo transaction, route to Viem formatter.
+  // If the request is not a Tempo transaction, route to Viem formatter, keeping relay capabilities.
   if (!isTempo(request))
-    return viem_formatTransactionRequest(
-      r as never,
-      action,
-    ) as TransactionRequestRpc
+    return {
+      ...viem_formatTransactionRequest(r as never, action),
+      ...(request.capabilities ? { capabilities: request.capabilities } : {}),
+    } as TransactionRequestRpc
 
   if (action)
     request.calls = request.calls ?? [

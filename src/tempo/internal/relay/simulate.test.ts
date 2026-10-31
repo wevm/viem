@@ -1,6 +1,8 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
+import type { Address } from 'abitype'
 import { Hex } from 'ox'
 import {
+  type Call,
   createClient,
   encodeAbiParameters,
   encodeEventTopics,
@@ -9,9 +11,13 @@ import {
   parseUnits,
 } from 'viem'
 import { fillTransaction } from 'viem/actions'
-import { tempoLocalnet } from 'viem/chains'
+import { tempo, tempoLocalnet } from 'viem/chains'
 import { Abis, Actions, Relay, Store, withRelay } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
+import * as BalanceDiffs from '~test/tempo/balanceDiffs.js'
+import vectors from '~test/tempo/balanceDiffs.vectors.json' with {
+  type: 'json',
+}
 import * as Tempo from '~test/tempo/config.js'
 import { createHttpServer } from '~test/utils.js'
 import * as Cache from './cache.js'
@@ -39,6 +45,7 @@ test('returns fees and balance changes without executing the transfer', async ()
     token: Tempo.addresses.alphaUsd,
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     calls: [
       Actions.token.transfer.call(caller, {
@@ -73,6 +80,7 @@ test.each([50n, 200n])(
       transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
     })
     const { capabilities } = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: userAccount.address,
       feeToken: Tempo.addresses.alphaUsd,
       calls: [
@@ -111,6 +119,7 @@ test.each([
     transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     feeToken: Tempo.addresses.alphaUsd,
     calls: amounts.map((amount) =>
@@ -134,12 +143,81 @@ test.each([
     ])
 })
 
+test('reports the allowance left after spenders consume it', async () => {
+  const client = createClient({
+    chain: Tempo.chain,
+    transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
+  })
+  const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
+    account: userAccount.address,
+    feeToken: Tempo.addresses.alphaUsd,
+    calls: [
+      Actions.token.approve.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        spender: userAccount.address,
+        amount: 200n,
+      }),
+      // The sender spends its own allowance, leaving 150 approved.
+      Actions.token.transfer.call(caller, {
+        token: Tempo.addresses.alphaUsd,
+        from: userAccount.address,
+        to: recipient.address,
+        amount: 50n,
+      }),
+    ],
+  })
+  expect(Object.values(capabilities?.balanceDiffs ?? {}).flat()).toMatchObject([
+    {
+      address: Tempo.addresses.alphaUsd,
+      direction: 'outgoing',
+      value: Hex.fromNumber(200n),
+    },
+  ])
+})
+
+test('reports a token received and passed on in both directions', async () => {
+  const logs = [
+    { amount: 100n, from: recipient.address, to: userAccount.address },
+    { amount: 100n, from: userAccount.address, to: Tempo.accounts[6]!.address },
+    { amount: 5n, from: userAccount.address, to: userAccount.address },
+  ].map(({ amount, from, to }) => ({
+    address: Tempo.addresses.alphaUsd,
+    data: encodeAbiParameters([{ type: 'uint256' }], [amount]),
+    topics: encodeEventTopics({
+      abi: Abis.tip20,
+      eventName: 'Transfer',
+      args: { from, to },
+    }) as Log['topics'],
+    blockHash: null,
+    blockNumber: null,
+    logIndex: null,
+    transactionHash: null,
+    transactionIndex: null,
+    removed: false,
+  }))
+  const result = await buildBalanceDiffs(caller, {
+    account: userAccount.address,
+    logs,
+    tokenMetadata: {},
+  })
+  expect(result?.[userAccount.address]).toMatchObject([
+    { direction: 'incoming', value: '0x64' },
+    {
+      direction: 'outgoing',
+      recipients: [Tempo.accounts[6]!.address],
+      value: '0x64',
+    },
+  ])
+})
+
 test('keeps replacement approvals separate across tokens and spenders', async () => {
   const client = createClient({
     chain: Tempo.chain,
     transport: withRelay(Tempo.http(), { plugins: [Relay.simulate()] }),
   })
   const { capabilities } = await fillTransaction(client, {
+    capabilities: { balanceDiffs: true },
     account: userAccount.address,
     feeToken: Tempo.addresses.alphaUsd,
     calls: [
@@ -221,7 +299,7 @@ test.each([
   expect(capabilities?.fee).toMatchObject({ amount, formatted })
 })
 
-test.each([undefined, false])(
+test.each([true, false, undefined])(
   'returns transfer capabilities through Fetch, balanceDiffs: %s',
   async (balanceDiffs) => {
     const relay = Relay.create({ client: caller, plugins: [Relay.simulate()] })
@@ -262,7 +340,8 @@ test.each([undefined, false])(
     })
     expect(BigInt(result.capabilities.fee.amount)).toBeGreaterThan(0n)
     expect(Number(result.capabilities.fee.formatted)).toBeGreaterThan(0)
-    if (balanceDiffs === false)
+    // Diffs are opt-in; the fee is always estimated.
+    if (balanceDiffs !== true)
       expect(result.capabilities.balanceDiffs).toBeUndefined()
     else
       expect(result.capabilities.balanceDiffs[userAccount.address]).toEqual([
@@ -581,6 +660,7 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
     })
 
     const result = await fillTransaction(client, {
+      capabilities: { balanceDiffs: true },
       account: userAccount.address,
       feeToken: token,
       calls: [
@@ -612,5 +692,188 @@ test.skipIf(Tempo.nodeEnv !== 'localnet')(
         })
       ).amount,
     ).toBe(balance.amount)
+  },
+)
+
+describe('vectors', () => {
+  let context: BalanceDiffs.Context
+
+  beforeAll(async () => {
+    context = await BalanceDiffs.setup(caller)
+  }, 60_000)
+
+  const amount = parseUnits('1', 6)
+  const vectors: readonly [string, readonly BalanceDiffs.Operation[]][] = [
+    [
+      'transfer',
+      [{ amount, kind: 'transfer', memo: false, to: 'other', token: 0 }],
+    ],
+    [
+      'transfer with memo',
+      [{ amount, kind: 'transfer', memo: true, to: 'other', token: 0 }],
+    ],
+    [
+      'transfer to self',
+      [{ amount, kind: 'transfer', memo: false, to: 'self', token: 0 }],
+    ],
+    [
+      'transfer beyond balance',
+      [
+        {
+          amount: parseUnits('1000000', 6),
+          kind: 'transfer',
+          memo: false,
+          to: 'other',
+          token: 0,
+        },
+      ],
+    ],
+    [
+      'transfers of two tokens',
+      [
+        { amount, kind: 'transfer', memo: false, to: 'other', token: 0 },
+        { amount, kind: 'transfer', memo: false, to: 'second', token: 1 },
+      ],
+    ],
+    [
+      'ten transfers',
+      Array.from({ length: 10 }, (_, index) => ({
+        amount: BigInt(index + 1),
+        kind: 'transfer' as const,
+        memo: index % 2 === 0,
+        to: index % 3 === 0 ? ('second' as const) : ('other' as const),
+        token: index,
+      })),
+    ],
+    ['approve', [{ amount, kind: 'approve', spender: 'other', token: 0 }]],
+    [
+      'approve then revoke',
+      [
+        { amount, kind: 'approve', spender: 'other', token: 0 },
+        { amount: 0n, kind: 'approve', spender: 'other', token: 0 },
+      ],
+    ],
+    [
+      'approve twice',
+      [
+        { amount, kind: 'approve', spender: 'other', token: 0 },
+        { amount: amount * 3n, kind: 'approve', spender: 'other', token: 0 },
+      ],
+    ],
+    [
+      'approve two spenders',
+      [
+        { amount, kind: 'approve', spender: 'other', token: 0 },
+        { amount: amount * 2n, kind: 'approve', spender: 'second', token: 0 },
+      ],
+    ],
+    // A transfer to the spender consumes no allowance, so both count.
+    [
+      'approve then transfer to the spender',
+      [
+        { amount, kind: 'approve', spender: 'other', token: 0 },
+        { amount, kind: 'transfer', memo: false, to: 'other', token: 0 },
+      ],
+    ],
+    [
+      'transfer then approve the recipient',
+      [
+        { amount, kind: 'transfer', memo: false, to: 'other', token: 0 },
+        { amount: amount * 2n, kind: 'approve', spender: 'other', token: 0 },
+      ],
+    ],
+    // The sender spends its own allowance, so only the remainder stays exposed.
+    [
+      'self-approve then transferFrom',
+      [
+        { amount: amount * 2n, kind: 'approve', spender: 'self', token: 0 },
+        { amount, kind: 'transferFrom', memo: false, to: 'other', token: 0 },
+      ],
+    ],
+    [
+      'self-approve then transferFrom with memo',
+      [
+        { amount: amount * 2n, kind: 'approve', spender: 'self', token: 1 },
+        { amount, kind: 'transferFrom', memo: true, to: 'other', token: 1 },
+      ],
+    ],
+    [
+      'transferFrom beyond allowance',
+      [
+        { amount, kind: 'approve', spender: 'self', token: 0 },
+        {
+          amount: amount * 2n,
+          kind: 'transferFrom',
+          memo: false,
+          to: 'other',
+          token: 0,
+        },
+      ],
+    ],
+    ['dex buy', [{ amount, kind: 'buy' }]],
+    ['dex sell', [{ amount, kind: 'sell' }]],
+    // A bought token passed on in the same transaction stays visible in both directions.
+    [
+      'dex buy then send the bought token',
+      [
+        { amount, kind: 'buy' },
+        { amount, kind: 'transfer', memo: false, to: 'other', token: 2 },
+      ],
+    ],
+    [
+      'dex buy beyond balance',
+      [{ amount: parseUnits('100000', 6), kind: 'buy' }],
+    ],
+    ['dex place bid', [{ amount, kind: 'place', side: 'buy' }]],
+    ['dex place ask', [{ amount, kind: 'place', side: 'sell' }]],
+    [
+      'dex withdraw without a balance',
+      [{ amount, kind: 'withdraw', token: 0 }],
+    ],
+    ['fee amm liquidity', [{ amount, kind: 'liquidity' }]],
+    ['fee token preference', [{ kind: 'preference', token: 1 }]],
+  ]
+
+  test.each(vectors)('%s', async (_, operations) => {
+    const { violations } = await BalanceDiffs.verify(caller, {
+      account: context.account,
+      calls: operations.flatMap((operation) =>
+        BalanceDiffs.build(context, operation),
+      ),
+    })
+
+    expect(violations).toEqual([])
+  })
+})
+
+// The public endpoint refuses `tempo_simulateV1`, so these run with the credentialed endpoint.
+describe.skipIf(!import.meta.env.VITE_TEMPO_CREDENTIALS)(
+  'mainnet vectors',
+  () => {
+    // Real transactions to the most-called mainnet contracts, replayed at their parent block.
+    const client = createClient({
+      chain: tempo,
+      transport: http('https://rpc.tempo.xyz', {
+        fetchOptions: {
+          headers: {
+            Authorization: `Basic ${btoa(import.meta.env.VITE_TEMPO_CREDENTIALS ?? '')}`,
+          },
+        },
+        retryCount: 5,
+      }),
+    })
+
+    test.each(vectors.map((vector) => [vector.name, vector] as const))(
+      '%s',
+      async (_, { account, blockNumber, calls }) => {
+        const { violations } = await BalanceDiffs.verify(client, {
+          account: account as Address,
+          blockNumber: BigInt(blockNumber),
+          calls: calls as readonly Call[],
+        })
+
+        expect(violations).toEqual([])
+      },
+    )
   },
 )

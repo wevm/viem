@@ -5,7 +5,7 @@ import {
   http,
 } from 'viem'
 import { tempo, tempoModerato } from 'viem/chains'
-import { Relay } from 'viem/tempo'
+import { type Capabilities, Relay } from 'viem/tempo'
 import { expectTypeOf, test } from 'vitest'
 
 test('handleRequest contextually types plugins and downstream handlers', () => {
@@ -155,4 +155,26 @@ test('transaction plugins expose typed policies and caches', () => {
   Relay.feePayer({ feeToken: () => 'pathUSD' })
   // @ts-expect-error Tokens must be addresses.
   Relay.handleRequest(async () => null, { resolveTokens: () => ['pathUSD'] })
+})
+
+test('fill capabilities type the autoSwap capability', () => {
+  type ReturnType = Capabilities.Schema['fillTransaction']['ReturnType']
+
+  expectTypeOf<ReturnType['autoSwap']>().toEqualTypeOf<
+    Capabilities.AutoSwap | undefined
+  >()
+  expectTypeOf<Capabilities.AutoSwap>().toEqualTypeOf<{
+    calls: readonly { data: `0x${string}`; to: `0x${string}` }[]
+    maxIn: Capabilities.AutoSwapAmount
+    minOut: Capabilities.AutoSwapAmount
+    slippage: number
+  }>()
+  expectTypeOf<Capabilities.AutoSwapAmount>().toEqualTypeOf<{
+    decimals: number
+    formatted: string
+    name: string
+    symbol: string
+    token: `0x${string}`
+    value: `0x${string}`
+  }>()
 })

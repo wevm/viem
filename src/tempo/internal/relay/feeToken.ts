@@ -1,6 +1,8 @@
 import type { Address } from 'abitype'
 import { RpcResponse } from 'ox'
+import { readContract } from '../../../actions/public/readContract.js'
 import type { Client } from '../../../clients/createClient.js'
+import { erc20Abi } from '../../../constants/abis.js'
 import { tokens as tokenSets } from '../../../tokens/sets.js'
 import * as Actions from '../../actions/index.js'
 import type * as Relay from '../../Relay.js'
@@ -163,9 +165,12 @@ export async function resolveTokenMetadata(
   // Tempo simulation metadata covers TIP-20 tokens, whose decimals are always six.
   if (isTip20(token) && meta)
     return { decimals: 6, symbol: meta.symbol, name: meta.name }
-  // TIP-20 metadata (decimals/symbol/name) is immutable per token, so cache
-  // long-term. Skips the multicall RPC on cache hits.
-  const fetcher = () => Actions.token.getMetadata(client, { token })
+  // Token metadata (decimals/symbol/name) is immutable per token, so cache
+  // long-term. Skips the RPC reads on cache hits.
+  const fetcher = () =>
+    isTip20(token)
+      ? Actions.token.getMetadata(client, { token })
+      : readErc20Metadata(client, token)
   const fallback = store
     ? await Store.memoize(fetcher, {
         key: `tokenMetadata:${client.chain?.id ?? 0}:${token.toLowerCase()}`,
@@ -178,6 +183,19 @@ export async function resolveTokenMetadata(
     symbol: meta?.symbol || fallback.symbol,
     name: meta?.name || fallback.name,
   }
+}
+
+/** Reads the standard metadata of a non-TIP-20 token, such as a vault share; `name` is optional in ERC-20. */
+async function readErc20Metadata(client: Client, token: Address) {
+  const read = <const functionName extends 'decimals' | 'name' | 'symbol'>(
+    functionName: functionName,
+  ) => readContract(client, { abi: erc20Abi, address: token, functionName })
+  const [decimals, symbol, name] = await Promise.all([
+    read('decimals'),
+    read('symbol'),
+    read('name').catch(() => undefined),
+  ])
+  return { decimals, name: name ?? symbol, symbol }
 }
 
 export declare namespace resolveTokenMetadata {
