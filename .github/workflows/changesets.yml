@@ -102,7 +102,7 @@ jobs:
 
       - name: Create Version Pull Request
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/viem@817c9008b1112c1d61003f2f155687c30601de97 # upstream v1.4.10
+        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v1.4.10
         with:
           commit: 'chore: version package'
           title: 'chore: version package'
@@ -136,7 +136,7 @@ jobs:
 
       - name: Publish to NPM
         id: changesets
-        uses: wevm/actions/vendor/changesets/action/viem@817c9008b1112c1d61003f2f155687c30601de97 # upstream v1.4.10
+        uses: wevm/actions/vendor/changesets/action/viem@8963daf30237417f873c8e2f17e3bf9415e3a7b9 # upstream v1.4.10
         with:
           createGithubReleases: true
           publish: pnpm changeset:publish

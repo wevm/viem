@@ -35,7 +35,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Report bundle size
-        uses: wevm/actions/vendor/andresz1/size-limit-action/v1.8.0@73e899a58d51092d694fbaf94b7a1d8c09bfea28
+        uses: wevm/actions/vendor/andresz1/size-limit-action/v1.8.0@8963daf30237417f873c8e2f17e3bf9415e3a7b9
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           package_manager: pnpm
