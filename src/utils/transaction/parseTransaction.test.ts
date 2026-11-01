@@ -139,6 +139,27 @@ describe('eip7702', () => {
     })
   })
 
+  test('behavior: authorization yParity above 1', () => {
+    // Mainnet transaction 0xaec8420968abd74e70ef5b3099d6ba7baa3f069c4f718d7c4d729d591cffcb09,
+    // whose authorization holds a `y_parity` of 28.
+    const serialized =
+      '0x04f8c90102843b9aca0084408206be830186a094db35624115a810cf541988294a57766cd02acc828080c0f85cf85a8094c498cea4bfedbb8de856491bdd9967e677775f4f061ca044754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512a027a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b19180a0287d894b2ebb8a178a55810b242af186c73de663382358363d58b42628bbded3a0678f589cd41571248f24df7e60912d05f14c76471b859f4abd956c612bf175ee'
+    const transaction = parseTransaction(serialized)
+    expect(transaction.authorizationList).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0xc498cea4bfedbb8de856491bdd9967e677775f4f",
+          "chainId": 0,
+          "nonce": 6,
+          "r": "0x44754b7f217808e21f1935cfa450380e17a3ab8f2c6996c0190d678f0c14a512",
+          "s": "0x27a6b869798cbbbd8d538dbc95b9bb28783bf08f8ef88ad6bb82552d0b47b191",
+          "yParity": 28,
+        },
+      ]
+    `)
+    expect(serializeTransaction(transaction)).toBe(serialized)
+  })
+
   describe('errors', () => {
     test('invalid access list (invalid address)', () => {
       expect(() =>
@@ -215,7 +236,7 @@ describe('eip7702', () => {
                 toHex(1), // chainId
                 '0x0000000000000000000000000000000000000000', // address
                 toHex(0), // nonce
-                toHex(2), // yParity
+                toHex(256), // yParity
                 toHex(69), // r
                 toHex(420), // s
               ],
@@ -223,7 +244,7 @@ describe('eip7702', () => {
           ]).slice(2)}`,
         ),
       ).toThrowErrorMatchingInlineSnapshot(`
-        [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
+        [InvalidYParityError: Invalid \`yParity\` value "256". Expected 0 or 1.
 
         Version: viem@x.y.z]
       `)
