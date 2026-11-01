@@ -260,9 +260,9 @@ export const chainConfig = {
         request.nonce = 0
       } else if (useExpiringNonce) {
         request.nonceKey = maxUint256
-        request.nonce ??= 0
-        if (typeof request.validAfter === 'undefined')
-          request.validAfter = randomValidAfter()
+        // A random discriminator keeps otherwise identical expiring transactions distinct.
+        // 48 bits stay within `Number.MAX_SAFE_INTEGER`.
+        request.nonce ??= Hex.toNumber(Hex.random(6))
         if (typeof request.validBefore === 'undefined')
           request.validBefore =
             Math.floor(Date.now() / 1000) + expiringNonceExpiry
@@ -506,14 +506,6 @@ function getSimulationKey(
     return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
   if (keyType === 'p256' || keyType === 'secp256k1') return { keyType }
   return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
-}
-
-/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
-function randomValidAfter(): number {
-  const now = BigInt(Math.floor(Date.now() / 1_000))
-  const latest = now - 60n
-  if (latest <= 0n) return 0
-  return Number(BigInt(Hex.random(8)) % latest)
 }
 
 /** Selects a deterministic minimum-cardinality owner quorum. */

@@ -109,13 +109,13 @@ describe('prepareTransactionRequest: fuzz', () => {
 
             if (isExpiring) {
               expect(output.nonceKey).toBe(maxUint256)
-              expect(output.nonce).toBe(input.nonce ?? 0)
-              if (typeof input.validAfter === 'number')
-                expect(output.validAfter).toBe(input.validAfter)
+              if (typeof input.nonce === 'number')
+                expect(output.nonce).toBe(input.nonce)
               else {
-                expect(output.validAfter).toBeGreaterThanOrEqual(0)
-                expect(output.validAfter).toBeLessThan(now - 60)
+                expect(output.nonce).toBeGreaterThanOrEqual(0)
+                expect(output.nonce).toBeLessThan(2 ** 48)
               }
+              expect(output.validAfter).toBe(input.validAfter)
               expect(output.validBefore).toBe(input.validBefore ?? now + 270)
               continue
             }
