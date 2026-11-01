@@ -463,9 +463,9 @@ export async function prepareTransactionRequest<
             (!('feeToken' in request) || hasFilledFeePayerSignature)
           supportsFillTransaction.set(client.uid, true)
           // The fee payer signs over the filled fee token, so a requested one must not replace or outlive it.
-          const { feeToken: _feeToken, ...unsponsored } = request as {
-            feeToken?: unknown
-          }
+          type WithFeeToken = { feeToken?: unknown }
+          const { feeToken: _feeToken, ...unsponsored } =
+            request as WithFeeToken
           return {
             ...(hasFilledFeePayerSignature ? unsponsored : request),
             ...(from ? { from } : {}),
