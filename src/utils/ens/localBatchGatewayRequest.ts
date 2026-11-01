@@ -101,8 +101,10 @@ export async function localBatchGatewayRequest(parameters: {
               url: query.urls[0] ?? '',
             })
           // Each URL is a gateway request, so each one draws from the budget.
+          // A query with no URLs still costs one, since a custom request (such
+          // as `ccipReadTunnel`) may send it elsewhere.
           const urls = query.urls.slice(0, budget.queries)
-          budget.queries -= urls.length
+          budget.queries -= Math.max(1, urls.length)
           responses[i] = await budget.run(() => ccipRequest({ ...query, urls }))
         }
         failures[i] = false

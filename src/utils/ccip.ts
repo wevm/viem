@@ -146,7 +146,7 @@ export async function offchainLookup<chain extends Chain | undefined>(
         })
       // Each URL is a gateway request, so each one draws from the budget.
       const urls_ = urls.slice(0, budget.queries)
-      budget.queries -= urls_.length
+      budget.queries -= Math.max(1, urls_.length)
       return budget.run(() =>
         ccipRequest_({
           data: callData,

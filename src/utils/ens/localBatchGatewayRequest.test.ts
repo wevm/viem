@@ -522,3 +522,32 @@ test('concurrency limit', async () => {
     }
   `)
 })
+
+test('query without urls draws from the budget', async () => {
+  const sender = '0x0000000000000000000000000000000000000001' as const
+  const tunnelled: string[] = []
+  const server = await createHttpServer((req, res) => {
+    tunnelled.push(req.url ?? '')
+    res.end('0x')
+  })
+
+  await localBatchGatewayRequest({
+    data: encodeFunctionData({
+      abi: batchGatewayAbi,
+      functionName: 'query',
+      args: [
+        Array.from({ length: 300 }, () => ({
+          sender,
+          data: '0x' as const,
+          urls: [],
+        })),
+      ],
+    }),
+    ccipRequest: (parameters) =>
+      ccipRequest({ ...parameters, urls: [server.url] }),
+  })
+
+  await server.close()
+
+  expect(tunnelled.length).toMatchInlineSnapshot(`256`)
+})
