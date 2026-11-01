@@ -527,6 +527,29 @@ describe('errors', () => {
     `)
   })
 
+  test('maxFeePerGas zero and less than maxPriorityFeePerGas', async () => {
+    await expect(
+      call(client, {
+        data: `${mintWithParams4bytes}${fourTwenty}`,
+        account: sourceAccount.address,
+        to: wagmiContractAddress,
+        maxFeePerGas: 0n,
+        maxPriorityFeePerGas: parseGwei('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [CallExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+      Raw Call Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:                    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
+        data:                  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
+        maxFeePerGas:          0 gwei
+        maxPriorityFeePerGas:  1 gwei
+
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('contract revert (contract error)', async () => {
     await expect(
       call(client, {
