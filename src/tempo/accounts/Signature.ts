@@ -1,9 +1,9 @@
 import { SignatureEnvelope } from 'ox/tempo'
 
-/** Parses a primitive owner approval. */
+/** Parses an owner approval: a primitive or an attested signature. */
 export function parseApproval(
   signature: SignatureEnvelope.Serialized,
-): SignatureEnvelope.Primitive {
+): SignatureEnvelope.OwnerApproval {
   const approval = SignatureEnvelope.from(signature)
   if (approval.type === 'configurable' || approval.type === 'keychain')
     throw new Error(
