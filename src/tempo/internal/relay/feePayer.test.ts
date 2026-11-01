@@ -1665,8 +1665,8 @@ describe('fee-payer signature validity', () => {
       params: [expiring],
     })) as Request.Result
     const validBefore = Number(result.tx.validBefore)
-    expect(validBefore).toBeGreaterThan(now + 270)
-    expect(validBefore).toBeLessThanOrEqual(now + 300 + 5)
+    expect(validBefore).toBeGreaterThan(now + 240)
+    expect(validBefore).toBeLessThanOrEqual(now + 270 + 5)
 
     await expect(
       relay.request({

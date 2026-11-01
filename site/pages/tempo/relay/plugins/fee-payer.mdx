@@ -509,7 +509,8 @@ Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
 Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills
 without `validBefore` receive one, rounded to steps of at most five minutes so identical retries
 sign the same payload. `eth_signRawTransaction` requires a `validBefore` within this window.
-Expiring nonce transactions are capped at the protocol limit of 300 seconds.
+Expiring nonce transactions are capped at the protocol limit of 300 seconds, and generated
+windows for them stay 30 seconds under it to allow for clock skew.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'

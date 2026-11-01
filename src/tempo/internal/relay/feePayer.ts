@@ -839,11 +839,18 @@ const defaultValidity = 3_600
 /** Granularity, in seconds, of a generated `validBefore`, so identical fill retries share one sign payload. */
 const validityStep = 300
 
+/** Headroom, in seconds, that generated expiring windows leave under the protocol limit. */
+const skew = 30
+
 /** Bounds on how long a returned fee-payer signature stays valid on chain. */
 namespace Validity {
   /** Returns a `validBefore` rounded down to the generation step, then extended by the window's limit. */
   export function generate(options: generate.Options) {
-    const max = limit(options)
+    // Generated expiring windows stay under the protocol limit to allow for clock skew against the node.
+    const max =
+      options.nonceKey === maxUint256
+        ? Math.min(limit(options), Transaction.expiringNonceMaxExpiry - skew)
+        : limit(options)
     // A step of at most a tenth of the limit keeps every generated window at least 90% of it.
     const step = Math.min(validityStep, Math.ceil(max / 10))
     const time = Math.floor(Date.now() / 1_000)
