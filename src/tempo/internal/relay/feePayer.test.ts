@@ -23,6 +23,7 @@ import {
 } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import * as FeePayer from '~test/tempo/feePayer.js'
 import { createHttpServer } from '~test/utils.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -1883,3 +1884,19 @@ declare namespace reencode {
     fn: (value: Hex.Hex) => Hex.Hex
   }
 }
+
+describe('scenarios', () => {
+  test.each(FeePayer.table())(
+    'sponsors $path with nonce $nonceMode, validity $validity, fee token $feeToken, gas $gas, key $key',
+    async (scenario) => {
+      await FeePayer.assertScenario(scenario)
+    },
+  )
+
+  test.each(FeePayer.tampers)(
+    'rejects a $0 change after the fee payer signs',
+    async (tamper) => {
+      await FeePayer.assertTamperRejected(tamper)
+    },
+  )
+})
