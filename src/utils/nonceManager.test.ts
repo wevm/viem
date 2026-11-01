@@ -300,6 +300,164 @@ test('failed sendTransactionSync resets consumed nonce', async () => {
   ).toBe(1)
 })
 
+test('failed sendTransaction resets without a nonce when consume throws', async () => {
+  const nonceManager = createNonceManager({
+    source: {
+      get() {
+        throw new Error('source unavailable')
+      },
+      set: () => {},
+    },
+  })
+  const reset = vi.spyOn(nonceManager, 'reset')
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request() {
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransaction(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(reset).toHaveBeenCalledOnce()
+  expect(reset.mock.calls[0]![0]).toEqual({
+    address: account.address,
+    chainId: mainnet.id,
+  })
+  expect(reset.mock.calls[0]![0]).not.toHaveProperty('nonce')
+})
+
+test('failed sendTransaction resets with the consumed nonce', async () => {
+  const nonceManager = createNonceManager({
+    source: jsonRpc(),
+  })
+  const consume = vi.spyOn(nonceManager, 'consume')
+  const reset = vi.spyOn(nonceManager, 'reset')
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_getTransactionCount') return '0x1'
+        if (method === 'eth_sendRawTransaction')
+          throw new Error('rate limit exceeded')
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransaction(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(consume).toHaveBeenCalledOnce()
+  expect(await consume.mock.results[0]!.value).toBe(1)
+  expect(reset).toHaveBeenCalledOnce()
+  expect(reset.mock.calls[0]![0]).toEqual({
+    address: account.address,
+    chainId: mainnet.id,
+    nonce: 1,
+  })
+})
+
+test('failed sendTransactionSync resets without a nonce when consume throws', async () => {
+  const nonceManager = createNonceManager({
+    source: {
+      get() {
+        throw new Error('source unavailable')
+      },
+      set: () => {},
+    },
+  })
+  const reset = vi.spyOn(nonceManager, 'reset')
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request() {
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransactionSync(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(reset).toHaveBeenCalledOnce()
+  expect(reset.mock.calls[0]![0]).toEqual({
+    address: account.address,
+    chainId: mainnet.id,
+  })
+  expect(reset.mock.calls[0]![0]).not.toHaveProperty('nonce')
+})
+
+test('failed sendTransactionSync resets with the consumed nonce', async () => {
+  const nonceManager = createNonceManager({
+    source: jsonRpc(),
+  })
+  const consume = vi.spyOn(nonceManager, 'consume')
+  const reset = vi.spyOn(nonceManager, 'reset')
+  const account = privateKeyToAccount(privateKey, { nonceManager })
+  const client = createWalletClient({
+    chain: mainnet,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_getTransactionCount') return '0x1'
+        if (method === 'eth_sendRawTransactionSync')
+          throw new Error('rate limit exceeded')
+        return '0x0'
+      },
+    }),
+  })
+
+  await expect(
+    sendTransactionSync(client, {
+      account,
+      gas: 21_000n,
+      maxFeePerGas: 1n,
+      maxPriorityFeePerGas: 1n,
+      to: account.address,
+      value: 1n,
+    }),
+  ).rejects.toThrow()
+
+  expect(consume).toHaveBeenCalledOnce()
+  expect(await consume.mock.results[0]!.value).toBe(1)
+  expect(reset).toHaveBeenCalledOnce()
+  expect(reset.mock.calls[0]![0]).toEqual({
+    address: account.address,
+    chainId: mainnet.id,
+    nonce: 1,
+  })
+})
+
 test('failed sendTransaction does not reset an unconsumed nonce', async () => {
   const nonceManager = createNonceManager({
     source: {

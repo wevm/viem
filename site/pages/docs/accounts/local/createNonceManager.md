@@ -87,6 +87,8 @@ export const client = createWalletClient({
 
 The Nonce Manager.
 
+When a send fails after the Nonce Manager consumed a nonce, [`sendTransaction`](/docs/actions/wallet/sendTransaction) and [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) call `reset` with that nonce as `nonce`. They omit `nonce` when `consume` threw. A custom Nonce Manager that tracks a nonce per send can use it to release that nonce only; `createNonceManager` ignores it.
+
 ## Parameters
 
 ### source
