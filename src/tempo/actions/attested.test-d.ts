@@ -45,3 +45,18 @@ test('getPolicy', async () => {
   expectTypeOf(policy.paused).toEqualTypeOf<boolean>()
   expectTypeOf(policy.maxKeyLifetime).toEqualTypeOf<number>()
 })
+
+test('attested account sends transactions', async () => {
+  const attested = Account.fromAttested({
+    policyId: '0x',
+    sign: async () => '0x',
+    userTag: '0x',
+  })
+
+  const receipt = await client.sendTransactionSync({
+    account: attested,
+    to: '0x0000000000000000000000000000000000000001',
+  })
+
+  expectTypeOf(receipt.transactionHash).toEqualTypeOf<Hex>()
+})

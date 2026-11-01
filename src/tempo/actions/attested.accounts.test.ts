@@ -1,6 +1,9 @@
 import { P256, PublicKey } from 'ox'
+import { AttestedSigner, SignatureEnvelope } from 'ox/tempo'
 import { keccak256 } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
+import { verifyHash } from 'viem/actions'
+import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, chain, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
@@ -216,5 +219,58 @@ describe.runIf(enabled)('attested', () => {
     expect(
       await actions.attested.getKeyValidUntil(client, { policyId, programKey }),
     ).toBe(0)
+  })
+
+  test('verifyHash: an unregistered program key does not verify', async () => {
+    const { policyId } = await actions.attested.createPolicySync(client, {
+      delay: 0,
+      maxKeyLifetime: 3_600,
+      measurements: [measurement],
+      salt: randomSalt(),
+      scheme: schemeNitroDev,
+    })
+    const privateKey = P256.randomPrivateKey()
+    const block = await client.request({
+      method: 'eth_getBlockByNumber',
+      params: ['latest', false],
+    })
+    const fields = {
+      policyId,
+      programKey: P256.getPublicKey({ privateKey }),
+      slot: 0,
+      userTag: keccak256('0x01'),
+      validUntil: Number(block!.timestamp) + 300,
+    }
+    const account = Account.fromAttested({
+      policyId,
+      async sign({ hash }) {
+        return SignatureEnvelope.serialize(
+          SignatureEnvelope.from({
+            ...fields,
+            signature: P256.sign({
+              payload: AttestedSigner.getSignPayload({
+                ...fields,
+                payload: hash,
+              }),
+              privateKey,
+            }),
+          }),
+        )
+      },
+      userTag: fields.userTag,
+    })
+    const hash = keccak256('0x1234')
+
+    const signature = await account.sign({ hash })
+
+    expect(
+      SignatureEnvelope.verify(SignatureEnvelope.from(signature), {
+        address: account.address,
+        payload: hash,
+      }),
+    ).toBe(true)
+    await expect(
+      verifyHash(client, { address: account.address, hash, signature }),
+    ).resolves.toBe(false)
   })
 })

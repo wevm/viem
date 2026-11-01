@@ -2591,6 +2591,11 @@ export default defineConfig({
             },
             {
               badge: { text: 'EXP', variant: 'warning' },
+              text: 'Attested Signer',
+              link: '/tempo/accounts/account.fromAttested',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Configurable',
               link: '/tempo/accounts/account.fromConfig',
             },
@@ -2750,6 +2755,7 @@ export default defineConfig({
               ],
             },
             {
+              badge: { text: 'EXP', variant: 'warning' },
               text: 'Attested Signers',
               collapsed: true,
               items: [

@@ -24,7 +24,13 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account, ConfigurableAccount } from './Account.js'
+import * as Abis from './Abis.js'
+import type {
+  Account,
+  AttestedAccount,
+  ConfigurableAccount,
+} from './Account.js'
+import * as Addresses from './Addresses.js'
 import { getMetadata } from './actions/accessKey.js'
 import {
   getConfig,
@@ -86,7 +92,12 @@ export const chainConfig = {
         keyData?: Hex.Hex | undefined
         keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
         accountSimulation?: AccountSimulation.Spec | undefined
-        owner?: Account | ConfigurableAccount | Address | undefined
+        owner?:
+          | Account
+          | AttestedAccount
+          | ConfigurableAccount
+          | Address
+          | undefined
         signatures?: readonly unknown[] | undefined
       }
 
@@ -103,7 +114,10 @@ export const chainConfig = {
           throw new Error(
             'A local owner account is required to approve a stored configurable account transaction.',
           )
-        if (request.owner.source !== 'root')
+        if (
+          request.owner.source !== 'root' &&
+          request.owner.source !== 'attested'
+        )
           throw new Error(
             'A Tempo owner account is required to approve a stored configurable account transaction.',
           )
@@ -193,7 +207,11 @@ export const chainConfig = {
         throw new Error(
           'A local owner account is required to approve a configurable account transaction.',
         )
-      if (request.owner && request.owner.source !== 'root')
+      if (
+        request.owner &&
+        request.owner.source !== 'root' &&
+        request.owner.source !== 'attested'
+      )
         throw new Error(
           'A Tempo owner account is required to approve a configurable account transaction.',
         )
@@ -403,6 +421,33 @@ export const chainConfig = {
         })
       }
 
+      // Attested signatures (TIP-1160) are valid only while the Attested Key
+      // Registry holds their program key as current, which only the chain knows,
+      // so the signature verifier precompile (TIP-1020) checks them.
+      // Non-canonical encodings revert, which is an invalid signature.
+      if (envelope.type === 'attested')
+        return await (
+          readContract(client, {
+            abi: Abis.signatureVerifier,
+            address: Addresses.signatureVerifier,
+            args: [address, hash, serialized as Hex.Hex],
+            blockHash: parameters.blockHash,
+            blockNumber: parameters.blockNumber,
+            blockTag: parameters.blockTag,
+            functionName: 'verify',
+            requireCanonical: parameters.requireCanonical,
+          } as never) as Promise<boolean>
+        ).catch((error) => {
+          if (
+            error instanceof BaseError &&
+            error.walk(
+              (cause) => cause instanceof ContractFunctionRevertedError,
+            )
+          )
+            return false
+          throw error
+        })
+
       // Configurable account signatures are verified against the account's
       // current config commitment, which only the chain knows.
       // Reverts (malformed signatures or approvals below quorum) are invalid signatures.
@@ -500,6 +545,8 @@ function getSimulationKey(
       return account.keyType
     return undefined
   })()
+  // An attested signature also reads the Attested Key Registry, which no key
+  // type hint prices, so it falls through to the conservative WebAuthn hint.
   if (!keyType || keyType === 'webAuthn')
     return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
   if (keyType === 'p256' || keyType === 'secp256k1') return { keyType }

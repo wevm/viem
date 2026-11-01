@@ -6,6 +6,20 @@ const owner = Account.fromSecp256k1(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
 
+test('fromAttested', () => {
+  const attested = Account.fromAttested({
+    policyId: '0x',
+    sign: async () => '0x',
+    userTag: '0x',
+  })
+
+  expectTypeOf(attested).toEqualTypeOf<Account.AttestedAccount>()
+  expectTypeOf(attested.source).toEqualTypeOf<'attested'>()
+  expectTypeOf(Account.fromConfig({ owners: [attested] })).toEqualTypeOf<
+    Account.ConfigurableAccount<AccountConfig.Config>
+  >()
+})
+
 test('fromConfig preserves config availability', () => {
   const config = {
     owners: [owner],
