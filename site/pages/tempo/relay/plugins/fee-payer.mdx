@@ -73,6 +73,11 @@ Run the local fee-payer configuration only in a trusted server environment.
 Keep the signing key on your server. The sponsor needs a balance in the selected
 fee token. The sender needs the USDC.e being transferred.
 
+The fee payer signs over the gas limit and the fee token, so Viem treats the sender's values
+as preferences. A `gas` value is a floor: Viem and the relay add gas for the fee payer's
+signature. The fee payer chooses the fee token, and only a token set through
+[`feeToken`](#optionsfeetoken) is guaranteed.
+
 ### Inspect Sponsorship
 
 Use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest)
