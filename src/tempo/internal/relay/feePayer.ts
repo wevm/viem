@@ -19,6 +19,7 @@ import { getBlockNumber } from '../../../actions/public/getBlockNumber.js'
 import { readContract } from '../../../actions/public/readContract.js'
 import { type Client, createClient } from '../../../clients/createClient.js'
 import { http } from '../../../clients/transports/http.js'
+import { maxUint256 } from '../../../constants/number.js'
 import * as AccessKey from '../../actions/accessKey.js'
 import type * as Relay from '../../Relay.js'
 import * as Transaction from '../../Transaction.js'
@@ -180,7 +181,10 @@ export function create(options: Relay.feePayer.Options): Relay.Plugin {
       // Bound before validation so the validated envelope is the one signed, and returned signatures expire.
       const signs = !!options.account && !external && !defer
       if (signs && filled.validBefore == null)
-        filled.validBefore = Validity.generate({ validity })
+        filled.validBefore = Validity.generate({
+          nonceKey: filled.nonceKey,
+          validity,
+        })
 
       const sponsored =
         external ||
@@ -835,27 +839,37 @@ const defaultValidity = 3_600
 /** Granularity, in seconds, of a generated `validBefore`, so identical fill retries share one sign payload. */
 const validityStep = 300
 
+/** Headroom, in seconds, that generated expiring windows leave under the protocol limit. */
+const skew = 30
+
 /** Bounds on how long a returned fee-payer signature stays valid on chain. */
 namespace Validity {
-  /** Returns a `validBefore` rounded down to the generation step, then extended by `validity`. */
+  /** Returns a `validBefore` rounded down to the generation step, then extended by the window's limit. */
   export function generate(options: generate.Options) {
-    const { validity } = options
-    const step = Math.min(validityStep, validity)
+    // Generated expiring windows stay under the protocol limit to allow for clock skew against the node.
+    const max =
+      options.nonceKey === maxUint256
+        ? Math.min(limit(options), Transaction.expiringNonceMaxExpiry - skew)
+        : limit(options)
+    // A step of at most a tenth of the limit keeps every generated window at least 90% of it.
+    const step = Math.min(validityStep, Math.ceil(max / 10))
     const time = Math.floor(Date.now() / 1_000)
-    return time - (time % step) + validity
+    return time - (time % step) + max
   }
 
   export declare namespace generate {
     type Options = {
+      /** Nonce lane of the transaction. An expiring nonce lane caps the window at the protocol limit. */
+      nonceKey?: bigint | undefined
       /** Longest validity window, in seconds. */
       validity: number
     }
   }
 
-  /** Throws unless `validBefore` is a future time within `validity` seconds that opens after `validAfter`. */
+  /** Throws unless `validBefore` is a future time within the window's limit that opens after `validAfter`. */
   export function assert(window: assert.Window, options: assert.Options) {
     const { validAfter, validBefore } = window
-    const { validity } = options
+    const validity = limit({ nonceKey: window.nonceKey, ...options })
     const time = Math.floor(Date.now() / 1_000)
     if (
       validBefore === undefined ||
@@ -875,6 +889,8 @@ namespace Validity {
   export declare namespace assert {
     /** Validity window of the transaction being co-signed, in unix seconds. */
     type Window = {
+      /** Nonce lane. An expiring nonce lane caps the window at the protocol limit. */
+      nonceKey?: bigint | undefined
       /** Earliest inclusion time. */
       validAfter?: number | null | undefined
       /** Latest inclusion time. */
@@ -885,6 +901,13 @@ namespace Validity {
       /** Longest validity window, in seconds. */
       validity: number
     }
+  }
+
+  /** Returns `validity`, capped at the protocol limit for expiring nonce lanes. */
+  function limit(options: generate.Options) {
+    const { nonceKey, validity } = options
+    if (nonceKey !== maxUint256) return validity
+    return Math.min(validity, Transaction.expiringNonceMaxExpiry)
   }
 }
 

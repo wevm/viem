@@ -207,6 +207,9 @@ export type TransactionSerializedFeePayer = `0x78${string}`
 
 export type TransactionType = viem_TransactionType | 'tempo'
 
+/** Longest distance, in seconds, between now and an expiring nonce transaction's `validBefore`. */
+export const expiringNonceMaxExpiry = 300
+
 export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {

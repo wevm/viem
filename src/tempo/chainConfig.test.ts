@@ -52,9 +52,10 @@ describe('prepareTransactionRequest', () => {
           }),
         )
 
-        expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+        const [random, ...explicit] = requests.map(({ nonce }) => nonce)
+        expect(Number.isSafeInteger(random)).toBe(true)
+        expect(explicit).toMatchInlineSnapshot(`
         [
-          0,
           0,
           42,
           9007199254740991,
@@ -81,9 +82,10 @@ describe('prepareTransactionRequest', () => {
         ),
       )
 
-      expect(requests.map(({ nonce }) => nonce)).toMatchInlineSnapshot(`
+      const [random, ...explicit] = requests.map(({ nonce }) => nonce)
+      expect(Number.isSafeInteger(random)).toBe(true)
+      expect(explicit).toMatchInlineSnapshot(`
         [
-          0,
           0,
           42,
           9007199254740991,
@@ -183,19 +185,19 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1]?.nonceKey).toBe(maxUint256)
     expect(requests[2]?.nonceKey).toBe(maxUint256)
 
-    // All should have nonce = 0 for expiring nonces
-    expect(requests[0]?.nonce).toBe(0)
-    expect(requests[1]?.nonce).toBe(0)
-    expect(requests[2]?.nonce).toBe(0)
+    // Each gets a distinct nonce discriminator
+    const nonces = requests.map((request) => request.nonce)
+    expect(nonces.every((nonce) => Number.isSafeInteger(nonce))).toBe(true)
+    expect(new Set(nonces).size).toBe(3)
 
     // All should be immediately valid
-    expect(requests[0]?.validAfter).toBeLessThan(now)
-    expect(requests[1]?.validAfter).toBeLessThan(now)
-    expect(requests[2]?.validAfter).toBeLessThan(now)
+    expect(requests[0]?.validAfter).toBeUndefined()
+    expect(requests[1]?.validAfter).toBeUndefined()
+    expect(requests[2]?.validAfter).toBeUndefined()
 
-    // All should have validBefore set within 30 seconds
-    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
-    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 31)
+    // All should have validBefore set 270 seconds ahead
+    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: explicit nonceKey overrides expiring nonce', async () => {
@@ -274,9 +276,9 @@ describe('prepareTransactionRequest', () => {
       nonceKey: 'expiring',
     })
     expect(request?.nonceKey).toBe(maxUint256)
-    expect(request?.nonce).toBe(0)
-    expect(request?.validBefore).toBeGreaterThanOrEqual(now)
-    expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
+    expect(Number.isSafeInteger(request?.nonce)).toBe(true)
+    expect(request?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
@@ -287,9 +289,9 @@ describe('prepareTransactionRequest', () => {
     })
 
     expect(request.nonceKey).toBe(maxUint256)
-    expect(request.nonce).toBe(0)
-    expect(request.validBefore).toBeGreaterThanOrEqual(now)
-    expect(request.validBefore).toBeLessThanOrEqual(now + 31)
+    expect(Number.isSafeInteger(request.nonce)).toBe(true)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: explicit validity window is preserved', async () => {
@@ -320,7 +322,7 @@ describe('prepareTransactionRequest', () => {
 
     expect(consume).not.toHaveBeenCalled()
     expect(request.nonceKey).toBe(maxUint256)
-    expect(request.nonce).toBe(0)
+    expect(Number.isSafeInteger(request.nonce)).toBe(true)
   })
 
   test('behavior: protocol nonce key consumes a sequential nonce', async () => {
