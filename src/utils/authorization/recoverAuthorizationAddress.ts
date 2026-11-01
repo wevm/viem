@@ -1,5 +1,9 @@
 import type { Address } from 'abitype'
 
+import {
+  InvalidYParityError,
+  type InvalidYParityErrorType,
+} from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   Authorization,
@@ -47,6 +51,7 @@ export type RecoverAuthorizationAddressReturnType = Address
 
 export type RecoverAuthorizationAddressErrorType =
   | HashAuthorizationErrorType
+  | InvalidYParityErrorType
   | RecoverAddressErrorType
   | ErrorType
 
@@ -57,10 +62,21 @@ export async function recoverAuthorizationAddress<
 >(
   parameters: RecoverAuthorizationAddressParameters<authorization>,
 ): Promise<RecoverAuthorizationAddressReturnType> {
-  const { authorization, signature } = parameters
+  const { authorization } = parameters
+  const signature = (parameters.signature ?? authorization) as Signature
+
+  // EIP-7702 recovers the authority with `y_parity` as the raw recovery id, so a
+  // tuple with any other `yParity` (such as 27 or 28) has no authority.
+  if (
+    typeof signature === 'object' &&
+    typeof signature.yParity === 'number' &&
+    signature.yParity !== 0 &&
+    signature.yParity !== 1
+  )
+    throw new InvalidYParityError({ yParity: BigInt(signature.yParity) })
 
   return recoverAddress({
     hash: hashAuthorization(authorization as AuthorizationRequest),
-    signature: (signature ?? authorization) as Signature,
+    signature,
   })
 }

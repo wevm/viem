@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `parseTransaction` to accept an EIP-7702 authorization `yParity` above 1 (any value below 2**8, as EIP-7702 permits) instead of throwing `InvalidYParityError`, so a transaction that `serializeTransaction` produces can be parsed back.
+Fixed `parseTransaction` to accept an EIP-7702 authorization `yParity` from 2 to 255 so a serialized transaction parses back, and made `recoverAuthorizationAddress` throw `InvalidYParityError` (and `verifyAuthorization` return `false`) for a `yParity` other than 0 or 1, which EIP-7702 treats as having no authority.

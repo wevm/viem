@@ -184,6 +184,44 @@ describe('eip7702', () => {
     expect(serializeTransaction(transaction)).toBe(serialized)
   })
 
+  test('behavior: authorization yParity of 255', () => {
+    const serialized = `0x04${toRlp([
+      toHex(1), // chainId
+      '0x', // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      '0x', // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      [
+        [
+          toHex(1), // chainId
+          '0x0000000000000000000000000000000000000000', // address
+          '0x', // nonce
+          toHex(255), // yParity
+          toHex(69), // r
+          toHex(420), // s
+        ],
+      ], // authorizationList
+    ]).slice(2)}` as const
+    const transaction = parseTransaction(serialized)
+    expect(transaction.authorizationList).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x0000000000000000000000000000000000000000",
+          "chainId": 1,
+          "nonce": 0,
+          "r": "0x0000000000000000000000000000000000000000000000000000000000000045",
+          "s": "0x00000000000000000000000000000000000000000000000000000000000001a4",
+          "yParity": 255,
+        },
+      ]
+    `)
+    expect(serializeTransaction(transaction)).toBe(serialized)
+  })
+
   describe('errors', () => {
     test('tip above zero fee cap', () => {
       expect(() =>
