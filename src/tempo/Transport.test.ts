@@ -626,6 +626,8 @@ describe('withRelay', () => {
         gas: 100_000n,
         maxFeePerGas: 10_000_000_000n,
         maxPriorityFeePerGas: 1_000_000_000n,
+        // An explicit nonce is the expiring nonce discriminator, so distinct calldata keeps this envelope from replaying the previous test's.
+        data: '0x01',
         nonce,
         parameters: ['nonce', 'type'],
         to: '0x0000000000000000000000000000000000000000',
