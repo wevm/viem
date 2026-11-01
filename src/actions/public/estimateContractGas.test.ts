@@ -4,7 +4,8 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-import { Instance } from 'prool'
+import { Instance, Pool } from 'prool'
+import { createPublicClient, http } from 'viem'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ErrorsExample } from '~contracts/generated.js'
@@ -14,8 +15,7 @@ import { accounts } from '~test/constants.js'
 import { deployBAYC, deployErrorExample } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { foundry } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http, publicActions } from '../../index.js'
+import { publicActions } from '../../index.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
@@ -492,8 +492,7 @@ describe('behavior: client dataSuffix', () => {
 })
 
 describe('local account state override', () => {
-  const url = 'http://127.0.0.1:18548'
-  const instance = Instance.anvil({ host: '127.0.0.1', port: 18548 })
+  const pool = Pool.define({ instance: Instance.anvil() })
   const local = privateKeyToAccount(accounts[0].privateKey)
   const target = '0x1000000000000000000000000000000000000001' as const
   const touch = [
@@ -505,17 +504,20 @@ describe('local account state override', () => {
       outputs: [],
     },
   ] as const
-  const client = createPublicClient({
-    chain: foundry,
-    transport: http(url),
-  })
+  const createClient = (url: string) =>
+    createPublicClient({
+      chain: foundry,
+      transport: http(url),
+    })
+  let client: ReturnType<typeof createClient>
 
   beforeAll(async () => {
-    await instance.start()
+    const node = await pool.start(1)
+    client = createClient(node.url)
   })
 
   afterAll(async () => {
-    await instance.stop()
+    await pool.destroyAll()
   })
 
   test('matches an address account', async () => {

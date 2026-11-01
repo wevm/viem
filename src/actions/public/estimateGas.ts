@@ -114,18 +114,17 @@ export async function estimateGas<
   const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
 
+  // `eth_fillTransaction` cannot apply block context or state overrides, so a
+  // gas limit filled during preparation is only usable without them.
+  const hasContext =
+    args.stateOverride !== undefined ||
+    typeof args.blockNumber === 'bigint' ||
+    args.blockTag !== undefined
+
   const parameters = (() => {
     if (Array.isArray(prepare)) return prepare
     // Some RPC providers do not compute versioned hashes from blobs.
-    // `eth_fillTransaction` also cannot apply block context or state overrides,
-    // and its gas limit is returned before `eth_estimateGas`.
-    if (
-      account?.type !== 'local' ||
-      args.stateOverride !== undefined ||
-      typeof args.blockNumber === 'bigint' ||
-      args.blockTag !== undefined
-    )
-      return ['blobVersionedHashes']
+    if (account?.type !== 'local' || hasContext) return ['blobVersionedHashes']
     return undefined
   })()
 
@@ -177,8 +176,9 @@ export async function estimateGas<
     // If we get `gas` back from the prepared transaction request, which is
     // different from the `gas` we provided, it was likely filled by other means
     // during request preparation (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
-    // (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
-    if (gas && args.gas !== gas) return gas
+    // Fee payer sponsorship and explicit `prepare` parameters can still fill
+    // gas, which ignores block context and state overrides.
+    if (gas && args.gas !== gas && !hasContext) return gas
 
     const blockNumberHex =
       typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined

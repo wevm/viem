@@ -1,4 +1,10 @@
-import { Instance } from 'prool'
+import { Instance, Pool } from 'prool'
+import {
+  createPublicClient,
+  createTestClient,
+  createWalletClient,
+  http,
+} from 'viem'
 import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -7,9 +13,7 @@ import { deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { foundry } from '../../chains/index.js'
-import { createTestClient } from '../../clients/createTestClient.js'
 import { maxUint256 } from '../../constants/number.js'
-import { createPublicClient, createWalletClient, http } from '../../index.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
@@ -377,24 +381,27 @@ describe('errors', () => {
 })
 
 describe('local account block and state context', () => {
-  const url = 'http://127.0.0.1:18547'
-  const instance = Instance.anvil({ host: '127.0.0.1', port: 18547 })
+  const pool = Pool.define({ instance: Instance.anvil() })
   const local = privateKeyToAccount(accounts[0].privateKey)
   const target = '0x1000000000000000000000000000000000000001' as const
   const sstore = '0x600160005500' as const
   const creation = '0x6006600c60003960066000f3600160005500' as const
-  const client = createTestClient({
-    chain: foundry,
-    mode: 'anvil',
-    transport: http(url),
-  })
+  const createClient = (url: string) =>
+    createTestClient({
+      chain: foundry,
+      mode: 'anvil',
+      transport: http(url),
+    })
+  let url = ''
+  let client: ReturnType<typeof createClient>
 
   beforeAll(async () => {
-    await instance.start()
+    url = (await pool.start(1)).url
+    client = createClient(url)
   })
 
   afterAll(async () => {
-    await instance.stop()
+    await pool.destroyAll()
   })
 
   test('state override', async () => {
@@ -432,6 +439,14 @@ describe('local account block and state context', () => {
         to: target,
         stateOverride,
         prepare: ['nonce'],
+      }),
+    ).toBe(addressGas)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: target,
+        stateOverride,
+        prepare: ['fees', 'gas', 'nonce'],
       }),
     ).toBe(addressGas)
     expect(
@@ -532,6 +547,14 @@ describe('local account block and state context', () => {
         to: contractAddress,
         blockNumber: historical,
         prepare: false,
+      }),
+    ).toBe(atHistorical)
+    expect(
+      await estimateGas(client, {
+        account: local,
+        to: contractAddress,
+        blockNumber: historical,
+        prepare: ['gas'],
       }),
     ).toBe(atHistorical)
     expect(

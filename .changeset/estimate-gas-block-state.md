@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed `estimateGas` and `estimateContractGas` ignoring `blockNumber`, `blockTag`, and `stateOverride` for Local Accounts when the RPC supports `eth_fillTransaction`.
+Fixed `estimateGas` and `estimateContractGas` returning a gas limit filled by `eth_fillTransaction` that ignored `blockNumber`, `blockTag`, and `stateOverride`.
