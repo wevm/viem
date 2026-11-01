@@ -4,7 +4,9 @@
  *        - Custom chain types
  *        - Custom nonce
  */
-import { describe, expect, test, vi } from 'vitest'
+import { Instance, Pool } from 'prool'
+import { createPublicClient, http } from 'viem'
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
@@ -12,6 +14,7 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { deployBAYC, deployErrorExample } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { foundry } from '../../chains/index.js'
 import { publicActions } from '../../index.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
@@ -485,5 +488,63 @@ describe('behavior: client dataSuffix', () => {
       data: '0x1249c58b12345678',
       to: wagmiContractConfig.address,
     })
+  })
+})
+
+describe('local account state override', () => {
+  const pool = Pool.define({ instance: Instance.anvil() })
+  const local = privateKeyToAccount(accounts[0].privateKey)
+  const target = '0x1000000000000000000000000000000000000001' as const
+  const touch = [
+    {
+      type: 'function',
+      name: 'touch',
+      stateMutability: 'nonpayable',
+      inputs: [],
+      outputs: [],
+    },
+  ] as const
+  const createClient = (url: string) =>
+    createPublicClient({
+      chain: foundry,
+      transport: http(url),
+    })
+  let client: ReturnType<typeof createClient>
+
+  beforeAll(async () => {
+    const node = await pool.start(1)
+    client = createClient(node.url)
+  })
+
+  afterAll(async () => {
+    await pool.destroyAll()
+  })
+
+  test('matches an address account', async () => {
+    const stateOverride = [{ address: target, code: '0x600160005500' as const }]
+    const request = {
+      abi: touch,
+      address: target,
+      functionName: 'touch',
+      stateOverride,
+    } as const
+
+    const baseline = await estimateContractGas(client, {
+      ...request,
+      account: local.address,
+      stateOverride: undefined,
+    })
+    const addressGas = await estimateContractGas(client, {
+      ...request,
+      account: local.address,
+    })
+
+    expect(addressGas).not.toBe(baseline)
+    expect(
+      await estimateContractGas(client, {
+        ...request,
+        account: local,
+      }),
+    ).toBe(addressGas)
   })
 })
