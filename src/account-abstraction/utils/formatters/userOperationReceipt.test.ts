@@ -144,7 +144,7 @@ test('default', () => {
           "transactionIndex": 69,
         },
       ],
-      "nonce": "0x4",
+      "nonce": 4n,
       "receipt": {
         "blobGasPrice": 11789405161n,
         "blobGasUsed": 37976n,
@@ -201,4 +201,19 @@ test('default', () => {
       "userOpHash": "0x5ab163e9b2f30549274c7c567ca0696edf9ef1aa476d9784d22974468fdb24d8",
     }
   `)
+})
+
+test('behavior: nonce', () => {
+  const receipt = formatUserOperationReceipt({
+    actualGasCost: '0x1',
+    actualGasUsed: '0x2',
+    entryPoint: '0x0000000071727de22e5e9d8baf0edac6f37da032',
+    logs: [],
+    nonce: '0x10000000000000001',
+    sender: '0xE911628bF8428C23f179a07b081325cAe376DE1f',
+    success: true,
+    userOpHash:
+      '0x5ab163e9b2f30549274c7c567ca0696edf9ef1aa476d9784d22974468fdb24d8',
+  } as any)
+  expect(receipt.nonce).toBe(18446744073709551617n)
 })

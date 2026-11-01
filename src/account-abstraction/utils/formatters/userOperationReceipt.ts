@@ -17,6 +17,7 @@ export function formatUserOperationReceipt(
     receipt.actualGasUsed = BigInt(parameters.actualGasUsed)
   if (parameters.logs)
     receipt.logs = parameters.logs.map((log) => formatLog(log)) as any
+  if (parameters.nonce) receipt.nonce = BigInt(parameters.nonce)
   if (parameters.receipt)
     receipt.receipt = formatTransactionReceipt(receipt.receipt as any)
 
