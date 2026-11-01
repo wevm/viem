@@ -19,6 +19,9 @@ export const localBatchGatewayUrl = 'x-batch-gateway:true'
  * - `concurrency`: gateway requests in flight at once, across nested batches.
  * - `depth`: nested callbacks, and separately, nested local batches.
  * - `queries`: gateway requests in total, across callbacks and nested batches.
+ *   Each contract-chosen URL counts once, and a query with none counts once.
+ *   Gateways a custom `ccipRead.request` adds (such as `ccipReadTunnel`'s
+ *   `batchGateways`) are the caller's own and are not counted separately.
  */
 export const ccipReadLimit = {
   concurrency: 16,

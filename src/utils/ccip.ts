@@ -371,12 +371,15 @@ type TimeoutTransport = {
 }
 
 /**
- * Returns the transport timeout, following wrapped transports (such as
- * `fallback`) to their first transport when the wrapper sets none.
+ * Returns the transport timeout. A wrapper that sets none (such as
+ * `fallback`) uses the longest timeout of its transports, since any of them
+ * may have served the call.
  */
 function getTransportTimeout(transport: TimeoutTransport): number | undefined {
   const timeout = transport.timeout ?? transport.config?.timeout
   if (timeout !== undefined) return timeout
-  const [first] = transport.transports ?? transport.value?.transports ?? []
-  return first ? getTransportTimeout(first) : undefined
+  const timeouts = (transport.transports ?? transport.value?.transports ?? [])
+    .map(getTransportTimeout)
+    .filter((timeout) => timeout !== undefined)
+  return timeouts.length ? Math.max(...timeouts) : undefined
 }

@@ -947,6 +947,64 @@ describe('ccipRequest', async () => {
     await rpc.close()
   })
 
+  test('transport timeout through fallback uses the longest', async () => {
+    const gateway = await createHttpServer(async (_req, res) => {
+      await wait(200)
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as {
+        id?: number
+        params?: readonly [{ data?: string }]
+      }
+      const data = request.params?.[0]?.data
+      res.setHeader('Content-Type', 'application/json')
+      const payload =
+        data === '0x'
+          ? {
+              error: {
+                code: 3,
+                message: 'execution reverted',
+                data: revertData,
+              },
+            }
+          : { result: '0x1234' }
+      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', ...payload }))
+    })
+    const publicClient = createPublicClient({
+      transport: fallback([
+        http(rpc.url, { timeout: 50 }),
+        http(rpc.url, { timeout: 5_000 }),
+      ]),
+    })
+
+    await expect(
+      publicClient.call({ data: '0x', to: contract }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "data": "0x1234",
+      }
+    `)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
   test('callback result', async () => {
     const gateway = await createHttpServer((_req, res) => {
       res.end('0xabcd')
