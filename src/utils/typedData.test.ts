@@ -189,6 +189,50 @@ describe('validateTypedData', () => {
   })
 
   test.each([
+    'bytes0',
+    'bytes33',
+    'int0',
+    'int7',
+    'uint08',
+    'uint7',
+    'uint7[]',
+    'uint264',
+    'uint264[2]',
+  ])('invalid type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Message: [{ name: 'amount', type }],
+        },
+        primaryType: 'Message',
+        message: {
+          amount: type.includes('[')
+            ? [1n, 2n]
+            : type.startsWith('bytes')
+              ? '0x'
+              : 1n,
+        },
+      } as any),
+    ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+  })
+
+  test('invalid type: undefined struct', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Mail: [{ name: 'from', type: 'Person' }],
+        },
+        primaryType: 'Mail',
+        message: { from: { name: 'Cow' } },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidTypedDataTypeError: Type "Person" is not a valid EIP-712 type.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test.each([
     '1Order',
     '_Order',
     'bytesInfo',

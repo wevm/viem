@@ -90,6 +90,10 @@ export function validateTypedData<
       const baseType = type.replace(/(\[[0-9]*\])+$/, '')
       if (baseType === 'int' || baseType === 'uint')
         throw new InvalidTypedDataTypeError({ type })
+      // A field type must be a struct defined in `types` or an EIP-712 atomic
+      // or dynamic type, so a type such as `uint7` or `bytes0` is not hashed.
+      if (!types[baseType] && !isSolidityType(baseType))
+        throw new InvalidTypedDataTypeError({ type })
 
       const integerMatch = type.match(integerRegex)
       if (
@@ -175,6 +179,17 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
     },
   })
+}
+
+/** @internal */
+function isSolidityType(type: string) {
+  return (
+    type === 'address' ||
+    type === 'bool' ||
+    type === 'string' ||
+    bytesRegex.test(type) ||
+    integerRegex.test(type)
+  )
 }
 
 /** @internal */
