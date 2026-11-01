@@ -567,32 +567,37 @@ describe('local account block and state context', () => {
   })
 
   test('chain preparation hook still runs', async () => {
-    let prepared = false
+    const stateOverride = [{ address: target, code: sstore }]
     const hooked = createPublicClient({
       chain: {
         ...foundry,
         async prepareTransactionRequest(request) {
-          prepared = true
-          return request
+          return { ...request, data: '0xff' }
         },
       },
       transport: http(url),
     })
-    const stateOverride = [{ address: target, code: sstore }]
-    const addressGas = await estimateGas(client, {
+
+    const withoutData = await estimateGas(client, {
       account: local.address,
       to: target,
       stateOverride,
     })
+    const withData = await estimateGas(client, {
+      account: local.address,
+      data: '0xff',
+      to: target,
+      stateOverride,
+    })
 
+    expect(withData).not.toBe(withoutData)
     expect(
       await estimateGas(hooked, {
         account: local,
         to: target,
         stateOverride,
       }),
-    ).toBe(addressGas)
-    expect(prepared).toBe(true)
+    ).toBe(withData)
   })
 
   test('blob versioned hashes with state override', async () => {
