@@ -36,7 +36,8 @@ import * as Concurrent from './internal/concurrent.js'
 import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
-const maxExpirySecs = 25
+/** Default distance, in seconds, of a generated expiring nonce `validBefore`. */
+const expiringNonceExpiry = 120
 
 // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
 const serializeTransaction = ((transaction, signature) =>
@@ -263,7 +264,8 @@ export const chainConfig = {
         if (typeof request.validAfter === 'undefined')
           request.validAfter = randomValidAfter()
         if (typeof request.validBefore === 'undefined')
-          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
+          request.validBefore =
+            Math.floor(Date.now() / 1000) + expiringNonceExpiry
       } else if (
         typeof request.nonceKey !== 'undefined' &&
         // Nonce key 0 is the protocol nonce, so core fills it like an Ethereum nonce.

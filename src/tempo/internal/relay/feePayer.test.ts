@@ -1,7 +1,7 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex, P256, Rlp, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, http } from 'viem'
+import { createClient, http, maxUint256 } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
   fillTransaction,
@@ -1647,6 +1647,33 @@ describe('fee-payer signature validity', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 600 seconds.]`,
+    )
+  })
+
+  test('bounds expiring nonce fills by the protocol limit', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const expiring = { ...prepared, nonceKey: Hex.fromNumber(maxUint256) }
+    const now = Math.floor(Date.now() / 1000)
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [expiring],
+    })) as Request.Result
+    const validBefore = Number(result.tx.validBefore)
+    expect(validBefore).toBeGreaterThan(now + 270)
+    expect(validBefore).toBeLessThanOrEqual(now + 300 + 5)
+
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [{ ...expiring, validBefore: Hex.fromNumber(now + 600) }],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 300 seconds.]`,
     )
   })
 
