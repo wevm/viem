@@ -166,7 +166,8 @@ export const chainConfig = {
           !request.feePayerSignature &&
           !approved
         ) {
-          // The fill omits the fee payer's signature and fee token (85 bytes), which count toward intrinsic gas.
+          // The fill omits the fee payer's signature and fee token (85 bytes), which count toward intrinsic gas,
+          // and, from T14, the cold access (2,600 gas) of the fee payer's account.
           request.gas = (request.gas ?? 0n) + feePayerGas
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
@@ -527,5 +528,8 @@ function selectOwners(config: AccountConfig.Config) {
   )
 }
 
-/** Intrinsic gas reserved for a fee payer's signature and fee token, which `eth_fillTransaction` estimates without. */
+/**
+ * Intrinsic gas reserved for what `eth_fillTransaction` estimates without: the fee payer's signature and
+ * fee token, and, from T14, one cold access (2,600 gas) of the fee payer's account. Earlier forks refund the unused gas.
+ */
 const feePayerGas = 5_000n
