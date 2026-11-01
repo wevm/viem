@@ -116,9 +116,16 @@ export async function estimateGas<
 
   const parameters = (() => {
     if (Array.isArray(prepare)) return prepare
-    // Some RPC Providers do not compute versioned hashes from blobs. We will need
-    // to compute them.
-    if (account?.type !== 'local') return ['blobVersionedHashes']
+    // Some RPC providers do not compute versioned hashes from blobs.
+    // `eth_fillTransaction` also cannot apply block context or state overrides,
+    // and its gas limit is returned before `eth_estimateGas`.
+    if (
+      account?.type !== 'local' ||
+      args.stateOverride !== undefined ||
+      typeof args.blockNumber === 'bigint' ||
+      args.blockTag !== undefined
+    )
+      return ['blobVersionedHashes']
     return undefined
   })()
 
