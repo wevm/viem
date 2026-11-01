@@ -89,6 +89,8 @@ The Nonce Manager.
 
 When a send fails after the Nonce Manager consumed a nonce, [`sendTransaction`](/docs/actions/wallet/sendTransaction) and [`sendTransactionSync`](/docs/actions/wallet/sendTransactionSync) call `reset` with that nonce as `nonce`. They omit `nonce` when `consume` threw. A custom Nonce Manager that tracks a nonce per send can use it to release that nonce only; `createNonceManager` ignores it.
 
+A failed send does not prove the nonce is unused. The node may have accepted the transaction before the request failed, for example on a timeout. Check the account's pending nonce before reusing a released nonce.
+
 ## Parameters
 
 ### source

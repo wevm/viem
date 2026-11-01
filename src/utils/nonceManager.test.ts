@@ -12,8 +12,15 @@ import {
 import { mainnet } from '../chains/index.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
 import { custom } from '../clients/transports/custom.js'
+import type { Hex } from '../types/misc.js'
 import { defineChain } from './chain/defineChain.js'
-import { createNonceManager, jsonRpc, nonceManager } from './nonceManager.js'
+import {
+  createNonceManager,
+  jsonRpc,
+  type NonceManager,
+  nonceManager,
+} from './nonceManager.js'
+import { parseTransaction } from './transaction/parseTransaction.js'
 import { parseEther } from './unit/parseEther.js'
 
 const privateKey = generatePrivateKey()
@@ -301,15 +308,20 @@ test('failed sendTransactionSync resets consumed nonce', async () => {
 })
 
 test('failed sendTransaction resets without a nonce when consume throws', async () => {
-  const nonceManager = createNonceManager({
-    source: {
-      get() {
-        throw new Error('source unavailable')
-      },
-      set: () => {},
+  type Reset = Parameters<NonceManager['reset']>[0]
+  const resets: Reset[] = []
+  const nonceManager: NonceManager = {
+    async consume() {
+      throw new Error('source unavailable')
     },
-  })
-  const reset = vi.spyOn(nonceManager, 'reset')
+    async get() {
+      return 0
+    },
+    increment() {},
+    reset(parameters) {
+      resets.push(parameters)
+    },
+  }
   const account = privateKeyToAccount(privateKey, { nonceManager })
   const client = createWalletClient({
     chain: mainnet,
@@ -331,34 +343,46 @@ test('failed sendTransaction resets without a nonce when consume throws', async 
     }),
   ).rejects.toThrow()
 
-  expect(reset).toHaveBeenCalledOnce()
-  expect(reset.mock.calls[0]![0]).toEqual({
-    address: account.address,
-    chainId: mainnet.id,
-  })
-  expect(reset.mock.calls[0]![0]).not.toHaveProperty('nonce')
+  expect(resets.map(({ address: _, ...rest }) => rest)).toMatchInlineSnapshot(`
+    [
+      {
+        "chainId": 1,
+      },
+    ]
+  `)
 })
 
-test('failed sendTransaction resets with the consumed nonce', async () => {
-  const nonceManager = createNonceManager({
-    source: jsonRpc(),
-  })
-  const consume = vi.spyOn(nonceManager, 'consume')
-  const reset = vi.spyOn(nonceManager, 'reset')
+test('failed sendTransaction releases only its consumed nonce', async () => {
+  const free: number[] = []
+  let next = 5
+  const nonceManager: NonceManager = {
+    async consume() {
+      return free.shift() ?? next++
+    },
+    async get() {
+      return free[0] ?? next
+    },
+    increment() {},
+    reset({ nonce }) {
+      if (typeof nonce === 'number') free.push(nonce)
+    },
+  }
   const account = privateKeyToAccount(privateKey, { nonceManager })
+  const broadcasts: number[] = []
   const client = createWalletClient({
     chain: mainnet,
     transport: custom({
-      async request({ method }) {
-        if (method === 'eth_getTransactionCount') return '0x1'
-        if (method === 'eth_sendRawTransaction')
+      async request({ method, params }) {
+        if (method !== 'eth_sendRawTransaction') return '0x0'
+        const { nonce } = parseTransaction((params as [Hex])[0])
+        broadcasts.push(nonce!)
+        if (nonce === 6 && broadcasts.length < 4)
           throw new Error('rate limit exceeded')
-        return '0x0'
+        return `0x${'00'.repeat(32)}`
       },
     }),
   })
-
-  await expect(
+  const send = () =>
     sendTransaction(client, {
       account,
       gas: 21_000n,
@@ -366,29 +390,46 @@ test('failed sendTransaction resets with the consumed nonce', async () => {
       maxPriorityFeePerGas: 1n,
       to: account.address,
       value: 1n,
-    }),
-  ).rejects.toThrow()
+    })
 
-  expect(consume).toHaveBeenCalledOnce()
-  expect(await consume.mock.results[0]!.value).toBe(1)
-  expect(reset).toHaveBeenCalledOnce()
-  expect(reset.mock.calls[0]![0]).toEqual({
-    address: account.address,
-    chainId: mainnet.id,
-    nonce: 1,
-  })
+  const results = await Promise.allSettled([send(), send(), send()])
+  await send()
+
+  expect({
+    broadcasts,
+    statuses: results.map(({ status }) => status),
+  }).toMatchInlineSnapshot(`
+    {
+      "broadcasts": [
+        5,
+        6,
+        7,
+        6,
+      ],
+      "statuses": [
+        "fulfilled",
+        "rejected",
+        "fulfilled",
+      ],
+    }
+  `)
 })
 
 test('failed sendTransactionSync resets without a nonce when consume throws', async () => {
-  const nonceManager = createNonceManager({
-    source: {
-      get() {
-        throw new Error('source unavailable')
-      },
-      set: () => {},
+  type Reset = Parameters<NonceManager['reset']>[0]
+  const resets: Reset[] = []
+  const nonceManager: NonceManager = {
+    async consume() {
+      throw new Error('source unavailable')
     },
-  })
-  const reset = vi.spyOn(nonceManager, 'reset')
+    async get() {
+      return 0
+    },
+    increment() {},
+    reset(parameters) {
+      resets.push(parameters)
+    },
+  }
   const account = privateKeyToAccount(privateKey, { nonceManager })
   const client = createWalletClient({
     chain: mainnet,
@@ -410,34 +451,44 @@ test('failed sendTransactionSync resets without a nonce when consume throws', as
     }),
   ).rejects.toThrow()
 
-  expect(reset).toHaveBeenCalledOnce()
-  expect(reset.mock.calls[0]![0]).toEqual({
-    address: account.address,
-    chainId: mainnet.id,
-  })
-  expect(reset.mock.calls[0]![0]).not.toHaveProperty('nonce')
+  expect(resets.map(({ address: _, ...rest }) => rest)).toMatchInlineSnapshot(`
+    [
+      {
+        "chainId": 1,
+      },
+    ]
+  `)
 })
 
-test('failed sendTransactionSync resets with the consumed nonce', async () => {
-  const nonceManager = createNonceManager({
-    source: jsonRpc(),
-  })
-  const consume = vi.spyOn(nonceManager, 'consume')
-  const reset = vi.spyOn(nonceManager, 'reset')
+test('failed sendTransactionSync releases its consumed nonce', async () => {
+  const free: number[] = []
+  let next = 5
+  const nonceManager: NonceManager = {
+    async consume() {
+      return free.shift() ?? next++
+    },
+    async get() {
+      return free[0] ?? next
+    },
+    increment() {},
+    reset({ nonce }) {
+      if (typeof nonce === 'number') free.push(nonce)
+    },
+  }
   const account = privateKeyToAccount(privateKey, { nonceManager })
+  const broadcasts: number[] = []
   const client = createWalletClient({
     chain: mainnet,
     transport: custom({
-      async request({ method }) {
-        if (method === 'eth_getTransactionCount') return '0x1'
-        if (method === 'eth_sendRawTransactionSync')
-          throw new Error('rate limit exceeded')
-        return '0x0'
+      async request({ method, params }) {
+        if (method !== 'eth_sendRawTransactionSync') return '0x0'
+        const { nonce } = parseTransaction((params as [Hex])[0])
+        broadcasts.push(nonce!)
+        throw new Error('rate limit exceeded')
       },
     }),
   })
-
-  await expect(
+  const send = () =>
     sendTransactionSync(client, {
       account,
       gas: 21_000n,
@@ -445,17 +496,17 @@ test('failed sendTransactionSync resets with the consumed nonce', async () => {
       maxPriorityFeePerGas: 1n,
       to: account.address,
       value: 1n,
-    }),
-  ).rejects.toThrow()
+    })
 
-  expect(consume).toHaveBeenCalledOnce()
-  expect(await consume.mock.results[0]!.value).toBe(1)
-  expect(reset).toHaveBeenCalledOnce()
-  expect(reset.mock.calls[0]![0]).toEqual({
-    address: account.address,
-    chainId: mainnet.id,
-    nonce: 1,
-  })
+  await expect(send()).rejects.toThrow()
+  await expect(send()).rejects.toThrow()
+
+  expect(broadcasts).toMatchInlineSnapshot(`
+    [
+      5,
+      5,
+    ]
+  `)
 })
 
 test('failed sendTransaction does not reset an unconsumed nonce', async () => {
