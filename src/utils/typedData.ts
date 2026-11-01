@@ -87,10 +87,6 @@ export function validateTypedData<
       const { name, type } = param
       const value = data[name]
 
-      const baseType = type.replace(/(\[[0-9]*\])+$/, '')
-      if (baseType === 'int' || baseType === 'uint')
-        throw new InvalidTypedDataTypeError({ type })
-
       const integerMatch = type.match(integerRegex)
       if (
         integerMatch &&
@@ -118,14 +114,16 @@ export function validateTypedData<
           })
       }
 
-      const struct = types[type]
-      if (struct) validateData(struct, value as Record<string, unknown>)
+      if (Object.hasOwn(types, type))
+        validateData(types[type]!, value as Record<string, unknown>)
     }
   }
 
-  // Validate struct types, including ones that are only referenced as array
-  // elements.
+  // Validate struct types and their field types, including structs that are
+  // only referenced as array elements.
   for (const type of Object.keys(types)) validateReference(type)
+  for (const struct of Object.values(types))
+    for (const field of struct ?? []) validateField(field.type, types)
 
   // Validate domain types.
   if (types.EIP712Domain && domain) {
@@ -175,6 +173,31 @@ export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
     },
   })
+}
+
+/** @internal */
+function validateField(
+  type: string,
+  types: Record<string, readonly TypedDataParameter[]>,
+) {
+  const baseType = type.replace(/(\[[0-9]*\])+$/, '')
+  if (baseType === 'int' || baseType === 'uint')
+    throw new InvalidTypedDataTypeError({ type })
+  // A field type must be a struct defined in `types` or an EIP-712 atomic or
+  // dynamic type, so a type such as `uint7` or `bytes0` is not hashed.
+  if (!Object.hasOwn(types, baseType) && !isSolidityType(baseType))
+    throw new InvalidTypedDataTypeError({ type })
+}
+
+/** @internal */
+function isSolidityType(type: string) {
+  return (
+    type === 'address' ||
+    type === 'bool' ||
+    type === 'string' ||
+    bytesRegex.test(type) ||
+    integerRegex.test(type)
+  )
 }
 
 /** @internal */

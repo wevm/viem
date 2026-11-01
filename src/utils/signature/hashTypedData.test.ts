@@ -268,6 +268,55 @@ test('invalid integer alias', () => {
   `)
 })
 
+test('invalid integer width', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'amount', type: 'uint7' }],
+      },
+      primaryType: 'Message',
+      message: { amount: 1000n },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint7" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid bytes width', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Message: [{ name: 'data', type: 'bytes0' }],
+      },
+      primaryType: 'Message',
+      message: { data: '0x' },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "bytes0" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid type in array element struct', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Mail: [{ name: 'to', type: 'Person[]' }],
+        Person: [{ name: 'x', type: 'uint7' }],
+      },
+      primaryType: 'Mail',
+      message: { to: [{ x: 1n }] },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint7" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('https://github.com/wevm/viem/issues/2888', () => {
   expect(() =>
     hashTypedData({

@@ -189,6 +189,82 @@ describe('validateTypedData', () => {
   })
 
   test.each([
+    'bytes0',
+    'bytes33',
+    'int0',
+    'int7',
+    'uint08',
+    'uint7',
+    'uint7[]',
+    'uint264',
+    'uint264[2]',
+  ])('invalid type: %s', (type) => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Message: [{ name: 'amount', type }],
+        },
+        primaryType: 'Message',
+        message: {
+          amount: type.includes('[')
+            ? [1n, 2n]
+            : type.startsWith('bytes')
+              ? '0x'
+              : 1n,
+        },
+      } as any),
+    ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+  })
+
+  test('invalid type: undefined struct', () => {
+    expect(() =>
+      validateTypedData({
+        types: {
+          Mail: [{ name: 'from', type: 'Person' }],
+        },
+        primaryType: 'Mail',
+        message: { from: { name: 'Cow' } },
+      } as any),
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [InvalidTypedDataTypeError: Type "Person" is not a valid EIP-712 type.
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test.each(['bytes0', 'Foo', 'uint', 'uint7', 'uint7[]'])(
+    'invalid type in array element struct: %s',
+    (type) => {
+      for (const to of ['Person[]', 'Person[][]', 'Person[2]'])
+        expect(() =>
+          validateTypedData({
+            types: {
+              Mail: [{ name: 'to', type: to }],
+              Person: [{ name: 'x', type }],
+            },
+            primaryType: 'Mail',
+            message: { to: [] },
+          } as any),
+        ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
+  test.each(['__proto__', 'constructor', 'hasOwnProperty', 'toString'])(
+    'invalid type: %s',
+    (type) => {
+      expect(() =>
+        validateTypedData({
+          types: {
+            Message: [{ name: 'value', type }],
+          },
+          primaryType: 'Message',
+          message: { value: {} },
+        } as any),
+      ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
+  test.each([
     '1Order',
     '_Order',
     'bytesInfo',

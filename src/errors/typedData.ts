@@ -51,9 +51,12 @@ export type InvalidTypedDataTypeErrorType = InvalidTypedDataTypeError & {
 }
 export class InvalidTypedDataTypeError extends BaseError {
   constructor({ type }: { type: string }) {
-    const canonicalType = type.replace(/^(u?int)/, '$&256')
+    // Suggest the canonical type only for the `int`/`uint` aliases.
+    const isAlias = /^u?int(\[[0-9]*\])*$/.test(type)
     super(`Type "${type}" is not a valid EIP-712 type.`, {
-      metaMessages: [`Use "${canonicalType}" instead.`],
+      metaMessages: isAlias
+        ? [`Use "${type.replace(/^(u?int)/, '$&256')}" instead.`]
+        : undefined,
       name: 'InvalidTypedDataTypeError',
     })
   }
