@@ -78,8 +78,10 @@ export class FeeCapTooLowError extends BaseError {
   } = {}) {
     super(
       `The fee cap (\`maxFeePerGas\`${
-        maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)}` : ''
-      } gwei) cannot be lower than the block base fee.`,
+        typeof maxFeePerGas === 'bigint'
+          ? ` = ${formatGwei(maxFeePerGas)} gwei`
+          : ''
+      }) cannot be lower than the block base fee.`,
       {
         cause,
         name: 'FeeCapTooLowError',
@@ -249,11 +251,13 @@ export class TipAboveFeeCapError extends BaseError {
     super(
       [
         `The provided tip (\`maxPriorityFeePerGas\`${
-          maxPriorityFeePerGas
+          typeof maxPriorityFeePerGas === 'bigint'
             ? ` = ${formatGwei(maxPriorityFeePerGas)} gwei`
             : ''
         }) cannot be higher than the fee cap (\`maxFeePerGas\`${
-          maxFeePerGas ? ` = ${formatGwei(maxFeePerGas)} gwei` : ''
+          typeof maxFeePerGas === 'bigint'
+            ? ` = ${formatGwei(maxFeePerGas)} gwei`
+            : ''
         }).`,
       ].join('\n'),
       {

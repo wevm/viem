@@ -139,7 +139,54 @@ describe('eip7702', () => {
     })
   })
 
+  test('zero fees', () => {
+    const serialized = `0x04${toRlp([
+      toHex(1), // chainId
+      toHex(0), // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      toHex(1), // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      [], // authorizationList
+    ]).slice(2)}` as const
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "gas": 1n,
+        "nonce": 0,
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip7702",
+      }
+    `)
+  })
+
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x04${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+            [], // authorizationList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
@@ -427,7 +474,59 @@ describe('eip4844', () => {
     })
   })
 
+  test('zero fees', () => {
+    const serialized = `0x03${toRlp([
+      toHex(1), // chainId
+      toHex(0), // nonce
+      '0x', // maxPriorityFeePerGas
+      '0x', // maxFeePerGas
+      toHex(1), // gas
+      '0x0000000000000000000000000000000000000000', // to
+      '0x', // value
+      '0x', // data
+      [], // accessList
+      '0x', // maxFeePerBlobGas
+      baseEip4844.blobVersionedHashes, // blobVersionedHashes
+    ]).slice(2)}` as const
+    expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+      {
+        "blobVersionedHashes": [
+          "0x01adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+        ],
+        "chainId": 1,
+        "gas": 1n,
+        "nonce": 0,
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip4844",
+      }
+    `)
+  })
+
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x03${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+            '0x', // maxFeePerBlobGas
+            baseEip4844.blobVersionedHashes, // blobVersionedHashes
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
@@ -644,6 +743,53 @@ describe('eip1559', () => {
       `)
     })
 
+    test('zero fees', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        '0x', // maxPriorityFeePerGas
+        '0x', // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        '0x', // value
+        '0x', // data
+        [], // accessList
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+        }
+      `)
+    })
+
+    test('zero fee cap with zero tip', () => {
+      const serialized = `0x02${toRlp([
+        toHex(1), // chainId
+        toHex(0), // nonce
+        '0x00', // maxPriorityFeePerGas
+        '0x', // maxFeePerGas
+        toHex(1), // gas
+        '0x0000000000000000000000000000000000000000', // to
+        '0x', // value
+        '0x', // data
+        [], // accessList
+      ]).slice(2)}` as const
+      expect(parseTransaction(serialized)).toMatchInlineSnapshot(`
+        {
+          "chainId": 1,
+          "gas": 1n,
+          "maxPriorityFeePerGas": 0n,
+          "nonce": 0,
+          "to": "0x0000000000000000000000000000000000000000",
+          "type": "eip1559",
+        }
+      `)
+    })
+
     test('empty sig', () => {
       const serialized = `0x02${toRlp([
         toHex(1), // chainId
@@ -712,6 +858,28 @@ describe('eip1559', () => {
   })
 
   describe('errors', () => {
+    test('tip above zero fee cap', () => {
+      expect(() =>
+        parseTransaction(
+          `0x02${toRlp([
+            toHex(1), // chainId
+            toHex(0), // nonce
+            toHex(1), // maxPriorityFeePerGas
+            '0x', // maxFeePerGas
+            toHex(1), // gas
+            '0x0000000000000000000000000000000000000000', // to
+            '0x', // value
+            '0x', // data
+            [], // accessList
+          ]).slice(2)}`,
+        ),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 0.000000001 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0 gwei).
+
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('invalid access list (invalid address)', () => {
       expect(() =>
         parseTransaction(
