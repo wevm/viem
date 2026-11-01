@@ -168,6 +168,7 @@ test('exports', () => {
       "AbiErrorInputsNotFoundError",
       "AbiErrorNotFoundError",
       "AbiErrorSignatureNotFoundError",
+      "AbiEventAmbiguityError",
       "AbiEventNotFoundError",
       "AbiEventSignatureEmptyTopicsError",
       "AbiEventSignatureNotFoundError",

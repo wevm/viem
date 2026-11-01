@@ -8,6 +8,8 @@ Extracts & decodes logs matching the provided `abi` (and optional `eventName`) f
 
 Useful for decoding logs on Transaction Receipts.
 
+Anonymous events are matched when one event in `abi` has the same number of indexed arguments as the log has topics. When several do, pass `eventName`.
+
 ## Install
 
 ```ts

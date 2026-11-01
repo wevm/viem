@@ -125,12 +125,31 @@ export function parseEventLogs<
       const formattedLog =
         typeof log.blockNumber === 'string' ? formatLog(log as RpcLog) : log
 
-      // Find all matching ABI items with the same selector.
-      // Multiple events can share the same selector but differ in indexed parameters
-      // (e.g., ERC20 vs ERC721 Transfer events).
-      const abiItems = abiTopics.filter(
-        (abiTopic) => formattedLog.topics[0] === abiTopic.selector,
+      // Non-anonymous events share a signature topic. Several events can share
+      // that selector and differ in indexed parameters (ERC-20 vs ERC-721
+      // `Transfer`). Anonymous events have no signature topic: `topics[0]` is
+      // the first indexed argument, so they match on indexed arity instead.
+      const selectable = eventName
+        ? abiTopics.filter((item) => eventName.includes(item.abi.name))
+        : abiTopics
+      const bySelector = selectable.filter(
+        (item) =>
+          !item.abi.anonymous && formattedLog.topics[0] === item.selector,
       )
+      // A dynamic ABI value can decode as a static type without throwing, so
+      // several anonymous events of the same arity are not guessed. `eventName`
+      // narrows `selectable` to one event before this check.
+      const anonymous = selectable.filter((item) => {
+        if (!item.abi.anonymous) return false
+        const indexed =
+          item.abi.inputs?.filter((input) => input.indexed).length ?? 0
+        return indexed === formattedLog.topics.length
+      })
+      const abiItems = bySelector.length
+        ? bySelector
+        : anonymous.length === 1
+          ? anonymous
+          : []
       if (abiItems.length === 0) return null
 
       // Try each matching ABI item until one successfully decodes.
@@ -152,9 +171,12 @@ export function parseEventLogs<
       }
 
       // If strict decoding failed for all, and we're in non-strict mode,
-      // fall back to the first matching ABI item.
+      // fall back to the first signature match. An anonymous candidate that
+      // failed to decode is not identified, so it is left out.
       if (!event && !strict) {
-        abiItem = abiItems[0]
+        const fallback = abiItems[0]
+        if (!fallback || fallback.abi.anonymous) return null
+        abiItem = fallback
         try {
           event = decodeEventLog({
             data: formattedLog.data,
@@ -180,6 +202,7 @@ export function parseEventLogs<
       // Check that the decoded event args match the provided args.
       if (
         !includesArgs({
+          anonymous: abiItem.abi.anonymous,
           args: event.args,
           inputs: abiItem.abi.inputs,
           matchArgs: args,
@@ -198,21 +221,23 @@ export function parseEventLogs<
 }
 
 function includesArgs(parameters: {
+  anonymous?: boolean | undefined
   args: unknown
   inputs: AbiEvent['inputs']
   matchArgs: unknown
   topics: Log['topics']
 }) {
-  const { args, inputs, matchArgs, topics } = parameters
+  const { anonymous, args, inputs, matchArgs, topics } = parameters
 
   if (!matchArgs) return true
   if (!args) return false
 
-  // Topics hold the signature, then indexed inputs in order. Non-strict
-  // decoding reads indexed inputs without a topic from data.
+  // Topics hold the signature, then indexed inputs in order. Anonymous events
+  // have no signature topic. Non-strict decoding reads indexed inputs without
+  // a topic from data.
   const topicInputs = inputs
     .filter((input) => input.indexed)
-    .slice(0, topics.length - 1)
+    .slice(0, anonymous ? topics.length : topics.length - 1)
 
   function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
     try {

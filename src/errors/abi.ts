@@ -234,6 +234,23 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
   }
 }
 
+export type AbiEventAmbiguityErrorType = AbiEventAmbiguityError & {
+  name: 'AbiEventAmbiguityError'
+}
+export class AbiEventAmbiguityError extends BaseError {
+  constructor(eventNames: readonly string[]) {
+    super('Ambiguous anonymous event log.', {
+      docsPath: '/docs/contract/decodeEventLog',
+      metaMessages: [
+        `Matched ${eventNames.map((name) => `\`${name}\``).join(', ')}.`,
+        'These events take the same number of indexed topics.',
+        'Pass `eventName` to choose one.',
+      ],
+      name: 'AbiEventAmbiguityError',
+    })
+  }
+}
+
 export type AbiEventSignatureEmptyTopicsErrorType =
   AbiEventSignatureEmptyTopicsError & {
     name: 'AbiEventSignatureEmptyTopicsError'

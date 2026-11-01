@@ -1,8 +1,10 @@
-import type { Abi, AbiParameter } from 'abitype'
+import type { Abi, AbiEvent, AbiParameter } from 'abitype'
 
 import {
   AbiDecodingDataSizeTooSmallError,
   type AbiDecodingDataSizeTooSmallErrorType,
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   AbiEventSignatureEmptyTopicsError,
   type AbiEventSignatureEmptyTopicsErrorType,
   AbiEventSignatureNotFoundError,
@@ -84,6 +86,7 @@ export type DecodeEventLogReturnType<
 
 export type DecodeEventLogErrorType =
   | AbiDecodingDataSizeTooSmallErrorType
+  | AbiEventAmbiguityErrorType
   | AbiEventSignatureEmptyTopicsErrorType
   | AbiEventSignatureNotFoundErrorType
   | DecodeAbiParametersErrorType
@@ -107,23 +110,77 @@ export function decodeEventLog<
   const {
     abi,
     data,
+    eventName,
     strict: strict_,
     topics,
   } = parameters as DecodeEventLogParameters
 
   const strict = strict_ ?? true
-  const [signature, ...argTopics] = topics
-  if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
-
-  const abiItem = abi.find(
-    (x) =>
-      x.type === 'event' &&
-      signature === toEventSelector(formatAbiItem(x) as EventDefinition),
+  const events = abi.filter(
+    (item): item is AbiEvent => item.type === 'event' && 'name' in item,
   )
+  // Anonymous events omit the signature topic, so `topics[0]` is an indexed
+  // argument. A signature match still wins when the log has one.
+  const signature = topics[0]
+  const bySelector = signature
+    ? events.find(
+        (item) =>
+          !item.anonymous &&
+          signature === toEventSelector(formatAbiItem(item) as EventDefinition),
+      )
+    : undefined
+  const candidates = bySelector
+    ? [bySelector]
+    : anonymousCandidates(events, topics.length, eventName)
 
-  if (!(abiItem && 'name' in abiItem) || abiItem.type !== 'event')
+  if (candidates.length !== 1) {
+    if (candidates.length > 1)
+      throw new AbiEventAmbiguityError(candidates.map((item) => item.name))
+    if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
     throw new AbiEventSignatureNotFoundError(signature, { docsPath })
+  }
 
+  const abiItem = candidates[0]
+  if (!abiItem) {
+    if (!signature) throw new AbiEventSignatureEmptyTopicsError({ docsPath })
+    throw new AbiEventSignatureNotFoundError(signature, { docsPath })
+  }
+  return decodeMatchedEventLog({
+    abiItem,
+    argTopics: abiItem.anonymous ? topics : topics.slice(1),
+    data,
+    strict,
+  }) as DecodeEventLogReturnType<abi, eventName, topics, data, strict>
+}
+
+function anonymousCandidates(
+  events: readonly AbiEvent[],
+  topicCount: number,
+  eventName: string | undefined,
+) {
+  const anonymous = events.filter((item) => item.anonymous)
+  if (eventName) {
+    const named = anonymous.find((item) => item.name === eventName)
+    return named ? [named] : []
+  }
+  return anonymous.filter((item) => indexedCount(item) === topicCount)
+}
+
+function indexedCount(item: AbiEvent) {
+  return item.inputs?.filter((input) => input.indexed).length ?? 0
+}
+
+function decodeMatchedEventLog({
+  abiItem,
+  argTopics,
+  data,
+  strict,
+}: {
+  abiItem: AbiEvent
+  argTopics: readonly Hex[]
+  data: Hex | undefined
+  strict: boolean
+}): DecodeEventLogReturnType {
   const { name, inputs } = abiItem
   const isUnnamed = inputs?.some((x) => !('name' in x && x.name))
 
@@ -216,7 +273,7 @@ export function decodeEventLog<
   return {
     eventName: name,
     args: Object.values(args).length > 0 ? args : undefined,
-  } as unknown as DecodeEventLogReturnType<abi, eventName, topics, data, strict>
+  } as DecodeEventLogReturnType
 }
 
 function decodeTopic({ param, value }: { param: AbiParameter; value: Hex }) {

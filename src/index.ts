@@ -819,6 +819,8 @@ export {
   type AbiErrorNotFoundErrorType,
   AbiErrorSignatureNotFoundError,
   type AbiErrorSignatureNotFoundErrorType,
+  AbiEventAmbiguityError,
+  type AbiEventAmbiguityErrorType,
   AbiEventNotFoundError,
   type AbiEventNotFoundErrorType,
   AbiEventSignatureEmptyTopicsError,
