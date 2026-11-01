@@ -595,11 +595,24 @@ function parseAuthorizationList(
     const [chainId, address, nonce, yParity, r, s] =
       serializedAuthorizationList[i]
 
+    // EIP-7702 permits any `y_parity` below 2**8 in an authorization tuple, and a
+    // tuple that fails recovery does not invalidate the transaction. Keep such a
+    // `yParity` as is, so that the transaction parses and re-serializes unchanged.
+    const yParity_ = yParity === '0x' ? 0n : hexToBigInt(yParity)
+    const signature =
+      yParity_ > 1n && yParity_ < 256n
+        ? {
+            r: padHex(r, { size: 32 }),
+            s: padHex(s, { size: 32 }),
+            yParity: Number(yParity_),
+          }
+        : parseEIP155Signature([yParity, r, s])
+
     authorizationList.push({
       address,
       chainId: chainId === '0x' ? 0 : hexToNumber(chainId),
       nonce: nonce === '0x' ? 0 : hexToNumber(nonce),
-      ...parseEIP155Signature([yParity, r, s]),
+      ...signature,
     })
   }
   return authorizationList
