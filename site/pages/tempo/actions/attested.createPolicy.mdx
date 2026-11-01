@@ -1,0 +1,146 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `attested.createPolicy`
+
+Creates an attested signer policy ([TIP-1161](https://github.com/tempoxyz/tempo/pull/8822)). Its initial measurements are active at once. The policy ID derives from the sender and `salt`, so [`attested.computePolicyId`](/tempo/actions/attested.computePolicyId) returns it before creation.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.attested.createPolicySync({
+  delay: 86_400,
+  maxKeyLifetime: 7_200,
+  measurements: ['0x79415a8460aad0c8ae8d2eb4b4c7a7cb2d4d546b453e170add25071572b0fd69'],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  scheme: 1,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`attested.createPolicySync` waits for the transaction to be included. To wait for inclusion yourself, use `attested.createPolicy`, which returns the transaction hash:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.attested.createPolicy({
+  delay: 86_400,
+  maxKeyLifetime: 7_200,
+  measurements: ['0x79415a8460aad0c8ae8d2eb4b4c7a7cb2d4d546b453e170add25071572b0fd69'],
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  scheme: 1,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Value
+
+### createPolicy
+
+`Hash`
+
+The transaction hash.
+
+### createPolicySync
+
+```ts
+type ReturnType = {
+  /** Policy ID. */
+  policyId: Hex
+  /** Account that created the policy. */
+  creator: Address
+  /** Attestation scheme ID. */
+  scheme: number
+  /** Owner. */
+  owner: Address
+  /** Guardian, or the zero address for none. */
+  guardian: Address
+  /** Seconds before a proposed measurement becomes active. */
+  delay: bigint
+  /** Longest registration of a program key, in seconds. */
+  maxKeyLifetime: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The `PolicyCreated` event's arguments and the transaction receipt.
+
+## Parameters
+
+### anchors (optional)
+
+- **Type:** `readonly Hex[]`
+- **Default:** `[]`
+
+Trust anchors, in the scheme's format. The Nitro schemes accept none.
+
+### delay
+
+- **Type:** `number`
+
+Seconds before a proposed measurement or a key lifetime cap increase takes effect. At most 30 days.
+
+### guardian (optional)
+
+- **Type:** `Address`
+- **Default:** `zeroAddress`
+
+Guardian, which can pause the policy, remove measurements, cancel proposals, and revoke keys, but cannot approve code.
+
+### maxKeyLifetime
+
+- **Type:** `number`
+
+Longest registration of a program key, in seconds. Between 1 second and 7 days.
+
+### measurements
+
+- **Type:** `readonly Hex[]`
+
+Initial measurements of approved signer programs, active at once.
+
+### owner (optional)
+
+- **Type:** `Address`
+- **Default:** `The sender`
+
+Owner, which proposes measurements and changes settings.
+
+### salt
+
+- **Type:** `Hex`
+
+Caller-chosen salt of the policy ID.
+
+### scheme
+
+- **Type:** `number`
+
+Attestation scheme ID: `1` for AWS Nitro Enclaves (TIP-1162), `2` for Google Cloud Confidential Space (TIP-1163).
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether `createPolicySync` throws if the transaction reverts. `createPolicySync` only.
+
+<WriteParameters />

@@ -1,0 +1,47 @@
+# `attested.getKeyValidUntil`
+
+Gets when the key slot that holds a program key as current expires. Use it to check that a signer program registered its key.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validUntil = await client.attested.getKeyValidUntil({
+  policyId: '0x...',
+  programKey: '0x04...',
+})
+// @log: 1_800_007_200
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Value
+
+`number`
+
+When the registration expires, in Unix seconds, or `0` if no key slot holds the key as current.
+
+## Parameters
+
+### policyId
+
+- **Type:** `Hex`
+
+Policy ID.
+
+### programKey
+
+- **Type:** `Hex`
+
+Program key: an uncompressed P256 public key, with or without the `0x04` prefix.

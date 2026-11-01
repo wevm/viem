@@ -31,6 +31,7 @@ describe('decorator', () => {
         "accessKey",
         "accounts",
         "amm",
+        "attested",
         "channel",
         "dex",
         "earn",

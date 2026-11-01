@@ -1,0 +1,93 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `attested.removeMeasurement`
+
+Removes a measurement from an attested signer policy and revokes every program key of the policy. The policy owner or guardian calls it.
+
+:::warning
+Experimental. Attested signers ([TIP-1159](https://github.com/tempoxyz/tempo/pull/8822)) are a draft and are not active on any public Tempo network. This action targets the experimental node implementation, whose registry address differs from the TIP.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.attested.removeMeasurementSync({
+  policyId: '0x...',
+  measurement: '0x...',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+`attested.removeMeasurementSync` waits for the transaction to be included. To wait for inclusion yourself, use `attested.removeMeasurement`, which returns the transaction hash:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.attested.removeMeasurement({
+  policyId: '0x...',
+  measurement: '0x...',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Value
+
+### removeMeasurement
+
+`Hash`
+
+The transaction hash.
+
+### removeMeasurementSync
+
+```ts
+type ReturnType = {
+  /** Policy ID. */
+  policyId: Hex
+  /** Removed measurement. */
+  measurement: Hex
+  /** The policy's new epoch. */
+  epoch: bigint
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+The `MeasurementRemoved` event's arguments and the transaction receipt.
+
+## Parameters
+
+### measurement
+
+- **Type:** `Hex`
+
+Measurement to remove.
+
+### policyId
+
+- **Type:** `Hex`
+
+Policy ID.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether `removeMeasurementSync` throws if the transaction reverts. `removeMeasurementSync` only.
+
+<WriteParameters />
