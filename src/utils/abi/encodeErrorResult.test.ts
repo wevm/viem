@@ -1,6 +1,6 @@
+import { parseAbi } from 'abitype'
+import { encodeErrorResult } from 'viem'
 import { expect, test } from 'vitest'
-
-import { encodeErrorResult } from './encodeErrorResult.js'
 
 test('revert SoldOutError()', () => {
   expect(
@@ -242,4 +242,33 @@ test('errors: no inputs', () => {
     Docs: https://viem.sh/docs/contract/encodeErrorResult
     Version: viem@x.y.z]
   `)
+})
+
+test('overloads: ambiguous errors can be disambiguated by trimming the ABI', () => {
+  const abi = parseAbi(['error Foo(bytes32)', 'error Foo(bytes)'])
+  const hash = `0x${'00'.repeat(32)}` as const
+
+  expect(() =>
+    encodeErrorResult({ abi, errorName: 'Foo', args: [hash] }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`bytes\` in \`Foo(bytes)\`, and
+    \`bytes32\` in \`Foo(bytes32)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+  expect(
+    encodeErrorResult({ abi: [abi[0]], errorName: 'Foo', args: [hash] }),
+  ).toMatchInlineSnapshot(
+    `"0x54b5e5710000000000000000000000000000000000000000000000000000000000000000"`,
+  )
+  expect(
+    encodeErrorResult({ abi: [abi[1]], errorName: 'Foo', args: [hash] }),
+  ).toMatchInlineSnapshot(
+    `"0xefc9afd3000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000"`,
+  )
 })

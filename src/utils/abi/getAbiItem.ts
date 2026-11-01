@@ -16,6 +16,7 @@ import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate } from '../../types/utils.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
+import { size } from '../data/size.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
 import {
   type ToFunctionSelectorErrorType,
@@ -188,13 +189,30 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
         /^u?int(8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|152|160|168|176|184|192|200|208|216|224|232|240|248|256)?$/.test(
           abiParameterType,
         )
-      )
-        return argType === 'number' || argType === 'bigint'
+      ) {
+        if (typeof arg !== 'bigint' && typeof arg !== 'number') return false
+        if (typeof arg === 'number' && !Number.isInteger(arg)) return false
+
+        const signed = abiParameterType.startsWith('int')
+        const bits = Number.parseInt(
+          abiParameterType.replace(/^u?int/, '') || '256',
+          10,
+        )
+        const max = 2n ** (BigInt(bits) - (signed ? 1n : 0n)) - 1n
+        const min = signed ? -max - 1n : 0n
+        return arg >= min && arg <= max
+      }
 
       // `bytes<M>`: binary type of `M` bytes, `0 < M <= 32`
       // https://regexr.com/6va55
-      if (/^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.test(abiParameterType))
-        return argType === 'string' || arg instanceof Uint8Array
+      if (/^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.test(abiParameterType)) {
+        if (typeof arg !== 'string' && !(arg instanceof Uint8Array))
+          return false
+        const bytes = abiParameterType.slice(5)
+        if (!bytes) return true
+        if (typeof arg === 'string' && !isHex(arg)) return false
+        return size(arg) === Number.parseInt(bytes, 10)
+      }
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
       const arrayComponents = getArrayComponents(abiParameterType)
@@ -253,6 +271,15 @@ export function getAmbiguousTypes(
         [(args[parameterIndex] as readonly unknown[] | undefined)?.[0]],
       )
       if (types) return types
+      // Same element type, different array shape: `uint256[]` and `uint256[2]`
+      // both accept `[1n, 1n]`, but one is dynamic and the other is static.
+      // Skip this when the element types differ. `string[]` vs `address[]`
+      // stays unambiguous for a non-address string.
+      if (
+        sourceArray[1] === targetArray[1] &&
+        sourceParameter.type !== targetParameter.type
+      )
+        return [sourceParameter.type, targetParameter.type]
       continue
     }
 
@@ -260,8 +287,8 @@ export function getAmbiguousTypes(
     const value = args[parameterIndex]
 
     const ambiguous = (() => {
-      if (types.includes('address') && types.includes('bytes20')) return true
       // An `undefined` value comes from an empty array, which matches both types.
+      // This stays above the catch-all: a non-address string is not ambiguous.
       if (
         types.includes('address') &&
         (types.includes('string') || types.includes('bytes'))
@@ -269,6 +296,9 @@ export function getAmbiguousTypes(
         return (
           value === undefined || isAddress(value as Address, { strict: false })
         )
+      // Distinct types that both matched cannot be distinguished at runtime
+      // (e.g. `bytes` vs `bytes32`, `uint256` vs `int256`, `address` vs `bytes20`).
+      if (sourceParameter.type !== targetParameter.type) return true
       return false
     })()
 
