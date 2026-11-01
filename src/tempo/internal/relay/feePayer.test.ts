@@ -1,7 +1,7 @@
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { Hex, P256, Rlp, Secp256k1 } from 'ox'
 import { SignatureEnvelope, TxEnvelopeTempo } from 'ox/tempo'
-import { createClient, http } from 'viem'
+import { createClient, http, maxUint256 } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import {
   fillTransaction,
@@ -23,6 +23,7 @@ import {
 } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import * as FeePayer from '~test/tempo/feePayer.js'
 import { createHttpServer } from '~test/utils.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -1650,6 +1651,33 @@ describe('fee-payer signature validity', () => {
     )
   })
 
+  test('bounds expiring nonce fills by the protocol limit', async () => {
+    const relay = Relay.create({
+      client: caller,
+      resolveTokens: () => [Tempo.addresses.alphaUsd],
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const expiring = { ...prepared, nonceKey: Hex.fromNumber(maxUint256) }
+    const now = Math.floor(Date.now() / 1000)
+
+    const result = (await relay.request({
+      method: 'eth_fillTransaction',
+      params: [expiring],
+    })) as Request.Result
+    const validBefore = Number(result.tx.validBefore)
+    expect(validBefore).toBeGreaterThan(now + 240)
+    expect(validBefore).toBeLessThanOrEqual(now + 270 + 5)
+
+    await expect(
+      relay.request({
+        method: 'eth_fillTransaction',
+        params: [{ ...expiring, validBefore: Hex.fromNumber(now + 600) }],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[RpcResponse.InvalidParamsError: Sponsored transactions require a \`validBefore\` within 300 seconds.]`,
+    )
+  })
+
   test.each(['', false, 0, '0x0'] as const)(
     'refuses fills whose validBefore cannot bound the signature: %j',
     async (validBefore) => {
@@ -1856,3 +1884,45 @@ declare namespace reencode {
     fn: (value: Hex.Hex) => Hex.Hex
   }
 }
+
+describe('scenarios', () => {
+  test.each(FeePayer.table())(
+    'sponsors $path with nonce $nonceMode, validity $validity, fee token $feeToken, gas $gas, key $key',
+    async (scenario) => {
+      await FeePayer.assertScenario(scenario)
+    },
+  )
+
+  test('sponsors a fill on a chain with a default fee token', async () => {
+    // The relay's chain has no default, so its fill omits the fee token.
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const sender = Account.fromSecp256k1(generatePrivateKey())
+    const client = createClient({
+      chain: { ...Tempo.chain, feeToken: Tempo.addresses.alphaUsd },
+      transport: withRelay(Tempo.http(), http(server.url)),
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      account: sender,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  })
+
+  test.each(FeePayer.tampers)(
+    'rejects a $0 change after the fee payer signs',
+    async (tamper) => {
+      await FeePayer.assertTamperRejected(tamper)
+    },
+  )
+})

@@ -36,7 +36,8 @@ import * as Concurrent from './internal/concurrent.js'
 import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
-const maxExpirySecs = 25
+/** Default distance, in seconds, of a generated expiring nonce `validBefore`. Stays under the 300-second limit to allow for clock skew. */
+const expiringNonceExpiry = 270
 
 // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
 const serializeTransaction = ((transaction, signature) =>
@@ -165,7 +166,8 @@ export const chainConfig = {
           !request.feePayerSignature &&
           !approved
         ) {
-          // The fill omits the fee payer's signature and fee token (85 bytes), which count toward intrinsic gas.
+          // The fill omits the fee payer's signature and fee token (85 bytes), which count toward intrinsic gas,
+          // and, from T14, the cold access (2,600 gas) of the fee payer's account.
           request.gas = (request.gas ?? 0n) + feePayerGas
           if (request.keyAuthorization?.signature.type === 'webAuthn')
             request.gas = (request.gas ?? 0n) + 20_000n
@@ -259,11 +261,12 @@ export const chainConfig = {
         request.nonce = 0
       } else if (useExpiringNonce) {
         request.nonceKey = maxUint256
-        request.nonce ??= 0
-        if (typeof request.validAfter === 'undefined')
-          request.validAfter = randomValidAfter()
+        // A random discriminator keeps otherwise identical expiring transactions distinct.
+        // 48 bits stay within `Number.MAX_SAFE_INTEGER`.
+        request.nonce ??= Hex.toNumber(Hex.random(6))
         if (typeof request.validBefore === 'undefined')
-          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
+          request.validBefore =
+            Math.floor(Date.now() / 1000) + expiringNonceExpiry
       } else if (
         typeof request.nonceKey !== 'undefined' &&
         // Nonce key 0 is the protocol nonce, so core fills it like an Ethereum nonce.
@@ -506,14 +509,6 @@ function getSimulationKey(
   return { keyData: '0x0578' as const, keyType: 'webAuthn' as const }
 }
 
-/** Returns random past seconds to distinguish otherwise-identical expiring transactions. */
-function randomValidAfter(): number {
-  const now = BigInt(Math.floor(Date.now() / 1_000))
-  const latest = now - 60n
-  if (latest <= 0n) return 0
-  return Number(BigInt(Hex.random(8)) % latest)
-}
-
 /** Selects a deterministic minimum-cardinality owner quorum. */
 function selectOwners(config: AccountConfig.Config) {
   const owners = [...config.owners].sort(
@@ -533,5 +528,8 @@ function selectOwners(config: AccountConfig.Config) {
   )
 }
 
-/** Intrinsic gas reserved for a fee payer's signature and fee token, which `eth_fillTransaction` estimates without. */
+/**
+ * Intrinsic gas reserved for what `eth_fillTransaction` estimates without: the fee payer's signature and
+ * fee token, and, from T14, one cold access (2,600 gas) of the fee payer's account. Earlier forks refund the unused gas.
+ */
 const feePayerGas = 5_000n

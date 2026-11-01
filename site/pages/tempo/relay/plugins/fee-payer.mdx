@@ -73,6 +73,11 @@ Run the local fee-payer configuration only in a trusted server environment.
 Keep the signing key on your server. The sponsor needs a balance in the selected
 fee token. The sender needs the USDC.e being transferred.
 
+The fee payer signs over the gas limit and the fee token, so Viem treats the sender's values
+as preferences. A `gas` value is a floor: Viem and the relay add gas for the fee payer's
+signature. The fee payer chooses the fee token, and only a token set through
+[`feeToken`](#optionsfeetoken) is guaranteed.
+
 ### Inspect Sponsorship
 
 Use [`prepareTransactionRequest`](/docs/actions/wallet/prepareTransactionRequest)
@@ -502,8 +507,10 @@ Relay.feePayer({ validate: () => 'spend_limit_exceeded' }) // [!code focus]
 - **Default:** `3600`
 
 Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills
-without `validBefore` receive one, rounded to five-minute steps so identical retries
+without `validBefore` receive one, rounded to steps of at most five minutes so identical retries
 sign the same payload. `eth_signRawTransaction` requires a `validBefore` within this window.
+Expiring nonce transactions are capped at the protocol limit of 300 seconds, and generated
+windows for them stay 30 seconds under it to allow for clock skew.
 
 ```ts twoslash
 import { Relay } from 'viem/tempo'

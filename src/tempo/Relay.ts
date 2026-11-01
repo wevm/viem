@@ -450,7 +450,7 @@ export declare namespace feePayer {
     url?: string | undefined
     /** Only `true` authorizes sponsorship. Rejected fills fall back to sender-paid transactions. */
     validate?: Sponsorship.Validate | undefined
-    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. @default 3600 */
+    /** Longest on-chain validity, in seconds, of a returned fee-payer signature. Fills without `validBefore` receive one; `eth_signRawTransaction` requires one. Expiring nonce transactions are capped at `Transaction.expiringNonceMaxExpiry`. @default 3600 */
     validity?: number | undefined
   }
   /** Result of a sponsorship policy check. */
