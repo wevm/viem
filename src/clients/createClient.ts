@@ -62,6 +62,11 @@ export type ClientConfig<
   /**
    * [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration.
    * If `false`, the client will not support offchain CCIP lookups.
+   *
+   * Gateway URLs must be HTTP(S). A lookup follows at most 4 nested callbacks
+   * and 4 nested local batches, and makes at most 256 gateway requests, 16 at
+   * a time. Each gateway request, including the response body, uses the
+   * transport timeout (default 10 seconds) and reads at most 10 MiB.
    */
   ccipRead?:
     | {
