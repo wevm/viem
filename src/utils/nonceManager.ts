@@ -14,6 +14,17 @@ type FunctionParameters = {
   chainId: number
 }
 
+type ResetParameters = FunctionParameters & {
+  /**
+   * The nonce that `consume` returned for the send being reset.
+   *
+   * Set when a send fails after `consume` returned a nonce, and omitted
+   * when `consume` threw or `reset` is called outside of a send. Managers
+   * that track a nonce per send can use it to release that nonce only.
+   */
+  nonce?: number | undefined
+}
+
 export type NonceManager = {
   /** Get and increment a nonce. */
   consume: (
@@ -24,7 +35,7 @@ export type NonceManager = {
   /** Get a nonce. */
   get: (chainId: FunctionParameters & { client: Client }) => Promise<number>
   /** Reset a nonce. */
-  reset: (chainId: FunctionParameters) => void
+  reset: (chainId: ResetParameters) => void
 }
 
 /**
