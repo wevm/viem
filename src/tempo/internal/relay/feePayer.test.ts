@@ -23,6 +23,7 @@ import {
 } from 'viem/tempo'
 import { beforeAll, describe, expect, onTestFinished, test } from 'vitest'
 import * as Tempo from '~test/tempo/config.js'
+import * as FeePayer from '~test/tempo/feePayer.js'
 import { createHttpServer } from '~test/utils.js'
 import type * as Request from './request.js'
 import * as Utils from './utils.js'
@@ -1883,3 +1884,45 @@ declare namespace reencode {
     fn: (value: Hex.Hex) => Hex.Hex
   }
 }
+
+describe('scenarios', () => {
+  test.each(FeePayer.table())(
+    'sponsors $path with nonce $nonceMode, validity $validity, fee token $feeToken, gas $gas, key $key',
+    async (scenario) => {
+      await FeePayer.assertScenario(scenario)
+    },
+  )
+
+  test('sponsors a fill on a chain with a default fee token', async () => {
+    // The relay's chain has no default, so its fill omits the fee token.
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const sender = Account.fromSecp256k1(generatePrivateKey())
+    const client = createClient({
+      chain: { ...Tempo.chain, feeToken: Tempo.addresses.alphaUsd },
+      transport: withRelay(Tempo.http(), http(server.url)),
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      account: sender,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  })
+
+  test.each(FeePayer.tampers)(
+    'rejects a $0 change after the fee payer signs',
+    async (tamper) => {
+      await FeePayer.assertTamperRejected(tamper)
+    },
+  )
+})
