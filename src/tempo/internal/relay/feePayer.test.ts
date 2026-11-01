@@ -1893,6 +1893,32 @@ describe('scenarios', () => {
     },
   )
 
+  test('sponsors a fill on a chain with a default fee token', async () => {
+    // The relay's chain has no default, so its fill omits the fee token.
+    const relay = Relay.create({
+      client: caller,
+      plugins: [Relay.feePayer({ account: feePayerAccount })],
+    })
+    const server = await createHttpServer(createRequestListener(relay.fetch))
+    onTestFinished(async () => {
+      await server.close()
+    })
+    const sender = Account.fromSecp256k1(generatePrivateKey())
+    const client = createClient({
+      chain: { ...Tempo.chain, feeToken: Tempo.addresses.alphaUsd },
+      transport: withRelay(Tempo.http(), http(server.url)),
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      account: sender,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(receipt.feePayer).toBe(feePayerAccount.address.toLowerCase())
+  })
+
   test.each(FeePayer.tampers)(
     'rejects a $0 change after the fee payer signs',
     async (tamper) => {

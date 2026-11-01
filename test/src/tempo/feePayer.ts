@@ -78,7 +78,7 @@ export function table(): readonly Scenario[] {
       return {
         feeToken: feeTokens[index % feeTokens.length]!,
         gas: gases[(index + i) % gases.length]!,
-        key: keys[(index + j) % keys.length]!,
+        key: keys[(i + j) % keys.length]!,
         nonceMode,
         path,
         validity: validities[(index + i + j) % validities.length]!,
