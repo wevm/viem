@@ -232,6 +232,38 @@ describe('validateTypedData', () => {
     `)
   })
 
+  test.each(['bytes0', 'Foo', 'uint', 'uint7', 'uint7[]'])(
+    'invalid type in array element struct: %s',
+    (type) => {
+      for (const to of ['Person[]', 'Person[][]', 'Person[2]'])
+        expect(() =>
+          validateTypedData({
+            types: {
+              Mail: [{ name: 'to', type: to }],
+              Person: [{ name: 'x', type }],
+            },
+            primaryType: 'Mail',
+            message: { to: [] },
+          } as any),
+        ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
+  test.each(['__proto__', 'constructor', 'hasOwnProperty', 'toString'])(
+    'invalid type: %s',
+    (type) => {
+      expect(() =>
+        validateTypedData({
+          types: {
+            Message: [{ name: 'value', type }],
+          },
+          primaryType: 'Message',
+          message: { value: {} },
+        } as any),
+      ).toThrowError(`Type "${type}" is not a valid EIP-712 type.`)
+    },
+  )
+
   test.each([
     '1Order',
     '_Order',

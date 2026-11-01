@@ -300,6 +300,23 @@ test('invalid bytes width', () => {
   `)
 })
 
+test('invalid type in array element struct', () => {
+  expect(() =>
+    hashTypedData({
+      types: {
+        Mail: [{ name: 'to', type: 'Person[]' }],
+        Person: [{ name: 'x', type: 'uint7' }],
+      },
+      primaryType: 'Mail',
+      message: { to: [{ x: 1n }] },
+    } as any),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidTypedDataTypeError: Type "uint7" is not a valid EIP-712 type.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('https://github.com/wevm/viem/issues/2888', () => {
   expect(() =>
     hashTypedData({
