@@ -17,9 +17,10 @@ import type { Hex } from '../../types/misc.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
+import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
 import type * as Errors from '../errors.js'
-import * as internal from '../internal/attested.js'
+
 import { withExecutionError } from '../internal/errors.js'
 import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
@@ -123,7 +124,7 @@ export namespace cancelProposal {
     const { entry, isAnchor = false, policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'cancelProposal',
       args: [policyId, entry, isAnchor],
     })
@@ -137,7 +138,7 @@ export namespace cancelProposal {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'ProposalCancelled',
       strict: true,
@@ -206,7 +207,7 @@ export namespace cancelProposalSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'ProposalCancelled',
       { IndexedOnly: false; Required: true }
     > & {
@@ -280,7 +281,7 @@ export namespace computePolicyId {
     const { creator, salt } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'computePolicyId',
       args: [creator, salt],
     })
@@ -423,7 +424,7 @@ export namespace createPolicy {
     } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'createPolicy',
       args: [
         salt,
@@ -446,7 +447,7 @@ export namespace createPolicy {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'PolicyCreated',
       strict: true,
@@ -518,7 +519,7 @@ export namespace createPolicySync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'PolicyCreated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -593,7 +594,7 @@ export namespace getKeyValidUntil {
     const { x, y } = PublicKey.fromHex(programKey)
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'keyValidUntil',
       args: [
         policyId,
@@ -666,7 +667,7 @@ export namespace getMeasurementActiveAt {
     const { measurement, policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'measurementActiveAt',
       args: [policyId, measurement],
     })
@@ -779,7 +780,7 @@ export namespace getPolicy {
     const { policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'policy',
       args: [policyId],
     })
@@ -877,7 +878,7 @@ export namespace pause {
     const { policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'pause',
       args: [policyId],
     })
@@ -891,7 +892,7 @@ export namespace pause {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'PolicyPaused',
       strict: true,
@@ -959,7 +960,7 @@ export namespace pauseSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'PolicyPaused',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1066,7 +1067,7 @@ export namespace proposeMeasurement {
     const { measurement, policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'proposeMeasurement',
       args: [policyId, measurement],
     })
@@ -1080,7 +1081,7 @@ export namespace proposeMeasurement {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'MeasurementProposed',
       strict: true,
@@ -1149,7 +1150,7 @@ export namespace proposeMeasurementSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'MeasurementProposed',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1274,7 +1275,7 @@ export namespace registerKey {
     const { x, y } = PublicKey.fromHex(programKey)
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'registerKey',
       args: [
         policyId,
@@ -1295,7 +1296,7 @@ export namespace registerKey {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'KeyRegistered',
       strict: true,
@@ -1366,7 +1367,7 @@ export namespace registerKeySync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'KeyRegistered',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1473,7 +1474,7 @@ export namespace removeMeasurement {
     const { measurement, policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'removeMeasurement',
       args: [policyId, measurement],
     })
@@ -1487,7 +1488,7 @@ export namespace removeMeasurement {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'MeasurementRemoved',
       strict: true,
@@ -1556,7 +1557,7 @@ export namespace removeMeasurementSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'MeasurementRemoved',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1659,7 +1660,7 @@ export namespace revokeKeys {
     const { policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'revokeKeys',
       args: [policyId],
     })
@@ -1673,7 +1674,7 @@ export namespace revokeKeys {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'KeysRevoked',
       strict: true,
@@ -1741,7 +1742,7 @@ export namespace revokeKeysSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'KeysRevoked',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1848,7 +1849,7 @@ export namespace setMaxKeyLifetime {
     const { maxKeyLifetime, policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'setMaxKeyLifetime',
       args: [policyId, BigInt(maxKeyLifetime)],
     })
@@ -1862,7 +1863,7 @@ export namespace setMaxKeyLifetime {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'MaxKeyLifetimeChanged',
       strict: true,
@@ -1931,7 +1932,7 @@ export namespace setMaxKeyLifetimeSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'MaxKeyLifetimeChanged',
       { IndexedOnly: false; Required: true }
     > & {
@@ -2034,7 +2035,7 @@ export namespace unpause {
     const { policyId } = args
     return defineCall({
       address: Addresses.attestedKeyRegistry,
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       functionName: 'unpause',
       args: [policyId],
     })
@@ -2048,7 +2049,7 @@ export namespace unpause {
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: internal.abi,
+      abi: Abis.attestedKeyRegistry,
       logs,
       eventName: 'PolicyPaused',
       strict: true,
@@ -2116,7 +2117,7 @@ export namespace unpauseSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof internal.abi,
+      typeof Abis.attestedKeyRegistry,
       'PolicyPaused',
       { IndexedOnly: false; Required: true }
     > & {

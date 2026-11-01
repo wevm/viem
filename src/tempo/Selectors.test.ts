@@ -19,6 +19,10 @@ const selectorDefinitions = {
     abi: Abis.addressRegistry,
     selectors: Selectors.addressRegistry,
   },
+  attestedKeyRegistry: {
+    abi: Abis.attestedKeyRegistry,
+    selectors: Selectors.attestedKeyRegistry,
+  },
   configurableAccount: {
     abi: Abis.configurableAccount,
     selectors: Selectors.configurableAccount,

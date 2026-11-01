@@ -180,6 +180,15 @@ function tempoAdapter(): SourceAdapter {
   const extensions: Record<string, string[]> = {
     ITIP20: ['IRolesAuth'],
   }
+  // Experimental precompiles that Tempo main does not have yet, read at a pinned commit of their branch.
+  // Each one is dropped from this list once Tempo main has it.
+  const experimental = [
+    {
+      // Attested Key Registry (TIP-1161), tempoxyz/tempo#8821 (`exp/attested-signers`).
+      name: 'attested_key_registry.rs',
+      ref: 'c507923750a0188541046cf4ca35c3716ead2c8f',
+    },
+  ] as const
   const outputs = {
     abis: Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts'),
     selectors: Path.resolve(import.meta.dirname, '../src/tempo/Selectors.ts'),
@@ -244,7 +253,16 @@ function tempoAdapter(): SourceAdapter {
     const entries = await getJson<readonly GitHubContent[]>(
       `${repository}/contents/crates/contracts/src/precompiles?ref=${encodeURIComponent(ref)}`,
     )
-    const files = entries
+    const pinned = await Promise.all(
+      experimental
+        .filter(({ name }) => !entries.some((entry) => entry.name === name))
+        .map(({ name, ref }) =>
+          getJson<GitHubContent>(
+            `${repository}/contents/crates/contracts/src/precompiles/${name}?ref=${ref}`,
+          ),
+        ),
+    )
+    const files = [...entries, ...pinned]
       .filter(
         (entry) =>
           entry.type === 'file' &&

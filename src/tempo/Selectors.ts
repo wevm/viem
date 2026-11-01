@@ -49,6 +49,28 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
+export const attestedKeyRegistry = {
+  anchorActiveAt: '0xbb8fcdb1',
+  cancelProposal: '0xf60d8581',
+  computePolicyId: '0xd9954df4',
+  createPolicy: '0x132f2ec3',
+  keyValidUntil: '0x89c45cf8',
+  measurementActiveAt: '0xe9324bd1',
+  pause: '0xed56531a',
+  policy: '0x115f746c',
+  proposeAnchor: '0x62195124',
+  proposeMeasurement: '0x013baaa5',
+  registerKey: '0xd2932210',
+  removeAnchor: '0x9b50b21f',
+  removeMeasurement: '0x7056429a',
+  revokeKeys: '0x030b10fd',
+  setDelay: '0xcc026f37',
+  setGuardian: '0xd3674b18',
+  setMaxKeyLifetime: '0xb0c48e3e',
+  transferOwnership: '0xef5d6bbb',
+  unpause: '0x2f4dae9f',
+} as const satisfies FunctionSelectors<typeof Abis.attestedKeyRegistry>
+
 export const configurableAccount = {
   deriveAccount: '0xce8e071c',
   getConfigCommitment: '0x5bd93359',
