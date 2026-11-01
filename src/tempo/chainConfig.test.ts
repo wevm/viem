@@ -193,9 +193,9 @@ describe('prepareTransactionRequest', () => {
     expect(requests[1]?.validAfter).toBeLessThan(now)
     expect(requests[2]?.validAfter).toBeLessThan(now)
 
-    // All should have validBefore set 120 seconds ahead
-    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now + 120)
-    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 121)
+    // All should have validBefore set 270 seconds ahead
+    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: explicit nonceKey overrides expiring nonce', async () => {
@@ -275,8 +275,8 @@ describe('prepareTransactionRequest', () => {
     })
     expect(request?.nonceKey).toBe(maxUint256)
     expect(request?.nonce).toBe(0)
-    expect(request?.validBefore).toBeGreaterThanOrEqual(now + 120)
-    expect(request?.validBefore).toBeLessThanOrEqual(now + 121)
+    expect(request?.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request?.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: numeric expiring nonce sentinel gets a validity window', async () => {
@@ -288,8 +288,8 @@ describe('prepareTransactionRequest', () => {
 
     expect(request.nonceKey).toBe(maxUint256)
     expect(request.nonce).toBe(0)
-    expect(request.validBefore).toBeGreaterThanOrEqual(now + 120)
-    expect(request.validBefore).toBeLessThanOrEqual(now + 121)
+    expect(request.validBefore).toBeGreaterThanOrEqual(now + 270)
+    expect(request.validBefore).toBeLessThanOrEqual(now + 271)
   })
 
   test('behavior: explicit validity window is preserved', async () => {

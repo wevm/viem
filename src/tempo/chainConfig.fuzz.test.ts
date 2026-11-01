@@ -116,7 +116,7 @@ describe('prepareTransactionRequest: fuzz', () => {
                 expect(output.validAfter).toBeGreaterThanOrEqual(0)
                 expect(output.validAfter).toBeLessThan(now - 60)
               }
-              expect(output.validBefore).toBe(input.validBefore ?? now + 120)
+              expect(output.validBefore).toBe(input.validBefore ?? now + 270)
               continue
             }
 

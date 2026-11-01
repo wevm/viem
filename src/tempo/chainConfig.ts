@@ -36,8 +36,8 @@ import * as Concurrent from './internal/concurrent.js'
 import { transactionReplacement } from './internal/replacement.js'
 import * as Transaction from './Transaction.js'
 
-/** Default distance, in seconds, of a generated expiring nonce `validBefore`. */
-const expiringNonceExpiry = 120
+/** Default distance, in seconds, of a generated expiring nonce `validBefore`. Stays under the 300-second limit to allow for clock skew. */
+const expiringNonceExpiry = 270
 
 // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
 const serializeTransaction = ((transaction, signature) =>
