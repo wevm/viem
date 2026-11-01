@@ -528,6 +528,56 @@ describe('behavior: nonceManager', () => {
     expect(b!.nonce).toBe(a!.nonce + 1n)
   })
 
+  test('resets without a nonce when consume throws', async () => {
+    const nonceManager = NonceManager.from({
+      source: {
+        get() {
+          throw new Error('source unavailable')
+        },
+        set() {},
+      },
+    })
+    const reset = vi.spyOn(nonceManager, 'reset')
+    const account = {
+      ...Account.fromPrivateKey(constants.accounts[3].privateKey),
+      nonceManager,
+    }
+
+    const error = await Actions.transaction
+      .send(client, { account, to, value: 1n })
+      .catch((error) => error)
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(reset).toHaveBeenCalledOnce()
+    expect(reset.mock.calls[0]![0]).toMatchObject({
+      address: account.address,
+      chainId: 1,
+    })
+    expect(reset.mock.calls[0]![0]).not.toHaveProperty('nonce')
+  })
+
+  test('resets with the consumed nonce when the broadcast fails', async () => {
+    const nonceManager = NonceManager.jsonRpc()
+    const consume = vi.spyOn(nonceManager, 'consume')
+    const reset = vi.spyOn(nonceManager, 'reset')
+    const account = {
+      ...Account.fromPrivateKey(constants.accounts[3].privateKey),
+      nonceManager,
+    }
+
+    const error = await Actions.transaction
+      .send(client, { account, gas: 100n, to, value: 1n })
+      .catch((error) => error)
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(consume).toHaveBeenCalledOnce()
+    const nonce = await consume.mock.results[0]!.value
+    expect(reset).toHaveBeenCalledOnce()
+    expect(reset.mock.calls[0]![0]).toMatchObject({
+      address: account.address,
+      chainId: 1,
+      nonce,
+    })
+  })
+
   test('resets the nonce when the send fails', async () => {
     const nonceManager = NonceManager.jsonRpc()
     const account = {

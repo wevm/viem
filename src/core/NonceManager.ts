@@ -18,7 +18,7 @@ export type NonceManager = {
   /** Increment a nonce. */
   increment: (options: NonceManager.Parameters) => void
   /** Reset a nonce. */
-  reset: (options: NonceManager.Parameters) => void
+  reset: (options: NonceManager.ResetParameters) => void
 }
 
 export declare namespace NonceManager {
@@ -28,6 +28,18 @@ export declare namespace NonceManager {
     address: Address.Address
     /** The chain id. */
     chainId: number
+  }
+
+  /** Parameters passed to {@link NonceManager} `reset`. */
+  type ResetParameters = Parameters & {
+    /**
+     * The nonce that `consume` returned for the send being reset.
+     *
+     * Set when a send fails after `consume` returned a nonce, and omitted
+     * when `consume` threw or `reset` is called outside of a send. Managers
+     * that track a nonce per send can use it to release that nonce only.
+     */
+    nonce?: number | undefined
   }
 
   /** Backing store a {@link NonceManager} reads seed nonces from and writes to. */
