@@ -2,10 +2,10 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const hashkey = /*#__PURE__*/ defineChain({
   id: 177,
-  name: 'HashKey Chain',
+  name: 'HSKChain',
   nativeCurrency: {
     decimals: 18,
-    name: 'HashKey EcoPoints',
+    name: 'HashKey Platform Token',
     symbol: 'HSK',
   },
   rpcUrls: {
@@ -15,8 +15,8 @@ export const hashkey = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'HashKey Chain Explorer',
-      url: 'https://hashkey.blockscout.com',
+      name: 'HSKChain Explorer',
+      url: 'https://hsk.blockscout.com',
     },
   },
   contracts: {

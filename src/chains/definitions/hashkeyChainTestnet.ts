@@ -2,10 +2,10 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const hashkeyTestnet = /*#__PURE__*/ defineChain({
   id: 133,
-  name: 'HashKey Chain Testnet',
+  name: 'HSKChain Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'HashKey EcoPoints',
+    name: 'HashKey Platform Token',
     symbol: 'HSK',
   },
   rpcUrls: {
@@ -15,8 +15,8 @@ export const hashkeyTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'HashKey Chain Testnet explorer',
-      url: 'https://testnet-explorer.hsk.xyz',
+      name: 'HSKChain Testnet explorer',
+      url: 'https://testnet-explorer.hskchain.net',
     },
   },
   testnet: true,
