@@ -100,8 +100,10 @@ export async function localBatchGatewayRequest(parameters: {
               details: `CCIP Read exceeded the maximum number of queries (${ccipReadLimit.queries}).`,
               url: query.urls[0] ?? '',
             })
-          budget.queries--
-          responses[i] = await budget.run(() => ccipRequest(query))
+          // Each URL is a gateway request, so each one draws from the budget.
+          const urls = query.urls.slice(0, budget.queries)
+          budget.queries -= urls.length
+          responses[i] = await budget.run(() => ccipRequest({ ...query, urls }))
         }
         failures[i] = false
       } catch (err) {

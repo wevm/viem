@@ -1,4 +1,9 @@
-import { createPublicClient, HttpRequestError, TimeoutError } from 'viem'
+import {
+  createPublicClient,
+  fallback,
+  HttpRequestError,
+  TimeoutError,
+} from 'viem'
 import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~contracts/generated.js'
@@ -650,6 +655,111 @@ describe('ccipRequest', async () => {
       return undefined
     })()
     expect(cause?.details).toMatchInlineSnapshot(`"The request timed out."`)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
+  test('transport timeout through fallback', async () => {
+    const gateway = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end('0xabcd')
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        [`${gateway.url}/{sender}/{data}`],
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as { id?: number }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: revertData,
+          },
+        }),
+      )
+    })
+    const publicClient = createPublicClient({
+      transport: fallback([http(rpc.url, { timeout: 50 })]),
+    })
+
+    const caught = await publicClient.call({ data: '0x', to: contract }).then(
+      () => undefined,
+      (error: unknown) => error,
+    )
+
+    const cause = (() => {
+      let current = caught
+      while (current instanceof Error) {
+        if (current instanceof TimeoutError) return current
+        current = current.cause
+      }
+      return undefined
+    })()
+    expect(cause?.details).toMatchInlineSnapshot(`"The request timed out."`)
+
+    await gateway.close()
+    await rpc.close()
+  })
+
+  test('each url draws from the query budget', async () => {
+    const seen: string[] = []
+    const gateway = await createHttpServer((req, res) => {
+      seen.push(req.url ?? '')
+      res.writeHead(500)
+      res.end()
+    })
+
+    const contract = '0x0000000000000000000000000000000000000001' as const
+    const revertData = encodeErrorResult({
+      abi: [offchainLookupAbiItem],
+      errorName: 'OffchainLookup',
+      args: [
+        contract,
+        Array.from({ length: 300 }, (_, i) => `${gateway.url}/u${i}`),
+        '0x',
+        '0xcafebabe',
+        '0x',
+      ],
+    })
+    const rpc = await createHttpServer(async (req, res) => {
+      let body = ''
+      for await (const chunk of req) body += chunk
+      const request = JSON.parse(body) as { id?: number }
+      res.setHeader('Content-Type', 'application/json')
+      res.end(
+        JSON.stringify({
+          id: request.id,
+          jsonrpc: '2.0',
+          error: {
+            code: 3,
+            message: 'execution reverted',
+            data: revertData,
+          },
+        }),
+      )
+    })
+    const publicClient = createPublicClient({ transport: http(rpc.url) })
+
+    await publicClient.call({ data: '0x', to: contract }).catch(() => {})
+
+    expect(seen.length).toMatchInlineSnapshot(`256`)
 
     await gateway.close()
     await rpc.close()

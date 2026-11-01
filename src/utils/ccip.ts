@@ -114,7 +114,7 @@ export async function offchainLookup<chain extends Chain | undefined>(
     ccipRead && typeof ccipRead?.request === 'function'
       ? ccipRead.request
       : ccipRequest
-  const timeout = client.transport.timeout
+  const timeout = getTransportTimeout(client.transport)
 
   try {
     if (depth >= ccipReadLimit.depth)
@@ -144,14 +144,16 @@ export async function offchainLookup<chain extends Chain | undefined>(
           details: `CCIP Read exceeded the maximum number of queries (${ccipReadLimit.queries}).`,
           url: urls[0] ?? '',
         })
-      budget.queries--
+      // Each URL is a gateway request, so each one draws from the budget.
+      const urls_ = urls.slice(0, budget.queries)
+      budget.queries -= urls_.length
       return budget.run(() =>
         ccipRequest_({
           data: callData,
           requestOptions,
           sender,
           timeout,
-          urls,
+          urls: urls_,
         }),
       )
     })()
@@ -359,4 +361,22 @@ function assertCcipUrl(url: string) {
     details: `CCIP Read URL scheme "${parsed.protocol.slice(0, -1)}" is not allowed.`,
     url,
   })
+}
+
+type TimeoutTransport = {
+  config?: { timeout?: number | undefined } | undefined
+  timeout?: number | undefined
+  transports?: readonly TimeoutTransport[] | undefined
+  value?: { transports?: readonly TimeoutTransport[] | undefined } | undefined
+}
+
+/**
+ * Returns the transport timeout, following wrapped transports (such as
+ * `fallback`) to their first transport when the wrapper sets none.
+ */
+function getTransportTimeout(transport: TimeoutTransport): number | undefined {
+  const timeout = transport.timeout ?? transport.config?.timeout
+  if (timeout !== undefined) return timeout
+  const [first] = transport.transports ?? transport.value?.transports ?? []
+  return first ? getTransportTimeout(first) : undefined
 }
