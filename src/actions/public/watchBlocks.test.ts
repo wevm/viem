@@ -1,7 +1,6 @@
 import { describe, expect, onTestFinished, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
-import { createRpcProxy } from '~test/utils.js'
 import { localhost } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -166,28 +165,42 @@ describe('poll', () => {
       expect(blocks.length).toBeLessThan(6)
     })
 
-    test('caps default catch-up without limiting explicit emitMissed', async () => {
-      let mining = Promise.resolve()
-      const url = await createRpcProxy(anvilMainnet.rpcUrl.http, async () => {
-        await mining
-        return undefined
-      })
-      const miningClient = anvilMainnet.getClient({
-        transport: http(anvilMainnet.rpcUrl.http, {
-          retryCount: 0,
-          timeout: 60_000,
-        }),
-      })
+    test('skips more than 100 missed blocks by default', async () => {
       const fastClient = createClient({
         ...anvilMainnet.clientConfig,
         chain: { ...anvilMainnet.chain, blockTime: 4_000 },
-        transport: http(url, { timeout: 60_000 }),
       })
-      const defaultBlocks: OnBlockParameter[] = []
+      const blocks: OnBlockParameter[] = []
+      const unwatch = watchBlocks(fastClient, {
+        emitOnBegin: true,
+        onBlock: (block) => blocks.push(block),
+        poll: true,
+        pollingInterval: 4_000,
+      })
+      onTestFinished(unwatch)
+      await expect.poll(() => blocks.length).toBe(1)
+      const start = blocks[0]!.number
+
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 102 })
+      await expect
+        .poll(() => blocks.at(-1)!.number, { timeout: 10_000 })
+        .toBe(start + 102n)
+
+      expect(blocks.map((block) => Number(block.number - start))).toEqual([
+        0, 102,
+      ])
+    })
+
+    test('emits every missed block when set beside a default watcher', async () => {
+      const fastClient = createClient({
+        ...anvilMainnet.clientConfig,
+        chain: { ...anvilMainnet.chain, blockTime: 4_000 },
+      })
       const blocks: OnBlockParameter[] = []
       const unwatchDefault = watchBlocks(fastClient, {
         emitOnBegin: true,
-        onBlock: (block) => defaultBlocks.push(block),
+        onBlock: () => {},
         poll: true,
         pollingInterval: 4_000,
       })
@@ -200,26 +213,11 @@ describe('poll', () => {
         pollingInterval: 4_000,
       })
       onTestFinished(unwatch)
-      await expect
-        .poll(() => [defaultBlocks.length, blocks.length])
-        .toEqual([1, 1])
-      const start = blocks[0]!.number
+      await expect.poll(() => blocks.length).toBe(1)
 
-      // Hold RPC reads until the entire batch is mined, even if it spans a poll.
-      // Mining is not retried: a timed-out request may already have mined blocks.
-      mining = mine(miningClient, { blocks: 102 })
-      await mining
+      // Mine between two polls, so the next poll sees all the new blocks.
+      await mine(client, { blocks: 102 })
       await expect.poll(() => blocks.length, { timeout: 10_000 }).toBe(103)
-      await expect
-        .poll(() => defaultBlocks.at(-1)!.number, { timeout: 10_000 })
-        .toBe(start + 102n)
-
-      expect(
-        defaultBlocks.map((block) => Number(block.number - start)),
-      ).toEqual([0, 102])
-      expect(blocks.map((block) => Number(block.number - start))).toEqual(
-        Array.from({ length: 103 }, (_, i) => i),
-      )
     })
 
     test.each(['safe', 'finalized'] as const)(

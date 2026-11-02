@@ -1618,13 +1618,23 @@ describe('local account', () => {
           }),
           node.pooled.then(() => mine(client, { blocks: 1 })),
         ]),
-      ).rejects.toMatchObject({
-        name: 'TransactionExecutionError',
-        cause: {
-          name: 'TransactionReceiptRevertedError',
-          receipt: { status: 'reverted', to: contractAddress },
-        },
-      })
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [TransactionExecutionError: Transaction with hash "0x44b405a338bc8efa6bd0382b0d989c4ee19080d2f855969bd1c6d888cd307edc" reverted.
+
+        The receipt marked the transaction as "reverted". This could mean that the function on the contract you are trying to call threw an error.
+         
+        You can attempt to extract the revert reason by:
+        - calling the \`simulateContract\` or \`simulateCalls\` Action with the \`abi\` and \`functionName\` of the contract
+        - using the \`call\` Action with raw \`data\`
+         
+        Request Arguments:
+          from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:    0x1c2fb12ecca5edb9ac8da583caa865e7c893a7ef
+          data:  0x940b8802
+          gas:   100000
+
+        Version: viem@x.y.z]
+      `)
     })
 
     test('throws when `timeout` runs out', async () => {
@@ -1638,10 +1648,16 @@ describe('local account', () => {
           to: targetAccount.address,
           value: parseEther('1'),
         }),
-      ).rejects.toMatchObject({
-        name: 'TransactionExecutionError',
-        cause: { name: 'WaitForTransactionReceiptTimeoutError' },
-      })
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [TransactionExecutionError: Timed out while waiting for transaction with hash "0xcfadf13a6d4f54a8d85c1453fc787c3db27397def8cfa034b584fc454f21567f" to be confirmed.
+
+        Request Arguments:
+          from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+          value:  1 ETH
+
+        Version: viem@x.y.z]
+      `)
 
       await mine(client, { blocks: 1 })
     })
