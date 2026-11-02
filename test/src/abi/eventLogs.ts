@@ -1,7 +1,7 @@
 /* c8 ignore start */
 
-import type { AbiEvent, AbiParameter } from 'abitype'
 import fc from 'fast-check'
+import type { AbiEvent, AbiParameter } from '../../../src/index.js'
 import type { Log } from '../../../src/types/log.js'
 import type { Hex } from '../../../src/types/misc.js'
 import { encodeAbiParameters } from '../../../src/utils/abi/encodeAbiParameters.js'
@@ -278,7 +278,5 @@ export function lowercase(value: unknown): unknown {
 }
 
 export function indexedCount(event: AbiEvent) {
-  return event.inputs.filter(
-    (input: AbiEvent['inputs'][number]) => input.indexed,
-  ).length
+  return event.inputs.filter((input) => input.indexed).length
 }
