@@ -209,7 +209,8 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
         if (typeof arg !== 'string' && !(arg instanceof Uint8Array))
           return false
         const bytes = abiParameterType.slice(5)
-        if (!bytes) return true
+        // Dynamic `bytes` is hex or raw bytes. A plain string is only `string`.
+        if (!bytes) return arg instanceof Uint8Array || isHex(arg)
         if (typeof arg === 'string' && !isHex(arg)) return false
         return size(arg) === Number.parseInt(bytes, 10)
       }

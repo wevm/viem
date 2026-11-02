@@ -251,6 +251,46 @@ test('overloads: distinguishable values in either ABI order', () => {
   `)
 })
 
+test('overloads: string vs bytes', () => {
+  expect(
+    encodeFunctionData({
+      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      functionName: 'foo',
+      args: ['hello'],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0xf31a69690000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000"`,
+  )
+
+  expect(
+    encodeFunctionData({
+      abi: parseAbi(['function foo(bytes[])', 'function foo(string[])']),
+      functionName: 'foo',
+      args: [['hello']],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x223f0b60000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000568656c6c6f000000000000000000000000000000000000000000000000000000"`,
+  )
+
+  expect(() =>
+    encodeFunctionData({
+      abi: parseAbi(['function foo(bytes)', 'function foo(string)']),
+      functionName: 'foo',
+      args: ['0x68656c6c6f'],
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [AbiItemAmbiguityError: Found ambiguous types in overloaded ABI items.
+
+    \`string\` in \`foo(string)\`, and
+    \`bytes\` in \`foo(bytes)\`
+
+    These types encode differently and cannot be distinguished at runtime.
+    Remove one of the ambiguous items in the ABI.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('overloads: bytes32 vs bytes', () => {
   const hash =
     '0x0000000000000000000000000000000000000000000000000000000000000001'
