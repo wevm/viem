@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "node scripts/copy-vocs-theme.mjs && vocs build",
+    "build": "node scripts/copy-vocs-theme.mjs && node scripts/build-embeddings.mjs && vocs build --no-embeddings",
     "dev": "vocs dev",
     "og:generate": "node --import tsx og/generate-home.tsx",
     "prebuild": "node ../scripts/docs:sync-utils.ts --if-needed",
