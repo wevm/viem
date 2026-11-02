@@ -2616,6 +2616,18 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Relay',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/tempo/guides/relay' },
+              {
+                text: 'Connect to a Relay',
+                link: '/tempo/guides/relay/connect',
+              },
+              { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
+            ],
+          },
+          {
             badge: { text: 'EXP', variant: 'warning' },
             text: 'Configurable Accounts',
             collapsed: true,
@@ -3633,18 +3645,36 @@ export default defineConfig({
         text: 'Relay',
         items: [
           { text: 'Overview', link: '/tempo/relay' },
-          { text: 'Guide', link: '/tempo/guides/relay' },
-          { text: 'Connect', link: '/tempo/guides/relay/connect' },
-          { text: 'Run a Relay', link: '/tempo/guides/relay/run' },
-          { text: 'Fee Payer', link: '/tempo/relay/plugins/fee-payer' },
-          { text: 'Fee Token', link: '/tempo/relay/plugins/fee-token' },
           {
-            text: 'Key Authorization',
-            link: '/tempo/relay/plugins/key-authorization',
+            text: 'Plugins',
+            items: [
+              {
+                badge: { text: 'EXP', variant: 'warning' },
+                text: 'Relay.accounts',
+                link: '/tempo/relay/plugins/accounts',
+              },
+              {
+                text: 'Relay.autoSwap',
+                link: '/tempo/relay/plugins/auto-swap',
+              },
+              {
+                text: 'Relay.feePayer',
+                link: '/tempo/relay/plugins/fee-payer',
+              },
+              {
+                text: 'Relay.feeToken',
+                link: '/tempo/relay/plugins/fee-token',
+              },
+              {
+                text: 'Relay.keyAuthorization',
+                link: '/tempo/relay/plugins/key-authorization',
+              },
+              {
+                text: 'Relay.simulate',
+                link: '/tempo/relay/plugins/simulate',
+              },
+            ],
           },
-          { text: 'Simulate', link: '/tempo/relay/plugins/simulate' },
-          { text: 'Accounts', link: '/tempo/relay/plugins/accounts' },
-          { text: 'Auto Swap', link: '/tempo/relay/plugins/auto-swap' },
         ],
       },
       {
