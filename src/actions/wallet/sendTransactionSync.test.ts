@@ -1604,37 +1604,31 @@ describe('local account', () => {
       const { contractAddress } = await deployErrorExample()
       const node = await createNode((hash) => hash)
 
-      await expect(() =>
-        Promise.all([
-          sendTransaction(node.client, {
-            account: privateKeyToAccount(sourceAccount.privateKey),
-            data: encodeFunctionData({
-              abi: ErrorsExample.abi,
-              functionName: 'revertWrite',
-            }),
-            gas: 100_000n,
-            throwOnReceiptRevert: true,
-            to: contractAddress!,
+      const [error, hash] = await Promise.all([
+        sendTransaction(node.client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          data: encodeFunctionData({
+            abi: ErrorsExample.abi,
+            functionName: 'revertWrite',
           }),
-          node.pooled.then(() => mine(client, { blocks: 1 })),
-        ]),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [TransactionExecutionError: Transaction with hash "0x44b405a338bc8efa6bd0382b0d989c4ee19080d2f855969bd1c6d888cd307edc" reverted.
-
-        The receipt marked the transaction as "reverted". This could mean that the function on the contract you are trying to call threw an error.
-         
-        You can attempt to extract the revert reason by:
-        - calling the \`simulateContract\` or \`simulateCalls\` Action with the \`abi\` and \`functionName\` of the contract
-        - using the \`call\` Action with raw \`data\`
-         
-        Request Arguments:
-          from:  0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-          to:    0x1c2fb12ecca5edb9ac8da583caa865e7c893a7ef
-          data:  0x940b8802
-          gas:   100000
-
-        Version: viem@x.y.z]
-      `)
+          gas: 100_000n,
+          throwOnReceiptRevert: true,
+          to: contractAddress!,
+        }).catch((error: Error) => error),
+        node.pooled.then(async (hash) => {
+          await mine(client, { blocks: 1 })
+          return hash
+        }),
+      ])
+      // The hash and the contract address depend on the chain state, so the
+      // assertions compare the hash with the one that the node pooled.
+      expect(error).toBeInstanceOf(Error)
+      expect((error as Error).name).toMatchInlineSnapshot(
+        `"TransactionExecutionError"`,
+      )
+      expect((error as Error).message).toContain(
+        `Transaction with hash "${hash}" reverted.`,
+      )
     })
 
     test('throws when `timeout` runs out', async () => {
